@@ -40,6 +40,34 @@ contour(nu_plot,lambda_plot,lnL,200);
 xlabel('nu');
 ylabel('lambda');
 zlabel('-lnL');
+[nu_plot,lambda_plot,alpha_plot] = meshgrid(linspace(200,1000,30),linspace(0.1,4,30),linspace(40,120,3));
+lnL = zeros(30,30,3);
+for i = 1:3
+    for j = 1:30
+        for k = 1:30 
+            lnL(k,j,i) = model.lnL([nu_plot(k,j,i),alpha_plot(k,j,i),lambda_plot(k,j,i)],X);
+        end
+    end
+end
+figure;
+contourslice(nu_plot,lambda_plot,alpha_plot,lnL,0,[],linspace(40,120,3),50);
+
+[nu_plot,lambda_plot,alpha_plot] = meshgrid(linspace(200,1000,10),linspace(0.1,4,10),linspace(40,120,3));
+grad_1 = zeros(10,10,3);
+grad_2 = zeros(10,10,3);
+grad_3 = zeros(10,10,3);
+parfor i = 1:3
+    for j = 1:10
+        for k = 1:10 
+            grad = model.gradient([nu_plot(k,j,i),alpha_plot(k,j,i),lambda_plot(k,j,i)],2E4);
+            grad_1(k,j,i) = grad(1);
+            grad_2(k,j,i) = grad(2);
+            grad_3(k,j,i) = grad(3);
+        end
+    end
+end
+hold on;
+quiver3(nu_plot,lambda_plot,alpha_plot,grad_1,grad_3,grad_2,0.1,'Marker','o','MarkerSize',2);
 
 %EXPERIMENT 2
 %Plot emperical sampling distribution when estimating the parameters

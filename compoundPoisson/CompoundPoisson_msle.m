@@ -68,6 +68,8 @@ classdef CompoundPoisson_msle < handle
             objective = @(parameters)this.lnL(parameters,X);
             %minimise the minus log likelihood
             [mle,lnL] = fminunc(objective,initial_parameters,optimoptions(@fminunc,'Display','off','Algorithm','quasi-newton'));
+            %[mle,lnL] = fminunc(objective,initial_parameters,optimoptions(@fminunc,'Display','off','Algorithm','trust-region','GradObj','on'));
+            %mle = this.stochasticGradientDescent(X,initial_parameters,10000,0.0001,0.000001);
         end
 
         %PLOT EMPERICAL SAMPLING DISTRIBUTION
@@ -126,7 +128,10 @@ classdef CompoundPoisson_msle < handle
         %PARAMETERS:
             %parameters: 3 vector containing the parameters
             %X: row vector containing data
-        function log_likelihood = lnL(this,parameters,X)
+        %RETURN
+            %log_likelihood: -lnL
+            %grad: gradient
+        function [log_likelihood, grad] = lnL(this,parameters,X)
 
             %get the parameters
             nu = parameters(1);
@@ -155,6 +160,19 @@ classdef CompoundPoisson_msle < handle
             else
                 log_likelihood = inf;
             end
+            
+            %if require the gradient, return it
+            if nargin > 1
+                %initalise a 3 x n matrix
+                %each column is the gradient for each data point
+                grad = zeros(3,n);
+                %for each datapoint, work out the gradient
+                for i = 1:n
+                    grad(:,i) = this.gradient(parameters,X(i));
+                end
+                %sum the gradient over each data point
+                grad = sum(grad,2);
+            end
         end
         
         %PLOT SIMULATION
@@ -164,7 +182,7 @@ classdef CompoundPoisson_msle < handle
             %alpha: gamma shape parameter
             %lambda: gamma rate parameter
             %n_bins: number of bins for the histogram
-        function plotSimulation(this,nu,alpha,lambda,n_bins)
+        function X = plotSimulation(this,n,nu,alpha,lambda,n_bins)
             
             %simulate the data
             X = this.simulateData(n,nu,alpha,lambda);
@@ -195,6 +213,97 @@ classdef CompoundPoisson_msle < handle
             xlabel('Support');
             ylabel('p.d.f.');
             legend('Exact simulation','Saddlepoint approx.');
+        end
+        
+        %STOCHASTIC GRADIENT DESCENT
+        %PARAMETERS:
+            %X: row vector of data
+            %intial: 3 row vector of the initial parameters
+            %n_step: number of steps
+            %step_size: step size of each stop in stochastic gradient descent
+            %tolerance: how much as a ratio the parameter can change before stopping the algorithm
+        %RETURN:
+            %mle: 3 row vector for the optimised parameter
+            %mle_path: design matrix transpose (3 x n_step+1) form of the mle at each step of stochastic gradient descent
+        function [mle,mle_path] = stochasticGradientDescent(this,X,initial,n_step,step_size,tolerance)
+            
+            %mle_path is a (3 x n_step+1), each column is the mle at each step
+            mle_path = zeros(3,n_step+1);
+            %on the zeroth step, the mle is the initial value
+            mle_path(:,1) = initial';
+            mle = initial;
+            %tolerance_met is false, becomes true when the parameters doesn't change that much compared to tolerance
+            tolerance_met = false;
+            
+            %for n_step times
+            for i = 1:n_step
+                %if the tolerance hasn't been met, update the mle
+                if ~tolerance_met
+                    %get a datapoint in sequence
+                    x = X(mod(i-1,numel(X))+1);
+                    %do stochastic gradient descent
+                    mle_new = mle - step_size * this.gradient(mle,x);
+                    %if all the parameters are positive
+                    if all(mle_new>0)
+                        %check if the tolerance has been met
+                        if all(abs(1-mle_new./mle))<tolerance
+                            %if so, set tolerance_met = true
+                            tolerance_met = true;
+                        end
+                        %update the mle
+                        mle = mle_new;
+                    end
+                end
+                %save the mle to mle_path
+                mle_path(:,i+1) = mle';
+            end
+        end
+        
+        %GRADIENT
+        %Evulates the gradient of -lnL for a given single datapoint
+        %PARAMETERS:
+            %parameter: 3 row vector containing the parameters
+            %x: datapoint
+        function grad = gradient(this,parameter,x)
+            %if all the parameters are positive
+            if all(parameter)>0
+                %extract the parameters
+                nu = parameter(1);
+                alpha = parameter(2);
+                lambda = parameter(3);
+                %declare a 3 vector
+                grad = zeros(1,3);
+                %work out the gradient using the nested functions
+                grad(1) = -grad_1();
+                grad(2) = -grad_2();
+                grad(3) = -grad_3();
+            %else the parameters are not in the parameter space, get gradient to be zero
+            else
+                grad = zeros(1,3);                
+            end
+            
+            %NESTED FUNCTION for gradient with respect to nu
+            function del_1 = grad_1()
+                term_1 = 1/(2*(alpha+1)*nu);
+                term_2 = -this.t;
+                term_3 = exp(sum([log(nu*this.t)/(alpha+1),(alpha/(alpha+1))*sum([log(lambda),log(x),-log(alpha)]),-log(nu)]));
+                del_1 = sum([term_1,term_2,term_3]);
+            end
+
+            %NESTED FUNCTION for gradient with respect to alpha
+            function del_2 = grad_2()
+                term_1 = exp(sum([log(2),log(alpha),log(alpha+1),log(nu*this.t)/(1+alpha),(alpha/(alpha+1))*sum([log(lambda),log(x),-log(alpha)])]));
+                term_1 = term_1 * sum([log(x),log(nu*this.t),-log(alpha)]);
+                term_2 = alpha*sum([log(alpha),alpha*log(lambda),log(nu*this.t)]);
+                del_2 = sum([term_1,1,-alpha^2,term_2,alpha*(1+alpha)*log(lambda),alpha*log(x)]);
+                del_2 = del_2 / (2*alpha*(alpha+1)^2);
+            end
+
+            %NESTED FUNCTION for gradient with respect to lambda
+            function del_3 = grad_3()
+                del_3 = sum([alpha/(2*(alpha+1)*lambda),-x,(nu*this.t*alpha/lambda)^(1/(alpha+1))*x^(alpha/(alpha+1))]);
+            end
+        
         end
         
         
