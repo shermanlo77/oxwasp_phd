@@ -162,7 +162,7 @@ classdef CompoundPoisson_msle < handle
             end
             
             %if require the gradient, return it
-            if nargin > 1
+            if nargout > 1
                 %initalise a 3 x n matrix
                 %each column is the gradient for each data point
                 grad = zeros(3,n);
@@ -286,22 +286,24 @@ classdef CompoundPoisson_msle < handle
             function del_1 = grad_1()
                 term_1 = 1/(2*(alpha+1)*nu);
                 term_2 = -this.t;
-                term_3 = exp(sum([log(nu*this.t)/(alpha+1),(alpha/(alpha+1))*sum([log(lambda),log(x),-log(alpha)]),-log(nu)]));
+                term_3 = exp(sum([log(this.t)/(alpha+1),(alpha/(alpha+1))*sum([log(lambda),log(x),-log(alpha),-log(nu)])]));
                 del_1 = sum([term_1,term_2,term_3]);
             end
 
             %NESTED FUNCTION for gradient with respect to alpha
             function del_2 = grad_2()
                 term_1 = exp(sum([log(2),log(alpha),log(alpha+1),log(nu*this.t)/(1+alpha),(alpha/(alpha+1))*sum([log(lambda),log(x),-log(alpha)])]));
-                term_1 = term_1 * sum([log(x),log(nu*this.t),-log(alpha)]);
-                term_2 = alpha*sum([log(alpha),alpha*log(lambda),log(nu*this.t)]);
+                term_1 = term_1 * sum([log(x),log(lambda),-log(nu*this.t),-log(alpha)]);
+                term_2 = -alpha*sum([log(alpha),alpha*log(lambda),log(nu*this.t)]);
                 del_2 = sum([term_1,1,-alpha^2,term_2,alpha*(1+alpha)*log(lambda),alpha*log(x)]);
                 del_2 = del_2 / (2*alpha*(alpha+1)^2);
             end
 
             %NESTED FUNCTION for gradient with respect to lambda
             function del_3 = grad_3()
-                del_3 = sum([alpha/(2*(alpha+1)*lambda),-x,(nu*this.t*alpha/lambda)^(1/(alpha+1))*x^(alpha/(alpha+1))]);
+                term_1 = alpha/(2*(alpha+1)*lambda);
+                term_2 = exp(sum([sum([log(nu*this.t),log(alpha),-log(lambda)])/(alpha+1),(alpha/(alpha+1))*log(x)]));
+                del_3 = sum([term_1,-x,term_2]);
             end
         
         end
