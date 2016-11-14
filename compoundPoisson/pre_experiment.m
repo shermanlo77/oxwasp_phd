@@ -3,7 +3,7 @@ clearvars;
 close all;
 
 %set variables
-model = CompoundPoisson_msle(1); %compound poisson model with time exposure
+model = CompoundPoisson_saddlePoint(1); %compound poisson model with time exposure
 n = 1E4; %number of data in sample
 n_bin = 50; %number of bins for the histogram
 
