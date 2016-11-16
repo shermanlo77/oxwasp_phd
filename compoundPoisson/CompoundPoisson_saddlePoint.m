@@ -90,7 +90,7 @@ classdef CompoundPoisson_saddlePoint < CompoundPoisson
         end
         
         %GRADIENT
-        %Evulates the gradient of -lnL for a given single datapoint
+        %Evaluate the gradient of -lnL for a given single datapoint
         %PARAMETERS:
             %parameter: 3 row vector containing the parameters
             %x: datapoint

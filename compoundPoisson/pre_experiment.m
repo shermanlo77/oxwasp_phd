@@ -4,6 +4,7 @@ close all;
 
 %set variables
 model = CompoundPoisson_saddlePoint(1); %compound poisson model with time exposure
+model = CompoundPoisson_normal(1); %compound poisson model with time exposure
 n = 1E4; %number of data in sample
 n_bin = 50; %number of bins for the histogram
 
@@ -23,7 +24,7 @@ model.plotSimulation(n,3,400,100,n_bin);
 rng(116744603);
 X = model.plotSimulation(n,500,80,2,n_bin);
 %also surf and contour plot the minus log likelihood
-[nu_plot,lambda_plot] = meshgrid(linspace(1,1000,30),linspace(0.1,5,30));
+[nu_plot,lambda_plot] = meshgrid(linspace(100,1000,30),linspace(0.1,5,30));
 lnL = zeros(30,30);
 for alpha_i = 1:30
     for lambda_i = 1:30
@@ -117,4 +118,4 @@ model.plotSamplingDistribution(n_repeat,n,3,400,100,n_bin);
 
 %parameter set 3
 rng(81190838);
-model.plotSamplingDistribution(n_repeat,n,500,80,2,n_bin);
+model.plotSamplingDistribution(n_repeat,n,500,80,2,4);

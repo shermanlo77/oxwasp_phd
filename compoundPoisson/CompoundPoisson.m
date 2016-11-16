@@ -1,10 +1,17 @@
 classdef CompoundPoisson < handle
     
+    %COMPOUND POISSON ABSTRACT SUPER CLASS
+    %Abstract class modelling the compound poisson gamma distribution. Each
+    %subclass implements its own approximation for the density and log
+    %likelihood
+    
+    %MEMBER VARIABLES
     properties (SetAccess = protected)
         %time exposure
         t;
     end
     
+    %ABSTRACT METHODS
     methods (Abstract)
         
         %GET DENSITY
@@ -17,7 +24,7 @@ classdef CompoundPoisson < handle
             %alpha: gamma shape parameter
             %lambda: gamma rate parameter
         %RETURN:
-            %f: row vector of size n_points containing the saddle density for each point
+            %f: row vector of size n_points containing the density for each point
             %x: row vector of size n_points, linspace(x_min,x_max,n_point)
         [f,x] = getDensity(this,x_min,x_max,n_point,nu,alpha,lambda);
         
@@ -31,7 +38,7 @@ classdef CompoundPoisson < handle
         [log_likelihood, grad] = lnL(this,parameters,X);
         
         %GRADIENT
-        %Evulates the gradient of -lnL for a given single datapoint
+        %Evaluates the gradient of -lnL for a given single datapoint
         %PARAMETERS:
             %parameter: 3 row vector containing the parameters
             %x: datapoint
@@ -39,6 +46,7 @@ classdef CompoundPoisson < handle
         
     end
     
+    %METHODS
     methods
         
         %CONSTRUCTOR
@@ -116,6 +124,7 @@ classdef CompoundPoisson < handle
                 %plot histogram
                 figure;
                 ax = histogram(estimate_vector,prctile(estimate_vector,linspace(0,100,n_bin+1)),'Normalization','countdensity');
+                %ax = histogram(estimate_vector,'Normalization','countdensity');
                 %plot true value
                 hold on;
                 plot([true_parameter,true_parameter],[0,max(ax.Values)],'k--','LineWidth',2);
@@ -164,7 +173,7 @@ classdef CompoundPoisson < handle
             %set and label the axis
             xlabel('Support');
             ylabel('p.d.f.');
-            legend('Exact simulation','Saddlepoint approx.');
+            legend('Exact simulation','Approx. density');
         end
         
         %STOCHASTIC GRADIENT DESCENT
