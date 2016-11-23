@@ -220,6 +220,21 @@ classdef CompoundPoisson < handle
             end
         end
         
+        function estimator = methodOfMoments(this,X)
+            mu_1 = mean(X);
+            mu_2 = moment(X,2);
+            mu_3 = moment(X,3);
+
+            psi_1 = mu_2/mu_1;
+            psi_2 = mu_3/mu_2;
+            
+            estimator = zeros(1,3);
+
+            estimator(1) = mu_1/(2*psi_1-psi_2)/this.t;
+            estimator(2) = (2*psi_1-psi_2)/(psi_2-psi_1);
+            estimator(3) = 1/(psi_2-psi_1);
+        end
+        
     end
     
 end
