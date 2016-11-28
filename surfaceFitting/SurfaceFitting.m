@@ -97,18 +97,24 @@ classdef SurfaceFitting < handle
                     
                     %for the given panel, get the grey values
                     z_grid = this.black_train(height_range,width_range);
+                    
                     %obtain the range of x and y in grid form
-                    [x_grid,y_grid] = meshgrid(width_range,height_range);
+                    [x_grid,y_grid] = meshgrid(1:numel(width_range),1:numel(height_range));
                     %convert x,y,z from grid form to vector form
                     x = reshape(x_grid,[],1);
                     y = reshape(y_grid,[],1);
                     z = reshape(z_grid,[],1);
                     
+                    %scale z to have zero mean and std 1
+                    shift = mean(z);
+                    scale = std(z);
+                    z = (z-shift)/scale;
+                    
                     %fit polynomial surface to the data (x,y,z)
                     sfit_obj = this.fitPolynomialSurface(x,y,z,p);
                     
                     %save the surface of the panel to this.black_fit
-                    this.black_fit(height_range,width_range) = sfit_obj(x_grid,y_grid);
+                    this.black_fit(height_range,width_range) = (sfit_obj(x_grid,y_grid)*scale)+shift;
                     
                 end
                 
