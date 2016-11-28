@@ -7,6 +7,7 @@ classdef SurfaceFitting < handle
         
         total_size; %two vector [height, width] representing the total size of the detector image in pixels
         active_size; %two vector [height, width] representing the total size of the cropped image in pixels
+        active_area; %active_size(1)*active_size(2), area of the obtained (cropped image)
         n_panel_column; %scalar representing the number of columns of 2 panels in the detector
         
         panel_height; %height of each panel in pixels
@@ -30,6 +31,7 @@ classdef SurfaceFitting < handle
             %assign member variables
             this.total_size = total_size;
             this.active_size = active_size;
+            this.active_area = active_size(1)*active_size(2);
             this.n_panel_column = n_panel_column;
             
             %panel height (there are 2 rows of panels)
@@ -133,6 +135,18 @@ classdef SurfaceFitting < handle
             %heatmap plot the smooth data
             figure;
             imagesc(this.black_fit,clims);
+        end
+        
+        %MEAN SQUARED ERROR (BLACK)
+        %Calculate the mean squared difference between the smoothed black
+        %image and a black image from this.black_stack
+        %PARAMETER:
+            %index: index pointing to an image in this.black_stack
+        %RETURN:
+            %mse: mean squared error
+        function mse = meanSquaredError_black(this,index)
+            black_test = this.black_stack(:,:,index);
+            mse = sum(sum((this.black_fit-black_test).^2))/this.active_area;
         end
         
     end
