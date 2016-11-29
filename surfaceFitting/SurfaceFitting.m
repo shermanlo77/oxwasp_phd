@@ -14,9 +14,14 @@ classdef SurfaceFitting < handle
         panel_width; %width of each non-border panel in pixels
         panel_width_edge; %width of panels on the edges (far left and far right) in pixels
         
-        black_stack; %array of black images
+        loaded_white; %boolean indicating bw_stack is white image if true, otherwise black
+        bw_stack; %array of black or white images
+        n_bw; %number of images in bw_stack
+        
         black_train; %a black image
         black_fit; %smoothed black image
+        white_train; %a white image
+        white_fit; %smoothed white image
         
     end
     
@@ -43,11 +48,21 @@ classdef SurfaceFitting < handle
             
             %declare empty matrices
             this.black_fit = zeros(active_size);
+            this.white_fit = zeros(active_size);
         end
         
         %LOAD BLACK IMAGES
         function loadBlack(this,file_location)
-            this.black_stack = load_black(file_location);
+            this.loaded_white = false; %set boolean to false
+            %save the black images to this.bw_stack
+            [this.bw_stack,~,~,this.n_bw] = load_black(file_location);
+        end
+        
+        %LOAD WHITE IMAGES
+        function loadWhite(this,file_location)
+            this.loaded_white = true; %set boolean to true
+            %save the black images to this.bw_stack
+            [this.bw_stack,~,~,this.n_bw] = load_white(file_location);
         end
         
         %FIT POLYNOMIAL SURFACE
@@ -64,16 +79,23 @@ classdef SurfaceFitting < handle
             sfit_obj = fit([x,y],z,polynomial_string);
         end
         
-        %FIT POLYNOMIAL PANEL (BLACK)
-        %Using an image from the stack of black images, fit polynomial
+        %FIT POLYNOMIAL PANEL
+        %Using an image from the stack of black/white images, fit polynomial
         %surface to it.
         %PARAMETERS:
             %train_index: the image from this.black_stack to be used
             %p: order of the polynomial
-        function fitPolynomialPanel_black(this,train_index,p)
+        function fitPolynomialPanel(this,train_index,p)
             
-            %get the black image from the stack
-            this.black_train = this.black_stack(:,:,train_index);
+            %get the black/white image from the stack
+            bw_train = this.bw_stack(:,:,train_index);
+            
+            %save bw_train as the training image for either black or white
+            if this.loaded_white
+                this.white_train = bw_train;
+            else
+                this.black_train = bw_train;
+            end
             
             %for each column
             for i_column = 1:this.n_panel_column
@@ -96,7 +118,7 @@ classdef SurfaceFitting < handle
                     end
                     
                     %for the given panel, get the grey values
-                    z_grid = this.black_train(height_range,width_range);
+                    z_grid = bw_train(height_range,width_range);
                     
                     %obtain the range of x and y in grid form
                     [x_grid,y_grid] = meshgrid(1:numel(width_range),1:numel(height_range));
@@ -113,8 +135,12 @@ classdef SurfaceFitting < handle
                     %fit polynomial surface to the data (x,y,z)
                     sfit_obj = this.fitPolynomialSurface(x,y,z,p);
                     
-                    %save the surface of the panel to this.black_fit
-                    this.black_fit(height_range,width_range) = (sfit_obj(x_grid,y_grid)*scale)+shift;
+                    %save the surface of the panel to this.black_fit or this.white_fit
+                    if this.loaded_white
+                        this.white_fit(height_range,width_range) = (sfit_obj(x_grid,y_grid)*scale)+shift;
+                    else
+                        this.black_fit(height_range,width_range) = (sfit_obj(x_grid,y_grid)*scale)+shift;
+                    end
                     
                 end
                 
@@ -122,10 +148,10 @@ classdef SurfaceFitting < handle
             
         end
         
-        %CLEAR BLACK
-        %Assign empty matrix to this.black_stack
-        function clearBlack(this)
-            this.black_stack = [];
+        %CLEAR BLACK WHITE STACK
+        %Assign empty matrix to this.bw_stack
+        function clearBWStack(this)
+            this.bw_stack = [];
         end
         
         %PLOT POLYNOMIAL PANEL (BLACK)
@@ -143,16 +169,70 @@ classdef SurfaceFitting < handle
             imagesc(this.black_fit,clims);
         end
         
-        %MEAN SQUARED ERROR (BLACK)
-        %Calculate the mean squared difference between the smoothed black
-        %image and a black image from this.black_stack
+        %PLOT POLYNOMIAL PANEL (WHITE)
+        %Plot heatmap of the white image, smoothed and unsmoothed
+        %PARAMETERS:
+            %percentile: two vector, defines the limits of the greyvalues in the heatmap
+        function plotPolynomialPanel_white(this,percentile)
+            %get the percentiles of the greyvalues
+            clims = prctile(reshape(this.white_train,[],1),percentile);
+            %heatmap plot the unsmooth data
+            figure;
+            imagesc(this.white_train,clims);
+            %heatmap plot the smooth data
+            figure;
+            imagesc(this.white_fit,clims);
+        end
+        
+        %MEAN SQUARED ERROR
+        %Calculate the mean squared difference between the smoothed
+        %image and a training image from this.bwk_stack
         %PARAMETER:
-            %index: index pointing to an image in this.black_stack
+            %index: index pointing to an image in this.bw_stack
         %RETURN:
             %mse: mean squared error
-        function mse = meanSquaredError_black(this,index)
-            black_test = this.black_stack(:,:,index);
-            mse = sum(sum((this.black_fit-black_test).^2))/this.active_area;
+        function mse = meanSquaredError(this,index)
+            %get the test image
+            test_image = this.bw_stack(:,:,index);
+            %load the smoothed image 
+            if this.loaded_white
+                fit_image = this.white_fit;
+            else
+                fit_image = this.black_fit;
+            end
+            %calculate the mean squared error
+            mse = sum(sum((fit_image-test_image).^2))/this.active_area;
+        end
+        
+        %CROSS VALIDATION
+        %Fit polynomials on the train_index-th image from this.bw_stack
+        %with order 1,2,3,4,5. For each order, calculate the mean squared
+        %error
+        function mse_array = crossValidation(this,train_index)
+            %declare array of mse for each polynomial order
+            mse_array = zeros(1,5);
+            %for each polynomial order
+            for p = 1:5
+                %fit the polynomial
+                this.fitPolynomialPanel(train_index,p);
+                %declare array of mse for each test image
+                mse_sample = zeros(1,this.n_bw-1);
+                %count the number of test images gone through so far
+                sample_index = 1;
+                %for each image in this.bw_stack
+                for i_sample = 1:this.n_bw
+                    %if this image is not the training image
+                    if i_sample ~= train_index
+                        %calculate the mean squared error and save it to mse_sample
+                        mse_sample(sample_index) = this.meanSquaredError(i_sample);
+                        %increment sample_index
+                        sample_index = sample_index + 1;
+                    end
+                end
+                %save the sample mean of the mse over all test images
+                mse_array(p) = mean(mse_sample);
+            end
+            
         end
         
     end
