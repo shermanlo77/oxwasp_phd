@@ -208,6 +208,14 @@ classdef SurfaceFitting < handle
         %RETURN:
             %mse: mean squared error
         function mse = meanSquaredError(this,index)
+            %calculate the mean squared error
+            mse = sum(sum((this.getResidualImage(index)).^2))/this.active_area;
+        end
+        
+        %GET RESIUDAL IMAGE
+        %Get image of fitted polynomial image subtract a bw image, selected
+        %by the parameter index
+        function residual_image = getResidualImage(this,index)
             %get the test image
             test_image = this.bw_stack(:,:,index);
             %load the smoothed image 
@@ -216,8 +224,8 @@ classdef SurfaceFitting < handle
             else
                 fit_image = this.black_fit;
             end
-            %calculate the mean squared error
-            mse = sum(sum((fit_image-test_image).^2))/this.active_area;
+            %work out the difference between the fitted and test image
+            residual_image = test_image-fit_image;
         end
         
         %CROSS VALIDATION
