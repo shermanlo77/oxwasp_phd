@@ -251,6 +251,21 @@ classdef SurfaceFitting < handle
             
         end
         
+        %ROTATE CROSS VALIDATION
+        %Do cross validation using each image as a training set once.
+        %RETURN:
+            %mse_array: this.bw x 5 matrix containing the mse
+        function mse_array = rotateCrossValidation(this)
+            %declare array of mse for each polynomial order
+            mse_array = zeros(this.n_bw,5);
+            %for each image
+            for i_data_index = 1:this.n_bw
+                disp(i_data_index);
+                %get the mse for each order
+                mse_array(i_data_index,:) = this.crossValidation(i_data_index);
+            end         
+        end
+        
     end
     
 end
