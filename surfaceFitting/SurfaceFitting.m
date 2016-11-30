@@ -108,13 +108,19 @@ classdef SurfaceFitting < handle
                     
                     %then get the range of columns which covers that panel
                     %special case if the column is on the boundary
-                    if i_column == 1
-                        width_range = 1:(this.panel_width_edge);
-                    elseif i_column == this.n_panel_column
-                        width_range = (this.active_size(2)-this.panel_width_edge+1):this.active_size(2);
-                    %ordinary case:
+%                     if i_column == 1
+%                         width_range = 1:(this.panel_width_edge);
+%                     elseif i_column == this.n_panel_column
+%                         width_range = (this.active_size(2)-this.panel_width_edge+1):this.active_size(2);
+%                     %ordinary case:
+%                     else
+%                         width_range = (this.panel_width_edge + (i_column-2)*this.panel_width + 1) : (this.panel_width_edge + (i_column-1)*this.panel_width);
+%                     end
+
+                    if i_column ~= this.n_panel_column
+                        width_range = ((i_column-1)*this.panel_width+1):(i_column*this.panel_width);
                     else
-                        width_range = (this.panel_width_edge + (i_column-2)*this.panel_width + 1) : (this.panel_width_edge + (i_column-1)*this.panel_width);
+                        width_range = ((i_column-1)*this.panel_width+1):(this.active_size(2));
                     end
                     
                     %for the given panel, get the grey values
@@ -162,11 +168,17 @@ classdef SurfaceFitting < handle
             %get the percentiles of the greyvalues
             clims = prctile(reshape(this.black_train,[],1),percentile);
             %heatmap plot the unsmooth data
+            
             figure;
             imagesc(this.black_train,clims);
+            colorbar;
+            colormap gray;
             %heatmap plot the smooth data
+            
             figure;
             imagesc(this.black_fit,clims);
+            colorbar;
+            colormap gray;
         end
         
         %PLOT POLYNOMIAL PANEL (WHITE)
@@ -179,9 +191,13 @@ classdef SurfaceFitting < handle
             %heatmap plot the unsmooth data
             figure;
             imagesc(this.white_train,clims);
+            colorbar;
+            colormap gray;
             %heatmap plot the smooth data
             figure;
             imagesc(this.white_fit,clims);
+            colorbar;
+            colormap gray;
         end
         
         %MEAN SQUARED ERROR
