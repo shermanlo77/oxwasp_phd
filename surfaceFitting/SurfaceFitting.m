@@ -20,6 +20,9 @@ classdef SurfaceFitting < handle
         bw_stack; %array of black or white images
         n_bw; %number of images in bw_stack
         
+        scan_stack; %stack of images of the scan
+        n_scan; %number of images in scan_stack
+        
         black_train; %a black image
         black_fit; %smoothed black image
         white_train; %a white image
@@ -65,6 +68,11 @@ classdef SurfaceFitting < handle
             this.loaded_white = true; %set boolean to true
             %save the black images to this.bw_stack
             [this.bw_stack,~,~,this.n_bw] = load_white(file_location);
+        end
+        
+        %LOAD SCAN IMAGES
+        function loadScan(this,file_location)
+            [this.scan_stack,~,~,this.n_scan] = load_stack(file_location);
         end
         
         %FIT SURFACE
@@ -166,18 +174,10 @@ classdef SurfaceFitting < handle
         %PARAMETERS:
             %percentile: two vector, defines the limits of the greyvalues in the heatmap
         function plotBlackSurface(this,percentile)
-            %get the percentiles of the greyvalues
-            clims = prctile(reshape(this.black_train,[],1),percentile);
-            %heatmap plot the unsmooth data
-            figure;
-            imagesc(this.black_train,clims);
+            this.imagesc_truncate(this.black_train,percentile);
             colorbar;
-            colormap gray;
-            %heatmap plot the smooth data
-            figure;
-            imagesc(this.black_fit,clims);
+            this.imagesc_truncate(this.black_fit,percentile);
             colorbar;
-            colormap gray;
         end
         
         %PLOT WHITE SURFACE
@@ -185,18 +185,10 @@ classdef SurfaceFitting < handle
         %PARAMETERS:
             %percentile: two vector, defines the limits of the greyvalues in the heatmap
         function plotWhiteSurface(this,percentile)
-            %get the percentiles of the greyvalues
-            clims = prctile(reshape(this.white_train,[],1),percentile);
-            %heatmap plot the unsmooth data
-            figure;
-            imagesc(this.white_train,clims);
+            this.imagesc_truncate(this.white_train,percentile);
             colorbar;
-            colormap gray;
-            %heatmap plot the smooth data
-            figure;
-            imagesc(this.white_fit,clims);
+            this.imagesc_truncate(this.white_fit,percentile);
             colorbar;
-            colormap gray;
         end
         
         %MEAN SQUARED ERROR
@@ -280,6 +272,75 @@ classdef SurfaceFitting < handle
                 %get the mse for each order
                 mse_array(i_data_index,:) = this.crossValidation(i_data_index,parameter_array);
             end         
+        end
+        
+        %PLOT SCAN
+        %Plot heatmap of a scan image
+        %PARAMETERS:
+            %index: plot the index-th image
+            %percentile: two vector, defines the limits of the greyvalues in the heatmap
+        function plotScan(this,index,percentile)
+            %get the index-th scan
+            scan = this.scan_stack(:,:,index);
+            this.imagesc_truncate(scan,percentile);
+        end
+        
+        %PLOT SCAN SHADED CORRECTED USING FITTED SURFACE
+        function plotScanShadeCorrect_fit(this,index,percentile)
+            %shade correct the scan
+            scan = this.shadeCorrect_fit(this.scan_stack(:,:,index));
+            this.imagesc_truncate(scan,percentile);
+        end
+        
+        %PLOT SCAN SHADED CORRECTED USING TRAINING IMAGES
+        function plotScanShadeCorrect_train(this,index,percentile)
+            %shade correct the scan
+            scan = this.shadeCorrect_train(this.scan_stack(:,:,index));
+            this.imagesc_truncate(scan,percentile);
+        end
+        
+        %PLOT WHITE SHADED CORRECTED
+        function plotWhiteShadeCorrect(this,percentile)
+            this.imagesc_truncate(this.shadeCorrect_fit(this.white_train),percentile);
+        end
+        
+        %PLOT BLACK SHADED CORRECTED
+        function plotBlackShadeCorrect(this,percentile)
+            this.imagesc_truncate(this.shadeCorrect_fit(this.black_train),percentile);
+        end
+        
+        %FUNCTION: SHADE CORRECT USING FITTED SURFACE
+        %PARAMETER:
+            %image: matrix of greyvalues
+        %RETURN:
+            %image: shade corrected image using the fitted surface
+        function image = shadeCorrect_fit(this,image)
+            image = (image - this.black_fit) ./ (this.white_fit - this.black_fit);
+        end
+        
+        %FUNCTION: SHADE CORRECT USING TRAINING IMAGE
+        %PARAMETER:
+            %image: matrix of greyvalues
+        %RETURN:
+            %image: shade corrected image using the fitted image
+        function image = shadeCorrect_train(this,image)
+            image = (image - this.black_train) ./ (this.white_train - this.black_train);
+        end
+        
+    end
+    
+    methods (Static)
+        
+        %IMAGE SCALE TRUNCATE
+        %Plot heatmap of image to scale using a percentile of the data
+        %PARAMETERS:
+            %image: matrix of greyvalues
+            %percentile: two vector of percentages
+        function imagesc_truncate(image,percentile)
+            clims = prctile(reshape(image,[],1),percentile);
+            figure;
+            imagesc(image,clims);
+            colormap gray;
         end
         
     end
