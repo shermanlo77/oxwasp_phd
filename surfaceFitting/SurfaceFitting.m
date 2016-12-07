@@ -1,6 +1,8 @@
 classdef SurfaceFitting < handle
-    %SURFACEFITTING Summary of this class goes here
-    %   Detailed explanation goes here
+    %SURFACEFITTING Fit and stores fit independent surfaces for each panel
+    %   Stack of white, black and scan images are stored here. Surfaces are
+    %   fitted to each panel independently. Subclasses implement its own
+    %   method for fitting surfaces.
     
     %MEMBER VARIABLES
     properties
@@ -65,27 +67,13 @@ classdef SurfaceFitting < handle
             [this.bw_stack,~,~,this.n_bw] = load_white(file_location);
         end
         
-        %FIT POLYNOMIAL SURFACE
-        %Fit polynomial surface with order p
-        %PARAMETERS:
-            %x: vector of x coordinates
-            %y: vector of y coordinates
-            %z: vector of greyvalues
-            %p: order of polynomial
-        %RETURN:
-            %sfit_obj: sfit object (surface fit)
-        function sfit_obj = fitPolynomialSurface(this,x,y,z,p)
-            polynomial_string = strcat('poly',num2str(p),num2str(p));
-            sfit_obj = fit([x,y],z,polynomial_string);
-        end
-        
-        %FIT POLYNOMIAL PANEL
-        %Using an image from the stack of black/white images, fit polynomial
+        %FIT SURFACE
+        %Using an image from the stack of black/white images, fit
         %surface to it.
         %PARAMETERS:
             %train_index: the image from this.black_stack to be used
-            %p: order of the polynomial
-        function fitPolynomialPanel(this,train_index,p)
+            %p: parameter
+        function fitSurface(this,train_index,p)
             
             %get the black/white image from the stack
             bw_train = this.bw_stack(:,:,train_index);
@@ -103,11 +91,21 @@ classdef SurfaceFitting < handle
                 %for each row
                 for i_row = 1:2
                     
-                    %get the range of rows which covers a panel
-                    height_range = (1 + (i_row-1)*this.panel_height) : (i_row*this.panel_height);
+                    %STANDARD CROP
+%                     %get the range of rows which covers a panel
+%                     height_range = (1 + (i_row-1)*this.panel_height) : (i_row*this.panel_height);
+
                     
-                    %then get the range of columns which covers that panel
-                    %special case if the column is on the boundary
+                    %GUESS CROP
+                    if i_row == 1
+                        height_range = (1 + (i_row-1)*this.panel_height) : (i_row*this.panel_height+6);
+                    else
+                        height_range = (1 + (i_row-1)*this.panel_height+6) : (i_row*this.panel_height);
+                    end
+
+                    %STANDARD CROP
+%                     %then get the range of columns which covers that panel
+%                     %special case if the column is on the boundary
 %                     if i_column == 1
 %                         width_range = 1:(this.panel_width_edge);
 %                     elseif i_column == this.n_panel_column
@@ -117,10 +115,13 @@ classdef SurfaceFitting < handle
 %                         width_range = (this.panel_width_edge + (i_column-2)*this.panel_width + 1) : (this.panel_width_edge + (i_column-1)*this.panel_width);
 %                     end
 
-                    if i_column ~= this.n_panel_column
-                        width_range = ((i_column-1)*this.panel_width+1):(i_column*this.panel_width);
+                    %GUESS CROP
+                    if i_column == 1
+                        width_range = 1:(this.panel_width-2);
+                    elseif i_column ~= this.n_panel_column
+                        width_range = ((i_column-1)*this.panel_width+1-2):(i_column*this.panel_width-2);
                     else
-                        width_range = ((i_column-1)*this.panel_width+1):(this.active_size(2));
+                        width_range = ((i_column-1)*this.panel_width+1-2):(this.active_size(2));
                     end
                     
                     %for the given panel, get the grey values
@@ -138,8 +139,8 @@ classdef SurfaceFitting < handle
                     scale = std(z);
                     z = (z-shift)/scale;
                     
-                    %fit polynomial surface to the data (x,y,z)
-                    sfit_obj = this.fitPolynomialSurface(x,y,z,p);
+                    %fit surface to the data (x,y,z)
+                    sfit_obj = this.fitPanel(x,y,z,p);
                     
                     %save the surface of the panel to this.black_fit or this.white_fit
                     if this.loaded_white
@@ -160,32 +161,30 @@ classdef SurfaceFitting < handle
             this.bw_stack = [];
         end
         
-        %PLOT POLYNOMIAL PANEL (BLACK)
+        %PLOT BLACK SURFACE
         %Plot heatmap of the black image, smoothed and unsmoothed
         %PARAMETERS:
             %percentile: two vector, defines the limits of the greyvalues in the heatmap
-        function plotPolynomialPanel_black(this,percentile)
+        function plotBlackSurface(this,percentile)
             %get the percentiles of the greyvalues
             clims = prctile(reshape(this.black_train,[],1),percentile);
             %heatmap plot the unsmooth data
-            
             figure;
             imagesc(this.black_train,clims);
             colorbar;
             colormap gray;
             %heatmap plot the smooth data
-            
             figure;
             imagesc(this.black_fit,clims);
             colorbar;
             colormap gray;
         end
         
-        %PLOT POLYNOMIAL PANEL (WHITE)
+        %PLOT WHITE SURFACE
         %Plot heatmap of the white image, smoothed and unsmoothed
         %PARAMETERS:
             %percentile: two vector, defines the limits of the greyvalues in the heatmap
-        function plotPolynomialPanel_white(this,percentile)
+        function plotWhiteSurface(this,percentile)
             %get the percentiles of the greyvalues
             clims = prctile(reshape(this.white_train,[],1),percentile);
             %heatmap plot the unsmooth data
@@ -213,7 +212,7 @@ classdef SurfaceFitting < handle
         end
         
         %GET RESIUDAL IMAGE
-        %Get image of fitted polynomial image subtract a bw image, selected
+        %Get image of fitted image subtract a bw image, selected
         %by the parameter index
         function residual_image = getResidualImage(this,index)
             %get the test image
@@ -229,19 +228,26 @@ classdef SurfaceFitting < handle
         end
         
         %CROSS VALIDATION
-        %Fit polynomials on the train_index-th image from this.bw_stack
-        %with order 1,2,3,4,5. For each order, calculate the mean squared
-        %error
-        function mse_array = crossValidation(this,train_index)
-            %declare array of mse for each polynomial order
-            mse_array = zeros(1,5);
-            %for each polynomial order
-            for p = 1:5
-                %fit the polynomial
-                this.fitPolynomialPanel(train_index,p);
+        %Fit the train_index-th image from this.bw_stack
+        %for all parameters in parameter_array.
+        %For each parameter, calculate the mean squared error
+        %PARAMETERS:
+            %train_index: the image for training
+            %parameter_array: vector of parameters
+        %RETURN:
+            %mse_array: row vector containing the mse for each parameter
+        function mse_array = crossValidation(this,train_index,parameter_array)
+            %get the number of parameters
+            n_parameter = numel(parameter_array);
+            %declare array of mse for each parameter
+            mse_array = zeros(1,n_parameter);
+            %for each parameter
+            for i_parameter = 1:n_parameter
+                %fit the surface
+                this.fitSurface(train_index,parameter_array(i_parameter));
                 %declare array of mse for each test image
                 mse_sample = zeros(1,this.n_bw-1);
-                %count the number of test images gone through so far
+                %declare variable for counting the number of test images gone through so far - 1
                 sample_index = 1;
                 %for each image in this.bw_stack
                 for i_sample = 1:this.n_bw
@@ -254,25 +260,41 @@ classdef SurfaceFitting < handle
                     end
                 end
                 %save the sample mean of the mse over all test images
-                mse_array(p) = mean(mse_sample);
+                mse_array(i_parameter) = mean(mse_sample);
             end
             
         end
         
         %ROTATE CROSS VALIDATION
-        %Do cross validation using each image as a training set once.
+        %Do cross validation using each image as a training set once
+        %PARAMETER:
+            %parameter_array: array of parameters to consider
         %RETURN:
-            %mse_array: this.bw x 5 matrix containing the mse
-        function mse_array = rotateCrossValidation(this)
-            %declare array of mse for each polynomial order
-            mse_array = zeros(this.n_bw,5);
+            %mse_array: this.bw x numel(parameter_array) matrix containing the mse
+        function mse_array = rotateCrossValidation(this,parameter_array)
+            %declare array of mse for each parameter
+            mse_array = zeros(this.n_bw,numel(parameter_array));
             %for each image
             for i_data_index = 1:this.n_bw
                 disp(i_data_index);
                 %get the mse for each order
-                mse_array(i_data_index,:) = this.crossValidation(i_data_index);
+                mse_array(i_data_index,:) = this.crossValidation(i_data_index,parameter_array);
             end         
         end
+        
+    end
+    
+    methods (Abstract)
+        %FIT PANEL
+        %Fit surface to a panel
+        %PARAMETERS:
+            %x: vector of x coordinates
+            %y: vector of y coordinates
+            %z: vector of greyvalues
+            %p: parameter
+        %RETURN:
+            %sfit_obj: sfit object (surface fit)
+        fitPanel(this,x,y,z,p);
         
     end
     
