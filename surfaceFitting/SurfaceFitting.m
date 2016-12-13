@@ -274,6 +274,31 @@ classdef SurfaceFitting < handle
             end         
         end
         
+        %GET Z RESIDUAL
+        %For each black/white image, fit surface and get the residuals.
+        %For each pixel, a z_residual is the average residual / (std(residual)/this.n_bw)
+        %PARAMETER:
+            %parameter: parameter of the surface to fit
+        %RETURN:
+            %z_residual: matrix (active_size size) of the z_residuals
+        function z_residual = getZResidual(this,parameter)
+            %declare array of this.n_bw matrices of this.active_size size
+            residual = zeros([this.active_size,this.n_bw]);
+            %for each b/w image
+            for i_data_index = 1:this.n_bw
+                %fit the surface
+                this.fitSurface(i_data_index,parameter);
+                %get the residual and save it in array
+                residual(:,:,i_data_index) = this.getResidualImage(i_data_index);
+            end
+            %get the mean residual over all this.n_bw images
+            mean_residual = mean(residual,3);
+            %get the sum of squared residuals
+            sxx_residual = sqrt(sum((residual-repmat(mean_residual,1,1,this.n_bw)).^2,3));
+            %work out z_residual
+            z_residual = this.n_bw * mean_residual ./ sxx_residual;
+        end
+        
         %PLOT SCAN
         %Plot heatmap of a scan image
         %PARAMETERS:
