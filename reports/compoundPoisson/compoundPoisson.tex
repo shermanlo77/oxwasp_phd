@@ -245,9 +245,9 @@ p_X(x)\approx
 \subsection{Simulations}
 Exact simulation of the compound Poisson distribution is easy, this is done by simulating the latent variable $Y$ and then simulating the observable given that latent variable, $X|Y$. An experiment was conducted to assess how good the density approximations are. This was done by simulating $10^4$ samples of a compound Poisson random variable, and then comparing the histogram of the samples with the density approximation. Three sets of parameters were chosen and the results are shown in Figure \ref{fig:histogram}.
 
-For low $\nu\tau$, there is a chance of simulating zeros. The Normal approximation failed to capture the probability mass at zero because the Normal distribution was constrained to be symmetric. The saddlepoint approximation did capture probabilty mass at zero as shown by an increase in probability density towards zero. However for a distinct mixture looking compound Poisson, Figure \ref{fig:histogram} (d), the saddlepoint approxmation was not flexible enough to capture each individual peaks.
+For low $\nu\tau$, there is a chance of simulating zeros. The Normal approximation failed to capture the probability mass at zero because the Normal distribution was constrained to be symmetric. The saddlepoint approximation did capture probability mass at zero as shown by an increase in probability density towards zero. However for a distinct mixture looking compound Poisson, Figure \ref{fig:histogram} (d), the saddlepoint approximation was not flexible enough to capture each individual peaks.
 
-For the Normal looking compound Poisson, both approxmations performed well.
+For the Normal looking compound Poisson, both approximation performed well.
 \begin{figure*}
 \centerline{
 	\centering
@@ -285,7 +285,7 @@ For the Normal looking compound Poisson, both approxmations performed well.
 \end{figure*}
 
 \section{Parameter estimation}
-The saddlepoint approxmation did capture the probabilty mass at zero, however the formula for the density approxmation does not support zero. As a result, the saddlepoint approxmation may not be suited to approximate the likelihood when there is a good chance of obtaining zeros in the data. A way around it is to adjust the data by adding a very small constant to all zeros in the data.
+The saddlepoint approximation did capture the probability mass at zero, however the formula for the density approximation does not support zero. As a result, the saddlepoint approxmation may not be suited to approximate the likelihood when there is a good chance of obtaining zeros in the data. A way around it is to adjust the data by adding a very small constant to all zeros in the data.
 
 An experiment was conducted to optimise the saddle point likelihood approximation numerically using the quasi-Newton method. For a given set of compound Poisson parameters, this was done by simulating 100 i.i.d.~samples. Any zeros in the sample were converted to a small constant, the constant being 1/8th of the minimum of all non-zero data in the sample, this was done to make the approximated likelihood evaluable. The likelihood was then optimised using \texttt{MATLAB}'s \texttt{fminunc} function with the default settings. The initial value was set at the true value to see how much the optimiser diverges from the true value. This was repeated 1\,000 times to obtain an empirical sampling distribution.
 
