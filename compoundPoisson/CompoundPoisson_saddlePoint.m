@@ -55,7 +55,7 @@ classdef CompoundPoisson_saddlePoint < CompoundPoisson
             %get the number of data
             n = numel(X);
             %for x=0, set it to be the minimum of x / 2
-            X(X==0) = min(X(X~=0))/2;
+            X(X==0) = min(X(X~=0))/8;
 
             %for valid values of the parameters
             if((nu>0)&&(this.t>0)&&(alpha>0)&&(lambda>0))

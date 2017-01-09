@@ -90,7 +90,9 @@ classdef CompoundPoisson < handle
             %nu: poisson parameter
             %alpha: gamma shape parameter
             %lambda: gamma rate parameter
-        function plotSamplingDistribution(this,n_repeat,n_sample,nu,alpha,lambda,n_bin)
+        %RETURN:
+            %ax_array: array (cell) of figures
+        function ax_array = plotSamplingDistribution(this,n_repeat,n_sample,nu,alpha,lambda,n_bin)
             
             %define vector of estimators
             nu_estimate = zeros(1,n_repeat);
@@ -110,17 +112,19 @@ classdef CompoundPoisson < handle
                 lambda_estimate(i) = mle(3);
             end
 
-            %plot histogram and true value of each parameter
-            nestedPlot(nu_estimate,nu,'nu estimate');
-            nestedPlot(alpha_estimate,alpha,'alpha estimate');
-            nestedPlot(lambda_estimate,lambda,'lambda estimate');
+            %plot histogram and true value of each parameter, save them to
+            %ax_array
+            ax_array = cell(1,3);
+            ax_array{1} = nestedPlot(nu_estimate,nu,'nu estimate');
+            ax_array{2} = nestedPlot(alpha_estimate,alpha,'alpha estimate');
+            ax_array{3} = nestedPlot(lambda_estimate,lambda,'lambda estimate');
 
             %NESTED FUNCTION for plotting histogram
             %PARAMETERS:
                 %estimate_vector: vector of estimators
                 %true_parameter: true value
                 %x_axis: string for labelling the x axis
-            function nestedPlot(estimate_vector,true_parameter,x_axis)
+            function ax = nestedPlot(estimate_vector,true_parameter,x_axis)
                 %plot histogram
                 figure;
                 ax = histogram(estimate_vector,prctile(estimate_vector,linspace(0,100,n_bin+1)),'Normalization','countdensity');
