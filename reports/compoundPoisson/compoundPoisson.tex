@@ -1,7 +1,7 @@
 \documentclass[a4paper]{proc}
 
 \title{Parameter Estimation for the Compound Poisson Model}
-\author{Sherman Ip \quad \today}
+\author{Sherman Ip \quad January 9, 2017}
 
 \usepackage{amsmath}
 \usepackage{amsthm}
@@ -46,7 +46,7 @@
 \maketitle
 
 \section{Introduction}
-In the mini-project, a compound Poisson model was used to model the distribution of greyvalues in a pixel. The model was built by assuming that photon arrivals are a Poisson process and that each photon has random energy, distributed according to the energy spectrum. The greyvalue is then proportional to the sum of energies of each photon detected in some exposure time, with some Normal noise added.
+In the mini-project, a compound Poisson model was used to model the distribution of greyvalues in a pixel. The model was built by assuming that photon arrivals are a Poisson process and that each photon has random energy, distributed according to the energy spectrum. The greyvalue was then proportional to the sum of energies of each photon detected in some exposure time, with some Normal noise added.
 
 Consider a pixel. Let $Y$ be the number of photons detected for that particular pixel. Let $U$ be the energy of a photon post-attenuation and is typically random, here it was assumed to be Normally distribued. Let $X$ be the greyvalue of that pixel. The model is hierarchical such that at the top layer
 \begin{equation}
@@ -118,7 +118,7 @@ Moments up to a number of orders then can be obtained. For example
 \end{equation}
 where $\expectation\left[X\right]=\mu$.
 
-For a given i.i.d.~random sample of compound Poisson-Gamma distributed data, the unknown parameters $\nu$, $\alpha$ and $\lambda$, can be estimated using method of moments. Suppose $\widehat{\mu}$ is an estimator of $\expectation[X]$ and $\widehat{\mu}_j$ is an estimator of $\expectation\left[\left(X-\mu\right)^j\right]$ for $j=2,3$. Then the estimators
+For a given i.i.d.~random sample of a compound Poisson-Gamma random variable, the unknown parameters $\nu$, $\alpha$ and $\lambda$, can be estimated using method of moments. Suppose $\widehat{\mu}$ is an estimator of $\expectation[X]$ and $\widehat{\mu}_j$ is an estimator of $\expectation\left[\left(X-\mu\right)^j\right]$ for $j=2,3$. Then the estimators
 \begin{equation}
 \widehat{\nu}=\frac{\widehat{\mu}^2\widehat{\mu}_2}{\tau\left(2\widehat{\mu}_2^2-\widehat{\mu}_3\widehat{\mu}\right)}
 \end{equation}
@@ -337,7 +337,7 @@ Figure \ref{fig:lnL} shows a plot of a typical log likelihood in the 3 parameter
 \end{figure}
 
 \section{Future work}
-The \texttt{R} package \texttt{cplm} \cite{zhang2013likelihood} numerically estimate parameters for the compound Poisson in the GLM framework. However for large parameters, there were numerical problems and the estimators' performance were hit and miss. Future work will reply on this package and the saddlepoint approximation to estimate parameters for the compound Poisson. Numerical problems can come from ill-conditioned variables and variables need to be scaled. One useful property of the compound Poisson is that the parameter $\lambda$ can absorb any scaling by a constant. That is if one can express a compound Poisson random variable as
+The \texttt{R} package \texttt{cplm} \cite{zhang2013likelihood} numerically estimate parameters for the compound Poisson in the GLM framework. However for large parameters, there were numerical problems and the estimators' performance were hit and miss. Future work will rely on this package and the saddlepoint approximation to estimate parameters for the compound Poisson. Numerical problems can come from ill-conditioned variables and variables need to be scaled. One useful property of the compound Poisson is that the parameter $\lambda$ can absorb any scaling by a constant. That is if one can express a compound Poisson random variable as
 \begin{equation}
 X\sim\text{CompoundPoisson}\left(\nu\tau,\alpha,\lambda\right)
 \end{equation}
