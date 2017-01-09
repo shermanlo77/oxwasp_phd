@@ -1,0 +1,352 @@
+\documentclass[a4paper]{proc}
+
+\title{Parameter Estimation for the Compound Poisson Model}
+\author{Sherman Ip \quad \today}
+
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{amsbsy}
+\usepackage{graphicx}
+\usepackage[outdir=./]{epstopdf}
+\usepackage{natbib}
+\usepackage{url}
+\usepackage{subcaption}
+\usepackage{hyperref}
+\usepackage{hyphenat}
+
+\DeclareMathOperator{\expfamily}{ExpFamily}
+\DeclareMathOperator{\expectation}{\mathbb{E}}
+\DeclareMathOperator{\variance}{\mathbb{V}ar}
+\DeclareMathOperator{\cov}{\mathbb{C}ov}
+\DeclareMathOperator{\corr}{\mathbb{C}orr}
+\DeclareMathOperator{\bernoulli}{Bernoulli}
+\DeclareMathOperator{\betaDist}{Beta}
+\DeclareMathOperator{\dirichlet}{Dir}
+\DeclareMathOperator{\bin}{Bin}
+\DeclareMathOperator{\MN}{Multinomial}
+\DeclareMathOperator{\prob}{\mathbb{P}}
+\DeclareMathOperator{\trace}{Tr}
+\DeclareMathOperator{\normal}{N}
+\DeclareMathOperator{\gammaDist}{Gamma}
+\DeclareMathOperator{\poisson}{Poisson}
+
+\newcommand{\RSS}{\mathrm{RSS}}
+\newcommand{\euler}{\mathrm{e}}
+\newcommand{\diff}{\mathrm{d}}
+\newcommand{\T}{^\textup{T}}
+\newcommand{\dotdotdot}{_{\phantom{.}\cdots}}
+\newcommand{\BIC}{\textup{BIC}}
+
+\newcommand{\vect}[1]{\mathbf{#1}}
+\newcommand{\vectGreek}[1]{\boldsymbol{#1}}
+\newcommand{\matr}[1]{\mathsf{#1}}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+In the mini-project, a compound Poisson model was used to model the distribution of greyvalues in a pixel. The model was built by assuming that photon arrivals are a Poisson process and that each photon has random energy, distributed according to the energy spectrum. The greyvalue is then proportional to the sum of energies of each photon detected in some exposure time, with some Normal noise added.
+
+Consider a pixel. Let $Y$ be the number of photons detected for that particular pixel. Let $U$ be the energy of a photon post-attenuation and is typically random, here it was assumed to be Normally distribued. Let $X$ be the greyvalue of that pixel. The model is hierarchical such that at the top layer
+\begin{equation}
+Y\sim\poisson\left(\nu\tau\right)
+\end{equation}
+\begin{equation}
+U_i\sim\normal\left(\mu,\sigma^2\right) \quad \text{ for i.i.d. }i=1,2,3,\dotdotdot
+\end{equation}
+where $\nu$ is the rate of photon arrivals, $\tau$ is the time exposure, $\mu$ and $\sigma^2$ is the mean and variance of photon energy respectively. Then
+\begin{equation}
+X = \alpha\sum_{i=1}^Y U_i + e
+\end{equation}
+where $e\sim\normal(0,\beta^2)$, $\beta^2$ is the thermal noise variance and $\alpha$ is some constant and can be interpreted as the gain. It was shown that this model can be written down as a latent variable model such that 
+\begin{equation}
+Y\sim\poisson\left(\nu\tau\right)
+\end{equation}
+\begin{equation}
+X|Y\sim\normal\left(\alpha\mu Y, \alpha^2\sigma^2 Y + \beta^2\right) \ .
+\end{equation}
+
+The model can be simplified by setting $\beta=0$. By doing so, the constant $\alpha$ becomes redundant as it can be simply absorbed by $\mu$ and $\sigma^2$. It was attempted to estimate the parameters $\nu$, $\mu$ and $\sigma^2$ for a given CT scan. An EM algorithm \cite{dempster1977maximum} was implemented but it suffered in the E step because the conditional expectation, that is $\expectation\left[Y|X\right]$ given the 3 parameters, was expressed as an infinite sum. Truncating the sum was not fesible because in some cases, a very large number of terms were needed to produce accurate results.
+
+The main aims were to investigate the compound Poisson, approximations and methods for fitting it to data.
+
+\section{Literature Review}
+Compound Poisson was proposed to improve noise models in CT scans \cite{whiting2002signal}. Simple models have been used which assumed the greyvalues were Poisson distributed or Normally \cite{lu2002analytical} distributed. The compound Poisson improves on these models by considering the energy spectrum of x-ray quanta and integrating it into the x-ray detector \cite{whiting2006properties}. This has been useful in image reconstruction \cite{elbakri2003efficient}\cite{elbakri2002statistical}\cite{elbakri2001statistical}\cite{lasio2007statistical} and tested in experiments \cite{wang2008experimental}. The p.d.f.~of the greyvalues can be numerically obtained using the saddle point approximation for a given general energy spectrum \cite{elbakri2003efficient}.
+
+A special case of the compound Poisson is the compound Poisson-Gamma model. The model is as follows:
+\begin{equation}
+Y\sim\poisson\left(\nu\tau\right)
+\end{equation}
+\begin{equation}
+U\sim\gammaDist\left(\alpha,\lambda\right)
+\end{equation}
+\begin{equation}
+X = \sum_{i=1}^Y U_i
+\end{equation}
+where $\alpha$ and $\lambda$ are the shape and rate parameters, $\nu$ is the photon rate and $\tau$ is the time exposure. Then it can be shown that
+\begin{equation}
+X|Y\sim\gammaDist\left(Y\alpha,\lambda\right) \ .
+\end{equation}
+This is special because the marginal $X$ is in the exponential family, more specifically in the Tweedie dispersion exponential family \cite{jorgensen1987exponential}.
+
+It is very well known that the marginal $X$ is intractable. However the m.g.f.~can be written in closed form. The m.g.f.~is defined as
+\begin{equation}
+M(\theta)=\expectation\left[\euler^{\theta X}\right] \ .
+\end{equation}
+Using the property of conditional expectations
+\begin{equation*}
+M(\theta)=\expectation\expectation\left[\euler^{\theta X}\right|Y]
+\end{equation*}
+and then the properties of the Gamma distribution
+\begin{equation*}
+M(\theta)=\expectation\left[\left(\frac{\lambda}{\lambda-\theta}\right)^{Y\alpha}\right] \ .
+\end{equation*}
+Finally using the m.g.f.~of the Poisson distribution
+\begin{equation}
+M(\theta)=\exp\left[\nu\tau\left(\left(\frac{\lambda}{\lambda-\theta}\right)^{\alpha}-1\right)\right] \ .
+\end{equation}
+Moments up to a number of orders then can be obtained. For example
+\begin{equation}
+\expectation\left[X\right]=\frac{\alpha\nu\tau}{\lambda}
+\end{equation}
+\begin{equation}
+\variance\left[X\right]=\frac{\alpha(\alpha+1)\nu\tau}{\lambda^2}
+\end{equation}
+\begin{equation}
+\expectation\left[(X-\mu)^3\right] = \frac{\alpha(\alpha+1)(\alpha+2)\nu\tau}{\lambda^3}
+\end{equation}
+where $\expectation\left[X\right]=\mu$.
+
+For a given i.i.d.~random sample of compound Poisson-Gamma distributed data, the unknown parameters $\nu$, $\alpha$ and $\lambda$, can be estimated using method of moments. Suppose $\widehat{\mu}$ is an estimator of $\expectation[X]$ and $\widehat{\mu}_j$ is an estimator of $\expectation\left[\left(X-\mu\right)^j\right]$ for $j=2,3$. Then the estimators
+\begin{equation}
+\widehat{\nu}=\frac{\widehat{\mu}^2\widehat{\mu}_2}{\tau\left(2\widehat{\mu}_2^2-\widehat{\mu}_3\widehat{\mu}\right)}
+\end{equation}
+\begin{equation}
+\widehat{\alpha}=\frac{\widehat{\mu}_3\widehat{\mu}-2\widehat{\mu}_2^2}{\widehat{\mu}_2^2-\widehat{\mu}\widehat{\mu}_3}
+\end{equation}
+\begin{equation}
+\widehat{\lambda}=\frac{\widehat{\mu}\widehat{\mu}_2}{\widehat{\mu}\widehat{\mu}_3-\widehat{\mu}_2^2}
+\end{equation}
+are method of moments estimators of $\nu$, $\alpha$ and $\lambda$ respectively \cite{withers2011compound}. These estimators suffer because estimation is not done through the sufficient statistics and can be negative, this is a problem because the parameters do not take non-positive values.
+
+Estimation can also be done using the EM algorithm \cite{dempster1977maximum}, treating the random variable $Y$ to be latent. The problem with the EM algorithm is that the E step is not tractable. This problem can be tackled by truncating the infinite sum in a clever way so that the sum is over a number of high contributing terms to save computational cost \cite{dunn2005series}. Another way is to use MCMC in the E step \cite{booth1999maximizing}.
+
+There exist approximate maximum log likelihood estimators. Under certain conditions, the random variable $X$ can be approximated using the Normal distribution and the likelihood can be maximised numerically. Another approximation is to use the saddle point approximation \cite{daniels1954saddlepoint} to approximate the p.d.f.~of $X$, thus an approximate likelihood can be obtained.
+
+Lastly, because $X$ is in the dispersion exponential family, parameter estimation can be done through the GLM framework \cite{zhang2013likelihood}. The GLM framework and the saddlepoint approximation were used extensively for insurance claim data \cite{jorgensen1994fitting} \cite{jensen1991saddlepoint}.
+
+\section{Probability Density Function}
+The joint p.d.f.~$p_{X,Y}(x,y)$ has probability mass at $X=0$ and $Y=0$ with probability
+\begin{equation}
+\prob\left(X=0,Y=0\right)=\euler^{-\nu\tau} \ ,
+\end{equation}
+and continuous elsewhere
+\begin{equation}
+p_{X,Y}(x,y)=\frac{\lambda^{y\alpha}}{\Gamma(y\alpha)}x^{y\alpha-1}\euler^{-\lambda x}\euler^{-\nu\tau}\frac{(\nu\tau)^y}{y!}
+\end{equation}
+for $y=1,2,\dotdotdot$ and $x>0$. The marginal can be obtained by summing over all possible values of $y$. The marginal p.d.f.~has probability mass at $X=0$ with probability
+\begin{equation}
+\prob(X=0)=\euler^{-\nu\tau}
+\end{equation}
+and continuous elsewhere
+\begin{equation}
+p_{X}(x)=\sum_{y=1}^{\infty}\frac{\lambda^{y\alpha}}{\Gamma(y\alpha)}x^{y\alpha-1}\euler^{-\lambda x}\euler^{-\nu\tau}\frac{(\nu\tau)^y}{y!}
+\end{equation}
+for $x>0$. It is a mixture with one continuous component at $x>0$ and discrete mass at $x=0$. This makes the compound Poisson useful for modelling non-negative variables which can take values of 0. By inspection the marginal p.d.f.~cannot be written down in closed form.
+\subsection{Normal Approximation}
+The marginal p.d.f.~of $X$ can be approximated using the Normal distribution. Using the results of the mean and variance of $X$, the Normal approximation is
+\begin{equation}
+X\sim\normal\left(\frac{\alpha\nu\tau}{\lambda},\frac{\alpha(\alpha+1)\nu\tau}{\lambda^2}\right) \ .
+\end{equation}
+To assess when the Normal approximation is sensible to use can be done by investigating the m.g.f.~of $X$. The m.g.f.~can be written as
+\begin{equation*}
+M(\theta)=\exp\left[\nu\tau\left(\left(1-\frac{\theta}{\lambda}\right)^{-\alpha}-1\right)\right] \ .
+\end{equation*}
+Assuming $|\theta/\lambda|<1$ and using the binomial expansion
+\begin{equation}
+M(\theta)=\exp\left[\nu\tau\left(
+\sum_{r=1}^{\infty}\frac{\theta^r}{r!\lambda^r}\prod_{t=1}^{r}(\alpha+t-1)
+\right)\right] \ .
+\end{equation}
+This is similar to the m.g.f.~of the Normal distribution by considering the first 2 order terms
+\begin{multline}
+M(\theta)=\exp\left[\theta\frac{\alpha\nu\tau}{\lambda}+\frac{\theta^2}{2}\frac{\alpha(\alpha+1)\nu\tau}{\lambda^2}
+\right.\\\left.
++\sum_{r=3}^\infty\nu\tau\frac{\theta^r}{r!\lambda^r}\prod_{t=1}^{r}(\alpha+t-1)
+\right] \ .
+\end{multline}
+For the Normal approximation to be a good approximation, the third and higher order terms must be small. This can happen for large $\lambda$. In addition for large values of $\alpha$ 
+\begin{equation}
+\prod_{t=1}^{r}(\alpha+t-1)\approx\alpha^r \ .
+\end{equation}
+and this is smaller than the coefficient term $\prod_{t=1}^{r}(\alpha+t-1)$
+\begin{equation}
+\prod_{t=1}^{r}(\alpha+t-1) \geqslant \alpha^r \ .
+\end{equation}
+Thus large values of $\alpha$ slow down the relative growth of the $\prod_{t=1}^{r}(\alpha+t-1)$ term, perhaps justifying the Normal approximation.
+
+A more general result can be obtained. This can be done by taking a Taylor expansion of the m.g.f.~of the gamma component in $M(\theta)$. That is let
+\begin{equation}
+M(\theta)=\exp\left[
+\nu\tau\left(M_U(\theta)-1\right)
+\right]
+\end{equation}
+where $M_U(\theta)$ is the m.g.f.~of $\gammaDist(\alpha,\lambda)$. Then taking the Taylor expansion
+\begin{equation*}
+M(\theta)=\exp\left[
+\nu\tau\left(
+\sum_{r=0}^\infty M_U^{(r)}(0)\frac{\theta^r}{r!}
+-1
+\right)
+\right]
+\end{equation*}
+but because $M_U(0)=1$
+\begin{equation}
+M(\theta)=\exp\left[
+\nu\tau
+\sum_{r=1}^\infty M_U^{(r)}(0)\frac{\theta^r}{r!}
+\right] \ .
+\end{equation}
+As before, this is similar to the m.g.f.~of the Normal distribution when considering the first 2 terms
+\begin{multline}
+M(\theta)=\exp\left[
+\theta M_U'(0)\nu\tau+\frac{\theta^2}{2} M_U''(0)\nu\tau
+\right.\\\left.+
+\sum_{r=3}^\infty M_U^{(r)}(0)\frac{\theta^r}{r!}\nu\tau\right] \ .
+\end{multline}
+Thus for the Normal approximation to be good, the parameters $\alpha$ and $\lambda$ must be such that the third and higher moments of $\gammaDist(\alpha,\lambda)$ are much smaller than the first two moments.
+
+\subsection{Saddle Point Approximation}
+For a given m.g.f., that is
+\begin{equation}
+M(\theta)=\int_{-\infty}^{\infty}\euler^{x\theta} p_X(x) \diff x \ ,
+\end{equation}
+the saddle point approximation \cite{daniels1954saddlepoint} \cite{butler2007saddlepoint} finds an approximate $p_X(x)$. The saddle point approximation is given as
+\begin{equation}
+p_X(x)\approx\left(2\pi K''(s)\right)^{-1/2}\exp\left[K(s)-sx\right]
+\end{equation}
+where $K(\theta) = \ln\left(M(\theta)\right)$, and $s=s(x)$ is the solution to the saddle point equation $K'(s)=x$.
+
+For the compound Poisson-Gamma distribution, the saddle point approximation is given in Equation \eqref{eq:saddle_point_approx} and is valid only for $x>0$. The integral of the density approximation over the support may not equal to one, it can be numerically re-normalised if necessary.
+
+\begin{figure*}[htb]
+\begin{multline}
+p_X(x)\approx
+\left(2\pi(\alpha+1)\right)^{-1/2}\left(\nu\tau\lambda^\alpha\alpha\right)^{1/(2(\alpha+1))}\euler^{-\nu\tau}
+\\
+\exp\left[
+-\frac{\alpha+2}{2(\alpha+1)}\ln(x)-x\lambda+\left(\left(\frac{x\lambda}{\alpha}\right)^{\alpha}\nu\tau\right)^{1/(\alpha+1)}(\alpha+1)
+\right]
+\label{eq:saddle_point_approx}
+\end{multline}
+\end{figure*}
+
+\subsection{Simulations}
+Exact simulation of the compound Poisson distribution is easy, this is done by simulating the latent variable $Y$ and then simulating the observable given that latent variable, $X|Y$. An experiment was conducted to assess how good the density approximations are. This was done by simulating $10^4$ samples of a compound Poisson random variable, and then comparing the histogram of the samples with the density approximation. Three sets of parameters were chosen and the results are shown in Figure \ref{fig:histogram}.
+
+For low $\nu\tau$, there is a chance of simulating zeros. The Normal approximation failed to capture the probability mass at zero because the Normal distribution was constrained to be symmetric. The saddlepoint approximation did capture probabilty mass at zero as shown by an increase in probability density towards zero. However for a distinct mixture looking compound Poisson, Figure \ref{fig:histogram} (d), the saddlepoint approxmation was not flexible enough to capture each individual peaks.
+
+For the Normal looking compound Poisson, both approxmations performed well.
+\begin{figure*}
+\centerline{
+	\centering
+    \begin{subfigure}{0.5\textwidth}
+        \includegraphics[width=1\textwidth]{../figures/compoundPoisson/normal_1.eps}
+        \caption{Normal approximation: $\nu\tau=1$, $\alpha=1$, $\lambda=1$}
+    \end{subfigure}
+    \begin{subfigure}{0.5\textwidth}
+        \includegraphics[width=1\textwidth]{../figures/compoundPoisson/saddle_1.eps}
+        \caption{Saddlepoint approximation: $\nu\tau=1$, $\alpha=1$, $\lambda=1$}
+    \end{subfigure}
+}
+\centerline{
+    \begin{subfigure}{0.5\textwidth}
+        \includegraphics[width=1\textwidth]{../figures/compoundPoisson/normal_2.eps}
+        \caption{Normal approximation: $\nu\tau=3$, $\alpha=400$, $\lambda=100$}
+    \end{subfigure}
+    \begin{subfigure}{0.5\textwidth}
+        \includegraphics[width=1\textwidth]{../figures/compoundPoisson/saddle_2.eps}
+        \caption{Saddlepoint approximation: $\nu\tau=3$, $\alpha=400$, $\lambda=100$}
+    \end{subfigure}
+}
+\centerline{
+    \begin{subfigure}{0.5\textwidth}
+        \includegraphics[width=1\textwidth]{../figures/compoundPoisson/normal_3.eps}
+        \caption{Normal approximation: $\nu\tau=500$, $\alpha=80$, $\lambda=2$}
+    \end{subfigure}
+    \begin{subfigure}{0.5\textwidth}
+        \includegraphics[width=1\textwidth]{../figures/compoundPoisson/saddle_3.eps}
+        \caption{Saddlepoint approximation: $\nu\tau=500$, $\alpha=80$, $\lambda=2$}
+    \end{subfigure}
+}
+\caption{A sample of $10^4$ compound Poisson random variables was simulated. The histogram of the samples was plotted along with the density approxmation.}
+\label{fig:histogram}
+\end{figure*}
+
+\section{Parameter estimation}
+The saddlepoint approxmation did capture the probabilty mass at zero, however the formula for the density approxmation does not support zero. As a result, the saddlepoint approxmation may not be suited to approximate the likelihood when there is a good chance of obtaining zeros in the data. A way around it is to adjust the data by adding a very small constant to all zeros in the data.
+
+An experiment was conducted to optimise the saddle point likelihood approximation numerically using the quasi-Newton method. For a given set of compound Poisson parameters, this was done by simulating 100 i.i.d.~samples. Any zeros in the sample were converted to a small constant, the constant being 1/8th of the minimum of all non-zero data in the sample, this was done to make the approximated likelihood evaluable. The likelihood was then optimised using \texttt{MATLAB}'s \texttt{fminunc} function with the default settings. The initial value was set at the true value to see how much the optimiser diverges from the true value. This was repeated 1\,000 times to obtain an empirical sampling distribution.
+
+2 sets of parameters, carried forward from the previous section were used: $\{\nu\tau=3,\alpha=400,\lambda=100\}$ and $\{\nu\tau=500,\alpha=80,\lambda=2\}$. Figure \ref{fig:sampling_dist} shows the empirical sampling distribution from the experiment. For these particular examples, the estimators appeared to be unbiased with nice behaving distributions and finite variance. However for the $\{\nu\tau=500,\alpha=80,\lambda=2\}$ case, the variance looks too small to be true. It was found that the estimator was extremely sensitive to the initial value and the optimiser may not moved much from the initial value, this seems to be the case here.
+
+\begin{figure*}
+\centerline{
+	\centering
+    \begin{subfigure}{0.5\textwidth}
+        \includegraphics[width=1\textwidth]{../figures/compoundPoisson/sampling_dist_1_nu.eps}
+        \caption{$\nu\tau$ estimates for $\nu\tau=3$, $\alpha=400$, $\lambda=100$}
+    \end{subfigure}
+    \begin{subfigure}{0.5\textwidth}
+        \includegraphics[width=1\textwidth]{../figures/compoundPoisson/sampling_dist_2_nu.eps}
+        \caption{$\nu\tau$ estimates for  $\nu\tau=500$, $\alpha=80$, $\lambda=2$}
+    \end{subfigure}
+}
+\centerline{
+    \begin{subfigure}{0.5\textwidth}
+        \includegraphics[width=1\textwidth]{../figures/compoundPoisson/sampling_dist_1_alpha.eps}
+        \caption{$\alpha$ estimates for  $\nu\tau=3$, $\alpha=400$, $\lambda=100$}
+    \end{subfigure}
+    \begin{subfigure}{0.5\textwidth}
+        \includegraphics[width=1\textwidth]{../figures/compoundPoisson/sampling_dist_2_alpha.eps}
+        \caption{$\alpha$ estimates for $\nu\tau=500$, $\alpha=80$, $\lambda=2$}
+    \end{subfigure}
+}
+\centerline{
+    \begin{subfigure}{0.5\textwidth}
+        \includegraphics[width=1\textwidth]{../figures/compoundPoisson/sampling_dist_1_lambda.eps}
+        \caption{$\lambda$ estimates for $\nu\tau=3$, $\alpha=400$, $\lambda=100$}
+    \end{subfigure}
+    \begin{subfigure}{0.5\textwidth}
+        \includegraphics[width=1\textwidth]{../figures/compoundPoisson/sampling_dist_2_lambda.eps}
+        \caption{$\lambda$ estimates for $\nu\tau=500$, $\alpha=80$, $\lambda=2$}
+    \end{subfigure}
+}
+\caption{Sampling distribution of the maximum saddlepoint approximated likelihood estimators. Dotted line represent the true value.}
+\label{fig:sampling_dist}
+\end{figure*}
+
+Figure \ref{fig:lnL} shows a plot of a typical log likelihood in the 3 parameter space. The log likelihood looks shallow and perhaps the optimiser in \texttt{MATLAB} may have struggled to improve estimations near the true value.
+
+\begin{figure}
+\centerline{\centering
+\includegraphics[width=0.5\textwidth]{../figures/compoundPoisson/log_likelihood.eps}}
+\caption{An example of the log likelihood of a sample of compound Poisson random variables with parameters: $\nu\tau=500$, $\alpha=80$, $\lambda=2$}
+\label{fig:lnL}
+\end{figure}
+
+\section{Future work}
+The \texttt{R} package \texttt{cplm} \cite{zhang2013likelihood} numerically estimate parameters for the compound Poisson in the GLM framework. However for large parameters, there were numerical problems and the estimators' performance were hit and miss. Future work will reply on this package and the saddlepoint approximation to estimate parameters for the compound Poisson. Numerical problems can come from ill-conditioned variables and variables need to be scaled. One useful property of the compound Poisson is that the parameter $\lambda$ can absorb any scaling by a constant. That is if one can express a compound Poisson random variable as
+\begin{equation}
+X\sim\text{CompoundPoisson}\left(\nu\tau,\alpha,\lambda\right)
+\end{equation}
+then for a positive constant $k$
+\begin{equation}
+kX\sim\text{CompoundPoisson}\left(\nu\tau,\alpha,\lambda/k\right) \ .
+\end{equation}
+
+\bibliographystyle{unsrt}
+\bibliography{../bib}
+
+\end{document}
