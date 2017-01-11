@@ -1,0 +1,153 @@
+classdef MeanVar_GLM < VarianceModelling
+    %MEANVAR_GLM Abstract super class for modelling variance as gamma with known shape parameter given
+    %mean greyvalue
+    
+    %MEMBER VARIABLES
+    properties
+        %shape parameter of the gamma distribution
+        shape_parameter;
+    end
+    
+    %METHODS
+    methods
+        
+        %CONSTRUCTOR
+        %PARAMETERS:
+            %shape_parameter: shape parameter of the gamma distribution
+        function this = MeanVar_GLM(shape_parameter)
+            %assign member variables
+            this.shape_parameter = shape_parameter;
+        end
+        
+        %TRAIN CLASSIFIER
+        %PARAMETERS:
+            %var_train: column vector of greyvalue variance
+            %mean_train: column vector of greyvalue mean
+            %n_step: number of IRLS steps
+        function train(this,var_train,mean_train,n_step)
+            
+            %set inital parameter
+            this.parameter = [-1;0];
+            %assign training set size
+            this.n_train = numel(var_train);
+            
+            %rename variables and get design matrix
+            y = var_train;
+            X = this.getDesignMatrix(mean_train);
+            
+            %IRLS SECTION
+            
+            %initalise variables
+            eta = X*this.parameter; %systematic component
+            mu = -this.shape_parameter./eta; %mean vector
+            v = mu.^2 / this.shape_parameter; %variance vector
+            w = 1./(v.*this.getLinkDiff(mu)); %weights in IRLS
+            
+            %for n_step times
+            for i_step = 1:n_step
+                
+                %work out the z vector
+                z = eta + (y-mu).*this.getLinkDiff(mu);
+                
+                %Xt_w is X'*W (W is nxn and diagonal, it is not necessary to represent the large diagonal matrix W) 
+                Xt_w = X';
+                for i_n = 1:this.n_train
+                    Xt_w(:,i_n) = Xt_w(:,i_n).*w(i_n);
+                end
+                
+                %update the parameter
+                this.parameter = (Xt_w*X)\(Xt_w*z);
+                
+                %update variables
+                eta = X*this.parameter; %systematic component
+                mu = -this.shape_parameter./eta; %mean vector
+                v = mu.^2 / this.shape_parameter; %variance vector
+                w = 1./(v.*this.getLinkDiff(mu)); %weights in IRLS
+                
+            end
+            
+        end
+        
+        %PREDICT VARIANCE GIVEN MEAN
+        %PARAMETERS:
+            %x: column vector of mean greyvalue
+        %RETURN:
+            %variance_prediction: predicted greyvalue variance (column vector)
+            %up_error: 84% percentile
+            %down_error: 16% percentile
+        function [variance_prediction, up_error, down_error] = predict(this,x)
+            %get design matrix
+            X = this.getDesignMatrix(x);
+            %work out variables
+            eta = X*this.parameter;
+            scale = -1./getNaturalParameter(this,eta);
+            
+            %work out mean, to be used for the variance prediction
+            variance_prediction = this.shape_parameter * scale;
+            
+            %work out the [16%, 84%] percentile, to be used for error bars
+            up_error = gaminv(normcdf(1),this.shape_parameter,scale);
+            down_error = gaminv(normcdf(-1),this.shape_parameter,scale);
+            
+        end
+        
+        %PREDICTION MEAN SQUARED ERROR
+        %Return the mean squared prediction error
+        %PARAMETERS:
+            %y: greyvalue variance (column vector)
+            %x: greyvalue mean (column vector)
+            %x and y are the same size
+        %RETURN:
+            %mse: scalar mean squared error
+        function mse = getPredictionMSE(this,y,x)
+            %given greyvalue mean, predict greyvalue variance
+            y_predict = this.predict(x);
+            %work out the mean squared error
+            mse = sum((y-y_predict).^2);
+        end
+        
+        %SIMULATE
+        %PARAMETERS:
+            %x: column vector of greyvalue means
+            %parameter: parameter for GLM
+        %RETURN:
+            %y: column vector of simulated greyvalue variance
+        function y = simulate(this,x,parameter)
+            
+            %get design matrix
+            X = this.getDesignMatrix(x);
+            
+            %work out systematic component
+            eta = X*parameter;
+            %get natural parameter from systematic component
+            theta = this.getNaturalParameter(eta);
+
+            %simulate gamma from the natural parameter
+            y = gamrnd(this.shape_parameter,-1./theta);
+        end
+     
+    end
+    
+    %ABSTRACT METHODS
+    methods(Abstract)
+        
+        %GET DESIGN MATRIX
+        %PARAMETERS:
+            %grey_values: column vector of greyvalues
+        %RETURN:
+            %X: n x 2 design matrix
+        X = getDesignMatrix(this,grey_values);
+        
+        %GET LINK FUNCTION DIFFERENTATED
+        %PARAMETERS:
+            %mu: column vector of means
+        %RETURN:
+            %g_dash: colum vector of g'(mu)
+        g_dash = getLinkDiff(this,mu);
+        
+        %GET NATURAL PARAMETER from systematic component
+        theta = getNaturalParameter(this,eta);
+    end
+    
+end
+
