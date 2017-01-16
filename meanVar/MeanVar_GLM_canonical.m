@@ -9,9 +9,10 @@ classdef MeanVar_GLM_canonical < MeanVar_GLM
     methods
         
         %CONSTRUCTOR
-        function this = MeanVar_GLM_canonical(shape_parameter)
+        %PARAMETERS: see upser class MeanVar_GLM
+        function this = MeanVar_GLM_canonical(shape_parameter,polynomial_order)
             %call superclass
-            this@MeanVar_GLM(shape_parameter);
+            this@MeanVar_GLM(shape_parameter,polynomial_order);
         end
         
         %GET DESIGN MATRIX
@@ -20,7 +21,7 @@ classdef MeanVar_GLM_canonical < MeanVar_GLM
         %RETURN:
             %X: n x 2 design matrix
         function X = getDesignMatrix(this,grey_values)
-            X = [ones(numel(grey_values),1),1./grey_values];
+            X = [ones(numel(grey_values),1),grey_values.^this.polynomial_order];
         end
         
         %GET LINK FUNCTION DIFFERENTATED

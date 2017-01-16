@@ -9,6 +9,7 @@ classdef MeanVar_GLM < VarianceModelling
         y_scale;
         x_scale;
         x_shift;
+        polynomial_order;
     end
     
     %METHODS
@@ -17,9 +18,11 @@ classdef MeanVar_GLM < VarianceModelling
         %CONSTRUCTOR
         %PARAMETERS:
             %shape_parameter: shape parameter of the gamma distribution
-        function this = MeanVar_GLM(shape_parameter)
+            %polynomial_order: polynomial order feature
+        function this = MeanVar_GLM(shape_parameter,polynomial_order)
             %assign member variables
             this.shape_parameter = shape_parameter;
+            this.polynomial_order = polynomial_order;
         end
         
         %TRAIN CLASSIFIER
