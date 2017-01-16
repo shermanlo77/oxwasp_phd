@@ -6,6 +6,9 @@ classdef MeanVar_GLM < VarianceModelling
     properties
         %shape parameter of the gamma distribution
         shape_parameter;
+        y_scale;
+        x_scale;
+        x_shift;
     end
     
     %METHODS
@@ -31,9 +34,13 @@ classdef MeanVar_GLM < VarianceModelling
             %assign training set size
             this.n_train = numel(var_train);
             
-            %rename variables and get design matrix
-            y = var_train;
+            %scale variables and get design matrix
+            this.y_scale = std(var_train);
+            y = var_train./this.y_scale;
             X = this.getDesignMatrix(mean_train);
+            this.x_shift = mean(X(:,2));
+            this.x_scale = std(X(:,2));
+            X = this.getNormalisedDesignMatrix(mean_train);
             
             %IRLS SECTION
             
@@ -77,17 +84,17 @@ classdef MeanVar_GLM < VarianceModelling
             %down_error: 16% percentile
         function [variance_prediction, up_error, down_error] = predict(this,x)
             %get design matrix
-            X = this.getDesignMatrix(x);
+            X = this.getNormalisedDesignMatrix(x);
             %work out variables
             eta = X*this.parameter;
             scale = -1./getNaturalParameter(this,eta);
             
             %work out mean, to be used for the variance prediction
-            variance_prediction = this.shape_parameter * scale;
+            variance_prediction = this.shape_parameter * scale * this.y_scale;
             
             %work out the [16%, 84%] percentile, to be used for error bars
-            up_error = gaminv(normcdf(1),this.shape_parameter,scale);
-            down_error = gaminv(normcdf(-1),this.shape_parameter,scale);
+            up_error = gaminv(normcdf(1),this.shape_parameter,scale) * this.y_scale;
+            down_error = gaminv(normcdf(-1),this.shape_parameter,scale) * this.y_scale;
             
         end
         
@@ -124,6 +131,11 @@ classdef MeanVar_GLM < VarianceModelling
 
             %simulate gamma from the natural parameter
             y = gamrnd(this.shape_parameter,-1./theta);
+        end
+        
+        function X = getNormalisedDesignMatrix(this,grey_values)
+            X = this.getDesignMatrix(grey_values);
+            X(:,2) = (X(:,2)-this.x_shift) / this.x_scale;
         end
      
     end

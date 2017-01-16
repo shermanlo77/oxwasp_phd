@@ -20,7 +20,7 @@ classdef MeanVar_GLM_canonical < MeanVar_GLM
         %RETURN:
             %X: n x 2 design matrix
         function X = getDesignMatrix(this,grey_values)
-            X = [ones(numel(grey_values),1),grey_values];
+            X = [ones(numel(grey_values),1),1./grey_values];
         end
         
         %GET LINK FUNCTION DIFFERENTATED
