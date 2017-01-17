@@ -113,7 +113,7 @@ classdef MeanVar_GLM < VarianceModelling
             %given greyvalue mean, predict greyvalue variance
             y_predict = this.predict(x);
             %work out the mean squared error
-            mse = sum((y-y_predict).^2);
+            mse = sum((y-y_predict).^2)/numel(y);
         end
         
         %SIMULATE
