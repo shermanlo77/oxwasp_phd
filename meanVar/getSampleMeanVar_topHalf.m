@@ -7,9 +7,9 @@ function [sample_var,sample_mean] = getSampleMeanVar_topHalf(folder_location,ind
     sample_var = reshape(var(stack,[],3),[],1);
     sample_mean = reshape(mean(stack,3),[],1);
     
-    figure;
-    imagesc(mean(stack,3));
-    colormap gray;
+    %figure;
+    %imagesc(mean(stack,3));
+    %colormap gray;
 
 end
 
