@@ -1,7 +1,7 @@
 %FIT GLM SCRIPT
 %Model the mean and variance relationship, using the top half of the stack image The response variance is gamma
 %distributed with known shape parameter from the chi squared distribution.
-%The feature is the mean grey value to the power of -1 or 1. A frequency
+%The feature is the mean grey value to some power. A frequency
 %density graph is plotted along with the fit
 
 clc;
@@ -12,14 +12,14 @@ close all;
 nbin = 100;
 
 %get variance mean data of the top half of the scans (images 1 to 100)
-[sample_var,sample_mean] = getSampleMeanVar_topHalf('/home/sherman/Documents/data/block',1:100);
+[sample_var,sample_mean] = getSampleMeanVar_topHalf('../data/block',1:100);
 
 %shape parameter is number of (images - 1)/2, this comes from the chi
 %squared distribution
 shape_parameter = (100-1)/2;
 
-%for polynomial order -1 and 1
-for polynomial_order = [-1,1]
+%for each polynomial order
+for polynomial_order = [-4,-3,-2,-1]
     
     %model the mean and variance using gamma glm
     model = MeanVar_GLM_canonical(shape_parameter,polynomial_order);
