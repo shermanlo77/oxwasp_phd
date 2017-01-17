@@ -5,8 +5,11 @@
     %sample_var: n vector of the sample variance grey values
 function [ax] = plotHistogramHeatmap(sample_mean,sample_var,nbin)
 
+    %check the parameters are of the correct type
     checkParameters(sample_mean,sample_var);
+    %get the index of sample_mean and sample variance which are notoutliers
     index = removeOutliers(sample_mean) & removeOutliers(sample_var);
+    %remove outliers
     sample_mean = sample_mean(index);
     sample_var = sample_var(index);
 
@@ -19,14 +22,9 @@ function [ax] = plotHistogramHeatmap(sample_mean,sample_var,nbin)
     
     %plot the heatmap
     ax = figure;
-    %imagesc([2E4,0.05E6],[5.3E4,4E5],zeros(2));
-    %imagesc([min(sample_mean),max(sample_mean)],[min(sample_var),max(sample_var)],zeros(2))
-    %hold on;
     %normalize N so that the colormap is the frequency density
     imagesc(cell2mat(c(2)),cell2mat(c(1)),N/( (c{2}(2)-c{2}(1))*(c{1}(2)-c{1}(1)) ) );
     axis xy; %switch the y axis
-    %xlim([2E4,5.3E4]);
-    %ylim([0.05E6,4E5]); %set the y limit
     colorbar; %display the colour bar
     xlabel('Sample grey value mean (arb. unit)'); %label the axis
     ylabel('Sample grey value variance {(arb. unit^2)}'); %label the axis
@@ -51,12 +49,16 @@ function [ax] = plotHistogramHeatmap(sample_mean,sample_var,nbin)
         end
     end
 
+    %NEST FUNCTION: REMOVE OUTLIERS
+    %Remove outliers in the vector x using Q(1,3) +/- 1.5 IQR
     function index = removeOutliers(x)
+        %get q1 and q3
         q = prctile(x,[25,75]);
         q1 = q(1);
         q2 = q(2);
+        %work out iqr
         iqr = q2-q1;
-        
+        %find the index which point to data which are not outliers
         index =  ( x > (q1 - 1.5*iqr) );
         index = index & ( x < (q2 + 1.5*iqr) );
     end
