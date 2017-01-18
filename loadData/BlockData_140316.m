@@ -1,4 +1,4 @@
-classdef BlockData < handle
+classdef BlockData_140316 < handle
     %BLOCKDATA
     %Class for obtaining images for the 140316 data
     
@@ -15,13 +15,14 @@ classdef BlockData < handle
         white_name; %... name of white image ...
         grey_name; %... name of grey image ...
         sample_name; %... name of sample image
+        folder_location; %location of the dataset
     end
     
     %METHODS
     methods
         
         %CONSTRUCTOR
-        function this = BlockData()
+        function this = BlockData_140316(folder_location)
             %assign member variables
             this.width = 1996;
             this.height = 1996;
@@ -34,121 +35,136 @@ classdef BlockData < handle
             this.white_name = '/white_140316_';
             this.grey_name = '/grey_140316_';
             this.sample_name = '/block_';
+            this.folder_location = folder_location;
         end
         
         %LOAD BLACK IMAGE
         %Return a black image
         %PARAMETERS
-            %folder_location: string targetting location of the black image
             %index: index of image
-        function slice = loadBlack(this,folder_location,index)
-            slice = imread(strcat(folder_location,this.black_name,num2str(index),'.tif'));
+        function slice = loadBlack(this,index)
+            slice = imread(strcat(this.folder_location,'/black',this.black_name,num2str(index),'.tif'));
         end
         
         %LOAD GREY IMAGE
         %Return a grey image
         %PARAMETERS
-            %folder_location: string targetting location of the grey image
             %index: index of image
-        function slice = loadGrey(this,folder_location,index)
-            slice = imread(strcat(folder_location,this.grey_name,num2str(index),'.tif'));
+        function slice = loadGrey(this,index)
+            slice = imread(strcat(this.folder_location,'/grey',this.grey_name,num2str(index),'.tif'));
         end
         
         %LOAD WHITE IMAGE
         %Return a white image
         %PARAMETERS
-            %folder_location: string targetting location of the white image
             %index: index of image
-        function slice = loadWhite(this,folder_location,index)
-            slice = imread(strcat(folder_location,this.white_name,num2str(index),'.tif'));
+        function slice = loadWhite(this,index)
+            slice = imread(strcat(this.folder_location,'/white',this.white_name,num2str(index),'.tif'));
         end
         
         %LOAD SAMPLE IMAGE
         %Return a sample image
         %PARAMETERS
-            %folder_location: string targetting location of the sample image
             %index: index of image
-        function slice = loadSample(this,folder_location,index)
-            slice = imread(strcat(folder_location,this.sample_name,num2str(index),'.tif'));
+        function slice = loadSample(this,index)
+            slice = imread(strcat(this.folder_location,'/sample',this.sample_name,num2str(index),'.tif'));
         end
         
         %LOAD BLACK IMAGE STACK
         %Return stack of black images
         %PARAMETERS:
-            %folder_location: string targetting location of the black image
             %range (optional): vector of indices of images requested, if
             %empty return the full range
-        function stack = loadBlackStack(this,folder_location,range)
+        function stack = loadBlackStack(this,range)
             %if range not provided, provide the full range
-            if nargin == 2
+            if nargin == 1
                 range = 1:this.n_black;
             end
             %declare stack of images
             stack = zeros(this.height,this.width,numel(range));
             %for each image, put it in the stack
             for index = 1:numel(range)
-                stack(:,:,index) = this.loadBlack(folder_location,range(index));
+                stack(:,:,index) = this.loadBlack(range(index));
             end
         end
         
         %LOAD GREY IMAGE STACK
         %Return stack of grey images
         %PARAMETERS:
-            %folder_location: string targetting location of the grey image
             %range (optional): vector of indices of images requested, if
             %empty return the full range
-        function stack = loadGreyStack(this,folder_location,range)
+        function stack = loadGreyStack(this,range)
             %if range not provided, provide the full range
-            if nargin == 2
+            if nargin == 1
                 range = 1:this.n_grey;
             end
             %declare stack of images
             stack = zeros(this.height,this.width,numel(range));
             %for each image, put it in the stack
             for index = 1:numel(range)
-                stack(:,:,index) = this.loadGrey(folder_location,range(index));
+                stack(:,:,index) = this.loadGrey(range(index));
             end
         end
         
         %LOAD WHITE IMAGE STACK
         %Return stack of white images
         %PARAMETERS:
-            %folder_location: string targetting location of the white image
             %range (optional): vector of indices of images requested, if
             %empty return the full range
-        function stack = loadWhiteStack(this,folder_location,range)
+        function stack = loadWhiteStack(this,range)
             %if range not provided, provide the full range
-            if nargin == 2
+            if nargin == 1
                 range = 1:this.n_white;
             end
             %declare stack of images
             stack = zeros(this.height,this.width,numel(range));
             %for each image, put it in the stack
             for index = 1:numel(range)
-                stack(:,:,index) = this.loadWhite(folder_location,range(index));
+                stack(:,:,index) = this.loadWhite(range(index));
             end
         end
         
         %LOAD SAMPLE IMAGE STACK
         %Return stack of sample images
         %PARAMETERS:
-            %folder_location: string targetting location of the sample image
             %range (optional): vector of indices of images requested, if
             %empty return the full range
-        function stack = loadSampleStack(this,folder_location,range)
+        function stack = loadSampleStack(this,range)
             %if range not provided, provide the full range
-            if nargin == 2
+            if nargin == 1
                 range = 1:this.n_sample;
             end
             %declare stack of images
             stack = zeros(this.height,this.width,numel(range));
             %for each image, put it in the stack
             for index = 1:numel(range)
-                stack(:,:,index) = this.loadSample(folder_location,range(index));
+                stack(:,:,index) = this.loadSample(range(index));
             end
+        end
+        
+        %GET SAMPLE MEAN VARIANCE DATA (using top half of the images)
+        %PARAMETERS:
+            %index (optional): vector of indices of images requested to be
+            %used in mean and variance estimation, if not provided all
+            %images shall be considered
+        function [sample_mean,sample_var] = getSampleMeanVar_topHalf(this,index)
+
+            %if index not provided, index points to all images
+            if nargin == 1
+                index = 1:this.n_sample;
+            end
+            
+            %load the stack of images, indicated by the vector index
+            stack = this.loadSampleStack(index);
+            %crop the stack, keeping the top half
+            stack = stack(1:(this.height/2),:,:);
+            %work out the sample mean and convert it to a vector
+            sample_mean = reshape(mean(stack,3),[],1);
+            %work out the sample variance and convert it to a vector
+            sample_var = reshape(var(stack,[],3),[],1);
+
         end
         
     end
     
 end
-

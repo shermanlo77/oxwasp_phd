@@ -8,6 +8,9 @@ close all;
 %set random seed
 rng(uint32(33579150), 'twister');
 
+%instantise an object pointing to the dataset
+block_data = BlockData_140316('../data/140316');
+
 %array of polynomial features to explore
 polynomial_array = [-4,-3,-2,-1];
 
@@ -42,16 +45,16 @@ for i_polynomial = 1:numel(polynomial_array)
         test_index = index_suffle(51:100);
         
         %get variance mean data of the training set
-        [sample_var,sample_mean] = getSampleMeanVar_topHalf('../data/block',training_index);
+        [sample_mean,sample_var] = block_data.getSampleMeanVar_topHalf(training_index);
         %train the classifier
         model.train(sample_var,sample_mean,100);
         %get the training mse
-        mse_training_array(i_repeat,i_polynomial) = model.getPredictionMSE(sample_var,sample_mean);
+        mse_training_array(i_repeat,i_polynomial) = model.getPredictionMSE(sample_mean,sample_var);
 
         %get the variance mean data of the test set
-        [sample_var,sample_mean] = getSampleMeanVar_topHalf('../data/block',test_index);
+        [sample_mean,sample_var] = block_data.getSampleMeanVar_topHalf(test_index);
         %get the test mse
-        mse_test_array(i_repeat,i_polynomial) = model.getPredictionMSE(sample_var,sample_mean);
+        mse_test_array(i_repeat,i_polynomial) = model.getPredictionMSE(sample_mean,sample_var);
         
     end
     

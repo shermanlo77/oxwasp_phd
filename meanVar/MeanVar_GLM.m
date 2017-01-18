@@ -30,7 +30,7 @@ classdef MeanVar_GLM < VarianceModelling
             %var_train: column vector of greyvalue variance
             %mean_train: column vector of greyvalue mean
             %n_step: number of IRLS steps
-        function train(this,var_train,mean_train,n_step)
+        function train(this,mean_train,var_train,n_step)
             
             %set inital parameter
             this.parameter = [-1;0];
@@ -109,7 +109,7 @@ classdef MeanVar_GLM < VarianceModelling
             %x and y are the same size
         %RETURN:
             %mse: scalar mean squared error
-        function mse = getPredictionMSE(this,y,x)
+        function mse = getPredictionMSE(this,x,y)
             %given greyvalue mean, predict greyvalue variance
             y_predict = this.predict(x);
             %work out the mean squared error

@@ -10,6 +10,9 @@ close all;
 %set random seed
 rng(uint32(189224219), 'twister');
 
+%instantise an object pointing to the dataset
+block_data = BlockData_140316('../data/140316');
+
 %number of bins for the frequency density plot
 nbin = 100;
 
@@ -29,9 +32,9 @@ for i_sample = 1:numel(n_sample_array)
     n_sample = n_sample_array(i_sample);
     
     %set n_sample mean/var data
-    data_index = randperm(100);
+    data_index = randperm(block_data.n_sample);
     data_index = data_index(1:n_sample);
-    [sample_var,sample_mean] = getSampleMeanVar_topHalf('../data/block',data_index);
+    [sample_mean,sample_var] = block_data.getSampleMeanVar_topHalf(data_index);
 
     %shape parameter is number of (images - 1)/2, this comes from the chi
     %squared distribution
@@ -40,7 +43,7 @@ for i_sample = 1:numel(n_sample_array)
     %model the mean and variance using gamma glm
     model = MeanVar_GLM_canonical(shape_parameter,polynomial_order);
     %train the classifier
-    model.train(sample_var,sample_mean,100);
+    model.train(sample_mean,sample_var,100);
 
     %get a range of greyvalues to plot the fit
     x_plot = linspace(min(sample_mean),max(sample_mean),100);
