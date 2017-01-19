@@ -200,18 +200,21 @@ classdef BlockData_140316 < handle
         %PARAMETERS:
             %shading_corrector_class: function name or function handle of
             %a ShadingCorrector class
+            %want_grey: boolean, true if want to consider grey images
             %parameters: a vector of parameters for panel fitting
-        function addShadingCorrector(this,shading_corrector_class,parameters)
+        function addShadingCorrector(this,shading_corrector_class,want_grey,parameters)
             
             %declare an array reference_stack which stores the mean black and mean
             %white image
-            reference_stack = zeros(this.height,this.width,2);
+            reference_stack = zeros(this.height,this.width,2+want_grey);
             %load and save the mean black image
             reference_stack(:,:,1) = mean(this.loadBlackStack(),3);
-            %load and save the mean grey image
-            reference_stack(:,:,2) = mean(this.loadGreyStack(),3);
             %load and save the mean white image
-            reference_stack(:,:,3) = mean(this.loadWhiteStack(),3);
+            reference_stack(:,:,2) = mean(this.loadWhiteStack(),3);
+            %if want_grey, load and save the mean grey image
+            if want_grey
+                reference_stack(:,:,3) = mean(this.loadGreyStack(),3);
+            end
 
             %instantise a shading corrector and set it up using reference images
             this.shading_corrector = feval(shading_corrector_class,reference_stack);
@@ -225,7 +228,7 @@ classdef BlockData_140316 < handle
                     %get the coordinates of the panel
                     panel_corners = this.getNextPanelCorner();
                     %for each reference image, smooth that panel
-                    for i_index = 1:3
+                    for i_index = 1:(2+want_grey)
                         this.shading_corrector.smoothPanel(i_index,panel_corners,parameters(i_index));
                     end
                 end

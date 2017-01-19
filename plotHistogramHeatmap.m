@@ -3,12 +3,19 @@
 %PARAMETERS:
     %sample_mean: n vector of the sample mean grey values
     %sample_var: n vector of the sample variance grey values
-function [ax] = plotHistogramHeatmap(sample_mean,sample_var,nbin)
+function [ax] = plotHistogramHeatmap(sample_mean,sample_var,nbin,mean_lim,var_lim)
 
     %check the parameters are of the correct type
     checkParameters(sample_mean,sample_var);
-    %get the index of sample_mean and sample variance which are notoutliers
-    index = removeOutliers(sample_mean) & removeOutliers(sample_var);
+    
+    if nargin == 3
+        %get the index of sample_mean and sample variance which are notoutliers
+        index = removeOutliers(sample_mean) & removeOutliers(sample_var);
+    else
+        index = (mean_lim(1) < sample_mean) & (sample_mean < mean_lim(2));
+        index = index & (var_lim(1) < sample_var) & (sample_var < var_lim(2));
+    end
+    
     %remove outliers
     sample_mean = sample_mean(index);
     sample_var = sample_var(index);
@@ -22,6 +29,10 @@ function [ax] = plotHistogramHeatmap(sample_mean,sample_var,nbin)
     
     %plot the heatmap
     ax = figure;
+    if nargin == 5
+        imagesc(mean_lim,var_lim,[0,0]);
+        hold on;
+    end
     %normalize N so that the colormap is the frequency density
     imagesc(cell2mat(c(2)),cell2mat(c(1)),N/( (c{2}(2)-c{2}(1))*(c{1}(2)-c{1}(1)) ) );
     axis xy; %switch the y axis
