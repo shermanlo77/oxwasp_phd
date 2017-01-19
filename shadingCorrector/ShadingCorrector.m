@@ -17,6 +17,8 @@ classdef ShadingCorrector < handle
         target_mean; %mean of all greyvalues in reference_image_array
         b_array; %image of the gradients
         
+        can_smooth; %boolean, false, it cannot smooth
+        
     end
     
     %METHODS
@@ -32,6 +34,7 @@ classdef ShadingCorrector < handle
             [height,width,this.n_image] = size(reference_image_array);
             %assign member variable
             this.image_size = [height,width];
+            this.can_smooth = false;
         end
         
         %CALIBRATE

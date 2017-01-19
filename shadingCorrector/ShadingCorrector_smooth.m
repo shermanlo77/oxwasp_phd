@@ -21,6 +21,7 @@ classdef ShadingCorrector_smooth < ShadingCorrector
             %reference_image_array: stack of blank scans
         function this = ShadingCorrector_smooth(reference_image_array)
             this = this@ShadingCorrector(reference_image_array);
+            this.can_smooth = true;
             this.orginial_reference_array = reference_image_array;
         end
         

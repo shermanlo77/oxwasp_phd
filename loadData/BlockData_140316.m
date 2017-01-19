@@ -23,6 +23,9 @@ classdef BlockData_140316 < handle
         
         i_column; %iterator, counting the number of panel columns
         i_row; %iterator, counting the number of panel rows
+        
+        want_shading_correction; %boolean, true to do shading correction
+        shading_corrector; %shading corrector object
     end
     
     %METHODS
@@ -46,6 +49,7 @@ classdef BlockData_140316 < handle
             this.panel_height = 998;
             this.panel_width = 128;
             this.n_panel_column = 16;
+            this.want_shading_correction = false;
         end
         
         %LOAD BLACK IMAGE
@@ -78,6 +82,9 @@ classdef BlockData_140316 < handle
             %index: index of image
         function slice = loadSample(this,index)
             slice = imread(strcat(this.folder_location,'/sample',this.sample_name,num2str(index),'.tif'));
+            if this.want_shading_correction
+                slice = this.shading_corrector.shadeCorrect(double(slice));
+            end
         end
         
         %LOAD BLACK IMAGE STACK
@@ -173,6 +180,61 @@ classdef BlockData_140316 < handle
             %work out the sample variance and convert it to a vector
             sample_var = reshape(var(stack,[],3),[],1);
 
+        end
+        
+        %TURN ON SHADING CORRECTION
+        %Set the member variable want_shading_correction to be true
+        function turnOnShadingCorrection(this)
+            this.want_shading_correction = true;
+        end
+        
+        %TURN OFF SHADING CORRECTION
+        %Set the memebr variable want_shading_correction to be false
+        function turnOffShadingCorrection(this)
+            this.want_shading_correction = false;
+        end
+        
+        %ADD SHADING CORRECTOR
+        %Assign a shading corrector to the member variable and calibrate it
+        %for shading correction
+        %PARAMETERS:
+            %shading_corrector_class: function name or function handle of
+            %a ShadingCorrector class
+            %parameters: a vector of parameters for panel fitting
+        function addShadingCorrector(this,shading_corrector_class,parameters)
+            
+            %declare an array reference_stack which stores the mean black and mean
+            %white image
+            reference_stack = zeros(this.height,this.width,2);
+            %load and save the mean black image
+            reference_stack(:,:,1) = mean(this.loadBlackStack(),3);
+            %load and save the mean grey image
+            reference_stack(:,:,2) = mean(this.loadGreyStack(),3);
+            %load and save the mean white image
+            reference_stack(:,:,3) = mean(this.loadWhiteStack(),3);
+
+            %instantise a shading corrector and set it up using reference images
+            this.shading_corrector = feval(shading_corrector_class,reference_stack);
+
+            %if this shading_corrector can smooth the reference images
+            if this.shading_corrector.can_smooth
+                %start counting the panels
+                this.resetPanelCorner();
+                %for each panel
+                while this.hasNextPanelCorner()
+                    %get the coordinates of the panel
+                    panel_corners = this.getNextPanelCorner();
+                    %for each reference image, smooth that panel
+                    for i_index = 1:3
+                        this.shading_corrector.smoothPanel(i_index,panel_corners,parameters(i_index));
+                    end
+                end
+            end
+            
+            %calibrate the shading corrector to do shading correction
+            this.shading_corrector.calibrate();
+            %set shading correction to be on
+            this.turnOnShadingCorrection();
         end
         
         %RESET PANEL CORNER
