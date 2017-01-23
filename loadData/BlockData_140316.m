@@ -195,13 +195,13 @@ classdef BlockData_140316 < handle
         end
         
         %ADD SHADING CORRECTOR
-        %Assign a shading corrector to the member variable and calibrate it
+        %Instantise a new shading corrector to the member variable and calibrate it
         %for shading correction
         %PARAMETERS:
             %shading_corrector_class: function name or function handle of
             %a ShadingCorrector class
             %want_grey: boolean, true if want to consider grey images
-            %parameters (optional): a vector of parameters for panel fitting
+            %parameters (optional): a vector of parameters for panel fitting (one for each reference image)
         function addShadingCorrector(this,shading_corrector_class,want_grey,parameters)
             
             %declare an array reference_stack which stores the mean black and mean
@@ -217,8 +217,26 @@ classdef BlockData_140316 < handle
             end
 
             %instantise a shading corrector and set it up using reference images
-            this.shading_corrector = feval(shading_corrector_class,reference_stack);
+            shading_corrector_temp = feval(shading_corrector_class,reference_stack);
 
+            %add the shading corrector to this
+            if nargin == 3
+                this.addManualShadingCorrector(shading_corrector_temp);
+            elseif nargin == 4
+                this.addManualShadingCorrector(shading_corrector_temp,parameters);
+            end
+            
+        end
+        
+        %ADD MANUAL SHADING CORRECTOR
+        %Assign a provided shading corrector to the member variable and calibrate it
+        %for shading correction
+        %PARAMETERS:
+            %shading_corrector: shading_corrector object
+            %parameters (optional): a vector of parameters for panel fitting (one for each reference image)
+        function addManualShadingCorrector(this,shading_corrector,parameters)
+            %assign the provided shading corrector to the member variable
+            this.shading_corrector = shading_corrector;
             %smooth the reference images panel by panel using the provided parameters (if it can)
             if this.shading_corrector.can_smooth
                 this.smoothPanels(parameters);
