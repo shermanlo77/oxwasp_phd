@@ -201,7 +201,7 @@ classdef BlockData_140316 < handle
             %shading_corrector_class: function name or function handle of
             %a ShadingCorrector class
             %want_grey: boolean, true if want to consider grey images
-            %parameters: a vector of parameters for panel fitting
+            %parameters (optional): a vector of parameters for panel fitting
         function addShadingCorrector(this,shading_corrector_class,want_grey,parameters)
             
             %declare an array reference_stack which stores the mean black and mean
@@ -219,25 +219,36 @@ classdef BlockData_140316 < handle
             %instantise a shading corrector and set it up using reference images
             this.shading_corrector = feval(shading_corrector_class,reference_stack);
 
-            %if this shading_corrector can smooth the reference images
+            %smooth the reference images panel by panel using the provided parameters (if it can)
             if this.shading_corrector.can_smooth
-                %start counting the panels
-                this.resetPanelCorner();
-                %for each panel
-                while this.hasNextPanelCorner()
-                    %get the coordinates of the panel
-                    panel_corners = this.getNextPanelCorner();
-                    %for each reference image, smooth that panel
-                    for i_index = 1:(2+want_grey)
-                        this.shading_corrector.smoothPanel(i_index,panel_corners,parameters(i_index));
-                    end
-                end
+                this.smoothPanels(parameters);
             end
             
             %calibrate the shading corrector to do shading correction
             this.shading_corrector.calibrate();
             %set shading correction to be on
             this.turnOnShadingCorrection();
+        end
+        
+        %SMOOTH PANELS
+        %Call this method is a shading corrector was provided and to use it
+        %to smooth the reference images panel by panel.
+        function smoothPanels(this,parameters)
+            
+            %get the number of reference images
+            n_reference = this.shading_corrector.n_image;
+            
+            %start counting the panels
+            this.resetPanelCorner();
+            %for each panel
+            while this.hasNextPanelCorner()
+                %get the coordinates of the panel
+                panel_corners = this.getNextPanelCorner();
+                %for each reference image, smooth that panel
+                for i_index = 1:n_reference
+                    this.shading_corrector.smoothPanel(i_index,panel_corners,parameters(i_index));
+                end
+            end
         end
         
         %RESET PANEL CORNER
