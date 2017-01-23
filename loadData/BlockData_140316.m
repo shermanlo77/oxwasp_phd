@@ -58,6 +58,7 @@ classdef BlockData_140316 < handle
             %index: index of image
         function slice = loadBlack(this,index)
             slice = imread(strcat(this.folder_location,'/black',this.black_name,num2str(index),'.tif'));
+            slice = this.shadingCorrection(double(slice));
         end
         
         %LOAD GREY IMAGE
@@ -66,6 +67,7 @@ classdef BlockData_140316 < handle
             %index: index of image
         function slice = loadGrey(this,index)
             slice = imread(strcat(this.folder_location,'/grey',this.grey_name,num2str(index),'.tif'));
+            slice = this.shadingCorrection(double(slice));
         end
         
         %LOAD WHITE IMAGE
@@ -74,6 +76,7 @@ classdef BlockData_140316 < handle
             %index: index of image
         function slice = loadWhite(this,index)
             slice = imread(strcat(this.folder_location,'/white',this.white_name,num2str(index),'.tif'));
+            slice = this.shadingCorrection(double(slice));
         end
         
         %LOAD SAMPLE IMAGE
@@ -82,9 +85,7 @@ classdef BlockData_140316 < handle
             %index: index of image
         function slice = loadSample(this,index)
             slice = imread(strcat(this.folder_location,'/sample',this.sample_name,num2str(index),'.tif'));
-            if this.want_shading_correction
-                slice = this.shading_corrector.shadeCorrect(double(slice));
-            end
+            slice = this.shadingCorrection(double(slice));
         end
         
         %LOAD BLACK IMAGE STACK
@@ -194,6 +195,15 @@ classdef BlockData_140316 < handle
             this.want_shading_correction = false;
         end
         
+        %SHADING CORRECTION
+        %if want_shading_correction, does shading correction on the
+        %provided image and returns it
+        function slice = shadingCorrection(this,slice)
+            if this.want_shading_correction
+                slice = this.shading_corrector.shadeCorrect(slice);
+            end
+        end
+        
         %ADD SHADING CORRECTOR
         %Instantise a new shading corrector to the member variable and calibrate it
         %for shading correction
@@ -203,6 +213,9 @@ classdef BlockData_140316 < handle
             %want_grey: boolean, true if want to consider grey images
             %parameters (optional): a vector of parameters for panel fitting (one for each reference image)
         function addShadingCorrector(this,shading_corrector_class,want_grey,parameters)
+            
+            %turn off shading correction to obtain the reference images
+            this.turnOffShadingCorrection();
             
             %declare an array reference_stack which stores the mean black and mean
             %white image
