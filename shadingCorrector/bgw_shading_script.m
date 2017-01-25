@@ -2,9 +2,11 @@ clc;
 clearvars;
 close all;
 
+rng(uint32(227482200), 'twister');
+
 block_data = BlockData_140316('../data/140316');
 
-n_repeat = 10;
+n_repeat = 20;
 
 for i = 1:4
     

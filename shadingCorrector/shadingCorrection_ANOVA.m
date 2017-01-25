@@ -21,7 +21,12 @@ function [std_array] = shadingCorrection_ANOVA(data_object, n_train, shading_cor
 
     %declare array for storing variances
     std_array = zeros(n_repeat,2,3);
-
+    
+    %create figure
+    fig = figure;
+    fig.Position(3) = 1000;
+    fig.Position(4) = 600;
+    
     %for n_repeat times
     for i_repeat = 1:n_repeat
         
@@ -69,8 +74,8 @@ function [std_array] = shadingCorrection_ANOVA(data_object, n_train, shading_cor
 
         %load the test b/g/w images as an array and save it to test_stack_array
         test_stack_array{1} = data_object.loadBlackStack(black_test);
-        test_stack_array{2} = data_object.loadWhiteStack(white_test);
-        test_stack_array{3} = data_object.loadGreyStack(grey_test);
+        test_stack_array{2} = data_object.loadGreyStack(grey_test);
+        test_stack_array{3} = data_object.loadWhiteStack(white_test);
 
         %for each colour b/g/w test images
         for i_ref = 1:3
@@ -79,8 +84,8 @@ function [std_array] = shadingCorrection_ANOVA(data_object, n_train, shading_cor
             mean_image = mean(test_stack_array{i_ref},3);
             %if this is the first run, plot the mean shading corrected image
             if i_repeat == 1
-                figure;
-                imagesc_truncate(mean_image);
+                subplot(2,3,3+i_ref,imagesc_truncate(mean_image));
+                colorbar(subplot(2,3,3+i_ref));
             end
 
             %remove dead pixels from the mean image
@@ -90,8 +95,6 @@ function [std_array] = shadingCorrection_ANOVA(data_object, n_train, shading_cor
             
             %get the number of test images
             n_test = size(test_stack_array{i_ref},3);
-            %get the number of pixels in each image
-            n_pixel = data_object.area;
 
             %for each test image
             for i_image = 1:n_test
@@ -100,7 +103,7 @@ function [std_array] = shadingCorrection_ANOVA(data_object, n_train, shading_cor
             end
 
             %save the within pixel variance
-            std_array(i_repeat,1,i_ref) = sum(sum(sum( ( test_stack_array{i_ref} - repmat(mean_image,1,1,n_test) ).^2 ))) / (n_pixel*n_test - data_object.area);
+            std_array(i_repeat,1,i_ref) = sum(sum(sum( ( test_stack_array{i_ref} - repmat(mean_image,1,1,n_test) ).^2 ))) / (data_object.area*n_test - data_object.area);
             %save the between pixel variance
             std_array(i_repeat,2,i_ref) = sum(sum((mean_image - mean_all).^2))/(data_object.area-1);
 
@@ -109,12 +112,20 @@ function [std_array] = shadingCorrection_ANOVA(data_object, n_train, shading_cor
     end
     
     %for each colour b/g/w
+    colour_array = {'Black','Grey','White'};
     for i_ref = 1:3
         %box plot the within and between pixel variance
-        figure;
-        boxplot(std_array(:,:,i_ref),{'within pixel','between pixel'});
-        ylabel('variance');
+        ax = subplot(2,3,i_ref);
+        boxplot(ax,std_array(:,:,i_ref),{'within pixel','between pixel'});
+        ylabel(ax,'variance');
+        title(ax,colour_array{i_ref});
     end
-
+    
+%     p_array = std_array(:,2,:) ./ std_array(:,1,:);
+%     p_array = fcdf(p_array, data_object.area*n_test - data_object.area, data_object.area-1,'upper');
+%     figure;
+%     boxplot(reshape(p_array,n_repeat,3),colour_array);
+%     ylim([-0.01,1.01]);
+    
 end
 
