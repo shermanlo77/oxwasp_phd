@@ -23,16 +23,19 @@ for i_index = 1:3
     imagesc(block_data.shading_corrector.reference_image_array(:,:,i_index));
     colormap gray;
     %plot residual
+    figure;
     ax = imagesc_truncate(block_data.shading_corrector.getZResidualImage(i_index));
-    ax.CurrentAxes.CLim = [-2,2];
+    ax.CLim = [-2,2];
     colorbar;
 end
 
 %plot the shading corrected sample scan image
+figure;
 imagesc_truncate(block_data.loadSample(1));
 colorbar;
 colormap gray;
 
 %plot the gradient in the shading correction
+figure;
 imagesc_truncate(block_data.shading_corrector.b_array);
 colorbar;

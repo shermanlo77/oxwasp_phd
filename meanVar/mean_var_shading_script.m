@@ -11,7 +11,7 @@ clearvars;
 close all;
 
 %declare array of figures
-figure_array = cell(1,4);
+axe_array = cell(1,4);
 
 %number of bins in the frequency density heatmap
 n_bin = 100;
@@ -23,12 +23,13 @@ block_data = BlockData_140316('../data/140316');
 %get the sample mean and sample variance data
 [sample_mean,sample_var] = block_data.getSampleMeanVar_topHalf();
 %plot the frequency density of the mean/var data
+figure;
 ax = plotHistogramHeatmap(sample_mean,sample_var,n_bin);
 %record the x,y limits of the figure, they will be reused for future figures
-x_lim = ax.CurrentAxes.XLim;
-y_lim = ax.CurrentAxes.YLim;
+x_lim = ax.XLim;
+y_lim = ax.YLim;
 %save the figure to the array
-figure_array{1} = ax;
+axe_array{1} = ax;
 
 %SHADING CORRECTED
 %UNSMOOTHED B/W
@@ -36,12 +37,13 @@ figure_array{1} = ax;
 block_data.addShadingCorrector(@ShadingCorrector,false);
 %get the sample_mean and sample_var data, plot frequency density heatmap
 [sample_mean,sample_var] = block_data.getSampleMeanVar_topHalf();
+figure;
 ax = plotHistogramHeatmap(sample_mean,sample_var,n_bin,x_lim,y_lim);
 %set the x,y limits
-ax.CurrentAxes.XLim = x_lim;
-ax.CurrentAxes.YLim = y_lim;
+ax.XLim = x_lim;
+ax.YLim = y_lim;
 %save the figure to the array
-figure_array{2} = ax;
+axe_array{2} = ax;
 
 %SHADING CORRECTED
 %UNSMOOTHED B/G/W
@@ -49,12 +51,13 @@ figure_array{2} = ax;
 block_data.addShadingCorrector(@ShadingCorrector,true);
 %get the sample_mean and sample_var data, plot frequency density heatmap
 [sample_mean,sample_var] = block_data.getSampleMeanVar_topHalf();
+figure;
 ax = plotHistogramHeatmap(sample_mean,sample_var,n_bin,x_lim,y_lim);
 %set the x,y limits
-ax.CurrentAxes.XLim = x_lim;
-ax.CurrentAxes.YLim = y_lim;
+ax.XLim = x_lim;
+ax.YLim = y_lim;
 %save the figure to the array
-figure_array{3} = ax;
+axe_array{3} = ax;
 
 %SHADING CORRECTED
 %POLYNOMIAL SMOOTHED 2/2/2 B/G/W
@@ -62,19 +65,20 @@ figure_array{3} = ax;
 block_data.addShadingCorrector(@ShadingCorrector_polynomial,true,[2,2,2]);
 %get the sample_mean and sample_var data, plot frequency density heatmap
 [sample_mean,sample_var] = block_data.getSampleMeanVar_topHalf();
+figure;
 ax = plotHistogramHeatmap(sample_mean,sample_var,n_bin,x_lim,y_lim);
 %set the x,y limits
-ax.CurrentAxes.XLim = x_lim;
-ax.CurrentAxes.YLim = y_lim;
+ax.XLim = x_lim;
+ax.YLim = y_lim;
 %save the figure to the array
-figure_array{4} = ax;
+axe_array{4} = ax;
 
 %find out the maximum value of the heatmap, let that be c_lim_max
 c_lim_max = 0;
 %for each figure
 for i = 1:4
     %get the c_lim
-    c_lim = figure_array{i}.CurrentAxes.CLim(2);
+    c_lim = axe_array{i}.CLim(2);
     %if this is bigger than c_lim_max, updated it
     if c_lim > c_lim_max
         c_lim_max = c_lim;
@@ -82,7 +86,7 @@ for i = 1:4
 end
 %set all figures to have the same CLim
 for i = 1:4
-    figure_array{i}.CurrentAxes.CLim = [0,c_lim_max];
+    axe_array{i}.CLim = [0,c_lim_max];
 end
 
 %it can be observed there are two modes in the background, plot the

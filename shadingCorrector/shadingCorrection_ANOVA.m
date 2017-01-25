@@ -79,6 +79,7 @@ function [std_array] = shadingCorrection_ANOVA(data_object, n_train, shading_cor
             mean_image = mean(test_stack_array{i_ref},3);
             %if this is the first run, plot the mean shading corrected image
             if i_repeat == 1
+                figure;
                 imagesc_truncate(mean_image);
             end
 

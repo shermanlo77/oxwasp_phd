@@ -35,6 +35,7 @@ for polynomial_order = [-4,-3,-2,-1]
     [variance_prediction, up_error, down_error] = model.predict(x_plot');
 
     %plot the frequency density
+    figure;
     plotHistogramHeatmap(sample_mean,sample_var,nbin);
     hold on;
     %plot the fit/prediction

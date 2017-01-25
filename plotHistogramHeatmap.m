@@ -28,7 +28,7 @@ function [ax] = plotHistogramHeatmap(sample_mean,sample_var,nbin,mean_lim,var_li
     [N,c] = hist3([sample_var,sample_mean],[nbin,nbin]);
     
     %plot the heatmap
-    ax = figure;
+    ax = axes;
     if nargin == 5
         imagesc(mean_lim,var_lim,[0,0]);
         hold on;

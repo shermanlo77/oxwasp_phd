@@ -12,6 +12,7 @@ close all;
 block_data = BlockData_140316('../data/140316');
 
 %plot the sample scan image
+figure;
 imagesc_truncate(double(block_data.loadSample(1)));
 colorbar;
 colormap gray;
@@ -20,10 +21,12 @@ colormap gray;
 block_data.addShadingCorrector(@ShadingCorrector,false);
 
 %plot the shading corrected sample scan image
+figure;
 imagesc_truncate(double(block_data.loadSample(1)));
 colorbar;
 colormap gray;
 
 %plot the gradient in the shading correction
+figure;
 imagesc_truncate(block_data.shading_corrector.b_array);
 colorbar;

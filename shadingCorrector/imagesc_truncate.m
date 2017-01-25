@@ -19,7 +19,7 @@ function ax = imagesc_truncate(X)
     clims = [x_lower,x_upper];
     
     %plot image with adjusted scale
-    ax = figure;
+    ax = axes;
     imagesc(X,clims);
     
 end

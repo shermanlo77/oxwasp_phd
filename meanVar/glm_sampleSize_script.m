@@ -23,7 +23,7 @@ polynomial_order = -1;
 n_sample_array = [25,50,75,100];
 
 %array of figures
-figure_array = cell(1,numel(n_sample_array));
+axe_array = cell(1,numel(n_sample_array));
 
 %for each sample size
 for i_sample = 1:numel(n_sample_array)
@@ -51,7 +51,8 @@ for i_sample = 1:numel(n_sample_array)
     [variance_prediction, up_error, down_error] = model.predict(x_plot');
 
     %plot the frequency density
-    figure_array{i_sample} = plotHistogramHeatmap(sample_mean,sample_var,nbin);
+    figure;
+    axe_array{i_sample} = plotHistogramHeatmap(sample_mean,sample_var,nbin);
     hold on;
     %plot the fit/prediction
     plot(x_plot,variance_prediction,'r');
@@ -67,11 +68,11 @@ max_frequency_density = zeros(1,numel(n_sample_array));
 %for each sample size
 for i_sample = 1:numel(n_sample_array)
     %get the maximum value in the figure
-    max_frequency_density(i_sample) = figure_array{i_sample}.CurrentAxes.CLim(end);
+    max_frequency_density(i_sample) = axe_array{i_sample}.CLim(end);
 end
 %find the maximum maximum value
 max_frequency_density = max(max_frequency_density);
 %for each figure, set CLim to the that maximum value
 for i_sample = 1:numel(n_sample_array)
-    figure_array{i_sample}.CurrentAxes.CLim(end) = max_frequency_density;
+    axe_array{i_sample}.CLim(end) = max_frequency_density;
 end
