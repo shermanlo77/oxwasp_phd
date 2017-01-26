@@ -105,7 +105,7 @@ function [std_array] = shadingCorrection_ANOVA(data_object, n_train, shading_cor
             %save the within pixel variance
             std_array(i_repeat,1,i_ref) = sum(sum(sum( ( test_stack_array{i_ref} - repmat(mean_image,1,1,n_test) ).^2 ))) / (data_object.area*n_test - data_object.area);
             %save the between pixel variance
-            std_array(i_repeat,2,i_ref) = sum(sum((mean_image - mean_all).^2))/(data_object.area-1);
+            std_array(i_repeat,2,i_ref) = n_test * sum(sum((mean_image - mean_all).^2))/(data_object.area-1);
 
         end
 
