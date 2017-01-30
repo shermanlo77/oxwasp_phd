@@ -1,15 +1,12 @@
-%MEAN VARIANCE RELATIONSHIP BEFORE/AFTER SHADING CORRECTION SCRIPT
-%Plots the sample mean and sample variance frequency density heat map
-%before and after shading correction. A number of shading correction were
-%considered:
-    %unsmoothed b/w
-    %unsmoothed b/g/w
-    %polynomial smoothed order 2/2/2 on b/g/w
+%ALGORITHM SMOOTHING SCRIPT
+%Does ANOVA analysis on the shaded corrected b/g/w images using smoothing
+%techniques on the training images: mean, median, gaussian filters.
 
 clc;
 clearvars;
 close all;
 
+%set random seed
 rng(uint32(364937754), 'twister');
 
 
