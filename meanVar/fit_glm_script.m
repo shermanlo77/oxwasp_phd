@@ -17,6 +17,11 @@ block_data = BlockData_140316('../data/140316');
 %get variance mean data of the top half of the scans (images 1 to 100)
 [sample_mean,sample_var] = block_data.getSampleMeanVar_topHalf();
 
+%segment the mean variance data to only include the 3d printed sample
+threshold = reshape(BlockData_140316.getThreshold_topHalf(),[],1);
+sample_mean(threshold) = [];
+sample_var(threshold) = [];
+
 %shape parameter is number of (images - 1)/2, this comes from the chi
 %squared distribution
 shape_parameter = (block_data.n_sample-1)/2;

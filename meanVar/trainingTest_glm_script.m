@@ -10,6 +10,8 @@ rng(uint32(33579150), 'twister');
 
 %instantise an object pointing to the dataset
 block_data = BlockData_140316('../data/140316');
+%segment the mean variance data to only include the 3d printed sample
+threshold = reshape(BlockData_140316.getThreshold_topHalf(),[],1);
 
 %array of polynomial features to explore
 polynomial_array = [-4,-3,-2,-1];
@@ -46,6 +48,9 @@ for i_polynomial = 1:numel(polynomial_array)
         
         %get variance mean data of the training set
         [sample_mean,sample_var] = block_data.getSampleMeanVar_topHalf(training_index);
+        %segment the mean var data
+        sample_mean(threshold) = [];
+        sample_var(threshold) = [];
         
         %train the classifier
         model.train(sample_mean,sample_var,100);
@@ -54,6 +59,9 @@ for i_polynomial = 1:numel(polynomial_array)
 
         %get the variance mean data of the test set
         [sample_mean,sample_var] = block_data.getSampleMeanVar_topHalf(test_index);
+        %segment the mean var data
+        sample_mean(threshold) = [];
+        sample_var(threshold) = [];
         %get the test mse
         mse_test_array(i_repeat,i_polynomial) = model.getPredictionMSE(sample_mean,sample_var);
         
