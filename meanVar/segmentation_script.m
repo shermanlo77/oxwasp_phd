@@ -12,20 +12,17 @@ close all;
 
 %load data and shading correction
 block_data = BlockData_140316('../data/140316');
-block_data.addShadingCorrector(@ShadingCorrector_median,1,[3,3,3]);
+%get the threshold logic image, this is a matrix of logics which indicate
+%pixels which are from the background
+threshold = BlockData_140316.getThreshold_topHalf();
 
-%load the images
+%load the image
 slice = block_data.loadSampleStack();
-%crop the images to keep the top half
-slice = slice(1:(round(block_data.height/2)),:,:);
+%crop the image, retaining the top half
+slice = slice(1:(block_data.height/2),:,:);
 %take the mean over all images
 slice = mean(slice,3);
-%remove dead pixels
-slice = removeDeadPixels(slice);
-
-%indicate pixels with greyvalues more than 4.7E4
-threshold = slice>4.7E4;
-%set these pixels to be nan
+%set background pixels to be nan
 slice(threshold) = nan;
 %plot the threshold image
 figure;

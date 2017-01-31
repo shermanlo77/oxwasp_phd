@@ -353,4 +353,36 @@ classdef BlockData_140316 < handle
         
     end
     
+    methods (Static)
+        
+        %GET THRESHOLD TOP HALF
+        %Return a logical matrix which segments the sample from the
+        %background of the top half of the scans. 1 indicate the
+        %background, 0 for the sample.
+        %
+        %Method: does shading correction with median filter applied to the
+        %reference images, take the mean of the shading corrected images
+        %and then threshold at 4.7E4
+        function threshold = getThreshold_topHalf()
+            
+            %load the data
+            block_data = BlockData_140316('../data/140316');
+
+            %add shading correction
+            block_data.addShadingCorrector(@ShadingCorrector_median,1,[3,3,3]);
+
+            %load the images
+            slice = block_data.loadSampleStack();
+            %crop the images to keep the top half
+            slice = slice(1:(round(block_data.height/2)),:,:);
+            %take the mean over all images
+            slice = mean(slice,3);
+            %remove dead pixels
+            slice = removeDeadPixels(slice);
+
+            %indicate pixels with greyvalues more than 4.7E4
+            threshold = slice>4.7E4;
+        end
+    end
+    
 end
