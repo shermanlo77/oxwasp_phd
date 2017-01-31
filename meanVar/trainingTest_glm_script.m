@@ -46,8 +46,9 @@ for i_polynomial = 1:numel(polynomial_array)
         
         %get variance mean data of the training set
         [sample_mean,sample_var] = block_data.getSampleMeanVar_topHalf(training_index);
+        
         %train the classifier
-        model.train(sample_var,sample_mean,100);
+        model.train(sample_mean,sample_var,100);
         %get the training mse
         mse_training_array(i_repeat,i_polynomial) = model.getPredictionMSE(sample_mean,sample_var);
 
