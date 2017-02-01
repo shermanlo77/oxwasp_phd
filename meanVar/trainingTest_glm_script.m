@@ -10,7 +10,8 @@ rng(uint32(33579150), 'twister');
 
 %instantise an object pointing to the dataset
 block_data = BlockData_140316('../data/140316');
-%segment the mean variance data to only include the 3d printed sample
+%segment the mean variance data to only include the 3d printed sample,
+%threshold indicate pixels which belong to the background
 threshold = reshape(BlockData_140316.getThreshold_topHalf(),[],1);
 
 %array of polynomial features to explore

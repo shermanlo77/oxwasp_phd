@@ -13,6 +13,10 @@ rng(uint32(189224219), 'twister');
 %instantise an object pointing to the dataset
 block_data = BlockData_140316('../data/140316');
 
+%segment the mean variance data to only include the 3d printed sample,
+%threshold indicate pixels which belong to the background
+threshold = reshape(BlockData_140316.getThreshold_topHalf(),[],1);
+
 %number of bins for the frequency density plot
 nbin = 100;
 
@@ -35,6 +39,9 @@ for i_sample = 1:numel(n_sample_array)
     data_index = randperm(block_data.n_sample);
     data_index = data_index(1:n_sample);
     [sample_mean,sample_var] = block_data.getSampleMeanVar_topHalf(data_index);
+    %segment the mean var data
+    sample_mean(threshold) = [];
+    sample_var(threshold) = [];
 
     %shape parameter is number of (images - 1)/2, this comes from the chi
     %squared distribution
@@ -75,4 +82,29 @@ max_frequency_density = max(max_frequency_density);
 %for each figure, set CLim to the that maximum value
 for i_sample = 1:numel(n_sample_array)
     axe_array{i_sample}.CLim(end) = max_frequency_density;
+end
+
+%rescale the x and y axis
+%x_lim_array and y_lim_array is a collection of XLim and YLim of each axes
+x_lim_array = zeros(numel(n_sample_array),2);
+y_lim_array = zeros(numel(n_sample_array),2);
+%get the colour of the background from the currect colormap
+blank_colour = colormap;
+blank_colour = blank_colour(1,:);
+%for each axes
+for i_sample = 1:numel(n_sample_array)
+    %get XLim and YLim and save it to x_lim_array and y_lim_array
+    x_lim_array(i_sample,:) = axe_array{i_sample}.XLim;
+    y_lim_array(i_sample,:) = axe_array{i_sample}.YLim;
+end
+%set x_lim and y_lim to cover all the collected XLim and YLim
+x_lim = [min(x_lim_array(:,1)),max(x_lim_array(:,2))];
+y_lim = [min(y_lim_array(:,1)),max(y_lim_array(:,2))];
+%for each axes
+for i_sample = 1:numel(n_sample_array)
+    %set XLim and YLim
+    axe_array{i_sample}.XLim = x_lim;
+    axe_array{i_sample}.YLim = y_lim;
+    %set the colour of the background
+    axe_array{i_sample}.set('color',blank_colour);
 end
