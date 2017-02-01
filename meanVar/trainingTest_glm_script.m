@@ -71,13 +71,29 @@ for i_polynomial = 1:numel(polynomial_array)
 end
 
 %box plot the training mse
-figure;
+fig = figure;
 boxplot(mse_training_array,polynomial_array);
-xlabel('Polynomial order');
-ylabel('Training MSE');
+ax_train = fig.CurrentAxes;
+xlabel(ax_train,'Polynomial order');
+ylabel(ax_train,'Training MSE');
 
 %box plot the test mse
-figure;
+fig = figure;
 boxplot(mse_test_array,polynomial_array);
-xlabel('Polynomial order');
-ylabel('Test MSE');
+ax_test = fig.CurrentAxes;
+xlabel(ax_test,'Polynomial order');
+ylabel(ax_test,'Test MSE');
+
+%rescale the y axis
+%ylim_array is an array of ylim of each boxplot
+ylim_array = zeros(2,2);
+%for each box plot, get the ylim and save it
+ylim_array(1,:) = ax_train.YLim;
+ylim_array(2,:) = ax_test.YLim;
+%ylim covers the whole range of y of the two boxplots
+ylim = zeros(1,2);
+ylim(1) = min(ylim_array(:,1));
+ylim(2) = max(ylim_array(:,2));
+%rescale the y axis
+ax_train.YLim = ylim;
+ax_test.YLim = ylim;
