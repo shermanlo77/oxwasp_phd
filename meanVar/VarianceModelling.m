@@ -41,14 +41,14 @@ classdef VarianceModelling < handle
     methods (Abstract)
         
         %TRAIN CLASSIFIER
-        train(this);
+        train(this,sample_mean,sample_var);
         
         %PREDICT VARIANCE
         %RETURN:
             %variance_prediction: predicted greyvalue variance (column vector)
             %up_error: 84% percentile
             %down_error: 16% percentile
-        [variance_prediction, up_error, down_error] = predict(this);
+        [variance_prediction, up_error, down_error] = predict(this,sample_mean);
 
     end
     
