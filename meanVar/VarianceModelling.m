@@ -19,6 +19,21 @@ classdef VarianceModelling < handle
         %Do nothing
         function this = VarianceModelling()
         end
+        
+        %PREDICTION MEAN SQUARED ERROR
+        %Return the mean squared prediction error
+        %PARAMETERS:
+            %y: greyvalue variance (column vector)
+            %x: greyvalue mean (column vector)
+            %x and y are the same size
+        %RETURN:
+            %mse: scalar mean squared error
+        function mse = getPredictionMSE(this,x,y)
+            %given greyvalue mean, predict greyvalue variance
+            y_predict = this.predict(x);
+            %work out the mean squared error
+            mse = sum((y-y_predict).^2)/numel(y);
+        end
 
     end
     
@@ -34,13 +49,7 @@ classdef VarianceModelling < handle
             %up_error: 84% percentile
             %down_error: 16% percentile
         [variance_prediction, up_error, down_error] = predict(this);
-        
-        %PREDICTION MEAN SQUARED ERROR
-        %Return the mean squared prediction error
-        %RETURN:
-            %mse: scalar mean squared error
-        mse = getPredictionMSE(this);
-        
+
     end
     
 end

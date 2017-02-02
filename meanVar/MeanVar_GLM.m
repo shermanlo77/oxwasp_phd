@@ -101,21 +101,6 @@ classdef MeanVar_GLM < VarianceModelling
             
         end
         
-        %PREDICTION MEAN SQUARED ERROR
-        %Return the mean squared prediction error
-        %PARAMETERS:
-            %y: greyvalue variance (column vector)
-            %x: greyvalue mean (column vector)
-            %x and y are the same size
-        %RETURN:
-            %mse: scalar mean squared error
-        function mse = getPredictionMSE(this,x,y)
-            %given greyvalue mean, predict greyvalue variance
-            y_predict = this.predict(x);
-            %work out the mean squared error
-            mse = sum((y-y_predict).^2)/numel(y);
-        end
-        
         %SIMULATE
         %PARAMETERS:
             %x: column vector of greyvalue means
