@@ -25,7 +25,7 @@ parameter_array = [-4,-3,-2,-1];
 parameter_array = [shape_parameter*ones(1,numel(parameter_array)); parameter_array];
 
 %do training/test mse on predicting the variance given the mean
-[mse_training_array, mse_test_array] = training_test_mean_var(block_data, @MeanVar_GLM_canonical, n_train, parameter_array, n_repeat);
+[mse_training_array, mse_test_array] = trainingTestMeanVar(block_data, @MeanVar_GLM_canonical, n_train, parameter_array, n_repeat);
 
 %box plot the training mse
 fig = figure;

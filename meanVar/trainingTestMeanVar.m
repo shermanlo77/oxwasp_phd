@@ -1,4 +1,4 @@
-function [mse_training_array, mse_test_array] = training_test_mean_var(data, variance_model_handle, n_train, parameter_array, n_repeat)
+function [mse_training_array, mse_test_array] = trainingTestMeanVar(data, variance_model_handle, n_train, parameter_array, n_repeat)
     %TRAINING/TEST MEAN VAR Gets the training and test MSE when fitting and predicting the mean and variance relationship
     %PARAMETERS:
         %data: data object
