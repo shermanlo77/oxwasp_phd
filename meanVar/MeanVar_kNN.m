@@ -3,8 +3,11 @@ classdef MeanVar_kNN < VarianceModelling
     
     %MEMBER VARIABLES
     properties
+        %the minimum greyvalue in the training set
         mean_lookup_start;
+        %maximum greyvalue in training set = mean_lookup_start + n_lookup
         n_lookup;
+        %array of n_lookup+1 knn variances, one for each greyvalue in the range mean_lookup_start up to mean_lookup_start+n_lookup 
         variance_lookup;
     end
     
@@ -24,12 +27,15 @@ classdef MeanVar_kNN < VarianceModelling
             %training_var: vector of variances
         function train(this,training_mean,training_var)
             %assign member variables
-            this.mean_lookup_start = round(min(training_mean));
-            this.n_lookup = round(max(training_mean)) - this.mean_lookup_start;
+            this.mean_lookup_start = floor(min(training_mean)); %minimum greyvalue
+            this.n_lookup = ceil(max(training_mean)) - this.mean_lookup_start; %range of greyvalue
+            %variance_lookup is a vector of knn variance prediction for the range of greyvalues
             this.variance_lookup = this.getKNNPrediction(training_mean, training_var, this.mean_lookup_start + (0:this.n_lookup)');
         end
         
         %PREDICT VARIANCE
+        %PARAMETERS:
+            %sample_mean: column vector of mean greyvalues
         %RETURN:
             %variance_prediction: predicted greyvalue variance (column vector)
             %up_error: 84% percentile
@@ -42,17 +48,23 @@ classdef MeanVar_kNN < VarianceModelling
             %get the number of predictions to be made
             n = numel(sample_mean);
             
+            %declare array for variance prediction
             variance_prediction = zeros(n,1);
             
+            %for each prediction (or for each given mean)
             for i_n = 1:n
+                %get the lookup index
                 lookup = round(sample_mean(i_n)) - this.mean_lookup_start;
+                %if the lookup index is bigger than the allocated range, set it to the limit
                 if lookup < 0
                     lookup = 0;
                 elseif lookup > this.n_lookup
                     lookup = this.n_lookup;
                 end
+                %save the lookup index to the array variance_prediction
                 variance_prediction(i_n) = lookup;
             end
+            %look up the variance prediction using the worked out lookup index
             variance_prediction = this.variance_lookup(variance_prediction+1);
         end
         
