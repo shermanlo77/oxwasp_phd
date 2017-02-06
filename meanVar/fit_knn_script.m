@@ -29,9 +29,9 @@ for k = [1E2,1E3,1E4,1E5]
     model.train(sample_mean,sample_var)
 
     %get a range of greyvalues to plot the fit
-    x_plot = linspace(min(sample_mean),max(sample_mean),10000);
+    x_plot = model.mean_lookup_start + (0:model.n_lookup);
     %get the variance prediction
-    variance_prediction = model.predict(x_plot');
+    variance_prediction = model.variance_lookup;
 
     %plot the frequency density
     figure;
