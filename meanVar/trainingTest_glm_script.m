@@ -1,5 +1,7 @@
 %TRAINING TEST GLM SCRIPT
-%Fit gamma glm on the mean variance data
+%Fit gamma glm on the mean variance training data and then predict the
+%variance given the mean on the test set. The training and test MSE is
+%presented for a number of different polynomial features.
 
 clc;
 clearvars;

@@ -25,7 +25,7 @@ classdef MeanVar_kNN < VarianceModelling
         %PARAMETERS:
             %training_mean: vector of means
             %training_var: vector of variances
-        function train(this,training_mean,training_var)
+        function train(this,training_mean,training_var,~)
             %assign member variables
             this.mean_lookup_start = floor(min(training_mean)); %minimum greyvalue
             this.n_lookup = ceil(max(training_mean)) - this.mean_lookup_start; %range of greyvalue
