@@ -1,12 +1,9 @@
-function [mse_training_array, mse_test_array] = trainingTestMeanVar(data, variance_model_handle, n_train, parameter_array, n_repeat)
+function [mse_training_array, mse_test_array] = trainingTestMeanVar(data, variance_model_array, n_train, n_repeat)
     %TRAINING/TEST MEAN VAR Gets the training and test MSE when fitting and predicting the mean and variance relationship
     %PARAMETERS:
         %data: data object
-        %variance_model_handle: function handle to instantise a new variance model
+        %variance_model_array: cell array of variance model objects, each with a different parameter
         %n_train: number of images to be used in estimating the mean and variance of the training set
-        %parameter_array: [1,2] x n_parameter matrix of parameters
-            %each row represent a different parameter (e.g. shape parameter and polynomial order)
-            %each column for different values of the parameters to investigate
         %n_repeat: number of times to repeat the experiment, this is done by shuffling the training/test set
     %RETURN:
         %mse_training_array: n_repeat x n_parameter matrix of the training mse
@@ -15,9 +12,9 @@ function [mse_training_array, mse_test_array] = trainingTestMeanVar(data, varian
     %get the pixels which do not belong to the 3d printed sample
     threshold = reshape(data.getThreshold_topHalf(),[],1); %reshape it to a vector
 
-    %get the size of parameter_array
-    [parameter_dim, n_parameter] = size(parameter_array);
-
+    %get the number of variance models in variance_model_array
+    n_parameter = numel(variance_model_array);
+    
     %array to store the mse for each polynomial and each spilt
         %dim1: for each repeat
         %dim2: for each parameter value
@@ -30,12 +27,8 @@ function [mse_training_array, mse_test_array] = trainingTestMeanVar(data, varian
         %display the progress
         disp(strcat('i_parameter=',num2str(i_parameter)));
         
-        %for each dimension (of number) of parameters, feed it into the constructor of the variance model
-        if parameter_dim == 1
-            model = feval(variance_model_handle,parameter_array(i_parameter));
-        elseif parameter_dim == 2
-            model = feval(variance_model_handle,parameter_array(1,i_parameter),parameter_array(2,i_parameter));
-        end
+        %get the variance model with the i_parameter
+        model = variance_model_array{i_parameter};
 
         %for n_repeat times
         for i_repeat = 1:n_repeat

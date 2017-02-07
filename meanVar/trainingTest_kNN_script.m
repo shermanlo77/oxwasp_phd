@@ -15,17 +15,25 @@ rng(uint32(235567122), 'twister');
 %instantise an object pointing to the dataset
 block_data = BlockData_140316('../data/140316');
 
-%array of k to explore
-k_array = [1E2,1E3,1E4,1E5];
-
 %number of images use to get the training set mean and variance
 n_train = 50;
 
 %number of times to spilt the training/test set
 n_repeat = 20;
 
+%array of k to explore
+k_array = [1E2,1E3,1E4,1E5];
+
+%create an array of glm objects, each with different polynomial features
+knn_array = cell(1,numel(k_array));
+%for each polynomial feature
+for i_k = 1:numel(k_array)
+    %instantise a glm object with that polynomial feature
+    knn_array{i_k} = MeanVar_kNN(k_array(i_k));
+end
+
 %do training/test mse on predicting the variance given the mean
-[mse_training_array, mse_test_array] = trainingTestMeanVar(block_data, @MeanVar_kNN, n_train, k_array, n_repeat);
+[mse_training_array, mse_test_array] = trainingTestMeanVar(block_data, knn_array, n_train, n_repeat);
 
 %box plot the training mse
 fig = figure;
