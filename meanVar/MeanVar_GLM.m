@@ -1,4 +1,4 @@
-classdef MeanVar_GLM < VarianceModelling
+classdef MeanVar_GLM < VarianceModel
     %MEANVAR_GLM Abstract super class for modelling variance as gamma with known shape parameter given
     %mean greyvalue
     
@@ -10,6 +10,7 @@ classdef MeanVar_GLM < VarianceModelling
         x_scale;
         x_shift;
         polynomial_order;
+        n_step; %n_step: number of IRLS steps
     end
     
     %METHODS
@@ -23,14 +24,14 @@ classdef MeanVar_GLM < VarianceModelling
             %assign member variables
             this.shape_parameter = shape_parameter;
             this.polynomial_order = polynomial_order;
+            this.n_step = 100;
         end
         
         %TRAIN CLASSIFIER
         %PARAMETERS:
             %var_train: column vector of greyvalue variance
             %mean_train: column vector of greyvalue mean
-            %n_step: number of IRLS steps
-        function train(this,mean_train,var_train,n_step)
+        function train(this,mean_train,var_train)
             
             %set inital parameter
             this.parameter = [-1;0];
@@ -54,7 +55,7 @@ classdef MeanVar_GLM < VarianceModelling
             w = 1./(v.*this.getLinkDiff(mu)); %weights in IRLS
             
             %for n_step times
-            for i_step = 1:n_step
+            for i_step = 1:this.n_step
                 
                 %work out the z vector
                 z = eta + (y-mu).*this.getLinkDiff(mu);

@@ -55,7 +55,7 @@ function [mse_training_array, mse_test_array] = trainingTestMeanVar(data, varian
             sample_var(threshold) = [];
 
             %train the classifier
-            model.train(sample_mean,sample_var,100);
+            model.train(sample_mean,sample_var);
             %get the training mse
             mse_training_array(i_repeat,i_parameter) = model.getPredictionMSE(sample_mean,sample_var);
 

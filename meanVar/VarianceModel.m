@@ -1,4 +1,4 @@
-classdef VarianceModelling < handle
+classdef VarianceModel < handle
     %VARIANCEMODELLING Abstract superclass for modelling the variance
     %
     %Classifier for predicting variance given some feature (e.g. mean).
@@ -17,7 +17,7 @@ classdef VarianceModelling < handle
         
         %CONSTRUCTOR
         %Do nothing
-        function this = VarianceModelling()
+        function this = VarianceModel()
         end
         
         %PREDICTION MEAN SQUARED ERROR

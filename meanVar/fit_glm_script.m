@@ -32,7 +32,7 @@ for polynomial_order = [-4,-3,-2,-1]
     %model the mean and variance using gamma glm
     model = MeanVar_GLM_canonical(shape_parameter,polynomial_order);
     %train the classifier
-    model.train(sample_mean,sample_var,100);
+    model.train(sample_mean,sample_var);
 
     %get a range of greyvalues to plot the fit
     x_plot = linspace(min(sample_mean),max(sample_mean),100);
