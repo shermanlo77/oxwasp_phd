@@ -32,12 +32,7 @@ classdef MeanVar_GLM < VarianceModel
             %var_train: column vector of greyvalue variance
             %mean_train: column vector of greyvalue mean
         function train(this,mean_train,var_train)
-            
-            %set inital parameter
-            this.parameter = [-1;0];
-            %assign training set size
-            this.n_train = numel(var_train);
-            
+
             %scale variables and get design matrix
             this.y_scale = std(var_train);
             y = var_train./this.y_scale;
@@ -48,9 +43,14 @@ classdef MeanVar_GLM < VarianceModel
             
             %IRLS SECTION
             
+            %set inital parameter
+            this.parameter = [-1;0];
+            %assign training set size
+            this.n_train = numel(var_train);
+            
             %initalise variables
             eta = X*this.parameter; %systematic component
-            mu = -this.shape_parameter./eta; %mean vector
+            mu = -this.shape_parameter*this.getMean(eta); %mean vector
             v = mu.^2 / this.shape_parameter; %variance vector
             w = 1./(v.*this.getLinkDiff(mu)); %weights in IRLS
             
@@ -71,7 +71,7 @@ classdef MeanVar_GLM < VarianceModel
                 
                 %update variables
                 eta = X*this.parameter; %systematic component
-                mu = -this.shape_parameter./eta; %mean vector
+                mu = -this.shape_parameter*this.getMean(eta); %mean vector
                 v = mu.^2 / this.shape_parameter; %variance vector
                 w = 1./(v.*this.getLinkDiff(mu)); %weights in IRLS
                 
@@ -145,6 +145,9 @@ classdef MeanVar_GLM < VarianceModel
         %RETURN:
             %g_dash: colum vector of g'(mu)
         g_dash = getLinkDiff(this,mu);
+        
+        %GET MEAN (LINK FUNCTION)
+        mu = getMean(this,eta);
         
         %GET NATURAL PARAMETER from systematic component
         theta = getNaturalParameter(this,eta);

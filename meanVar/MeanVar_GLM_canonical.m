@@ -37,6 +37,11 @@ classdef MeanVar_GLM_canonical < MeanVar_GLM
         function theta = getNaturalParameter(this,eta)
             theta = eta;
         end
+        
+        %GET MEAN (LINK FUNCTION)
+        function mu = getMean(this,eta)
+            mu = 1./eta;
+        end
     end
     
 end
