@@ -26,6 +26,8 @@ classdef BlockData_140316 < handle
         
         want_shading_correction; %boolean, true to do shading correction
         shading_corrector; %shading corrector object
+        
+        want_remove_dead_pixels; %boolean, true to remove dead pixels
     end
     
     %METHODS
@@ -50,6 +52,7 @@ classdef BlockData_140316 < handle
             this.panel_width = 128;
             this.n_panel_column = 16;
             this.want_shading_correction = false;
+            this.want_remove_dead_pixels = false;
         end
         
         %LOAD BLACK IMAGE
@@ -195,12 +198,26 @@ classdef BlockData_140316 < handle
             this.want_shading_correction = false;
         end
         
+        %TURN ON REMOVE DEAD PIXELS
+        function turnOnRemoveDeadPixels(this)
+            this.want_remove_dead_pixels = true;
+        end
+        
+        %TURN OFF REMOVE DEAD PIXELS
+        function turnOffRemoveDeadPixels(this)
+            this.want_remove_dead_pixels = false;
+        end
+        
         %SHADING CORRECTION
         %if want_shading_correction, does shading correction on the
         %provided image and returns it
+        %if want_remove_dead_pixels, remove dead pixels
         function slice = shadingCorrection(this,slice)
             if this.want_shading_correction
                 slice = this.shading_corrector.shadeCorrect(slice);
+            end
+            if this.want_remove_dead_pixels
+                slice = removeDeadPixels(slice);
             end
         end
         
