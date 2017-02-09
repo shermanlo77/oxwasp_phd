@@ -13,7 +13,7 @@ block_data = BlockData_140316('../data/140316');
 
 %plot the sample scan image
 figure;
-imagesc_truncate(double(block_data.loadSample(1)));
+ax_originial = imagesc_truncate(block_data.loadSample(1));
 colorbar;
 colormap gray;
 
@@ -22,11 +22,21 @@ block_data.addShadingCorrector(@ShadingCorrector,false);
 
 %plot the shading corrected sample scan image
 figure;
-imagesc_truncate(double(block_data.loadSample(1)));
+ax = imagesc_truncate(block_data.loadSample(1));
+ax.CLim = ax_originial.CLim;
 colorbar;
 colormap gray;
 
+%get the gradient in the shading correction
+grad = block_data.shading_corrector.b_array;
 %plot the gradient in the shading correction
 figure;
-imagesc_truncate(block_data.shading_corrector.b_array);
+imagesc_truncate(grad);
 colorbar;
+hold on;
+%get the coordinates of nan and scatter plot it
+[y_nan, x_nan] = find(isnan(grad));
+scatter(x_nan, y_nan, 'r');
+%get the coordinates of negative gradient, and scatter plot it
+[y_nve, x_nve] = find(grad<0);
+scatter(x_nve, y_nve, 'g');
