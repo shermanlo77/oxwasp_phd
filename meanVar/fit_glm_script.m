@@ -13,6 +13,7 @@ nbin = 100;
 
 %instantise an object pointing to the dataset
 block_data = BlockData_140316('../data/140316');
+block_data.addShadingCorrector(@ShadingCorrector,true);
 
 %get variance mean data of the top half of the scans (images 1 to 100)
 [sample_mean,sample_var] = block_data.getSampleMeanVar_topHalf();
@@ -34,15 +35,16 @@ for polynomial_order = [-4,-3,-2,-1]
     %train the classifier
     model.train(sample_mean,sample_var);
 
-    %get a range of greyvalues to plot the fit
-    x_plot = linspace(min(sample_mean),max(sample_mean),100);
-    %get the variance prediction along with the error bars
-    [variance_prediction, up_error, down_error] = model.predict(x_plot');
-
     %plot the frequency density
     figure;
-    plotHistogramHeatmap(sample_mean,sample_var,nbin);
+    ax = plotHistogramHeatmap(sample_mean,sample_var,nbin);
     hold on;
+    
+    %get a range of greyvalues to plot the fit
+    x_plot = linspace(ax.XLim(1),ax.XLim(2),100);
+    %get the variance prediction along with the error bars
+    [variance_prediction, up_error, down_error] = model.predict(x_plot');
+    
     %plot the fit/prediction
     plot(x_plot,variance_prediction,'r');
     %plot the error bars

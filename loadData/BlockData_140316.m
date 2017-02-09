@@ -28,6 +28,8 @@ classdef BlockData_140316 < handle
         shading_corrector; %shading corrector object
         
         want_remove_dead_pixels; %boolean, true to remove dead pixels
+        
+        min_greyvalue; %minimum possible greyvalue
     end
     
     %METHODS
@@ -53,6 +55,7 @@ classdef BlockData_140316 < handle
             this.n_panel_column = 16;
             this.want_shading_correction = false;
             this.want_remove_dead_pixels = true;
+            this.min_greyvalue = 5.7588E3;
         end
         
         %LOAD BLACK IMAGE
@@ -271,6 +274,8 @@ classdef BlockData_140316 < handle
             if this.shading_corrector.can_smooth
                 this.smoothPanels(parameters);
             end
+            %get the minimum possible greyvalue to the shading corrector
+            this.shading_corrector.min_greyvalue = this.min_greyvalue;
             
             %calibrate the shading corrector to do shading correction
             this.shading_corrector.calibrate();
