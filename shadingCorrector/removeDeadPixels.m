@@ -17,12 +17,12 @@ function [new_image] = removeDeadPixels(image)
     %get the number of nan
     n_nan = sum(sum(nan_index));
     
+    %make a copy of the image with nan
+    new_image = image;
+    
     %while the image has nan
     while n_nan > 0
         
-        %make a copy of the image with nan
-        new_image = image;
-    
         %get the y and x coordinate of the nan
         [nan_index_y, nan_index_x] = find(nan_index);
 
