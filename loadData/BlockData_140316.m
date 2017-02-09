@@ -52,7 +52,7 @@ classdef BlockData_140316 < handle
             this.panel_width = 128;
             this.n_panel_column = 16;
             this.want_shading_correction = false;
-            this.want_remove_dead_pixels = false;
+            this.want_remove_dead_pixels = true;
         end
         
         %LOAD BLACK IMAGE
