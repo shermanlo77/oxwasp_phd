@@ -19,6 +19,7 @@ classdef ShadingCorrector < handle
         
         can_smooth; %boolean, false, it cannot smooth
         
+        set_extreme_to_nan; %boolean, set extreme shading corrected values to nan
     end
     
     %METHODS
@@ -35,6 +36,7 @@ classdef ShadingCorrector < handle
             %assign member variable
             this.image_size = [height,width];
             this.can_smooth = false;
+            this.set_extreme_to_nan = true;
         end
         
         %CALIBRATE
@@ -70,11 +72,33 @@ classdef ShadingCorrector < handle
                 
         end
         
+        %TURN ON SET EXTREME TO NAN
+        function turnOnSetExtremeToNan(this)
+            this.set_extreme_to_nan = true;
+        end
+        
+        %TURN OFF SET EXTREME TO NAN
+        function turnOffSetExtremeToNan(this)
+            this.set_extreme_to_nan = false;
+        end
+        
         %SHADE CORRECT
         %PARAMETERS:
             %scan_image: image to be shading corrected
         function scan_image = shadeCorrect(this,scan_image)
+            %use linear interpolation for shading correction
             scan_image = this.b_array .* (scan_image - this.reference_mean) + this.target_mean;
+            
+            %if this object requires extreme values to be replaced by NaN
+            if this.set_extreme_to_nan
+            
+                %any negative grey values to be set to nan
+                scan_image(scan_image < 0) = nan;
+
+                %set any overflow grey values to be nan
+                scan_image(scan_image > intmax('uint16')) = nan;
+                
+            end
         end
         
     end
