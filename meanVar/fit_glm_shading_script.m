@@ -1,4 +1,4 @@
-%FIT GLM SCRIPT
+%FIT GLM SCRIPT (on data post shading corrected)
 %Model the mean and variance relationship, using the top half of the stack image The response variance is gamma
 %distributed with known shape parameter from the chi squared distribution.
 %The feature is the mean grey value to some power. A frequency
@@ -13,6 +13,7 @@ nbin = 100;
 
 %instantise an object pointing to the dataset
 block_data = BlockData_140316('../data/140316');
+block_data.addShadingCorrector(@ShadingCorrector,true);
 
 %get variance mean data of the top half of the scans (images 1 to 100)
 [sample_mean,sample_var] = block_data.getSampleMeanVar_topHalf();

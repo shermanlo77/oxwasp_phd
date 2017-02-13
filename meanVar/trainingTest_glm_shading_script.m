@@ -1,4 +1,4 @@
-%TRAINING TEST GLM SCRIPT
+%TRAINING TEST GLM SCRIPT (on data post shading corrected)
 %Fit gamma glm on the mean variance training data and then predict the
 %variance given the mean on the test set. The training and test MSE is
 %presented for a number of different polynomial features.
@@ -8,10 +8,12 @@ clearvars;
 close all;
 
 %set random seed
-rng(uint32(33579150), 'twister');
+rng(uint32(267632689), 'twister');
 
 %instantise an object pointing to the dataset
 block_data = BlockData_140316('../data/140316');
+%turn on shading correction
+block_data.addShadingCorrector(@ShadingCorrector,true);
 
 %number of images use to get the training set mean and variance
 n_train = 50;
