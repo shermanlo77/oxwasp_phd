@@ -91,14 +91,14 @@ classdef MeanVar_GLM < VarianceModel
             X = this.getNormalisedDesignMatrix(x);
             %work out variables
             eta = X*this.parameter;
-            scale = -1./getNaturalParameter(this,eta);
-            
             %work out mean, to be used for the variance prediction
-            variance_prediction = this.shape_parameter * scale * this.y_scale;
+            variance_prediction = this.getMean(eta) * this.y_scale;
+            %get rate parameter
+            gamma_scale = variance_prediction./this.shape_parameter;
             
             %work out the [16%, 84%] percentile, to be used for error bars
-            up_error = gaminv(normcdf(1),this.shape_parameter,scale) * this.y_scale;
-            down_error = gaminv(normcdf(-1),this.shape_parameter,scale) * this.y_scale;
+            up_error = gaminv(normcdf(1),this.shape_parameter,gamma_scale);
+            down_error = gaminv(normcdf(-1),this.shape_parameter,gamma_scale);
             
         end
         
@@ -116,10 +116,10 @@ classdef MeanVar_GLM < VarianceModel
             %work out systematic component
             eta = X*parameter;
             %get rate parameter
-            gamma_rate = this.shape_parameter./this.getMean(eta);
+            gamma_scale = this.getMean(eta)./this.shape_parameter;
 
             %simulate gamma from the natural parameter
-            y = gamrnd(this.shape_parameter,gamma_rate);
+            y = gamrnd(this.shape_parameter,gamma_scale);
         end        
         %GET NORMALISED DESIGN MATRIX
         %Normalise the design matrix so that the 2nd column has mean zero

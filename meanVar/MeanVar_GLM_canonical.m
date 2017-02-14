@@ -33,11 +33,6 @@ classdef MeanVar_GLM_canonical < MeanVar_GLM
             g_dash = this.shape_parameter./(mu.^2);
         end
         
-        %GET NATURAL PARAMETER from systematic component
-        function theta = getNaturalParameter(this,eta)
-            theta = eta;
-        end
-        
         %GET MEAN (LINK FUNCTION)
         function mu = getMean(this,eta)
             mu = -this.shape_parameter./eta;
