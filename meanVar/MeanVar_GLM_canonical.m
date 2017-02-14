@@ -40,7 +40,7 @@ classdef MeanVar_GLM_canonical < MeanVar_GLM
         
         %GET MEAN (LINK FUNCTION)
         function mu = getMean(this,eta)
-            mu = 1./eta;
+            mu = -this.shape_parameter./eta;
         end
     end
     

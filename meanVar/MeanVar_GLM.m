@@ -50,7 +50,7 @@ classdef MeanVar_GLM < VarianceModel
             
             %initalise variables
             eta = X*this.parameter; %systematic component
-            mu = -this.shape_parameter*this.getMean(eta); %mean vector
+            mu = this.getMean(eta); %mean vector
             v = mu.^2 / this.shape_parameter; %variance vector
             w = 1./(v.*this.getLinkDiff(mu)); %weights in IRLS
             
@@ -71,7 +71,7 @@ classdef MeanVar_GLM < VarianceModel
                 
                 %update variables
                 eta = X*this.parameter; %systematic component
-                mu = -this.shape_parameter*this.getMean(eta); %mean vector
+                mu = this.getMean(eta); %mean vector
                 v = mu.^2 / this.shape_parameter; %variance vector
                 w = 1./(v.*this.getLinkDiff(mu)); %weights in IRLS
                 
@@ -115,13 +115,17 @@ classdef MeanVar_GLM < VarianceModel
             
             %work out systematic component
             eta = X*parameter;
-            %get natural parameter from systematic component
-            theta = this.getNaturalParameter(eta);
+            %get rate parameter
+            gamma_rate = this.shape_parameter./this.getMean(eta);
 
             %simulate gamma from the natural parameter
-            y = gamrnd(this.shape_parameter,-1./theta);
-        end
-        
+            y = gamrnd(this.shape_parameter,gamma_rate);
+        end        
+        %GET NORMALISED DESIGN MATRIX
+        %Normalise the design matrix so that the 2nd column has mean zero
+        %and std 1
+        %PARAMETERS:
+            %grey_values: column vector of greyvalues
         function X = getNormalisedDesignMatrix(this,grey_values)
             X = this.getDesignMatrix(grey_values);
             X(:,2) = (X(:,2)-this.x_shift) / this.x_scale;
@@ -147,10 +151,12 @@ classdef MeanVar_GLM < VarianceModel
         g_dash = getLinkDiff(this,mu);
         
         %GET MEAN (LINK FUNCTION)
+        %PARAMETERS:
+            %eta: vector of systematic components
+        %RETURN:
+            %mu: vector of mean responses
         mu = getMean(this,eta);
         
-        %GET NATURAL PARAMETER from systematic component
-        theta = getNaturalParameter(this,eta);
     end
     
 end
