@@ -120,7 +120,17 @@ classdef MeanVar_GLM < VarianceModel
 
             %simulate gamma from the natural parameter
             y = gamrnd(this.shape_parameter,gamma_scale);
-        end        
+        end
+        
+        %GET DESIGN MATRIX
+        %PARAMETERS:
+            %grey_values: column vector of greyvalues
+        %RETURN:
+            %X: n x 2 design matrix
+        function X = getDesignMatrix(this,grey_values)
+            X = [ones(numel(grey_values),1),grey_values.^this.polynomial_order];
+        end
+        
         %GET NORMALISED DESIGN MATRIX
         %Normalise the design matrix so that the 2nd column has mean zero
         %and std 1
@@ -135,13 +145,6 @@ classdef MeanVar_GLM < VarianceModel
     
     %ABSTRACT METHODS
     methods(Abstract)
-        
-        %GET DESIGN MATRIX
-        %PARAMETERS:
-            %grey_values: column vector of greyvalues
-        %RETURN:
-            %X: n x 2 design matrix
-        X = getDesignMatrix(this,grey_values);
         
         %GET LINK FUNCTION DIFFERENTATED
         %PARAMETERS:
