@@ -72,6 +72,11 @@ classdef MeanVar_GLM < VarianceModel
                 %update the parameter
                 this.parameter = (Xt_w*X)\(Xt_w*z);
                 
+                %if the parameter is nan, break the for loop and end
+                if(any(isnan(this.parameter)))
+                    break;
+                end
+                
                 %update variables
                 eta = X*this.parameter; %systematic component
                 mu = this.getMean(eta); %mean vector

@@ -13,8 +13,7 @@ classdef Experiment < handle
     %MEMBER VARIABLES
     properties
         experiment_name; %string, name of the experiment and the file name for storing it in a .mat file
-        random_number_generator; %random number generator (can be object or seed)
-        n_repeat; %how many times the experiment was repeated
+        i_repeat; %how many times the experiment was repeated + 1
     end
     
     %METHODS
@@ -23,28 +22,29 @@ classdef Experiment < handle
         %CONSTRUCTOR
         %PARAMETERS:
             %experiment_name: name of the experiment and the file name for storing it in a .mat file
-            %random_number_generator: random number generator (can be object or seed)
-        function this = Experiment(experiment_name, random_number_generator)
+        function this = Experiment(experiment_name)
             %assign member variables
             this.experiment_name = experiment_name;
-            this.random_number_generator = random_number_generator;
-            this.n_repeat = 0;
+            this.i_repeat = 1;
         end
         
-        %DO EXPERIMENT (Abstract method)
-        %Does one iteration of the experiment, save the results
-        %to its member variables
-        function doExperiment(this)
-        end
+    end
+    
+    %ABSTRACT METHODS
+    methods (Abstract)
         
         %DECLARE RESULT ARRAY (Abstract method)
         %Declare an array for storing results in its member variables
         %PARAMETERS:
             %n_repeat: number of times the experiment is to be repeated
-        function declareResultArray(this,n_repeat)
-        end
+        declareResultArray(this,n_repeat)
         
-    end   
+        %DO EXPERIMENT (Abstract method)
+        %Does one iteration of the experiment, save the results
+        %to its member variables
+        doExperiment(this)
+        
+    end
     
     %STATIC METHODS
     methods (Static)
@@ -55,24 +55,22 @@ classdef Experiment < handle
         %PARAMETERS:
             %experiment_name: name of the experiment, this will be the name of the .mat file which saves the experiment object
             %experiment_handle: function handle for instantiating an experiment object
-            %random_number_generator: random number generator (can be object or seed)
             %n_repeat: number of times to repeat the experiment in the plan
-        function setUpExperiment(experiment_name,experiment_handle,random_number_generator,n_repeat)
-            
-            %try loading the file storing the /mat file
+        function setUpExperiment(experiment_handle,n_repeat)
+            %instantise an experiment object
+            experiment = feval(experiment_handle);
+            %try loading the file storing the .mat file
             try
                 %load the file
-                load(strcat('results/',experiment_name,'.mat'));
+                load(strcat('results/',experiment.experiment_name,'.mat'));
                 %the file has already been saved return error 
                 warning('Experiment already set up');
             %catch problems reading the file
             catch
-                %instantise an experiment object
-                experiment = feval(experiment_handle, experiment_name, random_number_generator);
                 %declare an array of results in the experiment
                 experiment.declareResultArray(n_repeat);
                 %save the experiment object
-                save(strcat('results/',experiment_name,'.mat'),'experiment');
+                save(strcat('results/',experiment.experiment_name,'.mat'),'experiment');
             end
         end
         
@@ -88,15 +86,23 @@ classdef Experiment < handle
             load_data = load(strcat('results/',experiment_name,'.mat'));
             experiment = load_data.experiment;
             
+            %set up progress par
+            h = waitbar(0,cell2mat(strcat({'Running experiment: '},experiment_name)));
+            
             %while there are experiments to be done
-            while experiment.n_repeat < n_repeat
+            while experiment.i_repeat <= n_repeat
                 %do the experiment
                 experiment.doExperiment();
                 %increment the member variable n_repeat
-                experiment.n_repeat = experiment.n_repeat + 1;
+                experiment.i_repeat = experiment.i_repeat + 1;
                 %save the experiment
                 save(strcat('results/',experiment_name,'.mat'),'experiment');
+                %move progress bar
+                waitbar((experiment.i_repeat-1)/n_repeat);
             end
+            
+            %delete progress bar
+            delete(h);
             
         end
                 
