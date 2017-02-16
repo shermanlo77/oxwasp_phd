@@ -27,10 +27,10 @@ sample_var(threshold) = [];
 shape_parameter = (block_data.n_sample-1)/2;
 
 %for each polynomial order
-for polynomial_order = [-1,-2,-3,-4]
+for polynomial_order = [1,2,3,4]
     
     %model the mean and variance using gamma glm
-    model = MeanVar_GLM_log(shape_parameter,polynomial_order);
+    model = MeanVar_GLM_identity(shape_parameter,polynomial_order);
     %train the classifier
     model.train(sample_mean,sample_var);
 

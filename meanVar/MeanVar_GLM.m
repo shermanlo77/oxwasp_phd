@@ -11,6 +11,7 @@ classdef MeanVar_GLM < VarianceModel
         x_shift;
         polynomial_order;
         n_step; %n_step: number of IRLS steps
+        initial_parameter;
     end
     
     %METHODS
@@ -20,11 +21,13 @@ classdef MeanVar_GLM < VarianceModel
         %PARAMETERS:
             %shape_parameter: shape parameter of the gamma distribution
             %polynomial_order: polynomial order feature
-        function this = MeanVar_GLM(shape_parameter,polynomial_order)
+            %initial_parameter: the value of the parameter at the start of IRLS
+        function this = MeanVar_GLM(shape_parameter,polynomial_order,initial_parameter)
             %assign member variables
             this.shape_parameter = shape_parameter;
             this.polynomial_order = polynomial_order;
             this.n_step = 100;
+            this.initial_parameter = initial_parameter;
         end
         
         %TRAIN CLASSIFIER
@@ -44,7 +47,7 @@ classdef MeanVar_GLM < VarianceModel
             %IRLS SECTION
             
             %set inital parameter
-            this.parameter = [-1;0];
+            this.parameter = this.initial_parameter;
             %assign training set size
             this.n_train = numel(var_train);
             
