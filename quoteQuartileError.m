@@ -12,7 +12,7 @@
     %E: exponent
     %sig_fig: number of significant figures of q2
     %error_sig_fig: number of significant figures of the error
-function [q2, up_error, down_error, E, sig_fig, error_sig_fig] = quoteQuartileError(data, n_bootstrap)
+function [q2, up_error, down_error, E] = quoteQuartileError(data, n_bootstrap)
 
     %get the number of data
     n = numel(data);
@@ -78,5 +78,16 @@ function [q2, up_error, down_error, E, sig_fig, error_sig_fig] = quoteQuartileEr
     
     %round q2
     q2 = round(q2,sig_fig,'significant');
+    
+    up_error = num2str(up_error);
+    down_error = num2str(down_error);
+    E = num2str(E);
+    if sig_fig == 1
+        q2 = num2str(q2);
+    else
+        q2 = num2str(q2 * 10^(sig_fig-1));
+        q2 = strcat(q2(1),'.',q2(2:end));
+    end
+        
 end
 
