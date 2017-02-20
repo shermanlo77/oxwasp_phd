@@ -44,6 +44,10 @@ classdef Experiment < handle
         %to its member variables
         doExperiment(this)
         
+        %PRINT RESULTS (Abstract method)
+        %Export the results to a figure or table, to be used by latex
+        printResults(this)
+         
     end
     
     %STATIC METHODS
@@ -103,6 +107,9 @@ classdef Experiment < handle
             
             %delete progress bar
             delete(h);
+            
+            %print the results
+            experiment.printResults();
             
         end
                 

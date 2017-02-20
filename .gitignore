@@ -9,6 +9,7 @@
 *.ps
 *.m~
 *.mat
+*.tex_table
 
 # Compiled source #
 ###################

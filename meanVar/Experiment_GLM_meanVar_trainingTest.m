@@ -130,6 +130,78 @@ classdef Experiment_GLM_meanVar_trainingTest < Experiment
 
         end
         
+        %PRINT RESULTS
+        %Save the training and test MSE into a latex table
+        function printResults(this)
+            
+            %training_table is an array of strings (10 x 5 size), to be
+            %exported into a latex table
+            training_table = string();
+            training_table(10,5) = string();
+            
+            %1st row is the header
+            training_table(1,1) = 'Link function';
+            training_table(1,2) = 'Polynomial order';
+            training_table(1,3) = 'Shading uncorrected';
+            training_table(1,4) = 'Shading corrected BW';
+            training_table(1,5) = 'Shading corrected BGW';
+            
+            %the test table has the same headers as the training table
+            test_table = training_table;
+
+            %for each glm
+            for i_glm = 1:9
+                
+                %put the link function in the 1st column
+                if isa(this.glm_array{i_glm},'MeanVar_GLM_identity')
+                    training_table(i_glm+1,1) = 'Identity';
+                elseif isa(this.glm_array{i_glm},'MeanVar_GLM_canonical')
+                    training_table(i_glm+1,1) = 'Canonical';
+                elseif isa(this.glm_array{i_glm},'MeanVar_GLM_log')
+                    training_table(i_glm+1,1) = 'Log';
+                end
+                
+                %put the polynomial order in the 2nd column
+                training_table(i_glm+1,2) = num2str(this.glm_array{i_glm}.polynomial_order);
+                
+                %the link function and polynomial order are the same in the
+                %training and test table
+                test_table(i_glm+1,1:2) = training_table(i_glm+1,1:2);
+                
+                %for each shading correction
+                for i_shading = 1:3
+                    
+                    %get the training mse
+                    training_mse_i = this.training_mse_array(:,i_glm,i_shading);
+                    %if any of the training mse has nan, output nan
+                    if any(isnan(training_mse_i))
+                        training_table(i_glm+1,2+i_shading) = 'NaN';
+                    %else all training mse isn't nan, quote the quartile of the training mse
+                    else
+                        [q2, up_error, down_error, E] = quoteQuartileError(training_mse_i,100);
+                        training_table(i_glm+1,2+i_shading) = strcat('$',q2,'\pm^{',up_error,'}_{',down_error,'}\times 10^{',E,'}$');
+                    end
+
+                    %get the test mse
+                    test_mse_i = this.test_mse_array(:,i_glm,i_shading);
+                    %if any of the test mse has nan, output nan
+                    if any(isnan(test_mse_i))
+                        test_table(i_glm+1,2+i_shading) = 'NaN';
+                    %else all test mse isn't nan, quote the quartile of the test mse
+                    else
+                        [q2, up_error, down_error, E] = quoteQuartileError(test_mse_i,100);
+                        test_table(i_glm+1,2+i_shading) = strcat('$',q2,'\pm^{',up_error,'}_{',down_error,'}\times 10^{',E,'}$');
+                    end
+                end
+
+            end
+
+            %output the training and test table to a latex table
+            printStringArrayToLatexTable(training_table, strcat('reports/tables/',this.experiment_name,'_training.tex_table'));
+            printStringArrayToLatexTable(test_table, strcat('reports/tables/',this.experiment_name,'_test.tex_table'));
+            
+        end
+        
     end
     
     methods(Static)
@@ -140,7 +212,7 @@ classdef Experiment_GLM_meanVar_trainingTest < Experiment
             n_repeat = 100;
             %set up the experiment
             Experiment.setUpExperiment(@Experiment_GLM_meanVar_trainingTest,n_repeat);
-            %run the experiment
+            %run the experiment, it will save results to reports folder
             Experiment.runExperiments('GLM_meanVar_trainingTest',n_repeat);
         end
         
