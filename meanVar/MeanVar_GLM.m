@@ -148,6 +148,23 @@ classdef MeanVar_GLM < VarianceModel
             X = this.getDesignMatrix(grey_values);
             X(:,2) = (X(:,2)-this.x_shift) / this.x_scale;
         end
+        
+        %GET VARIANCE
+        %Return the variance of the response for a given grey value
+        %PARAMETERS:
+            %grey_values: column vector of greyvalues
+        function variance = getVariance(this,grey_values)
+            %get design matrix
+            X = this.getNormalisedDesignMatrix(grey_values);
+            %get systematic
+            eta = X * this.parameter;
+            %get mean
+            mu = this.getMean(eta);
+            %get variance
+            variance = mu.^2 / this.shape_parameter;
+            %scale the variance
+            variance = variance * this.y_scale^2;
+        end
      
     end
     
