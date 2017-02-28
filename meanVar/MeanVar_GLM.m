@@ -165,6 +165,22 @@ classdef MeanVar_GLM < VarianceModel
             %scale the variance
             variance = variance * this.y_scale^2;
         end
+        
+        %PREDICTION MEAN SQUARED STANDARDIZED ERROR
+        %Return the mean squared standardized prediction error
+        %PARAMETERS:
+            %y: greyvalue variance (column vector)
+            %x: greyvalue mean (column vector)
+            %x and y are the same size
+        %RETURN:
+            %mse: scalar mean squared error
+        function msse = getPredictionMSSE(this,x,y)
+            %given greyvalue mean, predict greyvalue variance
+            y_predict = this.predict(x);
+            %work out the mean squared error
+            residual = (y-y_predict)./ sqrt(this.getVariance(x));
+            msse = sum(residual.^2)/numel(y);
+        end
      
     end
     
