@@ -1,0 +1,98 @@
+clc;
+clearvars;
+close all;
+
+%Z STATISTICS SCRIPT
+%Spilt the data into 3 parts
+    %Part 1: fit mean var GLM model to the data, using top half of the image
+    %Part 2: 25 images, take the mean of it and treat it as the ground truth
+    %Part 3: use the model to predict the variance, for each of the 25 images, calculate the z statistic
+
+%set random seed
+rng(uint32(5949338), 'twister');
+
+%get the data
+block_data = BlockData_140316('../data/140316');
+%add bgw shading correction
+block_data.addShadingCorrector(@ShadingCorrector,true);
+%get the threshold of the top half of the image, threshold of the 3d printed sample
+threshold = BlockData_140316.getThreshold_topHalf();
+
+%get the number of images in the entire dataset
+n = block_data.n_sample;
+
+%shuffle the order of the data
+index = randperm(n);
+
+%assign 50 images to the model set
+model_index = index(1:50);
+%assign 25 images to represent the ground truth
+true_index = index(51:75);
+%assign 25 images to the test set
+test_index = index(76:end);
+
+%declare array for storing the z statistics and p values for each of the 25 test images
+z_array = zeros(block_data.height, block_data.width, numel(test_index));
+p_array = zeros(block_data.height, block_data.width, numel(test_index));
+
+%instantiate GLm model
+model = MeanVar_GLM_identity((numel(model_index)-1)/2,1);
+
+%get variance mean data of the training set
+[sample_mean,sample_var] = block_data.getSampleMeanVar_topHalf(model_index);
+%segment the mean var data
+sample_mean(threshold) = [];
+sample_var(threshold) = [];
+
+%train the classifier to predict the variance
+model.train(sample_mean,sample_var);
+
+%take the mean over the 25 images in the ground truth set
+true_image = mean(block_data.loadSampleStack(true_index),3);
+
+%for each test image
+for i_test = 1:numel(test_index)
+
+    %get the test image
+    test_image = block_data.loadSample(test_index(i_test));
+
+    %get the std prediction given the test image
+    error = sqrt(reshape(model.predict(reshape(test_image,[],1)),block_data.height,block_data.width));
+
+    %calculate the z statistic
+    z = (test_image - true_image) ./ error; %something weird when . removed
+    
+    %save the z statistic to the array
+    z_array(:,:,i_test) = z;
+    %save the p value to the array
+    p_array(:,:,i_test) = normcdf(z);
+end
+
+%for 6 test image, plot the p value
+figure;
+for i = 1:numel(test_index)
+    subplot(5,5,i);
+    imagesc(p_array(:,:,i));
+    colorbar;
+end
+
+%define the significance level
+sig_level = normcdf(-5) / block_data.area;
+%define the critical p value
+p_critical = [sig_level/2, 1-sig_level/2];
+
+%for 6 test image, plot the scan with circled significant pixels
+figure;
+for i = 1:numel(test_index)
+    %plot the scan
+    subplot(5,5,i,imagesc_truncate(block_data.loadSample(test_index(i))));
+    colormap gray;
+    hold on;
+    %get the p values
+    p_image = p_array(:,:,i);
+    %find p values which are significant
+    p_significant = (p_image < p_critical(1)) | (p_critical(2) < p_image);
+    [y,x] = find(p_significant);
+    %plot the significant pixels as a scatter plot
+    scatter(x,y,'r');
+end
