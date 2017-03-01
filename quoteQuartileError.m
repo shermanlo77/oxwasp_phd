@@ -10,8 +10,6 @@
     %up_error
     %down_error
     %E: exponent
-    %sig_fig: number of significant figures of q2
-    %error_sig_fig: number of significant figures of the error
 function [q2, up_error, down_error, E] = quoteQuartileError(data, n_bootstrap)
 
     %get the number of data
@@ -44,44 +42,62 @@ function [q2, up_error, down_error, E] = quoteQuartileError(data, n_bootstrap)
         
     end
     
-    %get the minus minimum order of magnitude of the bootstrap samples of the up/down error, add 1
-    %it will be used as the number of significant figures to round the error
-    error_sig_fig = -min([orderMagnitude(std(up_error_bootstrap)),orderMagnitude(std(down_error_bootstrap))]) + 1;
+    %get the minimum order of magnitude of the ratio between the error and the bootstrap variance
+    error_mag_order = min([orderMagnitude(up_error/std(up_error_bootstrap)),orderMagnitude(down_error/std(down_error_bootstrap))]);
     
-    %error_sig_fig is an integer, if it is equal to 0 or less
-    if error_sig_fig <= 0
+    %error_sig_fig is an integer, if it is equal to 0 or more
+    if error_mag_order >= 0
         error_sig_fig = 1;
+    %else the number of significant figures is 2 or -error_mag_order+1
+    else
+        error_sig_fig = 2;
+        %error_sig_fig = -error_mag_order+1;
     end
-    %else the error doesn't vary much, leave it as the number of significant figures
-    
-    %round the error using error_sig_fig number of significant figures
-    up_error = round(up_error,error_sig_fig,'significant');
-    down_error = round(down_error,error_sig_fig,'significant');
 
     %E is the exponent of q2
     E = floor(log10(abs(q2)));
     
     %get the mantissa of the errors and q2
-    up_error = up_error / 10^E;
-    down_error = down_error / 10^E;
-    q2 = q2 / 10^E;
+    up_error = up_error * 10^-E;
+    down_error = down_error * 10^-E;
+    q2 = q2 * 10^-E;
     
     %get the number of decimial places of the least significant figure of the error
+        %-floor(min(log10([up_error,down_error]))) gets the exponent of the errors
+        %error_sig_fig - 1 increases the number of decimial places according to the number of significant figures of the error
     dec_places = -floor(min(log10([up_error,down_error]))) + error_sig_fig - 1;
-    %if it is less or equal to 0, set signiciant figures to 1
+    %if it is less or equal to 0, set significant figures to 1
     if dec_places <= 0
         sig_fig = 1;
-    %else, set the number of signiciant figures to the number of decimial places add 1
+    %else, set the number of signifiant figures to the number of decimial places add 1
+        %add one for the digit to the left of the decimial place
     else
         sig_fig = dec_places + 1;
     end
     
+    %round the error using dec_places number of decimial places
+    up_error = round(up_error,dec_places,'decimals');
+    down_error = round(down_error,dec_places,'decimals');
+    
     %round q2
     q2 = round(q2,sig_fig,'significant');
     
+    %convert the error to string
     up_error = num2str(up_error);
     down_error = num2str(down_error);
+    
+    %fill in missing decimial places with zeros
+    while numel(up_error)<2+dec_places
+        up_error = [up_error,'0'];
+    end
+    while numel(down_error)<2+dec_places
+        down_error = [down_error,'0'];
+    end
+    
+    %convert the exponent to string
     E = num2str(E);
+    
+    %convert q2 to string
     if sig_fig == 1
         q2 = num2str(q2);
     else

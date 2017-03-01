@@ -118,7 +118,7 @@ classdef Experiment_GLM_meanVar_trainingTest < Experiment
                 %train the classifier
                 model.train(sample_mean,sample_var);
                 %get the training mse
-                mse_training = model.getPredictionMSE(sample_mean,sample_var);
+                mse_training = model.getPredictionMSSE(sample_mean,sample_var);
 
                 %get the variance mean data of the test set
                 [sample_mean,sample_var] = data.getSampleMeanVar_topHalf(test_index);
@@ -126,7 +126,7 @@ classdef Experiment_GLM_meanVar_trainingTest < Experiment
                 sample_mean(this.threshold) = [];
                 sample_var(this.threshold) = [];
                 %get the test mse
-                mse_test = model.getPredictionMSE(sample_mean,sample_var);
+                mse_test = model.getPredictionMSSE(sample_mean,sample_var);
 
         end
         
@@ -179,7 +179,11 @@ classdef Experiment_GLM_meanVar_trainingTest < Experiment
                     %else all training mse isn't nan, quote the quartile of the training mse
                     else
                         [q2, up_error, down_error, E] = quoteQuartileError(training_mse_i,100);
-                        training_table(i_glm+1,2+i_shading) = strcat('$(',q2,'\substack{+',up_error,'\\ -',down_error,'})\times 10^{',E,'}$');
+                        if E == '0'
+                            training_table(i_glm+1,2+i_shading) = strcat('$',q2,'\substack{+',up_error,'\\ -',down_error,'}$');
+                        else
+                            training_table(i_glm+1,2+i_shading) = strcat('$(',q2,'\substack{+',up_error,'\\ -',down_error,'})\times 10^{',E,'}$');
+                        end
                     end
 
                     %get the test mse
@@ -190,7 +194,11 @@ classdef Experiment_GLM_meanVar_trainingTest < Experiment
                     %else all test mse isn't nan, quote the quartile of the test mse
                     else
                         [q2, up_error, down_error, E] = quoteQuartileError(test_mse_i,100);
-                        test_table(i_glm+1,2+i_shading) = strcat('$(',q2,'\substack{+',up_error,'\\ -',down_error,'})\times 10^{',E,'}$');
+                        if E == '0'
+                            test_table(i_glm+1,2+i_shading) = strcat('$',q2,'\substack{+',up_error,'\\ -',down_error,'}$');
+                        else
+                            test_table(i_glm+1,2+i_shading) = strcat('$(',q2,'\substack{+',up_error,'\\ -',down_error,'})\times 10^{',E,'}$');
+                        end
                     end
                 end
 
