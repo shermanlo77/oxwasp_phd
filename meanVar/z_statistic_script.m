@@ -7,6 +7,10 @@ close all;
     %Part 1: fit mean var GLM model to the data, using top half of the image
     %Part 2: 25 images, take the mean of it and treat it as the ground truth
     %Part 3: use the model to predict the variance, for each of the 25 images, calculate the z statistic
+%Plots:
+    %z statistics for each of the 25 test images
+    %significant pixels for each of the 25 test images at the 5 sigma level
+    %p values from the chi squared goodness of fit test, circled are significant pixels at the 2 sigma level
 
 %set random seed
 rng(uint32(5949338), 'twister');
@@ -96,3 +100,30 @@ for i = 1:numel(test_index)
     %plot the significant pixels as a scatter plot
     scatter(x,y,'r');
 end
+
+%---CHI SQUARED GOODNESS OF FIT TEST---%
+
+%p_image is an image containing the p values of each pixel from the chi
+%squared goodness of fit test
+p_image = zeros(block_data.height, block_data.width);
+%for each pixel in the image
+for i_width = 1:block_data.width
+    for i_height = 1:block_data.height
+        %get the z statistic from each test image
+        z_vector = reshape(z_array(i_height, i_width, :), [], 1);
+        %do the chi squared goodness of fit test, save the p value in p_image
+        p_image(i_height, i_width) = chi2gof_norm(z_vector, 5, false);
+    end
+end
+
+%plot the p values from the chi squared goodness of fit test
+figure;
+imagesc(p_image);
+colorbar;
+%get the critical value at the 2 sigma significance level
+p_critical = normcdf(-2) / block_data.area;
+%find significant pixels
+[y,x] = find(p_image < p_critical);
+hold on;
+%scatter plot significant pixels
+scatter(x,y,'r','filled');
