@@ -127,3 +127,9 @@ p_critical = normcdf(-2) / block_data.area;
 hold on;
 %scatter plot significant pixels
 scatter(x,y,'r','filled');
+
+%plot histogram of p values
+figure;
+histogram(reshape(p_image, [], 1), 20, 'Normalization', 'countdensity');
+xlabel('p values');
+ylabel('Frequency density');
