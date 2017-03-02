@@ -23,6 +23,8 @@ function [p_value, chi_squared, edges] = chi2gof_norm(x, f_e, is_need_estimation
     n = numel(x);
     %get the number of bins for a given expected frequency
     n_bin = round(n/f_e);
+    %correct the expected frequency from rounding error
+    f_e = n/n_bin;
     %get the degrees of freedom
     dof = n_bin - is_need_estimation*2 - 1;
     %if the degrees of freedom is too small, throw error
