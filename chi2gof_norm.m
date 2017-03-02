@@ -31,7 +31,7 @@ function [p_value, chi_squared, edges] = chi2gof_norm(x, f_e, is_need_estimation
     end
     
     %get the probability a data point will be in a bin
-    p_length = f_e/n;
+    p_length = 1/n_bin;
     
     %declare array of edges
     edges = zeros(n_bin+1,1);
@@ -41,16 +41,31 @@ function [p_value, chi_squared, edges] = chi2gof_norm(x, f_e, is_need_estimation
     for i = 1:n_bin
         %get the edge of the bin and save it
         %the edges are defined to have equal probabiltiy in each bin
-        edges(i+1) = norminv(i*p_length);
+        if i*p_length > 1
+            edges(i+1) = inf;
+        else
+            edges(i+1) = norminv(i*p_length);
+        end
     end
 
     %declare array of observed frequency in each bin
     f_o_array = zeros(n_bin,1);
     
-    %for each bin
-    for i = 1:n_bin
-        %get the observed frequency
-        f_o_array(i) = sum( (edges(i) < x) & (x < edges(i+1)) );
+    %sort the data in ascending order
+    x = sort(x);
+    
+    %bin pointer
+    i_bin = 1;
+    
+    %for each data in ascending order
+    for i_x = 1:numel(x)
+        %while this data is not in the bin defined by i_bin
+        while or( x(i_x) < edges(i_bin), edges(i_bin+1) < x(i_x) )
+            %increment the bin pointer
+            i_bin = i_bin + 1;
+        end
+        %increment the observed frequency by one
+        f_o_array(i_bin) = f_o_array(i_bin) + 1;
     end
     
     %work out the chi squared statistic
