@@ -52,11 +52,54 @@
 \section{Introduction}
 3D printing, or additive layer manufacturing, can be used to create objects with complicated shapes and geometry from a blueprint, or CAM model, on a computer.  Recently it has been commercialised and has served purposes in the medical field and engineering. The need for detecting defects from 3D printing is required in order to do quality control, especially if the 3D printed object is used for something critical for example body parts. 
 
-X-ray computed tomography (CT) scans can be used to take images of a rotating 3D printed sample to obtain images at multiple angles. These x-ray images then can be combined to form a 3D projection and the detection of defects can start. However due to the random nature of x-ray photons in its production in an x-ray tube and attenuation, sources of error or noise is introduced. In order to do defect detection in a statistical manner, sources of error must be considered.
+X-ray computed tomography (CT) scans can be used to take images of a rotating 3D printed sample to obtain images of the sample at multiple angles. These x-ray images then can be combined to form a 3D projection and the detection of defects can start. However due to the random nature of x-ray photons in its production in an x-ray tube and attenuation from the x-ray tube to the detector, sources of error or noise is introduced. In order to do defect detection in a statistical manner, sources of error must be considered.
 
 A mini-project on this topic was completed at 12 months of the PhD \cite{ip2016inside}. The main aim of that project was to conduct exploratory data analysis on a dataset of 100 images of an x-ray CT scan of a stationary 3D printed cuboid. Linear regressions were used to model the relationship between the variance and the mean greyvalue of each pixel. Separately latent variable models were fitted (or at least attempted) on the scans, such as PCA, factor analysis and the compound Poisson, to find sources of variance.
 
 After the mini-project, the main aims during the PhD was to extend the mini-project by developing a statistic to aid in defect detection while considering the randomness of photons. Another aim was to build a model for the noise.
+
+This report will outline a pre-process method called shading correction and it was investigated how it affected the mean and variance relationship. The mean and variance relationship was modelled using GLM with different link functions. After finding a good model for the mean and variance, a statistics was developed to compare two images in the face of uncertainty. Lastly the compound Poisson was studied.
+
+\section{About the Data}
+Data was collected prior to the mini-project. 20 black/grey/white (b/g/w) images were collected on 14/03/16 at around 1250. The b/g/w images are images obtained from the x-ray detector when exposed to x-rays at different settings. About 2 hours later at 1503, 100 images of a 3D printed cuboid (or sample) were taken. These images were obtained from the x-ray detector when exposed to x-rays with the sample between the x-ray source and detector. The detector used was the Perkin Elmer XRD 1621 digital X-ray detector, with settings shown in Table \ref{table:settings}.
+
+\begin{table*}
+	\centering
+	\begin{tabular}{c|c|c|c}
+		& Voltage (kV) & Power (W) & Exposure time (ms) \\
+		\hline
+		Black & 0.0 & 0.0 & 1000\\
+		Grey & 85 & 1.7 & 1000\\
+		White & 85 & 6.8 & 1000 \\
+		Sample & 100 & 33 & 500
+	\end{tabular}
+	\caption{Setting of the x-ray CT scan when collecting images from the x-ray detector. Error bars were not given and the number of significant figures shown are as given.}
+	\label{table:settings}
+\end{table*}
+
+The images were $(1\,996\times1\,996)$ pixels in size and in greyscale with 16 bits, in other words each pixel can have greyvalues which take integer values form 0 to $2^{16}-1$ inclusive. The greyvalues are in arbitrary units. The images are shown in Figure \ref{fig:image} and the histogram of greyvalues are shown in Figure \ref{fig:hist}.
+
+\begin{figure}
+	\centering
+	\includegraphics[width = 0.45\textwidth]{../figures/data/140316_image.eps}
+	\caption{A black, grey, white and sample image obtained from the x-ray detector.}
+	\label{fig:image}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics[width = 0.45\textwidth]{../figures/data/140316_histo.png}
+	\caption{A black, grey, white and sample image obtained from the x-ray detector.}
+	\label{fig:hist}
+\end{figure}
+
+\section{Shading Correction}
+
+\section{Mean/Variance Relationship}
+
+\section{$Z$ Statistic}
+
+\section{Compound Poisson}
 
 \bibliographystyle{unsrt}
 \bibliography{../bib}
