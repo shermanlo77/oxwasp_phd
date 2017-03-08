@@ -24,10 +24,10 @@ classdef BlockData_140316 < handle
         i_column; %iterator, counting the number of panel columns
         i_row; %iterator, counting the number of panel rows
         
-        want_shading_correction; %boolean, true to do shading correction
+        want_shading_correction; %boolean, true to do shading correction, default false, automatically turns to true if a shading corrector is added
         shading_corrector; %shading corrector object
         
-        want_remove_dead_pixels; %boolean, true to remove dead pixels
+        want_remove_dead_pixels; %boolean, true to remove dead pixels, default false
         
         min_greyvalue; %minimum possible greyvalue
     end
@@ -54,7 +54,7 @@ classdef BlockData_140316 < handle
             this.panel_width = 128;
             this.n_panel_column = 16;
             this.want_shading_correction = false;
-            this.want_remove_dead_pixels = true;
+            this.want_remove_dead_pixels = false;
             this.min_greyvalue = 5.7588E3;
         end
         
@@ -371,6 +371,18 @@ classdef BlockData_140316 < handle
                 this.i_row = this.i_row + 1;
             end
             
+        end
+        
+        %TURN ON SET EXTREME TO NAN
+        %Set the shading corrector to set extreme greyvalues to be NaN
+        function turnOnSetExtremeToNan(this)
+            this.shading_corrector.turnOnSetExtremeToNan();
+        end
+        
+        %TURN OFF SET EXTREME TO NAN
+        %Set the shading corrector to keep extreme greyvalues
+        function turnOffSetExtremeToNan(this)
+            this.shading_corrector.turnOffSetExtremeToNan();
         end
         
     end

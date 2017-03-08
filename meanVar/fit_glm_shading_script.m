@@ -14,6 +14,8 @@ nbin = 100;
 %instantise an object pointing to the dataset
 block_data = BlockData_140316('../data/140316');
 block_data.addShadingCorrector(@ShadingCorrector,true);
+block_data.turnOnRemoveDeadPixels();
+block_data.turnOnSetExtremeToNan();
 
 %get variance mean data of the top half of the scans (images 1 to 100)
 [sample_mean,sample_var] = block_data.getSampleMeanVar_topHalf();

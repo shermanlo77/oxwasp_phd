@@ -20,9 +20,6 @@ threshold = reshape(BlockData_140316.getThreshold_topHalf(),[],1);
 %number of bins for the frequency density plot
 nbin = 100;
 
-%polynoial order feature
-polynomial_order = -1;
-
 %array of sample sizes
 n_sample_array = [25,50,75,100];
 
@@ -48,7 +45,7 @@ for i_sample = 1:numel(n_sample_array)
     shape_parameter = (n_sample-1)/2;
 
     %model the mean and variance using gamma glm
-    model = MeanVar_GLM_canonical(shape_parameter,polynomial_order);
+    model = MeanVar_GLM_identity(shape_parameter,1);
     %train the classifier
     model.train(sample_mean,sample_var);
 

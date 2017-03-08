@@ -1,7 +1,7 @@
 classdef ShadingCorrector_null < ShadingCorrector
-    %SHADINGCORRECTOR_NULL Stores an array of blank scans, does not do
+    %SHADINGCORRECTOR_NULL Stores an array of refererence scans, does not do
     %shading correction
-    %   A stack of blank scans (white, grey, black images) is passed to the
+    %   A stack of reference scans (white, grey, black images) is passed to the
     %   object via the constructor.
     
     %MEMBER VARIABLES
@@ -11,9 +11,9 @@ classdef ShadingCorrector_null < ShadingCorrector
     %METHODS
     methods
         
-         %CONSTRUCTOR
+        %CONSTRUCTOR
         %PARAMETERS:
-            %reference_image_array: stack of blank scans
+            %reference_image_array: stack of reference scans
         function this = ShadingCorrector_null(reference_image_array)
             this = this@ShadingCorrector(reference_image_array);
         end

@@ -50,6 +50,13 @@ classdef Experiment_GLM_meanVar_trainingTest < Experiment
             this.block_array{3} = BlockData_140316(block_location);
             this.block_array{3}.addShadingCorrector(@ShadingCorrector,true);
             
+            %when using shading correction, turn on setting extreme greyvalues to NaN and to remove dead pixels
+            %NaN pixels are treated as dead
+            for i_block = 2:3
+                this.block_array{i_block}.turnOnSetExtremeToNan();
+                this.block_array{i_block}.turnOnRemoveDeadPixels();
+            end
+            
             %declare array of glm (with different link functions and polynomial feature)
             this.glm_array = cell(9,1);
             %identity link with polynomial order 1

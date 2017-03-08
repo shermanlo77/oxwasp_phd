@@ -20,22 +20,22 @@ sample = block_data.loadSample(1);
 %plot the b/g/w and sample images
 fig = figure;
 subplot(2,2,1,imagesc_truncate(black));
-axis(gca,'off')
+axis(gca,'off');
 colormap gray;
 colorbar;
 title('Black');
 subplot(2,2,2,imagesc_truncate(grey));
-axis(gca,'off')
+axis(gca,'off');
 colormap gray;
 colorbar;
 title('Grey');
 subplot(2,2,3,imagesc_truncate(white));
-axis(gca,'off')
+axis(gca,'off');
 colormap gray;
 colorbar;
 title('White');
 subplot(2,2,4,imagesc_truncate(sample));
-axis(gca,'off')
+axis(gca,'off');
 colormap gray;
 colorbar;
 title('Sample');

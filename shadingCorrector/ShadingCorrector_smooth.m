@@ -22,9 +22,9 @@ classdef ShadingCorrector_smooth < ShadingCorrector
         function this = ShadingCorrector_smooth(reference_image_array)
             this = this@ShadingCorrector(reference_image_array);
             this.can_smooth = true;
+            %make a copy of the reference images
             this.orginial_reference_array = reference_image_array;
         end
-        
         
         %MEAN SQUARED ERROR
         %Calculate the mean squared difference between the orginial and
@@ -33,10 +33,10 @@ classdef ShadingCorrector_smooth < ShadingCorrector
             %index: index pointing to an image in the reference stack
         %RETURN:
             %mse: mean squared error
-        function mse = meanSquaredError(this,index)
-            %calculate the mean squared error
-            mse = sum(sum((this.getResidualImage(index)).^2)) / (this.image_size(1) * this.image_size(2));
-        end
+%         function mse = meanSquaredError(this,index)
+%             %calculate the mean squared error
+%             mse = sum(sum((this.getResidualImage(index)).^2)) / (this.image_size(1) * this.image_size(2));
+%         end
         
         %GET RESIUDAL IMAGE
         %Get image of reference - smoothed reference image and scaled to
@@ -44,10 +44,12 @@ classdef ShadingCorrector_smooth < ShadingCorrector
         %PARAMETER:
             %index: index pointing to an image in the reference stack
         function residual_image = getZResidualImage(this,index)
+            %get the residual of each pixel
             residual_image = this.reference_image_array(:,:,index) - this.orginial_reference_array(:,:,index);
-            r = reshape(residual_image,[],1);
-            scale = std(r);
-            residual_image = (residual_image)/scale;
+            %get the std of the residuals
+            scale = std(reshape(residual_image,[],1));
+            %scale the residual
+            residual_image = residual_image/scale;
         end
         
     end

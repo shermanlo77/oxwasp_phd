@@ -18,7 +18,7 @@ colorbar;
 colormap gray;
 
 %set up shading correction for the data set
-block_data.addShadingCorrector(@ShadingCorrector,false);
+block_data.addShadingCorrector(@ShadingCorrector,true);
 
 %plot the shading corrected sample scan image
 figure;

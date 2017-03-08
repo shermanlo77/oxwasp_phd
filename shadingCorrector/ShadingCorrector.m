@@ -1,7 +1,7 @@
 classdef ShadingCorrector < handle
     %SHADINGCORRECTOR Stores an array of blank scans and use it to do
     %shading correction
-    %   A stack of blank scans (white, grey, black images) is passed to the
+    %   A stack of reference scans (white, grey, black images) is passed to the
     %   object via the constructor. Use the method calibrate() to work out
     %   parameters to do shading correction. The image to be shading
     %   corrected is passed to the method shadeCorrect()
@@ -9,19 +9,20 @@ classdef ShadingCorrector < handle
     %MEMBER VARIABLES
     properties
         
-        reference_image_array; %array of blank images
+        reference_image_array; %array of reference images
         image_size; %two vector representing the size of the image [height, width]
         n_image; %number of images in reference_image_array
         
-        reference_mean; %vector of the mean greyvalue of each image in reference_image_array
-        target_mean; %mean of all greyvalues in reference_image_array
+        between_reference_mean; %image: between reference mean greyvalue
+        global_mean; %scalar: mean of all greyvalues in reference_image_array
         b_array; %image of the gradients
         
-        can_smooth; %boolean, false, it cannot smooth
+        can_smooth; %boolean, false if it cannot smooth the images in reference_image_array
         
-        set_extreme_to_nan; %boolean, set extreme shading corrected values to nan
+        set_extreme_to_nan; %boolean, set extreme shading corrected values to nan, default false
         
-        min_greyvalue; %the minimum possible greyvalue
+        min_greyvalue; %the minimum possible greyvalue, used to determine if a greyvalue is small enough to be NaN
+        
     end
     
     %METHODS
@@ -38,39 +39,42 @@ classdef ShadingCorrector < handle
             %assign member variable
             this.image_size = [height,width];
             this.can_smooth = false;
-            this.set_extreme_to_nan = true;
+            this.set_extreme_to_nan = false;
             this.min_greyvalue = 0;
         end
         
         %CALIBRATE
         %Perpare statistics for shading correction
         function calibrate(this)
-            %declare vector (one element for each image)
-            target_array = zeros(1,this.n_image);
+            %declare vector (one element for each reference image) for the within image mean
+            %this is the target greyvalue of the unshaded greyvalue for each reference image
+            within_reference_mean = zeros(1,this.n_image);
             %for each image
             for i_image = 1:this.n_image
-                %get the mean grey value and save it to target_array
-                target_array(i_image) = mean(reshape(this.reference_image_array(:,:,i_image),[],1));
+                %get the mean within image grey value and save it to within_reference_mean
+                within_reference_mean(i_image) = mean(reshape(this.reference_image_array(:,:,i_image),[],1));
             end
             
             %target_image_array is a stack of this.n_image images
-            %each image is completely one greyvalue, taking values in
-            %this.mean_population_array
-            target_image_array = repmat(reshape(target_array,1,1,[]),this.image_size);
+            %each image is completely one greyvalue, using the values in within_reference_mean
+            target_image_array = repmat(reshape(within_reference_mean,1,1,[]),this.image_size);
             
-            %reference_mean_array is an image, each pixel is the sample
-            %mean over all reference images
-            this.reference_mean = mean(this.reference_image_array,3);
+            %between_reference_mean is an image representing the between reference image mean
+            this.between_reference_mean = mean(this.reference_image_array,3);
             
-            %target_mean is the mean of (the mean greyvalues of each image)
-            this.target_mean = mean(target_array);
+            %global_mean is the mean of all greyvalues
+            this.global_mean = mean(within_reference_mean);
             
-            %work out the sum of squares of reference image - reference mean
-            s_xx = sum((this.reference_image_array - repmat(this.reference_mean,1,1,this.n_image)).^2,3);
-            %work out the covariance between reference nad target
-            s_xy = sum((this.reference_image_array - repmat(this.reference_mean,1,1,this.n_image)) .* (target_image_array - this.target_mean),3);
+            %work out the sum of squares of reference image - between reference mean
+            %proportional to the between reference variance
+            %s_xx is an images
+            s_xx = sum((this.reference_image_array - repmat(this.between_reference_mean,1,1,this.n_image)).^2,3);
+            %work out the covariance of between reference images and the target greyvalues
+            %s_xy is an image
+            s_xy = sum((this.reference_image_array - repmat(this.between_reference_mean,1,1,this.n_image)) .* (target_image_array - this.global_mean),3);
             
             %work out the gradient
+            %b_array is an image
             this.b_array = s_xy./s_xx;
                 
         end
@@ -90,7 +94,7 @@ classdef ShadingCorrector < handle
             %scan_image: image to be shading corrected
         function scan_image = shadeCorrect(this,scan_image)
             %use linear interpolation for shading correction
-            scan_image = this.b_array .* (scan_image - this.reference_mean) + this.target_mean;
+            scan_image = this.b_array .* (scan_image - this.between_reference_mean) + this.global_mean;
             
             %if this object requires extreme values to be replaced by NaN
             if this.set_extreme_to_nan

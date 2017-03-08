@@ -68,8 +68,11 @@ function [std_array] = shadingCorrection_ANOVA(data_object, n_train, shading_cor
         else
             data_object.addManualShadingCorrector(shading_corrector);
         end
+        
+        %turn on remove dead pixels
+        data_object.turnOnRemoveDeadPixels();
 
-        %test_stack_array if a collection of array of b/g/w images
+        %test_stack_array is a collection of array of b/g/w images
         test_stack_array = cell(1,3); %one array for each colour
 
         %load the test b/g/w images as an array and save it to test_stack_array
@@ -86,21 +89,14 @@ function [std_array] = shadingCorrection_ANOVA(data_object, n_train, shading_cor
             if i_repeat == 1
                 subplot(2,3,3+i_ref,imagesc_truncate(mean_image));
                 colorbar(subplot(2,3,3+i_ref));
+                axis(gca,'off');
             end
 
-            %remove dead pixels from the mean image
-            mean_image = removeDeadPixels(mean_image);
             %get the mean of all greyvalues in the mean image
             mean_all = mean(reshape(mean_image,[],1));
             
             %get the number of test images
             n_test = size(test_stack_array{i_ref},3);
-
-            %for each test image
-            for i_image = 1:n_test
-                %remove dead pixels
-                test_stack_array{i_ref}(:,:,i_image) = removeDeadPixels(test_stack_array{i_ref}(:,:,i_image));
-            end
 
             %save the within pixel variance
             std_array(i_repeat,1,i_ref) = sum(sum(sum( ( test_stack_array{i_ref} - repmat(mean_image,1,1,n_test) ).^2 ))) / (data_object.area*n_test - data_object.area);
