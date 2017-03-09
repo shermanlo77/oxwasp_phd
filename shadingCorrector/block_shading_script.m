@@ -16,6 +16,8 @@ figure;
 ax_originial = imagesc_truncate(block_data.loadSample(1));
 colorbar;
 colormap gray;
+axis(gca,'off');
+saveas(gca,'reports/figures/shadingCorrection/block.eps');
 
 %set up shading correction for the data set
 block_data.addShadingCorrector(@ShadingCorrector,true);
@@ -26,6 +28,8 @@ ax = imagesc_truncate(block_data.loadSample(1));
 ax.CLim = ax_originial.CLim;
 colorbar;
 colormap gray;
+axis(gca,'off');
+saveas(gca,'reports/figures/shadingCorrection/block_shadingCorrected.eps');
 
 %get the gradient in the shading correction
 grad = block_data.shading_corrector.b_array;
@@ -40,3 +44,5 @@ scatter(x_nan, y_nan, 'r');
 %get the coordinates of negative gradient, and scatter plot it
 [y_nve, x_nve] = find(grad<0);
 scatter(x_nve, y_nve, 'g');
+axis(gca,'off');
+saveas(gca,'reports/figures/shadingCorrection/gradient.png');

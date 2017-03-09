@@ -54,21 +54,21 @@
 
 X-ray computed tomography (CT) scans can be used to take images of a rotating 3D printed sample to obtain images of the sample at multiple angles. These x-ray images then can be combined to form a 3D projection and the detection of defects can start. However due to the random nature of x-ray photons in its production in an x-ray tube and attenuation from the x-ray tube to the detector, sources of error or noise is introduced. In order to do defect detection in a statistical manner, sources of error must be considered.
 
-A mini-project on this topic was completed at 12 months of the PhD \cite{ip2016inside}. The main aim of that project was to conduct exploratory data analysis on a dataset of 100 images of an x-ray CT scan of a stationary 3D printed cuboid. Linear regressions were used to model the relationship between the variance and the mean greyvalue of each pixel. Separately latent variable models were fitted (or at least attempted) on the scans, such as PCA, factor analysis and the compound Poisson, to find sources of variance.
+A mini-project on this topic was completed at 12 months of the PhD \cite{ip2016inside}. The main aim of that project was to conduct exploratory data analysis on a dataset of 100 images of an x-ray CT scan of a stationary 3D printed cuboid. Linear regressions were used to model the relationship between the variance and the mean grey value of each pixel. Separately latent variable models were fitted (or at least attempted) on the scans, such as PCA, factor analysis and the compound Poisson, to find sources of variance.
 
 After the mini-project, the main aims during the PhD was to extend the mini-project by developing a statistic to aid in defect detection while considering the randomness of photons. Another aim was to build a model for the noise.
 
 This report will outline a pre-process method called shading correction and it was investigated how it affected the mean and variance relationship. The mean and variance relationship was modelled using GLM with different link functions. After finding a good model for the mean and variance, a statistics was developed to compare two images in the face of uncertainty. Lastly the compound Poisson was studied.
 
 \section{About the Data}
-Data was collected prior to the mini-project. 20 black/grey/white (b/g/w) images were collected on 14/03/16 at around 1250. The b/g/w images are images obtained from the x-ray detector when exposed to x-rays at different settings. About 2 hours later at 1503, 100 images of a 3D printed cuboid (or sample) were taken. These images were obtained from the x-ray detector when exposed to x-rays with the sample between the x-ray source and detector. The detector used was the Perkin Elmer XRD 1621 digital X-ray detector, with settings shown in Table \ref{table:settings}.
+Data was collected prior to the mini-project. 20 black/grey/white (b/g/w) images were collected on 14/03/16 at around 1250. The b/g/w images are images obtained from the x-ray detector when exposed to x-rays at different settings, they are useful for calibrating the detector thus b/g/w images can be called reference images. About 2 hours later at 1503, 100 images of a 3D printed cuboid (or sample) were taken. These images were obtained from the x-ray detector when exposed to x-rays with the sample between the x-ray source and detector. The detector used was the Perkin Elmer XRD 1621 digital X-ray detector, with settings shown in Table \ref{table:settings}.
 
 \begin{table*}
 	\centering
 	\begin{tabular}{c|c|c|c}
 		& Voltage (kV) & Power (W) & Exposure time (ms) \\
 		\hline
-		Black & 0.0 & 0.0 & 1000\\
+		Black & 0 & 0 & 1000\\
 		Grey & 85 & 1.7 & 1000\\
 		White & 85 & 6.8 & 1000 \\
 		Sample & 100 & 33 & 500
@@ -77,7 +77,7 @@ Data was collected prior to the mini-project. 20 black/grey/white (b/g/w) images
 	\label{table:settings}
 \end{table*}
 
-The images were $(1\,996\times1\,996)$ pixels in size and in greyscale with 16 bits, in other words each pixel can have greyvalues which take integer values form 0 to $2^{16}-1$ inclusive. The greyvalues are in arbitrary units. The images are shown in Figure \ref{fig:image} and the histogram of greyvalues are shown in Figure \ref{fig:hist}.
+The images were $(1\,996\times1\,996)$ pixels in size and are in greyscale with 16 bits, in other words each pixel can have grey values which take integer values from 0 to $2^{16}-1$ inclusive. The grey values are in arbitrary units. The images are shown in Figure \ref{fig:image} and the histogram of grey values are shown in Figure \ref{fig:hist}.
 
 \begin{figure}
 	\centering
@@ -94,6 +94,93 @@ The images were $(1\,996\times1\,996)$ pixels in size and in greyscale with 16 b
 \end{figure}
 
 \section{Shading Correction}
+The x-ray detector is made up 32 panels, arranged in 2 rows and 16 columns. Unfortunately these panels do obviously show up in the b/g/w images which consequently create panel-wise effects in the image of the sample, as shown in Figure \ref{fig:image}. The effects can be described as introducing a gradient to the grey values within panels and perhaps between panels and globally. The aim of shading correction is to remove these effects to estimate the image of the scan if it were to have none of these effects.
+
+Let $N(x,y)$ be the grey value of the pixel at position $(x,y)$ in the obtained image. Similarly let $U(x,y)$ be they grey value of pixels of the shading-free image. The shading effects can be modelled using a linear relationship
+\begin{equation}
+N(x,y) = U(x,y)b(x,y) + a(x,y)
+\end{equation} 
+where $b(x,y)$ is the multiplicative effect and $a(x,y)$ is the additive effect \cite{young2000shading}. If it is possible to estimate the functions $b(x,y)$ and $a(x,y)$ using the estimators $\widehat{b}(x,y)$ and $\widehat{a}(x,y)$ respectively, then the shading-free image can be estimated using the estimator
+\begin{equation}
+\widehat{U}(x,y) = \frac{N(x,y)-\widehat{a}(x,y)}{\widehat{b}(x,y)} \times c_1 + c_2
+\end{equation}
+where $c_1$ and $c_2$ are some constants.
+One method to estimate the images $b(x,y)$ and $a(x,y)$ is to use the mean black and white (b/w) images. Let $\overline{B}(x,y)$ and $\overline{W}(x,y)$ be the sample mean black and white images respectively, then the estimators for $b(x,y)$ and $a(x,y)$ are
+\begin{equation}
+\widehat{b}(x,y) = \overline{W}(x,y) - \overline{B}(x,y)
+\end{equation}
+and
+\begin{equation}
+\widehat{a}(x,y) = \overline{B}(x,y)
+\end{equation}
+respectively.
+
+\subsection{Methods}
+A new shading correction will be proposed here which extends the shading correction method described in the previous section by considering the grey images. The objective of shading correction is to predict the shading free image given the scan image, this can be done using linear regression of the form
+\begin{equation}
+U(x,y) = N(x,y)\beta(x,y)+\alpha(x,y) \ .
+\end{equation}
+The shading free image is not truly known, but one should expect the b/g/w shading free images should be completely flat. By using the obtained b/g/w images to estimate the parameters of the linear regression, this becomes a regression problem.
+
+Let $R_\text{b}(x,y)$, $R_\text{g}(x,y)$ and $R_\text{w}(x,y)$ be the grey value of the pixel, at position $(x,y)$, of the sample mean b/g/w images respectively. Let these images have $h$ rows and $w$ columns. The shading free b/g/w images should be completely flat, in other words all the pixels should have the same grey value. A good guess what that grey value should be would be the sample mean of the grey values within the b/g/w images $\overline{R}_\text{b}$, $\overline{R}_\text{g}$ and $\overline{R}_\text{w}$ where
+\begin{equation}
+\overline{R}_j=\frac{\sum_{x=1}^w\sum_{y=1}^hR_j(x,y)}{n}
+\end{equation}
+for $j\in\{\text{b},\text{g},\text{w}\}$. By treating these within image sample mean grey values as the true shading free grey value, then the problem becomes a linear regression with 3 data points.
+
+Let the global sample mean be
+\begin{equation}
+\overline{R}=\frac{\overline{R}_\text{b} + \overline{R}_\text{g} + \overline{R}_\text{w}}{3}
+\end{equation}
+and the between image sample mean to be
+\begin{equation}
+\overline{R}_B(x,y)=\frac{R_\text{b}(x,y) + R_\text{g}(x,y) + R_\text{w}(x,y)}{3} \ ,
+\end{equation}
+then the estimators for $\beta(x,y)$ and $\alpha(x,y)$ are
+\begin{multline}
+\widehat{\beta}(x,y)=
+\\
+\frac{\sum_{j\in\{\text{b},\text{g},\text{w}\}}\left(R_j(x,y)-\overline{R}_B(x,y)\right)\left(\overline{R}_j-\overline{R}\right)}{\sum_{j\in\{\text{b},\text{g},\text{w}\}}\left(R_j(x,y)-\overline{R}_B(x,y)\right)^2}
+\end{multline}
+and
+\begin{equation}
+\widehat{\alpha}(x,y) = \overline{R}-\widehat{\beta}(x.y)\overline{R}_B(x,y) 
+\end{equation}
+respectively.
+
+Suppose now an image to be shading corrected is obtained $N(x,y)$. The shading free image $U(x,y)$ can be estimated by interpolating the linear regression
+\begin{equation}
+\widehat{U}(x,y) = \widehat{\beta}(x,y)N(x,y)+\widehat{\alpha}(x,y) \ .
+\end{equation}
+This can be extended to fewer or more than 3 reference images. The disadvantage of having more reference images is that it does cost time to take more scans. Shading correction which uses b/g/w images shall be referred to as b/g/w shading correction. Similarly shading correction which uses only the b/w images shall be referred to as b/w shading correction.
+
+Figure \ref{fig:shadingCorrection} shows an example of a scan before and after b/g/w shading correction. By inspection, the post shading correction background is smoother because the panel effects appeared to be gone, meeting the objective of shading correction. Figure \ref{fig:shadingCorrection_grad} shows the values of $\widehat{\beta}(x,y)$. By inspection there is some curvature in the $\widehat{\beta}$ image, with high gradients in the corners, in addition to panel-wise gradients. Problems occur if the reference images behave differently from expected. For example some pixels may be dead and do not vary at all, this resulted in infinite gradients highlighted by red circles in the figure. In order to combat this, any pixels with undefined grey values post shading correction were replaced with the sample median of its 8 nearest neighbours.
+
+
+
+\begin{figure*}
+	\centering
+	\begin{subfigure}{0.45\textwidth}
+		\centering
+		\includegraphics[width = \textwidth]{../figures/shadingCorrection/block.eps}
+		\caption{Shading uncorrected}
+	\end{subfigure}
+	\begin{subfigure}{0.45\textwidth}
+		\centering
+		\includegraphics[width = \textwidth]{../figures/shadingCorrection/block_shadingCorrected.eps}
+		\caption{b/g/w shading correction}
+	\end{subfigure}
+	\caption{A x-ray CT scan image before and after b/g/w shading correction.}
+	\label{fig:shadingCorrection}
+\end{figure*}
+
+\begin{figure}
+	\includegraphics[width=0.45\textwidth]{../figures/shadingCorrection/gradient.png}
+	\caption{The gradient used in b/g/w shading correction. Red circles indicate infinite gradient, green circles indicate negative gradient.}
+	\label{fig:shadingCorrection_grad}
+\end{figure}
+
+\subsection{Experiments}
 
 \section{Mean/Variance Relationship}
 
