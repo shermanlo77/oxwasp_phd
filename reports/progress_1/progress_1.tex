@@ -156,8 +156,6 @@ This can be extended to fewer or more than 3 reference images. The disadvantage 
 
 Figure \ref{fig:shadingCorrection} shows an example of a scan before and after b/g/w shading correction. By inspection, the post shading correction background is smoother because the panel effects appeared to be gone, meeting the objective of shading correction. Figure \ref{fig:shadingCorrection_grad} shows the values of $\widehat{\beta}(x,y)$. By inspection there is some curvature in the $\widehat{\beta}$ image, with high gradients in the corners, in addition to panel-wise gradients. Problems occur if the reference images behave differently from expected. For example some pixels may be dead and do not vary at all, this resulted in infinite gradients highlighted by red circles in the figure. In order to combat this, any pixels with undefined grey values post shading correction were replaced with the sample median of its 8 nearest neighbours.
 
-
-
 \begin{figure*}
 	\centering
 	\begin{subfigure}{0.45\textwidth}
@@ -179,6 +177,50 @@ Figure \ref{fig:shadingCorrection} shows an example of a scan before and after b
 	\caption{The gradient used in b/g/w shading correction. Red circles indicate infinite gradient, green circles indicate negative gradient.}
 	\label{fig:shadingCorrection_grad}
 \end{figure}
+
+To avoid dealing with dead pixels, a method was considered which smoothed the reference images prior to any shading correction parameter estimation. The purpose of this was to iron out any misbehaving pixels in the reference images and to capture the shading effects parametrically. Second order panel-wise surface polynomials were fitted to the b/g/w images, this is shown in Figure \ref{fig:polynomial_shadingCorrection}. The standardised residuals from the panel-wise fit are shown in Figure \ref{fig:polynomial_residual}. A quick inspection of the residuals shows any characteristics not captured by the panel-wise fit. In the black and grey images, the residuals show a global ring which is very unusual for the black image because it is detecting no x-rays at all. The b/g/w residuals all show vertical stripes. The panel-wise fit can be improved by including a global polynomial fit to capture between panel effects.
+
+\begin{figure*}
+	\centering
+	\begin{subfigure}{0.45\textwidth}
+		\centering
+		\includegraphics[width = \textwidth]{../figures/shadingCorrection/polynomial_black.eps}
+		\caption{Black}
+	\end{subfigure}
+	\begin{subfigure}{0.45\textwidth}
+		\centering
+		\includegraphics[width = \textwidth]{../figures/shadingCorrection/polynomial_grey.eps}
+		\caption{Grey}
+	\end{subfigure}
+	\begin{subfigure}{0.45\textwidth}
+		\centering
+		\includegraphics[width = \textwidth]{../figures/shadingCorrection/polynomial_white.eps}
+		\caption{White}
+	\end{subfigure}
+	\caption{Second order panel-wise surface polynomials fit on the reference images.}
+	\label{fig:polynomial_shadingCorrection}
+\end{figure*}
+
+\begin{figure*}
+	\centering
+	\begin{subfigure}{0.45\textwidth}
+		\centering
+		\includegraphics[width = \textwidth]{../figures/shadingCorrection/residual_black.png}
+		\caption{Black}
+	\end{subfigure}
+	\begin{subfigure}{0.45\textwidth}
+		\centering
+		\includegraphics[width = \textwidth]{../figures/shadingCorrection/residual_grey.png}
+		\caption{Grey}
+	\end{subfigure}
+	\begin{subfigure}{0.45\textwidth}
+		\centering
+		\includegraphics[width = \textwidth]{../figures/shadingCorrection/residual_white.png}
+		\caption{White}
+	\end{subfigure}
+	\caption{Standardised residuals from the second order panel-wise surface polynomials fit on the reference images.}
+	\label{fig:polynomial_residual}
+\end{figure*}
 
 \subsection{Experiments}
 
