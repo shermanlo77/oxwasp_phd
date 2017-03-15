@@ -52,5 +52,5 @@ fig = figure;
 fig.Position(3:4) = [560,420];
 imagesc_truncate(block_data.shading_corrector.b_array);
 colorbar;
-saveas(gca,'reports/figures/shadingCorrection/polynomial_gradient.png');
 axis(gca,'off');
+saveas(gca,'reports/figures/shadingCorrection/polynomial_gradient.png');

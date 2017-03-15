@@ -79,12 +79,12 @@ Data was collected prior to the mini-project. 20 black/grey/white (b/g/w) images
 
 The images were $(1\,996\times1\,996)$ pixels in size and are in greyscale with 16 bits, in other words each pixel can have grey values which take integer values from 0 to $2^{16}-1$ inclusive. The grey values are in arbitrary units. The images are shown in Figure \ref{fig:image} and the histogram of grey values are shown in Figure \ref{fig:hist}.
 
-\begin{figure}
+\begin{figure*}
 	\centering
-	\includegraphics[width = 0.45\textwidth]{../figures/data/140316_image.eps}
+	\includegraphics[width = 0.9\textwidth]{../figures/data/140316_image.eps}
 	\caption{A black, grey, white and sample image obtained from the x-ray detector.}
 	\label{fig:image}
-\end{figure}
+\end{figure*}
 
 \begin{figure}
 	\centering
@@ -168,17 +168,31 @@ Figure \ref{fig:shadingCorrection} shows an example of a scan before and after b
 		\includegraphics[width = \textwidth]{../figures/shadingCorrection/block_shadingCorrected.eps}
 		\caption{b/g/w shading correction}
 	\end{subfigure}
+	\begin{subfigure}{0.45\textwidth}
+		\includegraphics[width = \textwidth]{../figures/shadingCorrection/polynomial_shadingCorrection.eps}
+		\caption{b/g/w 2nd order polynomial shading correction}
+	\end{subfigure}
 	\caption{A x-ray CT scan image before and after b/g/w shading correction.}
 	\label{fig:shadingCorrection}
 \end{figure*}
 
-\begin{figure}
-	\includegraphics[width=0.45\textwidth]{../figures/shadingCorrection/gradient.png}
+\begin{figure*}
+	\centering
+	\begin{subfigure}{0.45\textwidth}
+		\includegraphics[width=\textwidth]{../figures/shadingCorrection/gradient.png}
+		\caption{b/g/w shading correction}
+	\end{subfigure}
+	\begin{subfigure}{0.45\textwidth}
+		\includegraphics[width=\textwidth]{../figures/shadingCorrection/polynomial_gradient.png}
+		\caption{b/g/w 2nd order polynomial shading correction}
+	\end{subfigure}
 	\caption{The gradient used in b/g/w shading correction. Red circles indicate infinite gradient, green circles indicate negative gradient.}
 	\label{fig:shadingCorrection_grad}
-\end{figure}
+\end{figure*}
 
-To avoid dealing with dead pixels, a method was considered which smoothed the reference images prior to any shading correction parameter estimation. The purpose of this was to iron out any misbehaving pixels in the reference images and to capture the shading effects parametrically. Second order panel-wise surface polynomials were fitted to the b/g/w images, this is shown in Figure \ref{fig:polynomial_shadingCorrection}. The standardised residuals from the panel-wise fit are shown in Figure \ref{fig:polynomial_residual}. A quick inspection of the residuals shows any characteristics not captured by the panel-wise fit. In the black and grey images, the residuals show a global ring which is very unusual for the black image because it is detecting no x-rays at all. The b/g/w residuals all show vertical stripes. The panel-wise fit can be improved by including a global polynomial fit to capture between panel effects.
+To avoid dealing with dead pixels, a method was considered which smoothed the reference images prior to any shading correction parameter estimation. The purpose of this was to iron out any misbehaving pixels in the reference images and to capture the shading effects parametrically. Second order panel-wise surface polynomials were fitted to the b/g/w images, this is shown in Figure \ref{fig:polynomial_shadingCorrection}. The standardised residuals from the panel-wise fit are shown in Figure \ref{fig:polynomial_residual}. A quick inspection of the residuals shows any characteristics not captured by the panel-wise fit. In the black and grey images, the residuals show a global ring which is very unusual for the black image because it is detecting no x-rays at all. The b/g/w residuals all show vertical stripes. The panel-wise fit can be improved by including a global polynomial fit to capture between panel effects. Higher order polynomials can be considered but overfitting may be possible, as a result of higher order polynomials attempting to capture all the characteristics of the b/g/w images.
+
+Shading correction which uses the fitted polynomials as reference images will be referred to as b/g/w 2nd order polynomial shading correction. The gradient parameter for the b/g/w 2nd order polynomial shading correction is shown in Figure \ref{fig:shadingCorrection_grad}. It is smoother and robust because the gradients are of sensible values, for example no infinite values. The resulting shading correction is shown in Figure \ref{fig:shadingCorrection}. This method can be advantageous as the panel-wise 2nd order polynomial only captures gradients of each panel and  smooths out clusters of bad behaving pixels as shown in the residuals. As a result, the shading correction is smoother between pixels because the bad behaving pixels do not impact as much in the interpolation of the linear regression.
 
 \begin{figure*}
 	\centering
@@ -223,6 +237,77 @@ To avoid dealing with dead pixels, a method was considered which smoothed the re
 \end{figure*}
 
 \subsection{Experiments}
+
+An experiment was conducted to assess the performance of shading correction. The methodology behind it is that shading correction applied on the reference images should remove shading effects and produce an image which is noisy but all the pixels should have the same mean grey value.
+
+The 20 b/g/w images were spilt into a training set and test set of equal size randomly. The training set was used to estimate the parameters for shading corrections. Afterwards, shading correction was applied to each image in the test set producing 10 shading corrected reference images of each grey scale. The within pixel variance and between pixel variance was recorded, exactly the same as ANOVA treating each pixel as a group. For each pixel to have the same mean grey value, the within and between pixel variance should be similar. The experiment was repeated 20 times by repeating the assignment of the training and test set.
+
+Figure \ref{fig:shadingCorr_bgw} shows a sample of reference images post shading correction. Without shading correction, the shading effects were clear. With b/w and b/g/w shading correction, the reference images appeared flatter. The flatness of the black and grey image depended if the grey images were used when training the shading correction. The b/g/w 2nd order polynomial shading correction retained some effects not captured by the panel wise polynomial fits. This can be tell because the shading corrected images were very similar to the residual plots in Figure \ref{fig:polynomial_residual}.
+
+Table \ref{table:bgw_anova} shows the within and between pixel variance of the grey values. The table shown that b/w and b/g/w shading correction does make an improvement because it brings the within and between pixel variances closer together. The performance of shading correction on the black and grey images appeared to depend if the grey images were used in training the shading correction. The b/g/w 2nd order polynomial shading correction does perform by bringing the within and between pixel variances closer together but not as much as b/w and b/g/w shading correction.
+
+In conclusion, b/w and b/g/w shading correction do perform well because there was evidence they are attempting to iron out all the pixel grey values to have the same mean. The b/g/w 2nd order polynomial shading correction does its job. However because the panel wise polynomial under fitted and did not capture all the shading effects, the shading correction also did not capture all the shading effects.
+
+The use of grey images in training the shading correction can be useful. It appeared that by considering the grey images, the shading correction performance on certain grey values was traded for other grey values.
+
+\begin{figure*}
+	\centering
+	\begin{subfigure}{\textwidth}
+		\centering
+		\includegraphics[width = \textwidth]{../figures/shadingCorrection/shadingCorrection_no_shad.png}
+		\caption{No shading correction}
+	\end{subfigure}
+	\begin{subfigure}{\textwidth}
+		\centering
+		\includegraphics[width = \textwidth]{../figures/shadingCorrection/shadingCorrection_bw.png}
+		\caption{b/w shading correction}
+	\end{subfigure}
+	\begin{subfigure}{\textwidth}
+		\centering
+		\includegraphics[width = \textwidth]{../figures/shadingCorrection/shadingCorrection_bgw.png}
+		\caption{b/g/w shading correction}
+	\end{subfigure}
+		\begin{subfigure}{\textwidth}
+		\centering
+		\includegraphics[width = \textwidth]{../figures/shadingCorrection/shadingCorrection_polynomial.png}
+		\caption{b/g/w 2nd order polynomial shading correction}
+	\end{subfigure}
+	\caption{Shading correction applied on reference images from a test set. A training set was used to train the shading correction.}
+	\label{fig:shadingCorr_bgw}
+\end{figure*}
+
+\begin{table*}
+	\centering
+	\begin{tabular}{c|c|c}
+		\input{../tables/bgwShadingANOVA_no_shad.tex_table}
+	\end{tabular}
+	\\
+	\vspace{.25cm}
+	a) No shading correction
+	\\\vspace{.5cm}
+	\begin{tabular}{c|c|c}
+		\input{../tables/bgwShadingANOVA_bw.tex_table}
+	\end{tabular}
+	\\
+	\vspace{.25cm}
+	b) b/w shading correction
+	\\\vspace{.5cm}
+	\begin{tabular}{c|c|c}
+		\input{../tables/bgwShadingANOVA_bgw.tex_table}
+	\end{tabular}
+	\\
+	\vspace{.25cm}
+	c) b/g/w shading correction
+	\\\vspace{.5cm}
+	\begin{tabular}{c|c|c}
+		\input{../tables/bgwShadingANOVA_polynomial.tex_table}
+	\end{tabular}
+	\\
+	\vspace{.25cm}
+	d) b/g/w 2nd order polynomial shading correction
+	\caption{Quartiles of the within pixel and between pixel variance after 20 repeats of the experiment.}
+	\label{table:bgw_anova}
+\end{table*}
 
 \section{Mean/Variance Relationship}
 

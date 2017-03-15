@@ -1,6 +1,22 @@
 classdef Experiment_GLM_meanVar_trainingTest < Experiment
-    %EXPERIMENT_GLM_MEANVAR_TRAININGTEST Summary of this class goes here
-    %   Detailed explanation goes here
+    %EXPERIMENT_GLM_MEANVAR_TRAININGTEST Assess the performance of GLM fit on mean var data
+    %   The images are spilt into 2 parts, training and test. GLM iss used
+    %   to model the variance and mean relationship, with variance as the
+    %   response. The response is gamma randomlly distributed with known
+    %   shape parameter.   
+    %
+    %   Only the top half of the images were used, this is to avoid the
+    %   form. In addition, the images were thresholded to only consider
+    %   pixels from the 3d printed sample.
+    %
+    %   The training set is used to train the glm, which is then used to
+    %   predict the variance of the test set. The training and mean
+    %   standarised residuals are plotted, that is the residual divided by
+    %   the std of gamma.
+    %
+    %   Different shading corrections, polynomial orders and link functions
+    %   were considered. The experiment was repeated by reassigning the
+    %   training and test set.
     
     %MEMBER VARIABLES
     properties
@@ -185,12 +201,7 @@ classdef Experiment_GLM_meanVar_trainingTest < Experiment
                         training_table(i_glm+1,2+i_shading) = 'NaN';
                     %else all training mse isn't nan, quote the quartile of the training mse
                     else
-                        [q2, up_error, down_error, E] = quoteQuartileError(training_mse_i,100);
-                        if E == '0'
-                            training_table(i_glm+1,2+i_shading) = strcat('$',q2,'\substack{+',up_error,'\\ -',down_error,'}$');
-                        else
-                            training_table(i_glm+1,2+i_shading) = strcat('$(',q2,'\substack{+',up_error,'\\ -',down_error,'})\times 10^{',E,'}$');
-                        end
+                        training_table(i_glm+1,2+i_shading) = quoteQuartileError(training_mse_i,100);
                     end
 
                     %get the test mse
@@ -222,7 +233,7 @@ classdef Experiment_GLM_meanVar_trainingTest < Experiment
     methods(Static)
         
         %GLOBAL: Call this to start experiment automatically
-        function GLOBAL()
+        function main()
             %repeat the experiment this many times
             n_repeat = 100;
             %set up the experiment
