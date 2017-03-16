@@ -312,6 +312,56 @@ The use of grey images in training the shading correction can be useful. It appe
 Additional methods for shading correction could be considered such as fitting a global polynomial in addition to the panel wise polynomials to the reference images. There exist methods which do not require reference images at all, such as entropy minimisation \cite{likar2000retrospective}, which could be studied further and may be useful here.
 
 \section{Mean/Variance Relationship}
+The variance can be used to quantify the uncertainty of a grey value in a pixel. The purpose of modelling the mean and variance relationship of the grey value of a pixel is to be able to predict the grey value variance of each pixel for a single scan. This then can be used for inference when comparing a scan with the CAM model. A basic linear regression was conducted in the mini-project \cite{ip2016inside}, here generalised linear models (GLM) \cite{nelder1972generalized} \cite{mccullagh1984generalized} was used to model the mean and variance relationship.
+
+The object of interest is the 3D printed sample. In the mini-project, it was found the background and the foam holding the 3D printed sample have different mean variance relationships \cite{ip2016inside}. Thus to model the mean variance relationship of the 3D printed sample, the 3D printed sample was segmented from the background and the foam. This was done by cropping the scans of the 3D printed sample in half, removing the bottom half containing the foam. Next a threshold was conducted using the following procedure: 
+\begin{itemize}
+	\item For each of the 20 b/g/w images, apply a panel wise median filter of size $3\times3$. Pixels outside the panels were symmetrically extended.
+	\item Use these filtered reference images for shading correction.
+	\item Take the mean over all shading corrected scans.
+	\item Keep pixels with grey values less than $4.7\times 10^4$.
+\end{itemize}
+This method of segmentation was developed by informal experimentation. The resulting segmented image is shown in Figure \ref{fig:segment}. Other segmentation methods could be considered but further study of other methods may not be necessary here.
+
+\begin{figure}
+	\centering
+	\includegraphics[width = 0.45 \textwidth]{../figures/meanVar/segment.eps}
+	\caption{Resulting segmentation of the 3D printed sample}
+	\label{fig:segment}
+\end{figure}
+
+The within pixel mean and variance grey value were estimated using the standard unbiased estimators. A few assumptions were made to justify the use of GLM to model the mean variance relationship. Firstly, it was assumed the standard error from estimating the mean was negligible. Secondly, it was assumed for a given pixel, the grey value from each scan were Normal i.i.d. Following from these assumptions, the sample variance is Gamma distributed with shape parameter $(n-1)/2$ where $n$ is the number of scans used to estimate the variance. Furthermore the standard error of the sample variance is proportional to $(n-1)^{-1/2}$, meaning the sample variance is more precise when more and more images were used to estimate the variance. This was experimentally shown in Figure \ref{fig:meanVar_sampleSize}, the spread of the sample variance decreased as $n$ increased.
+
+GLM can model the sample variance as the response variable being Gamma distributed, explained by the sample mean through a link function $g(\text{variance})$. Fitting of the model was done using iterative re-weighted least squares. The dispersion parameter need not to be estimated because the shape parameter is known. A linear fit using the identity link did show that the Gamma response captured the spread of the sample variance for different sample means, this is shown in Figure \ref{fig:meanVar_sampleSize}.
+
+\begin{figure*}
+	\centering
+	\begin{subfigure}{0.45\textwidth}
+		\centering
+		\includegraphics[width = \textwidth]{../figures/meanVar/sample_size_25.eps}
+		\caption{$n=25$}
+	\end{subfigure}
+	\begin{subfigure}{0.45\textwidth}
+		\centering
+		\includegraphics[width = \textwidth]{../figures/meanVar/sample_size_50.eps}
+		\caption{$n=50$}
+	\end{subfigure}
+	\begin{subfigure}{0.45\textwidth}
+		\centering
+		\includegraphics[width = \textwidth]{../figures/meanVar/sample_size_75.eps}
+		\caption{$n=75$}
+	\end{subfigure}
+	\begin{subfigure}{0.45\textwidth}
+		\centering
+		\includegraphics[width = \textwidth]{../figures/meanVar/sample_size_100.eps}
+		\caption{$n=100$}
+	\end{subfigure}
+	\caption{Mean and variance frequency density plot of each pixel's grey value in the segmented image of the 3D printed sample. The sample variance and sample mean were estimated using $n$ scans selected at random without replacement. A Gamma GLM was fitted with the identity link. The solid and dotted lines are the mean response and the $\Phi(\pm 1)$ quantiles respectively.}
+	\label{fig:meanVar_sampleSize}
+\end{figure*}
+
+\subsection{Experiments}
+
 
 \section{$Z$ Statistic}
 

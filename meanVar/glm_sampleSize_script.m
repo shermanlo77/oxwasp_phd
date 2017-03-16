@@ -24,6 +24,7 @@ nbin = 100;
 n_sample_array = [25,50,75,100];
 
 %array of figures
+fig_array = cell(1,numel(n_sample_array));
 axe_array = cell(1,numel(n_sample_array));
 
 %for each sample size
@@ -55,7 +56,7 @@ for i_sample = 1:numel(n_sample_array)
     [variance_prediction, up_error, down_error] = model.predict(x_plot');
 
     %plot the frequency density
-    figure;
+    fig_array{i_sample} = figure;
     axe_array{i_sample} = plotHistogramHeatmap(sample_mean,sample_var,nbin);
     hold on;
     %plot the fit/prediction
@@ -104,4 +105,14 @@ for i_sample = 1:numel(n_sample_array)
     axe_array{i_sample}.YLim = y_lim;
     %set the colour of the background
     axe_array{i_sample}.set('color',blank_colour);
+end
+
+%for each axes
+for i_sample = 1:numel(n_sample_array)
+    %export the background
+    fig_array{i_sample}.InvertHardcopy = 'off';
+    %set the background to white (of the figure)
+    fig_array{i_sample}.Color = 'white';
+    %export the figure
+    print(fig_array{i_sample},strcat('reports/figures/meanVar/sample_size_',num2str(n_sample_array(i_sample))),'-depsc');
 end

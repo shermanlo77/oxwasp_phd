@@ -25,8 +25,12 @@ slice = mean(slice,3);
 %set background pixels to be nan
 slice(threshold) = nan;
 %plot the threshold image
-figure;
-imagesc(slice);
+fig = figure;
+ax = imagesc(slice);
+colormap gray;
+colorbar;
+axis(gca,'off');
+saveas(fig,'reports/figures/meanVar/segment.eps');
 
 %reshape the threshold indicator to be a vector
 threshold = reshape(threshold,[],1);
