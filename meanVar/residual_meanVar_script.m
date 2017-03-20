@@ -1,6 +1,17 @@
+%RESIDUAL MEAN VARIANCE SCRIPT
+%For 3 different types of shading correction (no shading correction, bw
+%shading correction, bgw shading correction), spilt the 100 images into two
+%equally sized sets: training set, test set. Work out the sample mean and
+%sample variance within pixel grey value for both the training and test
+%set. Train GLM on training set, predict variance given mean using test
+%set.
+%Plot error / std of glm response vs mean (residual = error)
+
 clc;
 clearvars;
 close all;
+
+rng(uint32(373499714), 'twister');
 
 n_train = 50;
 threshold = BlockData_140316.getThreshold_topHalf();
@@ -17,17 +28,20 @@ block_array{1} = BlockData_140316(block_location);
 %2nd one uses b/w for shading correction
 block_array{2} = BlockData_140316(block_location);
 block_array{2}.addShadingCorrector(@ShadingCorrector,false);
+block_array{2}.turnOnRemoveDeadPixels();
+block_array{2}.turnOnSetExtremeToNan();
 %3rd one uses b/g/w for shading correction
 block_array{3} = BlockData_140316(block_location);
 block_array{3}.addShadingCorrector(@ShadingCorrector,true);
+block_array{3}.turnOnRemoveDeadPixels();
+block_array{3}.turnOnSetExtremeToNan();
 
 %instantiate identity model 
 glm_model = MeanVar_GLM_identity(shape_parameter,1);
 
 %declare array of residuals
     %dim_1: for each block
-    %dim_2: residual, standard residuals
-residual_array = cell(numel(block_array),2);
+residual_array = cell(numel(block_array),1);
 
 %for each block
 for i_block = 1:numel(block_array)
@@ -60,98 +74,93 @@ for i_block = 1:numel(block_array)
     standard_residual = residual ./ sqrt(glm_model.getVariance(sample_mean));
     
     %save the greyvvalue and residual to residual_array
-    residual_array{i_block,1} = [sample_mean, residual];
-    residual_array{i_block,2} = [sample_mean, standard_residual];
+    residual_array{i_block} = [sample_mean, standard_residual];
     
 end
 
-%declare array of axes
+%declare array of figures and exes
     %dim_1: for each block
-    %dim_2: residual, standard residuals
+    %dim_2: axes, figure
 ax_array = cell(numel(block_array),2);
+    
+%get the first set of residuals
+residual = residual_array{1};
 
-%for non-standard and standard residuals
-for i_ax = 1:2
-    
-    %get the first set of residuals
-    residual = residual_array{1,i_ax};
-    
+%work out the outlier boundary for the greyvalue and residuals
+q = quantile(residual,[0.25,0.75]);
+iqr = q(2,:) - q(1,:);
+%x_lim_max and y_lim_max is the biggest axes limit
+x_lim_max = [q(1,1) - 1.5*iqr(1), q(2,1) + 1.5*iqr(1)];
+y_lim_max = [q(1,2) - 1.5*iqr(2), q(2,2) + 1.5*iqr(2)];
+
+%for the remaining set of residuals
+for i_block = 2:numel(block_array)
+
+    %get the resdual
+    residual = residual_array{1};
+
     %work out the outlier boundary for the greyvalue and residuals
     q = quantile(residual,[0.25,0.75]);
     iqr = q(2,:) - q(1,:);
-    %x_lim_max and y_lim_max is the biggest axes limit
-    x_lim_max = [q(1,1) - 1.5*iqr(1), q(2,1) + 1.5*iqr(1)];
-    y_lim_max = [q(1,2) - 1.5*iqr(2), q(2,2) + 1.5*iqr(2)];
-    
-    %for the remaining set of residuals
-    for i_block = 2:numel(block_array)
-        
-        %get the resdual
-        residual = residual_array{1,i_ax};
-        
-        %work out the outlier boundary for the greyvalue and residuals
-        q = quantile(residual,[0.25,0.75]);
-        iqr = q(2,:) - q(1,:);
-        x_lim = [q(1,1) - 1.5*iqr(1), q(2,1) + 1.5*iqr(1)];
-        y_lim = [q(1,2) - 1.5*iqr(2), q(2,2) + 1.5*iqr(2)];
-        
-        %update x_lim_max
-        if x_lim(1) < x_lim_max(1)
-            x_lim_max(1) = x_lim(1);
-        end
-        if x_lim(2) > x_lim_max(2)
-            x_lim_max(2) = x_lim(2);
-        end
-        
-        %update y_lim_max
-        if y_lim(1) < y_lim_max(1)
-            y_lim_max(1) = y_lim(1);
-        end
-        if y_lim(2) > y_lim_max(2)
-            y_lim_max(2) = y_lim(2);
-        end
-        
+    x_lim = [q(1,1) - 1.5*iqr(1), q(2,1) + 1.5*iqr(1)];
+    y_lim = [q(1,2) - 1.5*iqr(2), q(2,2) + 1.5*iqr(2)];
+
+    %update x_lim_max
+    if x_lim(1) < x_lim_max(1)
+        x_lim_max(1) = x_lim(1);
     end
-    
-    %for each block
-    for i_block = 1:numel(block_array)
-        %get the residual
-        residual = residual_array{i_block,i_ax};
-        %plot the frequency density of the residuals
-        figure;
-        ax_array{i_block,i_ax} = plotHistogramHeatmap(residual(:,1),residual(:,2),50,x_lim_max,y_lim_max);
-        %set the axes limit
-        ax_array{i_block,i_ax}.XLim = x_lim_max;
-        ax_array{i_block,i_ax}.YLim = y_lim_max;
-        %label the y axes
-        if i_ax == 1
-            ylabel(ax_array{i_block,i_ax},'Residual {(arb. unit^2)}');
-        else
-            ylabel(ax_array{i_block,i_ax},'Standard residual');
-        end
+    if x_lim(2) > x_lim_max(2)
+        x_lim_max(2) = x_lim(2);
     end
+
+    %update y_lim_max
+    if y_lim(1) < y_lim_max(1)
+        y_lim_max(1) = y_lim(1);
+    end
+    if y_lim(2) > y_lim_max(2)
+        y_lim_max(2) = y_lim(2);
+    end
+
+end
+
+%for each block
+for i_block = 1:numel(block_array)
+    %get the residual
+    residual = residual_array{i_block};
+    %plot the frequency density of the residuals
+    ax_array{i_block,2} = figure;
+    ax_array{i_block,1} = plotHistogramHeatmap(residual(:,1),residual(:,2),50,x_lim_max,y_lim_max);
+    %set the axes limit
+    ax_array{i_block,1}.XLim = x_lim_max;
+    ax_array{i_block,1}.YLim = y_lim_max;
+    ylabel(ax_array{i_block,1},'Standard residual');
 end
 
 %get the colour of the background
 blank_colour = colormap;
 blank_colour = blank_colour(1,:);
 
-%for non-standard and standard residuals
-for i_ax = 1:2
-    %get the first c_limit (limit from the colour in the density plot)
-    %represent the maximum c_limit
-    c_lim_max = ax_array{1,i_ax}.CLim(2);
-    %for the remaining graphs
-    for i_block = 2:numel(block_array)
-        %update c_lim_max
-        if c_lim_max < ax_array{i_block,i_ax}.CLim(2)
-            c_lim_max = ax_array{i_block,i_ax}.CLim(2);
-        end
+%get the first c_limit (limit from the colour in the density plot)
+%represent the maximum c_limit
+c_lim_max = ax_array{1,1}.CLim(2);
+%for the remaining graphs
+for i_block = 2:numel(block_array)
+    %update c_lim_max
+    if c_lim_max < ax_array{i_block,1}.CLim(2)
+        c_lim_max = ax_array{i_block,1}.CLim(2);
     end
-    %for all graphs
-    for i_block = 1:numel(block_array)
-        %get CLim and the background colour
-        ax_array{i_block,i_ax}.CLim(2) = c_lim_max;
-        ax_array{i_block,i_ax}.set('color',blank_colour);
-    end
+end
+%name for different types of shading correction
+name_array = {'no_shad','bw','bgw'};
+%for all graphs
+for i_block = 1:numel(block_array)
+    %get CLim and the background colour
+    ax_array{i_block,1}.CLim(2) = c_lim_max;
+    ax_array{i_block,1}.set('color',blank_colour);
+    %export the background
+    ax_array{i_block,2}.InvertHardcopy = 'off';
+    %set the background to white (of the figure)
+    ax_array{i_block,2}.Color = 'white';
+    %save figure
+    saveas(ax_array{i_block,2},strcat('reports/figures/meanVar/residual_',name_array{i_block},'.eps'),'epsc');
 end

@@ -360,8 +360,130 @@ GLM can model the sample variance as the response variable being Gamma distribut
 	\label{fig:meanVar_sampleSize}
 \end{figure*}
 
+The systematic component is defined as a linear combination of the sample mean features, for example $\beta_0+\beta_1\text{mean}^p$ where $\beta_0$ and $\beta_1$ are constants to be estimated and $p$ is the polynomial order. In GLM, the link function equates to the systematic function to form a relationship between the mean and variance. 3 link functions were considered, identity, log and inverse, with the resulting mean and variance relationship shown in Table \ref{table:link_functions} and some fits in Figure \ref{fig:meanVar_link}.
+
+\begin{table}
+	\centering
+	\begin{tabular}{c|c}
+	Link function & Relationship \\
+	\hline
+	Identity & $\text{variance} = \beta_0+\beta_1\text{mean}^p$ \\
+	Log & $\text{variance} = \exp{\left(\beta_0+\beta_1\text{mean}^p\right)}$ \\
+	Inverse & $\text{variance} = \left(\beta_0+\beta_1\text{mean}^p\right)^{-1}$
+	\end{tabular}
+	\caption{Link functions and the resulting mean and variance relationship when using polynomial features.}
+	\label{table:link_functions}
+\end{table}
+
+\begin{figure*}
+	\centering
+	\begin{subfigure}{0.45\textwidth}
+		\centering
+		\includegraphics[width = \textwidth]{../figures/meanVar/meanVar_identity.eps}
+		\caption{Identity link, order 1}
+	\end{subfigure}
+	\begin{subfigure}{0.45\textwidth}
+		\centering
+		\includegraphics[width = \textwidth]{../figures/meanVar/meanVar_log.eps}
+		\caption{Log link, order -1}
+	\end{subfigure}
+	\begin{subfigure}{0.45\textwidth}
+		\centering
+		\includegraphics[width = \textwidth]{../figures/meanVar/meanVar_canonical_1.eps}
+		\caption{Inverse link, order -1}
+	\end{subfigure}
+	\begin{subfigure}{0.45\textwidth}
+		\centering
+		\includegraphics[width = \textwidth]{../figures/meanVar/meanVar_canonical_2.eps}
+		\caption{Inverse link, order -2}
+	\end{subfigure}
+	\caption{Shading uncorrected mean and variance frequency density plot of each pixel's grey value in the segmented image of the 3D printed sample. A Gamma GLM was fitted with different link functions and polynomial order. The solid and dotted lines are the mean response and the $\Phi(\pm 1)$ quantiles respectively.}
+	\label{fig:meanVar_link}
+\end{figure*}
+
+Different shading corrections had an effect on the mean variance relationship, as shown in Figure \ref{fig:meanVar_shadingCorrection}. Due to some misbehaving pixels in the reference images, grey value outliers were possible such as negative values. Pixels with grey values less than $5.8\times 10^3$ or more than $6.6\times 10^4$ were considered outliers. Outliers were replaced by the median of its 8 nearest neighbours.
+
+\begin{figure*}
+	\centering
+	\begin{subfigure}{0.45\textwidth}
+		\centering
+		\includegraphics[width = \textwidth]{../figures/meanVar/shadingCorrection_no_shad.eps}
+		\caption{No shading correction}
+	\end{subfigure}
+	\begin{subfigure}{0.45\textwidth}
+		\centering
+		\includegraphics[width = \textwidth]{../figures/meanVar/shadingCorrection_bw.eps}
+		\caption{b/w shading correction}
+	\end{subfigure}
+	\begin{subfigure}{0.45\textwidth}
+		\centering
+		\includegraphics[width = \textwidth]{../figures/meanVar/shadingCorrection_bgw.eps}
+		\caption{b/g/w shading correction}
+	\end{subfigure}
+	\begin{subfigure}{0.45\textwidth}
+		\centering
+		\includegraphics[width = \textwidth]{../figures/meanVar/shadingCorrection_polynomial.eps}
+		\caption{b/g/w 2nd order polynomial shading correction}
+	\end{subfigure}
+	\caption{Post shading correction mean and variance frequency density plot of each pixel's grey value in the segmented image of the 3D printed sample. A Gamma GLM was fitted with the identity link. The solid and dotted lines are the mean response and the $\Phi(\pm 1)$ quantiles respectively.}
+	\label{fig:meanVar_shadingCorrection}
+\end{figure*}
+
 \subsection{Experiments}
 
+An experiment was conducted to assess the GLM fit on the mean and variance data for different link functions, polynomial orders and shading corrections.
+
+For a given link function, polynomial order and shading correction, the 100 images of the 3D printed sample were spilt into two equally sized sets: the training set and the test set. The within pixel sample mean and sample variance  grey value was estimated for both the training set and test set separately. The GLM was fitted onto the mean/variance data obtained from the training set. The fitted model was then used to predict the variance given the mean on the test set. The predicted variance given the mean then can be compared with the sample variance.
+
+Metrics such as the mean squared error can be used to assess how good the prediction is. However it should be noted that there is sampling error in the sample variance and the magnitude of the error varies for different means. In order to take the varying sampling error into account, the mean standardised squared error (MSSE) was used to assess the performance of the fitted GLM predicting the variance given the mean on the test set. The errors were standardised by dividing by the standard deviation of the GLM response.
+
+The experiment was repeated 100 times by reassigning the training and test set.
+
+The training and test MSSE are shown in Tables \ref{table:training} and \ref{table:test}. By using b/g/w shading correction, the test MSSE improved and suggests that b/g/w shading correction aids in variance prediction. b/w shading correction increased the MSSE by a magnitude of $\sim\times10^3$. A quick residual plot in Figure \ref{fig:glm_residual} showed that residuals were more centred at zero for b/g/w shading correction compared to b/w shading correction. 
+
+The performance of the different link functions were very similar and no performance was gained by using higher order polynomials.
+
+\begin{table*}
+\centerline{
+\begin{tabular}{c|c|c|c|c}
+\input{../tables/GLM_meanVar_trainingTest_training.tex_table}
+\end{tabular}}
+\caption{Training mean squared standardised error from fitting GLM onto the mean/variance training set. Values stated are the quartiles from 100 repeats.}
+\label{table:training}
+\end{table*}
+
+\begin{table*}
+\centerline{
+\begin{tabular}{c|c|c|c|c}
+\input{../tables/GLM_meanVar_trainingTest_test.tex_table}
+\end{tabular}
+}
+\caption{Test mean squared standardised error from using GLM to predict variance given mean from the test set. Values stated are the quartiles from 100 repeats.}
+\label{table:test}
+\end{table*}
+
+\begin{figure*}
+	\centering
+	\begin{subfigure}{0.45\textwidth}
+		\centering
+		\includegraphics[width = \textwidth]{../figures/meanVar/residual_no_shad.eps}
+		\caption{No shading correction}
+	\end{subfigure}
+	\begin{subfigure}{0.45\textwidth}
+		\centering
+		\includegraphics[width = \textwidth]{../figures/meanVar/residual_bw.eps}
+		\caption{b/w shading correction}
+	\end{subfigure}
+	\begin{subfigure}{0.45\textwidth}
+		\centering
+		\includegraphics[width = \textwidth]{../figures/meanVar/residual_bgw.eps}
+		\caption{b/g/w shading correction}
+	\end{subfigure}
+	\caption{Frequency density plot of the standardised residuals from predicting the variance given the mean of the test test using a training GLM with identity link function.}
+	\label{fig:glm_residual}
+\end{figure*}
+
+In conclusion it was found that b/g/w shading correction aid in variance prediction by making the mean variance data more linear. A simple identity link perform just as well as other link function which suggests a linear relationship between the variance and the mean.
 
 \section{$Z$ Statistic}
 
