@@ -485,7 +485,52 @@ The performance of the different link functions were very similar and no perform
 
 In conclusion it was found that b/g/w shading correction aid in variance prediction by making the mean variance data more linear. A simple identity link perform just as well as other link function which suggests a linear relationship between the variance and the mean.
 
-\section{$Z$ Statistic}
+\section{$Z$ Statistics}
+
+A statistic was developed which compares each pixel of a scan of a 3D printed sample with the true image, any outlying pixels then can be considered as a possible defect in the 3D printed sample. The statistic is based on the $Z$ statistic and is given as
+\begin{equation}
+Z(x,y) = \frac{\text{scan}(x,y) - \text{truth}(x,y)}{\sqrt{\widehat{\variance}[\text{scan}(x,y)]}}
+\end{equation}
+where $\widehat{\variance}[\text{scan}(x,y)]$ is the estimated grey value variance of a pixel at $(x,y)$ of the scan. The estimated variance can be obtained using a GLM model as discussed in the previous section. In addition, the scan image should be shaded corrected to remove as much shading effects as possible. Assuming the $Z$ statistics are standard Normal distributed, multiple hypothesis testing can be used to test each pixel to find significant or outlying pixels, such as the Bonferroni correction.
+
+\subsection{Experiments}
+An experiment was conducted to investigate the behaviour of the $Z$ statistics. b/g/w shading correction was applied prior to the experiment and any outlying pixels were interpolated as discussed in the previous section. The 100 images were spilt into 3 parts:
+\begin{itemize}
+	\item 50 images in the training set to train the mean variance relationship model using GLM with the identity link;
+	\item 25 images in the truth set, the mean over these images were used as the true image;
+	\item 25 images in the test set, each of these images will be compared to the true image.
+\end{itemize}
+Each image in the test set was compared to the true image by calculating the $Z$ statistic for each pixel. Thus for each pixel, a sample of 25 $Z$ statistics was obtained.
+
+A sample of $Z$ images are shown in Figure \ref{fig:p_values} and significant pixels are shown in Figure \ref{fig:critical_values}. The Bonferroni correction was used to correct for multiple testing. The $Z$ images showed that the $Z$ statistics within image varied scan to scan, suggesting images in the test set are not quite as similar as hoped for. Common significant pixels were picked up by the statistic, especially on the left edge. However fortunately only a few significant pixels were picked up from the 3D printed sample, this is important when making inference about the image.
+
+\begin{figure}
+	\centering
+	\includegraphics[width = 0.45\textwidth]{../figures/meanVar/p_values.eps}
+	\caption{A sample of 6 images from the test set compared to the true image. The $Z$ statistics were transformed using the standard Normal c.d.f.}
+	\label{fig:p_values}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics[width = 0.45\textwidth]{../figures/meanVar/critical_values.eps}
+	\caption{Using the $Z$ statistics from Figure \ref{fig:p_values}, highlighted in red are significant pixels at the $5\sigma$ significance level corrected for multiple tests using the Bonferroni correction.}
+	\label{fig:critical_values}
+\end{figure}
+
+The $Z$ statistics were tested for Normality within pixel using the $\chi^2$ goodness of fit test. To make the test more powerful, 75 more $Z$ statistics were collected by reassigning the training, truth and test set and repeating the experiment 3 more times. Figure \ref{fig:chi_squared} show the $p$ values from the test were particularly low, especially on the bottom half of the image. In particular there is a vertical line of significant pixels as well. Normality may be a valid assumption but the bottom of the image where the foam is may break such an assumption.
+
+\begin{figure*}
+	\centering
+	\begin{subfigure}{0.45\textwidth}
+		\includegraphics[width = \textwidth]{../figures/meanVar/chi_squared_critical.eps}
+	\end{subfigure}
+	\begin{subfigure}{0.45\textwidth}
+		\includegraphics[width = \textwidth]{../figures/meanVar/chi_squared_p_values.eps}
+	\end{subfigure}
+	\caption{$p$ values from the $\chi^2$ goodness of fit test within pixel. Highlighted in red are significant pixels at the $2\sigma$ significant level corrected for multiply testing using the Bonferroni correction.}
+	\label{fig:chi_squared}
+\end{figure*}
 
 \section{Compound Poisson}
 In the mini-project, a compound Poisson model was used to model the distribution of greyvalues in a pixel. The model was built by assuming that photon arrivals are a Poisson process and that each photon has random energy, distributed according to the energy spectrum. The greyvalue was then proportional to the sum of energies of each photon detected in some exposure time, with some Normal noise added.

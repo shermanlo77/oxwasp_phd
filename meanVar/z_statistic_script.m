@@ -76,12 +76,14 @@ for i_test = 1:numel(test_index)
 end
 
 %for 6 test image, plot the p value
-figure;
-for i = 1:numel(test_index)
-    subplot(5,5,i);
-    imagesc(p_array(:,:,i));
+fig = figure;
+for i = 1:6
+    subplot(3,2,i);
+    imagesc(p_array(:,:,i),[0,1]);
     colorbar;
+    axis(gca,'off');
 end
+saveas(fig,'reports/figures/meanVar/p_values.eps','epsc');
 
 %define the significance level
 sig_level = normcdf(-5) / block_data.area;
@@ -89,10 +91,12 @@ sig_level = normcdf(-5) / block_data.area;
 p_critical = [sig_level/2, 1-sig_level/2];
 
 %for 6 test image, plot the scan with circled significant pixels
-figure;
-for i = 1:numel(test_index)
+fig = figure;
+fig.Position(3:4) = [395, 450];
+for i = 1:6
     %plot the scan
-    subplot(5,5,i,imagesc_truncate(block_data.loadSample(test_index(i))));
+    subplot(3,2,i,imagesc_truncate(block_data.loadSample(test_index(i))));
+    axis(gca,'off');
     colormap gray;
     hold on;
     %get the p values
@@ -103,6 +107,7 @@ for i = 1:numel(test_index)
     %plot the significant pixels as a scatter plot
     scatter(x,y,'r');
 end
+saveas(fig,'reports/figures/meanVar/critical_values.eps','epsc');
 
 %---CHI SQUARED GOODNESS OF FIT TEST---%
 

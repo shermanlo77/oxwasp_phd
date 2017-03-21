@@ -9,6 +9,8 @@ rng(uint32(139952197), 'twister');
 block_data = BlockData_140316('../data/140316');
 %add bgw shading correction
 block_data.addShadingCorrector(@ShadingCorrector,true);
+block_data.turnOnRemoveDeadPixels();
+block_data.turnOnSetExtremeToNan();
 %get the threshold of the top half of the image, threshold of the 3d printed sample
 threshold = BlockData_140316.getThreshold_topHalf();
 
@@ -83,7 +85,7 @@ for i_width = 1:block_data.width
 end
 
 %plot the p values from the chi squared goodness of fit test
-figure;
+fig = figure;
 imagesc(p_image);
 colorbar;
 %get the critical value at the 2 sigma significance level
@@ -93,9 +95,12 @@ p_critical = normcdf(-2) / block_data.area;
 hold on;
 %scatter plot significant pixels
 scatter(x,y,'r','filled');
+axis(gca,'off');
+saveas(fig,'reports/figures/meanVar/chi_squared_critical.eps','epsc');
 
 %plot histogram of p values
-figure;
+fig = figure;
 histogram(reshape(p_image, [], 1), 20, 'Normalization', 'countdensity');
 xlabel('p values');
 ylabel('Frequency density');
+saveas(fig,'reports/figures/meanVar/chi_squared_p_values.eps','epsc');
