@@ -46,22 +46,22 @@
 \maketitle
 
 \begin{abstract}
-
+X-ray CT can be used for defect detection and quality control of 3D printing. This report will outline statistical methods for comparing x-ray scans of a 3D printed sample with its computer model under the face of uncertainty. Shading correction methods and the mean and variance relationship were investigated. Lastly the compound Poisson was reviewed.
 \end{abstract}
 
 \section{Introduction}
-3D printing, or additive layer manufacturing \cite{kodama1981automatic} \cite{wong2012review}, can be used to create objects with complicated shapes and geometry from a blueprint, or CAM model, on a computer.  Recently it has been commercialised and has served purposes in the medical field \cite{kang20163d} and engineering \cite{wong2012review}. The need for detecting defects from 3D printing is required in order to do quality control, especially if the 3D printed object is used for something critical for example body parts. 
+3D printing, or additive layer manufacturing \cite{kodama1981automatic}\cite{wong2012review}, can be used to create objects with complicated shapes and geometry from a blueprint, or CAM model, on a computer.  Recently it has been commercialised and has served purposes in the medical field \cite{kang20163d} and engineering \cite{wong2012review}. The need for detecting defects from 3D printing is required in order to do quality control, especially if the 3D printed object is used for something critical for example body parts. 
 
-X-ray computed tomography (CT) \cite{hounsfield1980computed} \cite{michael2001x} \cite{cantatore2011introduction} scans can be used to take images of a rotating 3D printed sample to obtain images of the sample at multiple angles. These x-ray images then can be combined to form a 3D projection and the detection of defects can start. However due to the random nature of x-ray photons in its production in an x-ray tube and attenuation from the x-ray tube to the detector, sources of error or noise is introduced. In order to do defect detection in a statistical manner, sources of error must be considered.
+X-ray computed tomography (CT) \cite{hounsfield1980computed}\cite{michael2001x}\cite{cantatore2011introduction} scans can be used to take images of a rotating 3D printed sample to obtain images of the sample at multiple angles. These x-ray images then can be combined to form a 3D projection and the detection of defects can start. However due to the random nature of x-ray photons in its production in an x-ray tube and attenuation from the x-ray tube to the detector, sources of error or noise is introduced. In order to do defect detection in a statistical manner, sources of error must be considered.
 
 A mini-project on this topic was completed at 12 months of the PhD \cite{ip2016inside}. The main aim of that project was to conduct exploratory data analysis on a dataset of 100 images of an x-ray CT scan of a stationary 3D printed cuboid. Linear regressions were used to model the relationship between the variance and the mean grey value of each pixel. Separately latent variable models were fitted (or at least attempted) on the scans, such as PCA, factor analysis and the compound Poisson, to find sources of variance.
 
 After the mini-project, the main aims during the PhD was to extend the mini-project by developing a statistic to aid in defect detection while considering the randomness of photons. Another aim was to build a model for the noise.
 
-This report will outline a pre-process method called shading correction and it was investigated how it affected the mean and variance relationship. The mean and variance relationship was modelled using GLM with different link functions. After finding a good model for the mean and variance, a statistics was developed to compare two images in the face of uncertainty. Lastly the compound Poisson was studied.
+This report will outline a pre-process method called shading correction. The aim of shading correction is to remove shading effects before any statistical analysis is conducted. It was then investigated how different types of shading correction affected the mean and variance grey value of each pixel in a scan. Afterwards, the mean and variance relationship was modelled using a GLM with different link functions. After finding a good model for the mean and variance, a statistic was developed to compare a scan with a simulation in the face of uncertainty. Lastly the compound Poisson was studied with the hope it can aid in variance modelling and prediction.
 
 \section{About the Data}
-Data was collected prior to the mini-project. 20 black/grey/white (b/g/w) images were collected on 14/03/16 at around 1250. The b/g/w images are images obtained from the x-ray detector when exposed to x-rays at different settings, they are useful for calibrating the detector thus b/g/w images can be called reference images. About 2 hours later at 1503, 100 images of a 3D printed cuboid (or sample) were taken. These images were obtained from the x-ray detector when exposed to x-rays with the sample between the x-ray source and detector. The detector used was the Perkin Elmer XRD 1621 digital X-ray detector, with settings shown in Table \ref{table:settings}.
+Data was collected prior to the mini-project. 20 black/grey/white (b/g/w) images were collected on 14/03/16 at around 1250. The b/g/w images are images obtained from the x-ray detector when exposed to x-rays at different settings. They are useful for calibrating the detector, thus b/g/w images can be called reference images. About 2 hours later, 100 images of a 3D printed cuboid (or sample) were taken. These images were obtained from the x-ray detector when exposed to x-rays with the sample between the x-ray source and detector. The 3D printed was stationary and not rotating throughout the scans. The detector used was the Perkin Elmer XRD 1621 digital x-ray detector, with settings shown in Table \ref{table:settings}.
 
 \begin{table*}
 	\centering
@@ -94,9 +94,9 @@ The images were $(1\,996\times1\,996)$ pixels in size and are in greyscale with 
 \end{figure}
 
 \section{Shading Correction}
-The x-ray detector was made up 32 panels, arranged in 2 rows and 16 columns. Unfortunately these panels can be observed in the b/g/w images as a result of panel-wise effects in the image of the sample, as shown in Figure \ref{fig:image}. The effects can be described as introducing a gradient to the grey values within panels and perhaps between panels and globally. The aim of shading correction is to remove these effects to estimate the image of the scan if it were to have none of these effects.
+The x-ray detector was made up 32 panels, arranged in 2 rows and 16 columns. Unfortunately these panels can be observed in the images which can be seen by the panel-wise effects, as shown in Figure \ref{fig:image}. The effects can be described as introducing a gradient to the grey values within panels and perhaps between panels and globally. The aim of shading correction is to remove these effects to estimate the image of the scan if it were to have none of these effects.
 
-Let $N(x,y)$ be the grey value of the pixel at position $(x,y)$ in the obtained image. Similarly let $U(x,y)$ be they grey value of pixels of the shading-free image. The shading effects can be modelled using a linear relationship
+Let $N(x,y)$ be the grey value of the pixel at position $(x,y)$ in the obtained image. Similarly let $U(x,y)$ be they grey value of pixels of the shading free image. The shading effects can be modelled using a linear relationship
 \begin{equation}
 N(x,y) = U(x,y)b(x,y) + a(x,y)
 \end{equation} 
@@ -104,8 +104,8 @@ where $b(x,y)$ is the multiplicative effect and $a(x,y)$ is the additive effect 
 \begin{equation}
 \widehat{U}(x,y) = \frac{N(x,y)-\widehat{a}(x,y)}{\widehat{b}(x,y)} \times c_1 + c_2
 \end{equation}
-where $c_1$ and $c_2$ are some constants.
-One method to estimate the images $b(x,y)$ and $a(x,y)$ is to use the mean black and white (b/w) images. Let $\overline{B}(x,y)$ and $\overline{W}(x,y)$ be the sample mean black and white images respectively, then the estimators for $b(x,y)$ and $a(x,y)$ are
+where $c_1$ and $c_2$ are user defined constants.
+One method to estimate the images $b(x,y)$ and $a(x,y)$ is to use the black and white (b/w) images. Let $\overline{B}(x,y)$ and $\overline{W}(x,y)$ be the sample mean between the 20 black and white images respectively. The estimators for $b(x,y)$ and $a(x,y)$ are
 \begin{equation}
 \widehat{b}(x,y) = \overline{W}(x,y) - \overline{B}(x,y)
 \end{equation}
@@ -120,7 +120,7 @@ A new shading correction will be proposed here which extends the shading correct
 \begin{equation}
 U(x,y) = N(x,y)\beta(x,y)+\alpha(x,y) \ .
 \end{equation}
-The shading free image is not truly known, but one should expect the b/g/w shading free images should be completely flat. By using the obtained b/g/w images to estimate the parameters of the linear regression, this becomes a regression problem.
+The shading free image is not truly known, but one should expect the b/g/w shading free images should be completely flat.
 
 Let $R_\text{b}(x,y)$, $R_\text{g}(x,y)$ and $R_\text{w}(x,y)$ be the grey value of the pixel, at position $(x,y)$, of the sample mean b/g/w images respectively. Let these images have $h$ rows and $w$ columns. The shading free b/g/w images should be completely flat, in other words all the pixels should have the same grey value. A good guess what that grey value should be would be the sample mean of the grey values within the b/g/w images $\overline{R}_\text{b}$, $\overline{R}_\text{g}$ and $\overline{R}_\text{w}$ where
 \begin{equation}
@@ -144,7 +144,7 @@ then the estimators for $\beta(x,y)$ and $\alpha(x,y)$ are
 \end{multline}
 and
 \begin{equation}
-\widehat{\alpha}(x,y) = \overline{R}-\widehat{\beta}(x.y)\overline{R}_B(x,y) 
+\widehat{\alpha}(x,y) = \overline{R}-\widehat{\beta}(x,y)\overline{R}_B(x,y) 
 \end{equation}
 respectively.
 
@@ -154,7 +154,7 @@ Suppose now an image to be shading corrected is obtained $N(x,y)$. The shading f
 \end{equation}
 This can be extended to fewer or more than 3 reference images. The disadvantage of having more reference images is that it does cost time to take more scans. Shading correction which uses b/g/w images shall be referred to as b/g/w shading correction. Similarly shading correction which uses only the b/w images shall be referred to as b/w shading correction.
 
-Figure \ref{fig:shadingCorrection} shows an example of a scan before and after b/g/w shading correction. By inspection, the post shading correction background is smoother because the panel effects appeared to be gone, meeting the objective of shading correction. Figure \ref{fig:shadingCorrection_grad} shows the values of $\widehat{\beta}(x,y)$. By inspection there is some curvature in the $\widehat{\beta}$ image, with high gradients in the corners, in addition to panel-wise gradients. Problems occur if the reference images behave differently from expected. For example some pixels may be dead and do not vary at all, this resulted in infinite gradients highlighted by red circles in the figure. In order to combat this, any pixels with undefined grey values post shading correction were replaced with the sample median of its 8 nearest neighbours.
+Figure \ref{fig:shadingCorrection} shows an example of a scan before and after b/g/w shading correction. By inspection, the post shading correction background is smoother because the panel effects appeared to be gone, meeting the objective of shading correction. Figure \ref{fig:shadingCorrection_grad} shows the values of $\widehat{\beta}(x,y)$. By inspection there is some curvature in the $\widehat{\beta}$ image, with high gradients in the corners. Problems occur if the reference images behave differently from expected. For example some pixels may be dead and do not vary at all, this resulted in infinite gradients, shown by red circles in the figure. In order to combat this, any pixels with undefined grey values post shading correction were replaced with the sample median of its 8 nearest neighbours.
 
 \begin{figure*}
 	\centering
@@ -190,9 +190,9 @@ Figure \ref{fig:shadingCorrection} shows an example of a scan before and after b
 	\label{fig:shadingCorrection_grad}
 \end{figure*}
 
-To avoid dealing with dead pixels \cite{brettschneider2014spatial}, a method was considered which smoothed the reference images prior to any shading correction parameter estimation. The purpose of this was to iron out any misbehaving pixels in the reference images and to capture the shading effects parametrically. Second order panel-wise surface polynomials were fitted to the b/g/w images, this is shown in Figure \ref{fig:polynomial_shadingCorrection}. The standardised residuals from the panel-wise fit are shown in Figure \ref{fig:polynomial_residual}. A quick inspection of the residuals shows any characteristics not captured by the panel-wise fit. In the black and grey images, the residuals show a global ring which is very unusual for the black image because it is detecting no x-rays at all. The b/g/w residuals all show vertical stripes. The panel-wise fit can be improved by including a global polynomial fit to capture between panel effects. Higher order polynomials can be considered but overfitting may be possible, as a result of higher order polynomials attempting to capture all the characteristics of the b/g/w images.
+To avoid dealing with dead pixels \cite{brettschneider2014spatial}, a method was considered which smoothed the reference images prior to any shading correction parameter estimation. The purpose of this was to iron out any misbehaving pixels in the reference images and to capture the shading effects parametrically. Second order panel-wise surface polynomials were fitted to the b/g/w images, this is shown in Figure \ref{fig:polynomial_shadingCorrection}. The standardised residuals from the panel-wise fit are shown in Figure \ref{fig:polynomial_residual}. A quick inspection of the residuals shows any characteristics not captured by the panel-wise fit. In the black and grey images, the residuals showe a global ring which was very unusual for the black image because it is detecting no x-rays at all. The b/g/w residuals all showed vertical stripes. The panel-wise fit can be improved by including a global polynomial fit to capture between panel effects. Higher order polynomials can be considered but overfitting may be possible, as a result of higher order polynomials attempting to capture all the characteristics of the b/g/w images.
 
-Shading correction which uses the fitted polynomials as reference images will be referred to as b/g/w 2nd order polynomial shading correction. The gradient parameter for the b/g/w 2nd order polynomial shading correction is shown in Figure \ref{fig:shadingCorrection_grad}. It is smoother and robust because the gradients are of sensible values, for example no infinite values. The resulting shading correction is shown in Figure \ref{fig:shadingCorrection}. This method can be advantageous as the panel-wise 2nd order polynomial only captures gradients of each panel and  smooths out clusters of bad behaving pixels as shown in the residuals. As a result, the shading correction is smoother between pixels because the bad behaving pixels do not impact as much in the interpolation of the linear regression.
+Shading correction which uses the fitted polynomials as reference images will be referred to as b/g/w 2nd order polynomial shading correction. The gradient parameter for the b/g/w 2nd order polynomial shading correction is shown in Figure \ref{fig:shadingCorrection_grad}. It is smoother and robust because the gradients are of sensible values, for example no infinite values. The resulting shading correction is shown in Figure \ref{fig:shadingCorrection}. This method can be advantageous as the panel-wise 2nd order polynomial only captured panel effects parametrically and smoothed out clusters of bad behaving pixels as shown in the residuals. As a result, the shading correction is smoother between pixels because the bad behaving pixels do not impact as much in the interpolation of the linear regression.
 
 \begin{figure*}
 	\centering
@@ -238,11 +238,11 @@ Shading correction which uses the fitted polynomials as reference images will be
 
 \subsection{Experiments}
 
-An experiment was conducted to assess the performance of shading correction. The methodology behind it is that shading correction applied on the reference images should remove shading effects and produce an image which is noisy but all the pixels should have the same mean grey value.
+An experiment was conducted to assess the performance of different types of shading correction. The methodology behind it is that shading correction applied on the reference images should remove shading effects and produce an image which is noisy but all the pixels should have the same mean grey value.
 
-The 20 b/g/w images were spilt into a training set and test set of equal size randomly. The training set was used to estimate the parameters for shading corrections. Afterwards, shading correction was applied to each image in the test set producing 10 shading corrected reference images of each grey scale. The within pixel variance and between pixel variance was recorded, exactly the same as ANOVA treating each pixel as a group. For each pixel to have the same mean grey value, the within and between pixel variance should be similar. The experiment was repeated 20 times by repeating the assignment of the training and test set.
+The 20 b/g/w images were spilt into a training set and test set of equal size randomly. The training set was used to estimate the parameters for shading correction. Afterwards, shading correction was applied to each image in the test set producing 10 shading corrected reference images of each grey scale. The post shading correction within pixel variance and between pixel variance was recorded, exactly the same procedure as ANOVA treating each pixel as a group. For each pixel to have the same mean grey value, the within and between pixel variance should be similar. The experiment was repeated 20 times by changing randomly the assignment of the training and test set.
 
-Figure \ref{fig:shadingCorr_bgw} shows a sample of reference images post shading correction. Without shading correction, the shading effects were clear. With b/w and b/g/w shading correction, the reference images appeared flatter. The flatness of the black and grey image depended if the grey images were used when training the shading correction. The b/g/w 2nd order polynomial shading correction retained some effects not captured by the panel wise polynomial fits. This can be tell because the shading corrected images were very similar to the residual plots in Figure \ref{fig:polynomial_residual}.
+Figure \ref{fig:shadingCorr_bgw} shows a sample of reference images post shading correction. Without shading correction, the shading effects were clear. With b/w and b/g/w shading correction, the reference images appeared flatter. The flatness of the black and grey image depended on if the grey images were used when training the shading correction. The b/g/w 2nd order polynomial shading correction retained some effects not captured by the panel wise polynomial fits. This was shown because the shading corrected images were very similar to the residual plots in Figure \ref{fig:polynomial_residual}.
 
 Table \ref{table:bgw_anova} shows the within and between pixel variance of the grey values. The table shown that b/w and b/g/w shading correction does make an improvement because it brings the within and between pixel variances closer together. The performance of shading correction on the black and grey images appeared to depend if the grey images were used in training the shading correction. The b/g/w 2nd order polynomial shading correction does perform by bringing the within and between pixel variances closer together but not as much as b/w and b/g/w shading correction.
 
@@ -301,17 +301,15 @@ Table \ref{table:bgw_anova} shows the within and between pixel variance of the g
 	\\
 	\vspace{.25cm}
 	d) b/g/w 2nd order polynomial shading correction
-	\caption{Quartiles of the within pixel and between pixel variance after 20 repeats of the experiment.}
+	\caption{Within pixel and between pixel variance of the shading corrected reference images. Values stated are the quartiles from 20 repeats of the experiment.}
 	\label{table:bgw_anova}
 \end{table*}
 
 In conclusion, b/w and b/g/w shading correction do perform well because there was evidence they are attempting to iron out all the pixel grey values to have the same mean. The b/g/w 2nd order polynomial shading correction does its job. However because the panel wise polynomial under fitted and did not capture all the shading effects, the shading correction also did not capture all the shading effects.
 
-The use of grey images in training the shading correction can be useful. It appeared that by considering the grey images, the shading correction performance on certain grey values was traded for other grey values.
+The use of grey images in training the shading correction can be useful. It appeared that by considering the grey images, the shading correction performance on certain grey values was traded for other grey values. Additional methods for shading correction could be considered such as fitting a global polynomial in addition to the panel wise polynomials to the reference images. There exist methods which do not require reference images at all, such as entropy minimisation \cite{likar2000retrospective}, which could be studied further and may be useful here.
 
-Additional methods for shading correction could be considered such as fitting a global polynomial in addition to the panel wise polynomials to the reference images. There exist methods which do not require reference images at all, such as entropy minimisation \cite{likar2000retrospective}, which could be studied further and may be useful here.
-
-\section{Mean/Variance Relationship}
+\section{Mean Variance Relationship}
 The variance can be used to quantify the uncertainty of a grey value in a pixel. The purpose of modelling the mean and variance relationship of the grey value of a pixel is to be able to predict the grey value variance of each pixel for a single scan. This then can be used for inference when comparing a scan with the CAM model. A basic linear regression was conducted in the mini-project \cite{ip2016inside}, here generalised linear models (GLM) \cite{nelder1972generalized} \cite{mccullagh1984generalized} was used to model the mean and variance relationship.
 
 The object of interest is the 3D printed sample. In the mini-project, it was found the background and the foam holding the 3D printed sample have different mean variance relationships \cite{ip2016inside}. Thus to model the mean variance relationship of the 3D printed sample, the 3D printed sample was segmented from the background and the foam. This was done by cropping the scans of the 3D printed sample in half, removing the bottom half containing the foam. Next a threshold was conducted using the following procedure: 
@@ -401,7 +399,7 @@ The systematic component is defined as a linear combination of the sample mean f
 	\label{fig:meanVar_link}
 \end{figure*}
 
-Different shading corrections had an effect on the mean variance relationship, as shown in Figure \ref{fig:meanVar_shadingCorrection}. Due to some misbehaving pixels in the reference images, grey value outliers were possible such as negative values. Pixels with grey values less than $5.8\times 10^3$ or more than $6.6\times 10^4$ were considered outliers. Outliers were replaced by the median of its 8 nearest neighbours.
+Different shading corrections had small effects on the mean variance relationship, as shown in Figure \ref{fig:meanVar_shadingCorrection}. Due to some misbehaving pixels in the reference images, grey value outliers were possible such as negative values. Pixels with grey values less than $5.8\times 10^3$ or more than $6.6\times 10^4$ were considered outliers. Outliers were replaced by the median of its 8 nearest neighbours.
 
 \begin{figure*}
 	\centering
@@ -433,33 +431,34 @@ Different shading corrections had an effect on the mean variance relationship, a
 
 An experiment was conducted to assess the GLM fit on the mean and variance data for different link functions, polynomial orders and shading corrections.
 
-For a given link function, polynomial order and shading correction, the 100 images of the 3D printed sample were spilt into two equally sized sets: the training set and the test set. The within pixel sample mean and sample variance  grey value was estimated for both the training set and test set separately. The GLM was fitted onto the mean/variance data obtained from the training set. The fitted model was then used to predict the variance given the mean on the test set. The predicted variance given the mean then can be compared with the sample variance.
+For a given link function, polynomial order and shading correction, the 100 images of the 3D printed sample were spilt into two equally sized sets: the training set and the test set. The within pixel sample mean and sample variance  grey value was estimated for both the training set and test set separately. The GLM was fitted onto the mean variance data obtained from the training set. The fitted model was then used to predict the variance given the mean on the test set. The predicted variance given the mean then can be compared with the sample variance.
 
-Metrics such as the mean squared error can be used to assess how good the prediction is. However it should be noted that there is sampling error in the sample variance and the magnitude of the error varies for different means. In order to take the varying sampling error into account, the mean standardised squared error (MSSE) was used to assess the performance of the fitted GLM predicting the variance given the mean on the test set. The errors were standardised by dividing by the standard deviation of the GLM response.
+Metrics such as the mean squared error can be used to assess how good the prediction is. However it should be noted that there is sampling error in the sample variance and the magnitude of the error varies for different means. In order to take the varying sampling error into account, the mean standardised squared error (MSSE) was used to assess the performance of the fitted GLM predicting the variance given the mean. The errors were standardised by dividing by the standard deviation of the GLM response.
 
-The experiment was repeated 100 times by reassigning the training and test set.
+The experiment was repeated 100 times by reassigning the training and test set randomly.
 
-The training and test MSSE are shown in Tables \ref{table:training} and \ref{table:test}. By using b/g/w shading correction, the test MSSE improved and suggests that b/g/w shading correction aids in variance prediction. b/w shading correction increased the MSSE by a magnitude of $\sim\times10^3$. A quick residual plot in Figure \ref{fig:glm_residual} showed that residuals were more centred at zero for b/g/w shading correction compared to b/w shading correction. 
+The training and test MSSE are shown in Table \ref{table:training}. NaN values were obtained when the iterative reweighted least squares failed to converge. By using b/g/w shading correction, the test MSSE improved which suggests that b/g/w shading correction aids in variance prediction. b/w shading correction increased the MSSE by a magnitude of $\sim\times10^3$. A quick residual plot in Figure \ref{fig:glm_residual} showed that residuals were more centred at zero for b/g/w shading correction compared to b/w shading correction. b/w shading correction struggled to correct the grey pixels correctly, creating bias in the model.
 
 The performance of the different link functions were very similar and no performance was gained by using higher order polynomials.
 
 \begin{table*}
+\centering
 \centerline{
 \begin{tabular}{c|c|c|c|c}
 \input{../tables/GLM_meanVar_trainingTest_training.tex_table}
 \end{tabular}}
-\caption{Training mean squared standardised error from fitting GLM onto the mean/variance training set. Values stated are the quartiles from 100 repeats.}
-\label{table:training}
-\end{table*}
-
-\begin{table*}
+\vspace{.25cm}
+a) Training error
+\\\vspace{.5cm}
 \centerline{
 \begin{tabular}{c|c|c|c|c}
 \input{../tables/GLM_meanVar_trainingTest_test.tex_table}
-\end{tabular}
-}
-\caption{Test mean squared standardised error from using GLM to predict variance given mean from the test set. Values stated are the quartiles from 100 repeats.}
-\label{table:test}
+\end{tabular}}
+\vspace{.25cm}
+b) Test error
+\\\vspace{.5cm}
+\caption{Mean squared standardised error using GLM with identity link to predict the variance given the mean. Values stated are the quartiles from 100 repeats.}
+\label{table:training}
 \end{table*}
 
 \begin{figure*}
@@ -485,12 +484,13 @@ The performance of the different link functions were very similar and no perform
 
 In conclusion it was found that b/g/w shading correction aid in variance prediction by making the mean variance data more linear. A simple identity link perform just as well as other link function which suggests a linear relationship between the variance and the mean.
 
-\section{$Z$ Statistics}
+\section{Inference}
 
-A statistic was developed which compares each pixel of a scan of a 3D printed sample with the true image, any outlying pixels then can be considered as a possible defect in the 3D printed sample. The statistic is based on the $Z$ statistic and is given as
+A statistic was developed which compares each pixel of a scan of a 3D printed sample with the true image obtained from a computer model or simulation. Any outlying pixels then can be considered as a possible defect in the 3D printed sample. The statistic is based on the $Z$ statistic and is given as
 \begin{equation}
-Z(x,y) = \frac{\text{scan}(x,y) - \text{truth}(x,y)}{\sqrt{\widehat{\variance}[\text{scan}(x,y)]}}
+Z(x,y) = \frac{\text{scan}(x,y) - \text{model}(x,y)}{\sqrt{\widehat{\variance}[\text{scan}(x,y)]}}
 \end{equation}
+%$Z(x,y)=\frac{\text{scan}(x,y)-\text{model}(x,y)}{\sqrt{\widehat{\mathbb{V}\text{ar}}[\text{scan}(x,y)]}}$
 where $\widehat{\variance}[\text{scan}(x,y)]$ is the estimated grey value variance of a pixel at $(x,y)$ of the scan. The estimated variance can be obtained using a GLM model as discussed in the previous section. In addition, the scan image should be shaded corrected to remove as much shading effects as possible. Assuming the $Z$ statistics are standard Normal distributed, multiple hypothesis testing can be used to test each pixel to find significant or outlying pixels, such as the Bonferroni correction.
 
 \subsection{Experiments}
@@ -502,7 +502,7 @@ An experiment was conducted to investigate the behaviour of the $Z$ statistics. 
 \end{itemize}
 Each image in the test set was compared to the true image by calculating the $Z$ statistic for each pixel. Thus for each pixel, a sample of 25 $Z$ statistics was obtained.
 
-A sample of $Z$ images are shown in Figure \ref{fig:p_values} and significant pixels are shown in Figure \ref{fig:critical_values}. The Bonferroni correction was used to correct for multiple testing. The $Z$ images showed that the $Z$ statistics within image varied scan to scan, suggesting images in the test set are not quite as similar as hoped for. Common significant pixels were picked up by the statistic, especially on the left edge. However fortunately only a few significant pixels were picked up from the 3D printed sample, this is important when making inference about the image.
+A sample of $Z$ images are shown in Figure \ref{fig:p_values} and significant pixels are shown in Figure \ref{fig:critical_values}. The Bonferroni correction was used to correct for multiple testing. The $Z$ images showed that the $Z$ statistics within image varied scan to scan, suggesting images in the test set are not quite as similar as hoped for. Common significant pixels were picked up by the statistic, especially on the left edge. Fortunately only a few significant pixels were picked up from the 3D printed sample.
 
 \begin{figure}
 	\centering
@@ -533,9 +533,9 @@ The $Z$ statistics were tested for Normality within pixel using the $\chi^2$ goo
 \end{figure*}
 
 \section{Compound Poisson}
-In the mini-project, a compound Poisson model was used to model the distribution of greyvalues in a pixel. The model was built by assuming that photon arrivals are a Poisson process and that each photon has random energy, distributed according to the energy spectrum. The greyvalue was then proportional to the sum of energies of each photon detected in some exposure time, with some Normal noise added.
+In the mini-project, a compound Poisson model was used to model the distribution of greyvalues in a pixel. The model was built by assuming that photon arrivals are a Poisson process and that each photon has random energy, distributed according to the energy spectrum. The grey value was then proportional to the sum of energies of each photon detected in some exposure time, with some Normal noise added.
 
-Consider a pixel. Let $Y$ be the number of photons detected for that particular pixel. Let $U$ be the energy of a photon post-attenuation and is typically random, here it was assumed to be Normally distribued. Let $X$ be the greyvalue of that pixel. The model is hierarchical such that at the top layer
+Consider a pixel. Let $Y$ be the number of photons detected for that particular pixel. Let $U$ be the energy of a photon post-attenuation and is typically random, here it was assumed to be Normal distributed. Let $X$ be the grey value of that pixel. The model is hierarchical such that at the top layer
 \begin{equation}
 Y\sim\poisson\left(\nu\tau\right)
 \end{equation}
@@ -559,7 +559,7 @@ The model can be simplified by setting $\beta=0$. By doing so, the constant $\al
 The main aims were to investigate the compound Poisson, approximations and methods for fitting it to data.
 
 \subsection{Literature Review}
-Compound Poisson was proposed to improve noise models in CT scans \cite{whiting2002signal}. Simple models have been used which assumed the greyvalues were Poisson distributed or Normally \cite{lu2002analytical} distributed. The compound Poisson improves on these models by considering the energy spectrum of x-ray quanta and integrating it into the x-ray detector \cite{whiting2006properties}. This has been useful in image reconstruction \cite{elbakri2003efficient}\cite{elbakri2002statistical}\cite{elbakri2001statistical}\cite{lasio2007statistical} and tested in experiments \cite{wang2008experimental}. The p.d.f.~of the greyvalues can be numerically obtained using the saddle point approximation for a given general energy spectrum \cite{elbakri2003efficient}.
+Compound Poisson was proposed to improve noise models in CT scans \cite{whiting2002signal}. Simple models have been used which assumed the greyvalues were Poisson distributed or Normal \cite{lu2002analytical} distributed. The compound Poisson improves on these models by considering the energy spectrum of x-ray quanta and integrating it into the x-ray detector \cite{whiting2006properties}. This has been useful in image reconstruction \cite{elbakri2003efficient}\cite{elbakri2002statistical}\cite{elbakri2001statistical}\cite{lasio2007statistical} and tested in experiments \cite{wang2008experimental}. The p.d.f.~of the grey values can be numerically obtained using the saddle point approximation for a given general energy spectrum \cite{elbakri2003efficient}.
 
 A special case of the compound Poisson is the compound Poisson-Gamma model. The model is as follows:
 \begin{equation}
@@ -665,7 +665,7 @@ M(\theta)=\exp\left[\theta\frac{\alpha\nu\tau}{\lambda}+\frac{\theta^2}{2}\frac{
 \end{multline}
 For the Normal approximation to be a good approximation, the third and higher order terms must be small. This can happen for large $\lambda$. In addition for large values of $\alpha$ 
 \begin{equation}
-\prod_{t=1}^{r}(\alpha+t-1)\approx\alpha^r \ .
+\prod_{t=1}^{r}(\alpha+t-1)\approx\alpha^r
 \end{equation}
 and this is smaller than the coefficient term $\prod_{t=1}^{r}(\alpha+t-1)$
 \begin{equation}
