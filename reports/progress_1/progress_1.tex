@@ -504,25 +504,21 @@ An experiment was conducted to investigate the behaviour of the $Z$ statistics. 
 \end{itemize}
 Each image in the test set was compared to the true image by calculating the $Z$ statistic for each pixel. Thus for each pixel, a sample of 25 $Z$ statistics was obtained.
 
-A sample of $Z$ statistics are shown in Figure \ref{fig:p_values} and significant pixels are shown in Figure \ref{fig:critical_values}. The Bonferroni correction was used to correct for multiple testing. The $Z$ statistics within image varied scan to scan, suggesting images in the test set were not quite as similar to each other as hoped for. Common significant pixels were picked up by the statistic, especially on the left edge. Fortunately only a few significant pixels were picked up from the 3D printed sample, implying only a few false positives were detected.
+A sample of $Z$ statistics, along with significant pixels, are shown in Figure \ref{fig:p_values}. The Bonferroni correction was used to correct for multiple testing. The $Z$ statistics within image varied scan to scan, suggesting images in the test set were not quite as similar to each other as hoped for. Common significant pixels were picked up by the statistic, especially on the left edge. Fortunately only a few significant pixels were picked up from the 3D printed sample, implying only a few false positives were detected.
 
-\begin{figure}
+\begin{figure*}
 	\centering
-	\centerline{
-	\includegraphics[width = 0.5\textwidth]{../figures/meanVar/p_values.png}
-	}
-	\caption{A sample of $Z$ statistics obtained from comparing a scan from the test set to the true image. The $Z$ statistics were transformed using the standard Normal c.d.f.}
+	\begin{subfigure}{0.45\textwidth}
+		\includegraphics[width = \textwidth]{../figures/meanVar/p_values.png}
+		\caption{$\Phi(Z)$}
+	\end{subfigure}
+	\begin{subfigure}{0.45\textwidth}
+		\includegraphics[width = \textwidth]{../figures/meanVar/critical_values.png}
+		\caption{Significant pixels}
+	\end{subfigure}
+	\caption{A sample of $Z$ statistics obtained from comparing a scan from the test set to the true image. In a) the $Z$ statistics were transformed using the standard Normal c.d.f. In b) highlighted in red are significant pixels at the $5\sigma$ significance level corrected for multiple tests using the Bonferroni correction.}
 	\label{fig:p_values}
-\end{figure}
-
-\begin{figure}
-	\centering
-	\centerline{
-	\includegraphics[width = 0.5\textwidth]{../figures/meanVar/critical_values.png}
-	}
-	\caption{Using the $Z$ statistics from Figure \ref{fig:p_values}, highlighted in red are significant pixels at the $5\sigma$ significance level corrected for multiple tests using the Bonferroni correction.}
-	\label{fig:critical_values}
-\end{figure}
+\end{figure*}
 
 The $Z$ statistics within pixel were tested for Normality  using the $\chi^2$ goodness of fit test. To make the test more powerful, 75 more $Z$ statistics were collected by reassigning randomly the training, truth and test set and repeating the experiment 3 more times. Figure \ref{fig:chi_squared} showed that the $p$ values from the $\chi^2$ test were particularly low, especially on the bottom half of the image. In particular there is a vertical line of significant pixels as well. Normality may be a valid assumption but the bottom of the image where the foam is may break such an assumption.
 

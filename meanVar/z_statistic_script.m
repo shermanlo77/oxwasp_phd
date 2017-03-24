@@ -77,6 +77,7 @@ end
 
 %for 6 test image, plot the p value
 fig = figure;
+fig.Position(3:4) = [592, 675];
 for i = 1:6
     subplot(3,2,i);
     imagesc(p_array(:,:,i),[0,1]);
@@ -111,33 +112,33 @@ saveas(fig,'reports/figures/meanVar/critical_values.png','png');
 
 %---CHI SQUARED GOODNESS OF FIT TEST---%
 
-%p_image is an image containing the p values of each pixel from the chi
-%squared goodness of fit test
-p_image = zeros(block_data.height, block_data.width);
-%for each pixel in the image
-for i_width = 1:block_data.width
-    for i_height = 1:block_data.height
-        %get the z statistic from each test image
-        z_vector = reshape(z_array(i_height, i_width, :), [], 1);
-        %do the chi squared goodness of fit test, save the p value in p_image
-        p_image(i_height, i_width) = chi2gof_norm(z_vector, 5, false);
-    end
-end
-
-%plot the p values from the chi squared goodness of fit test
-figure;
-imagesc(p_image);
-colorbar;
-%get the critical value at the 2 sigma significance level
-p_critical = normcdf(-2) / block_data.area;
-%find significant pixels
-[y,x] = find(p_image < p_critical);
-hold on;
-%scatter plot significant pixels
-scatter(x,y,'r','filled');
-
-%plot histogram of p values
-figure;
-histogram(reshape(p_image, [], 1), 20, 'Normalization', 'countdensity');
-xlabel('p values');
-ylabel('Frequency density');
+% %p_image is an image containing the p values of each pixel from the chi
+% %squared goodness of fit test
+% p_image = zeros(block_data.height, block_data.width);
+% %for each pixel in the image
+% for i_width = 1:block_data.width
+%     for i_height = 1:block_data.height
+%         %get the z statistic from each test image
+%         z_vector = reshape(z_array(i_height, i_width, :), [], 1);
+%         %do the chi squared goodness of fit test, save the p value in p_image
+%         p_image(i_height, i_width) = chi2gof_norm(z_vector, 5, false);
+%     end
+% end
+% 
+% %plot the p values from the chi squared goodness of fit test
+% figure;
+% imagesc(p_image);
+% colorbar;
+% %get the critical value at the 2 sigma significance level
+% p_critical = normcdf(-2) / block_data.area;
+% %find significant pixels
+% [y,x] = find(p_image < p_critical);
+% hold on;
+% %scatter plot significant pixels
+% scatter(x,y,'r','filled');
+% 
+% %plot histogram of p values
+% figure;
+% histogram(reshape(p_image, [], 1), 20, 'Normalization', 'countdensity');
+% xlabel('p values');
+% ylabel('Frequency density');
