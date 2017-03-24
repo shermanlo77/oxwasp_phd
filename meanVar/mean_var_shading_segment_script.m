@@ -103,5 +103,5 @@ blank_colour = blank_colour(1,:);
 for i = 1:4
     axe_array{i}.CLim = [0,c_lim_max];
     axe_array{i}.set('color',blank_colour);
-    saveas(axe_array{i},strcat('reports/figures/meanVar/shadingCorrection_',shading_array{i},'.eps'),'epsc');
+    saveas(axe_array{i},strcat('reports/figures/meanVar/shadingCorrection_',shading_array{i},'.png'),'png');
 end

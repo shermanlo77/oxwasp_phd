@@ -96,7 +96,7 @@ hold on;
 %scatter plot significant pixels
 scatter(x,y,'r','filled');
 axis(gca,'off');
-saveas(fig,'reports/figures/meanVar/chi_squared_critical.eps','epsc');
+saveas(fig,'reports/figures/meanVar/chi_squared_critical.png','png');
 
 %plot histogram of p values
 fig = figure;

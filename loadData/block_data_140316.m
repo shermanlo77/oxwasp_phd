@@ -40,7 +40,7 @@ colormap gray;
 colorbar;
 title('Sample');
 %save it
-saveas(fig, 'reports/figures/data/140316_image.eps');
+saveas(fig, 'reports/figures/data/140316_image.png');
 
 %reshape the images into a vector
 black = reshape(black,[],1);
@@ -77,4 +77,4 @@ xlim([0,6E4]);
 xlabel('Greyvalue');
 ylabel('Frequency');
 %save the figure
-saveas(fig, 'reports/figures/data/140316_histo.png');
+saveas(fig, 'reports/figures/data/140316_histo.eps','epsc');

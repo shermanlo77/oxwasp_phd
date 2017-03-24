@@ -83,7 +83,7 @@ for i = 1:6
     colorbar;
     axis(gca,'off');
 end
-saveas(fig,'reports/figures/meanVar/p_values.eps','epsc');
+saveas(fig,'reports/figures/meanVar/p_values.png','png');
 
 %define the significance level
 sig_level = normcdf(-5) / block_data.area;
@@ -107,7 +107,7 @@ for i = 1:6
     %plot the significant pixels as a scatter plot
     scatter(x,y,'r');
 end
-saveas(fig,'reports/figures/meanVar/critical_values.eps','epsc');
+saveas(fig,'reports/figures/meanVar/critical_values.png','png');
 
 %---CHI SQUARED GOODNESS OF FIT TEST---%
 

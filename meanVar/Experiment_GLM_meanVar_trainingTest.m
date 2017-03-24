@@ -201,7 +201,7 @@ classdef Experiment_GLM_meanVar_trainingTest < Experiment
                         training_table(i_glm+1,2+i_shading) = 'NaN';
                     %else all training mse isn't nan, quote the quartile of the training mse
                     else
-                        training_table(i_glm+1,2+i_shading) = quoteQuartileError(training_mse_i,100);
+                        training_table(i_glm+1,2+i_shading) = quoteQuartileError(training_mse_i,1);
                     end
 
                     %get the test mse
@@ -211,12 +211,7 @@ classdef Experiment_GLM_meanVar_trainingTest < Experiment
                         test_table(i_glm+1,2+i_shading) = 'NaN';
                     %else all test mse isn't nan, quote the quartile of the test mse
                     else
-                        [q2, up_error, down_error, E] = quoteQuartileError(test_mse_i,100);
-                        if E == '0'
-                            test_table(i_glm+1,2+i_shading) = strcat('$',q2,'\substack{+',up_error,'\\ -',down_error,'}$');
-                        else
-                            test_table(i_glm+1,2+i_shading) = strcat('$(',q2,'\substack{+',up_error,'\\ -',down_error,'})\times 10^{',E,'}$');
-                        end
+                        test_table(i_glm+1,2+i_shading) = quoteQuartileError(test_mse_i,100);
                     end
                 end
 

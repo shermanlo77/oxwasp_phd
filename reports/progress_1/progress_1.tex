@@ -61,7 +61,7 @@ After the mini-project, the main aims during the PhD was to extend the mini-proj
 This report will outline a pre-process method called shading correction. The aim of shading correction is to remove shading effects before any statistical analysis is conducted. It was then investigated how different types of shading correction affected the mean and variance grey value of each pixel in a scan. Afterwards, the mean and variance relationship was modelled using a GLM with different link functions. After finding a good model for the mean and variance, a statistic was developed to compare a scan with a simulation in the face of uncertainty. Lastly the compound Poisson was studied with the hope it can aid in variance modelling and prediction.
 
 \section{About the Data}
-Data was collected prior to the mini-project. 20 black/grey/white (b/g/w) images were collected on 14/03/16 at around 1250. The b/g/w images are images obtained from the x-ray detector when exposed to x-rays at different settings. They are useful for calibrating the detector, thus b/g/w images can be called reference images. About 2 hours later, 100 images of a 3D printed cuboid (or sample) were taken. These images were obtained from the x-ray detector when exposed to x-rays with the sample between the x-ray source and detector. The 3D printed was stationary and not rotating throughout the scans. The detector used was the Perkin Elmer XRD 1621 digital x-ray detector, with settings shown in Table \ref{table:settings}.
+Data was collected prior to the mini-project. 20 black/grey/white (b/g/w) images were collected on 14/03/16 at around 1250. The b/g/w images are images obtained from the x-ray detector when exposed to x-rays at different settings. They are useful for calibrating the detector, thus b/g/w images can be called reference images. About 2 hours later, 100 images of a 3D printed cuboid (or sample) were taken. These images were obtained from the x-ray detector when exposed to x-rays with the sample between the x-ray source and detector. The 3D printed sample was stationary and not rotating throughout the scans. The sample was held at the bottom by foam. The detector used was the Perkin Elmer XRD 1621 digital x-ray detector, with settings shown in Table \ref{table:settings}.
 
 \begin{table*}
 	\centering
@@ -77,19 +77,19 @@ Data was collected prior to the mini-project. 20 black/grey/white (b/g/w) images
 	\label{table:settings}
 \end{table*}
 
-The images were $(1\,996\times1\,996)$ pixels in size and are in greyscale with 16 bits, in other words each pixel can have grey values which take integer values from 0 to $2^{16}-1$ inclusive. The grey values are in arbitrary units. The images are shown in Figure \ref{fig:image} and the histogram of grey values are shown in Figure \ref{fig:hist}.
+The images were $(1\,996\times1\,996)$ pixels in size and are in greyscale with 16 bits, in other words each pixel can have grey values which take integer values from 0 to $2^{16}-1$ inclusive. The grey values are in arbitrary units. A sample of images are shown in Figure \ref{fig:image} and the histogram of grey values are shown in Figure \ref{fig:hist}.
 
 \begin{figure*}
 	\centering
-	\includegraphics[width = 0.9\textwidth]{../figures/data/140316_image.eps}
+	\includegraphics[width = \textwidth]{../figures/data/140316_image.png}
 	\caption{A black, grey, white and sample image obtained from the x-ray detector.}
 	\label{fig:image}
 \end{figure*}
 
 \begin{figure}
 	\centering
-	\includegraphics[width = 0.45\textwidth]{../figures/data/140316_histo.png}
-	\caption{A black, grey, white and sample image obtained from the x-ray detector.}
+	\includegraphics[width = 0.45\textwidth]{../figures/data/140316_histo.eps}
+	\caption{Histogram of grey values from a black, grey, white and sample image obtained from the x-ray detector.}
 	\label{fig:hist}
 \end{figure}
 
@@ -105,7 +105,7 @@ where $b(x,y)$ is the multiplicative effect and $a(x,y)$ is the additive effect 
 \widehat{U}(x,y) = \frac{N(x,y)-\widehat{a}(x,y)}{\widehat{b}(x,y)} \times c_1 + c_2
 \end{equation}
 where $c_1$ and $c_2$ are user defined constants.
-One method to estimate the images $b(x,y)$ and $a(x,y)$ is to use the black and white (b/w) images. Let $\overline{B}(x,y)$ and $\overline{W}(x,y)$ be the sample mean between the 20 black and white images respectively. The estimators for $b(x,y)$ and $a(x,y)$ are
+One method to estimate the images $b(x,y)$ and $a(x,y)$ is to use the black and white (b/w) images. Let $\overline{B}(x,y)$ and $\overline{W}(x,y)$ be the sample mean over the 20 black and white images respectively. The estimators for $b(x,y)$ and $a(x,y)$ are
 \begin{equation}
 \widehat{b}(x,y) = \overline{W}(x,y) - \overline{B}(x,y)
 \end{equation}
@@ -122,7 +122,7 @@ U(x,y) = N(x,y)\beta(x,y)+\alpha(x,y) \ .
 \end{equation}
 The shading free image is not truly known, but one should expect the b/g/w shading free images should be completely flat.
 
-Let $R_\text{b}(x,y)$, $R_\text{g}(x,y)$ and $R_\text{w}(x,y)$ be the grey value of the pixel, at position $(x,y)$, of the sample mean b/g/w images respectively. Let these images have $h$ rows and $w$ columns. The shading free b/g/w images should be completely flat, in other words all the pixels should have the same grey value. A good guess what that grey value should be would be the sample mean of the grey values within the b/g/w images $\overline{R}_\text{b}$, $\overline{R}_\text{g}$ and $\overline{R}_\text{w}$ where
+Let $R_\text{b}(x,y)$, $R_\text{g}(x,y)$ and $R_\text{w}(x,y)$ be the grey value of the pixel, at position $(x,y)$, of the sample mean b/g/w images respectively. Let these images have $h$ rows and $w$ columns. The shading free b/g/w images should be completely flat, in other words all the pixels within a reference image should have the same grey value. A good guess what that shading corrected grey value should be would be the sample mean of the shading uncorrected grey values within the b/g/w images $\overline{R}_\text{b}$, $\overline{R}_\text{g}$ and $\overline{R}_\text{w}$ where
 \begin{equation}
 \overline{R}_j=\frac{\sum_{x=1}^w\sum_{y=1}^hR_j(x,y)}{n}
 \end{equation}
@@ -160,16 +160,16 @@ Figure \ref{fig:shadingCorrection} shows an example of a scan before and after b
 	\centering
 	\begin{subfigure}{0.45\textwidth}
 		\centering
-		\includegraphics[width = \textwidth]{../figures/shadingCorrection/block.eps}
+		\includegraphics[width = \textwidth]{../figures/shadingCorrection/block.png}
 		\caption{Shading uncorrected}
 	\end{subfigure}
 	\begin{subfigure}{0.45\textwidth}
 		\centering
-		\includegraphics[width = \textwidth]{../figures/shadingCorrection/block_shadingCorrected.eps}
+		\includegraphics[width = \textwidth]{../figures/shadingCorrection/block_shadingCorrected.png}
 		\caption{b/g/w shading correction}
 	\end{subfigure}
 	\begin{subfigure}{0.45\textwidth}
-		\includegraphics[width = \textwidth]{../figures/shadingCorrection/polynomial_shadingCorrection.eps}
+		\includegraphics[width = \textwidth]{../figures/shadingCorrection/polynomial_shadingCorrection.png}
 		\caption{b/g/w 2nd order polynomial shading correction}
 	\end{subfigure}
 	\caption{A x-ray CT scan image before and after b/g/w shading correction.}
@@ -190,7 +190,7 @@ Figure \ref{fig:shadingCorrection} shows an example of a scan before and after b
 	\label{fig:shadingCorrection_grad}
 \end{figure*}
 
-To avoid dealing with dead pixels \cite{brettschneider2014spatial}, a method was considered which smoothed the reference images prior to any shading correction parameter estimation. The purpose of this was to iron out any misbehaving pixels in the reference images and to capture the shading effects parametrically. Second order panel-wise surface polynomials were fitted to the b/g/w images, this is shown in Figure \ref{fig:polynomial_shadingCorrection}. The standardised residuals from the panel-wise fit are shown in Figure \ref{fig:polynomial_residual}. A quick inspection of the residuals shows any characteristics not captured by the panel-wise fit. In the black and grey images, the residuals showe a global ring which was very unusual for the black image because it is detecting no x-rays at all. The b/g/w residuals all showed vertical stripes. The panel-wise fit can be improved by including a global polynomial fit to capture between panel effects. Higher order polynomials can be considered but overfitting may be possible, as a result of higher order polynomials attempting to capture all the characteristics of the b/g/w images.
+To avoid dealing with dead pixels \cite{brettschneider2014spatial}, a method was considered which smoothed the reference images prior to any shading correction parameter estimation. The purpose of this was to iron out any misbehaving pixels in the reference images and to capture the shading effects parametrically. Second order panel-wise surface polynomials were fitted to the b/g/w images, this is shown in Figure \ref{fig:polynomial_shadingCorrection}. The standardised residuals from the panel-wise fit are shown in Figure \ref{fig:polynomial_residual}. A quick inspection of the residuals shows any characteristics not captured by the panel-wise fit. In the black and grey images, the residuals showed a global ring which was very unusual for the black image because it is detecting no x-rays at all. The b/g/w residuals all showed vertical stripes. The panel-wise fit can be improved by including a global polynomial fit to capture between panel effects. Higher order polynomials can be considered but overfitting may be possible as may attempt to capture all the characteristics of the b/g/w images.
 
 Shading correction which uses the fitted polynomials as reference images will be referred to as b/g/w 2nd order polynomial shading correction. The gradient parameter for the b/g/w 2nd order polynomial shading correction is shown in Figure \ref{fig:shadingCorrection_grad}. It is smoother and robust because the gradients are of sensible values, for example no infinite values. The resulting shading correction is shown in Figure \ref{fig:shadingCorrection}. This method can be advantageous as the panel-wise 2nd order polynomial only captured panel effects parametrically and smoothed out clusters of bad behaving pixels as shown in the residuals. As a result, the shading correction is smoother between pixels because the bad behaving pixels do not impact as much in the interpolation of the linear regression.
 
@@ -198,17 +198,17 @@ Shading correction which uses the fitted polynomials as reference images will be
 	\centering
 	\begin{subfigure}{0.45\textwidth}
 		\centering
-		\includegraphics[width = \textwidth]{../figures/shadingCorrection/polynomial_black.eps}
+		\includegraphics[width = \textwidth]{../figures/shadingCorrection/polynomial_black.png}
 		\caption{Black}
 	\end{subfigure}
 	\begin{subfigure}{0.45\textwidth}
 		\centering
-		\includegraphics[width = \textwidth]{../figures/shadingCorrection/polynomial_grey.eps}
+		\includegraphics[width = \textwidth]{../figures/shadingCorrection/polynomial_grey.png}
 		\caption{Grey}
 	\end{subfigure}
 	\begin{subfigure}{0.45\textwidth}
 		\centering
-		\includegraphics[width = \textwidth]{../figures/shadingCorrection/polynomial_white.eps}
+		\includegraphics[width = \textwidth]{../figures/shadingCorrection/polynomial_white.png}
 		\caption{White}
 	\end{subfigure}
 	\caption{Second order panel-wise surface polynomials fit on the reference images.}
@@ -244,7 +244,7 @@ The 20 b/g/w images were spilt into a training set and test set of equal size ra
 
 Figure \ref{fig:shadingCorr_bgw} shows a sample of reference images post shading correction. Without shading correction, the shading effects were clear. With b/w and b/g/w shading correction, the reference images appeared flatter. The flatness of the black and grey image depended on if the grey images were used when training the shading correction. The b/g/w 2nd order polynomial shading correction retained some effects not captured by the panel wise polynomial fits. This was shown because the shading corrected images were very similar to the residual plots in Figure \ref{fig:polynomial_residual}.
 
-Table \ref{table:bgw_anova} shows the within and between pixel variance of the grey values. The table shown that b/w and b/g/w shading correction does make an improvement because it brings the within and between pixel variances closer together. The performance of shading correction on the black and grey images appeared to depend if the grey images were used in training the shading correction. The b/g/w 2nd order polynomial shading correction does perform by bringing the within and between pixel variances closer together but not as much as b/w and b/g/w shading correction.
+Table \ref{table:bgw_anova} shows the within and between pixel variance of the grey values. The table shown that b/w and b/g/w shading correction does make an improvement because it brings the within and between pixel variances closer together. The performance of shading correction on the black and grey images appeared to depend on if the grey images were used in training the shading correction. The b/g/w 2nd order polynomial shading correction does perform by bringing the within and between pixel variances closer together but not as much as b/w and b/g/w shading correction.
 
 \begin{figure*}
 	\centering
@@ -305,56 +305,58 @@ Table \ref{table:bgw_anova} shows the within and between pixel variance of the g
 	\label{table:bgw_anova}
 \end{table*}
 
-In conclusion, b/w and b/g/w shading correction do perform well because there was evidence they are attempting to iron out all the pixel grey values to have the same mean. The b/g/w 2nd order polynomial shading correction does its job. However because the panel wise polynomial under fitted and did not capture all the shading effects, the shading correction also did not capture all the shading effects.
+In conclusion, b/w and b/g/w shading correction did perform well because there was evidence they are attempting to iron out all the pixel grey values to have the same mean. The b/g/w 2nd order polynomial shading correction does its job. However because the panel wise polynomial under fitted and did not capture all the shading effects, the shading correction also did not capture all the shading effects.
 
 The use of grey images in training the shading correction can be useful. It appeared that by considering the grey images, the shading correction performance on certain grey values was traded for other grey values. Additional methods for shading correction could be considered such as fitting a global polynomial in addition to the panel wise polynomials to the reference images. There exist methods which do not require reference images at all, such as entropy minimisation \cite{likar2000retrospective}, which could be studied further and may be useful here.
 
 \section{Mean Variance Relationship}
 The variance can be used to quantify the uncertainty of a grey value in a pixel. The purpose of modelling the mean and variance relationship of the grey value of a pixel is to be able to predict the grey value variance of each pixel for a single scan. This then can be used for inference when comparing a scan with the CAM model. A basic linear regression was conducted in the mini-project \cite{ip2016inside}, here generalised linear models (GLM) \cite{nelder1972generalized} \cite{mccullagh1984generalized} was used to model the mean and variance relationship.
 
-The object of interest is the 3D printed sample. In the mini-project, it was found the background and the foam holding the 3D printed sample have different mean variance relationships \cite{ip2016inside}. Thus to model the mean variance relationship of the 3D printed sample, the 3D printed sample was segmented from the background and the foam. This was done by cropping the scans of the 3D printed sample in half, removing the bottom half containing the foam. Next a threshold was conducted using the following procedure: 
+In the mini-project, it was found the background and the foam holding the 3D printed sample have different mean variance relationships \cite{ip2016inside}. The object of interest is the 3D printed sample. Thus to model the mean variance relationship of the 3D printed sample, the 3D printed sample was segmented from the background and the foam. This was done by cropping the scans of the 3D printed sample in half, removing the bottom half containing the foam. Next a threshold was conducted using the following procedure: 
 \begin{itemize}
 	\item For each of the 20 b/g/w images, apply a panel wise median filter of size $3\times3$. Pixels outside the panels were symmetrically extended.
 	\item Use these filtered reference images for shading correction.
-	\item Take the mean over all shading corrected scans.
+	\item Take the mean over all 100 shading corrected scans.
 	\item Keep pixels with grey values less than $4.7\times 10^4$.
 \end{itemize}
 This method of segmentation was developed by informal experimentation. The resulting segmented image is shown in Figure \ref{fig:segment}. Other segmentation methods could be considered but further study of other methods may not be necessary here.
 
 \begin{figure}
 	\centering
-	\includegraphics[width = 0.45 \textwidth]{../figures/meanVar/segment.eps}
+	\centerline{
+	\includegraphics[width = 0.5 \textwidth]{../figures/meanVar/segment.png}
+	}
 	\caption{Resulting segmentation of the 3D printed sample}
 	\label{fig:segment}
 \end{figure}
 
 The within pixel mean and variance grey value were estimated using the standard unbiased estimators. A few assumptions were made to justify the use of GLM to model the mean variance relationship. Firstly, it was assumed the standard error from estimating the mean was negligible. Secondly, it was assumed for a given pixel, the grey value from each scan were Normal i.i.d. Following from these assumptions, the sample variance is Gamma distributed with shape parameter $(n-1)/2$ where $n$ is the number of scans used to estimate the variance. Furthermore the standard error of the sample variance is proportional to $(n-1)^{-1/2}$, meaning the sample variance is more precise when more and more images were used to estimate the variance. This was experimentally shown in Figure \ref{fig:meanVar_sampleSize}, the spread of the sample variance decreased as $n$ increased.
 
-GLM can model the sample variance as the response variable being Gamma distributed, explained by the sample mean through a link function $g(\text{variance})$. Fitting of the model was done using iterative re-weighted least squares. The dispersion parameter need not to be estimated because the shape parameter is known. A linear fit using the identity link did show that the Gamma response captured the spread of the sample variance for different sample means, this is shown in Figure \ref{fig:meanVar_sampleSize}.
+GLM can model the sample variance as a Gamma distributed response variable, being explained by the sample mean through a link function $g(\text{variance})$. Fitting of the model was done using iterative re-weighted least squares. The dispersion parameter need not to be estimated because the shape parameter $(n-1)/2$ is known. A linear fit using the identity link did show that the Gamma response captured the spread of the sample variance for different sample means, this is shown in Figure \ref{fig:meanVar_sampleSize}.
 
 \begin{figure*}
 	\centering
 	\begin{subfigure}{0.45\textwidth}
 		\centering
-		\includegraphics[width = \textwidth]{../figures/meanVar/sample_size_25.eps}
+		\includegraphics[width = \textwidth]{../figures/meanVar/sample_size_25.png}
 		\caption{$n=25$}
 	\end{subfigure}
 	\begin{subfigure}{0.45\textwidth}
 		\centering
-		\includegraphics[width = \textwidth]{../figures/meanVar/sample_size_50.eps}
+		\includegraphics[width = \textwidth]{../figures/meanVar/sample_size_50.png}
 		\caption{$n=50$}
 	\end{subfigure}
 	\begin{subfigure}{0.45\textwidth}
 		\centering
-		\includegraphics[width = \textwidth]{../figures/meanVar/sample_size_75.eps}
+		\includegraphics[width = \textwidth]{../figures/meanVar/sample_size_75.png}
 		\caption{$n=75$}
 	\end{subfigure}
 	\begin{subfigure}{0.45\textwidth}
 		\centering
-		\includegraphics[width = \textwidth]{../figures/meanVar/sample_size_100.eps}
+		\includegraphics[width = \textwidth]{../figures/meanVar/sample_size_100.png}
 		\caption{$n=100$}
 	\end{subfigure}
-	\caption{Mean and variance frequency density plot of each pixel's grey value in the segmented image of the 3D printed sample. The sample variance and sample mean were estimated using $n$ scans selected at random without replacement. A Gamma GLM was fitted with the identity link. The solid and dotted lines are the mean response and the $\Phi(\pm 1)$ quantiles respectively.}
+	\caption{Within pixel mean and variance grey value frequency density plot of each pixel in the segmented image of the 3D printed sample. The sample variance and sample mean were estimated using $n$ scans selected at random without replacement. A Gamma GLM was fitted with the identity link. The solid and dotted lines are the mean response and the $\Phi(\pm 1)$ quantiles respectively.}
 	\label{fig:meanVar_sampleSize}
 \end{figure*}
 
@@ -377,25 +379,25 @@ The systematic component is defined as a linear combination of the sample mean f
 	\centering
 	\begin{subfigure}{0.45\textwidth}
 		\centering
-		\includegraphics[width = \textwidth]{../figures/meanVar/meanVar_identity.eps}
+		\includegraphics[width = \textwidth]{../figures/meanVar/meanVar_identity.png}
 		\caption{Identity link, order 1}
 	\end{subfigure}
 	\begin{subfigure}{0.45\textwidth}
 		\centering
-		\includegraphics[width = \textwidth]{../figures/meanVar/meanVar_log.eps}
+		\includegraphics[width = \textwidth]{../figures/meanVar/meanVar_log.png}
 		\caption{Log link, order -1}
 	\end{subfigure}
 	\begin{subfigure}{0.45\textwidth}
 		\centering
-		\includegraphics[width = \textwidth]{../figures/meanVar/meanVar_canonical_1.eps}
+		\includegraphics[width = \textwidth]{../figures/meanVar/meanVar_canonical_1.png}
 		\caption{Inverse link, order -1}
 	\end{subfigure}
 	\begin{subfigure}{0.45\textwidth}
 		\centering
-		\includegraphics[width = \textwidth]{../figures/meanVar/meanVar_canonical_2.eps}
+		\includegraphics[width = \textwidth]{../figures/meanVar/meanVar_canonical_2.png}
 		\caption{Inverse link, order -2}
 	\end{subfigure}
-	\caption{Shading uncorrected mean and variance frequency density plot of each pixel's grey value in the segmented image of the 3D printed sample. A Gamma GLM was fitted with different link functions and polynomial order. The solid and dotted lines are the mean response and the $\Phi(\pm 1)$ quantiles respectively.}
+	\caption{Shading uncorrected within pixel mean and variance grey value frequency density plot of each pixel in the segmented image of the 3D printed sample. A Gamma GLM was fitted with different link functions and polynomial ordera. The solid and dotted lines are the mean response and the $\Phi(\pm 1)$ quantiles respectively.}
 	\label{fig:meanVar_link}
 \end{figure*}
 
@@ -405,25 +407,25 @@ Different shading corrections had small effects on the mean variance relationshi
 	\centering
 	\begin{subfigure}{0.45\textwidth}
 		\centering
-		\includegraphics[width = \textwidth]{../figures/meanVar/shadingCorrection_no_shad.eps}
+		\includegraphics[width = \textwidth]{../figures/meanVar/shadingCorrection_no_shad.png}
 		\caption{No shading correction}
 	\end{subfigure}
 	\begin{subfigure}{0.45\textwidth}
 		\centering
-		\includegraphics[width = \textwidth]{../figures/meanVar/shadingCorrection_bw.eps}
+		\includegraphics[width = \textwidth]{../figures/meanVar/shadingCorrection_bw.png}
 		\caption{b/w shading correction}
 	\end{subfigure}
 	\begin{subfigure}{0.45\textwidth}
 		\centering
-		\includegraphics[width = \textwidth]{../figures/meanVar/shadingCorrection_bgw.eps}
+		\includegraphics[width = \textwidth]{../figures/meanVar/shadingCorrection_bgw.png}
 		\caption{b/g/w shading correction}
 	\end{subfigure}
 	\begin{subfigure}{0.45\textwidth}
 		\centering
-		\includegraphics[width = \textwidth]{../figures/meanVar/shadingCorrection_polynomial.eps}
+		\includegraphics[width = \textwidth]{../figures/meanVar/shadingCorrection_polynomial.png}
 		\caption{b/g/w 2nd order polynomial shading correction}
 	\end{subfigure}
-	\caption{Post shading correction mean and variance frequency density plot of each pixel's grey value in the segmented image of the 3D printed sample. A Gamma GLM was fitted with the identity link. The solid and dotted lines are the mean response and the $\Phi(\pm 1)$ quantiles respectively.}
+	\caption{Post shading correction within pixel mean and variance grey value frequency density plot of each pixel in the segmented image of the 3D printed sample. A Gamma GLM was fitted with the identity link. The solid and dotted lines are the mean response and the $\Phi(\pm 1)$ quantiles respectively.}
 	\label{fig:meanVar_shadingCorrection}
 \end{figure*}
 
@@ -431,9 +433,9 @@ Different shading corrections had small effects on the mean variance relationshi
 
 An experiment was conducted to assess the GLM fit on the mean and variance data for different link functions, polynomial orders and shading corrections.
 
-For a given link function, polynomial order and shading correction, the 100 images of the 3D printed sample were spilt into two equally sized sets: the training set and the test set. The within pixel sample mean and sample variance  grey value was estimated for both the training set and test set separately. The GLM was fitted onto the mean variance data obtained from the training set. The fitted model was then used to predict the variance given the mean on the test set. The predicted variance given the mean then can be compared with the sample variance.
+For a given link function, polynomial order and shading correction, the 100 images of the 3D printed sample were spilt into two equally sized sets: the training set and the test set. The within pixel sample mean and sample variance grey value were estimated for both the training set and test set separately. The GLM was fitted onto the mean variance data obtained from the training set. The fitted model was then used to predict the variance given the mean. The predicted variance given the mean then can be compared with the sample variance.
 
-Metrics such as the mean squared error can be used to assess how good the prediction is. However it should be noted that there is sampling error in the sample variance and the magnitude of the error varies for different means. In order to take the varying sampling error into account, the mean standardised squared error (MSSE) was used to assess the performance of the fitted GLM predicting the variance given the mean. The errors were standardised by dividing by the standard deviation of the GLM response.
+There is sampling error in the sample variance and the magnitude of the error varies for different means. In order to take the varying sampling error into account, the mean standardised squared error (MSSE) was used to assess the performance of the fitted GLM predicting the variance given the mean. The errors were standardised by dividing by the standard deviation of the GLM response.
 
 The experiment was repeated 100 times by reassigning the training and test set randomly.
 
@@ -465,65 +467,69 @@ b) Test error
 	\centering
 	\begin{subfigure}{0.45\textwidth}
 		\centering
-		\includegraphics[width = \textwidth]{../figures/meanVar/residual_no_shad.eps}
+		\includegraphics[width = \textwidth]{../figures/meanVar/residual_no_shad.png}
 		\caption{No shading correction}
 	\end{subfigure}
 	\begin{subfigure}{0.45\textwidth}
 		\centering
-		\includegraphics[width = \textwidth]{../figures/meanVar/residual_bw.eps}
+		\includegraphics[width = \textwidth]{../figures/meanVar/residual_bw.png}
 		\caption{b/w shading correction}
 	\end{subfigure}
 	\begin{subfigure}{0.45\textwidth}
 		\centering
-		\includegraphics[width = \textwidth]{../figures/meanVar/residual_bgw.eps}
+		\includegraphics[width = \textwidth]{../figures/meanVar/residual_bgw.png}
 		\caption{b/g/w shading correction}
 	\end{subfigure}
-	\caption{Frequency density plot of the standardised residuals from predicting the variance given the mean of the test test using a training GLM with identity link function.}
+	\caption{Frequency density plot of the standardised residuals from predicting the variance given the mean in test set using a training GLM with identity link function.}
 	\label{fig:glm_residual}
 \end{figure*}
 
-In conclusion it was found that b/g/w shading correction aid in variance prediction by making the mean variance data more linear. A simple identity link perform just as well as other link function which suggests a linear relationship between the variance and the mean.
+In conclusion it was found that b/g/w shading correction aid in variance prediction by making the mean variance data more linear. A simple identity link performed just as well as other link functions which suggests a linear relationship between the variance and the mean could be sufficient enough for the purpose of variance prediction.
 
 \section{Inference}
 
-A statistic was developed which compares each pixel of a scan of a 3D printed sample with the true image obtained from a computer model or simulation. Any outlying pixels then can be considered as a possible defect in the 3D printed sample. The statistic is based on the $Z$ statistic and is given as
+A statistic was developed which compares each pixel of a single scan of a 3D printed sample with the true image obtained from a computer model or simulation. Any outlying pixels then can be considered as a possible defect in the 3D printed sample. The statistic is based on the $Z$ statistic and is given as
 \begin{equation}
 Z(x,y) = \frac{\text{scan}(x,y) - \text{model}(x,y)}{\sqrt{\widehat{\variance}[\text{scan}(x,y)]}}
 \end{equation}
 %$Z(x,y)=\frac{\text{scan}(x,y)-\text{model}(x,y)}{\sqrt{\widehat{\mathbb{V}\text{ar}}[\text{scan}(x,y)]}}$
-where $\widehat{\variance}[\text{scan}(x,y)]$ is the estimated grey value variance of a pixel at $(x,y)$ of the scan. The estimated variance can be obtained using a GLM model as discussed in the previous section. In addition, the scan image should be shaded corrected to remove as much shading effects as possible. Assuming the $Z$ statistics are standard Normal distributed, multiple hypothesis testing can be used to test each pixel to find significant or outlying pixels, such as the Bonferroni correction.
+where $\widehat{\variance}[\text{scan}(x,y)]$ is the estimated grey value variance of a pixel at $(x,y)$ of the scan. The estimated variance can be obtained using a GLM model as discussed in the previous section. In addition, the scan image should be shading corrected to remove as much shading effects as possible. Assuming the $Z$ statistics are standard Normal distributed, multiple hypothesis testing can be used to test each pixel to find significant or outlying pixels, such as the Bonferroni correction.
 
 \subsection{Experiments}
 An experiment was conducted to investigate the behaviour of the $Z$ statistics. b/g/w shading correction was applied prior to the experiment and any outlying pixels were interpolated as discussed in the previous section. The 100 images were spilt into 3 parts:
 \begin{itemize}
-	\item 50 images in the training set to train the mean variance relationship model using GLM with the identity link;
+	\item 50 images in the training set to train the mean variance relationship model using GLM, as described in the previous section, with the identity link;
 	\item 25 images in the truth set, the mean over these images were used as the true image;
 	\item 25 images in the test set, each of these images will be compared to the true image.
 \end{itemize}
 Each image in the test set was compared to the true image by calculating the $Z$ statistic for each pixel. Thus for each pixel, a sample of 25 $Z$ statistics was obtained.
 
-A sample of $Z$ images are shown in Figure \ref{fig:p_values} and significant pixels are shown in Figure \ref{fig:critical_values}. The Bonferroni correction was used to correct for multiple testing. The $Z$ images showed that the $Z$ statistics within image varied scan to scan, suggesting images in the test set are not quite as similar as hoped for. Common significant pixels were picked up by the statistic, especially on the left edge. Fortunately only a few significant pixels were picked up from the 3D printed sample.
+A sample of $Z$ statistics are shown in Figure \ref{fig:p_values} and significant pixels are shown in Figure \ref{fig:critical_values}. The Bonferroni correction was used to correct for multiple testing. The $Z$ statistics within image varied scan to scan, suggesting images in the test set were not quite as similar to each other as hoped for. Common significant pixels were picked up by the statistic, especially on the left edge. Fortunately only a few significant pixels were picked up from the 3D printed sample, implying only a few false positives were detected.
 
 \begin{figure}
 	\centering
-	\includegraphics[width = 0.45\textwidth]{../figures/meanVar/p_values.eps}
-	\caption{A sample of 6 images from the test set compared to the true image. The $Z$ statistics were transformed using the standard Normal c.d.f.}
+	\centerline{
+	\includegraphics[width = 0.5\textwidth]{../figures/meanVar/p_values.png}
+	}
+	\caption{A sample of $Z$ statistics obtained from comparing a scan from the test set to the true image. The $Z$ statistics were transformed using the standard Normal c.d.f.}
 	\label{fig:p_values}
 \end{figure}
 
 \begin{figure}
 	\centering
-	\includegraphics[width = 0.45\textwidth]{../figures/meanVar/critical_values.eps}
+	\centerline{
+	\includegraphics[width = 0.5\textwidth]{../figures/meanVar/critical_values.png}
+	}
 	\caption{Using the $Z$ statistics from Figure \ref{fig:p_values}, highlighted in red are significant pixels at the $5\sigma$ significance level corrected for multiple tests using the Bonferroni correction.}
 	\label{fig:critical_values}
 \end{figure}
 
-The $Z$ statistics were tested for Normality within pixel using the $\chi^2$ goodness of fit test. To make the test more powerful, 75 more $Z$ statistics were collected by reassigning the training, truth and test set and repeating the experiment 3 more times. Figure \ref{fig:chi_squared} show the $p$ values from the test were particularly low, especially on the bottom half of the image. In particular there is a vertical line of significant pixels as well. Normality may be a valid assumption but the bottom of the image where the foam is may break such an assumption.
+The $Z$ statistics within pixel were tested for Normality  using the $\chi^2$ goodness of fit test. To make the test more powerful, 75 more $Z$ statistics were collected by reassigning randomly the training, truth and test set and repeating the experiment 3 more times. Figure \ref{fig:chi_squared} showed that the $p$ values from the $\chi^2$ test were particularly low, especially on the bottom half of the image. In particular there is a vertical line of significant pixels as well. Normality may be a valid assumption but the bottom of the image where the foam is may break such an assumption.
 
 \begin{figure*}
 	\centering
 	\begin{subfigure}{0.45\textwidth}
-		\includegraphics[width = \textwidth]{../figures/meanVar/chi_squared_critical.eps}
+		\includegraphics[width = \textwidth]{../figures/meanVar/chi_squared_critical.png}
 	\end{subfigure}
 	\begin{subfigure}{0.45\textwidth}
 		\includegraphics[width = \textwidth]{../figures/meanVar/chi_squared_p_values.eps}
@@ -532,8 +538,11 @@ The $Z$ statistics were tested for Normality within pixel using the $\chi^2$ goo
 	\label{fig:chi_squared}
 \end{figure*}
 
+\subsection{Conclusion}
+The $Z$ statistics looked like a good candidate to make inference from a single scan of a 3D printed sample. There is further work to be done. Rather than using a subset of the data as the true image, simulations can be treated as the true image to investigate how well the $Z$ statistic perform in real life defect detection. Further multiple hypothesis testing should be investigated and inference can be extended to the 3D reconstructed data of the 3D printed sample.
+
 \section{Compound Poisson}
-In the mini-project, a compound Poisson model was used to model the distribution of greyvalues in a pixel. The model was built by assuming that photon arrivals are a Poisson process and that each photon has random energy, distributed according to the energy spectrum. The grey value was then proportional to the sum of energies of each photon detected in some exposure time, with some Normal noise added.
+In the mini-project, a compound Poisson model was used to model the distribution of greyvalues in a pixel \cite{ip2016inside}. The model was built by assuming that photon arrivals are a Poisson process and that each photon has random energy, distributed according to an energy spectrum. The grey value was then proportional to the sum of energies of each photon detected in some exposure time, with some Normal noise added.
 
 Consider a pixel. Let $Y$ be the number of photons detected for that particular pixel. Let $U$ be the energy of a photon post-attenuation and is typically random, here it was assumed to be Normal distributed. Let $X$ be the grey value of that pixel. The model is hierarchical such that at the top layer
 \begin{equation}
@@ -556,7 +565,7 @@ X|Y\sim\normal\left(\alpha\mu Y, \alpha^2\sigma^2 Y + \beta^2\right) \ .
 
 The model can be simplified by setting $\beta=0$. By doing so, the constant $\alpha$ becomes redundant as it can be simply absorbed by $\mu$ and $\sigma^2$. It was attempted to estimate the parameters $\nu$, $\mu$ and $\sigma^2$ for a given CT scan. An EM algorithm \cite{dempster1977maximum} was implemented but it suffered in the E step because the conditional expectation, that is $\expectation\left[Y|X\right]$ given the 3 parameters, was expressed as an infinite sum. Truncating the sum was not fesible because in some cases, a very large number of terms were needed to produce accurate results.
 
-The main aims were to investigate the compound Poisson, approximations and methods for fitting it to data.
+The main aims were to investigate the compound Poisson, approximations and methods for fitting it to data. The compound Possion then could be used in variance modelling or prediction in future work.
 
 \subsection{Literature Review}
 Compound Poisson was proposed to improve noise models in CT scans \cite{whiting2002signal}. Simple models have been used which assumed the greyvalues were Poisson distributed or Normal \cite{lu2002analytical} distributed. The compound Poisson improves on these models by considering the energy spectrum of x-ray quanta and integrating it into the x-ray detector \cite{whiting2006properties}. This has been useful in image reconstruction \cite{elbakri2003efficient}\cite{elbakri2002statistical}\cite{elbakri2001statistical}\cite{lasio2007statistical} and tested in experiments \cite{wang2008experimental}. The p.d.f.~of the grey values can be numerically obtained using the saddle point approximation for a given general energy spectrum \cite{elbakri2003efficient}.
@@ -577,7 +586,7 @@ X|Y\sim\gammaDist\left(Y\alpha,\lambda\right) \ .
 \end{equation}
 This is special because the marginal $X$ is in the exponential family, more specifically in the Tweedie dispersion exponential family \cite{jorgensen1987exponential}.
 
-It is very well known that the marginal $X$ is intractable. However the m.g.f.~can be written in closed form. The m.g.f.~is defined as
+It is very well known that the marginal p.d.f.~$X$ is intractable. However the m.g.f.~can be written in closed form. The m.g.f.~is defined as
 \begin{equation}
 M(\theta)=\expectation\left[\euler^{\theta X}\right] \ .
 \end{equation}
@@ -641,6 +650,7 @@ and continuous elsewhere
 p_{X}(x)=\sum_{y=1}^{\infty}\frac{\lambda^{y\alpha}}{\Gamma(y\alpha)}x^{y\alpha-1}\euler^{-\lambda x}\euler^{-\nu\tau}\frac{(\nu\tau)^y}{y!}
 \end{equation}
 for $x>0$. It is a mixture with one continuous component at $x>0$ and discrete mass at $x=0$. This makes the compound Poisson useful for modelling non-negative variables which can take values of 0. By inspection the marginal p.d.f.~cannot be written down in closed form.
+
 \subsection{Normal Approximation}
 The marginal p.d.f.~of $X$ can be approximated using the Normal distribution. Using the results of the mean and variance of $X$, the Normal approximation is
 \begin{equation}
@@ -663,17 +673,9 @@ M(\theta)=\exp\left[\theta\frac{\alpha\nu\tau}{\lambda}+\frac{\theta^2}{2}\frac{
 +\sum_{r=3}^\infty\nu\tau\frac{\theta^r}{r!\lambda^r}\prod_{t=1}^{r}(\alpha+t-1)
 \right] \ .
 \end{multline}
-For the Normal approximation to be a good approximation, the third and higher order terms must be small. This can happen for large $\lambda$. In addition for large values of $\alpha$ 
-\begin{equation}
-\prod_{t=1}^{r}(\alpha+t-1)\approx\alpha^r
-\end{equation}
-and this is smaller than the coefficient term $\prod_{t=1}^{r}(\alpha+t-1)$
-\begin{equation}
-\prod_{t=1}^{r}(\alpha+t-1) \geqslant \alpha^r \ .
-\end{equation}
-Thus large values of $\alpha$ slow down the relative growth of the $\prod_{t=1}^{r}(\alpha+t-1)$ term, perhaps justifying the Normal approximation.
+For the Normal approximation to be a good approximation, the third and higher order terms must be small. This can happen for large $\lambda$.
 
-A more general result can be obtained. This can be done by taking a Taylor expansion of the m.g.f.~of the gamma component in $M(\theta)$. That is let
+A more general result can be obtained. This can be done by taking a Taylor expansion of the m.g.f.~of the Gamma component in $M(\theta)$. That is let
 \begin{equation}
 M(\theta)=\exp\left[
 \nu\tau\left(M_U(\theta)-1\right)
@@ -732,7 +734,7 @@ p_X(x)\approx
 \subsection{Simulations}
 Exact simulation of the compound Poisson distribution is easy, this is done by simulating the latent variable $Y$ and then simulating the observable given that latent variable, $X|Y$. An experiment was conducted to assess how good the density approximations are. This was done by simulating $10^4$ samples of a compound Poisson random variable, and then comparing the histogram of the samples with the density approximation. Three sets of parameters were chosen and the results are shown in Figure \ref{fig:histogram}.
 
-For low $\nu\tau$, there is a chance of simulating zeros. The Normal approximation failed to capture the probability mass at zero because the Normal distribution was constrained to be symmetric. The saddlepoint approximation did capture probability mass at zero as shown by an increase in probability density towards zero. However for a distinct mixture looking compound Poisson, Figure \ref{fig:histogram} (d), the saddlepoint approximation was not flexible enough to capture each individual peaks.
+For low $\nu\tau$, there is a chance of simulating zeros. The Normal approximation failed to capture the probability mass at zero because the Normal distribution was constrained to be symmetric. The saddlepoint approximation did capture probability mass at zero as shown by an increase in probability density towards zero. However for a distinct mixture looking compound Poisson, Figure \ref{fig:histogram} (d), the saddlepoint approximation was not flexible enough to capture each individual peak.
 
 For the Normal looking compound Poisson, both approximation performed well.
 \begin{figure*}
@@ -774,9 +776,9 @@ For the Normal looking compound Poisson, both approximation performed well.
 \subsection{Parameter estimation}
 The saddlepoint approximation did capture the probability mass at zero, however the formula for the density approximation does not support zero. As a result, the saddlepoint approxmation may not be suited to approximate the likelihood when there is a good chance of obtaining zeros in the data. A way around it is to adjust the data by adding a very small constant to all zeros in the data.
 
-An experiment was conducted to optimise the saddle point likelihood approximation numerically using the quasi-Newton method. For a given set of compound Poisson parameters, this was done by simulating 100 i.i.d.~samples. Any zeros in the sample were converted to a small constant, the constant being 1/8th of the minimum of all non-zero data in the sample, this was done to make the approximated likelihood evaluable. The likelihood was then optimised using \texttt{MATLAB}'s \texttt{fminunc} function with the default settings. The initial value was set at the true value to see how much the optimiser diverges from the true value. This was repeated 1\,000 times to obtain an empirical sampling distribution.
+An experiment was conducted to optimise the saddle point likelihood approximation numerically using the quasi-Newton method. For a given set of compound Poisson parameters, this was done by simulating 100 i.i.d.~samples. Any zeros in the sample were converted to a small constant, the constant being 1/8th of the minimum of all non-zero data in the sample, this was done to make the approximated likelihood evaluable. The likelihood was then optimised using \texttt{MATLAB}'s \texttt{fminunc} function with the default settings. The initial value was set at the true value to see how much the optimiser diverges from the true value. This was repeated 1\,000 times to obtain an empirical sampling distribution of the 3 estimators.
 
-2 sets of parameters, carried forward from the previous section were used: $\{\nu\tau=3,\alpha=400,\lambda=100\}$ and $\{\nu\tau=500,\alpha=80,\lambda=2\}$. Figure \ref{fig:sampling_dist} shows the empirical sampling distribution from the experiment. For these particular examples, the estimators appeared to be unbiased with nice behaving distributions and finite variance. However for the $\{\nu\tau=500,\alpha=80,\lambda=2\}$ case, the variance looks too small to be true. It was found that the estimator was extremely sensitive to the initial value and the optimiser may not moved much from the initial value, this seems to be the case here.
+2 sets of parameters, carried forward from the previous section were used: $\{\nu\tau=3,\alpha=400,\lambda=100\}$ and $\{\nu\tau=500,\alpha=80,\lambda=2\}$. Figure \ref{fig:sampling_dist} shows the empirical sampling distribution from the experiment. For these particular examples, the estimators appeared to be unbiased with nice behaving distributions and finite variance. However for the $\{\nu\tau=500,\alpha=80,\lambda=2\}$ case, the variance looked too small to be true. It was found that the estimator was extremely sensitive to the initial value and the optimiser may have not moved much from the initial value, this seems to be the case here.
 
 \begin{figure*}
 \centerline{
@@ -824,7 +826,7 @@ Figure \ref{fig:lnL} shows a plot of a typical log likelihood in the 3 parameter
 \end{figure}
 
 \subsection{Future work}
-The \texttt{R} package \texttt{cplm} \cite{zhang2013likelihood} numerically estimate parameters for the compound Poisson in the GLM framework. However for large parameters, there were numerical problems and the estimators' performance were hit and miss. Future work will rely on this package and the saddlepoint approximation to estimate parameters for the compound Poisson. Numerical problems can come from ill-conditioned variables and variables need to be scaled. One useful property of the compound Poisson is that the parameter $\lambda$ can absorb any scaling by a constant. That is if one can express a compound Poisson random variable as
+The \texttt{R} package \texttt{cplm} \cite{zhang2013likelihood} numerically estimate parameters for the compound Poisson in the GLM framework. However for large parameters, there were numerical problems and the estimators' performance were hit and miss. Future work will rely on this package and the saddlepoint approximation to estimate parameters for the compound Poisson. Numerical problems can come from ill-conditioned variables and the data need to be scaled. One useful property of the compound Poisson is that the parameter $\lambda$ can absorb any scaling by a constant. That is if one can express a compound Poisson random variable as
 \begin{equation}
 X\sim\text{CompoundPoisson}\left(\nu\tau,\alpha,\lambda\right)
 \end{equation}

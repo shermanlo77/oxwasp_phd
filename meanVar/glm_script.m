@@ -64,5 +64,5 @@ for i = 1:4
     plot(x_plot,up_error,'r--');
     plot(x_plot,down_error,'r--');
     
-    saveas(gca,strcat('reports/figures/meanVar/meanVar_',link_name{i},'.eps'),'epsc');
+    saveas(gca,strcat('reports/figures/meanVar/meanVar_',link_name{i},'.png'),'png');
 end

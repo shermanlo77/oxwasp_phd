@@ -30,7 +30,7 @@ ax = imagesc(slice);
 colormap gray;
 colorbar;
 axis(gca,'off');
-saveas(fig,'reports/figures/meanVar/segment.eps');
+saveas(fig,'reports/figures/meanVar/segment.png','png');
 
 %reshape the threshold indicator to be a vector
 threshold = reshape(threshold,[],1);

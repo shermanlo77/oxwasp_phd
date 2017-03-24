@@ -114,5 +114,5 @@ for i_sample = 1:numel(n_sample_array)
     %set the background to white (of the figure)
     fig_array{i_sample}.Color = 'white';
     %export the figure
-    print(fig_array{i_sample},strcat('reports/figures/meanVar/sample_size_',num2str(n_sample_array(i_sample))),'-depsc');
+    saveas(fig_array{i_sample},strcat('reports/figures/meanVar/sample_size_',num2str(n_sample_array(i_sample)),'.png'),'png');
 end

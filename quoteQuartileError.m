@@ -92,11 +92,13 @@ function quote = quoteQuartileError(data, n_bootstrap)
     down_error = num2str(down_error);
     
     %fill in missing decimial places with zeros
-    while numel(up_error)<2+dec_places
-        up_error = [up_error,'0'];
-    end
-    while numel(down_error)<2+dec_places
-        down_error = [down_error,'0'];
+    if sig_fig ~= 1
+        while numel(up_error)<2+dec_places
+            up_error = [up_error,'0'];
+        end
+        while numel(down_error)<2+dec_places
+            down_error = [down_error,'0'];
+        end
     end
     
     %convert the exponent to string

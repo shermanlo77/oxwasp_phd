@@ -17,7 +17,7 @@ ax_originial = imagesc_truncate(block_data.loadSample(1));
 colorbar;
 colormap gray;
 axis(gca,'off');
-saveas(gca,'reports/figures/shadingCorrection/block.eps');
+saveas(gca,'reports/figures/shadingCorrection/block.png');
 
 %set up shading correction for the data set
 block_data.addShadingCorrector(@ShadingCorrector,true);
@@ -29,7 +29,7 @@ ax.CLim = ax_originial.CLim;
 colorbar;
 colormap gray;
 axis(gca,'off');
-saveas(gca,'reports/figures/shadingCorrection/block_shadingCorrected.eps');
+saveas(gca,'reports/figures/shadingCorrection/block_shadingCorrected.png');
 
 %get the gradient in the shading correction
 grad = block_data.shading_corrector.b_array;

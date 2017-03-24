@@ -162,5 +162,5 @@ for i_block = 1:numel(block_array)
     %set the background to white (of the figure)
     ax_array{i_block,2}.Color = 'white';
     %save figure
-    saveas(ax_array{i_block,2},strcat('reports/figures/meanVar/residual_',name_array{i_block},'.eps'),'epsc');
+    saveas(ax_array{i_block,2},strcat('reports/figures/meanVar/residual_',name_array{i_block},'.png'),'png');
 end

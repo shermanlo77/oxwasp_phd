@@ -112,9 +112,9 @@ classdef Experiment_bgwShadingANOVA < Experiment
                     %put the name of the reference image in the first column
                     table_string{i_ref+1,1} = colour_array{i_ref};
                     %put the within pixel variance in the 2nd column
-                    table_string{i_ref+1,2} = quoteQuartileError(this.std_array{i_shad}(:,1,i_ref), 100);
+                    table_string{i_ref+1,2} = quoteQuartileError(this.std_array{i_shad}(:,1,i_ref), 1);
                     %put the between pixel variance in the 3rd column
-                    table_string{i_ref+1,3} = quoteQuartileError(this.std_array{i_shad}(:,2,i_ref), 100);
+                    table_string{i_ref+1,3} = quoteQuartileError(this.std_array{i_shad}(:,2,i_ref), 1);
                 end
                 %print the table in latex format
                 printStringArrayToLatexTable(table_string, strcat('reports/tables/',this.experiment_name,'_',shading_array{i_shad},'.tex_table'));

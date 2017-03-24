@@ -79,8 +79,10 @@ function quote = quoteStdError(data, n_bootstrap)
     err = num2str(err);
     
     %fill in missing decimial places with zeros
-    while numel(err)<2+dec_places
-        err = [err,'0'];
+    if sig_fig ~= 1
+        while numel(err)<2+dec_places
+            err = [err,'0'];
+        end
     end
     
     %convert the exponent to string

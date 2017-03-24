@@ -27,7 +27,7 @@ for i_index = 1:3
     colormap gray;
     colorbar;
     axis(gca,'off');
-    saveas(gca,strcat('reports/figures/shadingCorrection/polynomial_',reference_name{i_index},'.eps'));
+    saveas(gca,strcat('reports/figures/shadingCorrection/polynomial_',reference_name{i_index},'.png'));
     %plot residual
     fig = figure;
     fig.Position(3:4) = [560,420];
@@ -45,7 +45,7 @@ imagesc_truncate(block_data.loadSample(1));
 colorbar;
 colormap gray;
 axis(gca,'off');
-saveas(gca,'reports/figures/shadingCorrection/polynomial_shadingCorrection.eps');
+saveas(gca,'reports/figures/shadingCorrection/polynomial_shadingCorrection.png');
 
 %plot the gradient in the shading correction
 fig = figure;
