@@ -47,7 +47,7 @@ function quote = quoteQuartileError(data, n_bootstrap)
         end
 
         %get the minimum order of magnitude of the ratio between the error and the bootstrap variance
-        error_mag_order = min([orderMagnitude(up_error/std(up_error_bootstrap)),orderMagnitude(down_error/std(down_error_bootstrap))]);
+        error_mag_order = min([orderMagnitude(std(up_error_bootstrap)/up_error),orderMagnitude(std(down_error_bootstrap)/down_error)]);
 
         %error_sig_fig is an integer, if it is equal to 0 or more
         if error_mag_order >= 0
@@ -68,12 +68,13 @@ function quote = quoteQuartileError(data, n_bootstrap)
     q2 = q2 * 10^-E;
     
     %get the number of decimial places of the least significant figure of the error
-        %-floor(min(log10([up_error,down_error]))) gets the exponent of the errors
+        %-floor(min(log10([up_error,down_error]))) gets the minus exponent of the errors
         %error_sig_fig - 1 increases the number of decimial places according to the number of significant figures of the error
     dec_places = -floor(min(log10([up_error,down_error]))) + error_sig_fig - 1;
     %if it is less or equal to 0, set significant figures to 1
     if dec_places <= 0
         sig_fig = 1;
+        dec_places = 0;
     %else, set the number of signifiant figures to the number of decimial places add 1
         %add one for the digit to the left of the decimial place
     else
@@ -92,7 +93,7 @@ function quote = quoteQuartileError(data, n_bootstrap)
     down_error = num2str(down_error);
     
     %fill in missing decimial places with zeros
-    if sig_fig ~= 1
+    if dec_places ~= 0
         while numel(up_error)<2+dec_places
             up_error = [up_error,'0'];
         end

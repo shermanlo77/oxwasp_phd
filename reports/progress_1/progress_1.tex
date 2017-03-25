@@ -124,7 +124,7 @@ The shading free image is not truly known, but one should expect the b/g/w shadi
 
 Let $R_\text{b}(x,y)$, $R_\text{g}(x,y)$ and $R_\text{w}(x,y)$ be the grey value of the pixel, at position $(x,y)$, of the sample mean b/g/w images respectively. Let these images have $h$ rows and $w$ columns. The shading free b/g/w images should be completely flat, in other words all the pixels within a reference image should have the same grey value. A good guess what that shading corrected grey value should be would be the sample mean of the shading uncorrected grey values within the b/g/w images $\overline{R}_\text{b}$, $\overline{R}_\text{g}$ and $\overline{R}_\text{w}$ where
 \begin{equation}
-\overline{R}_j=\frac{\sum_{x=1}^w\sum_{y=1}^hR_j(x,y)}{n}
+\overline{R}_j=\frac{\sum_{x=1}^w\sum_{y=1}^hR_j(x,y)}{wh}
 \end{equation}
 for $j\in\{\text{b},\text{g},\text{w}\}$. By treating these within image sample mean grey values as the true shading free grey value, then the problem becomes a linear regression with 3 data points.
 
@@ -190,7 +190,7 @@ Figure \ref{fig:shadingCorrection} shows an example of a scan before and after b
 	\label{fig:shadingCorrection_grad}
 \end{figure*}
 
-To avoid dealing with dead pixels \cite{brettschneider2014spatial}, a method was considered which smoothed the reference images prior to any shading correction parameter estimation. The purpose of this was to iron out any misbehaving pixels in the reference images and to capture the shading effects parametrically. Second order panel-wise surface polynomials were fitted to the b/g/w images, this is shown in Figure \ref{fig:polynomial_shadingCorrection}. The standardised residuals from the panel-wise fit are shown in Figure \ref{fig:polynomial_residual}. A quick inspection of the residuals shows any characteristics not captured by the panel-wise fit. In the black and grey images, the residuals showed a global ring which was very unusual for the black image because it is detecting no x-rays at all. The b/g/w residuals all showed vertical stripes. The panel-wise fit can be improved by including a global polynomial fit to capture between panel effects. Higher order polynomials can be considered but overfitting may be possible as may attempt to capture all the characteristics of the b/g/w images.
+To avoid dealing with dead pixels \cite{brettschneider2014spatial}, a method was considered which smoothed the reference images prior to any shading correction parameter estimation. The purpose of this was to iron out any misbehaving pixels in the reference images and to capture the shading effects parametrically. Second order panel-wise surface polynomials were fitted to the $R_\text{b}(x,y)$, $R_\text{g}(x,y)$ and $R_\text{w}(x,y)$ images, this is shown in Figure \ref{fig:polynomial_shadingCorrection}. The standardised residuals from the panel-wise fit are shown in Figure \ref{fig:polynomial_residual}. A quick inspection of the residuals shows any characteristics not captured by the panel-wise fit. In the black and grey images, the residuals showed a global ring which was very unusual for the black image because it is detecting no x-rays at all. The b/g/w residuals all showed vertical stripes. The panel-wise fit can be improved by including a global polynomial fit to capture between panel effects. Higher order polynomials can be considered but overfitting may be possible as it may attempt to capture all the characteristics of the b/g/w images.
 
 Shading correction which uses the fitted polynomials as reference images will be referred to as b/g/w 2nd order polynomial shading correction. The gradient parameter for the b/g/w 2nd order polynomial shading correction is shown in Figure \ref{fig:shadingCorrection_grad}. It is smoother and robust because the gradients are of sensible values, for example no infinite values. The resulting shading correction is shown in Figure \ref{fig:shadingCorrection}. This method can be advantageous as the panel-wise 2nd order polynomial only captured panel effects parametrically and smoothed out clusters of bad behaving pixels as shown in the residuals. As a result, the shading correction is smoother between pixels because the bad behaving pixels do not impact as much in the interpolation of the linear regression.
 
@@ -397,11 +397,11 @@ The systematic component is defined as a linear combination of the sample mean f
 		\includegraphics[width = \textwidth]{../figures/meanVar/meanVar_canonical_2.png}
 		\caption{Inverse link, order -2}
 	\end{subfigure}
-	\caption{Shading uncorrected within pixel mean and variance grey value frequency density plot of each pixel in the segmented image of the 3D printed sample. A Gamma GLM was fitted with different link functions and polynomial ordera. The solid and dotted lines are the mean response and the $\Phi(\pm 1)$ quantiles respectively.}
+	\caption{Shading uncorrected within pixel mean and variance grey value frequency density plot of each pixel in the segmented image of the 3D printed sample. A Gamma GLM was fitted with different link functions and polynomial orders. The solid and dotted lines are the mean response and the $\Phi(\pm 1)$ quantiles respectively.}
 	\label{fig:meanVar_link}
 \end{figure*}
 
-Different shading corrections had small effects on the mean variance relationship, as shown in Figure \ref{fig:meanVar_shadingCorrection}. Due to some misbehaving pixels in the reference images, grey value outliers were possible such as negative values. Pixels with grey values less than $5.8\times 10^3$ or more than $6.6\times 10^4$ were considered outliers. Outliers were replaced by the median of its 8 nearest neighbours.
+Different shading corrections had small effects on the mean variance relationship, as shown in Figure \ref{fig:meanVar_shadingCorrection}. Due to some misbehaving pixels in the reference images, grey value outliers were possible such as negative values. Pixels with grey values less than $5.8\times 10^3$ or more than $6.6\times 10^4$ were considered outliers. Outliers were replaced by the median of its 8 post shading correction nearest neighbours.
 
 \begin{figure*}
 	\centering
@@ -480,7 +480,7 @@ b) Test error
 		\includegraphics[width = \textwidth]{../figures/meanVar/residual_bgw.png}
 		\caption{b/g/w shading correction}
 	\end{subfigure}
-	\caption{Frequency density plot of the standardised residuals from predicting the variance given the mean in test set using a training GLM with identity link function.}
+	\caption{Frequency density plot of the standardised residuals from predicting the variance given the mean using data in a test set. The model used is a GLM with identity link function.}
 	\label{fig:glm_residual}
 \end{figure*}
 
@@ -538,7 +538,7 @@ The $Z$ statistics within pixel were tested for Normality  using the $\chi^2$ go
 The $Z$ statistics looked like a good candidate to make inference from a single scan of a 3D printed sample. There is further work to be done. Rather than using a subset of the data as the true image, simulations can be treated as the true image to investigate how well the $Z$ statistic perform in real life defect detection. Further multiple hypothesis testing should be investigated and inference can be extended to the 3D reconstructed data of the 3D printed sample.
 
 \section{Compound Poisson}
-In the mini-project, a compound Poisson model was used to model the distribution of greyvalues in a pixel \cite{ip2016inside}. The model was built by assuming that photon arrivals are a Poisson process and that each photon has random energy, distributed according to an energy spectrum. The grey value was then proportional to the sum of energies of each photon detected in some exposure time, with some Normal noise added.
+In the mini-project, a compound Poisson model was used to model the distribution of grey values in a pixel \cite{ip2016inside}. The model was built by assuming that photon arrivals are a Poisson process and that each photon has random energy, distributed according to an energy spectrum. The grey value was then proportional to the sum of energies of each photon detected in some exposure time, with some Normal noise added.
 
 Consider a pixel. Let $Y$ be the number of photons detected for that particular pixel. Let $U$ be the energy of a photon post-attenuation and is typically random, here it was assumed to be Normal distributed. Let $X$ be the grey value of that pixel. The model is hierarchical such that at the top layer
 \begin{equation}
@@ -582,7 +582,7 @@ X|Y\sim\gammaDist\left(Y\alpha,\lambda\right) \ .
 \end{equation}
 This is special because the marginal $X$ is in the exponential family, more specifically in the Tweedie dispersion exponential family \cite{jorgensen1987exponential}.
 
-It is very well known that the marginal p.d.f.~$X$ is intractable. However the m.g.f.~can be written in closed form. The m.g.f.~is defined as
+It is very well known that the marginal p.d.f.~of $X$ is intractable. However the m.g.f.~can be written in closed form. The m.g.f.~is defined as
 \begin{equation}
 M(\theta)=\expectation\left[\euler^{\theta X}\right] \ .
 \end{equation}
@@ -732,7 +732,7 @@ Exact simulation of the compound Poisson distribution is easy, this is done by s
 
 For low $\nu\tau$, there is a chance of simulating zeros. The Normal approximation failed to capture the probability mass at zero because the Normal distribution was constrained to be symmetric. The saddlepoint approximation did capture probability mass at zero as shown by an increase in probability density towards zero. However for a distinct mixture looking compound Poisson, Figure \ref{fig:histogram} (d), the saddlepoint approximation was not flexible enough to capture each individual peak.
 
-For the Normal looking compound Poisson, both approximation performed well.
+For the Normal looking compound Poisson, both approximations performed well.
 \begin{figure*}
 \centerline{
 	\centering

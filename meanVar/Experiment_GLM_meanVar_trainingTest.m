@@ -211,7 +211,7 @@ classdef Experiment_GLM_meanVar_trainingTest < Experiment
                         test_table(i_glm+1,2+i_shading) = 'NaN';
                     %else all test mse isn't nan, quote the quartile of the test mse
                     else
-                        test_table(i_glm+1,2+i_shading) = quoteQuartileError(test_mse_i,100);
+                        test_table(i_glm+1,2+i_shading) = quoteQuartileError(test_mse_i,1);
                     end
                 end
 

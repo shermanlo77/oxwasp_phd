@@ -37,7 +37,7 @@ function quote = quoteStdError(data, n_bootstrap)
         end
 
         %get the order of magnitude of the ratio between the error and the bootstrap variance
-        error_mag_order = orderMagnitude(err/std(error_bootstrap));
+        error_mag_order = orderMagnitude(std(error_bootstrap)/err);
 
         %error_sig_fig is an integer, if it is equal to 0 or more
         if error_mag_order >= 0
@@ -63,6 +63,7 @@ function quote = quoteStdError(data, n_bootstrap)
     %if it is less or equal to 0, set significant figures to 1
     if dec_places <= 0
         sig_fig = 1;
+        dec_places = 0;
     %else, set the number of signifiant figures to the number of decimial places add 1
         %add one for the digit to the left of the decimial place
     else
@@ -79,7 +80,7 @@ function quote = quoteStdError(data, n_bootstrap)
     err = num2str(err);
     
     %fill in missing decimial places with zeros
-    if sig_fig ~= 1
+    if dec_places ~= 0
         while numel(err)<2+dec_places
             err = [err,'0'];
         end
