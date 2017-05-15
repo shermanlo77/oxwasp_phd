@@ -11,6 +11,8 @@
 *.mat
 *.tex_table
 *.png
+*.xml
+*.tif
 
 # Compiled source #
 ###################
