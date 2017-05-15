@@ -20,6 +20,7 @@ classdef BlockData_140316 < handle
         panel_height; %height of the panels
         panel_width; %width of the panels
         n_panel_column; %number of columns of panels
+        n_panel; %number of panels
         
         i_column; %iterator, counting the number of panel columns
         i_row; %iterator, counting the number of panel rows
@@ -53,6 +54,7 @@ classdef BlockData_140316 < handle
             this.panel_height = 998;
             this.panel_width = 128;
             this.n_panel_column = 16;
+            this.n_panel = 32;
             this.want_shading_correction = false;
             this.want_remove_dead_pixels = false;
             this.min_greyvalue = 5.7588E3;
