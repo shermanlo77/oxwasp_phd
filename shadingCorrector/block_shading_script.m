@@ -1,5 +1,6 @@
 %BLOCK SHADING CORRECTION SCRIPT
-%Does shading correction using the given algorithm, using the mean white
+%Does shading correction using the given algorithm, using the mean white,
+%mean gray
 %and mean black image. Plots the scan and shading corrected scan. Also
 %plots the gradient of target greyscale vs reference greyscale in shading
 %correction.
@@ -9,7 +10,7 @@ clearvars;
 close all;
 
 %instantise an object which loads the data
-block_data = BlockData_140316('../data/140316');
+block_data = BlockData_140316('data/140316');
 
 %plot the sample scan image
 figure;

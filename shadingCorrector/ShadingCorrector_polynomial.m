@@ -24,29 +24,25 @@ classdef ShadingCorrector_polynomial < ShadingCorrector_smooth
             %p: order of the polynomial surface
         function smoothPanel(this,index,corner_position,p)
             
+            %LEGACY CODE only support p=2 for now
+            if p ~= 2
+                warning('2nd order polynomial can only be supported');
+            end
+            
             %get vector range from the corner parameter
             height_range = corner_position(1,1) : corner_position(1,2);
             width_range = corner_position(2,1) : corner_position(2,2);
             
-            %get vector of greyvalues
-            z = reshape(this.orginial_reference_array(height_range,width_range,index),[],1);
-            %normalise the greyvalues to have mean 0 and std 1
-            shift = mean(z);
-            scale = std(z);
-            z = (z-shift)/scale;
-            
-            %obtain the range of x and y in grid form
-            [x_grid,y_grid] = meshgrid(1:numel(width_range),1:numel(height_range));
-            %convert x,y,z from grid form to vector form
-            x = reshape(x_grid,[],1);
-            y = reshape(y_grid,[],1);
-            
-            %fit polynomial
-            polynomial_string = strcat('poly',num2str(p),num2str(p));
-            sfit_obj = fit([x,y],z,polynomial_string);
+            %get the image of the panel
+            image = this.orginial_reference_array(height_range,width_range,index);
+            %fit a polynomial
+            polynomial_fitter = PolynomialFitter();
+            polynomial_fitter.fitPolynomial(image);
+            %get the fitted polynomial
+            image = polynomial_fitter.fitted_image;
             
             %update the reference image with the polynomial fit
-            this.reference_image_array(height_range,width_range,index) = sfit_obj(x_grid,y_grid)*scale + shift;
+            this.reference_image_array(height_range,width_range,index) = image;
             
         end
         

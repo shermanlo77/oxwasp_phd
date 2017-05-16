@@ -12,7 +12,7 @@ close all;
 nbin = 100;
 
 %instantise an object pointing to the dataset
-block_data = BlockData_140316('../data/140316');
+block_data = BlockData_140316('data/140316');
 block_data.addShadingCorrector(@ShadingCorrector,true);
 block_data.turnOnRemoveDeadPixels();
 block_data.turnOnSetExtremeToNan();

@@ -8,6 +8,15 @@ classdef Experiment_bgwShadingANOVA < Experiment
     %MEMBER VARIABLES
     properties
         
+        i_repeat; %number of iterations done
+        n_repeat; %number of times to repeat the experiment
+               
+        block_data;  %object containing the data
+        n_train; %the size of the training set
+        
+        %random stream
+        rand_stream;
+        
         %cell of arrays, one array for each shading corrector
         %each array is 3 dimensional, containing variances
             %dim 1: for each repeat (n_repeat length)
@@ -19,18 +28,9 @@ classdef Experiment_bgwShadingANOVA < Experiment
             %dim 1: b/g/w
             %dim 2: for each shading corrector
         bgw_shading_array;
+        
         %dim 2 pointer for bgw_shading_array
         shading_correction_pointer;
-        
-        %object containing the data
-        block_data;
-        
-        %the size of the training set
-        n_train;
-        
-        %random stream
-        rand_stream;
-        
     end
     
     %METHODS
@@ -40,37 +40,51 @@ classdef Experiment_bgwShadingANOVA < Experiment
         function this = Experiment_bgwShadingANOVA()
             %superclass
             this@Experiment('bgwShadingANOVA');
-            %assign member variables
-            this.n_train = 10;
-            this.block_data = BlockData_140316('../data/140316');
-            this.rand_stream = RandStream('mt19937ar','Seed',uint32(227482200));
         end
         
         %DECLARE RESULT ARRAY
         %PARAMETERS:
             %n_repeat: number of times to repeat the experiment
-        function declareResultArray(this,n_repeat)
+        function setUpExperiment(this)
             %assign member variables
+            this.i_repeat = 1;
+            this.n_repeat = 100;
+            this.block_data = BlockData_140316('data/140316');
+            this.n_train = 1;
+            this.rand_stream = RandStream('mt19937ar','Seed',uint32(227482200));
             this.std_array = cell(4,1);
             this.bgw_shading_array = cell(3,4);
             for i = 1:4
-                this.std_array{i} = zeros(n_repeat,2,3);
+                this.std_array{i} = zeros(this.n_repeat,2,3);
             end
             this.shading_correction_pointer = 1;
         end
         
         %DO EXPERIMENT (one iteration)
         function doExperiment(this)
-            %use its random stream
-            RandStream.setGlobalStream(this.rand_stream);
-            %for the 4 different types of shading correction, get the
-            %within and between pixel variance and save it to the member
-            %variable std_array
-            this.shadingCorrection_ANOVA(@ShadingCorrector_null, false, nan);
-            this.shadingCorrection_ANOVA(@ShadingCorrector, false, nan);
-            this.shadingCorrection_ANOVA(@ShadingCorrector, true, nan);
-            this.shadingCorrection_ANOVA(@ShadingCorrector_polynomial, true, [2,2,2]);
-            this.shading_correction_pointer = 1;
+            
+            %for this.n_repeat times
+            while (this.i_repeat <= this.n_repeat)
+            
+                %use its random stream
+                RandStream.setGlobalStream(this.rand_stream);
+                %for the 4 different types of shading correction, get the
+                %within and between pixel variance and save it to the member
+                %variable std_array
+                this.shadingCorrection_ANOVA(@ShadingCorrector_null, false, nan);
+                this.shadingCorrection_ANOVA(@ShadingCorrector, false, nan);
+                this.shadingCorrection_ANOVA(@ShadingCorrector, true, nan);
+                this.shadingCorrection_ANOVA(@ShadingCorrector_polynomial, true, [2,2,2]);
+                this.shading_correction_pointer = 1;
+                
+                %print the progress
+                this.printProgress(this.i_repeat / this.n_repeat);
+                %increment i_repeat
+                this.i_repeat = this.i_repeat + 1;
+                %save the state of this experiment
+                this.saveState();
+                
+            end
         end
         
         %PRINT RESULTS
@@ -101,23 +115,25 @@ classdef Experiment_bgwShadingANOVA < Experiment
             
             %for each shading correction
             for i_shad = 1:4
-                %set up a string cell to store the results of within and between pixel variance
-                table_string = cell(4,3);
-                %label the heading row
-                table_string{1,1} = '';
-                table_string{1,2} = 'Within pixel variance';
-                table_string{1,3} = 'Between pixel variance';
+                %variance shall be stated in log scale
+                figure;
+                %get the min and maximum variance, offset it by 0.1
+                min_v = min(min(min(log10(this.std_array{i_shad}))))-0.1;
+                max_v = max(max(max(log10(this.std_array{i_shad}))))+0.1;
                 %for each reference image
                 for i_ref = 1:3
-                    %put the name of the reference image in the first column
-                    table_string{i_ref+1,1} = colour_array{i_ref};
-                    %put the within pixel variance in the 2nd column
-                    table_string{i_ref+1,2} = quoteQuartileError(this.std_array{i_shad}(:,1,i_ref), 1);
-                    %put the between pixel variance in the 3rd column
-                    table_string{i_ref+1,3} = quoteQuartileError(this.std_array{i_shad}(:,2,i_ref), 1);
+                    %box plot the within and between variance
+                    subplot(1,3,i_ref);
+                    boxplot(log10(this.std_array{i_shad}(:,:,i_ref)),{'W','B'});
+                    %on the left hand side, label the axis
+                    if i_ref == 1
+                        ylabel('variance (log_{10})');
+                    end
+                    %label the colour
+                    xlabel(colour_array{i_ref});
+                    %set the y limit using the minimum and maximum variance
+                    ylim([min_v,max_v]);
                 end
-                %print the table in latex format
-                printStringArrayToLatexTable(table_string, strcat('reports/tables/',this.experiment_name,'_',shading_array{i_shad},'.tex_table'));
             end
         end
         
@@ -209,21 +225,7 @@ classdef Experiment_bgwShadingANOVA < Experiment
             
         end
         
-    end
-    
-    methods(Static)
-        
-        %GLOBAL: Call this to start experiment automatically
-        function main()
-            %repeat the experiment this many times
-            n_repeat = 20;
-            %set up the experiment
-            Experiment.setUpExperiment(@Experiment_bgwShadingANOVA,n_repeat);
-            %run the experiment, it will save results to reports folder
-            Experiment.runExperiments('bgwShadingANOVA',n_repeat);
-        end
-        
-    end
+    end   
     
 end
 

@@ -1,4 +1,4 @@
-classdef Experiment_GLM_meanVar_trainingTest < Experiment
+classdef Experiment_GLMMeanVarTrainingTest < Experiment
     %EXPERIMENT_GLM_MEANVAR_TRAININGTEST Assess the performance of GLM fit on mean var data
     %   The images are spilt into 2 parts, training and test. GLM iss used
     %   to model the variance and mean relationship, with variance as the
@@ -21,6 +21,9 @@ classdef Experiment_GLM_meanVar_trainingTest < Experiment
     %MEMBER VARIABLES
     properties
         
+        i_repeat; %number of iterations done
+        n_repeat; %number of itereations to complete the experiment
+        
         block_array; %array of block images (shading uncorrected, b/w shading corrected, b/g/w shading corrected)
         glm_array; %array of glm objects (see constructor)
         %array of training and test mse
@@ -42,16 +45,24 @@ classdef Experiment_GLM_meanVar_trainingTest < Experiment
     methods
         
         %CONSTRUCTOR
-        function this = Experiment_GLM_meanVar_trainingTest()
+        function this = Experiment_GLMMeanVarTrainingTest()
             %call superclass
-            this@Experiment('GLM_meanVar_trainingTest');
+            this@Experiment('GLMMeanVarTrainingTest');
+        end
+
+        %DECLARE RESULT ARRAY
+        %PARAMETERS:
+        function setUpExperiment(this)
+            
+            this.i_repeat = 1;
+            this.n_repeat = 100;
             %assign member variables
             this.rand_stream = RandStream('mt19937ar','Seed',uint32(176048084));
             this.n_train = 50;
             this.threshold = BlockData_140316.getThreshold_topHalf();
             
             %location of the data
-            block_location = '../data/140316';
+            block_location = 'data/140316';
             %shape parameter
             shape_parameter = (this.n_train-1)/2;
             
@@ -88,32 +99,39 @@ classdef Experiment_GLM_meanVar_trainingTest < Experiment
             this.glm_array{8} = MeanVar_GLM_log(shape_parameter,-3);
             this.glm_array{9} = MeanVar_GLM_log(shape_parameter,-4);
             
-        end
-
-        %DECLARE RESULT ARRAY
-        %PARAMETERS:
-            %n_repeat: number of times to repeat the experiment
-        function declareResultArray(this,n_repeat)
             %see member variables
-            this.training_mse_array = zeros(n_repeat,9,3);
-            this.test_mse_array = zeros(n_repeat,9,3);
+            this.training_mse_array = zeros(this.n_repeat,9,3);
+            this.test_mse_array = zeros(this.n_repeat,9,3);
         end
         
         
         %DO EXPERIMENT
         function doExperiment(this)
-            %use its random stream
-            RandStream.setGlobalStream(this.rand_stream);
-            %for each block
-            for i_block = 1:3
-                %for each glm
-                for i_glm = 1:9
-                    %get the training and test mse
-                    [mse_training, mse_test] = this.trainingTestMeanVar(this.block_array{i_block}, this.glm_array{i_glm});
-                    %save the training and test mse in the array
-                    this.training_mse_array(this.i_repeat,i_glm,i_block) = mse_training;
-                    this.test_mse_array(this.i_repeat,i_glm,i_block) = mse_test;
+            
+            %do n_repeat times
+            while (this.i_repeat <= this.n_repeat)
+            
+                %use its random stream
+                RandStream.setGlobalStream(this.rand_stream);
+                %for each block
+                for i_block = 1:3
+                    %for each glm
+                    for i_glm = 1:9
+                        %get the training and test mse
+                        [mse_training, mse_test] = this.trainingTestMeanVar(this.block_array{i_block}, this.glm_array{i_glm});
+                        %save the training and test mse in the array
+                        this.training_mse_array(this.i_repeat,i_glm,i_block) = mse_training;
+                        this.test_mse_array(this.i_repeat,i_glm,i_block) = mse_test;
+                    end
                 end
+                
+                %print the progress
+                this.printProgress(this.i_repeat / this.n_repeat);
+                %increment i_repeat
+                this.i_repeat = this.i_repeat + 1;
+                %save the state of this experiment
+                this.saveState();
+                
             end
         end
         
@@ -221,20 +239,6 @@ classdef Experiment_GLM_meanVar_trainingTest < Experiment
             printStringArrayToLatexTable(training_table, strcat('reports/tables/',this.experiment_name,'_training.tex_table'));
             printStringArrayToLatexTable(test_table, strcat('reports/tables/',this.experiment_name,'_test.tex_table'));
             
-        end
-        
-    end
-    
-    methods(Static)
-        
-        %GLOBAL: Call this to start experiment automatically
-        function main()
-            %repeat the experiment this many times
-            n_repeat = 100;
-            %set up the experiment
-            Experiment.setUpExperiment(@Experiment_GLM_meanVar_trainingTest,n_repeat);
-            %run the experiment, it will save results to reports folder
-            Experiment.runExperiments('GLM_meanVar_trainingTest',n_repeat);
         end
         
     end

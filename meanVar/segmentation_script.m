@@ -11,7 +11,7 @@ clearvars;
 close all;
 
 %load data and shading correction
-block_data = BlockData_140316('../data/140316');
+block_data = BlockData_140316('data/140316');
 %get the threshold logic image, this is a matrix of logics which indicate
 %pixels which are from the background
 threshold = BlockData_140316.getThreshold_topHalf();

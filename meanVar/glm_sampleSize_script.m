@@ -11,7 +11,7 @@ close all;
 rng(uint32(189224219), 'twister');
 
 %instantise an object pointing to the dataset
-block_data = BlockData_140316('../data/140316');
+block_data = BlockData_140316('data/140316');
 
 %segment the mean variance data to only include the 3d printed sample,
 %threshold indicate pixels which belong to the background

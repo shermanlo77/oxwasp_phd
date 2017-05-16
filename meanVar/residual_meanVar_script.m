@@ -17,7 +17,7 @@ n_train = 50;
 threshold = BlockData_140316.getThreshold_topHalf();
 
 %location of the data
-block_location = '../data/140316';
+block_location = 'data/140316';
 %shape parameter
 shape_parameter = (n_train-1)/2;
 

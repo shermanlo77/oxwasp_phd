@@ -17,7 +17,7 @@ axe_array = cell(1,4);
 n_bin = 100;
 
 %instantise an object which loads the data
-block_data = BlockData_140316('../data/140316');
+block_data = BlockData_140316('data/140316');
 
 %UNSHADING CORRECTED
 %get the sample mean and sample variance data

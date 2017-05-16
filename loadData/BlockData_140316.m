@@ -402,7 +402,7 @@ classdef BlockData_140316 < handle
         function threshold = getThreshold_topHalf()
             
             %load the data
-            block_data = BlockData_140316('../data/140316');
+            block_data = BlockData_140316('data/140316');
 
             %add shading correction
             block_data.addShadingCorrector(@ShadingCorrector_median,1,[3,3,3]);

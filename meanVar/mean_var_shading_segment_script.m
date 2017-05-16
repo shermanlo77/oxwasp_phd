@@ -17,7 +17,7 @@ axe_array = cell(1,4);
 n_bin = 100;
 
 %instantise an object which loads the data
-block_data = BlockData_140316('../data/140316');
+block_data = BlockData_140316('data/140316');
 %get the pixels which do not belong to the 3d printed sample
 threshold = reshape(BlockData_140316.getThreshold_topHalf(),[],1);
 
