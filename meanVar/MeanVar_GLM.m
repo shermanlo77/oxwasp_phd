@@ -6,12 +6,14 @@ classdef MeanVar_GLM < VarianceModel
     properties
         %shape parameter of the gamma distribution
         shape_parameter;
+        %normalising constants for the response and feature
         y_scale;
         x_scale;
         x_shift;
-        polynomial_order;
+        polynomial_order; %polynomial order of the feature
         n_step; %n_step: number of IRLS steps
-        initial_parameter;
+        initial_parameter; %the initial value of the parameter
+        tol; %stopping conidition for the different in log likelihood * n_train
     end
     
     %METHODS
@@ -28,6 +30,7 @@ classdef MeanVar_GLM < VarianceModel
             this.polynomial_order = polynomial_order;
             this.n_step = 100;
             this.initial_parameter = initial_parameter;
+            this.tol = 0.1;
         end
         
         %TRAIN CLASSIFIER
@@ -57,6 +60,9 @@ classdef MeanVar_GLM < VarianceModel
             v = mu.^2 / this.shape_parameter; %variance vector
             w = 1./(v.*this.getLinkDiff(mu)); %weights in IRLS
             
+            %work out the log likelihhod up to a constant
+            lnL_old = -this.shape_parameter*(sum(log(mu)+y./mu));
+            
             %for n_step times
             for i_step = 1:this.n_step
                 
@@ -79,13 +85,24 @@ classdef MeanVar_GLM < VarianceModel
                 if(any(isnan(this.parameter)))
                     break;
                 end
-                
+
                 %update variables
                 eta = X*this.parameter; %systematic component
                 mu = this.getMean(eta); %mean vector
                 v = mu.^2 / this.shape_parameter; %variance vector
                 w = 1./(v.*this.getLinkDiff(mu)); %weights in IRLS
                 
+                %work out the new log likelihhod up to a constant
+                lnL_new = -this.shape_parameter*(sum(log(mu)+y./mu));
+                
+                %if the improvement in log likelihhod is less than tol*n_train
+                if ( (lnL_new - lnL_old) < this.tol*this.n_train)
+                    %break the loop
+                    break;
+                end
+                
+                %update the log likelihood
+                lnL_old = lnL_new;
             end
             
         end
