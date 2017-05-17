@@ -60,17 +60,20 @@ classdef MeanVar_GLM < VarianceModel
             %for n_step times
             for i_step = 1:this.n_step
                 
-                %work out the z vector
-                z = eta + (y-mu).*this.getLinkDiff(mu);
-                
-                %Xt_w is X'*W (W is nxn and diagonal, it is not necessary to represent the large diagonal matrix W) 
-                Xt_w = X';
-                for i_n = 1:this.n_train
-                    Xt_w(:,i_n) = Xt_w(:,i_n).*w(i_n);
+                %get W^(1/2) * X %where W is diagonal square
+                w_square_root = sqrt(w); %get the vector of square root w
+                %declare matrix of size nx2 to represent W^(1/2) * X
+                w_square_root_x = zeros(this.n_train,2);
+                %without calculating the full W matrix, calculate W^(1/2) * X
+                for i_p = 1:2
+                    w_square_root_x(:,i_p) = X(:,i_p).*w_square_root;
                 end
+
+                %work out the z vector (including the square root w term)
+                z = w_square_root .* (eta + (y-mu).*this.getLinkDiff(mu));
                 
-                %update the parameter
-                this.parameter = (Xt_w*X)\(Xt_w*z);
+                %update the parameter (with the use of QR)
+                this.parameter = w_square_root_x \ z;
                 
                 %if the parameter is nan, break the for loop and end
                 if(any(isnan(this.parameter)))
