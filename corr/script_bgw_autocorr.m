@@ -1,5 +1,10 @@
 %BGW AUTOCORRELATION SCRIPT
-%
+%Plots the x,y time series and autocorrelation from the black,white,grey images
+%Figures:
+    %1-3: b/g/w shading uncorrected x,y time series
+    %4-6: b/g/w shading corrected (BW) x,y time series
+    %7-9: b/g/w shading uncorrected marginal x,y autocorrelation
+    %10-12: b/g/w shading corrected (BW) marginal x,y autocorrelation
 
 clc;
 clearvars;
@@ -11,37 +16,54 @@ n_lag = 1000;
 %load the data
 block_data = BlockData_140316('data/140316');
 
-%plot the marginal mean greyvalue
-%for the black, grey and white images
-for i_image = 1:3
+%for no shading correction, then shading correction
+for i_shading = 1:2
     
-    %load the b/g/w image
-    switch i_image
-        case 1
-            image = block_data.loadBlack(1);
-        case 2
-            image = block_data.loadGrey(1);
-        case 3
-            image = block_data.loadWhite(1);
+    %add shading correction when required
+    if i_shading == 2
+        %declare array of images, reference stack is an array of b/g/w images
+        reference_stack = zeros(block_data.height, block_data.width, 2);
+        %load mean b/w images
+        reference_stack(:,:,1) = block_data.loadBlack(2);
+        reference_stack(:,:,2) = block_data.loadWhite(2);
+        %instantise shading corrector using provided reference stack
+        shading_corrector = ShadingCorrector(reference_stack);
+        block_data.addManualShadingCorrector(shading_corrector);
     end
-    
-    %x is the mean over the rows
-    x = mean(image,1);
-    %y is the mean over the columns
-    y = mean(image,2);
-    
-    %plot the marginal mean greyvalues
-    figure;
-    %plot the marginal greyvalues in the direction of the x axis
-    subplot(2,1,1);
-    plot(x);
-    ylabel('Greyvalue');
-    xlabel('Distance in the x axis (pixel)');
-    %plot the marginal greyvalues in the direction of they axis
-    subplot(2,1,2);
-    plot(y);
-    ylabel('Greyvalue');
-    xlabel('Distance in the y axis (pixel)');
+
+    %plot the marginal mean greyvalue
+    %for the black, grey and white images
+    for i_image = 1:3
+
+        %load the b/g/w image
+        switch i_image
+            case 1
+                image = block_data.loadBlack(1);
+            case 2
+                image = block_data.loadGrey(1);
+            case 3
+                image = block_data.loadWhite(1);
+        end
+
+        %x is the mean over the rows
+        x = mean(image,1);
+        %y is the mean over the columns
+        y = mean(image,2);
+
+        %plot the marginal mean greyvalues
+        figure;
+        %plot the marginal greyvalues in the direction of the x axis
+        subplot(2,1,1);
+        plot(x);
+        ylabel('Greyvalue');
+        xlabel('Distance in the x axis (pixel)');
+        %plot the marginal greyvalues in the direction of they axis
+        subplot(2,1,2);
+        plot(y);
+        ylabel('Greyvalue');
+        xlabel('Distance in the y axis (pixel)');
+
+    end
     
 end
 
@@ -67,8 +89,8 @@ for i_shading = 1:2
         reference_stack(:,:,1) = block_data.loadBlack(2);
         reference_stack(:,:,2) = block_data.loadWhite(2);
         %instantise shading corrector using provided reference stack
-        shading_corrector = ShadingCorrector_polynomial(reference_stack);
-        block_data.addManualShadingCorrector(shading_corrector,[2,2,2]);
+        shading_corrector = ShadingCorrector(reference_stack);
+        block_data.addManualShadingCorrector(shading_corrector);
     end
     
     %remove dead pixels
