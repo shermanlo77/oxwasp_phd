@@ -17,13 +17,8 @@ classdef BlockData_140316 < handle
         sample_name; %... name of sample image
         folder_location; %location of the dataset
         
-        panel_height; %height of the panels
-        panel_width; %width of the panels
-        n_panel_column; %number of columns of panels
-        n_panel; %number of panels
-        
-        i_column; %iterator, counting the number of panel columns
-        i_row; %iterator, counting the number of panel rows
+        panel_counter%
+        n_panel;
         
         want_shading_correction; %boolean, true to do shading correction, default false, automatically turns to true if a shading corrector is added
         shading_corrector; %shading corrector object
@@ -51,13 +46,11 @@ classdef BlockData_140316 < handle
             this.grey_name = '/grey_140316_';
             this.sample_name = '/block_';
             this.folder_location = folder_location;
-            this.panel_height = 998;
-            this.panel_width = 128;
-            this.n_panel_column = 16;
-            this.n_panel = 32;
             this.want_shading_correction = false;
             this.want_remove_dead_pixels = false;
             this.min_greyvalue = 5.7588E3;
+            this.panel_counter = PanelCounter_Brass();
+            this.n_panel = 32;
         end
         
         %LOAD BLACK IMAGE
@@ -309,22 +302,14 @@ classdef BlockData_140316 < handle
         %RESET PANEL CORNER
         %Reset the iteartor for obtaining the corners of the panel
         function resetPanelCorner(this)
-            this.i_row = 1;
-            this.i_column = 1;
+            this.panel_counter.resetPanelCorner();
         end
         
         %HAS NEXT PANEL CORNER
         %Output boolean, true if the iterator has another panel to iterate
         %through
         function has_next = hasNextPanelCorner(this)
-            %if the iterator has counted beyound the number of columns
-            if (this.i_column > this.n_panel_column)
-                %the iterator has no more panels to iterator
-                has_next = false;
-            %else it has, return true
-            else
-                has_next = true;
-            end
+            has_next = this.panel_counter.hasNextPanelCorner();
         end
         
         %GET NEXT PANEL CORNER
@@ -336,43 +321,7 @@ classdef BlockData_140316 < handle
             %coordinates are in the form of matrix index, i.e. 1st row is
             %for the height, 2nd row for the width.
         function corner_position = getNextPanelCorner(this)
-               
-            %declare 2x2 matrix
-            corner_position = zeros(2,2);
-            
-            %get the height_range of the panel
-            if this.i_row == 1
-                corner_position(1,1) = 1 + (this.i_row-1)*this.panel_height;
-                corner_position(1,2) = this.i_row*this.panel_height+6 ;
-            else
-                corner_position(1,1) = 1 + (this.i_row-1)*this.panel_height+6;
-                corner_position(1,2) = this.i_row*this.panel_height;
-            end
-
-            %get the width range of the panel
-            if this.i_column == 1
-                corner_position(2,1) = 1;
-                corner_position(2,2) = this.panel_width-2;
-            elseif this.i_column ~= this.n_panel_column
-                corner_position(2,1) = (this.i_column-1)*this.panel_width+1-2;
-                corner_position(2,2) = this.i_column*this.panel_width-2;
-            else
-                corner_position(2,1) = (this.i_column-1)*this.panel_width+1-2;
-                corner_position(2,2) = this.width;
-            end
-            
-            %update the iterator
-            
-            %if the iterator is on the bottom panel, move it to the top
-            %panel and move to the right panel
-            if this.i_row == 2
-                this.i_row = 1;
-                this.i_column = this.i_column + 1;
-            %else the iterator is on the top panel, move it down
-            else
-                this.i_row = this.i_row + 1;
-            end
-            
+            corner_position = this.panel_counter.getNextPanelCorner();
         end
         
         %TURN ON SET EXTREME TO NAN
