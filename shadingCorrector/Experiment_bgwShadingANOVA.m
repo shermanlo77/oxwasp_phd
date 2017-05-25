@@ -176,15 +176,15 @@ classdef Experiment_bgwShadingANOVA < Experiment
             end
 
             %instantise shading corrector using provided reference stack
-            shading_corrector = feval(shading_corrector_class,reference_stack);
-
             %if parameters are provided, add it to the shading corrector
             %then add the shading corrector to the data
             if ~isnan(parameters)
-                this.block_data.addManualShadingCorrector(shading_corrector,parameters);
+                shading_corrector = feval(shading_corrector_class,reference_stack, this.block_data.panel_counter, parameters);
             else
-                this.block_data.addManualShadingCorrector(shading_corrector);
+                shading_corrector = feval(shading_corrector_class,reference_stack);
             end
+            
+            this.block_data.addManualShadingCorrector(shading_corrector);
 
             %turn on remove dead pixels
             this.block_data.turnOnRemoveDeadPixels();

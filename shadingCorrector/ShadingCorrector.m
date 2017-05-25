@@ -1,10 +1,10 @@
+%SHADINGCORRECTOR Stores an array of blank scans and use it to do
+%shading correction
+%   A stack of reference scans (white, grey, black images) is passed to the
+%   object via the constructor. Use the method calibrate() to work out
+%   parameters to do shading correction. The image to be shading
+%   corrected is passed to the method shadeCorrect()
 classdef ShadingCorrector < handle
-    %SHADINGCORRECTOR Stores an array of blank scans and use it to do
-    %shading correction
-    %   A stack of reference scans (white, grey, black images) is passed to the
-    %   object via the constructor. Use the method calibrate() to work out
-    %   parameters to do shading correction. The image to be shading
-    %   corrected is passed to the method shadeCorrect()
     
     %MEMBER VARIABLES
     properties

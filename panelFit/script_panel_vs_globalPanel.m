@@ -19,9 +19,9 @@ for i = 1:2
     
     %instantise the corresponding polynomial fitter
     if i == 1
-        polynomial_fitter = PanelPolynomialFitter(block_data);
+        polynomial_fitter = PanelPolynomialFitter(block_data.panel_counter);
     else
-        polynomial_fitter = GlobalPanelPolynomialFitter(block_data);
+        polynomial_fitter = GlobalPanelPolynomialFitter(block_data.panel_counter);
     end
     
     %fit the polynomial on the white image

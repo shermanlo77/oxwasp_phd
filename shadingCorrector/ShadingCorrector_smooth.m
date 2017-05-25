@@ -10,7 +10,8 @@ classdef ShadingCorrector_smooth < ShadingCorrector
         
         %the orginial array of reference images
         orginial_reference_array;
-        
+        parameter;
+        panel_counter;
     end
     
     %METHODS
@@ -19,11 +20,15 @@ classdef ShadingCorrector_smooth < ShadingCorrector
         %CONSTRUCTOR
         %PARAMETERS:
             %reference_image_array: stack of blank scans
-        function this = ShadingCorrector_smooth(reference_image_array)
+        function this = ShadingCorrector_smooth(reference_image_array, panel_counter, parameter)
             this = this@ShadingCorrector(reference_image_array);
             this.can_smooth = true;
             %make a copy of the reference images
             this.orginial_reference_array = reference_image_array;
+            this.panel_counter = panel_counter;
+            this.parameter = parameter;
+            
+            this.smoothEachPanel();
         end
         
         %MEAN SQUARED ERROR
@@ -50,6 +55,24 @@ classdef ShadingCorrector_smooth < ShadingCorrector
             scale = std(reshape(residual_image,[],1));
             %scale the residual
             residual_image = residual_image/scale;
+        end
+        
+        %SMOOTH PANELS
+        %Call this method is a shading corrector was provided and to use it
+        %to smooth the reference images panel by panel.
+        function smoothEachPanel(this)
+            
+            %start counting the panels
+            this.panel_counter.resetPanelCorner();
+            %for each panel
+            while this.panel_counter.hasNextPanelCorner()
+                %get the coordinates of the panel
+                panel_corners = this.panel_counter.getNextPanelCorner();
+                %for each reference image, smooth that panel
+                for i_index = 1:this.n_image
+                    this.smoothPanel(i_index,panel_corners,this.parameter(i_index));
+                end
+            end
         end
         
     end

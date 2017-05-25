@@ -18,7 +18,6 @@ classdef BlockData_140316 < handle
         folder_location; %location of the dataset
         
         panel_counter%
-        n_panel;
         
         want_shading_correction; %boolean, true to do shading correction, default false, automatically turns to true if a shading corrector is added
         shading_corrector; %shading corrector object
@@ -50,7 +49,6 @@ classdef BlockData_140316 < handle
             this.want_remove_dead_pixels = false;
             this.min_greyvalue = 5.7588E3;
             this.panel_counter = PanelCounter_Brass();
-            this.n_panel = 32;
         end
         
         %LOAD BLACK IMAGE
@@ -245,14 +243,13 @@ classdef BlockData_140316 < handle
             end
 
             %instantise a shading corrector and set it up using reference images
-            shading_corrector_temp = feval(shading_corrector_class,reference_stack);
-
-            %add the shading corrector to this
             if nargin == 3
-                this.addManualShadingCorrector(shading_corrector_temp);
+                shading_corrector_temp = feval(shading_corrector_class,reference_stack);
             elseif nargin == 4
-                this.addManualShadingCorrector(shading_corrector_temp,parameters);
+                shading_corrector_temp = feval(shading_corrector_class,reference_stack, this.panel_counter, parameters);
             end
+            
+            this.addManualShadingCorrector(shading_corrector_temp);
             
         end
         
@@ -261,14 +258,10 @@ classdef BlockData_140316 < handle
         %for shading correction
         %PARAMETERS:
             %shading_corrector: shading_corrector object
-            %parameters (optional): a vector of parameters for panel fitting (one for each reference image)
-        function addManualShadingCorrector(this,shading_corrector,parameters)
+        function addManualShadingCorrector(this,shading_corrector)
             %assign the provided shading corrector to the member variable
             this.shading_corrector = shading_corrector;
-            %smooth the reference images panel by panel using the provided parameters (if it can)
-            if this.shading_corrector.can_smooth
-                this.smoothPanels(parameters);
-            end
+
             %get the minimum possible greyvalue to the shading corrector
             this.shading_corrector.min_greyvalue = this.min_greyvalue;
             
@@ -276,52 +269,6 @@ classdef BlockData_140316 < handle
             this.shading_corrector.calibrate();
             %set shading correction to be on
             this.turnOnShadingCorrection();
-        end
-        
-        %SMOOTH PANELS
-        %Call this method is a shading corrector was provided and to use it
-        %to smooth the reference images panel by panel.
-        function smoothPanels(this,parameters)
-            
-            %get the number of reference images
-            n_reference = this.shading_corrector.n_image;
-            
-            %start counting the panels
-            this.resetPanelCorner();
-            %for each panel
-            while this.hasNextPanelCorner()
-                %get the coordinates of the panel
-                panel_corners = this.getNextPanelCorner();
-                %for each reference image, smooth that panel
-                for i_index = 1:n_reference
-                    this.shading_corrector.smoothPanel(i_index,panel_corners,parameters(i_index));
-                end
-            end
-        end
-        
-        %RESET PANEL CORNER
-        %Reset the iteartor for obtaining the corners of the panel
-        function resetPanelCorner(this)
-            this.panel_counter.resetPanelCorner();
-        end
-        
-        %HAS NEXT PANEL CORNER
-        %Output boolean, true if the iterator has another panel to iterate
-        %through
-        function has_next = hasNextPanelCorner(this)
-            has_next = this.panel_counter.hasNextPanelCorner();
-        end
-        
-        %GET NEXT PANEL CORNER
-        %Get the top left and bottom right coordinates of the next panel in
-        %the iterator
-        %RETURN:
-            %corner_position: 2x2 matrix, each column cotains the
-            %coordinates of the top left and bottom right of the panel. The
-            %coordinates are in the form of matrix index, i.e. 1st row is
-            %for the height, 2nd row for the width.
-        function corner_position = getNextPanelCorner(this)
-            corner_position = this.panel_counter.getNextPanelCorner();
         end
         
         %TURN ON SET EXTREME TO NAN

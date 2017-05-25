@@ -8,7 +8,7 @@ classdef PanelPolynomialFitter < PolynomialFitter
     %MEMBER VARIABLES
     properties
         %object containing information about the panels
-        data_information
+        panel_counter
     end
     
     %METHODS
@@ -17,11 +17,11 @@ classdef PanelPolynomialFitter < PolynomialFitter
         %CONSTRUCTOR
         %PARAMETERS:
             %data_information: object containing information about the panels
-        function this = PanelPolynomialFitter(data_information)
+        function this = PanelPolynomialFitter(panel_counter)
             %call super class
             this = this@PolynomialFitter();
             %assign member variables
-            this.data_information = data_information;
+            this.panel_counter = panel_counter;
         end
         
         %METHOD: FIT POLYNOMIAL
@@ -34,13 +34,13 @@ classdef PanelPolynomialFitter < PolynomialFitter
             this.fitted_image = zeros(height, width);
             
             %reset the counter for the panels
-            this.data_information.resetPanelCorner();
+            this.panel_counter.resetPanelCorner();
             %for each panel
-            while this.data_information.hasNextPanelCorner()
+            while this.panel_counter.hasNextPanelCorner()
                 %get the coordinate of the panels
                     %dim 1: [y coordinate, x coordinate]
                     %dim 2: [top left, bottom right]
-                corner = this.data_information.getNextPanelCorner();
+                corner = this.panel_counter.getNextPanelCorner();
                 %get the two vector containing the coordinates of the top left and bottom right of the panel
                 %in the format of [y coordinate, x coordinate]
                 top_left = corner(:,1);

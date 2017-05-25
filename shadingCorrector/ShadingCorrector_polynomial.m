@@ -10,8 +10,8 @@ classdef ShadingCorrector_polynomial < ShadingCorrector_smooth
         
         %CONSTRUCTOR
         %Call superclass
-        function this = ShadingCorrector_polynomial(reference_image_array)
-            this = this@ShadingCorrector_smooth(reference_image_array);
+        function this = ShadingCorrector_polynomial(reference_image_array, panel_counter, parameter)
+            this = this@ShadingCorrector_smooth(reference_image_array, panel_counter, parameter);
         end
         
         %SMOOTH PANEL
