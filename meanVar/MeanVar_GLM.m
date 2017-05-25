@@ -30,7 +30,7 @@ classdef MeanVar_GLM < VarianceModel
             this.polynomial_order = polynomial_order;
             this.n_step = 100;
             this.initial_parameter = initial_parameter;
-            this.tol = 0.1;
+            this.tol = 1E-1;
         end
         
         %TRAIN CLASSIFIER

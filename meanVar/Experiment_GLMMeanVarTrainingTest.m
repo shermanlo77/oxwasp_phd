@@ -62,19 +62,18 @@ classdef Experiment_GLMMeanVarTrainingTest < Experiment
             this.threshold = BlockData_140316.getThreshold_topHalf();
             
             %location of the data
-            block_location = 'data/140316';
             %shape parameter
             shape_parameter = (this.n_train-1)/2;
             
             %declare array of block images (3 of them)
             this.block_array = cell(3,1);
             %1st one has no shading correction
-            this.block_array{1} = BlockData_140316(block_location);
+            this.block_array{1} = BlockData_140316();
             %2nd one uses b/w for shading correction
-            this.block_array{2} = BlockData_140316(block_location);
+            this.block_array{2} = BlockData_140316();
             this.block_array{2}.addShadingCorrector(@ShadingCorrector,false);
             %3rd one uses b/g/w for shading correction
-            this.block_array{3} = BlockData_140316(block_location);
+            this.block_array{3} = BlockData_140316();
             this.block_array{3}.addShadingCorrector(@ShadingCorrector,true);
             
             %when using shading correction, turn on setting extreme greyvalues to NaN and to remove dead pixels

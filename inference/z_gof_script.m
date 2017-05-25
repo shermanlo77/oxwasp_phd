@@ -6,7 +6,7 @@ close all;
 rng(uint32(139952197), 'twister');
 
 %get the data
-block_data = BlockData_140316('data/140316');
+block_data = BlockData_140316();
 %add bgw shading correction
 block_data.addShadingCorrector(@ShadingCorrector,true);
 block_data.turnOnRemoveDeadPixels();

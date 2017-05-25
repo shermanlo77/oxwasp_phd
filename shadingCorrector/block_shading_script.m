@@ -10,7 +10,7 @@ clearvars;
 close all;
 
 %instantise an object which loads the data
-block_data = BlockData_140316('data/140316');
+block_data = BlockData_140316();
 
 %plot the sample scan image
 figure;

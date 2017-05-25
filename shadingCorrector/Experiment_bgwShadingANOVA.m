@@ -49,7 +49,7 @@ classdef Experiment_bgwShadingANOVA < Experiment
             %assign member variables
             this.i_repeat = 1;
             this.n_repeat = 100;
-            this.block_data = BlockData_140316('data/140316');
+            this.block_data = BGW_140316();
             this.n_train = 1;
             this.rand_stream = RandStream('mt19937ar','Seed',uint32(227482200));
             this.std_array = cell(4,1);

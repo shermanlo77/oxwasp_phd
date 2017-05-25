@@ -16,22 +16,20 @@ rng(uint32(373499714), 'twister');
 n_train = 50;
 threshold = BlockData_140316.getThreshold_topHalf();
 
-%location of the data
-block_location = 'data/140316';
 %shape parameter
 shape_parameter = (n_train-1)/2;
 
 %declare array of block images (3 of them)
 block_array = cell(3,1);
 %1st one has no shading correction
-block_array{1} = BlockData_140316(block_location);
+block_array{1} = BlockData_140316();
 %2nd one uses b/w for shading correction
-block_array{2} = BlockData_140316(block_location);
+block_array{2} = BlockData_140316();
 block_array{2}.addShadingCorrector(@ShadingCorrector,false);
 block_array{2}.turnOnRemoveDeadPixels();
 block_array{2}.turnOnSetExtremeToNan();
 %3rd one uses b/g/w for shading correction
-block_array{3} = BlockData_140316(block_location);
+block_array{3} = BlockData_140316();
 block_array{3}.addShadingCorrector(@ShadingCorrector,true);
 block_array{3}.turnOnRemoveDeadPixels();
 block_array{3}.turnOnSetExtremeToNan();

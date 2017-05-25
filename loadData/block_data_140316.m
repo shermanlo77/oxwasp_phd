@@ -6,10 +6,8 @@ clearvars;
 %Displays a b/g/w and sample image
 %Displays its greyvalue histogram
 
-%location of the data
-block_location = '../data/140316';
 %load the data
-block_data = BlockData_140316(block_location);
+block_data = BlockData_140316();
 
 %get the b/g/w and sample images
 black = block_data.loadBlack(1);

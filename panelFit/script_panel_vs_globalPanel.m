@@ -9,19 +9,19 @@ clearvars;
 close all;
 
 %load the data
-block_data = BlockData_140316('data/140316');
+bgw_data = BGW_140316();
 
 %get the white image
-white = block_data.loadWhite(1);
+white = bgw_data.loadWhite(1);
 
 %for the panel-wise fit, then the global+panel-wise fit
 for i = 1:2
     
     %instantise the corresponding polynomial fitter
     if i == 1
-        polynomial_fitter = PanelPolynomialFitter(block_data.panel_counter);
+        polynomial_fitter = PanelPolynomialFitter(bgw_data.panel_counter);
     else
-        polynomial_fitter = GlobalPanelPolynomialFitter(block_data.panel_counter);
+        polynomial_fitter = GlobalPanelPolynomialFitter(bgw_data.panel_counter);
     end
     
     %fit the polynomial on the white image
