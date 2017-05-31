@@ -29,11 +29,12 @@ function [P,f_array] = fft_leastSquares(x, sampling_period)
     end
     b = T\x;
     
-    P = zeros(1,n_freq);
+    P = zeros(1,n_freq+1);
     for i = 1:n_freq
-        P(i) = b(1+(i-1)*2+1)^2*b(1+(i-1)*2+2)^2;
+        P(i+1) = b(1+(i-1)*2+1)^2*b(1+(i-1)*2+2)^2;
     end
     P = sqrt(P);
+    P(1) = b(1);
 
 end
 

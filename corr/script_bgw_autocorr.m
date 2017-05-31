@@ -1,10 +1,14 @@
 %BGW AUTOCORRELATION SCRIPT
 %Plots the x,y time series and autocorrelation from the black,white,grey images
 %Figures:
-    %1-3: b/g/w shading uncorrected x,y time series
-    %4-6: b/g/w shading corrected (BW) x,y time series
-    %7-9: b/g/w shading uncorrected marginal x,y autocorrelation
-    %10-12: b/g/w shading corrected (BW) marginal x,y autocorrelation
+    %1-2: b/w shading uncorrected x,y time series
+    %3-4: b/w shading uncorrected autocorrelation
+    %5-6: b/w BW shading corrected x,y time series
+    %7-8: b/w BW shading corrected autocorrelation
+    %9-10: b/w BGW shading corrected x,y time series
+    %11-12: b/w BGW shading corrected autocorrelation
+    %13-14: b/w BGW polynomial shading corrected x,y time series
+    %15-16: b/w BGW polynomail shading uncorrected autocorrelation
 
 clc;
 clearvars;
@@ -14,7 +18,7 @@ close all;
 n_lag = 1000;
 
 %load the data
-block_data = BlockData_140316('data/140316');
+block_data = BlockData_140316();
 
 %declare a vector of autocorrelations, one element for each lag (1 to n_lag+1)
 %one vector for the x-direction, y-direction
@@ -24,16 +28,16 @@ autocorr_y = zeros(block_data.width,n_lag+1);
 %declare an array of strings, naming each colour
 colour_name = {'black','grey','white'};
 
-%for no shading correction, then with shading correction
+%for no shading correction, then with 3 differenty types of shading correction
 for i_shading = 1:4
     
     %reset the data
-    block_data = BlockData_140316('data/140316');
+    block_data = BlockData_140316();
     
     %remove dead pixels
     block_data.turnOnRemoveDeadPixels();
     
-    %add shading correction when required
+    %add the i_shading corresponding shading correction when required
     switch i_shading
         case 2
             %declare array of images, reference stack is an array of b/g/w images
@@ -62,8 +66,8 @@ for i_shading = 1:4
             reference_stack(:,:,2) = block_data.loadWhite(2);
             reference_stack(:,:,3) = block_data.loadGrey(2);
             %instantise shading corrector using provided reference stack
-            shading_corrector = ShadingCorrector_polynomial(reference_stack);
-            block_data.addManualShadingCorrector(shading_corrector,[2,2,2]);
+            shading_corrector = ShadingCorrector_polynomial(reference_stack,block_data.panel_counter,[2,2,2]);
+            block_data.addManualShadingCorrector(shading_corrector);
     end
     
     %declare an array of images, one element for b/g/w images
