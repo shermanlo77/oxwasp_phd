@@ -66,7 +66,7 @@ classdef BlockData_140316 < Scan
             block_data = BlockData_140316();
 
             %add shading correction
-            block_data.addShadingCorrector(@ShadingCorrector_median,1,[3,3,3]);
+            block_data.addShadingCorrector(ShadingCorrector_median([3,3,3]));
 
             %load the images
             slice = block_data.loadSampleStack();

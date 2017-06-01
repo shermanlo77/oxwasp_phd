@@ -34,41 +34,18 @@ for i_shading = 1:4
     %reset the data
     block_data = BlockData_140316();
     
-    %remove dead pixels
-    block_data.turnOnRemoveDeadPixels();
-    
     %add the i_shading corresponding shading correction when required
     switch i_shading
         case 2
-            %declare array of images, reference stack is an array of b/g/w images
-            reference_stack = zeros(block_data.height, block_data.width, 2);
-            %load mean b/w images
-            reference_stack(:,:,1) = block_data.loadBlack(2);
-            reference_stack(:,:,2) = block_data.loadWhite(2);
-            %instantise shading corrector using provided reference stack
-            shading_corrector = ShadingCorrector(reference_stack);
-            block_data.addManualShadingCorrector(shading_corrector);
+            block_data.addShadingCorrector(ShadingCorrector(),[2,2]);
         case 3
-            %declare array of images, reference stack is an array of b/g/w images
-            reference_stack = zeros(block_data.height, block_data.width, 3);
-            %load mean b/w images
-            reference_stack(:,:,1) = block_data.loadBlack(2);
-            reference_stack(:,:,2) = block_data.loadWhite(2);
-            reference_stack(:,:,3) = block_data.loadGrey(2);
-            %instantise shading corrector using provided reference stack
-            shading_corrector = ShadingCorrector(reference_stack);
-            block_data.addManualShadingCorrector(shading_corrector);
+            block_data.addShadingCorrector(ShadingCorrector(),[2,2,2]);
         case 4
-            %declare array of images, reference stack is an array of b/g/w images
-            reference_stack = zeros(block_data.height, block_data.width, 3);
-            %load mean b/w images
-            reference_stack(:,:,1) = block_data.loadBlack(2);
-            reference_stack(:,:,2) = block_data.loadWhite(2);
-            reference_stack(:,:,3) = block_data.loadGrey(2);
-            %instantise shading corrector using provided reference stack
-            shading_corrector = ShadingCorrector_polynomial(reference_stack,block_data.panel_counter,[2,2,2]);
-            block_data.addManualShadingCorrector(shading_corrector);
+            block_data.addShadingCorrector(ShadingCorrector_polynomial([2,2,2]),[2,2,2]);
     end
+    
+    %remove dead pixels
+    block_data.turnOnRemoveDeadPixels();
     
     %declare an array of images, one element for b/g/w images
     image_array = zeros(block_data.height, block_data.width, 3);

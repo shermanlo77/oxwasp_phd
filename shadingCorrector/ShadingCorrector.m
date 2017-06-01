@@ -1,15 +1,21 @@
-%SHADINGCORRECTOR Stores an array of blank scans and use it to do
-%shading correction
-%   A stack of reference scans (white, grey, black images) is passed to the
-%   object via the constructor. Use the method calibrate() to work out
-%   parameters to do shading correction. The image to be shading
-%   corrected is passed to the method shadeCorrect()
+%SHADINGCORRECTOR Stores an array of reference scans and use it to do shading correction
+%   Use the constructor to instantise a shading corrector
+%
+%   A stack of reference scans is passed to the shading corrector via the method addReferenceImages().
+%   Use the method calibrate() to work out parameters to do shading correction.
+%   Shading correction is done via the method shadeCorrect()
+%
+%   Outlying pixels can be set to NaN by calling the method turnOnSetExtremeToNan()
+%   Outlying pixels are pixels with greyvalues less than this.min_greyvalue and more than intmax('uint16')
 classdef ShadingCorrector < handle
     
     %MEMBER VARIABLES
     properties
         
-        reference_image_array; %array of reference images
+        %array of reference images (3 dimensions)
+            %dim 1 and dim 2 for the image
+            %dim 3: for each image
+        reference_image_array; 
         image_size; %two vector representing the size of the image [height, width]
         n_image; %number of images in reference_image_array
         
@@ -17,7 +23,7 @@ classdef ShadingCorrector < handle
         global_mean; %scalar: mean of all greyvalues in reference_image_array
         b_array; %image of the gradients
         
-        can_smooth; %boolean, false if it cannot smooth the images in reference_image_array
+        can_smooth; %boolean, false if it cannot smooth the images panel by panel in reference_image_array
         
         set_extreme_to_nan; %boolean, set extreme shading corrected values to nan, default false
         
@@ -29,18 +35,25 @@ classdef ShadingCorrector < handle
     methods
         
         %CONSTRUCTOR
+        function this = ShadingCorrector()
+            %assign member variables
+            this.can_smooth = false;
+            this.set_extreme_to_nan = false;
+            this.min_greyvalue = 0;
+        end
+        
+        %ADD REFERENCE IMAGES
         %PARAMETERS:
-            %reference_image_array: stack of blank scans
-        function this = ShadingCorrector(reference_image_array)
+            %reference_image_array: stack of blank scans (3 dimensions)
+                %dim 1 and dim 2 for the image
+                %dim 3: for each image
+        function addReferenceImages(this, reference_image_array)
             %assign member variables
             this.reference_image_array = reference_image_array;
             %get the size of the images and the number of images in the stack
             [height,width,this.n_image] = size(reference_image_array);
             %assign member variable
             this.image_size = [height,width];
-            this.can_smooth = false;
-            this.set_extreme_to_nan = false;
-            this.min_greyvalue = 0;
         end
         
         %CALIBRATE

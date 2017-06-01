@@ -6,42 +6,23 @@ close all;
 %for the black, grey and white images
 for i_shading = 1:4
     
-    %load the data
+    %reset the data
     block_data = BlockData_140316();
     
     %add the i_shading corresponding shading correction when required
     switch i_shading
         case 2
-            %declare array of images, reference stack is an array of b/g/w images
-            reference_stack = zeros(block_data.height, block_data.width, 2);
-            %load mean b/w images
-            reference_stack(:,:,1) = block_data.loadBlack(2);
-            reference_stack(:,:,2) = block_data.loadWhite(2);
-            %instantise shading corrector using provided reference stack
-            shading_corrector = ShadingCorrector(reference_stack);
-            block_data.addManualShadingCorrector(shading_corrector);
+            block_data.addShadingCorrector(ShadingCorrector(),[2,2]);
         case 3
-            %declare array of images, reference stack is an array of b/g/w images
-            reference_stack = zeros(block_data.height, block_data.width, 3);
-            %load mean b/w images
-            reference_stack(:,:,1) = block_data.loadBlack(2);
-            reference_stack(:,:,2) = block_data.loadWhite(2);
-            reference_stack(:,:,3) = block_data.loadGrey(2);
-            %instantise shading corrector using provided reference stack
-            shading_corrector = ShadingCorrector(reference_stack);
-            block_data.addManualShadingCorrector(shading_corrector);
+            block_data.addShadingCorrector(ShadingCorrector(),[2,2,2]);
         case 4
-            %declare array of images, reference stack is an array of b/g/w images
-            reference_stack = zeros(block_data.height, block_data.width, 3);
-            %load mean b/w images
-            reference_stack(:,:,1) = block_data.loadBlack(2);
-            reference_stack(:,:,2) = block_data.loadWhite(2);
-            reference_stack(:,:,3) = block_data.loadGrey(2);
-            %instantise shading corrector using provided reference stack
-            shading_corrector = ShadingCorrector_polynomial(reference_stack,block_data.panel_counter,[2,2,2]);
-            block_data.addManualShadingCorrector(shading_corrector);
+            block_data.addShadingCorrector(ShadingCorrector_polynomial([2,2,2]),[2,2,2]);
     end
+    
+    %remove dead pixels
     block_data.turnOnRemoveDeadPixels();
+    
+    figure;
     
     for i_image = 1:2
 
@@ -61,8 +42,6 @@ for i_shading = 1:4
         x = x-mean(x);
         y = y-mean(y);
 
-        figure;
-
         L = numel(x);
         f_array = (0:(L/2))/L;
         x_fft = fft(x);
@@ -70,9 +49,10 @@ for i_shading = 1:4
         P_x = abs(x_fft/L);
         P_x(2:end-1) = 2*P_x(2:end-1);
 
-        subplot(2,1,1);
+        subplot(2,2,1+(i_image-1)*2);
         plot(f_array,(P_x));
-        ylabel('Magnitude (log)');
+        xlim([-0.01,0.5]);
+        ylabel('Amplitude (greyvalue)');
         xlabel('Frequency in the x axis (pixel^{-1})');
 
         L = numel(y);
@@ -82,9 +62,10 @@ for i_shading = 1:4
         P_y = abs(y_fft/L);
         P_y(2:end-1) = 2*P_y(2:end-1);
 
-        subplot(2,1,2);
+        subplot(2,2,2+(i_image-1)*2);
         plot(f_array,(P_y));
-        ylabel('Magnitude (log)');
+        xlim([-0.01,0.5]);
+        ylabel('Amplitude (greyvalue)');
         xlabel('Frequency in the y axis (pixel^{-1})');
 
 

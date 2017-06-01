@@ -71,10 +71,10 @@ classdef Experiment_bgwShadingANOVA < Experiment
                 %for the 4 different types of shading correction, get the
                 %within and between pixel variance and save it to the member
                 %variable std_array
-                this.shadingCorrection_ANOVA(@ShadingCorrector_null, false, nan);
-                this.shadingCorrection_ANOVA(@ShadingCorrector, false, nan);
-                this.shadingCorrection_ANOVA(@ShadingCorrector, true, nan);
-                this.shadingCorrection_ANOVA(@ShadingCorrector_polynomial, true, [2,2,2]);
+                this.shadingCorrection_ANOVA(ShadingCorrector_null(), false);
+                this.shadingCorrection_ANOVA(ShadingCorrector(), false);
+                this.shadingCorrection_ANOVA(ShadingCorrector(), true);
+                this.shadingCorrection_ANOVA(ShadingCorrector_polynomial([2,2,2]), true);
                 this.shading_correction_pointer = 1;
                 
                 %print the progress
@@ -138,7 +138,7 @@ classdef Experiment_bgwShadingANOVA < Experiment
         end
         
         %SHADING CORRECTION ANOVA
-        function shadingCorrection_ANOVA(this, shading_corrector_class, want_grey, parameters)
+        function shadingCorrection_ANOVA(this, shading_corrector, want_grey)
             %PARAMETERS:
                 %data_object: object which loads the data
                 %n_train: number of images to be used for training the shading corrector
@@ -162,29 +162,18 @@ classdef Experiment_bgwShadingANOVA < Experiment
             grey_train = index(1:this.n_train);
             grey_test = index((this.n_train+1):end);
 
-            %turn off shading correction when loading the b/g/w images
-            this.block_data.turnOffShadingCorrection();
-
             %declare array of images, reference stack is an array of mean b/g/w images
-            reference_stack = zeros(this.block_data.height, this.block_data.width, 2+want_grey);
+            reference_index = zeros(this.n_train, 2+want_grey);
             %load mean b/w images
-            reference_stack(:,:,1) = mean(this.block_data.loadBlackStack(black_train),3);
-            reference_stack(:,:,2) = mean(this.block_data.loadWhiteStack(white_train),3);
+            reference_index(:,1) = black_train';
+            reference_index(:,2) = white_train';
             %load mean grey images if requested
             if want_grey
-                reference_stack(:,:,3) = mean(this.block_data.loadGreyStack(grey_train),3);
+                reference_index(:,3) = grey_train';
             end
 
-            %instantise shading corrector using provided reference stack
-            %if parameters are provided, add it to the shading corrector
-            %then add the shading corrector to the data
-            if ~isnan(parameters)
-                shading_corrector = feval(shading_corrector_class,reference_stack, this.block_data.panel_counter, parameters);
-            else
-                shading_corrector = feval(shading_corrector_class,reference_stack);
-            end
-            
-            this.block_data.addManualShadingCorrector(shading_corrector);
+            %add the shading corrector to the data
+            this.block_data.addShadingCorrector(shading_corrector,reference_index);
 
             %turn on remove dead pixels
             this.block_data.turnOnRemoveDeadPixels();

@@ -10,8 +10,8 @@ classdef ShadingCorrector_mean < ShadingCorrector_smooth
         
         %CONSTRUCTOR
         %Call superclass
-        function this = ShadingCorrector_mean(reference_image_array, panel_counter, parameter)
-            this = this@ShadingCorrector_smooth(reference_image_array, panel_counter, parameter);
+        function this = ShadingCorrector_mean(parameter)
+            this = this@ShadingCorrector_smooth(parameter);
         end
         
         %SMOOTH PANEL

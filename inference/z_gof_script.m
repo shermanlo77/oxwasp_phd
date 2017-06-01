@@ -8,7 +8,7 @@ rng(uint32(139952197), 'twister');
 %get the data
 block_data = BlockData_140316();
 %add bgw shading correction
-block_data.addShadingCorrector(@ShadingCorrector,true);
+block_data.addShadingCorrector(ShadingCorrector());
 block_data.turnOnRemoveDeadPixels();
 block_data.turnOnSetExtremeToNan();
 %get the threshold of the top half of the image, threshold of the 3d printed sample

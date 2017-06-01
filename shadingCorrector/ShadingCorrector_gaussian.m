@@ -10,8 +10,8 @@ classdef ShadingCorrector_gaussian < ShadingCorrector_smooth
         
         %CONSTRUCTOR
         %Call superclass
-        function this = ShadingCorrector_gaussian(reference_image_array, panel_counter, parameter)
-            this = this@ShadingCorrector_smooth(reference_image_array, panel_counter, parameter);
+        function this = ShadingCorrector_gaussian(parameter)
+            this = this@ShadingCorrector_smooth(parameter);
         end
         
         %SMOOTH PANEL

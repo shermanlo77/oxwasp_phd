@@ -1,16 +1,21 @@
+%SHADINGCORRECTOR_SMOOTH Abstract class for a shading_corrector which smooths the reference images panel by panel
+    %   To implement a subclass, the method smoothPanel(index,corner_position,parameter) must be implemented.
+    %   This method modifies the member variable reference_image_array by smoothing a panel of the index-th image using the parameter.
+    %
+    %   To set up the shading corrector, a panel_counter object must be provided via the method addPanelCounter
+    %   Then provide reference images via the method addReferenceImages()
+    %   Then call the method calibrate() 
 classdef ShadingCorrector_smooth < ShadingCorrector
-    %SHADINGCORRECTOR_SMOOTH Abstract class for a shading_corrector which
-    %smooths the reference images
-    %   To implement a subclass, the method smoothPanel(index,corner_position,parameter)
-    %   must be implemented. This modifies the member variable reference_image_array
-    %   by smoothing a panel of the index-th image using the parameter.
     
     %MEMBER VARIABLE
     properties
-        
         %the orginial array of reference images
         orginial_reference_array;
+        %vector of parameters
+            %dim 1: for each image in orginial_reference_array
         parameter;
+        %panel counter object
+            %used for extracting the coordinates of each panel
         panel_counter;
     end
     
@@ -19,16 +24,42 @@ classdef ShadingCorrector_smooth < ShadingCorrector
         
         %CONSTRUCTOR
         %PARAMETERS:
-            %reference_image_array: stack of blank scans
-        function this = ShadingCorrector_smooth(reference_image_array, panel_counter, parameter)
-            this = this@ShadingCorrector(reference_image_array);
+            %parameters: vector of parameters for smoothing each reference image
+                %dim 1: for each image in orginial_reference_array
+        function this = ShadingCorrector_smooth(parameter)
+            %call super class
+            this = this@ShadingCorrector();
+            %assign member variables
             this.can_smooth = true;
+            this.parameter = parameter;
+        end
+        
+        %ADD REFERENCE IMAGES
+        %PARAMETERS:
+            %reference_image_array: stack of blank scans (see superclass)
+        function addReferenceImages(this, reference_image_array)
             %make a copy of the reference images
             this.orginial_reference_array = reference_image_array;
-            this.panel_counter = panel_counter;
-            this.parameter = parameter;
-            
+            %call the superclass version of addReferenceImages
+            this.addReferenceImages@ShadingCorrector(reference_image_array);
+        end
+        
+        %CALIBRATE
+        %Work out the parameters for shading correction
+        function calibrate(this)
+            %smooth each image panel by panel
             this.smoothEachPanel();
+            %call the superclass version of calibrate
+            this.calibrate@ShadingCorrector();
+        end
+        
+        %ADD PANEL COUNTER
+        %Add a panel counter object, to be used to extract the coordinates of each panel
+        %PARAMETERS:
+            %panel_counter: panel_counter object
+        function addPanelCounter(this, panel_counter)
+            %assign member variable
+            this.panel_counter = panel_counter;
         end
         
         %MEAN SQUARED ERROR
@@ -57,7 +88,7 @@ classdef ShadingCorrector_smooth < ShadingCorrector
             residual_image = residual_image/scale;
         end
         
-        %SMOOTH PANELS
+        %SMOOTH EACH PANEL
         %Call this method is a shading corrector was provided and to use it
         %to smooth the reference images panel by panel.
         function smoothEachPanel(this)

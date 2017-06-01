@@ -18,7 +18,7 @@ rng(uint32(5949338), 'twister');
 %get the data
 block_data = BlockData_140316();
 %add bgw shading correction
-block_data.addShadingCorrector(@ShadingCorrector,true);
+block_data.addShadingCorrector(ShadingCorrector());
 block_data.turnOnRemoveDeadPixels();
 block_data.turnOnSetExtremeToNan();
 

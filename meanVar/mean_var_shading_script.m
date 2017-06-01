@@ -34,7 +34,7 @@ axe_array{1} = ax;
 %SHADING CORRECTED
 %UNSMOOTHED B/W
 %instantise shading corrector (consider grey image = false)
-block_data.addShadingCorrector(@ShadingCorrector,false);
+block_data.addShadingCorrector(ShadingCorrector(),repmat((1:20)',1,2));
 %get the sample_mean and sample_var data, plot frequency density heatmap
 [sample_mean,sample_var] = block_data.getSampleMeanVar_topHalf();
 figure;
@@ -48,7 +48,7 @@ axe_array{2} = ax;
 %SHADING CORRECTED
 %UNSMOOTHED B/G/W
 %instantise shading corrector (consider grey image = true)
-block_data.addShadingCorrector(@ShadingCorrector,true);
+block_data.addShadingCorrector(ShadingCorrector());
 %get the sample_mean and sample_var data, plot frequency density heatmap
 [sample_mean,sample_var] = block_data.getSampleMeanVar_topHalf();
 figure;
@@ -62,7 +62,7 @@ axe_array{3} = ax;
 %SHADING CORRECTED
 %POLYNOMIAL SMOOTHED 2/2/2 B/G/W
 %instantise shading corrector (consider grey image = true) (polynomial order = 2)
-block_data.addShadingCorrector(@ShadingCorrector_polynomial,true,[2,2,2]);
+block_data.addShadingCorrector(ShadingCorrector_polynomial([2,2,2]));
 %get the sample_mean and sample_var data, plot frequency density heatmap
 [sample_mean,sample_var] = block_data.getSampleMeanVar_topHalf();
 figure;

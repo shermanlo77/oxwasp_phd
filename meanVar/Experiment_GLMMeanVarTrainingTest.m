@@ -71,10 +71,10 @@ classdef Experiment_GLMMeanVarTrainingTest < Experiment
             this.block_array{1} = BlockData_140316();
             %2nd one uses b/w for shading correction
             this.block_array{2} = BlockData_140316();
-            this.block_array{2}.addShadingCorrector(@ShadingCorrector,false);
+            this.block_array{2}.addShadingCorrector(ShadingCorrector(),repmat((1:20)',1,2));
             %3rd one uses b/g/w for shading correction
             this.block_array{3} = BlockData_140316();
-            this.block_array{3}.addShadingCorrector(@ShadingCorrector,true);
+            this.block_array{3}.addShadingCorrector(ShadingCorrector());
             
             %when using shading correction, turn on setting extreme greyvalues to NaN and to remove dead pixels
             %NaN pixels are treated as dead

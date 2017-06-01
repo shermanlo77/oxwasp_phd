@@ -1,9 +1,7 @@
 %BLOCK SHADING CORRECTION SCRIPT
-%Does shading correction using the given algorithm, using the mean white,
-%mean gray
-%and mean black image. Plots the scan and shading corrected scan. Also
-%plots the gradient of target greyscale vs reference greyscale in shading
-%correction.
+%Does shading correction using the given algorithm, using the mean white, mean gray and mean black image.
+%Plots the scan and shading corrected scan.
+%Also plots the gradient of target greyscale vs reference greyscale in shading correction.
 
 clc;
 clearvars;
@@ -20,8 +18,8 @@ colormap gray;
 axis(gca,'off');
 saveas(gca,'reports/figures/shadingCorrection/block.png');
 
-%set up shading correction for the data set
-block_data.addShadingCorrector(@ShadingCorrector,true);
+%add shading correction for the data set
+block_data.addShadingCorrector(ShadingCorrector());
 
 %plot the shading corrected sample scan image
 figure;

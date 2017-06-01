@@ -14,8 +14,8 @@ classdef ShadingCorrector_null < ShadingCorrector
         %CONSTRUCTOR
         %PARAMETERS:
             %reference_image_array: stack of reference scans
-        function this = ShadingCorrector_null(reference_image_array)
-            this = this@ShadingCorrector(reference_image_array);
+        function this = ShadingCorrector_null()
+            this = this@ShadingCorrector();
         end
         
         %CALIBRATE

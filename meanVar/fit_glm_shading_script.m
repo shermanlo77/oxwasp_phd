@@ -13,7 +13,7 @@ nbin = 100;
 
 %instantise an object pointing to the dataset
 block_data = BlockData_140316();
-block_data.addShadingCorrector(@ShadingCorrector,true);
+block_data.addShadingCorrector(ShadingCorrector());
 block_data.turnOnRemoveDeadPixels();
 block_data.turnOnSetExtremeToNan();
 

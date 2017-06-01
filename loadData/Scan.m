@@ -1,7 +1,7 @@
+%SCAN Abstract class for handling x-ray images
 classdef Scan < handle
-    %SCAN Summary of this class goes here
-    %   Detailed explanation goes here
-    
+
+    %MEMBER VARIABLES
     properties
         width; %width of the image
         height; %height of the image
@@ -9,7 +9,7 @@ classdef Scan < handle
         n_sample; %number of images
         file_name; %... name of sample image
         folder_location; %location of the dataset
-        reference_image_array; %array of reference scan objects
+        reference_image_array; %array of reference scan objects (black, white then grey)
         panel_counter %panel counter object
         shading_corrector; %shading corrector object
         want_shading_correction; %boolean, true to do shading correction, default false, automatically turns to true if a shading corrector is added
@@ -21,7 +21,14 @@ classdef Scan < handle
     methods
         
         %CONSTRUCTOR
+        %PARAMETERS:
+            %folder_location: location of the images
+            %file_name: name of the image files
+            %width: width of the image
+            %height: height of the image
+            %n_sample: number of images
         function this = Scan(folder_location, file_name, width, height, n_sample)
+            %assign member variable if parameters are provided
             if nargin > 0
                 this.folder_location = folder_location;
                 this.file_name = file_name;
@@ -37,7 +44,7 @@ classdef Scan < handle
         %LOAD SAMPLE IMAGE
         %Return a sample image
         %PARAMETERS
-            %index: index of image
+            %index: index of image (scalar)
         function slice = loadSample(this,index)
             slice = imread(strcat(this.folder_location,this.file_name,num2str(index),'.tif'));
             slice = this.shadingCorrection(double(slice));
@@ -46,8 +53,8 @@ classdef Scan < handle
         %LOAD SAMPLE IMAGE STACK
         %Return stack of sample images
         %PARAMETERS:
-            %range (optional): vector of indices of images requested, if
-            %empty return the full range
+            %range (optional): vector of indices of images requested
+                %if empty return the full range
         function stack = loadSampleStack(this,range)
             %if range not provided, provide the full range
             if nargin == 1
@@ -75,38 +82,52 @@ classdef Scan < handle
         end
         
         %ADD SHADING CORRECTOR
-        %Instantise a new shading corrector to the member variable and calibrate it
-        %for shading correction
+        %Assign a shading corrector to the member variable and calibrate it for shading correction
+        %The reference images used are determined by the parameter reference_index
         %PARAMETERS:
-            %shading_corrector_class: function name or function handle of
-            %a ShadingCorrector class
-            %want_grey: boolean, true if want to consider grey images
-            %parameters (optional): a vector of parameters for panel fitting (one for each reference image)
-        function addShadingCorrector(this,shading_corrector_class,want_grey,parameters)
+            %shading_corrector: ShadingCorrector object
+            %reference_index: matrix of index (optional)
+                %dim 1: image index (integers)
+                %dim 2: (black, white, grey)
+                %for each column, (eg 1st column for black images)
+                %the mean of black images specified by dim 1 are used for shading corrector
+                %
+                %if not provided, use the mean of all images, black, grey and white
+        function addShadingCorrector(this,shading_corrector,reference_index)
             
             %turn off shading correction to obtain the reference images
             this.turnOffShadingCorrection();
             
-            %declare an array reference_stack which stores the mean black and mean
-            %white image
-            reference_stack = zeros(this.height,this.width,2+want_grey);
-            %load and save the mean black image
-            reference_stack(:,:,1) = mean(this.reference_image_array(1).loadSampleStack(),3);
-            %load and save the mean white image
-            reference_stack(:,:,2) = mean(this.reference_image_array(2).loadSampleStack(),3);
-            %if want_grey, load and save the mean grey image
-            if want_grey
-                reference_stack(:,:,3) = mean(this.reference_image_array(3).loadSampleStack(),3);
-            end
-
-            %instantise a shading corrector and set it up using reference images
-            if nargin == 3
-                shading_corrector_temp = feval(shading_corrector_class,reference_stack);
-            elseif nargin == 4
-                shading_corrector_temp = feval(shading_corrector_class,reference_stack, this.panel_counter, parameters);
+            %if reference_index is not provided
+            if nargin == 2
+                %use all black, white and grey images
+                n_reference = numel(this.reference_image_array);
+            %else get the number of colours requested
+            else            
+                n_reference = numel(reference_index(1,:));
             end
             
-            this.addManualShadingCorrector(shading_corrector_temp);
+            %declare a stack of reference images
+            reference_stack = zeros(this.height,this.width,n_reference);
+            
+            %for each reference image (or colour)
+            for i = 1:n_reference
+                %if reference_index is not provided, take the mean of all images
+                if nargin == 2
+                    reference_stack(:,:,i) = mean(this.reference_image_array(i).loadSampleStack(),3);
+                %else take the mean of all images specified in the ith column of reference_index
+                else
+                    reference_i_index = reference_index(:,i);
+                    reference_i_index(reference_i_index==0) = [];
+                    reference_stack(:,:,i) = mean(this.reference_image_array(i).loadSampleStack(reference_i_index),3);
+                end
+            end
+
+            %add the reference_stack to the shading corrector
+            shading_corrector.addReferenceImages(reference_stack);
+            
+            %add the shading corrector to the member variable
+            this.addManualShadingCorrector(shading_corrector);
             
         end
         
@@ -121,6 +142,12 @@ classdef Scan < handle
 
             %get the minimum possible greyvalue to the shading corrector
             this.shading_corrector.min_greyvalue = this.min_greyvalue;
+            
+            %if the shading corrector can smooth the reference images panel by panel
+                %add the panel counter
+            if this.shading_corrector.can_smooth
+                shading_corrector.addPanelCounter(this.panel_counter);
+            end
             
             %calibrate the shading corrector to do shading correction
             this.shading_corrector.calibrate();
@@ -162,17 +189,31 @@ classdef Scan < handle
             this.shading_corrector.turnOffSetExtremeToNan();
         end
         
+        %LOAD REFERENCE
+        %Return a b/g/w image
+        %PARAMETER
+            %reference_index: 1 for black, 2 for white, 3 for grey...
+            %image_index: scalar integer, index for image
         function slice = loadReference(this,reference_index,image_index)
-            slice = this.reference_image_array(reference_index).loadSampleStack(image_index);
+            slice = this.reference_image_array(reference_index).loadSample(image_index);
+            slice = this.shadingCorrection(slice);
         end
         
-        function stack = loadReference_stack(this,reference_index,image_index)
+        %LOAD REFERENCE STACK
+        %Return a stack of b/g/w images
+        %PARAMETERS:
+            %reference_index: 1 for black, 2 for white, 3 for grey...
+            %image_index_array: vector for scalar integers, index for images
+        function stack = loadReferenceStack(this,reference_index,image_index_array)
             %if range not provided, provide the full range
             if nargin == 2
-                image_index = 1:this.reference_image_array(reference_index).n_sample;
+                image_index_array = 1:this.reference_image_array(reference_index).n_sample;
             end
             %declare stack of images
-            stack = this.loadReference(this,reference_index,image_index);
+            stack = zeros(this.height,this.width,numel(image_index_array));
+            for i_image = 1:numel(image_index_array)
+                stack(:,:,i_image) = this.loadReference(reference_index,image_index_array(i_image));
+            end
         end
         
         %LOAD BLACK IMAGE
@@ -181,7 +222,6 @@ classdef Scan < handle
             %index: index of image
         function slice = loadBlack(this,index)
             slice = this.loadReference(1,index);
-            slice = this.shadingCorrection(double(slice));
         end
         
         %LOAD GREY IMAGE
@@ -190,7 +230,6 @@ classdef Scan < handle
             %index: index of image
         function slice = loadGrey(this,index)
             slice = this.loadReference(3,index);
-            slice = this.shadingCorrection(double(slice));
         end
         
         %LOAD WHITE IMAGE
@@ -199,7 +238,6 @@ classdef Scan < handle
             %index: index of image
         function slice = loadWhite(this,index)
             slice = this.loadReference(2,index);
-            slice = this.shadingCorrection(double(slice));
         end
         
         %LOAD BLACK IMAGE STACK
@@ -208,7 +246,7 @@ classdef Scan < handle
             %range (optional): vector of indices of images requested, if
             %empty return the full range
         function stack = loadBlackStack(this,range)
-            stack = this.loadReference(1,range);
+            stack = this.loadReferenceStack(1,range);
         end
         
         %LOAD GREY IMAGE STACK
@@ -217,7 +255,7 @@ classdef Scan < handle
             %range (optional): vector of indices of images requested, if
             %empty return the full range
         function stack = loadGreyStack(this,range)
-            stack = this.loadReference(3,range);
+            stack = this.loadReferenceStack(3,range);
         end
         
         %LOAD WHITE IMAGE STACK
@@ -226,7 +264,7 @@ classdef Scan < handle
             %range (optional): vector of indices of images requested, if
             %empty return the full range
         function stack = loadWhiteStack(this,range)
-            stack = this.loadReference(2,range);
+            stack = this.loadReferenceStack(2,range);
         end
         
     end

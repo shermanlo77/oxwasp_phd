@@ -32,11 +32,11 @@ for i = 1:4
     %add shading correction to the data
     switch i
         case 2
-            block_data.addShadingCorrector(@ShadingCorrector,false);
+            block_data.addShadingCorrector(ShadingCorrector(),repmat((1:20)',1,2));
         case 3
-            block_data.addShadingCorrector(@ShadingCorrector,true);
+            block_data.addShadingCorrector(ShadingCorrector());
         case 4
-            block_data.addShadingCorrector(@ShadingCorrector_polynomial,true,[2,2,2]);
+            block_data.addShadingCorrector(ShadingCorrector_polynomial([2,2,2]));
     end
     %if shading correction is applied, interpolate extreme pixels
     if i>1
