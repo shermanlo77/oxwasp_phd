@@ -246,7 +246,11 @@ classdef Scan < handle
             %range (optional): vector of indices of images requested, if
             %empty return the full range
         function stack = loadBlackStack(this,range)
-            stack = this.loadReferenceStack(1,range);
+            if nargin == 2
+                stack = this.loadReferenceStack(1,range);
+            else
+                stack = this.loadReferenceStack(1);
+            end
         end
         
         %LOAD GREY IMAGE STACK
@@ -255,7 +259,11 @@ classdef Scan < handle
             %range (optional): vector of indices of images requested, if
             %empty return the full range
         function stack = loadGreyStack(this,range)
-            stack = this.loadReferenceStack(3,range);
+            if nargin == 2
+                stack = this.loadReferenceStack(3,range);
+            else
+                stack = this.loadReferenceStack(3);
+            end
         end
         
         %LOAD WHITE IMAGE STACK
@@ -264,7 +272,11 @@ classdef Scan < handle
             %range (optional): vector of indices of images requested, if
             %empty return the full range
         function stack = loadWhiteStack(this,range)
-            stack = this.loadReferenceStack(2,range);
+            if nargin == 2
+                stack = this.loadReferenceStack(2,range);
+            else
+                stack = this.loadReferenceStack(2);
+            end
         end
         
     end
