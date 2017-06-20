@@ -6,9 +6,8 @@ function cp_pdf = cpPdf(x, lambda, alpha, gamma)
     terms = zeros(1,3);
     terms(1) = -lambda-x/gamma;
     terms(2) = -log(x);
-    [terms(3),a,b] = lnSumW(x,phi,p);
-    
-    disp([a,b]);
+    terms(3) = lnSumW(x,phi,p);
+
     cp_pdf = exp(sum(terms));
 
 

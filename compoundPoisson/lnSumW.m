@@ -6,6 +6,7 @@ function [ln_sum_w, y_l, y_u] = lnSumW(x, phi, p)
     n_term = 1E7;
     
     terms = zeros(1,n_term);
+    terms(1) = 1;
     threshold = -37;
     
     got_y_l = false;
@@ -13,7 +14,7 @@ function [ln_sum_w, y_l, y_u] = lnSumW(x, phi, p)
     
     y_l = y_max;
     y_u = y_max;
-    counter = 1;
+    counter = 2;
     
     if y_l == 1
         got_y_l = true;
@@ -28,7 +29,7 @@ function [ln_sum_w, y_l, y_u] = lnSumW(x, phi, p)
             if log_ratio > threshold
                 terms(counter) = exp(log_ratio);
                 counter = counter + 1;
-                if counter == n_term
+                if counter > n_term
                     error('Number of terms exceed memory allocation');
                 end
             else
@@ -44,7 +45,7 @@ function [ln_sum_w, y_l, y_u] = lnSumW(x, phi, p)
         if log_ratio > threshold
             terms(counter) = exp(log_ratio);
             counter = counter + 1;
-            if counter == n_term
+            if counter > n_term
                 error('Number of terms exceed memory allocation');
             end
         else
@@ -53,6 +54,7 @@ function [ln_sum_w, y_l, y_u] = lnSumW(x, phi, p)
     end
     y_u = y_u - 1;
 
+    counter = counter - 1;
     ln_sum_w = ln_w_max + log(sum(terms(1:counter)));
 end
 

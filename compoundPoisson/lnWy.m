@@ -9,8 +9,8 @@ function ln_Wy = lnWy(x, y, phi, p)
     terms(3) = -y*(1-alpha)*log(phi);
     terms(4) = -y*log(2-p);
     terms(5) = -gammaln(1+y);
-    terms(6) = -gamma(-alpha*y);
-    
+    terms(6) = -gammaln(-alpha*y);
+
     ln_Wy = sum(terms);
 
 
