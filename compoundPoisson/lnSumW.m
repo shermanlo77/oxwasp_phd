@@ -1,7 +1,10 @@
-function [ln_sum_w, y_l, y_u] = lnSumW(x, phi, p)
+function [ln_sum_w_ratio, y_l, y_u] = lnSumW(x, y_pow, lambda, alpha, beta)
+
+    p = (alpha + 2) / (alpha + 1);
+    phi = exp( log(1+alpha) - (2-p)*log(beta) - (p-1)*log(alpha*lambda) );
 
     y_max = yMax(x,phi,p);
-    ln_w_max = lnWy(x,y_max,phi,p);
+    ln_w_max = lnWy(x,y_max,phi,p) + y_pow*log(y_max);
     
     n_term = 1E7;
     
@@ -25,7 +28,7 @@ function [ln_sum_w, y_l, y_u] = lnSumW(x, phi, p)
             got_y_l = true;
             y_l = y_l + 1;
         else
-            log_ratio = lnWy(x,y_l,phi,p) - ln_w_max;
+            log_ratio = sum([lnWy(x,y_l,phi,p), y_pow*log(y_l), -ln_w_max]);
             if log_ratio > threshold
                 terms(counter) = exp(log_ratio);
                 counter = counter + 1;
@@ -41,7 +44,7 @@ function [ln_sum_w, y_l, y_u] = lnSumW(x, phi, p)
     
     while ~got_y_u
         y_u = y_u + 1;
-        log_ratio = lnWy(x,y_u,phi,p) - ln_w_max;
+        log_ratio = sum([lnWy(x,y_u,phi,p), y_pow*log(y_u), -ln_w_max]);
         if log_ratio > threshold
             terms(counter) = exp(log_ratio);
             counter = counter + 1;
@@ -55,6 +58,7 @@ function [ln_sum_w, y_l, y_u] = lnSumW(x, phi, p)
     y_u = y_u - 1;
 
     counter = counter - 1;
-    ln_sum_w = ln_w_max + log(sum(terms(1:counter)));
+    ln_sum_w_ratio = ln_w_max + log(sum(terms(1:counter)));
+
 end
 
