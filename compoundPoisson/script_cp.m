@@ -3,10 +3,10 @@ clearvars;
 close all;
 
 lambda = 1;
-alpha = 1;
+alpha = 10;
 beta = 1;
 
-n = 10000;
+n = 1000;
 
 Y = poissrnd(lambda,n,1); %simulate latent poisson variables
 X = gamrnd(Y*alpha,1/beta); %simulate observable gamma
@@ -15,6 +15,7 @@ lambda_predict = lambda;
 alpha_predict = alpha;
 beta_predict = beta;
 Y_predict = zeros(n,1);
+var_predict = zeros(n,1);
 
 n_step = 10;
 
@@ -23,30 +24,28 @@ lnL_array(1) = cplnL(X,lambda_predict,alpha_predict,beta_predict);
 
 for step = 1:n_step
     for i = 1:n
-        Y_predict(i) = EStep(X(i), lambda_predict, alpha_predict, beta_predict);
+        [Y_predict(i),var_predict(i)] = EStep(X(i), lambda_predict, alpha_predict, beta_predict);
     end
     
-    for i = 1:10
-        [lambda_predict, alpha_predict, beta_predict] = MStep(X, Y_predict, alpha_predict, beta_predict);
-    end
+    [lambda_predict, alpha_predict, beta_predict] = MStep(X, Y_predict, var_predict, alpha_predict, beta_predict);
     
     lnL_array(1+step) = cplnL(X,lambda_predict,alpha_predict,beta_predict);
 end
 figure;
 plot(lnL_array);
 
-[alpha_grid, beta_grid] = meshgrid(linspace(0.1,4,20),linspace(0.1,4,20));
-lnL_full_grid = alpha_grid;
-for i = 1:numel(lnL_full_grid)
-    for j = 1:n
-        Y_predict(j) = EStep(X(j), lambda, alpha_grid(i),beta_grid(i));
-    end
-    lnL_full_grid(i) = cpFulllnL(X,Y_predict,lambda,alpha_grid(i),beta_grid(i));
-end
-figure;
-surf(alpha_grid, beta_grid, lnL_full_grid);
-xlabel('alpha');
-ylabel('beta');
+% [alpha_grid, beta_grid] = meshgrid(linspace(0.1,2,20),linspace(0.1,2,20));
+% lnL_full_grid = alpha_grid;
+% for i = 1:numel(lnL_full_grid)
+%     for j = 1:n
+%         Y_predict(j) = EStep(X(j), lambda, alpha_grid(i),beta_grid(i));
+%     end
+%     lnL_full_grid(i) = cpFulllnL(X,Y_predict,lambda,alpha_grid(i),beta_grid(i));
+% end
+% figure;
+% surf(alpha_grid, beta_grid, lnL_full_grid);
+% xlabel('alpha');
+% ylabel('beta');
 
 zero_index = (X==0);
 n_0 = sum(zero_index);
