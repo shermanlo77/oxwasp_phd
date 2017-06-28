@@ -21,28 +21,32 @@ n_step = 10;
 lnL_array = zeros(n_step+1,1);
 lnL_array(1) = cplnL(X,lambda_predict,alpha_predict,beta_predict);
 
-lnL_full_array = zeros(2*n_step,1);
-
-
 for step = 1:n_step
     for i = 1:n
         Y_predict(i) = EStep(X(i), lambda_predict, alpha_predict, beta_predict);
     end
     
-    lnL_full_array(2*(step-1)+1) = cpFulllnL(X, Y_predict, lambda_predict, alpha_predict, beta_predict);
-    
     for i = 1:10
         [lambda_predict, alpha_predict, beta_predict] = MStep(X, Y_predict, alpha_predict, beta_predict);
     end
-    
-    lnL_full_array(2*(step-1)+2) = cpFulllnL(X, Y_predict, lambda_predict, alpha_predict, beta_predict);
     
     lnL_array(1+step) = cplnL(X,lambda_predict,alpha_predict,beta_predict);
 end
 figure;
 plot(lnL_array);
+
+[alpha_grid, beta_grid] = meshgrid(linspace(0.1,4,20),linspace(0.1,4,20));
+lnL_full_grid = alpha_grid;
+for i = 1:numel(lnL_full_grid)
+    for j = 1:n
+        Y_predict(j) = EStep(X(j), lambda, alpha_grid(i),beta_grid(i));
+    end
+    lnL_full_grid(i) = cpFulllnL(X,Y_predict,lambda,alpha_grid(i),beta_grid(i));
+end
 figure;
-plot(lnL_full_array);
+surf(alpha_grid, beta_grid, lnL_full_grid);
+xlabel('alpha');
+ylabel('beta');
 
 zero_index = (X==0);
 n_0 = sum(zero_index);
