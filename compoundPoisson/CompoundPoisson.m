@@ -63,8 +63,15 @@ classdef CompoundPoisson < handle
         end
         
         %METHOD: GET DENSITY
+        %PARAMETER:
+            %x: vector of compound Poisson variables
+        %RETURN:
+            %pdf: vector of densities, for each element in x
         function pdf = getPdf(this,x)
-            pdf = exp(this.getlnpdf(x));
+            pdf = zeros(numel(x),1);
+            for i = 1:numel(x)
+                pdf(i) = exp(this.getlnpdf(x(i)));
+            end
         end
         
         %GET SADDLEPOINT DENSITY
@@ -72,22 +79,19 @@ classdef CompoundPoisson < handle
         %saddlepoint density. The normalisation constant was worked out
         %using the trapezium rule, with n_point - 1 strips
         %PARAMETERS:
-            %x_min: lowest part of the domain
-            %x_max: highest part of the domain
-            %n_point: number of points between x_min and x_max
+            %x: row vector, equally spaced out compound poisson random variables
         %RETURN:
             %f: row vector of size n_points containing the saddle density for each point
             %x: row vector of size n_points, linspace(x_min,x_max,n_point)
-         function [f,x] = getDensity(this,x_min,x_max,n_point)
-            
-            x = linspace(x_min,x_max,n_point); %get equally spaced points in the domain
+        function f = getSaddlePdf(this,x)
+             
             k = -this.lambda; %some constant to control over/under flow
 
             %work out the saddle density
             f = exp(k+sum([-(this.alpha+2)/(2*(this.alpha+1))*log(x);-x*this.beta;(x/this.alpha).^(this.alpha/(this.alpha+1))*(this.lambda)^(1/(this.alpha+1))*(this.beta)^(this.alpha/(this.alpha+1))*(this.alpha+1)]));
 
             %work out the height of the trapziums
-            h = (x_max-x_min)/(n_point-1);
+            h = (max(x)-min(x))/(numel(x)-1);
             %integrate the function
             area = 0.5*h*(f(1)+f(end)+2*sum(f(2:(end-1))));
             
@@ -365,6 +369,59 @@ classdef CompoundPoisson < handle
             %work out the compound Poisson sum using non-zero terms
             ln_sum_w = ln_w_max + log(sum(terms(1:counter)));
 
+        end
+        
+        
+        function x = getinv(this,p_array, a, b, n, use_saddle)
+
+            x_array = (linspace(a,b,n));
+            h = (b-a)/n;
+            
+            if use_saddle
+                pdf_array = this.getSaddlePdf(x_array);
+            else
+                pdf_array = this.getPdf(x_array);
+            end
+            
+            cdf_array = zeros(n,1);
+            
+            if a==0
+                cdf_array(1) = pdf_array(1);
+            else
+                cdf_array(1) = 0;
+            end
+            
+            for i = 2:n
+                cdf_array(i) = cdf_array(i-1) + 0.5*h*(pdf_array(i)+pdf_array(i-1));
+            end
+            
+            x = zeros(numel(p_array),1);
+            
+            counter = 1;
+            
+            for i = 1:n
+                
+                while p_array(counter) < cdf_array(i)
+                    
+                    if i == 1
+                        x(counter) = x_array(i);
+                    else
+                        x(counter) = x_array(i-1) + (x_array(i)-x_array(i-1))*(p_array(counter)-cdf_array(i-1))/(cdf_array(i)-cdf_array(i-1));
+                    end
+                    
+                    counter = counter + 1;
+                    if counter > numel(p_array)
+                        return;
+                    end
+                    
+                end
+                
+            end
+
+            if counter <= numel(p_array)
+                x(counter:end) = inf;
+            end
+            
         end
         
     end
