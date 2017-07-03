@@ -44,8 +44,10 @@ function cpQQDensity(n, lambda, alpha, beta)
 
     %% REAL DENSITY
     
-    %plot the histogram (frequency density axis on the left)
     figure;
+    
+    %plot the histogram (frequency density axis on the left)
+    subplot(2,2,1);
     yyaxis left;
     h = histogram(X_no_0,'Normalization','CountDensity');
     hold on;
@@ -70,7 +72,7 @@ function cpQQDensity(n, lambda, alpha, beta)
     %% SADDLE POINT
     
     %plot the histogram
-    figure;
+    subplot(2,2,2);
     histogram(X,'Normalization','CountDensity');
     hold on;
     %plot the saddle point approximation pdf
@@ -89,22 +91,28 @@ function cpQQDensity(n, lambda, alpha, beta)
     %for the exact pdf, get the quantiles
     %start the numerical integration from 0.5*min(X) to 1.5*max(X) using 10000 trapeziums
     x_theoretical = compound_poisson.getinv(p, min(X)*0.5, max(X)*1.5, 10000, false);
-    figure;
+    subplot(2,2,3);
     %plot the simulated quantiles vs the exact quantiles
     scatter(x_theoretical,sort(X),'x');
     hold on;
     %plot straight line
     plot(x_theoretical,x_theoretical);
+    xlabel('Theoretical quantiles');
+    ylabel('Simulation quantiles');
+    xlim([x_theoretical(1),x_theoretical(end)]);
     
     %for the saddle point pdf, get the quantiles
     %start the numerical integration from max([1E-4,min(X(zero_index))*0.5]) to 1.5*max(X) using 10000 trapeziums
     x_theoretical = compound_poisson.getinv(p, max([1E-4,min(X(zero_index))*0.5]), max(X)*1.5, 10000, true);
-    figure;
+    subplot(2,2,4);
     %plot the simulated quantiles vs the saddle quantiles
     scatter(x_theoretical,sort(X),'x');
     hold on;
     %plot straight line
     plot(x_theoretical,x_theoretical);
+    xlabel('Theoretical quantiles');
+    ylabel('Simulation quantiles');
+    xlim([x_theoretical(1),x_theoretical(end)]);
     
 end
 

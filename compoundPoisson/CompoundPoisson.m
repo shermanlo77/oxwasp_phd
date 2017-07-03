@@ -247,6 +247,14 @@ classdef CompoundPoisson < handle
             
             %do a newton step
             theta = theta - H\del_lnL;
+            
+%             %STIRLING'S APPROXIMATION
+%             this.alpha = exp(sum([
+%                 sum(Y_0.*(log(Y_0)-log(X_0)));
+%                 sum(this.X)*(log(sum(X_0))-log(sum(Y_0)));
+%                 ])/(sum(X_0)-sum(Y_0)));
+%             this.beta = this.alpha*sum(Y_0)/sum(X_0);
+%             theta = [this.alpha; this.beta]; %parameter matrix
 
             %if any of the parameters are negative, throw error
             if any(theta<0)
