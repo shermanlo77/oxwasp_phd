@@ -141,6 +141,29 @@ classdef CompoundPoisson < handle
             lnL = sum(lnL_terms);
         end
         
+        %METHOD: GET FISHER'S INFORMATION MATRIX
+        %Returns the Fisher's information matrix (using the joint log likelihood)
+        function I = getFisherInformation(this)
+            
+            %declare 3 x 3 matrix
+            I = zeros(3,3);
+            
+            %set for lambda
+            I(1,1) = this.n/this.lambda;
+            %set for alpha, the expectation was approximated using the delta method
+            I(2,2) = this.n * sum([
+                psi(1,this.lambda*this.alpha)*(this.lambda^2+this.lambda);
+                2*psi(2,this.lambda*this.alpha)*this.alpha*this.lambda^2;
+                0.5*psi(3,this.lambda*this.alpha)*this.alpha^2*this.lambda^3
+            ]);
+            %set for the covariance between alpha and beta
+            I(2,3) = -this.n*this.lambda/this.beta;
+            I(3,2) = I(2,3);
+            %set for beta
+            I(3,3) = this.n*this.lambda*this.alpha/(this.beta^2);
+            
+        end
+        
         %METHOD: GET OBJECTIVE FUNCTION FOR THE M STEP
         %RETURN
             %T: conditional expectation of the joint log likelihood
