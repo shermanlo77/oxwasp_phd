@@ -1,19 +1,24 @@
 classdef CompoundPoisson < handle
 
+    %MEMBER VARIABLES
     properties
-        lambda;
-        alpha;
-        beta;
-        phi;
-        p;
-        X;
-        Y;
-        Y_var;
-        n;
-        n_compound_poisson_term;
-        compound_poisson_sum_threshold;
+        lambda; %poisson parameter
+        alpha; %gamma shape parameter
+        beta; %gamma rate parameter
+        phi; %dispersion parameter
+        p; %power index
+        X; %array of observed compound poisson variables
+        Y; %array of latent poisson variables
+        Y_var; %array of latent poisson variances
+        n; %number of data points
+        n_compound_poisson_term; %maximum number of terms to be calculated in the compound poisson sum
+        
+        compound_poisson_sum_threshold; %negative number
+        %if ln(compound poisson term / biggest compound poisson term) > compound_poisson_sum_threshold
+        %then that term is considered for the compound poisson sum
     end
 
+    %METHODS
     methods
         
         %CONSTRUCTOR
@@ -371,60 +376,97 @@ classdef CompoundPoisson < handle
 
         end
         
-        
+        %METHOD: GET INVERSE CDF
+        %Using the trapezium rule to get the cdf then interpolate it to get the inverse
+        %PARAMETERS:
+            %p_array: order array of parameters of the inverse cdf
+            %a: start limit value of numerical integration
+            %b: end limit value of numerical integration
+            %n: number of trapeziums
+            %use_saddle: boolean, false to use exact pdf, else use saddle point approximated pdf
+        %NOTES:
+            %the saddle point approximated pdf does not support exactly 0
+        %RETURN:
+            %x: array of compound poisson variables, one for each element in p_array
+                %corresponding to the inverse cdf
         function x = getinv(this,p_array, a, b, n, use_saddle)
 
+            %get x coordinates for each trapezium
             x_array = (linspace(a,b,n));
+            %get the hight of each trapezium
             h = (b-a)/n;
             
+            %for each x, get the pdf evaluation
+            %use the exact or saddle point pdf, according to the boolean use_saddle
             if use_saddle
                 pdf_array = this.getSaddlePdf(x_array);
             else
                 pdf_array = this.getPdf(x_array);
             end
             
+            %declare array of cdf, one for each element in x_array
             cdf_array = zeros(n,1);
             
+            %get the first cdf evaluation
+            %if the lower limit is 0, the cdf = pdf because there is probability mass at 0
             if a==0
                 cdf_array(1) = pdf_array(1);
+            %else start the cdf at a
             else
                 cdf_array(1) = 0;
             end
             
+            %then for each trapezium, do numerical integration
             for i = 2:n
+                %add the area of the trapzium and append it to cdf_array
                 cdf_array(i) = cdf_array(i-1) + 0.5*h*(pdf_array(i)+pdf_array(i-1));
             end
             
+            %declare array of compound poisson variables
+            %one for each element in p_array
             x = zeros(numel(p_array),1);
             
+            %declare a variable for counting the number of inverse cdf calculated
+            %this corresponds to the pointer for the array x
             counter = 1;
             
+            %for each trapezium
             for i = 1:n
                 
+                %while the current probability in p_array is less than the cdf of the current trapezium
+                %then the inverse cdf can be calculated using interpolation
                 while p_array(counter) < cdf_array(i)
                     
+                    %if this is the first trapezium
+                    %then the inverse cdf is the lower limit of the integration
                     if i == 1
                         x(counter) = x_array(i);
+                    %else this is not the first trapezium
+                    %work out the inverse cdf using interpolation
                     else
                         x(counter) = x_array(i-1) + (x_array(i)-x_array(i-1))*(p_array(counter)-cdf_array(i-1))/(cdf_array(i)-cdf_array(i-1));
                     end
                     
+                    %increase the p_array counter by one
                     counter = counter + 1;
+                    %if the counter exceed all elements in p_array, break the while loop
                     if counter > numel(p_array)
                         return;
-                    end
+                    end %if counter
                     
-                end
+                end %while
                 
-            end
+            end %for i
 
+            %if not all inverse cdf have been calculated, they exceed the upper limit of the integration
+            %return infinite compound poisson variables
             if counter <= numel(p_array)
                 x(counter:end) = inf;
             end
             
-        end
+        end %getinv
         
-    end
+    end %methods
 
     %STATIC METHODS
     methods (Static)
