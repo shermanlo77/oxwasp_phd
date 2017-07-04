@@ -1,3 +1,7 @@
+%SCRIPT FOR COMPOUND POISSON
+%Plots the density and saddle density with the simulatiosn
+%Plots lnL and parameters for every EM step
+
 clc;
 close all;
 clearvars;

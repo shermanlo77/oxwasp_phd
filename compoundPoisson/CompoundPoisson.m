@@ -9,10 +9,9 @@ classdef CompoundPoisson < handle
         p; %power index
         X; %array of observed compound poisson variables
         Y; %array of latent poisson variables
-        Y_moment; %array of latent poisson moments
+        Y_var; %array of latent poisson variances
         n; %number of data points
         n_compound_poisson_term; %maximum number of terms to be calculated in the compound poisson sum
-        n_order; %number of terms to use in the expectation ln gamma
         
         compound_poisson_sum_threshold; %negative number
         %if ln(compound poisson term / biggest compound poisson term) > compound_poisson_sum_threshold
@@ -29,7 +28,6 @@ classdef CompoundPoisson < handle
             %assign member variables
             this.n_compound_poisson_term = 1E7;
             this.compound_poisson_sum_threshold = -37;
-            this.n_order = 1;
         end
         
         %METHOD: ADD DATA
@@ -52,7 +50,7 @@ classdef CompoundPoisson < handle
         %METHOD: INITALISE EM ALGORITHM
         function initaliseEM(this)
             this.Y = zeros(numel(this.X),1);
-            this.Y_moment = zeros(numel(this.X),this.n_order);
+            this.Y_var = zeros(numel(this.X),1);
         end
         
         %METHOD: SET PARAMETERS
@@ -198,9 +196,6 @@ classdef CompoundPoisson < handle
         %Updates the member variables Y and Y_var given X, lambda, alpha and beta
         %Y and Y_var are updated using the conditional expectations
         function EStep(this)
-            moment_vector = zeros(1,this.n_order+2);
-            central_moment_vector = zeros(1,this.n_order);
-            
             %for each data point
             for i = 1:this.n
                 %get the observable
@@ -208,39 +203,20 @@ classdef CompoundPoisson < handle
                 %if the observable is 0, then y is 0
                 if x == 0
                     y = 0;
-                    central_moment_vector = nan(1,this.n_order);
+                    var = nan;
                 %else estimate the mean and variance
                 else
                     %work out the normalisation constant for expectations
                     normalisation_constant = this.lnSumW(x, 0);
-                    
-                    for i_order = 0:(this.n_order+1)
-                        moment_vector(i_order+1) = exp(this.lnSumW(x, i_order + 1) - normalisation_constant);
-                    end
-                    
-                    y = moment_vector(1);
-                    
-                    for i_order = 1:this.n_order
-                        central_moment_vector(i_order) = this.getCentralMoment(y,moment_vector(2:(i_order+1)));
-                    end
+                    %work out the expectation
+                    y = exp(this.lnSumW(x, 1) - normalisation_constant);
+                    %work out the variance
+                    var = exp(this.lnSumW(x, 2) - normalisation_constant) - y^2;
                 end
                 %assign the expectation and variance
                 this.Y(i) = y;
-                this.Y_moment(i,:) = central_moment_vector;
+                this.Y_var(i) = var;
             end
-        end
-        
-        function moment = getCentralMoment(this,mean,moment_array)
-            n_power = numel(moment_array)+1;
-            terms = zeros(n_power + 1,1);
-            for r = 0:n_power
-                if ((r == 0)||(r == 1))
-                    terms(r+1) = nchoosek(n_power,r) * mean^n_power * (-1)^(n_power-r);
-                else
-                    terms(r+1) = nchoosek(n_power,r) * mean^(n_power-r) * moment_array(r-1) * (-1)^(n_power-r);
-                end
-            end
-            moment = sum(terms);
         end
 
         %METHOD: M STEP
@@ -253,15 +229,15 @@ classdef CompoundPoisson < handle
             %get non zero variables
             X_0 = this.X(this.X~=0);
             Y_0 = this.Y(this.Y~=0);
-            Y_moment_0 = this.Y_moment(~isnan(this.Y_moment));
+            var_0 = this.Y_var(~isnan(this.Y_var));
 
             %work out the gradient
-            d_alpha_lnL = sum(Y_0*log(this.beta) + Y_0.*log(X_0) - Y_0.*psi(this.alpha*Y_0) - (0.5*this.alpha^2).*Y_moment_0.*Y_0.*psi(2,Y_0*this.alpha) - this.alpha*Y_moment_0.*psi(1,Y_0*this.alpha));
+            d_alpha_lnL = sum(Y_0*log(this.beta) - Y_0.*psi(this.alpha*Y_0) + Y_0.*log(X_0) - (0.5*this.alpha^2).*var_0.*Y_0.*psi(2,Y_0*this.alpha) - this.alpha*var_0.*psi(1,Y_0*this.alpha));
             d_beta_lnL = sum(Y_0*this.alpha/this.beta - X_0);
 
             %work out the Hessian
             d_alpha_beta_lnL = sum(Y_0/this.beta);
-            d_alpha_alpha_lnL = -sum( Y_0.^2.*psi(1,this.alpha*Y_0) + Y_moment_0.*psi(1,this.alpha*Y_0) + (2*this.alpha).*Y_moment_0.*Y_0.*psi(2,this.alpha*Y_0) + (0.5*this.alpha^2).*Y_moment_0.*Y_0.^2.*psi(3,Y_0*this.alpha) );
+            d_alpha_alpha_lnL = -sum( Y_0.^2.*psi(1,this.alpha*Y_0) + var_0.*psi(1,this.alpha*Y_0) + (2*this.alpha).*var_0.*Y_0.*psi(2,this.alpha*Y_0) + (0.5*this.alpha^2).*var_0.*Y_0.^2.*psi(3,Y_0*this.alpha) );
             d_beta_beta_lnL = -sum(Y_0*this.alpha/(this.beta^2));
 
             %put all the variables together in vector and matrix form
@@ -543,4 +519,3 @@ classdef CompoundPoisson < handle
     end
 
 end
-
