@@ -14,6 +14,9 @@
 *.xml
 *.tif
 
+# directories
+data/
+
 # Compiled source #
 ###################
 *.com
