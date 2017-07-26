@@ -63,17 +63,17 @@ classdef Experiment_bgwNormalityTest < Experiment
                 while this.i_shade <= 4
 
                     %get the data
-                    bgw_data = BGW_140316();
+                    bgw_data = Bgw_Mar16();
 
                     %apply the corresponding shading correction
                     %use the first image for training shading correction
                     switch this.i_shade
                         case 2
-                            bgw_data.addShadingCorrector(ShadingCorrector(),[1,1]);
+                            bgw_data.addDefaultShadingCorrector();
                         case 3
-                            bgw_data.addShadingCorrector(ShadingCorrector(),[1,1,1]);
+                            bgw_data.addShadingCorrector(ShadingCorrector(),1:3);
                         case 4
-                            bgw_data.addShadingCorrector(ShadingCorrector_polynomial([2,2,2]),[1,1,1]);
+                            bgw_data.addShadingCorrector(ShadingCorrector_polynomial([2,2,2]),1:3);
                     end %switch
 
                     %for each colour

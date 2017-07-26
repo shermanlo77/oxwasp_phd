@@ -9,10 +9,10 @@ clearvars;
 close all;
 
 %load the data
-bgw_data = BGW_140316();
+bgw_data = Bgw_Mar16();
 
 %get the white image
-white = bgw_data.loadWhite(1);
+white = bgw_data.reference_scan_array(end).loadImage(1);
 
 %for the panel-wise fit, then the global+panel-wise fit
 for i = 1:2

@@ -18,6 +18,7 @@ classdef ShadingCorrector < handle
         reference_image_array; 
         image_size; %two vector representing the size of the image [height, width]
         n_image; %number of images in reference_image_array
+        i_image;
         
         between_reference_mean; %image: between reference mean greyvalue
         global_mean; %scalar: mean of all greyvalues in reference_image_array
@@ -41,31 +42,37 @@ classdef ShadingCorrector < handle
             this.set_extreme_to_nan = false;
             this.min_greyvalue = 0;
         end
-        
-        %ADD REFERENCE IMAGES
-        %PARAMETERS:
-            %reference_image_array: stack of blank scans (3 dimensions)
-                %dim 1 and dim 2 for the image
-                %dim 3: for each image
-        function addReferenceImages(this, reference_image_array)
-            %assign member variables
-            this.reference_image_array = reference_image_array;
-            %get the size of the images and the number of images in the stack
-            [height,width,this.n_image] = size(reference_image_array);
-            %assign member variable
-            this.image_size = [height,width];
+          
+        function initalise(this, n_image, height, width)
+            this.n_image = n_image;
+            this.i_image = 1;
+            this.image_size = [height, width];
+            this.reference_image_array = zeros(height, width, n_image);
         end
+        
+        function addScan(this, scan, index)
+            if nargin == 2
+                reference_stack = scan.loadImageStack();
+            else
+                reference_stack = scan.loadImageStack(index);
+            end
+            this.reference_image_array(:,:,this.i_image) = mean(reference_stack,3);
+            this.i_image = this.i_image + 1;
+        end
+        
         
         %CALIBRATE
         %Perpare statistics for shading correction
         function calibrate(this)
+            this.n_image = this.i_image - 1;
+            
             %declare vector (one element for each reference image) for the within image mean
             %this is the target greyvalue of the unshaded greyvalue for each reference image
             within_reference_mean = zeros(1,this.n_image);
             %for each image
-            for i_image = 1:this.n_image
+            for i = 1:this.n_image
                 %get the mean within image grey value and save it to within_reference_mean
-                within_reference_mean(i_image) = mean(reshape(this.reference_image_array(:,:,i_image),[],1));
+                within_reference_mean(i) = mean(reshape(this.reference_image_array(:,:,i),[],1));
             end
             
             %target_image_array is a stack of this.n_image images
@@ -105,7 +112,7 @@ classdef ShadingCorrector < handle
         %SHADE CORRECT
         %PARAMETERS:
             %scan_image: image to be shading corrected
-        function scan_image = shadeCorrect(this,scan_image)
+        function scan_image = shadingCorrect(this,scan_image)
             %use linear interpolation for shading correction
             scan_image = this.b_array .* (scan_image - this.between_reference_mean) + this.global_mean;
             

@@ -1,4 +1,4 @@
-classdef BlockData_140316 < Scan
+classdef AbsBlock_Mar16 < Scan
     %BLOCKDATA
     %Class for obtaining images for the 140316 data
     
@@ -11,18 +11,11 @@ classdef BlockData_140316 < Scan
     methods
         
         %CONSTRUCTOR
-        function this = BlockData_140316()
-            
-            this@Scan('data/140316/', 'block_', 1996, 1996, 100);
+        function this = AbsBlock_Mar16()
+            this@Scan('data/absBlock_Mar16/', 'block_', 1996, 1996, 100);
             %assign member variables
             this.panel_counter = PanelCounter_Brass();
-            this.min_greyvalue = 5.7588E3;
-            
-            reference_image_array(3) = Scan();
-            this.reference_image_array = reference_image_array;
-            this.reference_image_array(1) = Scan('data/140316_bgw/black/', 'black_140316_', this.width, this.height, 20);
-            this.reference_image_array(2) = Scan('data/140316_bgw/white/', 'white_140316_', this.width, this.height, 20);
-            this.reference_image_array(3) = Scan('data/140316_bgw/grey/', 'grey_140316_', this.width, this.height, 20);
+            %this.min_greyvalue = 5.7588E3;
         end
         
         %GET SAMPLE MEAN VARIANCE DATA (using top half of the images)
