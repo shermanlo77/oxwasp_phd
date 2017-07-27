@@ -117,7 +117,7 @@ classdef Scan < handle
                     shading_corrector.addScan(this.reference_scan_array(reference_index(i)));
                 %else take the mean of all images specified in the ith column of reference_index
                 else
-                    shading_corrector.addScan(this.reference_scan_array(reference_index(i),image_index(:,i)));
+                    shading_corrector.addScan(this.reference_scan_array(reference_index(i)),image_index(:,i));
                 end
             end
             
@@ -151,7 +151,7 @@ classdef Scan < handle
             
             %add the shading corrector to each reference scan in reference_scan_array
             for i = 1:numel(this.reference_scan_array)
-                this.reference_scan_array(i).addManualShadingCorrector(this.shading_corrector);
+                this.reference_scan_array(i).shading_corrector = this.shading_corrector;
             end
         end
         

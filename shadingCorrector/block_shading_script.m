@@ -21,3 +21,10 @@ block_data.addDefaultShadingCorrector();
 subplot(2,1,2);
 imagesc(block_data.loadImage(1));
 colormap gray;
+
+bgw_data = Bgw_Mar16();
+
+figure;
+subplot(2,1,1,imagesc_truncate(bgw_data.reference_scan_array(3).loadImage(1)));
+bgw_data.addShadingCorrector(ShadingCorrector_polynomial([2,2,2]),1:3);
+subplot(2,1,2,imagesc_truncate(bgw_data.reference_scan_array(3).loadImage(1)));

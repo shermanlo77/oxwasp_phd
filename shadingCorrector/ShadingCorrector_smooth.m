@@ -34,19 +34,11 @@ classdef ShadingCorrector_smooth < ShadingCorrector
             this.parameter = parameter;
         end
         
-        %ADD REFERENCE IMAGES
-        %PARAMETERS:
-            %reference_image_array: stack of blank scans (see superclass)
-        function addReferenceImages(this, reference_image_array)
-            %make a copy of the reference images
-            this.orginial_reference_array = reference_image_array;
-            %call the superclass version of addReferenceImages
-            this.addReferenceImages@ShadingCorrector(reference_image_array);
-        end
         
         %CALIBRATE
         %Work out the parameters for shading correction
         function calibrate(this)
+            this.orginial_reference_array = this.reference_image_array;
             %smooth each image panel by panel
             this.smoothEachPanel();
             %call the superclass version of calibrate

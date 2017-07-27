@@ -11,11 +11,11 @@ close all;
 rng(uint32(189224219), 'twister');
 
 %instantise an object pointing to the dataset
-block_data = BlockData_140316();
+block_data = AbsBlock_Mar16();
 
 %segment the mean variance data to only include the 3d printed sample,
 %threshold indicate pixels which belong to the background
-threshold = reshape(BlockData_140316.getThreshold_topHalf(),[],1);
+threshold = reshape(AbsBlock_Mar16.getThreshold_topHalf(),[],1);
 
 %number of bins for the frequency density plot
 nbin = 100;

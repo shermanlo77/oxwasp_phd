@@ -2,9 +2,9 @@ clc;
 clearvars;
 close all
 
-bgw_data = BGW_140316();
+bgw_data = Bgw_Mar16();
 
-black = bgw_data.loadBlack(1);
+black = bgw_data.reference_scan_array(1).loadImage(1);
 
 figure;
 imagesc_truncate(black);

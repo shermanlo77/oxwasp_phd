@@ -18,12 +18,12 @@ close all;
 n_lag = 1000;
 
 %load the data
-block_data = BlockData_140316();
+bgw_data = Bgw_Mar16();
 
 %declare a vector of autocorrelations, one element for each lag (1 to n_lag+1)
 %one vector for the x-direction, y-direction
-autocorr_x = zeros(block_data.height,n_lag+1);
-autocorr_y = zeros(block_data.width,n_lag+1);
+autocorr_x = zeros(bgw_data.height,n_lag+1);
+autocorr_y = zeros(bgw_data.width,n_lag+1);
 
 %declare an array of strings, naming each colour
 colour_name = {'black','grey','white'};
@@ -32,27 +32,27 @@ colour_name = {'black','grey','white'};
 for i_shading = 1:4
     
     %reset the data
-    block_data = BlockData_140316();
+    bgw_data = Bgw_Mar16();
     
     %add the i_shading corresponding shading correction when required
     switch i_shading
         case 2
-            block_data.addShadingCorrector(ShadingCorrector(),[2,2]);
+            bgw_data.addDefaultShadingCorrector();
         case 3
-            block_data.addShadingCorrector(ShadingCorrector(),[2,2,2]);
+            bgw_data.addShadingCorrector(ShadingCorrector(),[1,2,3]);
         case 4
-            block_data.addShadingCorrector(ShadingCorrector_polynomial([2,2,2]),[2,2,2]);
+            bgw_data.addShadingCorrector(ShadingCorrector_polynomial([2,2,2]),[1,2,3]);
     end
     
     %remove dead pixels
-    block_data.turnOnRemoveDeadPixels();
+    bgw_data.turnOnRemoveDeadPixels();
     
     %declare an array of images, one element for b/g/w images
-    image_array = zeros(block_data.height, block_data.width, 3);
-    image_array(:,:,1) = block_data.loadBlack(1);
-    image_array(:,:,2) = block_data.loadGrey(1);
-    image_array(:,:,3) = block_data.loadWhite(1);
-
+    image_array = zeros(bgw_data.height, bgw_data.width, 3);
+    image_array(:,:,1) = bgw_data.reference_scan_array(1).loadImage(1);
+    image_array(:,:,2) = bgw_data.reference_scan_array(2).loadImage(1);
+    image_array(:,:,3) = bgw_data.reference_scan_array(3).loadImage(1);
+    
     %plot the marginal mean greyvalue
     %for the black, grey and white images
     for i_image = [1,3]
@@ -90,13 +90,13 @@ for i_shading = 1:4
         image = image_array(:,:,i_image);
 
         %for each row
-        for y = 1:block_data.height
+        for y = 1:bgw_data.height
             %estimate the autocorrelation in the x direction
             autocorr_x(y,:) = reshape(autocorr(image(y,:),n_lag),1,[]);
         end
 
         %for each column
-        for x = 1:block_data.width
+        for x = 1:bgw_data.width
             %estimate the autocorrelation in the y direction
             autocorr_y(x,:) = reshape(autocorr(image(:,x),n_lag),1,[]);
         end

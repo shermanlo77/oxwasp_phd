@@ -26,7 +26,7 @@ classdef ShadingCorrector_null < ShadingCorrector
         %SHADE CORRECT
         %PARAMETERS:
             %scan_image: scan_image
-        function scan_image = shadeCorrect(this,scan_image)
+        function scan_image = shadingCorrect(this,scan_image)
             scan_image = scan_image;
         end
         

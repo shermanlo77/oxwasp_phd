@@ -31,7 +31,7 @@ classdef AbsBlock_Mar16 < Scan
             end
             
             %load the stack of images, indicated by the vector index
-            stack = this.loadSampleStack(index);
+            stack = this.loadImageStack(index);
             %crop the stack, keeping the top half
             stack = stack(1:(this.height/2),:,:);
             %work out the sample mean and convert it to a vector
@@ -54,24 +54,9 @@ classdef AbsBlock_Mar16 < Scan
         %reference images, take the mean of the shading corrected images
         %and then threshold at 4.7E4
         function threshold = getThreshold_topHalf()
-            
-            %load the data
-            block_data = BlockData_140316();
-
-            %add shading correction
-            block_data.addShadingCorrector(ShadingCorrector_median([3,3,3]));
-
-            %load the images
-            slice = block_data.loadSampleStack();
-            %crop the images to keep the top half
-            slice = slice(1:(round(block_data.height/2)),:,:);
-            %take the mean over all images
-            slice = mean(slice,3);
-            %remove dead pixels
-            slice = removeDeadPixels(slice);
-
-            %indicate pixels with greyvalues more than 4.7E4
-            threshold = slice>4.7E4;
+            block = AbsBlock_Mar16();
+            threshold = imread('data/absBlock_Mar16/segmentation.tif') == 0;
+            threshold = threshold(1:(block.height/2),:);
         end
     end
     

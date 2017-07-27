@@ -16,14 +16,10 @@ close all;
 rng(uint32(5949338), 'twister');
 
 %get the data
-block_data = BlockData_140316();
-%add bgw shading correction
-block_data.addShadingCorrector(ShadingCorrector());
-block_data.turnOnRemoveDeadPixels();
-block_data.turnOnSetExtremeToNan();
+block_data = AbsBlock_Mar16();
 
 %get the threshold of the top half of the image, threshold of the 3d printed sample
-threshold = BlockData_140316.getThreshold_topHalf();
+threshold = AbsBlock_Mar16.getThreshold_topHalf();
 
 %get the number of images in the entire dataset
 n = block_data.n_sample;
@@ -55,13 +51,13 @@ sample_var(threshold) = [];
 model.train(sample_mean,sample_var);
 
 %take the mean over the 25 images in the ground truth set
-true_image = mean(block_data.loadSampleStack(true_index),3);
+true_image = mean(block_data.loadImageStack(true_index),3);
 
 %for each test image
 for i_test = 1:numel(test_index)
 
     %get the test image
-    test_image = block_data.loadSample(test_index(i_test));
+    test_image = block_data.loadImage(test_index(i_test));
 
     %get the std prediction given the test image
     error = sqrt(reshape(model.predict(reshape(test_image,[],1)),block_data.height,block_data.width));
@@ -96,7 +92,7 @@ fig = figure;
 fig.Position(3:4) = [395, 450];
 for i = 1:6
     %plot the scan
-    subplot(3,2,i,imagesc_truncate(block_data.loadSample(test_index(i))));
+    subplot(3,2,i,imagesc_truncate(block_data.loadImage(test_index(i))));
     axis(gca,'off');
     colormap gray;
     hold on;

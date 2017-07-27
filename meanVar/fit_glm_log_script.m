@@ -12,13 +12,13 @@ close all;
 nbin = 100;
 
 %instantise an object pointing to the dataset
-block_data = BlockData_140316();
+block_data = AbsBlock_Mar16();
 
 %get variance mean data of the top half of the scans (images 1 to 100)
 [sample_mean,sample_var] = block_data.getSampleMeanVar_topHalf();
 
 %segment the mean variance data to only include the 3d printed sample
-threshold = reshape(BlockData_140316.getThreshold_topHalf(),[],1);
+threshold = reshape(AbsBlock_Mar16.getThreshold_topHalf(),[],1);
 sample_mean(threshold) = [];
 sample_var(threshold) = [];
 
