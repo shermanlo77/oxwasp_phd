@@ -184,23 +184,18 @@ classdef Experiment_bgwShadingANOVA < Experiment
             %for each colour b/g/w test images
             for i_ref = 1:3
 
-                %get the mean shading corrected image
-                mean_image = mean(test_stack_array{i_ref},3);
                 %if this is the first run, save the mean shading corrected image
                 if this.i_repeat == 1
+                    %get the mean shading corrected image
+                    mean_image = mean(test_stack_array{i_ref},3);
                     this.bgw_shading_array{i_ref, this.shading_correction_pointer} = mean_image;
                 end
 
-                %get the mean of all greyvalues in the mean image
-                mean_all = mean(reshape(mean_image,[],1));
-
-                %get the number of test images
-                n_test = size(test_stack_array{i_ref},3);
-
+                [var_b, var_w] = var_between_within(test_stack_array{i_ref});
                 %save the within pixel variance
-                this.std_array{this.shading_correction_pointer}(this.i_repeat,1,i_ref) = sum(sum(sum( ( test_stack_array{i_ref} - repmat(mean_image,1,1,n_test) ).^2 ))) / (block_data.area*n_test - block_data.area);
+                this.std_array{this.shading_correction_pointer}(this.i_repeat,1,i_ref) = var_w;
                 %save the between pixel variance
-                this.std_array{this.shading_correction_pointer}(this.i_repeat,2,i_ref) = n_test * sum(sum((mean_image - mean_all).^2))/(block_data.area-1);
+                this.std_array{this.shading_correction_pointer}(this.i_repeat,2,i_ref) = var_b;
 
             end
 
