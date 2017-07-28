@@ -35,7 +35,7 @@ for k = [1E2,1E3,1E4,1E5]
 
     %plot the frequency density
     figure;
-    plotHistogramHeatmap(sample_mean,sample_var,nbin);
+    hist3Heatmap(sample_mean,sample_var,[nbin,nbin],false)
     hold on;
     %plot the fit/prediction
     plot(x_plot,variance_prediction,'r');

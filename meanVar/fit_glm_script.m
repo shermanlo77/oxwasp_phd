@@ -36,7 +36,7 @@ for polynomial_order = [-4,-3,-2,-1]
 
     %plot the frequency density
     figure;
-    ax = plotHistogramHeatmap(sample_mean,sample_var,nbin);
+    ax = hist3Heatmap(sample_mean,sample_var,[nbin,nbin],false);
     hold on;
     
     %get a range of greyvalues to plot the fit

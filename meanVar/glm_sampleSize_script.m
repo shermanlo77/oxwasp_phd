@@ -57,7 +57,7 @@ for i_sample = 1:numel(n_sample_array)
 
     %plot the frequency density
     fig_array{i_sample} = figure;
-    axe_array{i_sample} = plotHistogramHeatmap(sample_mean,sample_var,nbin);
+    axe_array{i_sample} = hist3Heatmap(sample_mean,sample_var,[nbin,nbin],false);
     hold on;
     %plot the fit/prediction
     plot(x_plot,variance_prediction,'r');
