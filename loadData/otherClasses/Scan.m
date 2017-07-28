@@ -12,6 +12,10 @@ classdef Scan < handle
         aRTist_file; %location of the aRTist simulation
         reference_scan_array; %array of reference scan objects (in ascending powers)
         
+        voltage; %in units of kV
+        power; %in units of W
+        time_exposure; %in units of ms
+        
         panel_counter %panel counter object
         shading_corrector; %shading corrector object
         want_shading_correction; %boolean, true to do shading correction, default false, automatically turns to true if a shading corrector is added
@@ -29,7 +33,10 @@ classdef Scan < handle
             %width: width of the image
             %height: height of the image
             %n_sample: number of images
-        function this = Scan(folder_location, file_name, width, height, n_sample)
+            %voltage: in units of kV
+            %power: in units of W
+            %time_exposure: in units of ms
+        function this = Scan(folder_location, file_name, width, height, n_sample, voltage, power, time_exposure)
             %assign member variable if parameters are provided
             if nargin > 0
                 this.folder_location = folder_location;
@@ -38,6 +45,11 @@ classdef Scan < handle
                 this.height = height;
                 this.area = width * height;
                 this.n_sample = n_sample;
+                
+                this.voltage = voltage;
+                this.power = power;
+                this.time_exposure = time_exposure;
+                
                 this.want_shading_correction = false;
                 this.want_remove_dead_pixels = false;
                 this.min_greyvalue = 0;

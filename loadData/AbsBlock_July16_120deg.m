@@ -6,7 +6,7 @@ classdef AbsBlock_July16_120deg < Scan
     methods
         
         function this = AbsBlock_July16_120deg()
-            this@Scan('data/absBlock_noFilter_July16/scans/phantom_120deg/', 'block120deg_', 2000, 2000, 100);
+            this@Scan('data/absBlock_noFilter_July16/scans/phantom_120deg/', 'block120deg_', 2000, 2000, 100, 80, 36, 708);
             
             this.addARTistFile('data/absBlock_noFilter_July16/sim/phantom/sim_block120.tif');
             

@@ -6,7 +6,7 @@ classdef TitaniumBlock_Dec16_30deg < Scan
     methods
         
         function this = TitaniumBlock_Dec16_30deg()
-            this@Scan('data/titaniumBlock_SnFilter_Dec16/scans/phantom_30deg/', '30deg_', 2000, 2000, 20);
+            this@Scan('data/titaniumBlock_SnFilter_Dec16/scans/phantom_30deg/', '30deg_', 2000, 2000, 20, 190, 19.95, 1415);
             
             this.addARTistFile('data/titaniumBlock_SnFilter_Dec16/sim/phantom/30deg.tif');
             
