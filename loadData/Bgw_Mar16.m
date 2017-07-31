@@ -6,7 +6,7 @@ classdef Bgw_Mar16 < Scan
     methods
         
         function this = Bgw_Mar16()
-            this@Scan([], [], 1996, 1996, 100);
+            this@Scan([], [], 1996, 1996, 100, 85, 6.8, 1000);
             %assign member variables
             this.panel_counter = PanelCounter_Brass();
             
