@@ -1,6 +1,8 @@
 %VARIANCE MEAN SCRIPT
 %Plots a histogram heat map of variance-mean pair
 %of each pixel from each reference scan
+%Plots mean pixel vs power
+%Plots variance pixel vs power
 
 clc;
 clearvars;
@@ -18,10 +20,10 @@ end
 
 %apply shading correction
 
-bgw_data.addShadingCorrector(ShadingCorrector(),1:n_reference);
+bgw_data.addShadingCorrector(ShadingCorrector(),1:n_reference,ones(1,n_reference));
 bgw_data.turnOnRemoveDeadPixels();
 
-% bgw_data.addShadingCorrector(ShadingCorrector(),[1,n_reference]);
+% bgw_data.addShadingCorrector(ShadingCorrector(),[1,n_reference],[1,1]);
 % bgw_data.turnOnRemoveDeadPixels();
 
 %declare array to store mean in mean_array and variance in var_array
@@ -33,8 +35,10 @@ var_w_array = zeros(n_reference,1);
 %for each reference scan
 for i_ref = 1:n_reference
     
+    reference_scan = bgw_data.reference_scan_array(i_ref);
+    
     %get the stack of images from this scan
-    image_array = bgw_data.reference_scan_array(i_ref).loadImageStack();
+    image_array = reference_scan.loadImageStack(2:reference_scan.n_sample);
     %get the mean and variance
     mean_image = mean(image_array,3);
     var_image = var(image_array,[],3);
@@ -55,7 +59,7 @@ for i = 1:n_reference
     dof = area - 1;
     var_b_error(:,i) = abs(dof*var_b_array(i)./chi2inv([1-(sig_level/2);sig_level/2],dof) - var_b_array(i));
     
-    dof = area*n_reference - area;
+    dof = area*bgw_data.reference_scan_array(i_ref).n_sample - area;
     var_w_error(:,i) = abs(dof*var_w_array(i)./chi2inv([1-(sig_level/2);sig_level/2],dof) - var_w_array(i));
 end
 
@@ -85,13 +89,3 @@ ax.XTick = x_tick;
 ax.XTickLabel = x_tick_label;
 xlabel('Power (W)');
 ylabel('Pixel variance (arb. unit^2)');
-
-figure;
-errorbar(power_array,var_b_array,var_b_error(1,:),var_b_error(2,:),'LineStyle','none');
-hold on;
-errorbar(power_array,var_w_array,var_w_error(1,:),var_w_error(2,:),'LineStyle','none');
-set(gca,'yscale','log')
-xlabel('Power (W)');
-legend('Between pixel','Within pixel');
-ylabel('Variance (arb. unit^2)');
-xlim([power_array(1)-1,power_array(end)+1]);
