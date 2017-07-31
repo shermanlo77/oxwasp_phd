@@ -7,7 +7,8 @@ clearvars;
 close all;
 
 %get the data
-bgw_data = AbsBlock_July16_30deg();
+bgw_data = AbsBlock_Sep16_30deg();
+area = bgw_data.area;
 n_reference = numel(bgw_data.reference_scan_array);
 
 power_array = zeros(1,n_reference);
@@ -51,10 +52,10 @@ var_w_error = zeros(2,n_reference);
 sig_level = 0.5;
 for i = 1:n_reference
     
-    dof = n_reference - 1;
+    dof = area - 1;
     var_b_error(:,i) = abs(dof*var_b_array(i)./chi2inv([1-(sig_level/2);sig_level/2],dof) - var_b_array(i));
     
-    dof = bgw_data.area*n_reference - n_reference;
+    dof = area*n_reference - area;
     var_w_error(:,i) = abs(dof*var_w_array(i)./chi2inv([1-(sig_level/2);sig_level/2],dof) - var_w_array(i));
 end
 
