@@ -11,12 +11,9 @@ close all;
 %get the data
 bgw_data = AbsBlock_Sep16_30deg();
 area = bgw_data.area;
-n_reference = numel(bgw_data.reference_scan_array);
+n_reference = bgw_data.getNReference();
 
-power_array = zeros(1,n_reference);
-for i = 1:n_reference
-    power_array(i) = bgw_data.reference_scan_array(i).power;
-end
+power_array = bgw_data.getPowerArray();
 
 %apply shading correction
 

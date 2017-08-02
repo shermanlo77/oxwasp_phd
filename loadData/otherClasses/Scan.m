@@ -223,6 +223,24 @@ classdef Scan < handle
             slice = double(imread(this.aRTist_file));
         end
         
+        %GET N REFERENCE
+        function n_reference = getNReference(this)
+            n_reference = numel(this.reference_scan_array);
+        end
+        
+        %GET POWER ARRAY
+        %Return array of powers for each reference scan
+        function power_array = getPowerArray(this)
+            %get the number of reference scans
+            n_reference = numel(this.reference_scan_array);
+            %declare array of powers
+            power_array = zeros(1,n_reference);
+            %for each reference scan, get the power and save it
+            for i = 1:n_reference
+                power_array(i) = this.reference_scan_array(i).power;
+            end
+        end
+        
     end
     
 end
