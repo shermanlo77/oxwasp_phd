@@ -191,7 +191,7 @@ classdef Experiment_referenceShadingCorrection < Experiment
                 end
 
                 %estimated the between and within variance of the stack of images
-                [var_b, var_w] = var_between_within(ref_stack);
+                [var_b, var_w] = Experiment_referenceShadingCorrection.var_between_within(ref_stack);
                 
                 %save the within pixel variance
                 this.var_b_array(this.i_repeat, i_ref, this.i_shading_corrector) = var_b;
@@ -216,6 +216,40 @@ classdef Experiment_referenceShadingCorrection < Experiment
         %doExperimentForAllShadingCorrections(this)
             %calls shadingCorrection_ANOVA for different shading correctors
         doExperimentForAllShadingCorrections(this);
+    end
+    
+    %STATIC METHODS
+    methods (Static)
+        
+        %FUNCTION: BETWEEN WITHIN VARIANCE
+        %Estimates the between and within pixel variance, given a stack of images
+        %PARAMETERS:
+            %image_stack: stack of images
+                %dim 1: for each row
+                %dim 2: for each column
+                %dim 3: for each image
+        %RETURN:
+            %var_b: between pixel variance
+            %var_w: within pixel variance
+        function [var_b, var_w] = var_between_within(image_stack)
+
+            %get the dimensions of the image stack
+            [height, width, n] = size(image_stack);
+            %work out the area
+            area = height*width;
+
+            %get the mean for each pixel
+            mean_image = mean(image_stack,3);
+            %get the global mean
+            mean_all = mean(reshape(mean_image,[],1));
+
+            %estimate the within pixel variance
+            var_w = sum(sum(sum( ( image_stack - repmat(mean_image,1,1,n) ).^2 ))) / (area*n - area);
+            %estimate the between pixel variance
+            var_b = n * sum(sum((mean_image - mean_all).^2))/(area-1);
+
+        end
+        
     end
     
 end
