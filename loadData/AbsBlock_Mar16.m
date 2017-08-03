@@ -43,21 +43,4 @@ classdef AbsBlock_Mar16 < Scan
 
     end
     
-    methods (Static)
-        
-        %GET THRESHOLD TOP HALF
-        %Return a logical matrix which segments the sample from the
-        %background of the top half of the scans. 1 indicate the
-        %background, 0 for the sample.
-        %
-        %Method: does shading correction with median filter applied to the
-        %reference images, take the mean of the shading corrected images
-        %and then threshold at 4.7E4
-        function threshold = getThreshold_topHalf()
-            block = AbsBlock_Mar16();
-            threshold = imread('data/absBlock_Mar16/segmentation.tif') == 0;
-            threshold = threshold(1:(block.height/2),:);
-        end
-    end
-    
 end

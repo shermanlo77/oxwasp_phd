@@ -241,6 +241,12 @@ classdef Scan < handle
             end
         end
         
+        %GET SEGMENTATION
+        %Returns a binary image, true values represent ROI
+        function segmentation = getSegmentation(this)
+            segmentation = imread(strcat(this.folder_location,'segmentation.tif')) ~= 0;
+        end
+        
     end
     
 end

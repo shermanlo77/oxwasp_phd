@@ -36,8 +36,11 @@ for i_repeat = 1:n_repeat
     %get variance mean data of the training set
     [sample_mean,sample_var] = block_data.getSampleMeanVar_topHalf(model_index);
     %segment the mean var data
-    sample_mean(threshold) = [];
-    sample_var(threshold) = [];
+    segmentation = block_data.getSegmentation();
+    segmentation = segmentation(1:(block_data.height/2),:);
+    segmentation = reshape(segmentation,[],1);
+    sample_mean = sample_mean(segmentation);
+    sample_var = sample_var(segmentation);
 
     %train the classifier to predict the variance
     model.train(sample_mean,sample_var);

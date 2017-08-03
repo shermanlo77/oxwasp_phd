@@ -16,9 +16,11 @@ block_data = AbsBlock_Mar16();
 [sample_mean,sample_var] = block_data.getSampleMeanVar_topHalf();
 
 %segment the mean variance data to only include the 3d printed sample
-threshold = reshape(AbsBlock_Mar16.getThreshold_topHalf(),[],1);
-sample_mean(threshold) = [];
-sample_var(threshold) = [];
+segmentation = block_data.getSegmentation();
+segmentation = segmentation(1:(block_data.height/2),:);
+segmentation = reshape(segmentation,[],1);
+sample_mean = sample_mean(segmentation);
+sample_var = sample_var(segmentation);
 
 %for each k
 for k = [1E2,1E3,1E4,1E5]

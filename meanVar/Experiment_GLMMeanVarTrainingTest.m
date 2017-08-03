@@ -32,8 +32,8 @@ classdef Experiment_GLMMeanVarTrainingTest < Experiment
         test_mse_array;
         %number of images in the training set
         n_train;
-        %threshold logical image
-        threshold;
+        %segmentation boolean image
+        segmentation;
         %random stream
         rand_stream;
         
@@ -57,7 +57,11 @@ classdef Experiment_GLMMeanVarTrainingTest < Experiment
             %assign member variables
             this.rand_stream = RandStream('mt19937ar','Seed',uint32(176048084));
             this.n_train = 50;
-            this.threshold = AbsBlock_Mar16.getThreshold_topHalf();
+            
+            block_data.AbsBlock_Mar16();
+            this.segmentation = block_data.getSegmentation();
+            this.segmentation = this.segmentation(1:(block_data.height/2),:);
+            this.segmentation = reshape(this.segmentation,[],1);
             
             %location of the data
             %shape parameter
@@ -129,8 +133,8 @@ classdef Experiment_GLMMeanVarTrainingTest < Experiment
                 %get variance mean data of the training set
                 [sample_mean,sample_var] = data.getSampleMeanVar_topHalf(training_index);
                 %segment the mean var data
-                sample_mean(this.threshold) = [];
-                sample_var(this.threshold) = [];
+                sample_mean = sample_mean(this.segmentation);
+                sample_var = sample_var(this.segmentation);
 
                 %train the classifier
                 model.train(sample_mean,sample_var);
@@ -152,10 +156,10 @@ classdef Experiment_GLMMeanVarTrainingTest < Experiment
         function printResults(this)
             
             figure;
-            boxplot(this.training_mse_array);
+            boxplot(this.training_mse_array,'boxstyle','filled','medianstyle','target','outliersize',4,'symbol','o');
             
             figure;
-            boxplot(this.test_mse_array);
+            boxplot(this.test_mse_array,'boxstyle','filled','medianstyle','target','outliersize',4,'symbol','o');
             
         end
         

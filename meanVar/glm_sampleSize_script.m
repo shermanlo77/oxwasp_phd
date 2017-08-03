@@ -15,7 +15,9 @@ block_data = AbsBlock_Mar16();
 
 %segment the mean variance data to only include the 3d printed sample,
 %threshold indicate pixels which belong to the background
-threshold = reshape(AbsBlock_Mar16.getThreshold_topHalf(),[],1);
+segmentation = block_data.getSegmentation();
+segmentation = segmentation(1:(block_data.height/2),:);
+segmentation = reshape(segmentation,[],1);
 
 %number of bins for the frequency density plot
 nbin = 100;
@@ -38,8 +40,8 @@ for i_sample = 1:numel(n_sample_array)
     data_index = data_index(1:n_sample);
     [sample_mean,sample_var] = block_data.getSampleMeanVar_topHalf(data_index);
     %segment the mean var data
-    sample_mean(threshold) = [];
-    sample_var(threshold) = [];
+    sample_mean = sample_mean(segmentation);
+    sample_var = sample_var(segmentation);
 
     %shape parameter is number of (images - 1)/2, this comes from the chi
     %squared distribution
