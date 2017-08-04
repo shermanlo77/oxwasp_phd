@@ -1,7 +1,7 @@
-%EXPERIMENT GLM VAR MEAN MAR 13
+%EXPERIMENT GLM VAR MEAN MAR 16
 %See superclass Experiment_GLMVarMean
 %For the dataset AbsBlock_Mar13, only top half of the image is used to avoid the foam
-classdef Experiment_GLMVarMean_Mar13 < Experiment_GLMVarMean
+classdef Experiment_GLMVarMean_Mar16 < Experiment_GLMVarMean
     
     properties
     end
@@ -9,9 +9,9 @@ classdef Experiment_GLMVarMean_Mar13 < Experiment_GLMVarMean
     methods
         
         %CONSTRUCTOR
-        function this = Experiment_GLMVarMean_Mar13()
+        function this = Experiment_GLMVarMean_Mar16()
             %call superclass with experiment name
-            this@Experiment_GLMVarMean('GLMVarMean_Mar13');
+            this@Experiment_GLMVarMean('GLMVarMean_Mar16');
         end
         
         %OVERRIDE: SET UP EXPERIMENT
