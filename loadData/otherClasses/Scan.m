@@ -96,6 +96,8 @@ classdef Scan < handle
             end
         end
         
+        %ADD DEFAULT SHADING CORRECTOR
+        %Add bw shading corrector, using 0 power and the highest power
         function addDefaultShadingCorrector(this)
             this.addShadingCorrector(ShadingCorrector(),[1,numel(this.reference_scan_array)]);
         end
@@ -247,12 +249,24 @@ classdef Scan < handle
             segmentation = imread(strcat(this.folder_location,'segmentation.tif')) ~= 0;
         end
         
+        %GET SAMPLE MEAN VAR IMAGE
+        %PARAMETERS:
+            %image_index: integer vector, pointer to images to be used in mean/variance estimation
+        %RETURN:
+            %sample_mean: image of greyvalue mean
+            %sample_var: image of greyvalue variance
         function [sample_mean, sample_var] = getSampleMeanVar(this, image_index)
             image_stack = this.loadImageStack(image_index);
             sample_mean = mean(image_stack,3);
             sample_var = var(image_stack,[],3);
         end
         
+        %GET SAMPLE MEAN VAR VECTOR
+        %PARAMETERS:
+            %image_index: integer vector, pointer to images to be used in mean/variance estimation
+        %RETURN
+            %sample_mean: vector of greyvalue mean
+            %sample_var: vector of greyvalue variance
         function [sample_mean, sample_var] = getSampleMeanVar_vector(this, image_index)
             [sample_mean, sample_var] = this.getSampleMeanVar(image_index);
             sample_mean = reshape(sample_mean,[],1);
