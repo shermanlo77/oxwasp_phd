@@ -247,6 +247,18 @@ classdef Scan < handle
             segmentation = imread(strcat(this.folder_location,'segmentation.tif')) ~= 0;
         end
         
+        function [sample_mean, sample_var] = getSampleMeanVar(this, image_index)
+            image_stack = this.loadImageStack(image_index);
+            sample_mean = mean(image_stack,3);
+            sample_var = var(image_stack,[],3);
+        end
+        
+        function [sample_mean, sample_var] = getSampleMeanVar_vector(this, image_index)
+            [sample_mean, sample_var] = this.getSampleMeanVar(image_index);
+            sample_mean = reshape(sample_mean,[],1);
+            sample_var = reshape(sample_var,[],1);
+        end
+        
     end
     
 end
