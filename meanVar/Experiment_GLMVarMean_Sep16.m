@@ -64,7 +64,7 @@ classdef Experiment_GLMVarMean_Sep16 < Experiment_GLMVarMean
                     reference_index = [1,reference_white];
                 case 3
                     shading_corrector = ShadingCorrector();
-                    reference_index = 1:reference_white;
+                    reference_index = 1:scan.getNReference();
             end
         end
         

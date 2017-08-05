@@ -101,6 +101,12 @@ classdef Experiment_GLMVarMean < Experiment
             end
         end
         
+        %DELETE VARIABLES
+        %Delete variables when the experiment is completed
+        function deleteVariables(this)
+            this.greyvalue_array = [];
+        end
+        
         %TRAINING/TEST MEAN VAR
         %Gets the training and test MSE when fitting and predicting the mean and variance relationship
         %PARAMETERS:
@@ -147,6 +153,8 @@ classdef Experiment_GLMVarMean < Experiment
         %Plot the variance and mean histogram, along with the fitted glm
         %Using all n_sample images, for all GLM
         function plotFullFit(this)
+            
+            this.saveGreyvalueArray();
 
             %shape parameter is number of (images - 1)/2, this comes from the chi
             %squared distribution
@@ -193,6 +201,8 @@ classdef Experiment_GLMVarMean < Experiment
                     plot(x_plot,down_error,'r--');
                 end
             end
+            
+            this.deleteVariables();
         end %plotFullFit
         
         %SAVE SEGMENTATION
