@@ -85,8 +85,6 @@ classdef Experiment_referenceShadingCorrection < Experiment
                 this.printProgress(this.i_repeat / this.n_repeat);
                 %increment i_repeat
                 this.i_repeat = this.i_repeat + 1;
-                %save the state of this experiment
-                this.saveState();
                 
             end
         end

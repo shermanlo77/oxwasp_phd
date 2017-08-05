@@ -10,7 +10,7 @@ classdef AbsBlock_July16_30deg < Scan
             
             this.addARTistFile('data/absBlock_noFilter_July16/sim/phantom/sim_block30.tif');
             
-            this.reference_scan_array = ReferenceArrayGetter.getReferenceScanArray_July16();
+            [this.reference_scan_array, this.reference_white] = ReferenceArrayGetter.getReferenceScanArray_July16();
         end
         
         function addDefaultShadingCorrector(this)

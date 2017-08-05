@@ -10,7 +10,7 @@ classdef AbsBlock_Sep16_120deg < Scan
             
             this.addARTistFile('data/absBlock_CuFilter_Sep16/sim/phantom/sim120.tif');
             
-            this.reference_scan_array = ReferenceArrayGetter.getReferenceScanArray_Sep16();
+            [this.reference_scan_array, this.reference_white] = ReferenceArrayGetter.getReferenceScanArray_Sep16();
         end
         
     end

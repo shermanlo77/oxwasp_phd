@@ -1,7 +1,7 @@
-%EXPERIMENT GLM VAR MEAN MAR 16
+%EXPERIMENT GLM VAR MEAN Sep 16
 %See superclass Experiment_GLMVarMean
-%For the dataset AbsBlock_Mar13, only top half of the image is used to avoid the foam
-classdef Experiment_GLMVarMean_Mar16 < Experiment_GLMVarMean
+%For the dataset AbsBlock_Sep16, only top half of the image is used to avoid the foam
+classdef Experiment_GLMVarMean_Sep16 < Experiment_GLMVarMean
     
     properties
     end
@@ -9,34 +9,20 @@ classdef Experiment_GLMVarMean_Mar16 < Experiment_GLMVarMean
     methods
         
         %CONSTRUCTOR
-        function this = Experiment_GLMVarMean_Mar16()
+        function this = Experiment_GLMVarMean_Sep16(experiment_name)
             %call superclass with experiment name
-            this@Experiment_GLMVarMean('GLMVarMean_Mar16');
+            this@Experiment_GLMVarMean(experiment_name);
         end
         
         %OVERRIDE: SET UP EXPERIMENT
-        function setUpExperiment(this)
+        function setUpExperiment(this, unit32_seed)
             %call superclass with 100 repeats and a random seed
-            this.setUpExperiment@Experiment_GLMVarMean(100, uint32(176048084));
-        end
-        
-        %GET SEGMENTATION
-        %Return the binary segmentation image
-        %true for pixels to be considered
-        function segmentation = getSegmentation(this)
-            scan = this.getScan();
-            segmentation = scan.getSegmentation();
-            segmentation((scan.height/2+1):end,:) = false;
-        end
-        
-        %IMPLEMENTED: GET SCAN
-        function scan = getScan(this)
-            scan = AbsBlock_Mar16();
+            this.setUpExperiment@Experiment_GLMVarMean(100, unit32_seed);
         end
         
         %IMPLEMENTED: GET N GLM
         function n_glm = getNGlm(this)
-            n_glm = 9;
+            n_glm = 5;
         end
         
         %IMPLEMENTED: GET GLM
@@ -49,23 +35,15 @@ classdef Experiment_GLMVarMean_Mar16 < Experiment_GLMVarMean
                 case 3
                     model = MeanVar_GLM_canonical(shape_parameter,-2);
                 case 4
-                    model = MeanVar_GLM_canonical(shape_parameter,-3);
+                    model = MeanVar_GLM_log(shape_parameter,1);
                 case 5
-                    model = MeanVar_GLM_canonical(shape_parameter,-4);
-                case 6
                     model = MeanVar_GLM_log(shape_parameter,-1);
-                case 7
-                    model = MeanVar_GLM_log(shape_parameter,-2);
-                case 8
-                    model = MeanVar_GLM_log(shape_parameter,-3);
-                case 9
-                    model = MeanVar_GLM_log(shape_parameter,-4);
             end
         end
         
         %returns number of shading correctors to investigate
         function n_shad = getNShadingCorrector(this)
-            n_shad = 1;
+            n_shad = 3;
         end
         
         %returns shading corrector given index
@@ -75,9 +53,27 @@ classdef Experiment_GLMVarMean_Mar16 < Experiment_GLMVarMean
             %reference_index: row vector containing integers
                 %pointing to which reference scans to be used for shading correction training
         function [shading_corrector, reference_index] = getShadingCorrector(this, index)
-            shading_corrector = ShadingCorrector_null();
-            reference_index = [];
+            scan = this.getScan();
+            reference_white = scan.reference_white;
+            switch index
+                case 1
+                    shading_corrector = ShadingCorrector_null();
+                    reference_index = [];
+                case 2
+                    shading_corrector = ShadingCorrector();
+                    reference_index = [1,reference_white];
+                case 3
+                    shading_corrector = ShadingCorrector();
+                    reference_index = 1:reference_white;
+            end
         end
+        
+    end
+    
+    methods (Abstract)
+        
+        %returns scan object
+        scan = getScan(this);
         
     end
     

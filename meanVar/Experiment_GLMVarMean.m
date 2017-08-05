@@ -21,14 +21,19 @@ classdef Experiment_GLMVarMean < Experiment
         n_train; %number of images in the training set (half of n_sample)
         shape_parameter; %shape parameter of gamma
         
-        %array of training and test mse
+        %array of training and test error
             %dim 1: for each repeat
             %dim 2: for each glm
-        training_mse_array;
-        test_mse_array;
+            %dim 3: for each shading corrector
+        training_error_array;
+        test_error_array;
         
-        %segmentation boolean vectpr
-        segmentation;
+        %array of greyvalues (to be deleted when experiment is done)
+            %dim 1: for each segmented pixel
+            %dim 2: for each image
+            %dim 3: for each shading correction
+        greyvalue_array;
+        
         %random stream
         rand_stream;
            
@@ -60,10 +65,11 @@ classdef Experiment_GLMVarMean < Experiment
             this.n_sample = scan.n_sample;
             this.n_train = round(this.n_sample/2);
             this.shape_parameter = (this.n_train-1)/2;
-            this.training_mse_array = zeros(this.n_repeat,this.getNGlm());
-            this.test_mse_array = zeros(this.n_repeat,this.getNGlm());
-            this.saveSegmentation(scan.getSegmentation());
+            this.training_error_array = zeros(this.n_repeat,this.getNGlm(),this.getNShadingCorrector());
+            this.test_error_array = zeros(this.n_repeat,this.getNGlm(),this.getNShadingCorrector());
             this.rand_stream = RandStream('mt19937ar','Seed',rand_uint32_seed);
+            
+            this.saveGreyvalueArray();
         end
         
         
@@ -76,12 +82,14 @@ classdef Experiment_GLMVarMean < Experiment
                 %use its random stream
                 RandStream.setGlobalStream(this.rand_stream);
                 %for each glm
-                for i_glm = 1:this.getNGlm()
-                    %get the training and test mse
-                    [mse_training, mse_test] = this.trainingTestMeanVar(this.getGlm(this.shape_parameter, i_glm));
-                    %save the training and test mse in the array
-                    this.training_mse_array(this.i_repeat,i_glm) = mse_training;
-                    this.test_mse_array(this.i_repeat,i_glm) = mse_test;
+                for i_shad = 1:this.getNShadingCorrector()
+                    for i_glm = 1:this.getNGlm()
+                        %get the training and test mse
+                        [error_training, error_test] = this.trainingTestMeanVar(this.getGlm(this.shape_parameter, i_glm), i_shad);
+                        %save the training and test mse in the array
+                        this.training_error_array(this.i_repeat,i_glm) = error_training;
+                        this.test_error_array(this.i_repeat,i_glm) = error_test;
+                    end
                 end
                 
                 %print the progress
@@ -89,11 +97,9 @@ classdef Experiment_GLMVarMean < Experiment
                 %increment i_repeat
                 this.i_repeat = this.i_repeat + 1;
                 %save the state of this experiment
-                this.saveState();
                 
             end
         end
-        
         
         %TRAINING/TEST MEAN VAR
         %Gets the training and test MSE when fitting and predicting the mean and variance relationship
@@ -102,7 +108,7 @@ classdef Experiment_GLMVarMean < Experiment
         %RETURN:
             %mse_training (scalar)
             %mse_test (scalar)
-        function [mse_training, mse_test] = trainingTestMeanVar(this, model)
+        function [error_training, error_test] = trainingTestMeanVar(this, model, shading_index)
 
                 %get random index of the training and test data
                 index_suffle = randperm(this.n_sample);
@@ -110,18 +116,18 @@ classdef Experiment_GLMVarMean < Experiment
                 test_index = index_suffle((this.n_train+1):end);
 
                 %get variance mean data of the training set
-                [sample_mean,sample_var] = this.getMeanVar(training_index);
+                [sample_mean,sample_var] = this.getMeanVar(training_index, shading_index);
 
                 %train the classifier
                 model.train(sample_mean,sample_var);
                 %get the training mse
-                mse_training = model.getPredictionMSSE(sample_mean,sample_var);
+                error_training = model.getPredictionMSSE(sample_mean,sample_var);
 
                 %get the variance mean data of the test set
-                [sample_mean,sample_var] = this.getMeanVar(test_index);
+                [sample_mean,sample_var] = this.getMeanVar(test_index, shading_index);
                 
                 %get the test mse
-                mse_test = model.getPredictionMSSE(sample_mean,sample_var);
+                error_test = model.getPredictionMSSE(sample_mean,sample_var);
 
         end
         
@@ -130,10 +136,10 @@ classdef Experiment_GLMVarMean < Experiment
         function printResults(this)
             
             figure;
-            boxplot(this.training_mse_array,'boxstyle','filled','medianstyle','target','outliersize',4,'symbol','o');
+            boxplot(this.training_error_array,'boxstyle','filled','medianstyle','target','outliersize',4,'symbol','o');
             
             figure;
-            boxplot(this.test_mse_array,'boxstyle','filled','medianstyle','target','outliersize',4,'symbol','o');
+            boxplot(this.test_error_array,'boxstyle','filled','medianstyle','target','outliersize',4,'symbol','o');
             
         end
         
@@ -141,49 +147,51 @@ classdef Experiment_GLMVarMean < Experiment
         %Plot the variance and mean histogram, along with the fitted glm
         %Using all n_sample images, for all GLM
         function plotFullFit(this)
-            
-            %get scan
-            scan = this.getScan();
-            %get the sample mean and variance using all images
-            [sample_mean,sample_var] = this.getMeanVar(1:this.n_sample);
-            
-            %indicate sample means and variances which are not outliers
-            mean_not_outlier = removeOutliers_iqr(sample_mean);
-            var_not_outlier = removeOutliers_iqr(sample_var);
-            %get boolean vector, true for values which are not outliers for both mean and variance
-            not_outlier = mean_not_outlier & var_not_outlier;
-            %remove outliers in the vector sample_mean and sample_var
-            sample_mean = sample_mean(not_outlier);
-            sample_var = sample_var(not_outlier);
 
             %shape parameter is number of (images - 1)/2, this comes from the chi
             %squared distribution
+            scan = this.getScan();
             full_shape_parameter = (scan.n_sample-1)/2;
 
-            %for each glm
-            for i_glm = 1:this.getNGlm()
+            %for each shading corrector
+            for i_shad = 1:this.getNShadingCorrector()
+                %for each glm
+                for i_glm = 1:this.getNGlm()
+                    
+                    %get the glm
+                    model = this.getGlm(full_shape_parameter, i_glm);
 
-                %get the glm
-                model = this.getGlm(full_shape_parameter, i_glm);
+                    %get the sample mean and variance
+                    [sample_mean,sample_var] = this.getMeanVar(1:numel(this.greyvalue_array(1,:,1)),i_shad);
+                    
+                    %train the glm
+                    model.train(sample_mean,sample_var);
+                    
+                    %indicate sample means and variances which are not outliers
+                    mean_not_outlier = removeOutliers_iqr(sample_mean);
+                    var_not_outlier = removeOutliers_iqr(sample_var);
+                    %get boolean vector, true for values which are not outliers for both mean and variance
+                    not_outlier = mean_not_outlier & var_not_outlier;
+                    %remove outliers in the vector sample_mean and sample_var
+                    sample_mean = sample_mean(not_outlier);
+                    sample_var = sample_var(not_outlier);
 
-                %train the glm
-                model.train(sample_mean,sample_var);
+                    %plot the frequency density
+                    figure;
+                    ax = hist3Heatmap(sample_mean,sample_var,[this.getNBin(),this.getNBin()],true);
+                    hold on;
 
-                %plot the frequency density
-                figure;
-                ax = hist3Heatmap(sample_mean,sample_var,[this.getNBin(),this.getNBin()],false);
-                hold on;
+                    %get a range of greyvalues to plot the fit
+                    x_plot = linspace(ax.XLim(1),ax.XLim(2),100);
+                    %get the variance prediction along with the error bars
+                    [variance_prediction, up_error, down_error] = model.predict(x_plot');
 
-                %get a range of greyvalues to plot the fit
-                x_plot = linspace(ax.XLim(1),ax.XLim(2),100);
-                %get the variance prediction along with the error bars
-                [variance_prediction, up_error, down_error] = model.predict(x_plot');
-
-                %plot the fit/prediction
-                plot(x_plot,variance_prediction,'r');
-                %plot the error bars
-                plot(x_plot,up_error,'r--');
-                plot(x_plot,down_error,'r--');
+                    %plot the fit/prediction
+                    plot(x_plot,variance_prediction,'r');
+                    %plot the error bars
+                    plot(x_plot,up_error,'r--');
+                    plot(x_plot,down_error,'r--');
+                end
             end
         end %plotFullFit
         
@@ -197,18 +205,65 @@ classdef Experiment_GLMVarMean < Experiment
         %Get mean and variance vector using the images indicated by the parameter data_index
         %The mean and variance are already segmented
         %PARAMETERS:
-            %data_index: vector of integers, points to which images to use for mean and variance estimation
+            %image_index: vector of integers, points to which images to use for mean and variance estimation
+            %shading_index: which shading correction to use, integer
         %RETURNS:
             %sample_mean: mean vector
             %sample_var: variance vector
-        function [sample_mean,sample_var] = getMeanVar(this, data_index)
+        function [sample_mean,sample_var] = getMeanVar(this, image_index, shading_index)
+            selected_greyvalue_array = this.greyvalue_array(:,image_index,shading_index);
+            sample_mean = mean(selected_greyvalue_array,2);
+            sample_var = var(selected_greyvalue_array,[],2);
+        end
+        
+        %SAVE GREY VALUE ARRAY
+        %Set up the member variable greyvalue_array
+        function saveGreyvalueArray(this)
+            
+            %get the segmentation
+            segmentation = this.getSegmentation();
+            %get the number of segmented pixels
+            n_pixel = sum(sum(segmentation));
+            
             %get the scan object
             scan = this.getScan();
-            %get the sample mean and variance
-            [sample_mean,sample_var] = scan.getSampleMeanVar_vector(data_index);
-            %segment the mean var data
-            sample_mean = sample_mean(this.segmentation);
-            sample_var = sample_var(this.segmentation);
+            
+            %declare the array greyvalue array
+            this.greyvalue_array = zeros(n_pixel, scan.n_sample, this.getNShadingCorrector()); 
+            
+            %for each shading corrector
+            for i_shad = 1:this.getNShadingCorrector()
+                
+                %get the scan object
+                scan = this.getScan();
+                %get the shading corrector
+                [shading_corrector, reference_index] = this.getShadingCorrector(i_shad);
+                %add the shading corrector
+                scan.addShadingCorrector(shading_corrector, reference_index);
+                
+                %load the images and reshape it to be a design matrix
+                image_stack = scan.loadImageStack();
+                image_stack = reshape(image_stack,scan.area,scan.n_sample);
+
+                %segment the design matrix
+                image_stack = image_stack(segmentation,:);
+
+                %add the greyvalues to the array
+                this.greyvalue_array(:,:,i_shad) = image_stack;
+            end
+        end %saveGreyvalueArray
+        
+        %GET SEGMENTATION
+        %Return the binary segmentation image
+        %true for pixels to be considered
+        function segmentation = getSegmentation(this)
+            scan = this.getScan();
+            segmentation = scan.getSegmentation();
+        end
+        
+        %IMPLEMENTED: GET N BIN
+        function n_bin = getNBin(this)
+            n_bin = 100;
         end
         
     end
@@ -225,8 +280,16 @@ classdef Experiment_GLMVarMean < Experiment
         %index can range from 1 to getNGlm()
         model = getGlm(this, shape_parameter, index);
         
-        %returns the number of bins to be used in histogram plotting
-        n_bin = getNBin(this);
+        %returns number of shading correctors to investigate
+        n_shad = getNShadingCorrector(this);
+        
+        %returns shading corrector given index
+        %index can range from 1 to getNShadingCorrector
+        %RETURNS:
+            %shading_corrector: ShadingCorrector object
+            %reference_index: row vector containing integers
+                %pointing to which reference scans to be used for shading correction training
+        [shading_corrector, reference_index] = getShadingCorrector(this, index);
         
     end
     

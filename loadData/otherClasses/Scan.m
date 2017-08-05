@@ -11,6 +11,7 @@ classdef Scan < handle
         folder_location; %location of the dataset
         aRTist_file; %location of the aRTist simulation
         reference_scan_array; %array of reference scan objects (in ascending powers)
+        reference_white; %integer pointing to the reference for white in the phantom
         
         voltage; %in units of kV
         power; %in units of W
@@ -247,30 +248,6 @@ classdef Scan < handle
         %Returns a binary image, true values represent ROI
         function segmentation = getSegmentation(this)
             segmentation = imread(strcat(this.folder_location,'segmentation.tif')) ~= 0;
-        end
-        
-        %GET SAMPLE MEAN VAR IMAGE
-        %PARAMETERS:
-            %image_index: integer vector, pointer to images to be used in mean/variance estimation
-        %RETURN:
-            %sample_mean: image of greyvalue mean
-            %sample_var: image of greyvalue variance
-        function [sample_mean, sample_var] = getSampleMeanVar(this, image_index)
-            image_stack = this.loadImageStack(image_index);
-            sample_mean = mean(image_stack,3);
-            sample_var = var(image_stack,[],3);
-        end
-        
-        %GET SAMPLE MEAN VAR VECTOR
-        %PARAMETERS:
-            %image_index: integer vector, pointer to images to be used in mean/variance estimation
-        %RETURN
-            %sample_mean: vector of greyvalue mean
-            %sample_var: vector of greyvalue variance
-        function [sample_mean, sample_var] = getSampleMeanVar_vector(this, image_index)
-            [sample_mean, sample_var] = this.getSampleMeanVar(image_index);
-            sample_mean = reshape(sample_mean,[],1);
-            sample_var = reshape(sample_var,[],1);
         end
         
     end

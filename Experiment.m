@@ -57,6 +57,7 @@ classdef Experiment < handle
                 this.doExperiment();
                 %change the boolean is_complete to true and save the state of the experiment
                 this.is_complete = true;
+                this.deleteVariables();
                 this.saveState();
             end
             
@@ -65,6 +66,11 @@ classdef Experiment < handle
         %FUNCTION: SAVE STATE
         function saveState(this)
             save(strcat('results/',this.experiment_name,'.mat'),'this');
+        end
+        
+        %DELETE VARIABLES
+        %Delete variables when the experiment is completed
+        function deleteVariables(this)
         end
         
     end %methods
