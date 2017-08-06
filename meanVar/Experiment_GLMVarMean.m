@@ -141,14 +141,58 @@ classdef Experiment_GLMVarMean < Experiment
         %Box plot the training and test MSSE
         function printResults(this)
             
+            %get array of shading corrector names
+            shading_corrector_array = cell(this.getNShadingCorrector(),1);
             for i_shad = 1:this.getNShadingCorrector()
-                figure;
-                boxplot(this.training_error_array(:,:,i_shad),'boxstyle','filled','medianstyle','target','outliersize',4,'symbol','o');
-
-                figure;
-                boxplot(this.test_error_array(:,:,i_shad),'boxstyle','filled','medianstyle','target','outliersize',4,'symbol','o');
+                [shading_corrector,reference_index] = this.getShadingCorrector(i_shad);
+                shading_corrector.n_image = numel(reference_index);
+                shading_corrector_array{i_shad} = shading_corrector.getName();
             end
             
+            %get array of glm names
+            glm_array = cell(this.getNGlm(),1);
+            for i_glm = 1:this.getNGlm()
+                model = this.getGlm([],i_glm);
+                glm_array{i_glm} = model.getName();
+            end
+            
+            %for the training error, then the test error
+            for i = 1:2
+                %produce figure
+                figure;
+                ax = gca;
+                for i_shad = 1:this.getNShadingCorrector()
+                    plot(0,0);
+                    hold on;
+                end
+                %get the colours for each hold on
+                colour_order = ax.ColorOrder;
+                %for each shading correction
+                for i_shad = 1:this.getNShadingCorrector()
+                    %get the position of the box plot for this current shading correction
+                    position = (1:this.getNGlm())-0.25+0.5*(i_shad)/(this.getNShadingCorrector()+1);
+                    %get the array of errors
+                    if i == 1
+                        array = this.training_error_array(:,:,i_shad);
+                    else
+                        array = this.test_error_array(:,:,i_shad);
+                    end
+                    %box plot the errors
+                    boxplot(array,'Position',position,'boxstyle','filled','medianstyle','target','outliersize',4,'symbol','o','Color',colour_order(i_shad,:));
+                end
+                %retick the x axis
+                ax.XTick = 1:this.getNGlm();
+                %label each glm with its name
+                ax.XTickLabelRotation = 45;
+                ax.XTickLabel = glm_array;
+                %label the axis and legend
+                if i == 1
+                    ylabel('Training MSSE');
+                else
+                    ylabel('Test MSSE');
+                end
+                legend(shading_corrector_array);
+            end 
         end
         
         %PLOT FULL FIT
@@ -189,6 +233,7 @@ classdef Experiment_GLMVarMean < Experiment
                     %plot the frequency density
                     figure;
                     ax = hist3Heatmap(sample_mean,sample_var,[this.getNBin(),this.getNBin()],true);
+                    colorbar;
                     hold on;
 
                     %get a range of greyvalues to plot the fit
@@ -201,6 +246,9 @@ classdef Experiment_GLMVarMean < Experiment
                     %plot the error bars
                     plot(x_plot,up_error,'r--');
                     plot(x_plot,down_error,'r--');
+                    
+                    xlabel('mean (arb. unit)');
+                    ylabel('variance (arb. unit^2)');
                 end
             end
             

@@ -28,6 +28,12 @@ classdef MeanVar_GLM_identity < MeanVar_GLM
         function mu = getMean(this,eta)
             mu = eta;
         end
+        
+        %GET NAME
+        %Return name for this glm
+        function name = getName(this)
+            name = cell2mat({'identity, order ',num2str(this.polynomial_order)});
+        end
     end
     
 end

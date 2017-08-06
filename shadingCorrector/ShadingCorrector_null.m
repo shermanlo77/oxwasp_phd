@@ -30,6 +30,11 @@ classdef ShadingCorrector_null < ShadingCorrector
             scan_image = scan_image;
         end
         
+        %RETURN THE NAME OF THIS SHADING CORRECTOR
+        function name = getName(this)
+            name = 'null';
+        end
+        
     end
     
 end

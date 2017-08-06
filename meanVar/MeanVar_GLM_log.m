@@ -28,6 +28,12 @@ classdef MeanVar_GLM_log < MeanVar_GLM
         function mu = getMean(this,eta)
             mu = exp(eta);
         end
+        
+        %GET NAME
+        %Return name for this glm
+        function name = getName(this)
+            name = cell2mat({'log, order ',num2str(this.polynomial_order)});
+        end
     end
     
 end

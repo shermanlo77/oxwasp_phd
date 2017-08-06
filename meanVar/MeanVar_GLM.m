@@ -221,6 +221,10 @@ classdef MeanVar_GLM < VarianceModel
             %mu: vector of mean responses
         mu = getMean(this,eta);
         
+        %GET NAME
+        %Return name for this glm
+        name = getName(this)
+        
     end
     
 end

@@ -128,6 +128,15 @@ classdef ShadingCorrector < handle
             end
         end
         
+        %RETURN THE NAME OF THIS SHADING CORRECTOR
+        function name = getName(this)
+            if this.n_image == 2
+                name = 'bw';
+            else
+                name = 'linear';
+            end
+        end
+        
     end
     
 end

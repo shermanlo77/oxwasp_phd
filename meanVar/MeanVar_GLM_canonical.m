@@ -28,6 +28,12 @@ classdef MeanVar_GLM_canonical < MeanVar_GLM
         function mu = getMean(this,eta)
             mu = -this.shape_parameter./eta;
         end
+        
+        %GET NAME
+        %Return name for this glm
+        function name = getName(this)
+            name = cell2mat({'inverse, order ',num2str(this.polynomial_order)});
+        end
     end
     
 end
