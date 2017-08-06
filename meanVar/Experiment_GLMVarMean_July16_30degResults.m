@@ -25,12 +25,13 @@ classdef Experiment_GLMVarMean_July16_30degResults < Experiment_GLMVarMean_July1
         function experiment = loadResults(this, index)
             switch index
                 case 1
-                    experiment = load('results/GLMVarMean_July16_30deg_null');
+                    experiment = strcat('results/',Experiment_GLMVarMean_July16_30deg_null.getExperimentName());
                 case 2
-                    experiment = load('results/GLMVarMean_July16_30deg_bw');
+                    experiment = strcat('results/',Experiment_GLMVarMean_July16_30deg_bw.getExperimentName());
                 case 3
-                    experiment = load('results/GLMVarMean_July16_30deg_linear');
+                    experiment = strcat('results/',Experiment_GLMVarMean_July16_30deg_linear.getExperimentName());
             end
+            experiment = load(experiment);
             experiment = experiment.this;
         end
         

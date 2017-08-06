@@ -8,7 +8,7 @@ classdef Experiment_GLMVarMean_July16_120deg_linear < Experiment_GLMVarMean_July
         %CONSTRUCTOR
         function this = Experiment_GLMVarMean_July16_120deg_linear()
             %call superclass with experiment name
-            this@Experiment_GLMVarMean_July16_120deg('GLMVarMean_July16_120deg_linear');
+            this@Experiment_GLMVarMean_July16_120deg(Experiment_GLMVarMean_July16_120deg_linear.getExperimentName());
         end
         
         %OVERRIDE: SET UP EXPERIMENT
@@ -22,6 +22,14 @@ classdef Experiment_GLMVarMean_July16_120deg_linear < Experiment_GLMVarMean_July
             shading_corrector = ShadingCorrector();
             reference_index = 1:scan.getNReference();
         end
+    end
+    
+    methods (Static)
+        
+        function experiment_name = getExperimentName()
+            experiment_name = 'GLMVarMean_July16_120deg_linear';
+        end
+        
     end
     
 end
