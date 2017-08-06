@@ -87,8 +87,8 @@ classdef Experiment_GLMVarMean < Experiment
                         %get the training and test mse
                         [error_training, error_test] = this.trainingTestMeanVar(this.getGlm(this.shape_parameter, i_glm), i_shad);
                         %save the training and test mse in the array
-                        this.training_error_array(this.i_repeat,i_glm) = error_training;
-                        this.test_error_array(this.i_repeat,i_glm) = error_test;
+                        this.training_error_array(this.i_repeat,i_glm,i_shad) = error_training;
+                        this.test_error_array(this.i_repeat,i_glm,i_shad) = error_test;
                     end
                 end
                 
@@ -141,11 +141,13 @@ classdef Experiment_GLMVarMean < Experiment
         %Box plot the training and test MSSE
         function printResults(this)
             
-            figure;
-            boxplot(this.training_error_array,'boxstyle','filled','medianstyle','target','outliersize',4,'symbol','o');
-            
-            figure;
-            boxplot(this.test_error_array,'boxstyle','filled','medianstyle','target','outliersize',4,'symbol','o');
+            for i_shad = 1:this.getNShadingCorrector()
+                figure;
+                boxplot(this.training_error_array(:,:,i_shad),'boxstyle','filled','medianstyle','target','outliersize',4,'symbol','o');
+
+                figure;
+                boxplot(this.test_error_array(:,:,i_shad),'boxstyle','filled','medianstyle','target','outliersize',4,'symbol','o');
+            end
             
         end
         
