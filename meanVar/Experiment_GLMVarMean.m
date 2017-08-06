@@ -185,6 +185,12 @@ classdef Experiment_GLMVarMean < Experiment
                 %label each glm with its name
                 ax.XTickLabelRotation = 45;
                 ax.XTickLabel = glm_array;
+%                 if i == 1
+%                     array = this.training_error_array();
+%                 else
+%                     array = this.test_error_array();
+%                 end
+%                 ax.YLim = [min(min(min(array))),max(max(max(array)))];
                 %label the axis and legend
                 if i == 1
                     ylabel('Training MSSE');
