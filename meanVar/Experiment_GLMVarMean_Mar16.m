@@ -53,13 +53,13 @@ classdef Experiment_GLMVarMean_Mar16 < Experiment_GLMVarMean
                 case 5
                     model = MeanVar_GLM_canonical(shape_parameter,-4);
                 case 6
-                    model = MeanVar_GLM_log(shape_parameter,-1);
+                    model = MeanVar_GLM_log(shape_parameter,1);
                 case 7
-                    model = MeanVar_GLM_log(shape_parameter,-2);
+                    model = MeanVar_GLM_log(shape_parameter,-1);
                 case 8
-                    model = MeanVar_GLM_log(shape_parameter,-3);
+                    model = MeanVar_GLM_log(shape_parameter,-2);
                 case 9
-                    model = MeanVar_GLM_log(shape_parameter,-4);
+                    model = MeanVar_GLM_log(shape_parameter,-3);
             end
         end
         
