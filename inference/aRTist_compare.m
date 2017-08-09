@@ -95,12 +95,14 @@ for i = 1:n_test
 
     %work out the p value and plot it
     p_image = 2*(1-normcdf(abs(z_image)));
+    %set non segmented pixels to be nan
+    p_image(~segmentation) = nan;
     % figure;
     % imagesc(log10(p_image));
     % colorbar;
 
     %find critical pixels at some level
-    critical_index = reshape(significantFDR(reshape(p_image,1,[]),normcdf(-5)),block_data.height,block_data.width);
+    critical_index = reshape(significantFDR(reshape(p_image,[],1),normcdf(-5)),block_data.height,block_data.width);
     [critical_y, critical_x] = find(critical_index);
 
     %plot the phantom scan with critical pixels highlighted
