@@ -62,7 +62,11 @@ classdef Scan < handle
         %PARAMETERS
             %index: index of image (scalar)
         function slice = loadImage(this,index)
-            slice = imread(strcat(this.folder_location,this.file_name,num2str(index),'.tif'));
+            if this.n_sample == 1
+                slice = imread(strcat(this.folder_location,this.file_name,'.tif'));
+            else
+                slice = imread(strcat(this.folder_location,this.file_name,num2str(index),'.tif'));
+            end
             slice = this.shadingCorrect(double(slice));
         end
         
@@ -248,6 +252,23 @@ classdef Scan < handle
         %Returns a binary image, true values represent ROI
         function segmentation = getSegmentation(this)
             segmentation = imread(strcat(this.folder_location,'segmentation.tif')) ~= 0;
+        end
+        
+        function slice = getShadingCorrectedARTistImage(this, shading_corrector, reference_index)
+            [artist_location,artist_name,~] = fileparts(this.aRTist_file);
+            artist_location = strcat(artist_location,'/');
+            aRTist = Scan(artist_location, artist_name, this.width, this.height, 1, this.voltage, this.power, this.time_exposure);
+            artist_reference_array(this.getNReference()-1) = Scan();
+            aRTist.reference_scan_array = artist_reference_array;
+            for i = 1:(this.getNReference()-1)
+                reference_scan = this.reference_scan_array(i+1);
+                [artist_location,artist_name,~] = fileparts(reference_scan.aRTist_file);
+                artist_location = strcat(artist_location,'/');
+                aRTist.reference_scan_array(i) = Scan(artist_location, artist_name, this.width, this.height, 1, this.voltage, reference_scan.power, this.time_exposure);
+            end
+            aRTist.reference_white = this.reference_white-1;
+            aRTist.addShadingCorrector(shading_corrector,reference_index);
+            slice = aRTist.loadImage(1);
         end
         
     end
