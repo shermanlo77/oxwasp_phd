@@ -1,5 +1,5 @@
 %SCAN Class for handling x-ray images
-classdef Scan < handle
+classdef Scan < matlab.mixin.Heterogeneous & handle
 
     %MEMBER VARIABLES
     properties
@@ -62,11 +62,7 @@ classdef Scan < handle
         %PARAMETERS
             %index: index of image (scalar)
         function slice = loadImage(this,index)
-            if this.n_sample == 1
-                slice = imread(strcat(this.folder_location,this.file_name,'.tif'));
-            else
-                slice = imread(strcat(this.folder_location,this.file_name,num2str(index),'.tif'));
-            end
+            slice = imread(strcat(this.folder_location,this.file_name,num2str(index),'.tif'));
             slice = this.shadingCorrect(double(slice));
         end
         
@@ -254,19 +250,36 @@ classdef Scan < handle
             segmentation = imread(strcat(this.folder_location,'segmentation.tif')) ~= 0;
         end
         
+        %GET SHADING CORRECTED ARTIST IMAGE
+        %Returns the aRTist image, shading corrected
+        %Uses aRTist simulations of the references except for the black image
+        %PARAMETERS:
+            %shading_corrector: newly instantised shading corrector
+            %reference_index: integer vector, pointing to which reference images to use
+        %RETURN:
+            %slice: shading corrected aRTist image
         function slice = getShadingCorrectedARTistImage(this, shading_corrector, reference_index)
+            %get the folder location and file name of the artist image
             [artist_location,artist_name,~] = fileparts(this.aRTist_file);
             artist_location = strcat(artist_location,'/');
-            aRTist = Scan(artist_location, artist_name, this.width, this.height, 1, this.voltage, this.power, this.time_exposure);
+            %instantise a Scan object containing the aRTist image
+            aRTist = Scan_Single(artist_location, artist_name, this.width, this.height, this.voltage, this.power, this.time_exposure);
+            %instantise an array of Scan objects, storing aRTist reference images
+            %store the array in the aRTist member variable reference_scan_array
             artist_reference_array(this.getNReference()-1) = Scan();
             aRTist.reference_scan_array = artist_reference_array;
+            %for each reference scan, except for black
             for i = 1:(this.getNReference()-1)
+                %get the reference scan
                 reference_scan = this.reference_scan_array(i+1);
+                %get the file location and file name of the aRTist reference imae
                 [artist_location,artist_name,~] = fileparts(reference_scan.aRTist_file);
                 artist_location = strcat(artist_location,'/');
-                aRTist.reference_scan_array(i) = Scan(artist_location, artist_name, this.width, this.height, 1, this.voltage, reference_scan.power, this.time_exposure);
+                %instantise a Scan object for that aRTist reference image
+                aRTist.reference_scan_array(i) = Scan_Single(artist_location, artist_name, this.width, this.height, this.voltage, reference_scan.power, this.time_exposure);
             end
             aRTist.reference_white = this.reference_white-1;
+            %add shading correction and get the shading corrected aRTist image
             aRTist.addShadingCorrector(shading_corrector,reference_index);
             slice = aRTist.loadImage(1);
         end
