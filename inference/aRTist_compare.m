@@ -9,7 +9,7 @@ block_data.addDefaultShadingCorrector();
 %get the mean phanton image and aRTist image
 phantom = mean(block_data.loadImageStack(),3);
 aRTist_uncorrected = block_data.getARTistImage();
-aRTist = block_data.getShadingCorrectedARTistImage(ShadingCorrector(),[1,block_data.reference_white-1]);
+aRTist = block_data.getShadingCorrectedARTistImage(ShadingCorrector(),1:block_data.reference_white);
 
 %get the segmentation image
 segmentation = block_data.getSegmentation();

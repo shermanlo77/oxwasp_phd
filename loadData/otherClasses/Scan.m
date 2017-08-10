@@ -266,22 +266,28 @@ classdef Scan < matlab.mixin.Heterogeneous & handle
             aRTist = Scan_Single(artist_location, artist_name, this.width, this.height, this.voltage, this.power, this.time_exposure);
             %instantise an array of Scan objects, storing aRTist reference images
             %store the array in the aRTist member variable reference_scan_array
-            artist_reference_array(this.getNReference()-1) = Scan();
+            artist_reference_array(this.getNReference()) = Scan();
             aRTist.reference_scan_array = artist_reference_array;
+            
+            reference_scan = this.reference_scan_array(1);
+            greyvalue = mean(reshape(reference_scan.loadImageStack(),[],1));
+            aRTist.reference_scan_array(1) = Scan_SingleFlat(this.width, this.height, this.voltage, reference_scan.power, this.time_exposure, greyvalue);
+            
             %for each reference scan, except for black
-            for i = 1:(this.getNReference()-1)
+            for i = 2:this.getNReference()
                 %get the reference scan
-                reference_scan = this.reference_scan_array(i+1);
-                %get the file location and file name of the aRTist reference imae
+                reference_scan = this.reference_scan_array(i);
+                %get the file location and file name of the aRTist reference image
                 [artist_location,artist_name,~] = fileparts(reference_scan.aRTist_file);
                 artist_location = strcat(artist_location,'/');
                 %instantise a Scan object for that aRTist reference image
                 aRTist.reference_scan_array(i) = Scan_Single(artist_location, artist_name, this.width, this.height, this.voltage, reference_scan.power, this.time_exposure);
             end
-            aRTist.reference_white = this.reference_white-1;
+            
+            aRTist.reference_white = this.reference_white;
             %add shading correction and get the shading corrected aRTist image
             aRTist.addShadingCorrector(shading_corrector,reference_index);
-            slice = aRTist.loadImage(1);
+            slice = aRTist.loadImage();
         end
         
     end
