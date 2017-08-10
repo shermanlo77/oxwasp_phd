@@ -98,9 +98,15 @@ classdef Scan < matlab.mixin.Heterogeneous & handle
         end
         
         %ADD DEFAULT SHADING CORRECTOR
-        %Add bw shading corrector, using 0 power and the highest power
+        %Add bw shading corrector, using 0 power and the white power
         function addDefaultShadingCorrector(this)
-            this.addShadingCorrector(ShadingCorrector(),[1,numel(this.reference_scan_array)]);
+            this.addShadingCorrector(ShadingCorrector(),[1,this.reference_white]);
+        end
+        
+        %ADD LINEAR SHADING CORRECTION
+        %Add linear shading corrector, using 0 W and all the powers till the white power
+        function addLinearShadingCorrector(this)
+            this.addShadingCorrector(ShadingCorrector(),1:this.reference_white);
         end
         
         %ADD SHADING CORRECTOR
