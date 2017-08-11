@@ -28,15 +28,24 @@ classdef Experiment_referenceShadingCorrection_Sep16 < Experiment_referenceShadi
             bgw_data = AbsBlock_Sep16([],[]);
         end
         
-        %IMPLEMENTED METHOD: doExperimentForAllShadingCorrections
-        %calls shadingCorrection_ANOVA for different shading correctors
-        function doExperimentForAllShadingCorrections(this)
-            %no shading correction
-            this.shadingCorrection_ANOVA(ShadingCorrector_null(), []);
-            %bw shading correction
-            this.shadingCorrection_ANOVA(ShadingCorrector(), [1,this.reference_white]);
-            %linear shading correction
-            this.shadingCorrection_ANOVA(ShadingCorrector(), 1:this.reference_white);
+        %IMPLEMENT METHOD: GET SHADING CORRECTOR
+            %returns a newly instantised shading corrector with the reference_index
+            %parameter: integer, ranging from 1 to this.getNShadingCorrector
+        function [shading_corrector, reference_index] = getShadingCorrector(this, index)
+            switch index
+                %no shading correction
+                case 1
+                    shading_corrector = ShadingCorrector_null();
+                    reference_index = [];
+                %bw shading correction
+                case 2
+                    shading_corrector = ShadingCorrector();
+                    reference_index = [1,this.reference_white];
+                %linear shading correction
+                case 3
+                    shading_corrector = ShadingCorrector();
+                    reference_index = 1:this.reference_white;
+            end
         end
         
     end

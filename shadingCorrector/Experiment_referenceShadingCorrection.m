@@ -79,7 +79,12 @@ classdef Experiment_referenceShadingCorrection < Experiment
                 RandStream.setGlobalStream(this.rand_stream);
                 
                 %do experiment for all shading correctors to be investigated
-                this.doExperimentForAllShadingCorrections();
+                for i_shad = 1:this.n_shading_corrector
+                    %get shading corrector and reference index
+                    [shading_corrector, reference_index] = this.getShadingCorrector(i_shad);
+                    %estimate variances using the given shading corrector
+                    this.shadingCorrection_ANOVA(shading_corrector, reference_index);
+                end
                 
                 %reset the member variable i_shading_corrector to 1
                 this.i_shading_corrector = 1;
@@ -161,7 +166,7 @@ classdef Experiment_referenceShadingCorrection < Experiment
             %declare array of integers for image pointing to each reference scan
                 %dim 1: for each image
                 %dim 2: for each reference scan
-            image_index = zeros(this.n_sample, numel(reference_index));
+            image_index = zeros(this.n_sample, bgw_data.getNReference());
             
             %for each reference scan
             for i = 1:this.n_reference
@@ -213,9 +218,9 @@ classdef Experiment_referenceShadingCorrection < Experiment
             %returns a Scan object containing the reference scans
         loadData(this);
         
-        %doExperimentForAllShadingCorrections(this)
-            %calls shadingCorrection_ANOVA for different shading correctors
-        doExperimentForAllShadingCorrections(this);
+        %returns a newly instantised shading corrector with the reference_index
+            %parameter: integer, ranging from 1 to this.n_shading_corrector
+        [shading_corrector, reference_index] = getShadingCorrector(this, index);
     end
     
     %STATIC METHODS

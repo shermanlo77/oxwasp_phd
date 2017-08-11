@@ -15,7 +15,6 @@ classdef AbsBlock_Mar16 < Scan
             this@Scan('data/absBlock_Mar16/', 'block_', 1996, 1996, 100, 100, 33, 500);
             %assign member variables
             this.panel_counter = PanelCounter_Brass();
-            this.reference_white = 3;
             %this.min_greyvalue = 5.7588E3;
         end
         

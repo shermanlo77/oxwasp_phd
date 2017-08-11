@@ -1,9 +1,9 @@
 %SHADINGCORRECTOR Stores an array of reference scans and use it to do shading correction
 %   Use the constructor to instantise a shading corrector
 %
-%   A stack of reference scans is passed to the shading corrector via the method addReferenceImages().
+%   A reference scan is passed to the shading corrector via the method addScan().
 %   Use the method calibrate() to work out parameters to do shading correction.
-%   Shading correction is done via the method shadeCorrect()
+%   Shading correction is done via the method shadingCorrect()
 %
 %   Outlying pixels can be set to NaN by calling the method turnOnSetExtremeToNan()
 %   Outlying pixels are pixels with greyvalues less than this.min_greyvalue and more than intmax('uint16')
@@ -42,7 +42,13 @@ classdef ShadingCorrector < handle
             this.set_extreme_to_nan = false;
             this.min_greyvalue = 0;
         end
-          
+        
+        %INITALISE
+        %Set the member variables n_image, i_image, image_size, reference_image_array
+        %PARAMETERS:
+            %n_image: number of reference scans
+            %height: height of the image
+            %width: width of the image
         function initalise(this, n_image, height, width)
             this.n_image = n_image;
             this.i_image = 1;
@@ -50,13 +56,22 @@ classdef ShadingCorrector < handle
             this.reference_image_array = zeros(height, width, n_image);
         end
         
+        %ADD SCAN
+        %Add a reference scan to the shading correction
+        %PARAMETERS:
+            %scan: Scan object
+            %index: integer vector, pointing to which images in that scan to use
         function addScan(this, scan, index)
+            %if index is not supplied, load all images
             if nargin == 2
                 reference_stack = scan.loadImageStack();
+            %else load the images supplied by the parameter index
             else
                 reference_stack = scan.loadImageStack(index);
             end
+            %save the mean image stack of references for this stack
             this.reference_image_array(:,:,this.i_image) = mean(reference_stack,3);
+            %increment the member variable i_image
             this.i_image = this.i_image + 1;
         end
         

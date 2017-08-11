@@ -10,6 +10,7 @@ classdef Bgw_Mar16 < Scan
             %assign member variables
             this.panel_counter = PanelCounter_Brass();
             
+            this.reference_white = 3;
             reference_scan_array(3) = Scan();
             this.reference_scan_array = reference_scan_array;
             this.reference_scan_array(1) = Scan('data/bgw_Mar16/black/', 'black_140316_', this.width, this.height, 20, 0, 0, 1000);

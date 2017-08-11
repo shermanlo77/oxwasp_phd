@@ -16,7 +16,9 @@ classdef Experiment_referenceShadingCorrection_Mar16 < Experiment_referenceShadi
         %OVERRIDE METHOD: SET UP EXPERIMENT
         %Calls superclass and instantise random stream
         function setUpExperiment(this)
+            %super class, 100 repeats, 4 shading correctors
             this.setUpExperiment@Experiment_referenceShadingCorrection(100, 4);
+            %instantise random stream
             this.rand_stream = RandStream('mt19937ar','Seed',uint32(227482200));
         end
         
@@ -26,19 +28,30 @@ classdef Experiment_referenceShadingCorrection_Mar16 < Experiment_referenceShadi
             bgw_data = Bgw_Mar16();
         end
         
-        %IMPLEMENTED METHOD: doExperimentForAllShadingCorrections
-        %calls shadingCorrection_ANOVA for different shading correctors
-        function doExperimentForAllShadingCorrections(this)
-            %no shading correction
-            this.shadingCorrection_ANOVA(ShadingCorrector_null(), []);
-            %bw shading correction
-            this.shadingCorrection_ANOVA(ShadingCorrector(), [1,this.n_reference]);
-            %linear shading correction
-            this.shadingCorrection_ANOVA(ShadingCorrector(), 1:this.n_reference);
-            %linear polynomial shading correction
-            this.shadingCorrection_ANOVA(ShadingCorrector_polynomial([2,2,2]), 1:this.n_reference);
+        %IMPLEMENT METHOD: GET SHADING CORRECTOR
+            %returns a newly instantised shading corrector with the reference_index
+            %parameter: integer, ranging from 1 to this.getNShadingCorrector
+        function [shading_corrector, reference_index] = getShadingCorrector(this, index)
+            switch index
+                %no shading correction
+                case 1
+                    shading_corrector = ShadingCorrector_null();
+                    reference_index = [];
+                %bw shading correction
+                case 2
+                    shading_corrector = ShadingCorrector();
+                    reference_index = [1,this.reference_white];
+                %linear shading correction
+                case 3
+                    shading_corrector = ShadingCorrector();
+                    reference_index = 1:this.reference_white;
+                %polynomial shading correction
+                case 4
+                    shading_corrector = ShadingCorrector_polynomial([2,2,2]);
+                    reference_index = 1:this.reference_white;
+            end
         end
-        
+          
         %OVERRIDE METHOD: PRINT RESULTS
         %Image plot the shading corrected image, one for each reference
         %calls superclass version method to plot variance vs power
@@ -47,16 +60,16 @@ classdef Experiment_referenceShadingCorrection_Mar16 < Experiment_referenceShadi
             colour_array = {'Black','Grey','White'};
             shading_array = {'no_shad','bw','bgw','polynomial'};
             %for each shading correction
-            for i_shad = 1:4
+            for i_shad = 1:this.n_shading_corrector
                 %set up the figure
                 fig = figure;
                 fig.Position(3) = 1000;
                 fig.Position(4) = 200;
                 %for each reference image
-                for i_ref = 1:3
+                for i_ref = 1:this.n_reference
                     %plot the shading corrected reference image
-                    subplot(1,3,i_ref,imagesc_truncate(this.image_array{i_ref,i_shad}));
-                    colorbar(subplot(1,3,i_ref)); %include colour bar
+                    subplot(1,this.n_reference,i_ref,imagesc_truncate(this.image_array{i_ref,i_shad}));
+                    colorbar(subplot(1,this.n_reference,i_ref)); %include colour bar
                     axis(gca,'off'); %turn axis off
                     title(colour_array{i_ref}); %label the reference image
                 end
