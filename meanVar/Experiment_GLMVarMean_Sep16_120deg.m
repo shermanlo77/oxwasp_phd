@@ -13,8 +13,8 @@ classdef Experiment_GLMVarMean_Sep16_120deg < Experiment_GLMVarMean_Sep16
         
         %OVERRIDE: SET UP EXPERIMENT
         function setUpExperiment(this)
-            %call superclass with 100 repeats and a random seed
-            this.setUpExperiment@Experiment_GLMVarMean_Sep16(uint32(1277156729));
+            %call superclass with 100 repeats and a random stream
+            this.setUpExperiment@Experiment_GLMVarMean_Sep16(RandStream('mt19937ar','Seed',uint32(1277156729)));
         end
         
         function scan = getScan(this)

@@ -36,34 +36,12 @@ classdef Experiment_GLMVarMean_July16_120degResults < Experiment_GLMVarMean_July
         end
         
         function doExperiment(this)
-        end        
-        
+        end     
+
         %returns number of shading correctors to investigate
         function n_shad = getNShadingCorrector(this)
-            n_shad = 3;
-        end
-        
-        %returns shading corrector given index
-        %index can range from 1 to getNShadingCorrector
-        %RETURNS:
-            %shading_corrector: ShadingCorrector object
-            %reference_index: row vector containing integers
-                %pointing to which reference scans to be used for shading correction training
-        function [shading_corrector, reference_index] = getShadingCorrector(this, index)
-            scan = this.getScan();
-            reference_white = scan.reference_white;
-            switch index
-                case 1
-                    shading_corrector = ShadingCorrector_null();
-                    reference_index = [];
-                case 2
-                    shading_corrector = ShadingCorrector();
-                    reference_index = [1,reference_white];
-                case 3
-                    shading_corrector = ShadingCorrector();
-                    reference_index = 1:scan.getNReference();
-            end
-        end
+            n_shad = this.getNShadingCorrector@Experiment_GLMVarMean_July16();
+        end   
         
     end   
     

@@ -15,9 +15,9 @@ classdef Experiment_GLMVarMean_Sep16 < Experiment_GLMVarMean
         end
         
         %OVERRIDE: SET UP EXPERIMENT
-        function setUpExperiment(this, unit32_seed)
-            %call superclass with 100 repeats and a random seed
-            this.setUpExperiment@Experiment_GLMVarMean(100, unit32_seed);
+        function setUpExperiment(this, rand_stream)
+            %call superclass with 100 repeats and a random stream
+            this.setUpExperiment@Experiment_GLMVarMean(100, rand_stream);
         end
         
         %IMPLEMENTED: GET N GLM
@@ -64,7 +64,7 @@ classdef Experiment_GLMVarMean_Sep16 < Experiment_GLMVarMean
                     reference_index = [1,reference_white];
                 case 3
                     shading_corrector = ShadingCorrector();
-                    reference_index = 1:scan.getNReference();
+                    reference_index = 1:reference_white;
             end
         end
         

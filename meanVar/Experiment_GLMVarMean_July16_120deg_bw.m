@@ -13,14 +13,13 @@ classdef Experiment_GLMVarMean_July16_120deg_bw < Experiment_GLMVarMean_July16_1
         
         %OVERRIDE: SET UP EXPERIMENT
         function setUpExperiment(this)
-            %call superclass with 100 repeats and a random seed
-            this.setUpExperiment@Experiment_GLMVarMean_July16_120deg(uint32(1032494379));
+            this.i_shading_correction = 2;
+            %call superclass with 100 repeats and a random stream
+            this.setUpExperiment@Experiment_GLMVarMean_July16_120deg(RandStream.create('mrg32k3a','Seed',uint32(2623555944),'NumStreams',Experiment_GLMVarMean_July16.getNShadingCorrector(),'StreamIndices',this.i_shading_correction));
         end
         
-        function [shading_corrector, reference_index] = getShadingCorrector(this, index)
-            scan = this.getScan();
-            shading_corrector = ShadingCorrector();
-            reference_index = [1,scan.reference_white];
+        function [shading_corrector, reference_index] = getShadingCorrector(this, ~)
+            [shading_corrector, reference_index] = this.getShadingCorrector@Experiment_GLMVarMean_July16(this.i_shading_correction);
         end
     end
     

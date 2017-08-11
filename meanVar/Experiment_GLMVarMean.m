@@ -53,8 +53,8 @@ classdef Experiment_GLMVarMean < Experiment
         %SET UP EXPERIMENT
         %PARAMETERS:
             %n_repeat: number of times to repeat the experiment
-            %rand_uint32_seed: uint32 to set the random seed seed
-        function setUpExperiment(this, n_repeat, rand_uint32_seed)
+            %rand_steam: random stream
+        function setUpExperiment(this, n_repeat, rand_stream)
             
             %get the scan object
             scan = this.getScan();
@@ -67,7 +67,7 @@ classdef Experiment_GLMVarMean < Experiment
             this.shape_parameter = (this.n_train-1)/2;
             this.training_error_array = zeros(this.n_repeat,this.getNGlm(),this.getNShadingCorrector());
             this.test_error_array = zeros(this.n_repeat,this.getNGlm(),this.getNShadingCorrector());
-            this.rand_stream = RandStream('mt19937ar','Seed',rand_uint32_seed);
+            this.rand_stream = rand_stream;
             
             this.saveGreyvalueArray();
         end
