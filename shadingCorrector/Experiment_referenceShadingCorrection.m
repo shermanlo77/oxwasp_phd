@@ -21,6 +21,7 @@ classdef Experiment_referenceShadingCorrection < Experiment
         n_shading_corrector; %number of shading correctors to investigate per iteration of the experiment
         n_reference; %number of reference scans
         n_sample; %number of images per scan
+        reference_white; %pointer to the reference image representing white
         rand_stream; %random stream
         
         %array of between and within variances for each iteration and shading correction
@@ -61,6 +62,7 @@ classdef Experiment_referenceShadingCorrection < Experiment
             this.n_repeat = n_repeat;
             this.n_shading_corrector = n_shading_corrector;
             this.n_reference = bgw_data.getNReference();
+            this.reference_white = bgw_data.reference_white;
             this.n_sample = bgw_data.reference_scan_array(1).n_sample;
             this.var_b_array = zeros(this.n_repeat, this.n_reference, this.n_shading_corrector);
             this.var_w_array = zeros(this.n_repeat, this.n_reference, this.n_shading_corrector);

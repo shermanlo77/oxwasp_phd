@@ -25,18 +25,18 @@ classdef Experiment_referenceShadingCorrection_Sep16 < Experiment_referenceShadi
         %IMPLEMENT METHOD: LOAD DATA
         %Return scan object containing reference scans
         function bgw_data = loadData(this)
-            bgw_data = AbsBlock_Sep16_30deg();
+            bgw_data = AbsBlock_Sep16([],[]);
         end
         
         %IMPLEMENTED METHOD: doExperimentForAllShadingCorrections
         %calls shadingCorrection_ANOVA for different shading correctors
         function doExperimentForAllShadingCorrections(this)
             %no shading correction
-            this.shadingCorrection_ANOVA(ShadingCorrector_null(), 1:this.n_reference);
+            this.shadingCorrection_ANOVA(ShadingCorrector_null(), []);
             %bw shading correction
-            this.shadingCorrection_ANOVA(ShadingCorrector(), [1,this.n_reference]);
+            this.shadingCorrection_ANOVA(ShadingCorrector(), [1,this.reference_white]);
             %linear shading correction
-            this.shadingCorrection_ANOVA(ShadingCorrector(), 1:this.n_reference);
+            this.shadingCorrection_ANOVA(ShadingCorrector(), 1:this.reference_white);
         end
         
     end

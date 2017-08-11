@@ -30,7 +30,7 @@ classdef Experiment_referenceShadingCorrection_Mar16 < Experiment_referenceShadi
         %calls shadingCorrection_ANOVA for different shading correctors
         function doExperimentForAllShadingCorrections(this)
             %no shading correction
-            this.shadingCorrection_ANOVA(ShadingCorrector_null(), 1:this.n_reference);
+            this.shadingCorrection_ANOVA(ShadingCorrector_null(), []);
             %bw shading correction
             this.shadingCorrection_ANOVA(ShadingCorrector(), [1,this.n_reference]);
             %linear shading correction
