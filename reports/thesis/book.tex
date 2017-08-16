@@ -148,13 +148,192 @@ Methods used to reconstruct the 3D surface of the sample are available such as f
 
 Studies have been done to use x-ray CT to do defection on 3D printing \citep{kim2016inspection} \citep{villarraga2015assessing}. This was done by investigating the variation of the material thickness and the distribution of the volume of voids \citep{villarraga2015assessing}. Voids then can be classified as defects if the voids are larger than some volume threshold. This threshold controls the probability of the detection of defects \citep{amrhein2014characterization} \citep{gandossi2010probability}.
 
-Full 3D x-ray CT scans can be slow and may not generalised well in production lines. However there is potential to bring in methods such as those used in airport luggage inspection to speed up to process \cite{warnett2016towards}.
+Full 3D x-ray CT scans can be slow and may not generalised well in production lines. However there is potential to bring in methods such as those used in airport luggage inspection to speed up to process \citep{warnett2016towards}.
 
 There are many sources of error in CT scanning \citep{cantatore2011introduction} and this can cause problems when reconstructing the geometry of the sample. Sources of error include: dead pixels in the detector \citep{brettschneider2014spatial}, use of cone beams \citep{sun2016applications}, beam hardening and the orientation of the sample \citep{corcoran2016observations}.
 
 The scale of the 2D images can be calibrated with the use of reference standards \citep{bartscher2007enhancement} \citep{lifton2013application}.
 
 \section{Compound Poisson}
+
+The grey values of each pixel in the detector can be modelled as a random variable, due to the random behaviour of photons being produced, interacting with the phantom and interacting with the scintillator in the detector. When the photons interact with the scintillator, they are converted into visible light. The visible light photons are then detected and converted into a grey value. How the detected visible light is converted is important in modelling the grey value.
+
+Should the grey value be proportional to the number of photons detected, the detector is known as a quantum counter and the grey value is a Poisson random variable, up to a constant \citep{whiting2006properties}. However if they grey value records the signal strength, proportional to the energy detected, then the detector is an energy integrating detector. The grey value has the compound Poisson distribution, again up to a constant \citep{whiting2006properties}. There are other types of detection schemes \citep{whiting2006properties} but it shall be not be considered here.
+
+Many reconstruction algorithms have been proposed considering the compound Poisson nature of the detector \citep{elbakri2002statistical} \citep{elbakri2003statistical} \citep{lasio2007statistical} \citep{xie2008x} and beam hardening  \citep{elbakri2003efficient}. These will not be discussed here as they are beyond the scope of this thesis.
+
+Experiments have been done to verify the compound Poisson nature of the detector. This was done by investigating the variance of radiographs of air \citep{hsieh2015compound} and a polyethylene cylinder \citep{yang2009evaluation} \citep{yang2010noise} at different voltages and powers. It was found there were 2 components in the noise, one was signal dependent and comes from the compound Poisson, the other was signal independent any may be electronic noise. The electronic noise can be modelled as Normally distributed \citep{xu2009electronic}.
+
+The compound Poisson can be formally written. Let $Y$ be the number of photons detected in a pixel for some time exposure $\tau$,
+\begin{equation*}
+Y\sim\poisson(\lambda\tau)
+\end{equation*}
+and
+\begin{equation*}
+\prob(Y=y)=\euler^{-\lambda}\frac{\lambda^y}{y!} \quad \text{for }y=1,2,3,\dotdotdot \ .
+\end{equation*}
+Let $U_i$ be the energy of the $i$th photon in a pixel for i.i.d.~$i=1,2,3,\dotdotdot$ with p.d.f.~$p_U(u)$. Let $X$ be the greyvalue of a pixel and is an energy integrating detector, then
+\begin{equation}
+X|Y = \sum_{i=1}^{Y}U_i+\kappa
+\label{eq:compoundPoisson_X|Y}
+\end{equation}
+where $\kappa$ is some offset. For now let $\kappa=0$, then the marginal $X$ has the compound Poisson distribution. The p.d.f.~of $X$ can be obtained my marginalising the joint p.d.f.
+\begin{equation*}
+p_X(x)=\sum_{y=0}^\infty p_{X|Y}(x|y)\prob(Y=y) \ .
+\end{equation*}
+However it should be noted that $X=0$ if and only if $Y=0$. Formally $X$ has probability mass at $X=0$ and probability density at $X>0$, then
+\begin{equation}
+p_X(x) = 
+\begin{cases}
+\delta(x) \euler^{-\lambda} & \text{ if } x=0 \\ 
+\sum_{y=1}^\infty p_{X|Y}(x|y)\euler^{-\lambda}\frac{\lambda^y}{y!} & \text{ if } x>0 
+\end{cases}
+\end{equation}
+where $\delta(x)$ is the Dirac delta function. It is quite often the case this cannot be written in closed form.
+
+The m.g.f.~of $X$ has a nicer form however. Let the m.g.f.~of $X$ be
+\begin{equation*}
+M_X(\theta)=\expectation\left[\euler^{X\theta}\right] \ .
+\end{equation*}
+This can be computed using the result for conditional expectations
+\begin{equation*}
+M_X(\theta)=\expectation\expectation\left[\euler^{X\theta}|Y\right] \ .
+\end{equation*}
+Using the definition of $X|Y$ in Equation \eqref{eq:compoundPoisson_X|Y}, then
+\begin{equation*}
+M_X(\theta)=\expectation\expectation\left[\exp\left(\theta U_1 + \theta U_2 + \dotdotdot + \theta U_Y\right)|Y\right]
+\end{equation*}
+\begin{equation*}
+M_X(\theta)=\expectation\expectation\left[\euler^{\theta U_1}\cdot\euler^{\theta U_2}\cdot\dotdotdot\cdot\euler^{\theta U_Y}|Y\right] \ .
+\end{equation*}
+But because $U_i$ for $i=1,2,3,\dotdotdot$ are i.i.d., then each $U_i$ has a common m.g.f.
+\begin{equation*}
+M_U(\theta)=\expectation\left[\euler^{U\theta}\right] \ ,
+\end{equation*}
+then
+\begin{equation*}
+M_X(\theta)=\expectation\left(
+\expectation\left[\euler^{\theta U_1}|Y\right]\cdot
+\expectation\left[\euler^{\theta U_2}|Y\right]\cdot
+\dotdotdot \cdot
+\expectation\left[\euler^{\theta U_Y}|Y\right]
+\right)
+\end{equation*}
+\begin{equation*}
+M_X(\theta)=\expectation\left[\left(M_U(\theta)\right)^Y\right]
+\end{equation*}
+\begin{equation*}
+M_X(\theta)=\expectation\left[\euler^{Y\ln(M_U(\theta))}\right] \ .
+\end{equation*}
+It can be shown that the m.g.f.~of $Y$ is
+\begin{equation}
+M_Y(\theta)=\expectation\left[\euler^{Y\theta}\right]
+=\exp\left[
+\lambda\left(
+\euler^\theta-1
+\right)
+\right]
+\end{equation}
+then
+\begin{equation}
+M_X(\theta)
+=
+\exp\left[
+\lambda\left(
+M_U(\theta)-1
+\right)
+\right] \ .
+\end{equation}
+As long as the m.g.f.~of $U$ is known, then m.g.f.~of $X$ can be written in closed form.
+
+Moments of $X$ can be obtained from the m.g.f.~by differentiating it and setting it to zero
+\begin{align*}
+M_X'(\theta)&=\exp\left[\lambda\left(M_U(\theta)-1\right)\right]\cdot\lambda M_U'(\theta) \\
+M_X'(\theta)&=M_X(\theta)\lambda M_U'(\theta)
+\end{align*}
+then
+\begin{equation}
+\expectation\left[X\right]=\lambda\expectation\left[U\right] \ .
+\end{equation}
+Conducting the same procedure
+\begin{equation*}
+M_X''(\theta)=M_X'(\theta)\lambda M_U'(\theta)+M_X(\theta)\lambda M_U''(\theta) \ ,
+\end{equation*}
+the variance can be obtained
+\begin{align*}
+\variance\left[X\right]&=M_X''(0)-\left[M_X'(0)\right]^2 \\
+\variance\left[X\right]&=M_X'(0)\lambda M_U'(0)+M_X(0)\lambda M_U''(0)-\left[\lambda\expectation\left[U\right]\right]^2 \\
+\variance\left[X\right]&=\lambda^2 \left(\expectation\left[U\right]\right)^2+\lambda \expectation\left[U^2\right]-\left[\lambda\expectation\left[U\right]\right]^2
+\end{align*}
+resulting in
+\begin{equation}
+\variance\left[X\right] = \lambda\expectation\left[U^2\right] \ .
+\end{equation}
+This can be extended for higher moments.
+
+Because the m.g.f.~can be written down in closed form, so is the characterisation function or Fourier transform of $X$. By obtaining an empirical version of $p_U(u)$, moments of $X$ can be estimated using the m.g.f.~and the p.d.f.~can be estimated by using fast Fourier transform on the empirical characteristic function \citep{whiting2006properties}.
+
+A special case of the compound Poisson is the compound Poisson-Gamma model. The model is as follows:
+\begin{equation}
+Y\sim\poisson\left(\nu\tau\right)
+\end{equation}
+\begin{equation}
+U\sim\gammaDist\left(\alpha,\lambda\right)
+\end{equation}
+\begin{equation}
+X = \sum_{i=1}^Y U_i
+\end{equation}
+where $\alpha$ and $\lambda$ are the shape and rate parameters, $\nu$ is the photon rate and $\tau$ is the time exposure. Then it can be shown that
+\begin{equation}
+X|Y\sim\gammaDist\left(Y\alpha,\lambda\right) \ .
+\end{equation}
+This is special because the marginal $X$ is in the exponential family, more specifically in the Tweedie dispersion exponential family \citep{jorgensen1987exponential}.
+
+It is very well known that the marginal p.d.f.~of $X$ is intractable. However the m.g.f.~can be written in closed form. The m.g.f.~is defined as
+\begin{equation}
+M(\theta)=\expectation\left[\euler^{\theta X}\right] \ .
+\end{equation}
+Using the property of conditional expectations
+\begin{equation*}
+M(\theta)=\expectation\expectation\left[\euler^{\theta X}\right|Y]
+\end{equation*}
+and then the properties of the Gamma distribution
+\begin{equation*}
+M(\theta)=\expectation\left[\left(\frac{\lambda}{\lambda-\theta}\right)^{Y\alpha}\right] \ .
+\end{equation*}
+Finally using the m.g.f.~of the Poisson distribution
+\begin{equation}
+M(\theta)=\exp\left[\nu\tau\left(\left(\frac{\lambda}{\lambda-\theta}\right)^{\alpha}-1\right)\right] \ .
+\end{equation}
+Moments up to a number of orders then can be obtained. For example
+\begin{equation}
+\expectation\left[X\right]=\frac{\alpha\nu\tau}{\lambda}
+\end{equation}
+\begin{equation}
+\variance\left[X\right]=\frac{\alpha(\alpha+1)\nu\tau}{\lambda^2}
+\end{equation}
+\begin{equation}
+\expectation\left[(X-\mu)^3\right] = \frac{\alpha(\alpha+1)(\alpha+2)\nu\tau}{\lambda^3}
+\end{equation}
+where $\expectation\left[X\right]=\mu$.
+
+For a given i.i.d.~random sample of a compound Poisson-Gamma random variable, the unknown parameters $\nu$, $\alpha$ and $\lambda$, can be estimated using method of moments. Suppose $\widehat{\mu}$ is an estimator of $\expectation[X]$ and $\widehat{\mu}_j$ is an estimator of $\expectation\left[\left(X-\mu\right)^j\right]$ for $j=2,3$. Then the estimators
+\begin{equation}
+\widehat{\nu}=\frac{\widehat{\mu}^2\widehat{\mu}_2}{\tau\left(2\widehat{\mu}_2^2-\widehat{\mu}_3\widehat{\mu}\right)}
+\end{equation}
+\begin{equation}
+\widehat{\alpha}=\frac{\widehat{\mu}_3\widehat{\mu}-2\widehat{\mu}_2^2}{\widehat{\mu}_2^2-\widehat{\mu}\widehat{\mu}_3}
+\end{equation}
+\begin{equation}
+\widehat{\lambda}=\frac{\widehat{\mu}\widehat{\mu}_2}{\widehat{\mu}\widehat{\mu}_3-\widehat{\mu}_2^2}
+\end{equation}
+are method of moments estimators of $\nu$, $\alpha$ and $\lambda$ respectively \citep{withers2011compound}. These estimators suffer because estimation is not done through the sufficient statistics and can be negative, this is a problem because the parameters do not take non-positive values.
+
+Estimation can also be done using the EM algorithm \citep{dempster1977maximum}, treating the random variable $Y$ to be latent. The problem with the EM algorithm is that the E step is not tractable. This problem can be tackled by truncating the infinite sum in a clever way so that the sum is over a number of high contributing terms to save computational cost \citep{dunn2005series}. Another way is to use MCMC in the E step \citep{booth1999maximizing}.
+
+There exist approximate maximum log likelihood estimators. Under certain conditions, the random variable $X$ can be approximated using the Normal distribution and the likelihood can be maximised numerically. Another approximation is to use the saddle point approximation \citep{daniels1954saddlepoint} to approximate the p.d.f.~of $X$, thus an approximate likelihood can be obtained.
+
+Lastly, because $X$ is in the dispersion exponential family, parameter estimation can be done through the GLM framework \citep{zhang2013likelihood}. The GLM framework and the saddlepoint approximation were used extensively for insurance claim data \citep{jorgensen1994fitting} \citep{jensen1991saddlepoint}.
 
 
 \chapter{Compound Poisson}
