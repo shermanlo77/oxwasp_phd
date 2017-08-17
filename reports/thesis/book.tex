@@ -38,6 +38,7 @@
 \DeclareMathOperator{\normal}{N}
 \DeclareMathOperator{\gammaDist}{Gamma}
 \DeclareMathOperator{\poisson}{Poisson}
+\DeclareMathOperator{\CPoisson}{CP\Gamma}
 
 \newcommand{\RSS}{\mathrm{RSS}}
 \newcommand{\euler}{\mathrm{e}}
@@ -158,36 +159,36 @@ The scale of the 2D images can be calibrated with the use of reference standards
 
 The grey values of each pixel in the detector can be modelled as a random variable, due to the random behaviour of photons being produced, interacting with the phantom and interacting with the scintillator in the detector. When the photons interact with the scintillator, they are converted into visible light. The visible light photons are then detected and converted into a grey value. How the detected visible light is converted is important in modelling the grey value.
 
-Should the grey value be proportional to the number of photons detected, the detector is known as a quantum counter and the grey value is a Poisson random variable, up to a constant \citep{whiting2006properties}. However if they grey value records the signal strength, proportional to the energy detected, then the detector is an energy integrating detector. The grey value has the compound Poisson distribution, again up to a constant \citep{whiting2006properties}. There are other types of detection schemes \citep{whiting2006properties} but it shall be not be considered here.
+Should the grey value be proportional to the number of photons detected, the detector is known as a quantum counter and the grey value is a Poisson random variable, up to a constant \citep{whiting2006properties}. However if the grey value records the signal strength, proportional to the energy detected, then the detector is an energy integrating detector. The grey value has the compound Poisson distribution, again up to a constant \citep{whiting2006properties}. There are other types of detection schemes \citep{whiting2006properties} but it shall be not be considered here.
 
-Many reconstruction algorithms have been proposed considering the compound Poisson nature of the detector \citep{elbakri2002statistical} \citep{elbakri2003statistical} \citep{lasio2007statistical} \citep{xie2008x} and beam hardening  \citep{elbakri2003efficient}. These will not be discussed here as they are beyond the scope of this thesis.
+Many reconstruction algorithms have been proposed considering the compound Poisson nature of the detector \citep{elbakri2002statistical} \citep{elbakri2003statistical} \citep{lasio2007statistical} \citep{xie2008x} and with beam hardening correction \citep{elbakri2003efficient}. These will not be discussed here as they are beyond the scope of this thesis.
 
-Experiments have been done to verify the compound Poisson nature of the detector. This was done by investigating the variance of radiographs of air \citep{hsieh2015compound} and a polyethylene cylinder \citep{yang2009evaluation} \citep{yang2010noise} at different voltages and powers. It was found there were 2 components in the noise, one was signal dependent and comes from the compound Poisson, the other was signal independent any may be electronic noise. The electronic noise can be modelled as Normally distributed \citep{xu2009electronic}.
+Experiments have been done to verify the compound Poisson nature of the detector. This was done by investigating the variance of radiographs of air \citep{hsieh2015compound} and a polyethylene cylinder \citep{yang2009evaluation} \citep{yang2010noise} at different voltages and powers. It was found there were 2 components in the noise, one was signal dependent and comes from the compound Poisson, the other was signal independent and may be electronic noise. The electronic noise can be modelled as Normally distributed \citep{xu2009electronic}.
 
 The compound Poisson can be formally written. Let $Y$ be the number of photons detected in a pixel for some time exposure $\tau$,
 \begin{equation*}
-Y\sim\poisson(\lambda\tau)
+Y\sim\poisson(\lambda)
 \end{equation*}
 and
 \begin{equation*}
-\prob(Y=y)=\euler^{-\lambda}\frac{\lambda^y}{y!} \quad \text{for }y=1,2,3,\dotdotdot \ .
+\prob(Y=y)=\euler^{-\lambda}\frac{\lambda^y}{y!} \quad \text{for }y=1,2,3,\dotdotdot
 \end{equation*}
-Let $U_i$ be the energy of the $i$th photon in a pixel for i.i.d.~$i=1,2,3,\dotdotdot$ with p.d.f.~$p_U(u)$. Let $X$ be the greyvalue of a pixel and is an energy integrating detector, then
+where $\lambda>0$ is the Poisson rate parameter. Let $U_i$ be the energy of the $i$th photon in a pixel for i.i.d.~$i=1,2,3,\dotdotdot$ with p.d.f.~$p_U(u)$. Let $X$ be the greyvalue of a pixel and is an energy integrating detector, then
 \begin{equation}
 X|Y = \sum_{i=1}^{Y}U_i+\kappa
 \label{eq:compoundPoisson_X|Y}
 \end{equation}
-where $\kappa$ is some offset. For now let $\kappa=0$, then the marginal $X$ has the compound Poisson distribution. The p.d.f.~of $X$ can be obtained my marginalising the joint p.d.f.
+where $\kappa$ is some offset. For now let $\kappa=0$, then the marginal $X$ has the compound Poisson distribution. The p.d.f.~of $X$ can be obtained by marginalising the joint p.d.f.
 \begin{equation*}
-p_X(x)=\sum_{y=0}^\infty p_{X|Y}(x|y)\prob(Y=y) \ .
+p_X(x)=\sum_{y=0}^\infty p_{X|Y}(x|y)\prob(Y=y) \quad\text{for }x\geqslant 0\ .
 \end{equation*}
-However it should be noted that $X=0$ if and only if $Y=0$. Formally $X$ has probability mass at $X=0$ and probability density at $X>0$, then
+However it should be noted that $X=0$ if and only if $Y=0$ with probability
+\begin{equation*}
+\prob(X=0)=\euler^{-\lambda} \ .
+\end{equation*}
+Formally $X$ has probability mass at $X=0$ and probability density at $X>0$, then 
 \begin{equation}
-p_X(x) = 
-\begin{cases}
-\delta(x) \euler^{-\lambda} & \text{ if } x=0 \\ 
-\sum_{y=1}^\infty p_{X|Y}(x|y)\euler^{-\lambda}\frac{\lambda^y}{y!} & \text{ if } x>0 
-\end{cases}
+p_X(x) = \delta(x) \euler^{-\lambda} + \sum_{y=1}^\infty p_{X|Y}(x|y)\euler^{-\lambda}\frac{\lambda^y}{y!} \quad\text{for }x\geqslant 0
 \end{equation}
 where $\delta(x)$ is the Dirac delta function. It is quite often the case this cannot be written in closed form.
 
@@ -223,9 +224,12 @@ M_X(\theta)=\expectation\left(
 M_X(\theta)=\expectation\left[\left(M_U(\theta)\right)^Y\right]
 \end{equation*}
 \begin{equation*}
-M_X(\theta)=\expectation\left[\euler^{Y\ln(M_U(\theta))}\right] \ .
+M_X(\theta)=\expectation\left[\euler^{Y\ln(M_U(\theta))}\right]
 \end{equation*}
-It can be shown that the m.g.f.~of $Y$ is
+\begin{equation*}
+M_X(\theta) = M_Y\left(\ln(M_U(\theta)\right)
+\end{equation*}
+where $M_Y(\theta)$ is the m.g.f.~of $Y$. It can be shown that the m.g.f.~of $Y$ is
 \begin{equation}
 M_Y(\theta)=\expectation\left[\euler^{Y\theta}\right]
 =\exp\left[
@@ -260,81 +264,161 @@ Conducting the same procedure
 M_X''(\theta)=M_X'(\theta)\lambda M_U'(\theta)+M_X(\theta)\lambda M_U''(\theta) \ ,
 \end{equation*}
 the variance can be obtained
-\begin{align*}
-\variance\left[X\right]&=M_X''(0)-\left[M_X'(0)\right]^2 \\
-\variance\left[X\right]&=M_X'(0)\lambda M_U'(0)+M_X(0)\lambda M_U''(0)-\left[\lambda\expectation\left[U\right]\right]^2 \\
-\variance\left[X\right]&=\lambda^2 \left(\expectation\left[U\right]\right)^2+\lambda \expectation\left[U^2\right]-\left[\lambda\expectation\left[U\right]\right]^2
-\end{align*}
+\begin{equation*}
+\variance\left[X\right]=M_X''(0)-\left[M_X'(0)\right]^2
+\end{equation*}
+\begin{equation*}
+\variance\left[X\right]=M_X'(0)\lambda M_U'(0)+M_X(0)\lambda M_U''(0)-\left[\lambda\expectation\left[U\right]\right]^2
+\end{equation*}
+\begin{equation*}
+\variance\left[X\right]=\lambda^2 \left(\expectation\left[U\right]\right)^2+\lambda \expectation\left[U^2\right]-\left[\lambda\expectation\left[U\right]\right]^2
+\end{equation*}
 resulting in
 \begin{equation}
 \variance\left[X\right] = \lambda\expectation\left[U^2\right] \ .
 \end{equation}
 This can be extended for higher moments.
 
-Because the m.g.f.~can be written down in closed form, so is the characterisation function or Fourier transform of $X$. By obtaining an empirical version of $p_U(u)$, moments of $X$ can be estimated using the m.g.f.~and the p.d.f.~can be estimated by using fast Fourier transform on the empirical characteristic function \citep{whiting2006properties}.
+Because the m.g.f.~can be written down in closed form, so is the characterisation function or Fourier transform of the p.d.f.~of $X$. By obtaining an empirical version of $p_U(u)$, moments of $X$ can be estimated using the m.g.f.~and the p.d.f.~can be estimated by using fast Fourier transform on the empirical characteristic function \citep{whiting2006properties}.
 
-A special case of the compound Poisson is the compound Poisson-Gamma model. The model is as follows:
+If the distribution of $U$ cannot be obtained or estimated, then one can guess that distribution. \cite{xu2009electronic} for example used a Gamma distribution
 \begin{equation}
-Y\sim\poisson\left(\nu\tau\right)
+U\sim\gammaDist\left(\alpha,\beta\right)
 \end{equation}
+where $\alpha>0$ is the Gamma shape parameter and $\beta>0$ is the Gamma rate parameter. This is a special case of the compound Poisson called the compound Poisson-Gamma model and one can write
 \begin{equation}
-U\sim\gammaDist\left(\alpha,\lambda\right)
+X\sim\CPoisson(\lambda,\alpha,\beta) \ .
 \end{equation}
-\begin{equation}
-X = \sum_{i=1}^Y U_i
-\end{equation}
-where $\alpha$ and $\lambda$ are the shape and rate parameters, $\nu$ is the photon rate and $\tau$ is the time exposure. Then it can be shown that
+The conditional distribution can be shown to be
 \begin{equation}
 X|Y\sim\gammaDist\left(Y\alpha,\lambda\right) \ .
 \end{equation}
-This is special because the marginal $X$ is in the exponential family, more specifically in the Tweedie dispersion exponential family \citep{jorgensen1987exponential}.
 
-It is very well known that the marginal p.d.f.~of $X$ is intractable. However the m.g.f.~can be written in closed form. The m.g.f.~is defined as
+Using results derived earlier, the m.g.f.~of the of $X$ is
 \begin{equation}
-M(\theta)=\expectation\left[\euler^{\theta X}\right] \ .
+M(\theta)=\exp\left[\lambda\left(\left(\frac{\beta}{\beta-\theta}\right)^{\alpha}-1\right)\right]
 \end{equation}
-Using the property of conditional expectations
-\begin{equation*}
-M(\theta)=\expectation\expectation\left[\euler^{\theta X}\right|Y]
-\end{equation*}
-and then the properties of the Gamma distribution
-\begin{equation*}
-M(\theta)=\expectation\left[\left(\frac{\lambda}{\lambda-\theta}\right)^{Y\alpha}\right] \ .
-\end{equation*}
-Finally using the m.g.f.~of the Poisson distribution
+and moments can be obtained from it such as
 \begin{equation}
-M(\theta)=\exp\left[\nu\tau\left(\left(\frac{\lambda}{\lambda-\theta}\right)^{\alpha}-1\right)\right] \ .
-\end{equation}
-Moments up to a number of orders then can be obtained. For example
-\begin{equation}
-\expectation\left[X\right]=\frac{\alpha\nu\tau}{\lambda}
+\expectation\left[X\right]=\frac{\alpha\lambda}{\beta}
 \end{equation}
 \begin{equation}
-\variance\left[X\right]=\frac{\alpha(\alpha+1)\nu\tau}{\lambda^2}
+\variance\left[X\right]=\frac{\alpha(\alpha+1)\lambda}{\beta^2}
+\label{eq:compoundPoisson_variance}
 \end{equation}
+and
 \begin{equation}
-\expectation\left[(X-\mu)^3\right] = \frac{\alpha(\alpha+1)(\alpha+2)\nu\tau}{\lambda^3}
+\expectation\left[(X-\expectation[X])^3\right] = \frac{\alpha(\alpha+1)(\alpha+2)\lambda}{\beta^3} \ .
 \end{equation}
-where $\expectation\left[X\right]=\mu$.
 
-For a given i.i.d.~random sample of a compound Poisson-Gamma random variable, the unknown parameters $\nu$, $\alpha$ and $\lambda$, can be estimated using method of moments. Suppose $\widehat{\mu}$ is an estimator of $\expectation[X]$ and $\widehat{\mu}_j$ is an estimator of $\expectation\left[\left(X-\mu\right)^j\right]$ for $j=2,3$. Then the estimators
+The p.d.f.~can be shown to be
 \begin{equation}
-\widehat{\nu}=\frac{\widehat{\mu}^2\widehat{\mu}_2}{\tau\left(2\widehat{\mu}_2^2-\widehat{\mu}_3\widehat{\mu}\right)}
+p_X(x) = 
+\delta(x) \euler^{-\lambda}
++
+\sum_{y=1}^{\infty}\frac{\beta^{y\alpha}}{\Gamma(y\alpha)}x^{y\alpha-1}\euler^{-\beta x}\euler^{-\lambda}\frac{\lambda^y}{y!}
+\quad\text{for }x\geqslant 0
+\label{eq:compoundPoisson_pdf}
+\end{equation}
+and it is well known the infinite sum cannot be written in closed form. There are a number of approximations or computational methods to evaluate the p.d.f.~such as Fourier inverting the characteristic function \citep{dunn2008evaluation}, using the saddle point approximation \citep{daniels1954saddlepoint} or cleverly sum over certain terms in the infinite sum \citep{dunn2005series}. Of course direction simulation of a compound Poisson-Gamma random variable is incredibly easy if $U$ can be simulated. The p.d.f.~then can be estimated using these simulated samples.
+
+For a given i.i.d.~random sample of a compound Poisson-Gamma random variable, parameter estimation can be difficult. Maximum likelihood estimation is very complicated \citep{withers2011compound}. It can be made simpler by fixing $\alpha$ to be known \citep{withers2011compound} but this is not useful in this context.
+
+Because the moments of a compound Poisson-Gamma random variable can be obtained easily, method of moments estimators can be obtained. Suppose $\widehat{\mu}$ is an estimator of $\expectation[X]$ and $\widehat{\mu}_j$ is an estimator of $\expectation\left[\left(X-\expectation[X]\right)^j\right]$ for $j=2,3$. Then the estimators
+\begin{equation}
+\widehat{\lambda}=\frac{\widehat{\mu}^2\widehat{\mu}_2}{\left(2\widehat{\mu}_2^2-\widehat{\mu}_3\widehat{\mu}\right)}
 \end{equation}
 \begin{equation}
 \widehat{\alpha}=\frac{\widehat{\mu}_3\widehat{\mu}-2\widehat{\mu}_2^2}{\widehat{\mu}_2^2-\widehat{\mu}\widehat{\mu}_3}
 \end{equation}
 \begin{equation}
-\widehat{\lambda}=\frac{\widehat{\mu}\widehat{\mu}_2}{\widehat{\mu}\widehat{\mu}_3-\widehat{\mu}_2^2}
+\widehat{\beta}=\frac{\widehat{\mu}\widehat{\mu}_2}{\widehat{\mu}\widehat{\mu}_3-\widehat{\mu}_2^2}
 \end{equation}
-are method of moments estimators of $\nu$, $\alpha$ and $\lambda$ respectively \citep{withers2011compound}. These estimators suffer because estimation is not done through the sufficient statistics and can be negative, this is a problem because the parameters do not take non-positive values.
+are method of moments estimators of $\lambda$, $\alpha$ and $\beta$ respectively \citep{withers2011compound}. These estimators suffer because estimation is not done through the sufficient statistics and can be negative, this is a problem because the parameters do not take non-positive values.
 
-Estimation can also be done using the EM algorithm \citep{dempster1977maximum}, treating the random variable $Y$ to be latent. The problem with the EM algorithm is that the E step is not tractable. This problem can be tackled by truncating the infinite sum in a clever way so that the sum is over a number of high contributing terms to save computational cost \citep{dunn2005series}. Another way is to use MCMC in the E step \citep{booth1999maximizing}.
+However, parameter estimation can be made easier once it can be realised that the compound Poisson-Gamma distribution is in the exponential family for fixed $\alpha$ \citep{jorgensen1987exponential}. To show this, it is particular useful to reparametrize the compound Poisson-Gamma distribution using the following:
+\begin{equation}
+p=\frac{2+\alpha}{1+\alpha} \ ,
+\end{equation}
+\begin{equation}
+\mu=\frac{\lambda\alpha}{\beta} \ ,
+\end{equation}
+\begin{equation}
+\phi = \frac{\alpha+1}{\beta^{2-p}(\lambda\alpha)^{p-1}} \ .
+\end{equation}
+The parameters $p$, $\mu$ and $\phi$ are called the index, mean and dispersion parameters respectively. It can be shown that $1<p<2$, $\mu>0$ and $\phi>0$.
 
-There exist approximate maximum log likelihood estimators. Under certain conditions, the random variable $X$ can be approximated using the Normal distribution and the likelihood can be maximised numerically. Another approximation is to use the saddle point approximation \citep{daniels1954saddlepoint} to approximate the p.d.f.~of $X$, thus an approximate likelihood can be obtained.
+By rearranging the parameters to get
+\begin{equation}
+\lambda=\frac{\mu^{2-p}}{\phi(2-p)}
+\end{equation}
+\begin{equation}
+\alpha=\frac{2-p}{p-1}
+\end{equation}
+\begin{equation}
+\beta=\frac{1}{\phi(p-1)\mu^{p-1}}
+\end{equation}
+and substituting it into Equation \eqref{eq:compoundPoisson_pdf}, the p.m.f.~at zero can be shown to be
+\begin{equation}
+\prob(X=0) = \exp\left[
+-\frac{\mu^{2-p}}{\phi(2-p)}
+\right]
+\end{equation}
+and the p.d.f.~for $x>0$ is
+\begin{multline*}
+p_X(x) = \sum_{y=1}^{\infty}
+\left[\frac{1}{\phi(p-1)\mu^{p-1}}\right]^{y\alpha}
+\frac{1}{\Gamma(y\alpha)}
+x^{y\alpha-1}
+\exp\left[-\frac{x}{\phi(p-1)\mu^{p-1}}\right]
+\\
+\exp\left[-\frac{\mu^{2-p}}{\phi(2-p)}\right]
+\left[\frac{\mu^{2-p}}{\phi(2-p)}\right]^y
+\frac{1}{y!} \ .
+\end{multline*}
+Tidying up the equation
+\begin{multline*}
+p_X(x) = 
+\exp\left[\frac{1}{\phi}\left(x\frac{\mu^{1-p}}{1-p}-\frac{\mu^{2-p}}{2-p}\right)\right]\frac{1}{x}
+\\
+\sum_{y=1}^{\infty}\frac{x^{y\alpha}\mu^{y[2-p-\alpha(p-1)]}}{\phi^{y(1+\alpha)}(p-1)^{y\alpha}(2-p)^yy!\Gamma(y\alpha)} \ .
+\end{multline*}
+To simplify further, it should be noted that
+\begin{align*}
+2-p-\alpha(p-1) &= 2-p - \frac{2-p}{p-1}(p-1)
+\\&=0
+\end{align*}
+so that
+\begin{equation}
+p_X(x) = 
+\exp\left[\frac{1}{\phi}\left(x\frac{\mu^{1-p}}{1-p}-\frac{\mu^{2-p}}{2-p}\right)\right]\frac{1}{x}
+\sum_{y=1}^{\infty}W_y(x,p,\phi)
+\end{equation}
+where
+\begin{equation}
+W_y(x,p,\phi)=\frac{x^{y\alpha}}{\phi^{y(1+\alpha)}(p-1)^{y\alpha}(2-p)^yy!\Gamma(y\alpha)} \ .
+\end{equation}
 
-Lastly, because $X$ is in the dispersion exponential family, parameter estimation can be done through the GLM framework \citep{zhang2013likelihood}. The GLM framework and the saddlepoint approximation were used extensively for insurance claim data \citep{jorgensen1994fitting} \citep{jensen1991saddlepoint}.
+Those familiar with generalised linear models \citep{nelder1972generalized} \citep{mccullagh1984generalized} will notice that for fixed $p$ or $\alpha$, the above is in the form of a distribution in the dispersive exponential family. Parameter estimation then can be done via the generalised linear model framework and can be extended to include linear mixed models \citep{zhang2013likelihood}. These has applications in for example insurance claim data \citep{jorgensen1994fitting} \citep{smyth2002fitting}.
 
+Estimating $p$ is difficult and various methods were discussed by \cite{zhang2013likelihood}. One easy way is to to estimate $\mu$ and $\phi$ on a grid of $p$'s and then select the $p$ which maximises the likelihood \citep{dunn2005series}.
+
+One special property of the compound Poisson-Gamma distribution is that it is in the Tweedie dispersion exponential family \citep{jorgensen1987exponential}. It has a special variance mean relationship
+\begin{equation}
+\variance[X] = \phi \mu^p
+\end{equation}
+where, as a reminder, $1<p<2$. This can be derived using Equation \eqref{eq:compoundPoisson_variance} or via the partition function $Z$. That is let
+\begin{equation}
+\theta = \frac{\mu^{1-p}}{1-p}
+\end{equation}
+and
+\begin{equation}
+\ln Z = \frac{1}{\phi(2-p)\theta^\alpha(1-p)^\alpha} \ ,
+\end{equation}
+then
+\begin{equation}
+\variance[X] = \phi^2 \frac{\partial^2\ln Z}{\partial\theta^2} \ .
+\end{equation}
 
 \chapter{Compound Poisson}
 \chapter{Inference}
