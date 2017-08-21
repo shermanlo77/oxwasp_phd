@@ -700,7 +700,7 @@ M_X(\theta)=\expectation[\euler^{\theta X}]
 =
 \int_{-\infty}^{\infty}\euler^{x\theta} p_X(x) \diff x \ .
 \end{equation}
-For a given m.g.f., the saddlepoint approximation \cite{daniels1954saddlepoint} \cite{butler2007saddlepoint} finds an approximate $p_X(x)$. The saddlepoint approximation is given as
+For a given m.g.f., the saddlepoint approximation \citep{daniels1954saddlepoint} \citep{butler2007saddlepoint} finds an approximate $p_X(x)$. The saddlepoint approximation is given as
 \begin{equation}
 p_X(x)\approx\left(2\pi K_X''(s)\right)^{-1/2}\exp\left[K_X(s)-sx\right]
 \label{eq:saddlePoint:generalSaddlePoint}
@@ -719,6 +719,8 @@ p_X(x)\approx
 \text{for }x>0 \ .
 \label{eq:saddle_point_approx}
 \end{multline}
+It appears the approximation is not well defined for $x=0$.
+
 The integral of the density approximation over the support may not equal to one, it can be numerically re-normalised if necessary. Thus it may be more sensible to write the approximation up to a constant
 \begin{equation}
 p_X(x)\propto x^{-\frac{\alpha+2}{2(\alpha+1)}}\euler^{-x\beta}\exp\left[x^{\frac{\alpha}{\alpha+1}}
@@ -874,6 +876,157 @@ p_X(x)\approx
 	\frac{(\lambda\beta^\alpha)^{\frac{1}{\alpha+1}}(\alpha+1)}{\alpha^{\frac{\alpha}{\alpha+1}}}
 \right] \ .
 \end{equation*}
+
+\subsection{Series Evaluation}
+Evaluation of the p.d.f.~of the compound Poisson-Gamma distribution is difficult because of the infinite sum
+\begin{equation}
+p_X(x) = 
+\delta(x) \euler^{-\lambda}
++
+\euler^{-\beta x-\lambda}\frac{1}{x}\sum_{y=1}^{\infty}W_y
+\quad\text{for }x\geqslant 0
+\end{equation}
+where
+\begin{equation}
+W_y = \frac{\beta^{y\alpha}\lambda^yx^{y\alpha}}{\Gamma(y\alpha)y!} \ .
+\end{equation}
+$W_y$ can be expressed in a different way using different parameters
+\begin{equation}
+W_y(x,p,\phi)=\frac{x^{y\alpha}}{\phi^{y(1+\alpha)}(p-1)^{y\alpha}(2-p)^yy!\Gamma(y\alpha)}
+\end{equation}
+where
+\begin{equation}
+p=\frac{2+\alpha}{1+\alpha}
+\end{equation}
+and
+\begin{equation}
+\phi = \frac{\alpha+1}{\beta^{2-p}(\lambda\alpha)^{p-1}} \ .
+\end{equation}
+
+\cite{dunn2005series} approximated the sum by truncation
+\begin{equation}
+\sum_{y=1}^\infty W_y \approx \sum_{y=y_\text{l}}^{y_\text{u}}W_y
+\end{equation}
+where $y_\text{u}<y_{\text{max}}<y_\text{l}$ and $y_{\text{max}}$ is the value of $y$ which maximises $W_y$. \cite{dunn2005series} used Stirling's approximation to find $y_{\text{max}}$. This was done by treating $W_y$ as a continuous function of $y$ and is differentiable with respect to $y$.
+
+It is easier to differentiate $\ln(W_y)$ where
+\begin{multline*}
+\ln(W_y) = y\alpha\ln(x)-y(1+\alpha)\ln(\phi)-y\alpha\ln(p-1)\\-y\ln(2-p)-\ln(y!)-\ln\Gamma(y\alpha)
+\end{multline*}
+\begin{equation}
+\ln(W_y) =
+y\ln\left(
+	\frac{x^\alpha}{\phi^{1+\alpha}(p-1)^\alpha(2-p)}
+\right)
+-\ln(y!)-\ln\Gamma(y\alpha) \ .
+\end{equation}
+Using Stirling's approximation
+\begin{equation}
+\ln(n!)\approx\ln\Gamma(n)\approx n\ln(n!)-n
+\end{equation}
+then
+\begin{equation}
+\ln(W_y) \approx
+y\ln\left(
+	\frac{x^\alpha}{\phi^{1+\alpha}(p-1)^\alpha(2-p)}
+\right)
+-y\ln(y)+y-y\alpha\ln(y\alpha) + y\alpha \ .
+\end{equation}
+Taking the derivative with respect to $y$
+\begin{multline*}
+\frac{\partial \ln(W_y)}{\partial y} \approx
+\ln\left(
+	\frac{x^\alpha}{\phi^{1+\alpha}(p-1)^\alpha(2-p)}
+\right)
+-\ln(y)-1+1
+\\-\alpha\ln(y\alpha)-\alpha+\alpha
+\end{multline*}
+\begin{equation}
+\frac{\partial \ln(W_y)}{\partial y} \approx
+\ln\left(
+	\frac{x^\alpha}{\phi^{1+\alpha}(p-1)^\alpha(2-p)}
+\right)
+-\ln(y)
+-\alpha\ln(y\alpha) \ .
+\end{equation}
+
+Setting the derivative to zero
+\begin{equation*}
+0 \approx \ln\left(
+\frac{x^\alpha}{\phi^{1+\alpha}(p-1)^\alpha(2-p)y_{\text{max}}^{1+\alpha}\alpha^\alpha}
+\right)
+\end{equation*}
+\begin{equation*}
+1 \approx 
+\frac{x^\alpha}{\phi^{1+\alpha}(p-1)^\alpha(2-p)y_{\text{max}}^{1+\alpha}\alpha^\alpha}
+\end{equation*}
+\begin{equation*}
+y_{\text{max}}^{1+\alpha} \approx 
+\frac{x^\alpha}{\phi^{1+\alpha}(p-1)^\alpha(2-p)\alpha^\alpha}
+\end{equation*}
+\begin{equation*}
+y_{\text{max}} \approx 
+\frac{1}{\phi}
+\left(
+	\frac{x}{(p-1)\alpha}
+\right)^{\frac{\alpha}{1+\alpha}}
+(2-p)^{\frac{-1}{1+\alpha}} \ .
+\end{equation*}
+This can be simplified using the fact that 
+\begin{equation*}
+\alpha=\frac{2-p}{p-1} \ ,
+\end{equation*}
+\begin{equation*}
+\frac{1}{1+\alpha} = p-1
+\end{equation*}
+and
+\begin{equation*}
+\frac{\alpha}{1+\alpha} = 2-p
+\end{equation*}
+then
+\begin{equation*}
+y_{\text{max}} \approx 
+\frac{1}{\phi}
+\left(
+	\frac{x}{2-p}
+\right)^{2-p}
+(2-p)^{1-p}
+\end{equation*}
+and finally
+\begin{equation}
+y_{\text{max}} \approx \frac{x^{2-p}}{\phi(2-p)} \ .
+\end{equation}
+Because values of $y$ should be a positive integer, it would be appropriate to round the solution to $y_\text{max}$ accordingly
+\begin{equation}
+y_{\text{max}} = \text{max}\left[
+1,\text{round}\left(\frac{x^{2-p}}{\phi(2-p)}\right)
+\right] \ .
+\end{equation}
+
+To verify that $y_\text{max}$ is a maximum, the second derivative can be investigated
+\begin{equation}
+\frac{\partial^2\ln(W_y)}{\partial y^2}
+\approx
+-\frac{1}{y}(\alpha+1)
+\end{equation}
+to see that
+\begin{equation}
+\frac{\partial^2\ln(W_y)}{\partial y^2} < 0 \quad \text{for }y=1,2,3,\dotdotdot
+\end{equation}
+therefore $y_\text{max}$ is a maximum.
+
+Returning back to the truncation of the infinite sum
+\begin{equation}
+\sum_{y=1}^\infty W_y \approx \sum_{y=y_\text{l}}^{y_\text{u}}W_y \ ,
+\end{equation}
+$y_\text{l}$ and $y_\text{u}$ can be chosen such that $W_{y_\text{l}}$ and $W_{y_\text{u}}$ are less than $\epsilon W_{y_\text{max}}$ where $\epsilon$ is some small constant. To prevent overflow problems, it is advised to calculate each term in the summation in log scale and using the following equation
+\begin{equation}
+\ln\left[\sum_{y=y_\text{l}}^{y_\text{u}}W_y\right]
+= \ln\left(W_{y_\text{max}}\right)+\ln\sum_{y=y_\text{l}}^{y_\text{u}}\exp\left[
+\ln\left(W_y\right)-\ln\left(W_{y_\text{max}}\right)
+\right] \ .
+\end{equation}
+
 
 \chapter{Inference}
 
