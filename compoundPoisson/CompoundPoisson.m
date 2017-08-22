@@ -89,11 +89,19 @@ classdef CompoundPoisson < handle
             %f: row vector of size n_points containing the saddle density for each point
             %x: row vector of size n_points, linspace(x_min,x_max,n_point)
         function f = getSaddlePdf(this,x)
-             
-            k = -this.lambda; %some constant to control over/under flow
-
+            
+            %work out the log terms
+            log_terms = sum([-(this.alpha+2)/(2*(this.alpha+1))*log(x);
+                -x*this.beta;
+                (x*this.beta/this.alpha).^(this.alpha/(this.alpha+1))*(this.lambda)^(1/(this.alpha+1))*(this.alpha+1)
+                ]);
+            
+            %k is some constant to control over and under flow
+            k = max(log_terms);
+            %k = this.lambda;
+            
             %work out the saddle density
-            f = exp(k+sum([-(this.alpha+2)/(2*(this.alpha+1))*log(x);-x*this.beta;(x/this.alpha).^(this.alpha/(this.alpha+1))*(this.lambda)^(1/(this.alpha+1))*(this.beta)^(this.alpha/(this.alpha+1))*(this.alpha+1)]));
+            f = exp(log_terms - k);
 
             %work out the height of the trapziums
             h = (max(x)-min(x))/(numel(x)-1);
