@@ -113,6 +113,17 @@ classdef CompoundPoisson < handle
 
         end
         
+        %GET NORMAL APPROXIMATION PDF
+        %PARAMETERS:
+            %x: vector of x
+        %RETURN:
+            %f: pdf for each element in x
+        function f = getNormalPdf(this,x)
+            mu = this.lambda * this.alpha / this.beta;
+            sigma = sqrt(this.phi * mu^this.p);
+            f = normpdf(x,mu,sigma);
+        end
+        
         %METHOD: GET LOG DENSITY
         %PARAMETER:
             %x: scalar, compound poisson variable
