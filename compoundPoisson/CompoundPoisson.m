@@ -7,15 +7,22 @@ classdef CompoundPoisson < handle
         beta; %gamma rate parameter
         phi; %dispersion parameter
         p; %power index
+        mu; %mean
+        sigma; %standard deviation
         X; %array of observed compound poisson variables
         Y; %array of latent poisson variables
         Y_var; %array of latent poisson variances
         n; %number of data points
         n_compound_poisson_term; %maximum number of terms to be calculated in the compound poisson sum
         
+        
         compound_poisson_sum_threshold; %negative number
         %if ln(compound poisson term / biggest compound poisson term) > compound_poisson_sum_threshold
         %then that term is considered for the compound poisson sum
+        
+        can_support_zero_mass; %boolean, ture if can support probability mass at 0
+        
+        name; %name of this object (for figure saving purposes);
     end
 
     %METHODS
@@ -28,6 +35,8 @@ classdef CompoundPoisson < handle
             %assign member variables
             this.n_compound_poisson_term = 1E7;
             this.compound_poisson_sum_threshold = -37;
+            this.can_support_zero_mass = true;
+            this.name = 'cp';
         end
         
         %METHOD: ADD DATA
@@ -65,6 +74,8 @@ classdef CompoundPoisson < handle
             this.beta = beta;
             this.p = (alpha+2)/(alpha+1); 
             this.phi = (1+alpha)*beta^(this.p-2)*(alpha*lambda)^(1-this.p);
+            this.mu = this.lambda * this.alpha / this.beta;
+            this.sigma = sqrt(this.phi * this.mu^this.p);
         end
         
         %METHOD: GET DENSITY
@@ -77,51 +88,6 @@ classdef CompoundPoisson < handle
             for i = 1:numel(x)
                 pdf(i) = exp(this.getlnpdf(x(i)));
             end
-        end
-        
-        %GET SADDLEPOINT DENSITY
-        %For a range of the domain and given parameters, return the
-        %saddlepoint density. The normalisation constant was worked out
-        %using the trapezium rule, with n_point - 1 strips
-        %PARAMETERS:
-            %x: row vector, equally spaced out compound poisson random variables
-        %RETURN:
-            %f: row vector of size n_points containing the saddle density for each point
-            %x: row vector of size n_points, linspace(x_min,x_max,n_point)
-        function f = getSaddlePdf(this,x)
-            
-            %work out the log terms
-            log_terms = sum([-(this.alpha+2)/(2*(this.alpha+1))*log(x);
-                -x*this.beta;
-                (x*this.beta/this.alpha).^(this.alpha/(this.alpha+1))*(this.lambda)^(1/(this.alpha+1))*(this.alpha+1)
-                ]);
-            
-            %k is some constant to control over and under flow
-            k = max(log_terms);
-            %k = this.lambda;
-            
-            %work out the saddle density
-            f = exp(log_terms - k);
-
-            %work out the height of the trapziums
-            h = (max(x)-min(x))/(numel(x)-1);
-            %integrate the function
-            area = 0.5*h*(f(1)+f(end)+2*sum(f(2:(end-1))));
-            
-            %normalise the saddle density
-            f = f/area;
-
-        end
-        
-        %GET NORMAL APPROXIMATION PDF
-        %PARAMETERS:
-            %x: vector of x
-        %RETURN:
-            %f: pdf for each element in x
-        function f = getNormalPdf(this,x)
-            mu = this.lambda * this.alpha / this.beta;
-            sigma = sqrt(this.phi * mu^this.p);
-            f = normpdf(x,mu,sigma);
         end
         
         %METHOD: GET LOG DENSITY
@@ -439,7 +405,7 @@ classdef CompoundPoisson < handle
         %RETURN:
             %x: array of compound poisson variables, one for each element in p_array
                 %corresponding to the inverse cdf
-        function x = getinv(this,p_array, a, b, n, use_saddle)
+        function x = getInvCdf(this,p_array, a, b, n)
 
             %get x coordinates for each trapezium
             x_array = (linspace(a,b,n));
@@ -447,12 +413,7 @@ classdef CompoundPoisson < handle
             h = (b-a)/n;
             
             %for each x, get the pdf evaluation
-            %use the exact or saddle point pdf, according to the boolean use_saddle
-            if use_saddle
-                pdf_array = this.getSaddlePdf(x_array);
-            else
-                pdf_array = this.getPdf(x_array);
-            end
+            pdf_array = this.getPdf(x_array);
             
             %declare array of cdf, one for each element in x_array
             cdf_array = zeros(n,1);
