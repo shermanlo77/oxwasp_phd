@@ -611,7 +611,11 @@ However this shows that taking the limit $\alpha\rightarrow\infty$ is not enough
 
 Finally it should be noted that $M_Z(\theta)$ is independent of $\beta$. Thus $\beta$ will have no effect on the convergence to a Normal limiting distribution.
 
-The limiting case where $\lambda\rightarrow 0$, $\alpha\rightarrow 0$ and $\beta\rightarrow 0$ will not be discussed here.
+The above results justify the use of the approximation
+\begin{equation}
+X\sim\normal\left(\frac{\lambda\alpha}{\beta},\frac{\lambda\alpha(\alpha+1)}{\beta^2}\right)
+\end{equation}
+for large $\lambda$. The limiting case where $\lambda\rightarrow 0$, $\alpha\rightarrow 0$ and $\beta\rightarrow 0$ will not be discussed here.
 
 \subsection{Normal Approximation - General Case}
 It was shown in certain situations, the compound Poisson-Gamma distribution can be approximated with the Normal distribution. This can be extended to the general compound Poisson.
@@ -1019,7 +1023,7 @@ Returning back to the truncation of the infinite sum
 \begin{equation}
 \sum_{y=1}^\infty W_y \approx \sum_{y=y_\text{l}}^{y_\text{u}}W_y \ ,
 \end{equation}
-$y_\text{l}$ and $y_\text{u}$ can be chosen such that $W_{y_\text{l}}$ and $W_{y_\text{u}}$ are less than $\epsilon W_{y_\text{max}}$ where $\epsilon$ is some small constant. To prevent overflow problems, it is advised to calculate each term in the summation in log scale and using the following equation
+$y_\text{l}$ and $y_\text{u}$ can be chosen such that $W_{y_\text{l}}$ and $W_{y_\text{u}}$ are less than $\epsilon W_{y_\text{max}}$ where $\epsilon$ is some small constant, for example $\epsilon=\euler^{-37}$ will be better than machine precision in 64 bits \citep{dunn2005series}. To prevent overflow problems, it is advised to calculate each term in the summation in log scale \citep{dunn2005series} and using the following equation
 \begin{equation}
 \ln\left[\sum_{y=y_\text{l}}^{y_\text{u}}W_y\right]
 = \ln\left(W_{y_\text{max}}\right)+\ln\sum_{y=y_\text{l}}^{y_\text{u}}\exp\left[
@@ -1027,6 +1031,195 @@ $y_\text{l}$ and $y_\text{u}$ can be chosen such that $W_{y_\text{l}}$ and $W_{y
 \right] \ .
 \end{equation}
 
+\subsection{Simulation Studies}
+
+Simulations of a compound Poisson-Gamma random variable were conducted with the aim to compare how well these density evaluations methods perform. This was done by comparing the evaluated densities with the histogram of simulations and a Q-Q plot. The following compound Poisson-Gamma distributions were used in the simulations to capture the variety in the compound Poisson-Gamma family: $\CPoisson(1,1,1)$, $\CPoisson(10,1,1)$, $\CPoisson(1,100,1)$, $\CPoisson(100,100,1)$.
+
+A few technical details will be stated here. The Normal approximation does not support probability mass at $x=0$, but instead has a support of $-\infty<x<\infty$. The Normal approximation with $-\infty<x<\infty$ support was used here.
+
+The saddlepoint approximation was computed up to a constant using
+\begin{equation}
+p_X(x) \propto \exp\left[
+-\frac{\alpha+2}{2(\alpha+1)}\ln(x)
+-x\beta
++\left(
+\frac{x\beta}{\alpha}
+\right)^{\frac{\alpha}{\alpha+1}}\lambda^{\frac{1}{\alpha+1}}(\alpha+1) - k
+\right]
+\end{equation}
+for 500 equally spaced points from and including the minimum non-zero simulated value to the maximum simulated value. $k$ is some constant to control over/underflow and it was chosen to be
+\begin{equation}
+k = \max_{i\in\text{simulation}}\left[
+-\frac{\alpha+2}{2(\alpha+1)}\ln(x_i)
+-x_i\beta
++\left(
+\frac{x_i\beta}{\alpha}
+\right)^{\frac{\alpha}{\alpha+1}}\lambda^{\frac{1}{\alpha+1}}(\alpha+1)
+\right] \ .
+\end{equation}
+The density was then was normalised by numerically integrating it using the trapezium rule using the 500 evaluated points.
+
+A Q-Q plot is a plot which compares the empirical with the theoretical c.d.f. Suppose realizations of $X$ were simulated $\left\{x_1,x_2,x_3,\dotdotdot,x_n\right\}$, let
+\begin{equation}
+F_X(x) = \prob(X\leqslant x)
+\end{equation}
+\begin{equation}
+\widehat{F}_X(x) = \frac{1}{n}\cdot\text{max}\left[
+\left(\sum_{i=1}^n\mathbb{I}(x_i\leqslant x)\right)-0.5,0
+\right] \ ,
+\end{equation}
+then a Q-Q plot plot is a parametric plot which plots $\widehat{F}_X^{-1}(p)$ against $F_X^{-1}(p)$ for $p=\frac{0.5}{n},\frac{1.5}{n},\frac{2.5}{n},\dotdotdot,\frac{n-0.5}{n}$. If $F_X(x)$ and $\widehat{F}_X(x)$ are similar, a Q-Q plot should be a straight line with gradient 1, intercepting the origin. However there is no closed form for $F_X(x)$. When using the exact or saddlepoint method, $F_X(x)$ was found numerically by evaluating the p.d.f.~at $10\,000$ equally spaced points from and including the minimum to the maximum of the simulated samples, and then summing the required trapeziums. $\widehat{F}_X^{-1}(p)$ was then calculated by interpolation. For the saddlepoint approximation where $x=0$ cannot be evaluated, the lower limit of the numerical integral was chosen, arbitrary, to be
+\begin{equation}
+\frac{\euler^{-\lambda}\lambda\cdot\text{min}\left(\text{non-zero samples}\right)}{\euler^{-\lambda}(1+\lambda)}\times 0.1 \ .
+\end{equation}
+
+For low $\lambda$ (Figures \ref{fig:cp_simulation_1} and \ref{fig:cp_simulation_3}) there is a chance of simulating zeros. The Normal approximation failed to capture the probability mass at zero because the Normal distribution is symmetric. The saddlepoint approximation did capture probability mass at zero as shown by an increase in probability density towards zero. However in Figure \ref{fig:cp_simulation_3}, the compound Poisson-Gamma distribution looked like a mixture model and the saddlepoint approximation was not flexible enough to capture each individual peak. In addition, the Q-Q plots looked quite sensitive at the tails of each peak, perhaps there were a few inaccuracies in the exact evaluation of the p.d.f.~at low densities.
+
+As $\lambda$ increased, all 3 density evaluation methods performed quite well. In Figure \ref{fig:cp_simulation_2}, the Normal approximation did not quite capture the skewness of the histogram. However in Figure \ref{fig:cp_simulation_4} for the Normal looking compound Poisson-Gamma random variable, all methods performed well.
+
+\begin{figure}
+	\centering
+    \centerline{
+    \begin{subfigure}[b]{0.7\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/cp_hist1.png}
+        \caption{Histogram - Exact method}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.7\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/cp_qq1.png}
+        \caption{Q-Q plot - Exact method}
+    \end{subfigure}
+    }
+    \centerline{
+    \begin{subfigure}[b]{0.7\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/cp_norm_hist1.png}
+        \caption{Histogram - Normal approx.}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.7\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/cp_norm_qq1.png}
+        \caption{Q-Q plot - Normal approx.}
+    \end{subfigure}
+    }
+    \centerline{
+    \begin{subfigure}[b]{0.7\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/cp_saddle_hist1.png}
+        \caption{Histogram - Saddlepoint approx.}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.7\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/cp_saddle_qq1.png}
+        \caption{Q-Q plot - Saddlepoint approx.}
+    \end{subfigure}
+    }
+    \caption{Simulations of $\CPoisson(1,1,1)$ compared to different density evaluation methods}
+    \label{fig:cp_simulation_1}
+\end{figure}
+
+\begin{figure}
+	\centering
+    \centerline{
+    \begin{subfigure}[b]{0.7\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/cp_hist2.png}
+        \caption{Histogram - Exact method}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.7\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/cp_qq2.png}
+        \caption{Q-Q plot - Exact method}
+    \end{subfigure}
+    }
+    \centerline{
+    \begin{subfigure}[b]{0.7\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/cp_norm_hist2.png}
+        \caption{Histogram - Normal approx.}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.7\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/cp_norm_qq2.png}
+        \caption{Q-Q plot - Normal approx.}
+    \end{subfigure}
+    }
+    \centerline{
+    \begin{subfigure}[b]{0.7\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/cp_saddle_hist2.png}
+        \caption{Histogram - Saddlepoint approx.}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.7\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/cp_saddle_qq2.png}
+        \caption{Q-Q plot - Saddlepoint approx.}
+    \end{subfigure}
+    }
+    \caption{Simulations of $\CPoisson(10,1,1)$ compared to different density evaluation methods}
+    \label{fig:cp_simulation_2}
+\end{figure}
+
+\begin{figure}
+	\centering
+    \centerline{
+    \begin{subfigure}[b]{0.7\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/cp_hist3.png}
+        \caption{Histogram - Exact method}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.7\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/cp_qq3.png}
+        \caption{Q-Q plot - Exact method}
+    \end{subfigure}
+    }
+    \centerline{
+    \begin{subfigure}[b]{0.7\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/cp_norm_hist3.png}
+        \caption{Histogram - Normal approx.}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.7\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/cp_norm_qq3.png}
+        \caption{Q-Q plot - Normal approx.}
+    \end{subfigure}
+    }
+    \centerline{
+    \begin{subfigure}[b]{0.7\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/cp_saddle_hist3.png}
+        \caption{Histogram - Saddlepoint approx.}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.7\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/cp_saddle_qq3.png}
+        \caption{Q-Q plot - Saddlepoint approx.}
+    \end{subfigure}
+    }
+    \caption{Simulations of $\CPoisson(1,100,1)$ compared to different density evaluation methods}
+    \label{fig:cp_simulation_3}
+\end{figure}
+
+\begin{figure}
+	\centering
+    \centerline{
+    \begin{subfigure}[b]{0.7\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/cp_hist4.png}
+        \caption{Histogram - Exact method}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.7\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/cp_qq4.png}
+        \caption{Q-Q plot - Exact method}
+    \end{subfigure}
+    }
+    \centerline{
+    \begin{subfigure}[b]{0.7\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/cp_norm_hist4.png}
+        \caption{Histogram - Normal approx.}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.7\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/cp_norm_qq4.png}
+        \caption{Q-Q plot - Normal approx.}
+    \end{subfigure}
+    }
+    \centerline{
+    \begin{subfigure}[b]{0.7\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/cp_saddle_hist4.png}
+        \caption{Histogram - Saddlepoint approx.}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.7\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/cp_saddle_qq4.png}
+        \caption{Q-Q plot - Saddlepoint approx.}
+    \end{subfigure}
+    }
+    \caption{Simulations of $\CPoisson(100,100,1)$ compared to different density evaluation methods}
+    \label{fig:cp_simulation_4}
+\end{figure}
 
 \chapter{Inference}
 

@@ -55,7 +55,7 @@ function cpQQDensity(compound_poisson, histo_file, qq_file)
     hold on;
     %plot the pdf
     plot(x_array,pdf_range*(n),'r-');
-    ylabel('frequency density');
+    ylabel('freq. density');
     
     %if this density can support zero mass and there are zeros
     if compound_poisson.can_support_zero_mass && (n_0~=0)
@@ -73,7 +73,7 @@ function cpQQDensity(compound_poisson, histo_file, qq_file)
     xlim([min(X),max(X)]);
     xlabel('support');
     if compound_poisson.can_support_zero_mass && (n_0~=0)
-        legend('Simulation freq. density','Theoretical freq. density','Simulation freq.','Theoretical freq');
+        legend('Simulation freq. density','Theoretical freq. density','Simulation freq.','Theoretical freq.');
     else
         legend('Simulation freq. density','Theoretical freq. density');
     end
