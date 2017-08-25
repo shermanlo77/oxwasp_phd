@@ -1037,7 +1037,7 @@ Simulations of a compound Poisson-Gamma random variable were conducted with the 
 
 A few technical details will be stated here. The Normal approximation does not support probability mass at $x=0$, but instead has a support of $-\infty<x<\infty$. The Normal approximation with $-\infty<x<\infty$ support was used here.
 
-The saddlepoint approximation was computed up to a constant using
+Suppose realizations of $X$ were simulated $\left\{x_1,x_2,x_3,\dotdotdot,x_n\right\}$. The saddlepoint approximation was computed up to a constant using
 \begin{equation}
 p_X(x) \propto \exp\left[
 -\frac{\alpha+2}{2(\alpha+1)}\ln(x)
@@ -1049,7 +1049,7 @@ p_X(x) \propto \exp\left[
 \end{equation}
 for 500 equally spaced points from and including the minimum non-zero simulated value to the maximum simulated value. $k$ is some constant to control over/underflow and it was chosen to be
 \begin{equation}
-k = \max_{i\in\text{simulation}}\left[
+k = \max_{i\in\left\{1,2,3,\dotdotdot,n\right\}}\left[
 -\frac{\alpha+2}{2(\alpha+1)}\ln(x_i)
 -x_i\beta
 +\left(
@@ -1059,7 +1059,7 @@ k = \max_{i\in\text{simulation}}\left[
 \end{equation}
 The density was then was normalised by numerically integrating it using the trapezium rule using the 500 evaluated points.
 
-A Q-Q plot is a plot which compares the empirical with the theoretical c.d.f. Suppose realizations of $X$ were simulated $\left\{x_1,x_2,x_3,\dotdotdot,x_n\right\}$, let
+A Q-Q plot is a plot which compares the empirical with the theoretical c.d.f. Let
 \begin{equation}
 F_X(x) = \prob(X\leqslant x)
 \end{equation}
@@ -1068,7 +1068,7 @@ F_X(x) = \prob(X\leqslant x)
 \left(\sum_{i=1}^n\mathbb{I}(x_i\leqslant x)\right)-0.5,0
 \right] \ ,
 \end{equation}
-then a Q-Q plot plot is a parametric plot which plots $\widehat{F}_X^{-1}(p)$ against $F_X^{-1}(p)$ for $p=\frac{0.5}{n},\frac{1.5}{n},\frac{2.5}{n},\dotdotdot,\frac{n-0.5}{n}$. If $F_X(x)$ and $\widehat{F}_X(x)$ are similar, a Q-Q plot should be a straight line with gradient 1, intercepting the origin. However there is no closed form for $F_X(x)$. When using the exact or saddlepoint method, $F_X(x)$ was found numerically by evaluating the p.d.f.~at $10\,000$ equally spaced points from and including the minimum to the maximum of the simulated samples, and then summing the required trapeziums. $\widehat{F}_X^{-1}(p)$ was then calculated by interpolation. For the saddlepoint approximation where $x=0$ cannot be evaluated, the lower limit of the numerical integral was chosen, arbitrary, to be
+then a Q-Q plot plot is a parametric plot which plots $\widehat{F}_X^{-1}(p)$ against $F_X^{-1}(p)$ for $p=\frac{0.5}{n},\frac{1.5}{n},\frac{2.5}{n},\dotdotdot,\frac{n-0.5}{n}$. If $F_X(x)$ and $\widehat{F}_X(x)$ are similar, a Q-Q plot should be a straight line with gradient 1, intercepting the origin. However there is no closed form for $F_X(x)$. When using the exact or saddlepoint method, $F_X(x)$ was found numerically by evaluating the p.d.f.~at $10\,000$ equally spaced points from and including the minimum to the maximum of the simulated samples, and then summing the required trapeziums. $\widehat{F}_X^{-1}(p)$ was then calculated by interpolation. For the saddlepoint approximation where $x=0$ cannot be evaluated and their exist a zero value in the sample, the lower limit of the numerical integral was chosen, arbitrary, to be
 \begin{equation}
 \frac{\euler^{-\lambda}\lambda\cdot\text{min}\left(\text{non-zero samples}\right)}{\euler^{-\lambda}(1+\lambda)}\times 0.1 \ .
 \end{equation}
