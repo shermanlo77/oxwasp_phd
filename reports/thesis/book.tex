@@ -55,7 +55,7 @@
 \newcommand{\vectGreek}[1]{\boldsymbol{#1}}
 \newcommand{\matr}[1]{\mathsf{#1}}
 
-\begin{document}
+\begin{document}\sloppy
 
 \includepdf{title.pdf}
 
@@ -192,7 +192,11 @@ However it should be noted that $X=0$ if and only if $Y=0$ with probability
 \end{equation*}
 Formally $X$ has probability mass at $X=0$ and probability density at $X>0$, then 
 \begin{equation}
-p_X(x) = \delta(x) \euler^{-\lambda} + \sum_{y=1}^\infty p_{X|Y}(x|y)\euler^{-\lambda}\frac{\lambda^y}{y!} \quad\text{for }x\geqslant 0
+p_X(x) = 
+\begin{cases}
+\delta(x) \euler^{-\lambda}  & \text{ for } x=0 \\ 
+\sum_{y=1}^\infty p_{X|Y}(x|y)\euler^{-\lambda}\frac{\lambda^y}{y!} \quad\text{for } & \text{ for } x>0
+\end{cases}
 \end{equation}
 where $\delta(x)$ is the Dirac delta function. It is quite often the case this cannot be written in closed form.
 
@@ -318,10 +322,10 @@ and
 The p.d.f.~can be shown to be
 \begin{equation}
 p_X(x) = 
-\delta(x) \euler^{-\lambda}
-+
-\sum_{y=1}^{\infty}\frac{\beta^{y\alpha}}{\Gamma(y\alpha)}x^{y\alpha-1}\euler^{-\beta x}\euler^{-\lambda}\frac{\lambda^y}{y!}
-\quad\text{for }x\geqslant 0
+\begin{cases}
+\delta(x) \euler^{-\lambda} & \text{ for } x=x \\ 
+\sum_{y=1}^{\infty}\frac{\beta^{y\alpha}}{\Gamma(y\alpha)}x^{y\alpha-1}\euler^{-\beta x}\euler^{-\lambda}\frac{\lambda^y}{y!} & \text{ for } x>0
+\end{cases}
 \label{eq:compoundPoisson_pdf}
 \end{equation}
 and it is well known the infinite sum cannot be written in closed form. There are a number of approximations or computational methods to evaluate the p.d.f.~such as Fourier inverting the characteristic function \citep{dunn2008evaluation}, using the saddlepoint approximation \citep{daniels1954saddlepoint} or cleverly sum over certain terms in the infinite sum \citep{dunn2005series}. Of course direction simulation of a compound Poisson-Gamma random variable is incredibly easy if $U$ can be simulated. The p.d.f.~then can be estimated using these simulated samples.
@@ -431,14 +435,15 @@ In this chapter, the compound Poisson-Gamma distribution is reviewed and studied
 Suppose $X\sim\CPoisson(\lambda,\alpha,\beta)$ and $\lambda,\alpha,\beta>0$ then the p.d.f.~of $X$ is
 \begin{equation}
 p_X(x) = 
-\delta(x) \euler^{-\lambda}
-+
-\euler^{-\beta x-\lambda}\frac{1}{x}\sum_{y=1}^{\infty}W_y
-\quad\text{for }x\geqslant 0
+\begin{cases}
+\delta(x) \euler^{-\lambda} & \text{ for } x=0 \\ 
+\euler^{-\beta x-\lambda}\frac{1}{x}\sum_{y=1}^{\infty}W_y & \text{ for } x>0 
+\end{cases}
 \end{equation}
 where
 \begin{equation}
 W_y = \frac{\beta^{y\alpha}\lambda^yx^{y\alpha}}{\Gamma(y\alpha)y!} \ .
+\label{eq:compoundPoisson_w}
 \end{equation}
 The evaluation of this p.d.f.~is difficult because the sum of $W_y$ cannot be simplified. However the m.g.f.~of $X$ can be written down in closed form
 \begin{equation}
@@ -569,7 +574,7 @@ which is the same as the m.g.f.~of a standard Normal variable, therefore
 \begin{equation}
 \lim_{\lambda\rightarrow\infty}Z\sim\normal(0,1) \ .
 \end{equation}
-This should make sense as for high $\lambda$, the Poisson random variable has a high expectation, increasing the number of Gamma random variables in a summation. Increasing the number of terms in a summation will triggle the central limit theorem.
+This should make sense as for high $\lambda$, the Poisson random variable has a high expectation, increasing the number of Gamma random variables in a summation. Increasing the number of terms in a summation will trigger the central limit theorem.
 
 Next for high $\alpha$, it should be noted that
 \begin{equation*}
@@ -1220,6 +1225,78 @@ As $\lambda$ increased, all 3 density evaluation methods performed quite well. I
     \caption{Simulations of $\CPoisson(100,100,1)$ compared to different density evaluation methods}
     \label{fig:cp_simulation_4}
 \end{figure}
+
+\section{EM Algorithm}
+
+The EM algorithm \citep{dempster1977maximum} will be proposed here as a method to estimate the parameters of a $X\sim\CPoisson(\lambda,\alpha,\beta)$ random variable given a sample of measurements of it $\left\{x_1,x_2,x_3,\dotdotdot,x_n\right\}$.
+
+A popular method for parameter estimation is the maximum log likelihood method. Let $\widehat{\lambda}$, $\widehat{\alpha}$ and $\widehat{\beta}$ be estimators of $\lambda$, $\alpha$ and $\beta$ respectively. The log likelihood is defined to be
+\begin{equation*}
+\ln L(\lambda,\alpha,\beta;X) = \sum_{i=1}^n\left[
+\mathbb{I}(x_i=0)\ln \prob(X=x_i)
++\mathbb{I}(x_i>0)\ln p_X(x_i)
+\right]
+\end{equation*}
+\begin{multline}
+\ln L(\lambda,\alpha,\beta;X) = \sum_{i=1}^n\left[
+-\mathbb{I}(x_i=0)\lambda
+\vphantom{\sum_i^i}\right.\\\left.
++\mathbb{I}(x_i>0)\left(
+	-\beta x_i-\lambda-\ln x -\ln\sum_{y=1}^\infty W_y
+\right)
+\right]
+\end{multline}
+where $W_y=W_y(\lambda,\alpha,\beta)$ was defined in Equation \eqref{eq:compoundPoisson_w}. $\widehat{\lambda}$, $\widehat{\alpha}$ and $\widehat{\beta}$ are values of $\lambda$, $\alpha$ and $\beta$ which jointly maximises the log likelihood. The gradient of the log likelihood can be evaluated \citep{dunn2005series} and optimisation can be done using gradient methods.
+
+The EM algorithm \citep{dempster1977maximum} instead treats $Y\sim\poisson(\lambda)$ as a latent variable. Let $\left\{y_1,y_2,y_3,\dotdotdot, y_n\right\}$ be measurements of $Y$ and $\left\{x_1,x_2,x_3,\dotdotdot, x_n\right\}$ be measurements of $X|Y$. Define the joint log likelihood to be
+\begin{multline*}
+\ln L(\lambda,\alpha,\beta;X,Y)
+=
+\sum_{i=1}^n
+\left[
+	\mathbb{I}(y_i=0)
+	\ln
+	\prob(Y=0)
+	\right.\\\left.
+	+
+	\mathbb{I}(y_i>0)
+	\ln
+	\left[
+	p_{X|Y}(x_i|y_i)\prob(Y=y_i)
+	\right]
+\right]
+\end{multline*}
+so that
+\begin{multline}
+\ln L(\lambda,\alpha,\beta;X,Y)
+=
+\sum_{i=1}^n
+\left[
+	-\mathbb{I}(y_i=0)
+	\lambda
+	\right.\\\left.+
+	\mathbb{I}(y_i>0)
+	\left(
+	y_i\alpha\ln\beta-\ln\Gamma(y_i\alpha)+(y_i\alpha-1)\ln x_i - \beta x_i
+	\right.\right.\\\left.\left.	
+	- \lambda + y_i \ln \lambda - \ln(y!)
+	\right)
+\right] \ .
+\end{multline}
+The estimators are found by optimising the joint log likelihood. This is done iteratively by estimating the $Y$s given the $X$s and parameters (E step), followed by estimating the parameters given the $Y$s and $X$s (M step) until some convergence conditions are met.
+
+It will be shown that using some approximations, the E step and M step can be implemented. The Cram\'er-Rao lower bound \citep{rao1945information} \citep{cramer1946mathematical} can also be found by using a few approximations. However simulations show that these estimators struggle for high $\lambda$ and it will be shown that this will be the case for all estimators.
+
+
+\subsection{E Step}
+
+\subsection{M Step}
+
+\subsection{Estimation Error}
+
+\subsection{Simulations}
+
+\subsection{Failure Cases}
 
 \chapter{Inference}
 
