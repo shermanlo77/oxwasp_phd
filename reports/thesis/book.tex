@@ -898,6 +898,7 @@ p_X(x) =
 where
 \begin{equation}
 W_y = \frac{\beta^{y\alpha}\lambda^yx^{y\alpha}}{\Gamma(y\alpha)y!} \ .
+\label{eq:compoundPoisson_Wy}
 \end{equation}
 $W_y$ can be expressed in a different way using different parameters
 \begin{equation}
@@ -916,7 +917,7 @@ and
 \begin{equation}
 \sum_{y=1}^\infty W_y \approx \sum_{y=y_\text{l}}^{y_\text{u}}W_y
 \end{equation}
-where $y_\text{u}<y_{\text{max}}<y_\text{l}$ and $y_{\text{max}}$ is the value of $y$ which maximises $W_y$. \cite{dunn2005series} used Stirling's approximation to find $y_{\text{max}}$. This was done by treating $W_y$ as a continuous function of $y$ and is differentiable with respect to $y$.
+where $y_\text{l}<y_{\text{max}}<y_\text{u}$ and $y_{\text{max}}$ is the value of $y$ which maximises $W_y$. \cite{dunn2005series} used Stirling's approximation to find $y_{\text{max}}$. This was done by treating $W_y$ as a continuous function of $y$ and is differentiable with respect to $y$.
 
 It is easier to differentiate $\ln(W_y)$ where
 \begin{multline*}
@@ -1248,21 +1249,21 @@ A popular method for parameter estimation is the maximum log likelihood method. 
 \end{multline}
 where $W_y=W_y(\lambda,\alpha,\beta)$ was defined in Equation \eqref{eq:compoundPoisson_w}. $\widehat{\lambda}$, $\widehat{\alpha}$ and $\widehat{\beta}$ are values of $\lambda$, $\alpha$ and $\beta$ which jointly maximises the log likelihood. The gradient of the log likelihood can be evaluated \citep{dunn2005series} and optimisation can be done using gradient methods.
 
-The EM algorithm \citep{dempster1977maximum} instead treats $Y\sim\poisson(\lambda)$ as a latent variable. Let $\left\{y_1,y_2,y_3,\dotdotdot, y_n\right\}$ be measurements of $Y$ and $\left\{x_1,x_2,x_3,\dotdotdot, x_n\right\}$ be measurements of $X|Y$. Define the joint log likelihood to be
+The EM algorithm \citep{dempster1977maximum} instead treats $Y\sim\poisson(\lambda)$ as a latent variable. Let $\left\{Y_1,Y_2,Y_3,\dotdotdot, Y_n\right\}$ be realizations of $Y$ and $\left\{x_1,x_2,x_3,\dotdotdot, x_n\right\}$ be measurements of $X|Y$. Define the joint log likelihood to be
 \begin{multline*}
 \ln L(\lambda,\alpha,\beta;X,Y)
 =
 \sum_{i=1}^n
 \left[
-	\mathbb{I}(y_i=0)
+	\mathbb{I}(Y_i=0)
 	\ln
 	\prob(Y=0)
 	\right.\\\left.
 	+
-	\mathbb{I}(y_i>0)
+	\mathbb{I}(Y_i>0)
 	\ln
 	\left[
-	p_{X|Y}(x_i|y_i)\prob(Y=y_i)
+	p_{X|Y}(x_i|Y_i)\prob(Y=Y_i)
 	\right]
 \right]
 \end{multline*}
@@ -1272,14 +1273,14 @@ so that
 =
 \sum_{i=1}^n
 \left[
-	-\mathbb{I}(y_i=0)
+	-\mathbb{I}(Y_i=0)
 	\lambda
 	\right.\\\left.+
-	\mathbb{I}(y_i>0)
+	\mathbb{I}(Y_i>0)
 	\left(
-	y_i\alpha\ln\beta-\ln\Gamma(y_i\alpha)+(y_i\alpha-1)\ln x_i - \beta x_i
+	Y_i\alpha\ln\beta-\ln\Gamma(Y_i\alpha)+(Y_i\alpha-1)\ln x_i - \beta x_i
 	\right.\right.\\\left.\left.	
-	- \lambda + y_i \ln \lambda - \ln(y!)
+	- \lambda + Y_i \ln \lambda - \ln(Y!)
 	\right)
 \right] \ .
 \end{multline}
@@ -1287,8 +1288,67 @@ The estimators are found by optimising the joint log likelihood. This is done it
 
 It will be shown that using some approximations, the E step and M step can be implemented. The Cram\'er-Rao lower bound \citep{rao1945information} \citep{cramer1946mathematical} can also be found by using a few approximations. However simulations show that these estimators struggle for high $\lambda$ and it will be shown that this will be the case for all estimators.
 
-
 \subsection{E Step}
+
+In the E step, the realizations of $Y$ are estimate using
+\begin{equation}
+y_i = \expectation\left[
+Y|X=x_i
+\right]
+\end{equation}
+for given parameters $\lambda$, $\alpha$ and $\beta$. The conditional expectation is calculated using
+\begin{equation}
+y_i = 
+\begin{cases}
+0 & \text{ for } x=0 \\ 
+\dfrac{\sum_{y=1}^\infty y \prob(Y=y|X=x_i)}{\sum_{y=1}^\infty \prob(Y=y|X=x_i)} & \text{ for } x>0
+\end{cases}
+\end{equation}
+where
+\begin{equation*}
+\prob(Y=y|X=x) = \frac{p_{X|Y}(x|y)\prob(Y=y)}{p_X(x)} \ .
+\end{equation*}
+Focussing on the $x>0$ case for now
+\begin{equation*}
+\prob(Y=y|X=x) = \frac{1}{p_X(x)}\frac{\beta^{y\alpha}}{\Gamma(y\alpha)}x^{y\alpha-1}\euler^{-\beta x}\frac{\euler^{-\lambda}\lambda^y}{y!}
+\end{equation*}
+and
+\begin{equation}
+\prob(Y=y|X=x) = W_y \frac{\euler^{-\lambda-\beta x}}{x}
+\end{equation}
+where $W_y$ is defined in Equation \eqref{eq:compoundPoisson_Wy}.
+Then the conditional expectation is
+\begin{equation}
+y_i = \frac{\sum_{y=1}^\infty y W_y}{\sum_{y=1}^\infty W_y} \ .
+\end{equation}
+It was already established how the denominator can be evaluated \citep{dunn2005series}. A similar method for evaluating the numerator can be obtained by truncating the sum and summing large terms.
+
+Let
+\begin{equation}
+W_y^{(r)} = y^r W_y
+\end{equation}
+so that
+\begin{equation}
+y_i = \frac{\sum_{y=1}^\infty W^{(1)}_y}{\sum_{y=1}^\infty W_y} \ .
+\end{equation}
+The exponent $r=0,1,2,\dotdotdot$ will be useful in the M step where higher conditional moments are needed.
+The sum can be truncated
+\begin{equation}
+\sum_{y=1}^\infty W^{(r)}_y \approx \sum_{y=y_\text{l}}^{y_\text{u}} W^{(r)}_y
+\end{equation}
+where $y_\text{l}<y_\text{max}<y_\text{u}$ and $y_\text{max}$ is the value of $y$ which maximises $W_y^{(r)}$. By expressing $\ln(W^{(r)}_y)$ as
+\begin{equation}
+\ln\left(W_y^{(r)}\right)=r\ln(y)+\ln(W_y)
+\end{equation}
+and then taking the derivative with respect to $y$
+\begin{equation}
+\frac{\partial \ln(W_y^{(r)})}{\partial y} = \frac{r}{y } + \frac{\partial \ln(W_y)}{\partial y} \ .
+\end{equation}
+Keep in mind that $y=1,2,3,\dotdotdot$ so for large $y$, an approximation can be made $r/y\approx 0$ so that
+\begin{equation}
+\frac{\partial \ln(W_y^{(r)})}{\partial y} \approx \frac{\partial \ln(W_y)}{\partial y} \ .
+\end{equation}
+By using such an approximation, the method for evaluating the sum $\sum_{y=1}^\infty W^{(r)}_y$ is almost exactly the same as evaluating the sum $\sum_{y=1}^\infty W_y$, in particular $y_\text{max}$ are the same. For a given $r=0,1,2,\dotdotdot$, the limit of the sum $\sum_{y=y_\text{l}}^{y_\text{u}} W^{(r)}_y$ are chosen such that $W_{y_\text{l}}$ and $W_{y_\text{u}}$ are less than $\epsilon W_{y_\text{max}}^{(r)}$ where $\epsilon$ is some small constant. The limits will be different for different values of $r$.
 
 \subsection{M Step}
 
