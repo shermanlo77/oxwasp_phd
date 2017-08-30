@@ -1502,6 +1502,32 @@ Since increasing $T$ is sufficient for the EM algorithm \citep{dempster1977maxim
 
 \subsection{Estimation Error}
 
+The variance of the M step estimators can be obtained by using the Cram\'er-Rao lower bound \citep{rao1945information} \citep{cramer1946mathematical} from the Fisher's information matrix defined as
+\begin{equation}
+\matr{I} = -\expectation\left[
+\nabla_{\lambda,\alpha,\beta}\nabla_{\lambda,\alpha,\beta}\T \ln L(\lambda,\alpha,\beta;X,Y)
+\right] \ .
+\end{equation}
+The calculation is similar to the derivatives of $T$, so using the same approximations and the that fact $\expectation[Y]=\lambda$, then
+\begin{equation}
+\matr{I}
+=
+\begin{pmatrix}
+\dfrac{n}{\lambda} & 0 & 0 \\
+0 & (\lambda^2+\lambda)\psi'(\alpha\lambda)+2\alpha\lambda^2\psi''(\alpha\lambda)+\frac{1}{2}\alpha^2\lambda^3\psi'''(\alpha\lambda) & -\dfrac{n\lambda}{\beta}\\
+0 & -\dfrac{n\lambda}{\beta} & \dfrac{n\alpha\lambda}{\beta^2}
+\end{pmatrix} \ .
+\end{equation}
+The Cram\'er-Rao lower bound is then
+\begin{equation}
+\cov\left[
+\begin{pmatrix}
+\widehat{\lambda}\\\widehat{\alpha}\\\widehat{\beta}
+\end{pmatrix}
+\right]
+= \matr{I}^{-1} \ .
+\end{equation}
+
 \subsection{Simulations}
 
 \subsection{Failure Cases}
