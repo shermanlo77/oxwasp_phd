@@ -1255,12 +1255,12 @@ The EM algorithm \citep{dempster1977maximum} instead treats $Y\sim\poisson(\lamb
 =
 \sum_{i=1}^n
 \left[
-	\mathbb{I}(Y_i=0)
+	\mathbb{I}(x_i=0)
 	\ln
 	\prob(Y=0)
 	\right.\\\left.
 	+
-	\mathbb{I}(Y_i>0)
+	\mathbb{I}(x_i>0)
 	\ln
 	\left[
 	p_{X|Y}(x_i|Y_i)\prob(Y=Y_i)
@@ -1273,14 +1273,14 @@ so that
 =
 \sum_{i=1}^n
 \left[
-	-\mathbb{I}(Y_i=0)
+	-\mathbb{I}(x_i=0)
 	\lambda
 	\right.\\\left.+
-	\mathbb{I}(Y_i>0)
+	\mathbb{I}(x_i>0)
 	\left(
 	Y_i\alpha\ln\beta-\ln\Gamma(Y_i\alpha)+(Y_i\alpha-1)\ln x_i - \beta x_i
 	\right.\right.\\\left.\left.	
-	- \lambda + Y_i \ln \lambda - \ln(Y!)
+	- \lambda + Y_i \ln \lambda - \ln(Y_i!)
 	\right)
 \right] \ .
 \end{multline}
@@ -1329,7 +1329,11 @@ W_y^{(r)} = y^r W_y
 \end{equation}
 so that
 \begin{equation}
-y_i = \frac{\sum_{y=1}^\infty W^{(1)}_y}{\sum_{y=1}^\infty W_y} \ .
+y_i = \frac{\sum_{y=1}^\infty W^{(1)}_y}{\sum_{y=1}^\infty W_y}
+\end{equation}
+and
+\begin{equation}
+\variance[Y|X=x_i] = \frac{\sum_{y=1}^\infty W^{(2)}_y}{\sum_{y=1}^\infty W_y} - \left(y_i\right)^2 \ .
 \end{equation}
 The exponent $r=0,1,2,\dotdotdot$ will be useful in the M step where higher conditional moments are needed.
 The sum can be truncated
@@ -1351,6 +1355,150 @@ Keep in mind that $y=1,2,3,\dotdotdot$ so for large $y$, an approximation can be
 By using such an approximation, the method for evaluating the sum $\sum_{y=1}^\infty W^{(r)}_y$ is almost exactly the same as evaluating the sum $\sum_{y=1}^\infty W_y$, in particular $y_\text{max}$ are the same. For a given $r=0,1,2,\dotdotdot$, the limit of the sum $\sum_{y=y_\text{l}}^{y_\text{u}} W^{(r)}_y$ are chosen such that $W_{y_\text{l}}$ and $W_{y_\text{u}}$ are less than $\epsilon W_{y_\text{max}}^{(r)}$ where $\epsilon$ is some small constant. The limits will be different for different values of $r$.
 
 \subsection{M Step}
+
+In the M step, the conditional expected joint log likelihood is maximised with respect to the parameters $\lambda$, $\alpha$ and $\beta$. The objective function is then
+\begin{multline*}
+T(\lambda,\alpha,\beta)
+=
+\sum_{i=1}^n
+\expectation\left[
+	-\mathbb{I}(x_i=0)
+	\lambda
+	\right.\\\left.+
+	\mathbb{I}(x_i>0)
+	\left(
+	Y_i\alpha\ln\beta-\ln\Gamma(Y_i\alpha)+(Y_i\alpha-1)\ln x_i - \beta x_i
+	\right.\right.\\\left.\left.	
+	- \lambda + Y_i \ln \lambda - \ln(Y_i!)
+	\right)
+|X_i=x_i\right]
+\end{multline*}
+\begin{multline*}
+T(\lambda,\alpha,\beta)
+=
+-n\lambda
+\\+
+	\sum_{i=1}^n
+	\mathbb{I}(x_i>0)
+	\left[
+	\expectation[Y_i|X_i=x_i]\alpha\ln\beta-\expectation[\ln\Gamma(Y_i\alpha)|X_i=x_i]
+	\right.\\\left.
+	+\expectation[Y_i|X_i=x_i]\alpha\ln x_i - \beta x_i
+	+ \expectation[Y_i|X_i=x_i] \ln \lambda
+	\right] + c
+\end{multline*}
+where $c$ is some constant not dependent on $\lambda$, $\alpha$ or $\beta$.
+
+The conditional expectation $y_i = \expectation[Y_i|X_i=x_i]$ was calculated in the E step. The quantity $\expectation[\ln\Gamma(Y_i\alpha)|X_i=x_i]$ can be calculated using the approximation
+\begin{equation}
+\expectation[\ln\Gamma(Y_i\alpha)|X_i=x_i] \approx
+\ln\Gamma(\alpha y_i) + \frac{1}{2}\zeta_i\alpha^2\psi'(y_i\alpha)
+\end{equation}
+where
+\begin{equation}
+\zeta_i = \variance[Y_i|X_i=x_i]
+\end{equation}
+calculated in the E step and $\psi$ is the digamma function. The objective function is then
+\begin{multline}
+T(\lambda,\alpha,\beta)
+=
+-n\lambda+
+	\sum_{i=1}^n
+	\mathbb{I}(x_i>0)
+	\left[
+	y_i\alpha\ln\beta-\ln\Gamma(\alpha y_i) - \frac{1}{2}\zeta_i\alpha^2\psi'(y_i\alpha)
+	\right.\\\left.
+	+y_i\alpha\ln x_i - \beta x_i
+	+ y_i \ln \lambda
+	\vphantom{\frac{1}{1}}\right] + c \ .
+\end{multline}
+
+Taking the derivative with respect to $\lambda$
+\begin{equation}
+\frac{\partial T}{\partial\lambda} = -n + \frac{\sum_{i=1}^ny_i}{\lambda}
+\end{equation}
+and setting it to zero
+\begin{equation}
+\widehat{\lambda} = \frac{\sum_{i=1}^n y_i}{n}
+\end{equation}
+obtains a M step estimator, and a familiar one, for $\lambda$. Taking the second derivative with respect to $\lambda$
+\begin{equation}
+\frac{\partial^2 T}{\partial \lambda^2} = -\frac{\sum_{i=1}^ny_i}{\lambda^2} < 0
+\end{equation}
+verifies $\widehat{\lambda}$ maximises T. In addition
+\begin{equation}
+\frac{\partial^2 T}{\partial \alpha \partial \lambda } = 0
+\end{equation}
+and
+\begin{equation}
+\frac{\partial^2 T}{\partial \beta \partial \lambda } = 0 \ .
+\end{equation}
+
+Maximising $T$ with respect to $\alpha$ and $\beta$ can be done numerically using the Newton-Raphson method since derivatives up to the second order can be obtained. For the first order these are:
+\begin{multline}
+\frac{\partial T}{\partial \alpha} = \sum_{i=1}^n\mathbb{I}(x_i>0)\left[
+	y_i\ln\beta -\psi(\alpha y_i)y_i-\zeta_i\alpha\psi'(\alpha y_i)
+	\vphantom{\frac{1}{1}}\right.\\\left.
+	- \frac{1}{2}\zeta_i\alpha^2\psi''(\alpha y_i)y_i + y_i\ln x_i
+\right]
+\end{multline}
+and
+\begin{equation}
+\frac{\partial T}{\partial \beta} = \sum_{i=1}^n\mathbb{I}(x_i>0)\left[
+\frac{\alpha y_i}{\beta}-x_i
+\right] \ .
+\end{equation}
+The second orders are:
+\begin{equation}
+\frac{\partial^2 T}{\partial \alpha \partial \beta} =
+\sum_{i=1}^n \mathbb{I}(x_i>0)\left[\frac{y_i}{\beta}\right] \ ,
+\end{equation}
+\begin{equation}
+\frac{\partial^2 T}{\partial \beta^2} = \sum_{i=1}^n\mathbb{I}(x_i>0)\left[-\frac{\alpha y_i}{\beta^2}
+\right]
+\end{equation}
+and
+\begin{multline*}
+\frac{\partial^2 T}{\partial \alpha^2} =  \sum_{i=1}^n\mathbb{I}(x_i>0)\left[
+	-y_i^2\psi'(\alpha y_i) - \zeta_i\psi'(\alpha y_i) - \zeta_i\alpha y_i\psi''(\alpha y_i)
+	\vphantom{\frac{1}{2}}\right.\\\left.	
+	- \zeta_i\alpha\psi''(\alpha y_i)y_i
+	-\frac{1}{2}\zeta_i\alpha^2\psi'''(\alpha y_i)y_i^2
+\right]
+\end{multline*}
+simplifying to
+\begin{multline}
+\frac{\partial^2 T}{\partial \alpha^2} =  \sum_{i=1}^n\mathbb{I}(x_i>0)\left[
+	-(y_i^2+\zeta_i)\psi'(\alpha y_i) - 2\zeta_i\alpha y_i\psi''(\alpha y_i)
+	\vphantom{\frac{1}{2}}\right.\\\left.	
+	-\frac{1}{2}\zeta_i\alpha^2y_i^2\psi'''(\alpha y_i)
+\right] \ .
+\end{multline}
+
+All the derivatives can be used in the Newton-Raphson iterative update, which is
+\begin{equation}
+\begin{pmatrix}
+\alpha \\ \beta
+\end{pmatrix}
+\leftarrow
+\begin{pmatrix}
+\alpha \\ \beta
+\end{pmatrix}
+\left[
+	\nabla_{\alpha,\beta}\nabla_{\alpha,\beta}\T T
+\right]^{-1}
+\left[\nabla_{\alpha,\beta} T\right]
+\end{equation}
+where
+\begin{equation}
+\nabla_{\alpha,\beta}=
+\begin{pmatrix}
+	{\partial}/{\partial \alpha}
+	\\
+	{\partial}/{\partial \beta}
+\end{pmatrix} \ .
+\end{equation}
+Since increasing $T$ is sufficient for the EM algorithm \citep{dempster1977maximum}, one step of the Newton-Raphson iterative update was chosen in the M step to avoid implementing a convergence condition.
 
 \subsection{Estimation Error}
 
