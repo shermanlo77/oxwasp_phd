@@ -3,9 +3,10 @@
 %PARAMETERS:
     %p_array: column vector of p values, may contain nan and these are ignored
     %size_test: the size of the test
+    %want_plot: boolean, true to plot the p values in a curve
 %RETURN:
     %sig_array: vector of booleans, true if that p value is significant, false otherwise or if nan
-function sig_array = significantFDR(p_array, size_test)
+function sig_array = significantFDR(p_array, size_test, want_plot)
 
     %convert p_array to a column vector
     if isrow(p_array)
@@ -43,6 +44,29 @@ function sig_array = significantFDR(p_array, size_test)
         
         %put p_array in non nan entries of sig_array
         sig_array(~nan_index) = p_array;
+    end
+    
+    %if request a plot, plot the p values in order
+        %x axis: index number
+        %y axis: p value
+    if ((nargin==3) && want_plot)
+        %plot the p values in order
+        figure;
+        plot(p_ordered);
+        hold on;
+        %plot the fdr line
+        plot([1,m],[size_test/m,size_test]);
+        %if the significant level has been adjusted
+        if ~isempty(p_critical_index)
+            %adjust the x and y limits
+            %x axis adjusted at round(p_critical_index*1.1)
+            p_index_plot = min([m,round(p_critical_index*1.1)]);
+            xlim([0,p_index_plot]);
+            ylim([0,p_ordered(p_index_plot)]);
+        end
+        %label the axis
+        xlabel('Test number');
+        ylabel('p value');
     end
 
 end

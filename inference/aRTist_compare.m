@@ -3,7 +3,7 @@ clearvars;
 close all;
 
 %set random seed
-rng(uint32(2350272805), 'twister');
+rng(uint32(3538096789), 'twister');
 
 %load data and add shading correction
 block_data = AbsBlock_Sep16_120deg();
@@ -48,8 +48,8 @@ n_pixel = sum(sum(segmentation));
 index = randperm(block_data.n_sample);
 %assign half to the training set
 %assign other half to the test set
-n_train = round(block_data.n_sample/2);
-n_test = block_data.n_sample - n_train;
+n_train = block_data.n_sample - 1;
+n_test = 1;
 training_index = index(1:n_train);
 test_index = index((n_train+1):end);
 
@@ -85,21 +85,61 @@ for i = 1:n_test
     %get the z statistic
     z_image = (test - aRTist)./sqrt(var_predict);
     
-    %plot the z statistics
-    % figure;
-    % imagesc(z_image);
-    % colorbar;
-
+    %set non segmented pixels to be nan
+    z_image(~segmentation) = nan;
+    
     %work out the p value and plot it
     p_image = 2*(1-normcdf(abs(z_image)));
-    %set non segmented pixels to be nan
-    p_image(~segmentation) = nan;
-    % figure;
-    % imagesc(log10(p_image));
-    % colorbar;
+    
+    figure;
+    imagesc(p_image);
+    colorbar;
+    
+    m = sum(sum(~isnan(z_image)));
+    
+    %histogram
+    z_vector = reshape(z_image,[],1);
+    z_vector(isnan(z_vector)) = [];
+    z_plot = linspace(min(z_vector),max(z_vector),1000);
+    figure;
+    histogram(z_vector,'Normalization','CountDensity');
+    hold on;
+    plot(z_plot,normpdf(z_plot)*m);
+    xlabel('z statistic');
+    ylabel('frequency density');
+    
+    %qqplot
+    figure;
+    scatter(norminv(((1:m)-0.5)/m),sort(z_vector),'x');
+    hold on;
+    plot([min(z_vector),max(z_vector)],[min(z_vector),max(z_vector)],'r--');
+    xlabel('Standard Normal quantiles');
+    ylabel('z statistics quantiles');
+    
+    %display standard deviation of z statistics
+    disp('standard deviation of z statistics');
+    disp(std(z_vector));
+    %standarised the z statistics
+    z_std_vector = z_vector / std(z_vector);
+    
+    %histogram
+    figure;
+    histogram(z_std_vector,'Normalization','CountDensity');
+    hold on;
+    plot(z_plot,normpdf(z_plot)*m);
+    xlabel('z statistic');
+    ylabel('frequency density');
+    
+    %qqplot
+    figure;
+    scatter(norminv(((1:m)-0.5)/m),sort(z_std_vector),'x');
+    hold on;
+    plot([min(z_vector),max(z_vector)],[min(z_vector),max(z_vector)],'r--');
+    xlabel('Standard Normal quantiles');
+    ylabel('z statistics quantiles');
 
     %find critical pixels at some level
-    critical_index = reshape(significantFDR(reshape(p_image,[],1),normcdf(-5)),block_data.height,block_data.width);
+    critical_index = reshape(significantFDR(reshape(p_image,[],1),normcdf(-5),true),block_data.height,block_data.width);
     [critical_y, critical_x] = find(critical_index);
 
     %plot the phantom scan with critical pixels highlighted
