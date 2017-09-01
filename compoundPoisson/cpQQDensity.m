@@ -40,7 +40,7 @@ function cpQQDensity(compound_poisson, histo_file, qq_file)
 
     %% DENSITY
     
-    fig = figure('Visible','off');
+    fig = figure_latexSub;
     
     %plot the histogram (frequency density axis on the left)
     %do not include zeros if support zero mass
@@ -83,7 +83,7 @@ function cpQQDensity(compound_poisson, histo_file, qq_file)
     
     %% QQPLOT
     
-    fig = figure('Visible','off');
+    fig = figure_latexSub;
     
     %get array of percentages
     p = ((1:n)'-0.5)/n;

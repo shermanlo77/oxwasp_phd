@@ -12,32 +12,27 @@ rng(uint32(353759542),'twister');
 
 n = 1000; %simulation sample size
 n_density = 3; %number of density evaluation methods
-n_parameter = 4; %number of parameter sets to be considered
 %directory for the figures to be saved
 figure_location = fullfile('reports','figures','compoundPoisson');
+
+%array of parameters to be investigated
+    %dim 1: for each set
+    %dim 2: lambda, alpha, beta
+parameter_array = [
+    1,1,1;
+    10,1,1;
+    1,100,1;
+    100,100,1
+];
+n_parameter = numel(parameter_array(:,1)); %number of parameter sets to be considered
 
 %for each parameter set
 for i_parameter = 1:n_parameter
     
-    %assign the parameters lambda, alpha, beta for a given i_parameter
-    switch i_parameter
-        case 1
-            lambda = 1;
-            alpha = 1;
-            beta = 1;
-        case 2
-            lambda = 10;
-            alpha = 1;
-            beta = 1;
-        case 3
-            lambda = 1;
-            alpha = 100;
-            beta = 1;
-        case 4
-            lambda = 100;
-            alpha = 100;
-            beta = 1;
-    end
+    %get parameters
+    lambda = parameter_array(i_parameter,1);
+    alpha = parameter_array(i_parameter,2);
+    beta = parameter_array(i_parameter,3);
     
     %simulated compound poisson
     X = CompoundPoisson.simulate(n,lambda,alpha,beta);
@@ -71,9 +66,14 @@ for i_parameter = 1:n_parameter
    end
 end
 
-% n = 100;
-% n_repeat = 10;
-% n_step = 5;
-% cpConvergence(n, 1, 1, 1, n_repeat, n_step);
-% cpConvergence(n, 1, 100, 1, n_repeat, n_step);
-% cpConvergence(n, 100, 100, 1, n_repeat, n_step);
+n_repeat = 10; %number of times to repeat the experiment
+n_step = 10; %number of EM steps
+%for each parameter set
+for i_parameter = 1:n_parameter
+    %get parameters
+    lambda = parameter_array(i_parameter,1);
+    alpha = parameter_array(i_parameter,2);
+    beta = parameter_array(i_parameter,3);
+    %plot the lnL, and parameters at each step of EM
+    cpConvergence(n, lambda, alpha, beta, n_repeat, n_step,figure_location,strcat('convergence_',num2str(i_parameter)));
+end

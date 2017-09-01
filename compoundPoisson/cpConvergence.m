@@ -8,7 +8,9 @@
     %beta: gamma rate parameter
     %n_repeat: number of times to repeat the experiment
     %n_step: number of EM steps
-function cpConvergence(n_simulation, lambda, alpha, beta, n_repeat, n_step)
+    %figure_location: directory location to save figures
+    %filename_suffix: file name of the saved figures
+function cpConvergence(n_simulation, lambda, alpha, beta, n_repeat, n_step, figure_location, filename_suffix)
 
     %declare array of lnL, lambda, alpha and beta for each step of EM and each repeat
         %dim 1: for each step of EM
@@ -57,45 +59,46 @@ function cpConvergence(n_simulation, lambda, alpha, beta, n_repeat, n_step)
         end
     end
     
-    
-    figure;
-    
     %plot the log likelihood
-    subplot(2,2,1);
+    fig = figure_latexSub;
     plot(0:n_step, lnL_array, 'b');
     xlabel('Number of EM steps');
     ylabel('lnL');
     xlim([0,n_step]);
+    saveas(fig,fullfile(figure_location,strcat(filename_suffix,'_lnL.eps')),'epsc');
     
     %plot lambda
-    subplot(2,2,2);
+    fig = figure_latexSub;
     plot(0:n_step, lambda_array, 'b');
     hold on;
-    plot([0,n_step], [lambda-std_array(1),lambda-std_array(1)], 'k-');
-    plot([0,n_step], [lambda+std_array(1),lambda+std_array(1)], 'k-');
+    plot([0,n_step], [lambda-std_array(1),lambda-std_array(1)], 'k--');
+    plot([0,n_step], [lambda+std_array(1),lambda+std_array(1)], 'k--');
     xlabel('Number of EM steps');
     ylabel('\lambda');
     xlim([0,n_step]);
+    saveas(fig,fullfile(figure_location,strcat(filename_suffix,'_lambda.eps')),'epsc');
     
     %plot alpha
-    subplot(2,2,3);
+    fig = figure_latexSub;
     plot(0:n_step, alpha_array, 'b');
     hold on;
-    plot([0,n_step], [alpha-std_array(2),alpha-std_array(2)], 'k-');
-    plot([0,n_step], [alpha+std_array(2),alpha+std_array(2)], 'k-');
+    plot([0,n_step], [alpha-std_array(2),alpha-std_array(2)], 'k--');
+    plot([0,n_step], [alpha+std_array(2),alpha+std_array(2)], 'k--');
     xlabel('Number of EM steps');
     ylabel('\alpha');
     xlim([0,n_step]);
+    saveas(fig,fullfile(figure_location,strcat(filename_suffix,'_alpha.eps')),'epsc');
     
     %plot beta
-    subplot(2,2,4);
+    fig = figure_latexSub;
     plot(0:n_step, beta_array, 'b');
     hold on;
-    plot([0,n_step], [beta-std_array(3),beta-std_array(3)], 'k-');
-    plot([0,n_step], [beta+std_array(3),beta+std_array(3)], 'k-');
+    plot([0,n_step], [beta-std_array(3),beta-std_array(3)], 'k--');
+    plot([0,n_step], [beta+std_array(3),beta+std_array(3)], 'k--');
     xlabel('Number of EM steps');
     ylabel('\beta');
     xlim([0,n_step]);
+    saveas(fig,fullfile(figure_location,strcat(filename_suffix,'_beta.eps')),'epsc');
 
 end
 
