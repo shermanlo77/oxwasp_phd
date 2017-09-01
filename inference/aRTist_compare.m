@@ -2,6 +2,9 @@ clc;
 clearvars;
 close all;
 
+%set random seed
+rng(uint32(2350272805), 'twister');
+
 %load data and add shading correction
 block_data = AbsBlock_Sep16_120deg();
 block_data.addDefaultShadingCorrector();
@@ -66,15 +69,8 @@ training_var = var(training_stack,[],2);
 model = MeanVar_GLM_canonical((n_train-1)/2,-2);
 model.train(training_mean,training_var);
 
-%declare image, each pixel represent predicted variance, given aRTist
-var_predict = zeros(block_data.height, block_data.width);
-%for each pixel
-for i_column = 1:block_data.width
-    for i_row = 1:block_data.height
-        %predict the variance and save
-        var_predict(i_row,i_column) = model.predict(aRTist(i_row,i_column));
-    end
-end
+%predict variance given aRTist
+var_predict = reshape(model.predict(reshape(aRTist,[],1)),block_data.height, block_data.width);
 
 %plot the predicted variance
 % figure;
@@ -88,6 +84,7 @@ for i = 1:n_test
     test = test_stack(:,:,i);
     %get the z statistic
     z_image = (test - aRTist)./sqrt(var_predict);
+    
     %plot the z statistics
     % figure;
     % imagesc(z_image);
