@@ -1530,6 +1530,14 @@ The Cram\'er-Rao lower bound is then
 
 \subsection{Simulations}
 
+An experiment was conducted to assess the performance on the EM algorithm. For a given set of parameters, 1\,000 samples of a $\CPoisson(\lambda,\alpha,\beta)$ random variable were simulated. The EM algorithm was initialised with its parameters at the true values to investigate the convergence in that vicinity. The log likelihood $\ln L(\lambda,\alpha,\beta;X)$ and the parameters were recorded at every EM step. The experiment was repeated 10 times using different simulated samples.
+
+The results for $\CPoisson(1,1,1)$, $\CPoisson(10,1,1)$, $\CPoisson(1,100,1)$ and $\CPoisson(100,100,1)$ are shown in Figures \ref{fig:compoundPoisson_convergence_1}, \ref{fig:compoundPoisson_convergence_2}, \ref{fig:compoundPoisson_convergence_3} and \ref{fig:compoundPoisson_convergence_4} respectively. Good performance can be seen for the $\lambda=1$ case with convergence of all 3 parameters within a step or two. The Cram\'er-Rao lower bound captured the spread of the estimates well.
+
+However for $\lambda=10$ and $\lambda=100$ case, the estimates of $\alpha$ and $\beta$ struggled to converge and increased/decreased without bounds without affecting the log likelihood. It appears the EM algorithm failed for $\lambda>10$ looking at these particular examples.
+
+
+
 \begin{figure}[p]
 	\centering
     \centerline{
