@@ -13,6 +13,7 @@
 *.png
 *.xml
 *.tif
+*.toc
 
 # directories
 data/
