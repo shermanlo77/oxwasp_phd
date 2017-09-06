@@ -15,6 +15,7 @@ classdef MeanVar_GLM < VarianceModel
         n_step; %n_step: number of IRLS steps
         initial_parameter; %the initial value of the parameter
         tol; %stopping conidition for the different in log likelihood * n_train
+        link_function; %object LinkFunction which implemented the methods getLinkDiff and getMean
     end
     
     %METHODS
@@ -24,15 +25,16 @@ classdef MeanVar_GLM < VarianceModel
         %PARAMETERS:
             %shape_parameter: shape parameter of the gamma distribution
             %polynomial_order: column vector of polynomial order features
-            %initial_intercept: the value of the intercept at the start of IRLS
-        function this = MeanVar_GLM(shape_parameter,polynomial_order,initial_intercept)
+            %link_function: object LinkFunction
+        function this = MeanVar_GLM(shape_parameter,polynomial_order,link_function)
             %assign member variables
             this.shape_parameter = shape_parameter;
             this.polynomial_order = polynomial_order;
             this.n_order = numel(polynomial_order);
             this.n_step = 100;
+            this.link_function = link_function;
             this.initial_parameter = zeros(this.n_order+1,1);
-            this.initial_parameter(1) = initial_intercept;
+            this.initial_parameter(1) = this.link_function.initial_intercept;
             this.tol = 1E-1;
         end
         
@@ -49,13 +51,13 @@ classdef MeanVar_GLM < VarianceModel
             this.x_shift = mean(X(:,2:end),1);
             this.x_scale = std(X(:,2:end),true,1); %normalise by n
             X = this.normaliseDesignMatrix(X);
-            
-            %IRLS SECTION
-            
+
             %set inital parameter
             this.parameter = this.initial_parameter;
             %assign training set size
             this.n_train = numel(var_train);
+            
+            %IRLS SECTION
             
             %initalise variables
             eta = X*this.parameter; %systematic component
@@ -227,31 +229,33 @@ classdef MeanVar_GLM < VarianceModel
             residual = (y-y_predict)./ sqrt(this.getVariance(x));
             msse = sum(residual.^2)/numel(y);
         end
-     
-    end
-    
-    %ABSTRACT METHODS
-    methods(Abstract)
         
         %GET LINK FUNCTION DIFFERENTATED
         %PARAMETERS:
             %mu: column vector of means
         %RETURN:
             %g_dash: colum vector of g'(mu)
-        g_dash = getLinkDiff(this,mu);
+        function g_dash = getLinkDiff(this,mu)
+            g_dash = this.link_function.getLinkDiff(mu,this.shape_parameter);
+        end
         
         %GET MEAN (LINK FUNCTION)
         %PARAMETERS:
             %eta: vector of systematic components
         %RETURN:
             %mu: vector of mean responses
-        mu = getMean(this,eta);
+        function mu = getMean(this,eta)
+            mu = this.link_function.getMean(eta,this.shape_parameter);
+        end
         
         %GET NAME
         %Return name for this glm
-        name = getName(this)
-        
+        function name = getName(this)
+            name = cell2mat({this.link_function.name,', order ',num2str(this.polynomial_order)});
+        end
+     
     end
+    
     
 end
 
