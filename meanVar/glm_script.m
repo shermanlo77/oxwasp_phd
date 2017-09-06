@@ -32,23 +32,30 @@ shape_parameter = (block_data.n_sample-1)/2;
 link_name = {'identity','log','canonical_1','canonical_2'};
 
 %for each polynomial order
-for i = 1:4
+for i = 1:2
     
+    alpha = 1;
+    lambda = 100000;
     %model the mean and variance using gamma glm using different link
     %functions and polynomial features
     switch i
         case 1
-            model = MeanVar_GLM_identity(shape_parameter,1);
+            %model = MeanVar_GLM_identity(shape_parameter,1);
+            model = MeanVar_ElasticNet(shape_parameter,[1,2,3,4,5],LinkFunction_Identity(),alpha, lambda);
         case 2
-            model = MeanVar_GLM_log(shape_parameter,-1);
+            %model = MeanVar_GLM_log(shape_parameter,-1);
+            model = MeanVar_ElasticNet(shape_parameter,[-3,-2,-1,1,2,3],LinkFunction_Log(),alpha, lambda);
         case 3
             model = MeanVar_GLM_canonical(shape_parameter,-1);
+            %model = MeanVar_ElasticNet(shape_parameter,-1,LinkFunction_Canonical(),alpha, lambda);
         case 4
             model = MeanVar_GLM_canonical(shape_parameter,-2);
+            %model = MeanVar_ElasticNet(shape_parameter,-2,LinkFunction_Canonical(),alpha, lambda);
     end
     
     %train the classifier
     model.train(sample_mean,sample_var);
+    disp(model.parameter);
 
     %plot the frequency density
     figure;

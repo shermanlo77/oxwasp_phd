@@ -69,7 +69,7 @@ classdef MeanVar_GLM < VarianceModel
             for i_step = 1:this.n_step
                 
                 %update the parameter
-                this.updateParameter(w, X, z);
+                this.updateParameter(w, X, z, y);
                 
                 %if the parameter is nan, break the for loop and end
                 if(any(isnan(this.parameter)))
@@ -98,7 +98,7 @@ classdef MeanVar_GLM < VarianceModel
             %w: vector of weights
             %X: design matrix
             %z: response vector
-        function updateParameter(this, w, X, z)
+        function updateParameter(this, w, X, z, ~)
             %get W^(1/2) * X %where W is diagonal square
             w_square_root = sqrt(w); %get the vector of square root w
             %declare matrix of size nx2 to represent W^(1/2) * X
@@ -126,8 +126,10 @@ classdef MeanVar_GLM < VarianceModel
         function [mu, w, z] = getIRLSStatistics(this, X, y, parameter)
             eta = X*parameter; %systematic component
             mu = this.getMean(eta); %mean vector
-            v = mu.^2 / this.shape_parameter; %variance vector
-            w = 1./(v.*this.getLinkDiff(mu)); %weights in IRLS
+            %v = mu.^2 / this.shape_parameter; %variance vector
+            v = mu.^2; %variance vector
+            w = 1./(v.*(this.getLinkDiff(mu)).^2); %weights in IRLS
+            %w = 1./(v.*this.getLinkDiff(mu)); %error in old code
             z = (eta + (y-mu).*this.getLinkDiff(mu));
         end
         

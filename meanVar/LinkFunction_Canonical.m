@@ -16,12 +16,12 @@ classdef LinkFunction_Canonical < LinkFunction
         %RETURN:
             %g_dash: colum vector of g'(mu)
         function g_dash = getLinkDiff(this,mu,shape_parameter)
-            g_dash = shape_parameter./(mu.^2);
+            g_dash = 1./(mu.^2);
         end
         
         %GET MEAN (LINK FUNCTION)
         function mu = getMean(this,eta,shape_parameter)
-            mu = -shape_parameter./eta;
+            mu = -1./eta;
         end
         
     end
