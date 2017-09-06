@@ -46,9 +46,9 @@ classdef MeanVar_GLM < VarianceModel
             this.y_scale = std(var_train);
             y = var_train./this.y_scale;
             X = this.getDesignMatrix(mean_train);
-            this.x_shift = mean(X(:,2:end));
-            this.x_scale = std(X(:,2:end));
-            X = this.getNormalisedDesignMatrix(mean_train);
+            this.x_shift = mean(X(:,2:end),1);
+            this.x_scale = std(X(:,2:end),true,1); %normalise by n
+            X = this.normaliseDesignMatrix(X);
             
             %IRLS SECTION
             
@@ -172,13 +172,27 @@ classdef MeanVar_GLM < VarianceModel
         end
         
         %GET NORMALISED DESIGN MATRIX
-        %Normalise the design matrix so that the 2nd column has mean zero
-        %and std 1
+        %Return a normalised design matrix given a vector of data (with polynomial features)
         %PARAMETERS:
             %x: column vector of greyvalues
+        %RETURN:
+            %X: normalised design matrix (nxp matrix, 1st column constants)
         function X = getNormalisedDesignMatrix(this,x)
             X = this.getDesignMatrix(x);
-            X(:,2:end) = ( X(:,2:end)- repmat(this.x_shift, numel(x), 1 ) ) ./ repmat(this.x_scale, numel(x), 1);
+            X = this.normaliseDesignMatrix(X);
+        end
+        
+        %NORMALISE DESIGN MATRIX
+        %Normalise a given design matrix (1st column constants) to have
+            %columns with mean 0
+            %columns with var 1 (n divisor)
+        %PARAMETERS
+            %X: design matrix (nxp matrix, 1st column constant and ignored)
+        %RETURN
+            %X: normalised design matrix
+        function X = normaliseDesignMatrix(this,X)
+            n = numel(X(:,1));
+            X(:,2:end) = ( X(:,2:end)- repmat(this.x_shift, n, 1 ) ) ./ repmat(this.x_scale, n, 1);
         end
         
         %GET VARIANCE
