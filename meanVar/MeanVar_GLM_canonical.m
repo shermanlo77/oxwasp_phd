@@ -12,7 +12,7 @@ classdef MeanVar_GLM_canonical < MeanVar_GLM
         %PARAMETERS: see upser class MeanVar_GLM
         function this = MeanVar_GLM_canonical(shape_parameter,polynomial_order)
             %call superclass
-            this@MeanVar_GLM(shape_parameter,polynomial_order,[-1;0]);
+            this@MeanVar_GLM(shape_parameter,polynomial_order,-1);
         end
         
         %GET LINK FUNCTION DIFFERENTATED

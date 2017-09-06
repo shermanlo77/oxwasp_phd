@@ -28,17 +28,20 @@ sample_var = sample_var(segmentation);
 %squared distribution
 shape_parameter = (block_data.n_sample-1)/2;
 
+%array of polynomial_orders
+polynomial_order = [-1,-2,-3,-4];
+
 %for each polynomial order
-for polynomial_order = [-4,-3,-2,-1]
+for i_polynomial = 1:numel(polynomial_order)
     
     %model the mean and variance using gamma glm
-    model = MeanVar_GLM_canonical(shape_parameter,polynomial_order);
+    model = MeanVar_GLM_canonical(shape_parameter,polynomial_order(i_polynomial));
     %train the classifier
     model.train(sample_mean,sample_var);
 
     %plot the frequency density
     figure;
-    ax = hist3Heatmap(sample_mean,sample_var,[nbin,nbin],false);
+    ax = hist3Heatmap(sample_mean,sample_var,[nbin,nbin],true);
     hold on;
     
     %get a range of greyvalues to plot the fit

@@ -52,7 +52,7 @@ for i = 1:4
 
     %plot the frequency density
     figure;
-    ax = hist3Heatmap(sample_mean,sample_var,[nbin,nbin],false);
+    ax = hist3Heatmap(sample_mean,sample_var,[nbin,nbin],true);
     hold on;
     
     %get a range of greyvalues to plot the fit

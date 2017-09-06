@@ -8,9 +8,10 @@ classdef MeanVar_GLM < VarianceModel
         shape_parameter;
         %normalising constants for the response and feature
         y_scale;
-        x_scale;
-        x_shift;
-        polynomial_order; %polynomial order of the feature
+        x_scale; %column vector, for each polynomial feature
+        x_shift; %colun vector, for each polynomial feature
+        polynomial_order; %column vector of polynomial order features
+        n_order; %number of polynomial orders
         n_step; %n_step: number of IRLS steps
         initial_parameter; %the initial value of the parameter
         tol; %stopping conidition for the different in log likelihood * n_train
@@ -22,14 +23,16 @@ classdef MeanVar_GLM < VarianceModel
         %CONSTRUCTOR
         %PARAMETERS:
             %shape_parameter: shape parameter of the gamma distribution
-            %polynomial_order: polynomial order feature
-            %initial_parameter: the value of the parameter at the start of IRLS
-        function this = MeanVar_GLM(shape_parameter,polynomial_order,initial_parameter)
+            %polynomial_order: column vector of polynomial order features
+            %initial_intercept: the value of the intercept at the start of IRLS
+        function this = MeanVar_GLM(shape_parameter,polynomial_order,initial_intercept)
             %assign member variables
             this.shape_parameter = shape_parameter;
             this.polynomial_order = polynomial_order;
+            this.n_order = numel(polynomial_order);
             this.n_step = 100;
-            this.initial_parameter = initial_parameter;
+            this.initial_parameter = zeros(this.n_order+1,1);
+            this.initial_parameter(1) = initial_intercept;
             this.tol = 1E-1;
         end
         
@@ -43,8 +46,8 @@ classdef MeanVar_GLM < VarianceModel
             this.y_scale = std(var_train);
             y = var_train./this.y_scale;
             X = this.getDesignMatrix(mean_train);
-            this.x_shift = mean(X(:,2));
-            this.x_scale = std(X(:,2));
+            this.x_shift = mean(X(:,2:end));
+            this.x_scale = std(X(:,2:end));
             X = this.getNormalisedDesignMatrix(mean_train);
             
             %IRLS SECTION
@@ -69,9 +72,9 @@ classdef MeanVar_GLM < VarianceModel
                 %get W^(1/2) * X %where W is diagonal square
                 w_square_root = sqrt(w); %get the vector of square root w
                 %declare matrix of size nx2 to represent W^(1/2) * X
-                w_square_root_x = zeros(this.n_train,2);
+                w_square_root_x = zeros(this.n_train, this.n_order+1);
                 %without calculating the full W matrix, calculate W^(1/2) * X
-                for i_p = 1:2
+                for i_p = 1:(this.n_order+1)
                     w_square_root_x(:,i_p) = X(:,i_p).*w_square_root;
                 end
 
@@ -151,22 +154,31 @@ classdef MeanVar_GLM < VarianceModel
         end
         
         %GET DESIGN MATRIX
+        %Returns a design matrix with polynomial features given a column vector of explanatory variables
         %PARAMETERS:
-            %grey_values: column vector of greyvalues
+            %x: column vector of greyvalues
         %RETURN:
-            %X: n x 2 design matrix
-        function X = getDesignMatrix(this,grey_values)
-            X = [ones(numel(grey_values),1),grey_values.^this.polynomial_order];
+            %X: n x this.n_order + 1 design matrix
+        function X = getDesignMatrix(this,x)
+            %declare design matrix
+            X = zeros(numel(x),this.n_order + 1);
+            %first column is a constant
+            X(:,1) = 1;
+            %for each order
+            for i_order = 1:this.n_order
+                %put the explantory variable ^ polynomial_order(i_order) in the design matrix
+                X(:,1+i_order) = x.^(this.polynomial_order(i_order));
+            end
         end
         
         %GET NORMALISED DESIGN MATRIX
         %Normalise the design matrix so that the 2nd column has mean zero
         %and std 1
         %PARAMETERS:
-            %grey_values: column vector of greyvalues
-        function X = getNormalisedDesignMatrix(this,grey_values)
-            X = this.getDesignMatrix(grey_values);
-            X(:,2) = (X(:,2)-this.x_shift) / this.x_scale;
+            %x: column vector of greyvalues
+        function X = getNormalisedDesignMatrix(this,x)
+            X = this.getDesignMatrix(x);
+            X(:,2:end) = ( X(:,2:end)- repmat(this.x_shift, numel(x), 1 ) ) ./ repmat(this.x_scale, numel(x), 1);
         end
         
         %GET VARIANCE
