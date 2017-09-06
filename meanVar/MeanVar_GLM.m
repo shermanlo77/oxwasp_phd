@@ -60,31 +60,15 @@ classdef MeanVar_GLM < VarianceModel
             %IRLS SECTION
             
             %initalise variables
-            eta = X*this.parameter; %systematic component
-            mu = this.getMean(eta); %mean vector
-            v = mu.^2 / this.shape_parameter; %variance vector
-            w = 1./(v.*this.getLinkDiff(mu)); %weights in IRLS
-            
             %work out the log likelihhod up to a constant
-            lnL_old = -this.shape_parameter*(sum(log(mu)+y./mu));
+            %w and z are variables for IRLS
+            [lnL_old, w, z] = getIRLSStatistics(this, X, y, this.parameter);
             
             %for n_step times
             for i_step = 1:this.n_step
                 
-                %get W^(1/2) * X %where W is diagonal square
-                w_square_root = sqrt(w); %get the vector of square root w
-                %declare matrix of size nx2 to represent W^(1/2) * X
-                w_square_root_x = zeros(this.n_train, this.n_order+1);
-                %without calculating the full W matrix, calculate W^(1/2) * X
-                for i_p = 1:(this.n_order+1)
-                    w_square_root_x(:,i_p) = X(:,i_p).*w_square_root;
-                end
-
-                %work out the z vector (including the square root w term)
-                z = w_square_root .* (eta + (y-mu).*this.getLinkDiff(mu));
-                
-                %update the parameter (with the use of QR)
-                this.parameter = w_square_root_x \ z;
+                %update the parameter
+                this.updateParameter(w, X, z);
                 
                 %if the parameter is nan, break the for loop and end
                 if(any(isnan(this.parameter)))
@@ -92,13 +76,8 @@ classdef MeanVar_GLM < VarianceModel
                 end
 
                 %update variables
-                eta = X*this.parameter; %systematic component
-                mu = this.getMean(eta); %mean vector
-                v = mu.^2 / this.shape_parameter; %variance vector
-                w = 1./(v.*this.getLinkDiff(mu)); %weights in IRLS
-                
                 %work out the new log likelihhod up to a constant
-                lnL_new = -this.shape_parameter*(sum(log(mu)+y./mu));
+                [lnL_new, w, z] = getIRLSStatistics(this, X, y, this.parameter);
                 
                 %if the improvement in log likelihhod is less than tol*n_train
                 if ( (lnL_new - lnL_old) < this.tol*this.n_train)
@@ -110,6 +89,46 @@ classdef MeanVar_GLM < VarianceModel
                 lnL_old = lnL_new;
             end
             
+        end
+        
+        %UPDATE PARAMETER USING IRLS
+        %PARAMETERS:
+            %w: vector of weights
+            %X: design matrix
+            %z: response vector
+        function updateParameter(this, w, X, z)
+            %get W^(1/2) * X %where W is diagonal square
+            w_square_root = sqrt(w); %get the vector of square root w
+            %declare matrix of size nx2 to represent W^(1/2) * X
+            w_square_root_x = zeros(this.n_train, this.n_order+1);
+            %without calculating the full W matrix, calculate W^(1/2) * X
+            for i_p = 1:(this.n_order+1)
+                w_square_root_x(:,i_p) = X(:,i_p).*w_square_root;
+            end
+            %work out the z vector (including the square root w term)
+            z = w_square_root .* z;
+            %update the parameter (with the use of QR)
+            this.parameter = w_square_root_x \ z;
+        end
+        
+        %GET IRLS STATISTICS
+        %Return the log likelihood, vector of weights and response vector for IRLS
+        %PARAMETERS:
+            %X: design matrix
+            %y: gamma response vector (column)
+            %parameter: column parameter vector
+        %RETURN:
+            %lnL: log likelihood
+            %w: vector of weights
+            %z: response vector
+        function [lnL, w, z] = getIRLSStatistics(this, X, y, parameter)
+            eta = X*parameter; %systematic component
+            mu = this.getMean(eta); %mean vector
+            v = mu.^2 / this.shape_parameter; %variance vector
+            w = 1./(v.*this.getLinkDiff(mu)); %weights in IRLS
+            z = (eta + (y-mu).*this.getLinkDiff(mu));
+            %work out the log likelihhod up to a constant
+            lnL = -this.shape_parameter*(sum(log(mu)+y./mu));
         end
         
         %PREDICT VARIANCE GIVEN MEAN
