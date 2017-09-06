@@ -62,7 +62,8 @@ classdef MeanVar_GLM < VarianceModel
             %initalise variables
             %work out the log likelihhod up to a constant
             %w and z are variables for IRLS
-            [lnL_old, w, z] = getIRLSStatistics(this, X, y, this.parameter);
+            [mu, w, z] = this.getIRLSStatistics(X, y, this.parameter);
+            lnL_old = this.getLogLikeLihood(mu,y);
             
             %for n_step times
             for i_step = 1:this.n_step
@@ -77,7 +78,8 @@ classdef MeanVar_GLM < VarianceModel
 
                 %update variables
                 %work out the new log likelihhod up to a constant
-                [lnL_new, w, z] = getIRLSStatistics(this, X, y, this.parameter);
+                [mu, w, z] = this.getIRLSStatistics(X, y, this.parameter);
+                lnL_new = this.getLogLikeLihood(mu,y);
                 
                 %if the improvement in log likelihhod is less than tol*n_train
                 if ( (lnL_new - lnL_old) < this.tol*this.n_train)
@@ -121,12 +123,16 @@ classdef MeanVar_GLM < VarianceModel
             %lnL: log likelihood
             %w: vector of weights
             %z: response vector
-        function [lnL, w, z] = getIRLSStatistics(this, X, y, parameter)
+        function [mu, w, z] = getIRLSStatistics(this, X, y, parameter)
             eta = X*parameter; %systematic component
             mu = this.getMean(eta); %mean vector
             v = mu.^2 / this.shape_parameter; %variance vector
             w = 1./(v.*this.getLinkDiff(mu)); %weights in IRLS
             z = (eta + (y-mu).*this.getLinkDiff(mu));
+        end
+        
+        %GET LOG LIKELIHOOD
+        function lnL = getLogLikeLihood(this,mu,y)
             %work out the log likelihhod up to a constant
             lnL = -this.shape_parameter*(sum(log(mu)+y./mu));
         end
