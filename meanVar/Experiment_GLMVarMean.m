@@ -78,12 +78,10 @@ classdef Experiment_GLMVarMean < Experiment
                 RandStream.setGlobalStream(this.rand_stream);
                 %for each glm
                 for i_shad = 1:this.getNShadingCorrector()
+                    %for each shading correction
                     for i_glm = 1:this.getNGlm()
-                        %get the training and test mse
-                        [error_training, error_test] = this.trainingTestMeanVar(this.getGlm(this.shape_parameter, i_glm), i_shad);
-                        %save the training and test mse in the array
-                        this.training_error_array(this.i_repeat,i_glm,i_shad) = error_training;
-                        this.test_error_array(this.i_repeat,i_glm,i_shad) = error_test;
+                        %do one iteration of the experiment
+                        this.doIteration(i_glm, i_shad);
                     end
                 end
                 
@@ -95,6 +93,14 @@ classdef Experiment_GLMVarMean < Experiment
             end
         end
         
+        %DO ONE ITERATION OF EXPERIMENT
+        function doIteration(this,i_glm,i_shad)
+            %get the training and test mse
+            [error_training, error_test] = this.trainingTestMeanVar(this.getGlm(this.shape_parameter, i_glm), i_shad);
+            %save the training and test mse in the array
+            this.training_error_array(this.i_repeat,i_glm,i_shad) = error_training;
+            this.test_error_array(this.i_repeat,i_glm,i_shad) = error_test;
+        end
         
         %TRAINING/TEST MEAN VAR
         %Gets the training and test MSE when fitting and predicting the mean and variance relationship
@@ -104,26 +110,29 @@ classdef Experiment_GLMVarMean < Experiment
         %RETURN:
             %mse_training (scalar)
             %mse_test (scalar)
-        function [error_training, error_test] = trainingTestMeanVar(this, model, shading_index)
+        function [error_training, error_test, parameter] = trainingTestMeanVar(this, model, shading_index)
 
-                %get random index of the training and test data
-                index_suffle = randperm(this.n_sample);
-                training_index = index_suffle(1:this.n_train);
-                test_index = index_suffle((this.n_train+1):end);
+            %get random index of the training and test data
+            index_suffle = randperm(this.n_sample);
+            training_index = index_suffle(1:this.n_train);
+            test_index = index_suffle((this.n_train+1):end);
 
-                %get variance mean data of the training set
-                [sample_mean,sample_var] = this.getMeanVar(training_index, shading_index);
+            %get variance mean data of the training set
+            [sample_mean,sample_var] = this.getMeanVar(training_index, shading_index);
 
-                %train the classifier
-                model.train(sample_mean,sample_var);
-                %get the training mse
-                error_training = model.getPredictionMSSE(sample_mean,sample_var);
+            %train the classifier
+            model.train(sample_mean,sample_var);
+            %get the training mse
+            error_training = model.getPredictionMSSE(sample_mean,sample_var);
 
-                %get the variance mean data of the test set
-                [sample_mean,sample_var] = this.getMeanVar(test_index, shading_index);
-                
-                %get the test mse
-                error_test = model.getPredictionMSSE(sample_mean,sample_var);
+            %get the variance mean data of the test set
+            [sample_mean,sample_var] = this.getMeanVar(test_index, shading_index);
+
+            %get the test mse
+            error_test = model.getPredictionMSSE(sample_mean,sample_var);
+
+            %get the glm parameter
+            parameter = model.parameter;
 
         end
         
