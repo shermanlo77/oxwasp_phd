@@ -1,6 +1,5 @@
 %EXPERIMENT GLM VAR MEAN July 16
 %See superclass Experiment_GLMVarMean
-%For the dataset AbsBlock_July16, only top half of the image is used to avoid the foam
 classdef Experiment_GLMVarMean_July16 < Experiment_GLMVarMean
     
     properties
@@ -40,6 +39,11 @@ classdef Experiment_GLMVarMean_July16 < Experiment_GLMVarMean
                     model = MeanVar_GLM(shape_parameter,-1,LinkFunction_Log());
             end
         end
+        
+        %returns number of shading correctors to investigate
+        function n_shad = getNShadingCorrector(this)
+            n_shad = 3;
+        end 
 
         %returns shading corrector given index
         %index can range from 1 to getNShadingCorrector
@@ -70,15 +74,7 @@ classdef Experiment_GLMVarMean_July16 < Experiment_GLMVarMean
         %returns scan object
         scan = getScan(this);
         
-    end
-    
-    methods (Static)
-       %returns number of shading correctors to investigate
-        function n_shad = getNShadingCorrector(this)
-            n_shad = 3;
-        end 
-    end
-    
+    end   
     
 end
 

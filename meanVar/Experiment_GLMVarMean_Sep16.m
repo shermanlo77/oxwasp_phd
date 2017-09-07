@@ -1,6 +1,5 @@
 %EXPERIMENT GLM VAR MEAN Sep 16
 %See superclass Experiment_GLMVarMean
-%For the dataset AbsBlock_Sep16, only top half of the image is used to avoid the foam
 classdef Experiment_GLMVarMean_Sep16 < Experiment_GLMVarMean
     
     properties

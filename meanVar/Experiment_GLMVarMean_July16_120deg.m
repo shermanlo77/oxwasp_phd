@@ -1,31 +1,26 @@
-classdef (Abstract) Experiment_GLMVarMean_July16_120deg < Experiment_GLMVarMean_July16
+classdef Experiment_GLMVarMean_July16_120deg < Experiment_GLMVarMean_July16
     
     properties
-        i_shading_correction; %integer between 1 and number of shading correctors to investigate
-        %subclasses can use this member variable to set a random stream, independent from each shading corrector
     end
     
     methods
         
         %CONSTRUCTOR
-        function this = Experiment_GLMVarMean_July16_120deg(experiment_name)
+        function this = Experiment_GLMVarMean_July16_120deg()
             %call superclass with experiment name
-            this@Experiment_GLMVarMean_July16(experiment_name);
+            this@Experiment_GLMVarMean_July16('GLMVarMean_July16_120deg');
         end
         
         %OVERRIDE: SET UP EXPERIMENT
-        function setUpExperiment(this, rand_stream)
+        function setUpExperiment(this)
             %call superclass with 100 repeats and a random stream
-            this.setUpExperiment@Experiment_GLMVarMean_July16(rand_stream);
+            this.setUpExperiment@Experiment_GLMVarMean_July16(RandStream('mt19937ar','Seed',uint32(1871182699)));
         end
         
         function scan = getScan(this)
             scan = AbsBlock_July16_120deg();
         end
 
-        function n_shad = getNShadingCorrector(this)
-            n_shad = 1;
-        end
     end
     
 end

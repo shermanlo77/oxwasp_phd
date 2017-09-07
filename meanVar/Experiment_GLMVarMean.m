@@ -28,12 +28,8 @@ classdef Experiment_GLMVarMean < Experiment
         training_error_array;
         test_error_array;
         
-        %array of greyvalues (to be deleted when experiment is done)
-            %dim 1: for each segmented pixel
-            %dim 2: for each image
-            %dim 3: for each shading correction
-        greyvalue_array;
-        
+        %segmentation boolean vectpr
+        segmentation;
         %random stream
         rand_stream;
            
@@ -67,9 +63,8 @@ classdef Experiment_GLMVarMean < Experiment
             this.shape_parameter = (this.n_train-1)/2;
             this.training_error_array = zeros(this.n_repeat,this.getNGlm(),this.getNShadingCorrector());
             this.test_error_array = zeros(this.n_repeat,this.getNGlm(),this.getNShadingCorrector());
+            this.saveSegmentation(scan.getSegmentation());
             this.rand_stream = rand_stream;
-            
-            this.saveGreyvalueArray();
         end
         
         
@@ -96,21 +91,16 @@ classdef Experiment_GLMVarMean < Experiment
                 this.printProgress(this.i_repeat / this.n_repeat);
                 %increment i_repeat
                 this.i_repeat = this.i_repeat + 1;
-                %save the state of this experiment
                 
             end
         end
         
-        %DELETE VARIABLES
-        %Delete variables when the experiment is completed
-        function deleteVariables(this)
-            this.greyvalue_array = [];
-        end
         
         %TRAINING/TEST MEAN VAR
         %Gets the training and test MSE when fitting and predicting the mean and variance relationship
         %PARAMETERS:
             %model: variance model object
+            %shading_index: integer, pointing to which shading corrector to use
         %RETURN:
             %mse_training (scalar)
             %mse_test (scalar)
@@ -205,8 +195,6 @@ classdef Experiment_GLMVarMean < Experiment
         %Plot the variance and mean histogram, along with the fitted glm
         %Using all n_sample images, for all GLM
         function plotFullFit(this)
-            
-            this.saveGreyvalueArray();
 
             %shape parameter is number of (images - 1)/2, this comes from the chi
             %squared distribution
@@ -277,54 +265,23 @@ classdef Experiment_GLMVarMean < Experiment
             %sample_mean: mean vector
             %sample_var: variance vector
         function [sample_mean,sample_var] = getMeanVar(this, image_index, shading_index)
-            selected_greyvalue_array = this.greyvalue_array(:,image_index,shading_index);
-            sample_mean = mean(selected_greyvalue_array,2);
-            sample_var = var(selected_greyvalue_array,[],2);
-        end
-        
-        %SAVE GREY VALUE ARRAY
-        %Set up the member variable greyvalue_array
-        function saveGreyvalueArray(this)
-            
-            %get the segmentation
-            segmentation = this.getSegmentation();
-            %get the number of segmented pixels
-            n_pixel = sum(sum(segmentation));
-            
             %get the scan object
             scan = this.getScan();
+            %get the shading corrector
+            [shading_corrector, reference_index] = this.getShadingCorrector(shading_index);
+            %add the shading corrector
+            scan.addShadingCorrector(shading_corrector, reference_index);
             
-            %declare the array greyvalue array
-            this.greyvalue_array = zeros(n_pixel, scan.n_sample, this.getNShadingCorrector()); 
+            %load the images and reshape it to be a design matrix
+            image_stack = scan.loadImageStack(image_index);
+            image_stack = reshape(image_stack,scan.area,numel(image_index));
             
-            %for each shading corrector
-            for i_shad = 1:this.getNShadingCorrector()
-                
-                %get the scan object
-                scan = this.getScan();
-                %get the shading corrector
-                [shading_corrector, reference_index] = this.getShadingCorrector(i_shad);
-                %add the shading corrector
-                scan.addShadingCorrector(shading_corrector, reference_index);
-                
-                %load the images and reshape it to be a design matrix
-                image_stack = scan.loadImageStack();
-                image_stack = reshape(image_stack,scan.area,scan.n_sample);
-
-                %segment the design matrix
-                image_stack = image_stack(segmentation,:);
-
-                %add the greyvalues to the array
-                this.greyvalue_array(:,:,i_shad) = image_stack;
-            end
-        end %saveGreyvalueArray
-        
-        %GET SEGMENTATION
-        %Return the binary segmentation image
-        %true for pixels to be considered
-        function segmentation = getSegmentation(this)
-            scan = this.getScan();
-            segmentation = scan.getSegmentation();
+            %segment the design matrix
+            image_stack = image_stack(this.segmentation,:);
+            
+            %work out the mean and variance
+            sample_mean = mean(image_stack,2);
+            sample_var = var(image_stack,[],2);
         end
         
         %IMPLEMENTED: GET N BIN
