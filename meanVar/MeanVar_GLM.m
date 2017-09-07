@@ -1,5 +1,5 @@
 classdef MeanVar_GLM < VarianceModel
-    %MEANVAR_GLM Abstract super class for modelling variance as gamma with known shape parameter given
+    %MEANVAR_GLM Class for modelling variance as gamma with known shape parameter given
     %mean greyvalue
     
     %MEMBER VARIABLES
