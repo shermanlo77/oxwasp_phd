@@ -43,23 +43,23 @@ classdef Experiment_GLMVarMean_Mar16 < Experiment_GLMVarMean
         function model = getGlm(this, shape_parameter, index)
             switch index
                 case 1
-                    model = MeanVar_GLM_identity(shape_parameter,1);
+                    model = MeanVar_GLM(shape_parameter,1,LinkFunction_Identity());
                 case 2
-                    model = MeanVar_GLM_canonical(shape_parameter,-1);
+                    model = MeanVar_GLM(shape_parameter,-1,LinkFunction_Canonical());
                 case 3
-                    model = MeanVar_GLM_canonical(shape_parameter,-2);
+                    model = MeanVar_GLM(shape_parameter,-2,LinkFunction_Canonical());
                 case 4
-                    model = MeanVar_GLM_canonical(shape_parameter,-3);
+                    model = MeanVar_GLM(shape_parameter,-3,LinkFunction_Canonical());
                 case 5
-                    model = MeanVar_GLM_canonical(shape_parameter,-4);
+                    model = MeanVar_GLM(shape_parameter,-4,LinkFunction_Canonical());
                 case 6
-                    model = MeanVar_GLM_log(shape_parameter,1);
+                    model = MeanVar_GLM(shape_parameter,1,LinkFunction_Log());
                 case 7
-                    model = MeanVar_GLM_log(shape_parameter,-1);
+                    model = MeanVar_GLM(shape_parameter,-1,LinkFunction_Log());
                 case 8
-                    model = MeanVar_GLM_log(shape_parameter,-2);
+                    model = MeanVar_GLM(shape_parameter,-2,LinkFunction_Log());
                 case 9
-                    model = MeanVar_GLM_log(shape_parameter,-3);
+                    model = MeanVar_GLM(shape_parameter,-3,LinkFunction_Log());
             end
         end
         

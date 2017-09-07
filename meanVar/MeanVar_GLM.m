@@ -73,6 +73,7 @@ classdef MeanVar_GLM < VarianceModel
                 
                 %if the parameter is nan, break the for loop and end
                 if(any(isnan(this.parameter)))
+                    warning('nan parameter');
                     break;
                 end
 
@@ -263,7 +264,7 @@ classdef MeanVar_GLM < VarianceModel
         %RETURN:
             %g_dash: colum vector of g'(mu)
         function g_dash = getLinkDiff(this,mu)
-            g_dash = this.link_function.getLinkDiff(mu,this.shape_parameter);
+            g_dash = this.link_function.getLinkDiff(mu);
         end
         
         %GET MEAN (LINK FUNCTION)
@@ -272,7 +273,7 @@ classdef MeanVar_GLM < VarianceModel
         %RETURN:
             %mu: vector of mean responses
         function mu = getMean(this,eta)
-            mu = this.link_function.getMean(eta,this.shape_parameter);
+            mu = this.link_function.getMean(eta);
         end
         
         %GET NAME

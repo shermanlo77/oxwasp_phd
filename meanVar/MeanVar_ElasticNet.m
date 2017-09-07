@@ -12,7 +12,6 @@ classdef MeanVar_ElasticNet < MeanVar_GLM
             this@MeanVar_GLM(shape_parameter,polynomial_order,link_function);
             this.alpha = alpha;
             this.lambda = lambda;
-            this.tol = 0;
         end
         
         function updateParameter(this, w, X, z, y)

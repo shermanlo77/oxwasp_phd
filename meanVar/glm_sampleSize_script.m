@@ -48,7 +48,7 @@ for i_sample = 1:numel(n_sample_array)
     shape_parameter = (n_sample-1)/2;
 
     %model the mean and variance using gamma glm
-    model = MeanVar_GLM_identity(shape_parameter,1);
+    model = MeanVar_GLM(shape_parameter,1,LinkFunction_Identity());
     %train the classifier
     model.train(sample_mean,sample_var);
 
@@ -59,7 +59,7 @@ for i_sample = 1:numel(n_sample_array)
 
     %plot the frequency density
     fig_array{i_sample} = figure;
-    axe_array{i_sample} = hist3Heatmap(sample_mean,sample_var,[nbin,nbin],false);
+    axe_array{i_sample} = hist3Heatmap(sample_mean,sample_var,[nbin,nbin],true);
     hold on;
     %plot the fit/prediction
     plot(x_plot,variance_prediction,'r');
