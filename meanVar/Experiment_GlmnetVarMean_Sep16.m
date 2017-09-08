@@ -23,7 +23,7 @@ classdef Experiment_GlmnetVarMean_Sep16 < Experiment_GLMVarMean
             this.setUpExperiment@Experiment_GLMVarMean(1, rand_stream);
             this.alpha = 0.99;
             this.lambda_array = 10.^linspace(-4,-2,30);
-            this.polynomial_array = [1,-1,-2,-3,-4];
+            this.polynomial_array = [4,3,2,1,-1,-2,-3,-4];
             this.parameter_array = zeros(numel(this.polynomial_array)+1,this.getNGlm());
         end
         
@@ -64,6 +64,26 @@ classdef Experiment_GlmnetVarMean_Sep16 < Experiment_GLMVarMean
             reference_white = scan.reference_white;
             shading_corrector = ShadingCorrector();
             reference_index = 1:reference_white;
+        end
+        
+        function printResults(this)
+            lengend_cell = cell(1,numel(this.polynomial_array));
+            for i = 1:numel(this.polynomial_array)
+               legend_cell{i} = num2str(this.polynomial_array(i)); 
+            end
+            
+            figure;
+            semilogx(this.lambda_array,this.parameter_array(2:end,:)');
+            xlabel('tuning parameter');
+            ylabel('parameters');
+            legend(legend_cell);
+            figure;
+            semilogx(this.lambda_array,this.training_error_array);
+            hold on;
+            semilogx(this.lambda_array,this.test_error_array);
+            xlabel('tuning parameter');
+            ylabel('MSSE');
+            legend('training','test');
         end
         
     end
