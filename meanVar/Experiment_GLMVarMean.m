@@ -25,8 +25,18 @@ classdef Experiment_GLMVarMean < Experiment
             %dim 1: for each repeat
             %dim 2: for each glm
             %dim 3: for each shading corrector
-        training_error_array;
-        test_error_array;
+        training_msse_array;
+        test_msse_array;
+        training_mse_array;
+        test_mse_array;
+        training_var_array;
+        test_var_array;
+        training_bias2_array;
+        test_bias2_array;
+        glm_array;
+        
+        training_index_array;
+        test_index_array;
         
         %segmentation boolean vectpr
         segmentation;
@@ -61,8 +71,25 @@ classdef Experiment_GLMVarMean < Experiment
             this.n_sample = scan.n_sample;
             this.n_train = round(this.n_sample/2);
             this.shape_parameter = (this.n_train-1)/2;
-            this.training_error_array = zeros(this.n_repeat,this.getNGlm(),this.getNShadingCorrector());
-            this.test_error_array = zeros(this.n_repeat,this.getNGlm(),this.getNShadingCorrector());
+            
+            this.training_msse_array = zeros(this.n_repeat,this.getNGlm(),this.getNShadingCorrector());
+            this.test_msse_array = zeros(this.n_repeat,this.getNGlm(),this.getNShadingCorrector());
+            
+            this.training_mse_array = zeros(this.n_repeat,this.getNGlm(),this.getNShadingCorrector());
+            this.test_mse_array = zeros(this.n_repeat,this.getNGlm(),this.getNShadingCorrector());
+            
+            this.training_var_array = zeros(this.n_repeat,this.getNGlm(),this.getNShadingCorrector());
+            this.test_var_array = zeros(this.n_repeat,this.getNGlm(),this.getNShadingCorrector());
+            
+            this.training_bias2_array = zeros(this.n_repeat,this.getNGlm(),this.getNShadingCorrector());
+            this.test_bias2_array = zeros(this.n_repeat,this.getNGlm(),this.getNShadingCorrector());
+            
+            this_glm_array(this.n_repeat,this.getNGlm(),this.getNShadingCorrector()) = MeanVar_GLM();
+            this.glm_array = this_glm_array;
+            
+            this.training_index_array = cell(this.n_repeat,this.getNGlm(),this.getNShadingCorrector());
+            this.test_index_array = cell(this.n_repeat,this.getNGlm(),this.getNShadingCorrector());
+            
             this.saveSegmentation(scan.getSegmentation());
             this.rand_stream = rand_stream;
         end
@@ -96,21 +123,26 @@ classdef Experiment_GLMVarMean < Experiment
         %DO ONE ITERATION OF EXPERIMENT
         function doIteration(this,i_glm,i_shad)
             %get the training and test mse
-            [error_training, error_test] = this.trainingTestMeanVar(this.getGlm(this.shape_parameter, i_glm), i_shad);
+            [training_error, test_error] = this.trainingTestMeanVar(i_glm, i_shad);
             %save the training and test mse in the array
-            this.training_error_array(this.i_repeat,i_glm,i_shad) = error_training;
-            this.test_error_array(this.i_repeat,i_glm,i_shad) = error_test;
+            this.training_msse_array(this.i_repeat,i_glm,i_shad) = training_error(1);
+            this.training_mse_array(this.i_repeat,i_glm,i_shad) = training_error(2);
+            this.test_msse_array(this.i_repeat,i_glm,i_shad) = test_error(1);
+            this.test_mse_array(this.i_repeat,i_glm,i_shad) = test_error(2);
         end
         
         %TRAINING/TEST MEAN VAR
         %Gets the training and test MSE when fitting and predicting the mean and variance relationship
         %PARAMETERS:
-            %model: variance model object
+            %glm_index: integer, pointing to which glm to use
             %shading_index: integer, pointing to which shading corrector to use
         %RETURN:
-            %mse_training (scalar)
-            %mse_test (scalar)
-        function [error_training, error_test, parameter] = trainingTestMeanVar(this, model, shading_index)
+            %training_error: two vector [msse; mse] 
+            %test_error: two vector [msse; mse]
+        function [training_error, test_error, parameter] = trainingTestMeanVar(this, glm_index, shading_index)
+            
+            %get the model
+            model = this.getGlm(this.shape_parameter, glm_index);
 
             %get random index of the training and test data
             index_suffle = randperm(this.n_sample);
@@ -123,17 +155,66 @@ classdef Experiment_GLMVarMean < Experiment
             %train the classifier
             model.train(sample_mean,sample_var);
             %get the training mse
-            error_training = model.getPredictionMSSE(sample_mean,sample_var);
+            training_error = model.getPredictionMSSE(sample_mean,sample_var);
+            
+            %save training_index, test_index and the trained model
+            this.training_index_array{this.i_repeat, glm_index, shading_index} = training_index;
+            this.test_index_array{this.i_repeat, glm_index, shading_index} = test_index;
+            this.glm_array(this.i_repeat, glm_index, shading_index) = model;
 
             %get the variance mean data of the test set
             [sample_mean,sample_var] = this.getMeanVar(test_index, shading_index);
 
             %get the test mse
-            error_test = model.getPredictionMSSE(sample_mean,sample_var);
+            test_error = model.getPredictionMSSE(sample_mean,sample_var);
 
             %get the glm parameter
             parameter = model.parameter;
 
+        end
+        
+        function getVarBiasResult(this)
+            this.i_repeat = 1;
+            while (this.i_repeat <= this.n_repeat)
+                
+                for i_shad = 1:this.getNShadingCorrector()
+                    
+                    for i_glm = 1:this.getNGlm()
+                        
+                        training_index = this.training_index_array{this.i_repeat,i_glm,i_shad};
+                        test_index = this.test_index_array{this.i_repeat,i_glm,i_shad};
+                        
+                        [var, bias2] = this.getVarBias(training_index, i_glm, i_shad);
+                        this.training_var_array(this.i_repeat,i_glm,i_shad) = var;
+                        this.training_bias2_array(this.i_repeat,i_glm,i_shad) = bias2;
+                        
+                        [var, bias2] = this.getVarBias(test_index, i_glm, i_shad);
+                        this.test_var_array(this.i_repeat,i_glm,i_shad) = var;
+                        this.test_bias2_array(this.i_repeat,i_glm,i_shad) = bias2;
+                        
+                    end
+                    
+                end
+                
+                %print the progress
+                this.printProgress(this.i_repeat / this.n_repeat);
+                %increment i_repeat
+                this.i_repeat = this.i_repeat + 1;
+                
+            end
+            
+        end
+        
+        function [var, bias2] = getVarBias(this, index, i_glm, i_shad)
+            [sample_mean,sample_var] = this.getMeanVar(index, i_shad);
+            y_mean = zeros(numel(sample_mean),this.n_repeat);
+            for j = 1:this.n_repeat
+                y_mean(:,j) = this.glm_array(this.i_repeat,i_glm,i_shad).predict(sample_mean);
+            end
+            y_predict = y_mean(:,this.i_repeat);
+            y_mean = mean(y_mean,2);
+            var = mean((y_predict - y_mean).^2);
+            bias2 = mean((y_mean - sample_var).^2);
         end
         
         %PRINT RESULTS
@@ -149,10 +230,10 @@ classdef Experiment_GLMVarMean < Experiment
             end
             
             %get array of glm names
-            glm_array = cell(this.getNGlm(),1);
+            glm_name_array = cell(this.getNGlm(),1);
             for i_glm = 1:this.getNGlm()
                 model = this.getGlm([],i_glm);
-                glm_array{i_glm} = model.getName();
+                glm_name_array{i_glm} = model.getName();
             end
             
             %for the training error, then the test error
@@ -183,7 +264,7 @@ classdef Experiment_GLMVarMean < Experiment
                 ax.XTick = 1:this.getNGlm();
                 %label each glm with its name
                 ax.XTickLabelRotation = 45;
-                ax.XTickLabel = glm_array;
+                ax.XTickLabel = glm_name_array;
 %                 if i == 1
 %                     array = this.training_error_array();
 %                 else

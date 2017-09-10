@@ -27,15 +27,17 @@ classdef MeanVar_GLM < VarianceModel
             %polynomial_order: column vector of polynomial order features
             %link_function: object LinkFunction
         function this = MeanVar_GLM(shape_parameter,polynomial_order,link_function)
-            %assign member variables
-            this.shape_parameter = shape_parameter;
-            this.polynomial_order = polynomial_order;
-            this.n_order = numel(polynomial_order);
-            this.n_step = 100;
-            this.link_function = link_function;
-            this.initial_parameter = zeros(this.n_order+1,1);
-            this.initial_parameter(1) = this.link_function.initial_intercept;
-            this.tol = 1E-1;
+            if nargin ~= 0
+                %assign member variables
+                this.shape_parameter = shape_parameter;
+                this.polynomial_order = polynomial_order;
+                this.n_order = numel(polynomial_order);
+                this.n_step = 100;
+                this.link_function = link_function;
+                this.initial_parameter = zeros(this.n_order+1,1);
+                this.initial_parameter(1) = this.link_function.initial_intercept;
+                this.tol = 1E-1;
+            end
         end
         
         %TRAIN CLASSIFIER
@@ -243,19 +245,22 @@ classdef MeanVar_GLM < VarianceModel
         end
         
         %PREDICTION MEAN SQUARED STANDARDIZED ERROR
-        %Return the mean squared standardized prediction error
+        %Return the mean squared standardized and mean squared prediction error
         %PARAMETERS:
             %y: greyvalue variance (column vector)
             %x: greyvalue mean (column vector)
             %x and y are the same size
         %RETURN:
-            %mse: scalar mean squared error
-        function msse = getPredictionMSSE(this,x,y)
+            %mse_vector: 2 column vector, [msse; mse]
+        function [mse_vector] = getPredictionMSSE(this,x,y)
             %given greyvalue mean, predict greyvalue variance
             y_predict = this.predict(x);
             %work out the mean squared error
-            residual = (y-y_predict)./ sqrt(this.getVariance(x));
-            msse = sum(residual.^2)/numel(y);
+            residual_squared = (y-y_predict).^2;
+            var = this.getVariance(x);
+            msse = mean(residual_squared./var);
+            mse = mean(residual_squared);
+            mse_vector = [msse; mse];
         end
         
         %GET LINK FUNCTION DIFFERENTATED
