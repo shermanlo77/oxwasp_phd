@@ -34,6 +34,7 @@ classdef Experiment_GLMVarMean < Experiment
         training_bias2_array;
         test_bias2_array;
         glm_array;
+        glm_mean_array; %dim 1: for each glm, dim 2: for each shading corrector
         
         training_index_array;
         test_index_array;
@@ -174,6 +175,38 @@ classdef Experiment_GLMVarMean < Experiment
         end
         
         function getVarBiasResult(this)
+            
+            this_glm_mean_array(this.getNGlm(),this.getNShadingCorrector()) = MeanVar_GLM();
+            this.glm_mean_array = this_glm_mean_array;
+            
+            for i_shad = 1:this.getNShadingCorrector()
+                for i_glm = 1:this.getNGlm()
+                    
+                    model_mean = this.getGlm(this.shape_parameter, i_glm);
+                    beta_array = zeros(model_mean.n_order+1,this.n_repeat);
+                    x_shift_array = zeros(model_mean.n_order,this.n_repeat);
+                    x_scale_array = zeros(model_mean.n_order,this.n_repeat);
+                    y_scale_array = zeros(1,this.n_repeat);
+                    
+                    for i = 1:this.n_repeat
+                        model = this.glm_array(i,i_glm,i_shad);
+                        beta_array(:,i) = model.parameter;
+                        x_shift_array(:,i) = model.x_shift';
+                        x_scale_array(:,i) = model.x_scale';
+                        y_scale_array(i) = model.y_scale;
+                    end
+                    
+                    model_mean.y_scale = 1./sqrt(mean(y_scale_array.^(-2)));
+                    model_mean.parameter = mean(beta_array.*repmat(y_scale_array,model_mean.n_order+1,1),2)/model_mean.y_scale;
+                    beta_array(1,:) = [];
+                    model_mean.x_scale = ((model_mean.parameter(2,:)')*model_mean.y_scale ./ mean( repmat(y_scale_array,model.n_order,1) .* beta_array ./ x_scale_array  ,2))';
+                    model_mean.x_shift = model_mean.x_scale.* mean(repmat(y_scale_array,model.n_order,1).*beta_array.*x_shift_array./x_scale_array,2)';
+                    model_mean.x_shift = model_mean.x_shift./(model_mean.parameter(2,:)') / model_mean.y_scale;
+                    
+                    this.glm_mean_array(i_glm, i_shad) = model_mean;
+                end
+            end
+            
             this.i_repeat = 1;
             while (this.i_repeat <= this.n_repeat)
                 
@@ -207,12 +240,8 @@ classdef Experiment_GLMVarMean < Experiment
         
         function [var, bias2] = getVarBias(this, index, i_glm, i_shad)
             [sample_mean,sample_var] = this.getMeanVar(index, i_shad);
-            y_mean = zeros(numel(sample_mean),this.n_repeat);
-            for j = 1:this.n_repeat
-                y_mean(:,j) = this.glm_array(this.i_repeat,i_glm,i_shad).predict(sample_mean);
-            end
-            y_predict = y_mean(:,this.i_repeat);
-            y_mean = mean(y_mean,2);
+            y_mean = this.glm_mean_array(i_glm, i_shad).predict(sample_mean);
+            y_predict = this.glm_array(this.i_repeat, i_glm, i_shad).predict(sample_mean);
             var = mean((y_predict - y_mean).^2);
             bias2 = mean((y_mean - sample_var).^2);
         end
