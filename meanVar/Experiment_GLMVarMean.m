@@ -16,6 +16,10 @@ classdef Experiment_GLMVarMean < Experiment
     properties
         
         i_repeat; %number of iterations done
+        i_glm; %number of glm done
+        i_shad; %number of shading corrections done
+        i_iteration;
+        n_iteration;
         n_repeat; %number of itereations to complete the experiment
         n_sample; %number of images in a scan
         n_train; %number of images in the training set (half of n_sample)
@@ -39,10 +43,18 @@ classdef Experiment_GLMVarMean < Experiment
         training_index_array;
         test_index_array;
         
+        greyvalue_array; %temp variable, dim 1: for each pixel, dim 2: for each image
+        
         %segmentation boolean vectpr
         segmentation;
         %random stream
         rand_stream;
+        
+        shading_corrector_array;
+        glm_name_array;
+        
+        training_error_array;
+        test_error_array;
            
     end
     
@@ -68,9 +80,15 @@ classdef Experiment_GLMVarMean < Experiment
             
             %assign member variables
             this.i_repeat = 1;
+            this.i_glm = 1;
+            this.i_shad = 1;
+            this.i_iteration = 0;
+            
             this.n_repeat = n_repeat;
             this.n_sample = scan.n_sample;
             this.n_train = round(this.n_sample/2);
+            this.n_iteration = this.getNShadingCorrector() * this.getNGlm();
+            
             this.shape_parameter = (this.n_train-1)/2;
             
             this.training_msse_array = zeros(this.n_repeat,this.getNGlm(),this.getNShadingCorrector());
@@ -87,6 +105,8 @@ classdef Experiment_GLMVarMean < Experiment
             
             this_glm_array(this.n_repeat,this.getNGlm(),this.getNShadingCorrector()) = MeanVar_GLM();
             this.glm_array = this_glm_array;
+            this_glm_mean_array(this.getNGlm(),this.getNShadingCorrector()) = MeanVar_GLM();
+            this.glm_mean_array = this_glm_mean_array;
             
             this.training_index_array = cell(this.n_repeat,this.getNGlm(),this.getNShadingCorrector());
             this.test_index_array = cell(this.n_repeat,this.getNGlm(),this.getNShadingCorrector());
@@ -98,38 +118,57 @@ classdef Experiment_GLMVarMean < Experiment
         
         %DO EXPERIMENT
         function doExperiment(this)
-            
-            %do n_repeat times
-            while (this.i_repeat <= this.n_repeat)
-            
-                %use its random stream
-                RandStream.setGlobalStream(this.rand_stream);
-                %for each glm
-                for i_shad = 1:this.getNShadingCorrector()
-                    %for each shading correction
-                    for i_glm = 1:this.getNGlm()
-                        %do one iteration of the experiment
-                        this.doIteration(i_glm, i_shad);
-                    end
+
+            RandStream.setGlobalStream(this.rand_stream);
+            while (this.i_shad <= this.getNShadingCorrector())
+                this.saveGreyvalueArray();
+                while (this.i_glm <= this.getNGlm())
+                    while (this.i_repeat <= this.n_repeat)
+                        this.doIteration();
+                        this.i_repeat = this.i_repeat + 1;
+                    end 
+                    this.getVarBiasResult();
+                    this.i_iteration = this.i_iteration + 1;
+                    this.printProgress(this.i_iteration / this.n_iteration);
+                    this.i_repeat = 1;
+                    this.i_glm = this.i_glm + 1;
                 end
-                
-                %print the progress
-                this.printProgress(this.i_repeat / this.n_repeat);
-                %increment i_repeat
-                this.i_repeat = this.i_repeat + 1;
-                
+                this.i_glm = 1;
+                this.i_shad = this.i_shad + 1;
             end
+            
+            
+            %get array of shading corrector names
+            this.shading_corrector_array = cell(this.getNShadingCorrector(),1);
+            for i = 1:this.getNShadingCorrector()
+                [shading_corrector,reference_index] = this.getShadingCorrector(i);
+                shading_corrector.n_image = numel(reference_index);
+                this.shading_corrector_array{i} = shading_corrector.getName();
+            end
+            
+            %get array of glm names
+            this.glm_name_array = cell(this.getNGlm(),1);
+            for i = 1:this.getNGlm()
+                model = this.getGlm([],i);
+                this.glm_name_array{i} = model.getName();
+            end
+            
+        end
+        
+        %DELETE GREYVALUR ARRAY
+        function deleteVariables(this)
+            this.greyvalue_array = [];
         end
         
         %DO ONE ITERATION OF EXPERIMENT
-        function doIteration(this,i_glm,i_shad)
+        function doIteration(this)
             %get the training and test mse
-            [training_error, test_error] = this.trainingTestMeanVar(i_glm, i_shad);
+            [training_error, test_error] = this.trainingTestMeanVar();
             %save the training and test mse in the array
-            this.training_msse_array(this.i_repeat,i_glm,i_shad) = training_error(1);
-            this.training_mse_array(this.i_repeat,i_glm,i_shad) = training_error(2);
-            this.test_msse_array(this.i_repeat,i_glm,i_shad) = test_error(1);
-            this.test_mse_array(this.i_repeat,i_glm,i_shad) = test_error(2);
+            this.training_msse_array(this.i_repeat,this.i_glm,this.i_shad) = training_error(1);
+            this.training_mse_array(this.i_repeat,this.i_glm,this.i_shad) = training_error(2);
+            this.test_msse_array(this.i_repeat,this.i_glm,this.i_shad) = test_error(1);
+            this.test_mse_array(this.i_repeat,this.i_glm,this.i_shad) = test_error(2);
         end
         
         %TRAINING/TEST MEAN VAR
@@ -140,10 +179,10 @@ classdef Experiment_GLMVarMean < Experiment
         %RETURN:
             %training_error: two vector [msse; mse] 
             %test_error: two vector [msse; mse]
-        function [training_error, test_error, parameter] = trainingTestMeanVar(this, glm_index, shading_index)
+        function [training_error, test_error, parameter] = trainingTestMeanVar(this)
             
             %get the model
-            model = this.getGlm(this.shape_parameter, glm_index);
+            model = this.getGlm(this.shape_parameter, this.i_glm);
 
             %get random index of the training and test data
             index_suffle = randperm(this.n_sample);
@@ -151,7 +190,7 @@ classdef Experiment_GLMVarMean < Experiment
             test_index = index_suffle((this.n_train+1):end);
 
             %get variance mean data of the training set
-            [sample_mean,sample_var] = this.getMeanVar(training_index, shading_index);
+            [sample_mean,sample_var] = this.getMeanVar(training_index);
 
             %train the classifier
             model.train(sample_mean,sample_var);
@@ -159,12 +198,12 @@ classdef Experiment_GLMVarMean < Experiment
             training_error = model.getPredictionMSSE(sample_mean,sample_var);
             
             %save training_index, test_index and the trained model
-            this.training_index_array{this.i_repeat, glm_index, shading_index} = training_index;
-            this.test_index_array{this.i_repeat, glm_index, shading_index} = test_index;
-            this.glm_array(this.i_repeat, glm_index, shading_index) = model;
+            this.training_index_array{this.i_repeat, this.i_glm, this.i_shad} = training_index;
+            this.test_index_array{this.i_repeat, this.i_glm, this.i_shad} = test_index;
+            this.glm_array(this.i_repeat, this.i_glm, this.i_shad) = model;
 
             %get the variance mean data of the test set
-            [sample_mean,sample_var] = this.getMeanVar(test_index, shading_index);
+            [sample_mean,sample_var] = this.getMeanVar(test_index);
 
             %get the test mse
             test_error = model.getPredictionMSSE(sample_mean,sample_var);
@@ -175,62 +214,45 @@ classdef Experiment_GLMVarMean < Experiment
         end
         
         function getVarBiasResult(this)
-            
-            this_glm_mean_array(this.getNGlm(),this.getNShadingCorrector()) = MeanVar_GLM();
-            this.glm_mean_array = this_glm_mean_array;
-            
-            for i_shad = 1:this.getNShadingCorrector()
-                for i_glm = 1:this.getNGlm()
                     
-                    model_mean = this.getGlm(this.shape_parameter, i_glm);
-                    beta_array = zeros(model_mean.n_order+1,this.n_repeat);
-                    x_shift_array = zeros(model_mean.n_order,this.n_repeat);
-                    x_scale_array = zeros(model_mean.n_order,this.n_repeat);
-                    y_scale_array = zeros(1,this.n_repeat);
-                    
-                    for i = 1:this.n_repeat
-                        model = this.glm_array(i,i_glm,i_shad);
-                        beta_array(:,i) = model.parameter;
-                        x_shift_array(:,i) = model.x_shift';
-                        x_scale_array(:,i) = model.x_scale';
-                        y_scale_array(i) = model.y_scale;
-                    end
-                    
-                    model_mean.y_scale = 1./sqrt(mean(y_scale_array.^(-2)));
-                    model_mean.parameter = mean(beta_array.*repmat(y_scale_array,model_mean.n_order+1,1),2)/model_mean.y_scale;
-                    beta_array(1,:) = [];
-                    model_mean.x_scale = ((model_mean.parameter(2,:)')*model_mean.y_scale ./ mean( repmat(y_scale_array,model.n_order,1) .* beta_array ./ x_scale_array  ,2))';
-                    model_mean.x_shift = model_mean.x_scale.* mean(repmat(y_scale_array,model.n_order,1).*beta_array.*x_shift_array./x_scale_array,2)';
-                    model_mean.x_shift = model_mean.x_shift./(model_mean.parameter(2,:)') / model_mean.y_scale;
-                    
-                    this.glm_mean_array(i_glm, i_shad) = model_mean;
-                end
+            model_mean = this.getGlm(this.shape_parameter, this.i_glm);
+            beta_array = zeros(model_mean.n_order+1,this.n_repeat);
+            x_shift_array = zeros(model_mean.n_order,this.n_repeat);
+            x_scale_array = zeros(model_mean.n_order,this.n_repeat);
+            y_scale_array = zeros(1,this.n_repeat);
+
+            for i = 1:this.n_repeat
+                model = this.glm_array(i,this.i_glm,this.i_shad);
+                beta_array(:,i) = model.parameter;
+                x_shift_array(:,i) = model.x_shift';
+                x_scale_array(:,i) = model.x_scale';
+                y_scale_array(i) = model.y_scale;
             end
+
+            model_mean.y_scale = 1./sqrt(mean(y_scale_array.^(-2)));
+            model_mean.parameter = mean(beta_array.*repmat(y_scale_array,model_mean.n_order+1,1),2)/model_mean.y_scale;
+            beta_array(1,:) = [];
+            model_mean.x_scale = ((model_mean.parameter(2,:)')*model_mean.y_scale ./ mean( repmat(y_scale_array,model.n_order,1) .* beta_array ./ x_scale_array  ,2))';
+            model_mean.x_shift = model_mean.x_scale.* mean(repmat(y_scale_array,model.n_order,1).*beta_array.*x_shift_array./x_scale_array,2)';
+            model_mean.x_shift = model_mean.x_shift./(model_mean.parameter(2,:)') / model_mean.y_scale;
+
+            this.glm_mean_array(this.i_glm, this.i_shad) = model_mean;
             
-            this.i_repeat = 1;
-            while (this.i_repeat <= this.n_repeat)
+            while (this.i_repeat <= 2*this.n_repeat)
                 
-                for i_shad = 1:this.getNShadingCorrector()
-                    
-                    for i_glm = 1:this.getNGlm()
-                        
-                        training_index = this.training_index_array{this.i_repeat,i_glm,i_shad};
-                        test_index = this.test_index_array{this.i_repeat,i_glm,i_shad};
-                        
-                        [var, bias2] = this.getVarBias(training_index, i_glm, i_shad);
-                        this.training_var_array(this.i_repeat,i_glm,i_shad) = var;
-                        this.training_bias2_array(this.i_repeat,i_glm,i_shad) = bias2;
-                        
-                        [var, bias2] = this.getVarBias(test_index, i_glm, i_shad);
-                        this.test_var_array(this.i_repeat,i_glm,i_shad) = var;
-                        this.test_bias2_array(this.i_repeat,i_glm,i_shad) = bias2;
-                        
-                    end
-                    
-                end
+                i = this.i_repeat - this.n_repeat;
                 
-                %print the progress
-                this.printProgress(this.i_repeat / this.n_repeat);
+                training_index = this.training_index_array{i,this.i_glm,this.i_shad};
+                test_index = this.test_index_array{i,this.i_glm,this.i_shad};
+
+                [var, bias2] = this.getVarBias(training_index);
+                this.training_var_array(i,this.i_glm,this.i_shad) = var;
+                this.training_bias2_array(i,this.i_glm,this.i_shad) = bias2;
+
+                [var, bias2] = this.getVarBias(test_index);
+                this.test_var_array(i,this.i_glm,this.i_shad) = var;
+                this.test_bias2_array(i,this.i_glm,this.i_shad) = bias2;
+
                 %increment i_repeat
                 this.i_repeat = this.i_repeat + 1;
                 
@@ -238,10 +260,10 @@ classdef Experiment_GLMVarMean < Experiment
             
         end
         
-        function [var, bias2] = getVarBias(this, index, i_glm, i_shad)
-            [sample_mean,sample_var] = this.getMeanVar(index, i_shad);
-            y_mean = this.glm_mean_array(i_glm, i_shad).predict(sample_mean);
-            y_predict = this.glm_array(this.i_repeat, i_glm, i_shad).predict(sample_mean);
+        function [var, bias2] = getVarBias(this, index)
+            [sample_mean,sample_var] = this.getMeanVar(index);
+            y_mean = this.glm_mean_array(this.i_glm, this.i_shad).predict(sample_mean);
+            y_predict = this.glm_array(this.i_repeat-this.n_repeat, this.i_glm, this.i_shad).predict(sample_mean);
             var = mean((y_predict - y_mean).^2);
             bias2 = mean((y_mean - sample_var).^2);
         end
@@ -249,65 +271,41 @@ classdef Experiment_GLMVarMean < Experiment
         %PRINT RESULTS
         %Box plot the training and test MSSE
         function printResults(this)
-            
-            %get array of shading corrector names
-            shading_corrector_array = cell(this.getNShadingCorrector(),1);
-            for i_shad = 1:this.getNShadingCorrector()
-                [shading_corrector,reference_index] = this.getShadingCorrector(i_shad);
-                shading_corrector.n_image = numel(reference_index);
-                shading_corrector_array{i_shad} = shading_corrector.getName();
+            this.plotBoxPlot(this.training_msse_array,'training MSSE');
+            this.plotBoxPlot(this.test_msse_array,'test MSSE');
+            this.plotBoxPlot(this.training_mse_array,'training MSE');
+            this.plotBoxPlot(this.test_mse_array,'test MSE');
+            this.plotBoxPlot(this.training_var_array,'training var');
+            this.plotBoxPlot(this.test_var_array,'test var');
+            this.plotBoxPlot(this.training_bias2_array,'training bias^2');
+            this.plotBoxPlot(this.test_bias2_array,'test bias^2');
+        end
+        
+        function plotBoxPlot(this,stat_array, stat_name)
+            %produce figure
+            figure;
+            ax = gca;
+            for i = 1:this.getNShadingCorrector()
+                plot(0,0);
+                hold on;
             end
-            
-            %get array of glm names
-            glm_name_array = cell(this.getNGlm(),1);
-            for i_glm = 1:this.getNGlm()
-                model = this.getGlm([],i_glm);
-                glm_name_array{i_glm} = model.getName();
+            %get the colours for each hold on
+            colour_order = ax.ColorOrder;
+            %for each shading correction
+            for i = 1:this.getNShadingCorrector()
+                %get the position of the box plot for this current shading correction
+                position = (1:this.getNGlm())-0.25+0.5*(i)/(this.getNShadingCorrector()+1);
+                %box plot the errors
+                boxplot(stat_array,'Position',position,'boxstyle','filled','medianstyle','target','outliersize',4,'symbol','o','Color',colour_order(i,:));
             end
-            
-            %for the training error, then the test error
-            for i = 1:2
-                %produce figure
-                figure;
-                ax = gca;
-                for i_shad = 1:this.getNShadingCorrector()
-                    plot(0,0);
-                    hold on;
-                end
-                %get the colours for each hold on
-                colour_order = ax.ColorOrder;
-                %for each shading correction
-                for i_shad = 1:this.getNShadingCorrector()
-                    %get the position of the box plot for this current shading correction
-                    position = (1:this.getNGlm())-0.25+0.5*(i_shad)/(this.getNShadingCorrector()+1);
-                    %get the array of errors
-                    if i == 1
-                        array = this.training_error_array(:,:,i_shad);
-                    else
-                        array = this.test_error_array(:,:,i_shad);
-                    end
-                    %box plot the errors
-                    boxplot(array,'Position',position,'boxstyle','filled','medianstyle','target','outliersize',4,'symbol','o','Color',colour_order(i_shad,:));
-                end
-                %retick the x axis
-                ax.XTick = 1:this.getNGlm();
-                %label each glm with its name
-                ax.XTickLabelRotation = 45;
-                ax.XTickLabel = glm_name_array;
-%                 if i == 1
-%                     array = this.training_error_array();
-%                 else
-%                     array = this.test_error_array();
-%                 end
-%                 ax.YLim = [min(min(min(array))),max(max(max(array)))];
-                %label the axis and legend
-                if i == 1
-                    ylabel('Training MSSE');
-                else
-                    ylabel('Test MSSE');
-                end
-                legend(shading_corrector_array);
-            end 
+            %retick the x axis
+            ax.XTick = 1:this.getNGlm();
+            %label each glm with its name
+            ax.XTickLabelRotation = 45;
+            ax.XTickLabel = this.glm_name_array;
+            %label the axis and legend
+            ylabel(stat_name);
+            legend(this.shading_corrector_array);
         end
         
         %PLOT FULL FIT
@@ -320,8 +318,10 @@ classdef Experiment_GLMVarMean < Experiment
             scan = this.getScan();
             full_shape_parameter = (scan.n_sample-1)/2;
 
+            this.saveGreyvalueArray();
             %for each shading corrector
-            for i_shad = 1:this.getNShadingCorrector()
+            this.i_shad = 1;
+            while (this.i_shad <= this.getNShadingCorrector())
                 %for each glm
                 for i_glm = 1:this.getNGlm()
                     
@@ -329,7 +329,7 @@ classdef Experiment_GLMVarMean < Experiment
                     model = this.getGlm(full_shape_parameter, i_glm);
 
                     %get the sample mean and variance
-                    [sample_mean,sample_var] = this.getMeanVar(1:numel(this.greyvalue_array(1,:,1)),i_shad);
+                    [sample_mean,sample_var] = this.getMeanVar(1:this.n_sample);
                     
                     %train the glm
                     model.train(sample_mean,sample_var);
@@ -345,7 +345,7 @@ classdef Experiment_GLMVarMean < Experiment
 
                     %plot the frequency density
                     figure;
-                    ax = hist3Heatmap(sample_mean,sample_var,[this.getNBin(),this.getNBin()],true);
+                    ax = hist3Heatmap(sample_mean,sample_var,[this.getNBin(),this.getNBin()],false);
                     colorbar;
                     hold on;
 
@@ -363,6 +363,7 @@ classdef Experiment_GLMVarMean < Experiment
                     xlabel('mean (arb. unit)');
                     ylabel('variance (arb. unit^2)');
                 end
+                this.i_shad = this.i_shad + 1;
             end
             
             this.deleteVariables();
@@ -379,29 +380,41 @@ classdef Experiment_GLMVarMean < Experiment
         %The mean and variance are already segmented
         %PARAMETERS:
             %image_index: vector of integers, points to which images to use for mean and variance estimation
-            %shading_index: which shading correction to use, integer
         %RETURNS:
             %sample_mean: mean vector
             %sample_var: variance vector
-        function [sample_mean,sample_var] = getMeanVar(this, image_index, shading_index)
+        function [sample_mean,sample_var] = getMeanVar(this, image_index)
+            %work out the mean and variance
+            sample_mean = mean(this.greyvalue_array(:,image_index),2);
+            sample_var = var(this.greyvalue_array(:,image_index),[],2);
+        end
+        
+        
+        %SAVE GREY VALUE ARRAY
+        %Set up the member variable greyvalue_array
+        function saveGreyvalueArray(this)
+            
+            %get the number of segmented pixels
+            n_pixel = sum(sum(this.segmentation));
+            
             %get the scan object
             scan = this.getScan();
             %get the shading corrector
-            [shading_corrector, reference_index] = this.getShadingCorrector(shading_index);
+            [shading_corrector, reference_index] = this.getShadingCorrector(this.i_shad);
             %add the shading corrector
             scan.addShadingCorrector(shading_corrector, reference_index);
             
+            %declare the array greyvalue array
+            this.greyvalue_array = zeros(n_pixel, scan.n_sample); 
+            
             %load the images and reshape it to be a design matrix
-            image_stack = scan.loadImageStack(image_index);
-            image_stack = reshape(image_stack,scan.area,numel(image_index));
-            
+            image_stack = scan.loadImageStack();
+            image_stack = reshape(image_stack,scan.area,scan.n_sample);
+
             %segment the design matrix
-            image_stack = image_stack(this.segmentation,:);
-            
-            %work out the mean and variance
-            sample_mean = mean(image_stack,2);
-            sample_var = var(image_stack,[],2);
-        end
+            this.greyvalue_array = image_stack(this.segmentation,:);
+                
+        end %saveGreyvalueArray
         
         %IMPLEMENTED: GET N BIN
         function n_bin = getNBin(this)
