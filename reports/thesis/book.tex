@@ -1452,10 +1452,12 @@ The second orders are:
 \begin{equation}
 \frac{\partial^2 T}{\partial \alpha \partial \beta} =
 \sum_{i=1}^n \mathbb{I}(x_i>0)\left[\frac{y_i}{\beta}\right] \ ,
+\label{eq:compoundPoisson:d2tdadb}
 \end{equation}
 \begin{equation}
 \frac{\partial^2 T}{\partial \beta^2} = \sum_{i=1}^n\mathbb{I}(x_i>0)\left[-\frac{\alpha y_i}{\beta^2}
 \right]
+\label{eq:compoundPoisson:d2td2b}
 \end{equation}
 and
 \begin{multline*}
@@ -1473,6 +1475,7 @@ simplifying to
 	\vphantom{\frac{1}{2}}\right.\\\left.	
 	-\frac{1}{2}\zeta_i\alpha^2y_i^2\psi'''(\alpha y_i)
 \right] \ .
+\label{eq:compoundPoisson:d2td2a}
 \end{multline}
 
 All the derivatives can be used in the Newton-Raphson iterative update, which is
@@ -1508,7 +1511,7 @@ The variance of the M step estimators can be obtained by using the Cram\'er-Rao 
 \nabla_{\lambda,\alpha,\beta}\nabla_{\lambda,\alpha,\beta}\T \ln L(\lambda,\alpha,\beta;X,Y)
 \right] \ .
 \end{equation}
-The calculation is similar to the derivatives of $T$, so using the same approximations and the that fact $\expectation[Y]=\lambda$, then
+The calculation is similar to the derivatives of $T$, so using the same approximations and the fact that $\expectation[Y]=\lambda$, then
 \begin{equation}
 \matr{I}
 =
@@ -1536,8 +1539,6 @@ The results for $\CPoisson(1,1,1)$, $\CPoisson(10,1,1)$, $\CPoisson(1,100,1)$ an
 
 However for $\lambda=10$ and $\lambda=100$ case, the estimates of $\alpha$ and $\beta$ struggled to converge and increased/decreased without bounds without affecting the log likelihood. It appears the EM algorithm failed for $\lambda>10$ looking at these particular examples.
 
-
-
 \begin{figure}[p]
 	\centering
     \centerline{
@@ -1560,7 +1561,7 @@ However for $\lambda=10$ and $\lambda=100$ case, the estimates of $\alpha$ and $
         \caption{$\beta$}
     \end{subfigure}
     }
-    \caption{EM algorithm was used to estimate the parameters of a $\CPoisson(1,1,1)$ random variable using 1\,000 simulated samples, repeated 10 times. The graphs show the log likelihood and the estimated parameters at each EM step for each repeat of the experiment. The dashed lines show the standard deviation of the Cram\'er-Rao lower bound.}
+    \caption{EM algorithm was used to estimate the parameters of a $\CPoisson(1,1,1)$ random variable using 1\,000 simulated samples, repeated 10 times. The graphs show the log likelihood and the estimated parameters at each EM step for each repeat of the experiment. The dashed lines show the standard deviation using the Cram\'er-Rao lower bound.}
     \label{fig:compoundPoisson_convergence_1}
 \end{figure}
 
@@ -1586,7 +1587,7 @@ However for $\lambda=10$ and $\lambda=100$ case, the estimates of $\alpha$ and $
         \caption{$\beta$}
     \end{subfigure}
     }
-    \caption{EM algorithm was used to estimate the parameters of a $\CPoisson(10,1,1)$ random variable using 1\,000 simulated samples, repeated 10 times. The graphs show the log likelihood and the estimated parameters at each EM step for each repeat of the experiment. The dashed lines show the standard deviation of the Cram\'er-Rao lower bound.}
+    \caption{EM algorithm was used to estimate the parameters of a $\CPoisson(10,1,1)$ random variable using 1\,000 simulated samples, repeated 10 times. The graphs show the log likelihood and the estimated parameters at each EM step for each repeat of the experiment. The dashed lines show the standard deviation using the Cram\'er-Rao lower bound.}
     \label{fig:compoundPoisson_convergence_2}
 \end{figure}
 
@@ -1612,7 +1613,7 @@ However for $\lambda=10$ and $\lambda=100$ case, the estimates of $\alpha$ and $
         \caption{$\beta$}
     \end{subfigure}
     }
-    \caption{EM algorithm was used to estimate the parameters of a $\CPoisson(1,100,1)$ random variable using 1\,000 simulated samples, repeated 10 times. The graphs show the log likelihood and the estimated parameters at each EM step for each repeat of the experiment. The dashed lines show the standard deviation of the Cram\'er-Rao lower bound.}
+    \caption{EM algorithm was used to estimate the parameters of a $\CPoisson(1,100,1)$ random variable using 1\,000 simulated samples, repeated 10 times. The graphs show the log likelihood and the estimated parameters at each EM step for each repeat of the experiment. The dashed lines show the standard deviation using the Cram\'er-Rao lower bound.}
     \label{fig:compoundPoisson_convergence_3}
 \end{figure}
 
@@ -1638,11 +1639,149 @@ However for $\lambda=10$ and $\lambda=100$ case, the estimates of $\alpha$ and $
         \caption{$\beta$}
     \end{subfigure}
     }
-    \caption{EM algorithm was used to estimate the parameters of a $\CPoisson(100,100,1)$ random variable using 1\,000 simulated samples, repeated 10 times. The graphs show the log likelihood and the estimated parameters at each EM step for each repeat of the experiment. The dashed lines show the standard deviation of the Cram\'er-Rao lower bound.}
+    \caption{EM algorithm was used to estimate the parameters of a $\CPoisson(100,100,1)$ random variable using 1\,000 simulated samples, repeated 10 times. The graphs show the log likelihood and the estimated parameters at each EM step for each repeat of the experiment. The dashed lines show the standard deviation using the Cram\'er-Rao lower bound.}
     \label{fig:compoundPoisson_convergence_4}
 \end{figure}
 
-\subsection{Failure Cases}
+\subsection{Failure Evaluation}
+It should be convincing that the EM algorithm failed when the compound-Poisson Gamma random variable starts behaving Normally. In particular in Figure \ref{fig:compoundPoisson_convergence_4}, estimates of $\lambda$ are stable while estimates of $\alpha$ and $\beta$ struggled to converge. This could be because as the compound-Poisson Gamma random variable approach being Normal, the parameters $(\lambda,\alpha,\beta)$ becomes degenerate and there is more than one way to represent a two parameter random variable $\normal(\mu,\sigma^2)$.
+
+One way to see this is to look at the Newton-Raphson step, in the M step, in particular the Hessian matrix $\nabla_{\alpha,\beta}\nabla_{\alpha,\beta}\T T$ for high $\lambda$. The elements of the Hessian matrix can be found in Equations \eqref{eq:compoundPoisson:d2tdadb}, \eqref{eq:compoundPoisson:d2td2b} and \eqref{eq:compoundPoisson:d2td2a}. The $\dfrac{\partial^2T}{\partial\alpha^2}$ element is 
+\begin{multline*}
+\frac{\partial^2 T}{\partial \alpha^2} =  \sum_{i=1}^n\mathbb{I}(x_i>0)\left[
+	-(y_i^2+\zeta_i)\psi'(\alpha y_i) - 2\zeta_i\alpha y_i\psi''(\alpha y_i)
+	\vphantom{\frac{1}{2}}\right.\\\left.	
+	-\frac{1}{2}\zeta_i\alpha^2y_i^2\psi'''(\alpha y_i)
+\right] \ .
+\end{multline*}
+For high $\alpha$ and high $\lambda$, and hence high $y_i$'s, an approximation can be used for the polygamma functions $\psi^{(k)}(n)$. Firstly using Stirling's approximation
+\begin{equation}
+\ln\Gamma(n)\approx\ln(n!)\approx n\ln n-n
+\end{equation}
+then
+\begin{equation}
+\psi(n) = \frac{\partial\ln\Gamma(n)}{\partial n} \approx \ln n \ .
+\end{equation}
+Differentiating further
+\begin{align}
+\psi'(n) &\approx 1/n \\
+\psi''(n) & \approx -1/n^2 \\
+\psi'''(n) & \approx 2/n^3 \ .
+\end{align}
+Using the approximations, $\dfrac{\partial^2T}{\partial\alpha^2}$ can be approximated
+\begin{equation*}
+\frac{\partial^2 T}{\partial \alpha^2} \approx  \sum_{i=1}^n\mathbb{I}(x_i>0)\left[
+	-\frac{y_i^2+\zeta_i}{\alpha y_i} + 2\frac{\zeta_i\alpha y_i}{\alpha^2 y_i^2}
+	-\frac{1}{2}\frac{2\zeta_i\alpha^2y_i^2}{\alpha^3 y_i^3}
+\right]
+\end{equation*}
+to get
+\begin{equation}
+\frac{\partial^2 T}{\partial \alpha^2} \approx  \sum_{i=1}^n\mathbb{I}(x_i>0)\left[
+	-\frac{y_i}{\alpha}
+\right] \ .
+\end{equation}
+
+The Hessian matrix is then
+\begin{equation}
+\nabla_{\alpha,\beta}\nabla_{\alpha,\beta}\T T \approx
+\sum_{i=1}^n
+\mathbb{I}(x_i>0)
+\begin{pmatrix}
+-y_i/\alpha  & y_i/\beta \\
+y_i/\beta & -\alpha y_i/\beta^2
+\end{pmatrix}  \ . 
+\end{equation}
+The determinant of the Hessian matrix is then
+\begin{equation*}
+\|\nabla_{\alpha,\beta}\nabla_{\alpha,\beta}\T T\|
+\approx
+\left(\sum_{i=1}^n-\frac{\alpha y_i}{\beta^2}\right)
+\left(\sum_{i=1}^n-\frac{y_i}{\alpha}\right) - \left(\sum_{i=1}^n\frac{y_i}{\beta}\right)^2
+\end{equation*}
+\begin{equation*}
+\|\nabla_{\alpha,\beta}\nabla_{\alpha,\beta}\T T\|
+\approx
+\left(\sum_{i=1}^n\sum_{j=1}^n\frac{y_iy_j}{\beta^2}\right)
+ - \left(\sum_{i=1}^n\frac{y_i}{\beta}\right)\left(\sum_{j=1}^n\frac{y_j}{\beta}\right)
+\end{equation*}
+\begin{equation*}
+\|\nabla_{\alpha,\beta}\nabla_{\alpha,\beta}\T T\|
+\approx
+\left(\sum_{i=1}^n\sum_{j=1}^n\frac{y_iy_j}{\beta^2}\right)
+ - \left(\sum_{i=1}^n\sum_{j=1}^n\frac{y_iy_j}{\beta^2}\right)
+\end{equation*}
+to get
+\begin{equation}
+\|\nabla_{\alpha,\beta}\nabla_{\alpha,\beta}\T T\|
+\approx
+0 \ .
+\end{equation}
+
+This results in a few things. Firstly $\nabla_{\alpha,\beta}\nabla_{\alpha,\beta}\T T$ is singular thus its inverse cannot be evaluated, needed for the Newton-Raphson method. Secondly, the sufficient conditions to classify a stationary point as a maximum are that the diagonal elements of the Hessian matrix are negative and the determinate is positive. For high $\lambda$ and $\alpha$, the second condition is not met.
+
+Another argument which can be made is to restrict the parameter $\beta$ for a given mean to be
+\begin{equation}
+\beta = \frac{\lambda\alpha}{\widehat{\mu}}
+\label{eq:compoundPoisson:beta_restrict}
+\end{equation}
+where
+\begin{equation}
+\widehat{\mu} = \frac{1}{n}\sum_{i=1}^n x_i
+\end{equation}
+and investigate whenever a unique solution to $\dfrac{\partial T}{\partial \alpha} = 0$ can be found for high $\lambda$ and $\alpha$. The constrained objective function is
+\begin{multline*}
+T(\lambda,\alpha)
+=
+-n\lambda+
+	\sum_{i=1}^n
+	\mathbb{I}(x_i>0)
+	\left[
+	y_i\alpha\ln\left(\frac{\lambda\alpha}{\widehat{\mu}}\right)-\ln\Gamma(\alpha y_i) - \frac{1}{2}\zeta_i\alpha^2\psi'(y_i\alpha)
+	\right.\\\left.
+	+y_i\alpha\ln x_i - \frac{\lambda\alpha x_i}{\widehat{\mu}}
+	+ y_i \ln \lambda
+	\vphantom{\frac{1}{1}}\right] + c
+\end{multline*}
+which can be approximated to
+\begin{multline*}
+T(\lambda,\alpha)
+=
+-n\lambda+
+	\sum_{i=1}^n
+	\mathbb{I}(x_i>0)
+	\left[
+	y_i\alpha\ln\left(\frac{\lambda\alpha}{\widehat{\mu}}\right)-\alpha y_i\ln(\alpha y_i) + \alpha y_i - \frac{1}{2}\frac{\zeta_i\alpha}{y_i}
+	\right.\\\left.
+	+y_i\alpha\ln x_i - \frac{\lambda\alpha x_i}{\widehat{\mu}}
+	+ y_i \ln \lambda
+	\vphantom{\frac{1}{1}}\right] + c
+\end{multline*}
+\begin{multline*}
+T(\lambda,\alpha)
+=
+-n\lambda+
+	\sum_{i=1}^n
+	\mathbb{I}(x_i>0)
+	\left[
+	y_i\alpha\ln\left(\frac{\lambda}{y_i\widehat{\mu}}\right) + \alpha y_i - \frac{1}{2}\frac{\zeta_i\alpha}{y_i}
+	\right.\\\left.
+	+y_i\alpha\ln x_i - \frac{\lambda\alpha x_i}{\widehat{\mu}}
+	+ y_i \ln \lambda
+	\vphantom{\frac{1}{1}}\right] + c \ .
+\end{multline*}
+Taking the derivative with respect to $\alpha$
+\begin{equation*}
+\frac{\partial T}{\partial \alpha}
+=
+	\sum_{i=1}^n
+	\mathbb{I}(x_i>0)
+	\left[
+	y_i\ln\left(\frac{\lambda}{y_i\widehat{\mu}}\right) +  y_i - \frac{1}{2}\frac{\zeta_i}{y_i}
+	+y_i\ln x_i - \frac{\lambda x_i}{\widehat{\mu}}
+	\vphantom{\frac{1}{1}}\right]
+\end{equation*}
+and this is not $\alpha$ dependent, thus there is no solution to $\alpha$.
 
 \chapter{Inference}
 
