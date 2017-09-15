@@ -33,10 +33,10 @@ classdef LinkFunction < handle
             %mu: column vector of means
         %RETURN:
             %g_dash: colum vector of g'(mu)
-        g_dash = getLinkDiff(this,mu,shape_parameter)
+        g_dash = getLinkDiff(this,mu)
         
         %GET MEAN (LINK FUNCTION)
-        mu = getMean(this,eta,shape_parameter)
+        mu = getMean(this,eta)
     end
     
 end

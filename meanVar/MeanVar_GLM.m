@@ -16,6 +16,7 @@ classdef MeanVar_GLM < VarianceModel
         initial_parameter; %the initial value of the parameter
         tol; %stopping conidition for the different in log likelihood * n_train
         link_function; %object LinkFunction which implemented the methods getLinkDiff and getMean
+        parameter_covariance;
     end
     
     %METHODS
@@ -94,6 +95,14 @@ classdef MeanVar_GLM < VarianceModel
                 lnL_old = lnL_new;
             end
             
+            %%Fisher information matrix
+            %%Used to calculate the parameter covariance
+            %WX = zeros(this.n_train,this.n_order+1);
+            %for i = 1:(this.n_order+1)
+            %   WX(:,i) = w(i)*X(:,i); 
+            %end
+            %this.parameter_covariance = inv(X'*WX);
+            
         end
         
         %UPDATE PARAMETER USING IRLS
@@ -163,8 +172,11 @@ classdef MeanVar_GLM < VarianceModel
             up_error = gaminv(normcdf(1),this.shape_parameter,gamma_scale);
             down_error = gaminv(normcdf(-1),this.shape_parameter,gamma_scale);
             
+            %calculate mean estimation error
+            %%NEEDS TO BE REWRITTEN, X*this.parameter_covariance*X' REQUIRES TOO MUCH MEMORY
+            %mean_var = (1/this.y_scale^2) * (this.link_function.getLinkDiff(variance_prediction).^(-2)).* diag(X*this.parameter_covariance*X');
         end
-        
+
         %SIMULATE
         %PARAMETERS:
             %x: column vector of greyvalue means
