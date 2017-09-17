@@ -92,11 +92,11 @@ Photons in CT scanning are produced in an X-ray tube. In an X-ray tube, a cathod
 \begin{figure}
 \centering
 \includegraphics[width=0.8\textwidth]{figures/x_ray_tube.png}
-\caption{An X-ray tube produces photons by firing projectile electrons from a cathode to an anode. \emph{Source: G.~Michael (2001) \citep{michael2001x}}}
+\caption{An X-ray tube produces photons by firing projectile electrons from a cathode to an anode. \citep{michael2001x}}
 \label{fig:x_ray_tube}
 \end{figure}
 
-Bremsstrahlung radiation is the result of projectile electrons deaccelerating due to the electrostatic field produced by nucleus of the target. The kinetic energy of the projectile electrons is then converted to electromagnetic radiation to produce X-ray radiation. As a result, the photon energies in bremsstrahlung radiation is  a continuous spectrum and can range up to the maximum kinetic energy of the projectile electrons \citep{michael2001x}.
+Bremsstrahlung is the result of projectile electrons deaccelerating due to the electrostatic field produced by nucleus of the target. The kinetic energy of the projectile electrons is then converted to electromagnetic radiation to produce X-ray radiation. As a result, the photon energies in bremsstrahlung radiation is  a continuous spectrum and can range up to the maximum kinetic energy of the projectile electrons \citep{michael2001x}.
 
 Characteristic radiation is due to projectile electrons colliding with electrons in the target atom and ionizing them. This produce vacancies in the electron shell and emits photons when the electrons in the target atom drops down back to the ground state. The energy of the emitted radiation is monoenergetic and depends on the binding energy of the target's atoms \citep{michael2001x}.
 
@@ -105,7 +105,7 @@ A typical energy spectrum of photons emitted from an X-ray tube is as shown in F
 \begin{figure}
 \centering
 \includegraphics[width=0.8\textwidth]{figures/x_ray_spectrum.png}
-\caption{A typical energy spectrum of photons emitted from an X-ray tube. The continuous spectrum is the result of Bremmsstrahlung radiation. The peaks are the result of characteristic radiation. \emph{Source: G.~Michael (2001) \citep{michael2001x}}}
+\caption{A typical energy spectrum of photons emitted from an X-ray tube. The continuous spectrum is the result of bremmsstrahlung. The peaks are the result of characteristic radiation. \citep{michael2001x}}
 \label{fig:x_ray_spectrum}
 \end{figure}
 
@@ -132,8 +132,10 @@ By comparing the intensity before and after attenuation, the integral of the att
 
 However it was shown that the attenuation coefficient does depend on the energy of the photons \citep{elbakri2002statistical}. Thus $\mu=\mu(x,E)$ should be made dependent on the energy of the photons \citep{cantatore2011introduction}. In general low energy photons are more likely to be absorbed than high energy photons, this increases the average energy of the attenuated photons and can be a source of error in CT scanning. This is referred to beam hardening and can cause inaccuracies in Equation \eqref{eq:beerLaw} \citep{michael2001x}. This can be reduced by placing a thin sheet of filter to absorb low energy photons \citep{welkenhuyzen2009industrial} or by correcting it in the data analysis stage \citep{michael2001x}.
 
-\subsection{Detection and Reconstruction}
-Most X-ray detectors are scintillator-photodiode detectors. The photons interact with the scintiallator material and produce visible light. The visible light is then detected by photodiodes and coverts it into electricical current \citep{michael2001x}. The detectors used in CT scanning are flat bed scanner which consist of an array of panels of photodiodes \citep{cantatore2011introduction}.
+\subsection{Detection}
+Most X-ray detectors are made up of a scintillator material \citep{greskovich1997ceramic} and photodiodes. Firstly the x-ray photons interact with the scintiallator material and produce visible light \citep{rossner1993conversion}. Lastly the visible light is then detected by photodiodes and coverts it into electricical current \citep{michael2001x}. Not all of the visible light photons are detected by the photodiodes, thus not all the x-ray photons are detected. The ratio between the number of x-ray photons detected by the detector and the number of x-ray photons arriving at the detector is called the quantum efficiency \citep{cierniak2011x}.
+
+The detection is a two stage process \citep{cierniak2011x}, although there exist equipment which detects x-ray directly such as a xenon gas ionization detector \citep{fuchs2000direct}, solid state CT systems such as sintillator-photodiodes detectors have high quantum efficiency of about 98\% to 99.5\% \citep{hsieh2000investigation}. The detectors used in CT scanning are typically flat bed scanners which consist of an array of panels of photodiodes \citep{cantatore2011introduction}. The electrical signal from the photodiodes are subject to sampling and quantisation to store these signals as an image on a computer \citep{cierniak2011x}.
 
 \section{X-ray Computed Tomography}
 Computed tomography (CT) scanning is a 3D imaging technique. It does this by reconstructing the geometry of the sample through a series of 2D X-ray images of the sample. The sample rotates after each image taken \citep{cantatore2011introduction}.
@@ -147,11 +149,11 @@ Figure \ref{fig:x_ray_ct} shows a diagram on how CT scanning works. A 2D image i
 \label{fig:x_ray_ct}
 \end{figure}
 
-CT was solved theoretically by \cite{cormack1973reconstruction} and implemented  by \cite{hounsfield1973computerized} \citep{hounsfield1980computed}. It was mainly used for medical imaging. The setup for CT scanning is different when scanning patients because the detector and X-ray source rotates around the patient \citep{cantatore2011introduction}. Recently CT has been used industrially for non-destructive testing in manufacturing \citep{cantatore2011introduction}. One possible application would be inspecting 3D printed samples \citep{villarraga2015assessing}. Other uses in science include the investigation of batteries \citep{o2017investigating} and materials \citep{wang2017x} \citep{zhang2016x}.
+CT was solved theoretically by \cite{cormack1973reconstruction} and implemented by \cite{hounsfield1973computerized} \citep{hounsfield1980computed}. It was mainly used for medical imaging. The setup for CT scanning is different when scanning patients because the detector and X-ray source rotates around the patient \citep{cantatore2011introduction}. Recently CT has been used industrially for non-destructive testing in manufacturing \citep{cantatore2011introduction}. One possible application would be inspecting 3D printed samples \citep{villarraga2015assessing}. Other uses in science include the investigation of batteries \citep{o2017investigating} and materials \citep{wang2017x} \citep{zhang2016x}.
 
 Methods used to reconstruct the 3D surface of the sample are available such as filtered back-projection \citep{brooks1976principles} and the FDK algorithm \citep{feldkamp1984practical}. There exist software such as \emph{VGStudio MAX} \citep{reinhart2008industrial} which automatically aligns and scales the 3D reconstruction with the computed aided design and compares them.
 
-Studies have been done to use x-ray CT to do defection on 3D printing \citep{kim2016inspection} \citep{villarraga2015assessing}. This was done by investigating the variation of the material thickness and the distribution of the volume of voids \citep{villarraga2015assessing}. Voids then can be classified as defects if the voids are larger than some volume threshold. This threshold controls the probability of the detection of defects \citep{amrhein2014characterization} \citep{gandossi2010probability}.
+Studies have been done to use x-ray CT to do defection detection on 3D printing \citep{kim2016inspection} \citep{villarraga2015assessing}. This was done by investigating the variation of the material thickness and the distribution of the volume of voids \citep{villarraga2015assessing}. Voids then can be classified as defects if the voids are larger than some volume threshold. This threshold controls the probability of the detection of defects \citep{amrhein2014characterization} \citep{gandossi2010probability}.
 
 Full 3D x-ray CT scans can be slow and may not generalised well in production lines. However there is potential to bring in methods such as those used in airport luggage inspection to speed up to process \citep{warnett2016towards}.
 
@@ -161,9 +163,9 @@ The scale of the 2D images can be calibrated with the use of reference standards
 
 \section{Compound Poisson}
 
-The grey values of each pixel in the detector can be modelled as a random variable, due to the random behaviour of photons being produced, interacting with the phantom and interacting with the scintillator in the detector. When the photons interact with the scintillator, they are converted into visible light. The visible light photons are then detected and converted into a grey value. How the detected visible light is converted is important in modelling the grey value.
+The greyvalues of each pixel in the detector can be modelled as a random variable, due to the random behaviour of photons being produced, interacting with the phantom and interacting with the scintillator in the detector. When the photons interact with the scintillator, they are converted into visible light. The visible light photons are then detected and converted into a greyvalue. How the detected visible light is converted is important in modelling the greyvalue.
 
-Should the grey value be proportional to the number of photons detected, the detector is known as a quantum counter and the grey value is a Poisson random variable, up to a constant \citep{whiting2006properties}. However if the grey value records the signal strength, proportional to the energy detected, then the detector is an energy integrating detector. The grey value has the compound Poisson distribution, again up to a constant \citep{whiting2006properties}. There are other types of detection schemes \citep{whiting2006properties} but it shall be not be considered here.
+Should the greyvalue be proportional to the number of photons detected, the detector is known as a quantum counter and the greyvalue is a Poisson random variable, up to a constant \citep{whiting2006properties}. However if the greyvalue records the signal strength, proportional to the energy detected, then the detector is an energy integrating detector. The greyvalue has the compound Poisson distribution, again up to a constant \citep{whiting2006properties}. There are other types of detection schemes \citep{whiting2006properties} but it shall be not be considered here.
 
 Many reconstruction algorithms have been proposed considering the compound Poisson nature of the detector \citep{elbakri2002statistical} \citep{elbakri2003statistical} \citep{lasio2007statistical} \citep{xie2008x} and with beam hardening correction \citep{elbakri2003efficient}. These will not be discussed here as they are beyond the scope of this thesis.
 
