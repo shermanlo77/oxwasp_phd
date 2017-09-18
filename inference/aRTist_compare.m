@@ -66,7 +66,7 @@ training_var = var(training_stack,[],2);
 % hist3Heatmap(training_mean,training_var,[100,100],true);
 
 %train glm using the training set mean and variance
-model = MeanVar_GLM_canonical((n_train-1)/2,-2);
+model = MeanVar_GLM((n_train-1)/2,-2,LinkFunction_Canonical());
 model.train(training_mean,training_var);
 
 %predict variance given aRTist
@@ -115,28 +115,6 @@ for i = 1:n_test
     plot([min(z_vector),max(z_vector)],[min(z_vector),max(z_vector)],'r--');
     xlabel('Standard Normal quantiles');
     ylabel('z statistics quantiles');
-    
-    %display standard deviation of z statistics
-    disp('standard deviation of z statistics');
-    disp(std(z_vector));
-    %standarised the z statistics
-    z_std_vector = z_vector / std(z_vector);
-    
-    %histogram
-    figure;
-    histogram(z_std_vector,'Normalization','CountDensity');
-    hold on;
-    plot(z_plot,normpdf(z_plot)*m);
-    xlabel('z statistic');
-    ylabel('frequency density');
-    
-    %qqplot
-    figure;
-    scatter(norminv(((1:m)-0.5)/m),sort(z_std_vector),'x');
-    hold on;
-    plot([min(z_vector),max(z_vector)],[min(z_vector),max(z_vector)],'r--');
-    xlabel('Standard Normal quantiles');
-    ylabel('z statistics quantiles');
 
     %find critical pixels at some level
     critical_index = reshape(significantFDR(reshape(p_image,[],1),normcdf(-5),true),block_data.height,block_data.width);
@@ -146,5 +124,5 @@ for i = 1:n_test
     figure;
     imagesc(test);
     hold on;
-    scatter(critical_x, critical_y,'r');
+    scatter(critical_x, critical_y,'r.');
 end
