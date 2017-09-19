@@ -7,7 +7,7 @@ rng(uint32(3134830320), 'twister');
 polynomial_order = 1;
 link_function = LinkFunction_Identity();
 n_plot = 100;
-n_bootstrap = 1000;
+n_bootstrap = 1E4;
 
 scan = AbsBlock_Sep16_30deg();
 scan.addShadingCorrector(ShadingCorrector,1:scan.reference_white);
@@ -31,7 +31,7 @@ model = MeanVar_GLM(shape_parameter,polynomial_order,link_function);
 model.train(sample_mean,sample_var);
 
 x_plot = (linspace(min(sample_mean),max(sample_mean),n_plot))';
-[y_plot, up_error, down_error, mean_var] = model.predict(x_plot);
+[y_plot, up_error, down_error] = model.predict(x_plot);
 figure;
 hist3Heatmap(sample_mean,sample_var,[100,100],true);
 hold on;
@@ -58,16 +58,32 @@ for i = 1:n_bootstrap
     
 end
 
-mse_plot = mean( (y_array - y_predict).^2,2);
+f = repmat(mean(y_array,2),1,n_bootstrap);
+
+rss_plot = mean( (y_array - y_predict).^2,2);
+mse_plot = mean( (y_predict - f).^2,2);
+bias_plot = mean(y_predict,2) - mean(y_array,2);
 var_plot = var(y_predict,[],2);
 noise_plot = var(y_array,[],2);
+
+figure;
+plot(x_plot,rss_plot);
+hold on;
+plot(x_plot,noise_plot);
+legend('RSS','\sigma^2');
+xlabel('mean greyvalue (arb. unit)');
+ylabel('statistic (arb. unit^2)');
 
 figure;
 plot(x_plot,mse_plot);
 hold on;
 plot(x_plot,var_plot);
-plot(x_plot,noise_plot);
-plot(x_plot,mse_plot - var_plot - noise_plot);
-legend('mse','var','noise','bias^2');
+plot(x_plot,bias_plot.^2);
+legend('MSE','VAR','BIAS^2');
 xlabel('mean greyvalue (arb. unit)');
 ylabel('statistic (arb. unit^2)');
+
+figure;
+plot(x_plot,bias_plot);
+xlabel('mean greyvalue (arb. unit)');
+ylabel('bias (arb. unit)');
