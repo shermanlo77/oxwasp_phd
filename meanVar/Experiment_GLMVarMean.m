@@ -111,7 +111,7 @@ classdef Experiment_GLMVarMean < Experiment
             this.training_index_array = cell(this.n_repeat,this.getNGlm(),this.getNShadingCorrector());
             this.test_index_array = cell(this.n_repeat,this.getNGlm(),this.getNShadingCorrector());
             
-            this.saveSegmentation(scan.getSegmentation());
+            this.saveSegmentation();
             this.rand_stream = rand_stream;
         end
         
@@ -372,8 +372,10 @@ classdef Experiment_GLMVarMean < Experiment
         
         %SAVE SEGMENTATION
         %Given segmentation from a scan object, save it as a vector
-        function saveSegmentation(this, segmentation)
-            this.segmentation = reshape(segmentation,[],1);
+        function saveSegmentation(this)
+            scan = this.getScan();
+            this.segmentation = scan.getSegmentation();
+            this.segmentation = reshape(this.segmentation,[],1);
         end
         
         %GET MEAN VARIANCE
@@ -396,7 +398,7 @@ classdef Experiment_GLMVarMean < Experiment
         function saveGreyvalueArray(this)
             
             %get the number of segmented pixels
-            n_pixel = sum(sum(this.segmentation));
+            n_pixel = sum(this.segmentation);
             
             %get the scan object
             scan = this.getScan();

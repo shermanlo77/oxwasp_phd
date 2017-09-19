@@ -20,13 +20,13 @@ classdef Experiment_GLMVarMean_Mar16 < Experiment_GLMVarMean
             this.setUpExperiment@Experiment_GLMVarMean(100, RandStream('mt19937ar','Seed',uint32(176048084)));
         end
         
-        %GET SEGMENTATION
-        %Return the binary segmentation image
-        %true for pixels to be considered
-        function segmentation = getSegmentation(this)
+        %SAVE SEGMENTATION
+        %Given segmentation from a scan object, save it as a vector
+        function saveSegmentation(this)
             scan = this.getScan();
-            segmentation = scan.getSegmentation();
-            segmentation((scan.height/2+1):end,:) = false;
+            this.segmentation = scan.getSegmentation();
+            this.segmentation((floor(scan.height/2)+1):end,:) = false;
+            this.segmentation = reshape(this.segmentation,[],1);
         end
         
         %IMPLEMENTED: GET SCAN
@@ -36,7 +36,7 @@ classdef Experiment_GLMVarMean_Mar16 < Experiment_GLMVarMean
         
         %IMPLEMENTED: GET N GLM
         function n_glm = getNGlm(this)
-            n_glm = 9;
+            n_glm = 10;
         end
         
         %IMPLEMENTED: GET GLM
@@ -60,6 +60,8 @@ classdef Experiment_GLMVarMean_Mar16 < Experiment_GLMVarMean
                     model = MeanVar_GLM(shape_parameter,-2,LinkFunction_Log());
                 case 9
                     model = MeanVar_GLM(shape_parameter,-3,LinkFunction_Log());
+                case 10
+                    model = MeanVar_kNN(1E3);
             end
         end
         
