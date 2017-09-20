@@ -7,7 +7,7 @@ rng(uint32(3134830320), 'twister');
 polynomial_order = 1;
 link_function = LinkFunction_Identity();
 n_plot = 100;
-n_bootstrap = 1E4;
+n_bootstrap = 1E3;
 
 scan = AbsBlock_Sep16_30deg();
 scan.addShadingCorrector(ShadingCorrector,1:scan.reference_white);
