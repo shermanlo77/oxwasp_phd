@@ -34,6 +34,10 @@ classdef VarianceModel < handle
             %work out the mean squared error
             mse = sum((y-y_predict).^2)/numel(y);
         end
+        
+        function [mse_vector] = getPredictionMSSE(this, x, y)
+            mse_vector = [nan; this.getPredictionMSE(x,y)];
+        end
 
     end
     

@@ -25,18 +25,18 @@ classdef Experiment_GLMVarMean_July16 < Experiment_GLMVarMean
         end
         
         %IMPLEMENTED: GET GLM
-        function model = getGlm(this, shape_parameter, index)
+        function model = getGlm(this, index)
             switch index
                 case 1
-                    model = MeanVar_GLM(shape_parameter,1,LinkFunction_Identity());
+                    model = MeanVar_GLM(this.shape_parameter,1,LinkFunction_Identity());
                 case 2
-                    model = MeanVar_GLM(shape_parameter,-1,LinkFunction_Canonical());
+                    model = MeanVar_GLM(this.shape_parameter,-1,LinkFunction_Canonical());
                 case 3
-                    model = MeanVar_GLM(shape_parameter,-2,LinkFunction_Canonical());
+                    model = MeanVar_GLM(this.shape_parameter,-2,LinkFunction_Canonical());
                 case 4
-                    model = MeanVar_GLM(shape_parameter,1,LinkFunction_Log());
+                    model = MeanVar_GLM(this.shape_parameter,1,LinkFunction_Log());
                 case 5
-                    model = MeanVar_GLM(shape_parameter,-1,LinkFunction_Log());
+                    model = MeanVar_GLM(this.shape_parameter,-1,LinkFunction_Log());
             end
         end
         

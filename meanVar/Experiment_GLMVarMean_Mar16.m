@@ -40,26 +40,26 @@ classdef Experiment_GLMVarMean_Mar16 < Experiment_GLMVarMean
         end
         
         %IMPLEMENTED: GET GLM
-        function model = getGlm(this, shape_parameter, index)
+        function model = getGlm(this, index)
             switch index
                 case 1
-                    model = MeanVar_GLM(shape_parameter,1,LinkFunction_Identity());
+                    model = MeanVar_GLM(this.shape_parameter,1,LinkFunction_Identity());
                 case 2
-                    model = MeanVar_GLM(shape_parameter,-1,LinkFunction_Canonical());
+                    model = MeanVar_GLM(this.shape_parameter,-1,LinkFunction_Canonical());
                 case 3
-                    model = MeanVar_GLM(shape_parameter,-2,LinkFunction_Canonical());
+                    model = MeanVar_GLM(this.shape_parameter,-2,LinkFunction_Canonical());
                 case 4
-                    model = MeanVar_GLM(shape_parameter,-3,LinkFunction_Canonical());
+                    model = MeanVar_GLM(this.shape_parameter,-3,LinkFunction_Canonical());
                 case 5
-                    model = MeanVar_GLM(shape_parameter,-4,LinkFunction_Canonical());
+                    model = MeanVar_GLM(this.shape_parameter,-4,LinkFunction_Canonical());
                 case 6
-                    model = MeanVar_GLM(shape_parameter,1,LinkFunction_Log());
+                    model = MeanVar_GLM(this.shape_parameter,1,LinkFunction_Log());
                 case 7
-                    model = MeanVar_GLM(shape_parameter,-1,LinkFunction_Log());
+                    model = MeanVar_GLM(this.shape_parameter,-1,LinkFunction_Log());
                 case 8
-                    model = MeanVar_GLM(shape_parameter,-2,LinkFunction_Log());
+                    model = MeanVar_GLM(this.shape_parameter,-2,LinkFunction_Log());
                 case 9
-                    model = MeanVar_GLM(shape_parameter,-3,LinkFunction_Log());
+                    model = MeanVar_GLM(this.shape_parameter,-3,LinkFunction_Log());
                 case 10
                     model = MeanVar_kNN(1E3);
             end

@@ -93,6 +93,12 @@ classdef MeanVar_kNN < VarianceModel
             end
         end
         
+        %GET NAME
+        %Return name for this glm
+        function name = getName(this)
+            name = cell2mat({num2str(this.parameter),'-NN'});
+        end
+        
     end
     
 end
