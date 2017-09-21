@@ -298,6 +298,11 @@ classdef MeanVar_GLM < VarianceModel
         function name = getName(this)
             name = cell2mat({this.link_function.name,', order ',num2str(this.polynomial_order)});
         end
+        
+        %GET FILE NAME
+        function name = getFileName(this)
+            name = cell2mat({this.link_function.name,'_order_',num2str(this.polynomial_order)});
+        end
      
     end
     

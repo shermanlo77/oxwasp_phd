@@ -1786,146 +1786,215 @@ Taking the derivative with respect to $\alpha$
 and this is not $\alpha$ dependent, thus there is no solution to $\alpha$.
 
 \chapter{Inference}
-%\begin{equation*}
-%i=1,2,3,\dotdotdot,n_{pixel}
-%\end{equation*}
-%\begin{equation*}
-%j=1,2,3,\dotdotdot,n_{repeat}
-%\end{equation*}
-%\begin{equation*}
-%x_i^{(j)} = \text{mean greyvalue of pixel }i\text{, }j\text{th repeat}
-%\end{equation*}
-%\begin{equation*}
-%y_i^{(j)} = \text{variance greyvalue of pixel }i\text{, }j\text{th repeat}
-%\end{equation*}
-%\begin{equation*}
-%\widehat{Y}^{(j)}(x) = \text{predicted variance greyvalue given }x
-%\end{equation*}
-%Trained $\widehat{Y}^{(j)}(x)$ using $(y_1^{(j)},x_1^{(j)}),(y_2^{(j)},x_2^{(j)}),(y_3^{(j)},x_3^{(j)}),\dotdotdot,(y_{n_{pixel}}^{(j)},x_{n_{pixel}}^{(j)})$.
-%\begin{equation*}
-%\widehat{\zeta}^{(j)}(x) = \text{predicted variance of the variance greyvalue given }x
-%\end{equation*}
-%
-%Below are the training statistics, but can be generalised to test statistics:
-%\begin{equation}
-%\text{MSE}^{(j)} = \sum_{i=1}^{n_{pixel}} \left[\widehat{Y}^{(j)}(x_i^{(j)}) - y_i^{(j)}\right]^2
-%\end{equation}
-%\begin{equation}
-%\text{MSSE}^{(j)} = \sum_{i=1}^{n_{pixel}} \left[\dfrac{\widehat{Y}^{(j)}(x_i^{(j)}) - y_i^{(j)}}{\sqrt{\widehat{\zeta}^{(j)}(x_i^{(j)})}}\right]^2
-%\end{equation}
-%\begin{equation}
-%\text{VAR}^{(j)} = \sum_{i=1}^{n_{pixel}}
-%\left[
-%\widehat{Y}^{(j)}(x_i^{(j)}) - \expectation(\widehat{Y}(x_i^{(j)}))
-%\right]^2
-%\end{equation}
-%\begin{equation}
-%\text{BIAS2}^{(j)} = \sum_{i=1}^{n_{pixel}}
-%\left[
-%\expectation(\widehat{Y}(x_i^{(j)}))
-%-
-%y_i^{(j)}
-%\right]^2
-%\end{equation}
-%where
-%\begin{equation}
-%\expectation(\widehat{Y}(x_i^{(j)})) \approx
-%\frac{1}{n_{repeat}}\sum_{j=1}^{n_{repeat}}
-%\widehat{Y}^{(j)}(x_i^{(j)})
-%\end{equation}
-%
-%\clearpage
-%\begin{equation}
-%Y(x) = y(x) + \epsilon(x)
-%\end{equation}
-%where
-%\begin{equation}
-%\expectation[\epsilon(x)] = 0, \quad \variance[\epsilon(x)] = \sigma^2(x) \ .
-%\end{equation}
-%The statistics for a given $x$ are:
-%\begin{equation}
-%\text{MSE}(x) = \expectation\left[
-%(Y(x)-\widehat{Y}(x))^2
-%\right]
-%\end{equation}
-%\begin{equation}
-%\text{VAR}(x) = \expectation\left[
-%(\widehat{Y}(x) - \expectation(\widehat{Y}(x))^2
-%\right]
-%\end{equation}
-%\begin{equation}
-%\text{BIAS2}(x) = \expectation\left[
-%(\expectation(\widehat{Y}(x) - y(x))^2
-%\right]
-%\end{equation}
-%\begin{equation}
-%\sigma^2(x) = \expectation\left[
-%(
-%Y(x) - \expectation(Y(x))
-%)^2
-%\right] \ .
-%\end{equation}
-%
-%$y(x)$ is unknown so the bias squared can be calculated using
-%\begin{equation}
-%\text{BIAS2}(X) = \text{MSE}(X) - \text{VAR}(X) - \sigma^2(x)
-%\end{equation}
-%
-%The expectations were estimated using bootstrapped samples of $Y(x)$ and $\widehat{Y}(x)$.
-%
-%\clearpage
-%
-%\begin{figure}
-%\centering
-%    \centerline{
-%    \begin{subfigure}[b]{0.49\textwidth}
-%        \includegraphics[width=\textwidth]{../figures/training_MSSE.eps}
-%    \end{subfigure}
-%    \begin{subfigure}[b]{0.49\textwidth}
-%        \includegraphics[width=\textwidth]{../figures/test_MSSE.eps}
-%    \end{subfigure}
-%    }
-%    \caption{Mean squared standardised error}
-%\end{figure}
-%
-%\begin{figure}
-%\centering
-%    \centerline{
-%    \begin{subfigure}[b]{0.49\textwidth}
-%        \includegraphics[width=\textwidth]{../figures/training_MSE.eps}
-%    \end{subfigure}
-%    \begin{subfigure}[b]{0.49\textwidth}
-%        \includegraphics[width=\textwidth]{../figures/test_MSE.eps}
-%    \end{subfigure}
-%    }
-%    \caption{Mean squared error}
-%\end{figure}
-%
-%\begin{figure}
-%\centering
-%    \centerline{
-%    \begin{subfigure}[b]{0.49\textwidth}
-%        \includegraphics[width=\textwidth]{../figures/training_var.eps}
-%    \end{subfigure}
-%    \begin{subfigure}[b]{0.49\textwidth}
-%        \includegraphics[width=\textwidth]{../figures/test_var.eps}
-%    \end{subfigure}
-%    }
-%    \caption{Estimation variance}
-%\end{figure}
-%
-%\begin{figure}
-%\centering
-%    \centerline{
-%    \begin{subfigure}[b]{0.49\textwidth}
-%        \includegraphics[width=\textwidth]{../figures/training_bias2.eps}
-%    \end{subfigure}
-%    \begin{subfigure}[b]{0.49\textwidth}
-%        \includegraphics[width=\textwidth]{../figures/test_bias2.eps}
-%    \end{subfigure}
-%    }
-%    \caption{Bias squared}
-%\end{figure}
+\begin{equation*}
+i=1,2,3,\dotdotdot,n_{pixel}
+\end{equation*}
+\begin{equation*}
+j=1,2,3,\dotdotdot,n_{fold}
+\end{equation*}
+\begin{equation*}
+x = \text{mean greyvalue of a pixel}
+\end{equation*}
+\begin{equation*}
+Y(x)= \text{variance greyvalue given }x
+\end{equation*}
+\begin{equation*}
+\widehat{Y}(x) = \text{predicted variance greyvalue given }x
+\end{equation*}
+
+Let
+\begin{equation}
+Y(x) = f(x) + \epsilon(x)
+\end{equation}
+where
+\begin{equation}
+\expectation[\epsilon(x)] = 0, \quad \variance[\epsilon(x)] = \sigma^2(x)
+\end{equation}
+and
+\begin{equation}
+f(x) = \expectation\left[Y(x)\right] \ .
+\end{equation}
+The statistics for a given $x$ are:
+\begin{equation}
+\text{RSS}(x) = \expectation\left[
+\left(\widehat{Y}(x) - Y(x)\right)^2
+\right]
+\end{equation}
+\begin{equation}
+\text{MSE}(x) = \expectation\left[
+\left(\widehat{Y}(x)-f(x)\right)^2
+\right]
+\end{equation}
+\begin{equation}
+\text{BIAS}(x) = 
+\expectation\left[\widehat{Y}(x)\right] - f(x)
+\end{equation}
+\begin{equation}
+\text{VAR}(x) = \expectation\left[
+\left(\widehat{Y}(x) - \expectation\left[\widehat{Y}(x)\right]\right)^2
+\right]
+\end{equation}
+\begin{equation}
+\sigma^2(x) = \expectation\left[
+\left(Y(x) - f(x)\right)^2
+\right] \ .
+\end{equation}
+
+Assuming $\expectation\left[\epsilon(x)\widehat{Y}(x)\right] = 0$, then
+\begin{equation}
+\text{MSE}(x) = \text{VAR}(x) + \text{BIAS}^2(x)
+\end{equation}
+and
+\begin{equation}
+\text{RSS}(x) = \text{MSE}(x) + \sigma^2(x)  .
+\end{equation}
+
+The images were spilt into a training set and a test set. The mean and variance of each pixel can be estimated for each set. This can be repeated multiple times by reassigning the training and test set. For the $j$th fold, $\widehat{Y}^{(j)}$ was trained using the training set.
+
+For a given model and a given $x$, the following was observed for each fold after training using the training set
+\begin{equation}
+\widehat{Y}^{(1)}(x),\widehat{Y}^{(2)}(x),\widehat{Y}^{(3)}(x),\dotdotdot,\widehat{Y}^{(n_{fold})}(x)
+\end{equation}
+and for each fold in the test set
+\begin{equation}
+Y^{(1)}(x),Y^{(2)}(x),Y^{(3)}(x),\dotdotdot,Y^{(n_{fold})}(x)
+\end{equation}
+then the following can be estimated
+\begin{equation}
+f(x) \approx \frac{1}{n_{fold}}\sum_{j=1}^{n_{fold}}Y^{(j)}(x)
+\end{equation}
+\begin{equation}
+\expectation\left[\widehat{Y}^{(j)}(x)\right] \approx \frac{1}{n_{fold}}\sum_{j=1}^{n_{fold}}\widehat{Y}^{(j)}(x)
+\end{equation}
+and:
+\begin{equation}
+\text{RSS}(x) \approx \frac{1}{n_{fold}}\sum_{j=1}^{n_{fold}} \left[
+\left(\widehat{Y}^{(j)}(x) - Y^{(j)}(x)\right)^2
+\right]
+\end{equation}
+\begin{equation}
+\text{MSE}(x) \approx \frac{1}{n_{fold}}\sum_{j=1}^{n_{fold}} \left[
+\left(\widehat{Y}^{(j)}(x)-f(x)\right)^2
+\right]
+\end{equation}
+\begin{equation}
+\text{BIAS}(x) \approx \frac{1}{n_{fold}}\sum_{j=1}^{n_{fold}} 
+\left[\widehat{Y}^{(j)}(x)\right] - f(x)
+\end{equation}
+\begin{equation}
+\text{VAR}(x) \approx \frac{1}{n_{fold}}\sum_{j=1}^{n_{fold}} \left[
+\left(\widehat{Y}^{(j)}(x) - \expectation\left[\widehat{Y}^{(j)}(x)\right]\right)^2
+\right]
+\end{equation}
+\begin{equation}
+\sigma^2(x) \approx \frac{1}{n_{fold}}\sum_{j=1}^{n_{fold}} \left[
+\left(Y^{(j)}(x) - f(x)\right)^2
+\right] \ .
+\end{equation}
+
+\clearpage
+
+\begin{figure}
+\centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/noiseidentity_order_1.eps}
+        \caption{Identity, feature order 1}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/noisecanonical_order_-1.eps}
+        \caption{Canonical, feature order -1}
+    \end{subfigure}
+    }
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/noisecanonical_order_-2.eps}
+        \caption{Canonical, feature order -2}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/noiselog_order_-1.eps}
+        \caption{Log, feature order -1}
+    \end{subfigure}
+    }
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/noisecanonical_order_-2.eps}
+        \caption{Log, feature order -2}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/noise1000_NN.eps}
+        \caption{1000-NN}
+    \end{subfigure}
+    }
+\end{figure}
+
+\begin{figure}
+\centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/mseidentity_order_1.eps}
+        \caption{Identity, feature order 1}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/msecanonical_order_-1.eps}
+        \caption{Canonical, feature order -1}
+    \end{subfigure}
+    }
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/msecanonical_order_-2.eps}
+        \caption{Canonical, feature order -2}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/mselog_order_-1.eps}
+        \caption{Log, feature order -1}
+    \end{subfigure}
+    }
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/msecanonical_order_-2.eps}
+        \caption{Log, feature order -2}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/mse1000_NN.eps}
+        \caption{1000-NN}
+    \end{subfigure}
+    }
+\end{figure}
+
+\begin{figure}
+\centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/biasidentity_order_1.eps}
+        \caption{Identity, feature order 1}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/biascanonical_order_-1.eps}
+        \caption{Canonical, feature order -1}
+    \end{subfigure}
+    }
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/biascanonical_order_-2.eps}
+        \caption{Canonical, feature order -2}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/biaslog_order_-1.eps}
+        \caption{Log, feature order -1}
+    \end{subfigure}
+    }
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/biascanonical_order_-2.eps}
+        \caption{Log, feature order -2}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/bias1000_NN.eps}
+        \caption{1000-NN}
+    \end{subfigure}
+    }
+\end{figure}
 
 \bibliographystyle{apalike}
 \bibliography{../bib}

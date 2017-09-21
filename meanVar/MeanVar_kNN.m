@@ -99,6 +99,11 @@ classdef MeanVar_kNN < VarianceModel
             name = cell2mat({num2str(this.parameter),'-NN'});
         end
         
+        %GET FILE NAME
+        function name = getFileName(this)
+            name = cell2mat({num2str(this.parameter),'_NN'});
+        end
+        
     end
     
 end

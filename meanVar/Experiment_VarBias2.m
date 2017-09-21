@@ -79,6 +79,13 @@ classdef Experiment_VarBias2 < Experiment
         
         function printResults(this)
             
+            %get array of glm names
+            model_name_array = cell(this.getNModel(),1);
+            for i = 1:this.getNModel()
+                model = this.getModel(i);
+                model_name_array{i} = model.getFileName();
+            end
+            
             f = repmat(mean(this.y_array,2),1,this.n_bootstrap);
             noise_plot = var(this.y_array,[],2);
             for i_model = 1:this.getNModel()
@@ -88,27 +95,30 @@ classdef Experiment_VarBias2 < Experiment
                 bias_plot = mean(this.y_predict(:,:,i_model),2) - mean(this.y_array,2);
                 var_plot = var(this.y_predict(:,:,i_model),[],2);
                 
-                figure;
+                fig = figure_latexSub();
                 plot(this.x_plot,rss_plot);
                 hold on;
                 plot(this.x_plot,noise_plot);
-                legend('RSS','\sigma^2');
+                legend('RSS','\sigma^2','Location','northwest');
                 xlabel('mean greyvalue (arb. unit)');
                 ylabel('statistic (arb. unit^2)');
+                saveas(fig,fullfile('reports','figures',strcat('noise',model_name_array{i_model},'.eps')),'epsc');
 
-                figure;
+                fig = figure_latexSub();
                 plot(this.x_plot,mse_plot);
                 hold on;
                 plot(this.x_plot,var_plot);
                 plot(this.x_plot,bias_plot.^2);
-                legend('MSE','VAR','BIAS^2');
+                legend('MSE','VAR','BIAS^2','Location','northwest');
                 xlabel('mean greyvalue (arb. unit)');
                 ylabel('statistic (arb. unit^2)');
+                saveas(fig,fullfile('reports','figures',strcat('mse',model_name_array{i_model},'.eps')),'epsc');
 
-                figure;
+                fig = figure_latexSub();
                 plot(this.x_plot,bias_plot);
                 xlabel('mean greyvalue (arb. unit)');
                 ylabel('bias (arb. unit)');
+                saveas(fig,fullfile('reports','figures',strcat('bias',model_name_array{i_model},'.eps')),'epsc');
                
             end
             
