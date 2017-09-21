@@ -20,6 +20,7 @@ classdef Experiment < handle
     properties
         experiment_name; %string, name of the experiment and the file name for storing it in a .mat file
         is_complete; %boolea, true if the experiment is completed
+        n_arrow;
     end
     
     %METHODS
@@ -38,6 +39,7 @@ classdef Experiment < handle
                 %assign member variables
                 this.experiment_name = experiment_name;
                 this.is_complete = false;
+                this.n_arrow = -1;
                 %set up the experiment
                 this.setUpExperiment;
                 %save a .mat file and exit the constructor
@@ -73,6 +75,35 @@ classdef Experiment < handle
         function deleteVariables(this)
         end
         
+        %FUNCTION PRINT PROGRESS
+        %Displays a progress bar (with resoloution of 20)
+        %PARAMETERS:
+            %p: fraction of progress done (between 0 and 1)
+        function printProgress(this, p)
+
+            %get the number of arrows to be displayed
+            new_n_arrow = round(p*20);
+            
+            if new_n_arrow > this.n_arrow
+
+                this.n_arrow = new_n_arrow;
+                
+                %declare an array of . enclosed by square brackets
+                progress_bar(1:22) = '.';
+                progress_bar(1) = '[';
+                progress_bar(end) = ']';
+
+                %for each arrow, put an arrow
+                for i = 1:this.n_arrow
+                    progress_bar(i+1) = '>';
+                end
+
+                %display the progress bar
+                disp(progress_bar);
+            end
+
+        end %printProgress
+        
     end %methods
     
     %ABSTRACT METHODS
@@ -90,35 +121,6 @@ classdef Experiment < handle
         printResults(this)
          
     end
-    
-    %STATIC METHODS
-    methods (Static)
-        
-        %FUNCTION PRINT PROGRESS
-        %Displays a progress bar (with resoloution of 20)
-        %PARAMETERS:
-            %p: fraction of progress done (between 0 and 1)
-        function printProgress(p)
-
-            %get the number of arrows to be displayed
-            n_arrow = round(p*20);
-
-            %declare an array of . enclosed by square brackets
-            progress_bar(1:22) = '.';
-            progress_bar(1) = '[';
-            progress_bar(end) = ']';
-
-            %for each arrow, put an arrow
-            for i = 1:n_arrow
-                progress_bar(i+1) = '>';
-            end
-
-            %display the progress bar
-            disp(progress_bar);
-
-        end %printProgress
-                
-    end %methods
     
 end
 
