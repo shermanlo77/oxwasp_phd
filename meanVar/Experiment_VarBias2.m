@@ -83,7 +83,7 @@ classdef Experiment_VarBias2 < Experiment
                 test_index = index((this.n_train+1):end);
                 
                 %get the training mean and variance
-                [sample_mean,sample_var] = getMeanVar(this, train_index);
+                [sample_mean,sample_var] = this.getMeanVar(train_index);
                 
                 %for each model
                 for i_model = 1:this.getNModel()
@@ -96,7 +96,7 @@ classdef Experiment_VarBias2 < Experiment
                 end
                 
                 %get the test mean and variance
-                [sample_mean,sample_var] = getMeanVar(this, test_index);
+                [sample_mean,sample_var] = this.getMeanVar(test_index);
                 %for each x in this.n_plot
                 for i_x = 1:this.n_plot
                 	%get the point of the variance where its mean is cloest to x
