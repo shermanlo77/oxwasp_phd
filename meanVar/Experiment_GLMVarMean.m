@@ -2,7 +2,7 @@ classdef Experiment_GLMVarMean < Experiment
     %EXPERIMENT_GLMVARMEAN Assess the performance of GLM fit on mean var data
     %   The images are spilt into 2 parts, training and test. GLM is used
     %   to model the variance and mean relationship, with variance as the
-    %   response. The response is gamma randomlly distributed with known
+    %   response. The response is gamma randomly distributed with known
     %   shape parameter.   
     %
     %   The images were segmented to only consider pixels from the ROI.
@@ -15,11 +15,11 @@ classdef Experiment_GLMVarMean < Experiment
     %MEMBER VARIABLES
     properties
         
-        i_repeat; %number of iterations done
+        i_repeat; %number of folds done
         i_glm; %number of glm done
         i_shad; %number of shading corrections done
-        i_iteration;
-        n_iteration;
+        i_iteration; %number of loops done
+        n_iteration; %total number of loops done (for progress bar)
         n_repeat; %number of itereations to complete the experiment
         n_sample; %number of images in a scan
         n_train; %number of images in the training set (half of n_sample)
@@ -34,13 +34,14 @@ classdef Experiment_GLMVarMean < Experiment
         training_mse_array;
         test_mse_array;
         
-        greyvalue_array; %temp variable, dim 1: for each pixel, dim 2: for each image
+        %temporary variable
+        %stores the grey values of each masked pixel, for each image
+        mean_variance_estimator;
         
-        %segmentation boolean vectpr
-        segmentation;
         %random stream
         rand_stream;
         
+        %cell array of shading corrector and glm names
         shading_corrector_array;
         glm_name_array;
         
@@ -85,19 +86,24 @@ classdef Experiment_GLMVarMean < Experiment
             this.training_mse_array = zeros(this.n_repeat,this.getNGlm(),this.getNShadingCorrector());
             this.test_mse_array = zeros(this.n_repeat,this.getNGlm(),this.getNShadingCorrector());
             
-            this.saveSegmentation();
+            this.mean_variance_estimator = MeanVarianceEstimator(scan);
             this.rand_stream = rand_stream;
         end
         
         
         %DO EXPERIMENT
         function doExperiment(this)
-
+            %set random stream
             RandStream.setGlobalStream(this.rand_stream);
+            %for each shading correction
             while (this.i_shad <= this.getNShadingCorrector())
+                %save the shading corrected greyvalues
                 this.saveGreyvalueArray();
+                %for each glm
                 while (this.i_glm <= this.getNGlm())
+                    %for each fold
                     while (this.i_repeat <= this.n_repeat)
+                        %save the mse and msse, training and test
                         this.doIteration();
                         this.i_repeat = this.i_repeat + 1;
                     end
@@ -130,7 +136,7 @@ classdef Experiment_GLMVarMean < Experiment
         
         %DELETE GREYVALUE ARRAY
         function deleteVariables(this)
-            this.greyvalue_array = [];
+            this.mean_variance_estimator = [];
         end
         
         %DO ONE ITERATION OF EXPERIMENT
@@ -188,6 +194,14 @@ classdef Experiment_GLMVarMean < Experiment
             this.plotBoxPlot(this.test_mse_array,'test MSE');
         end
         
+        %PLOT BOX PLOT
+        %Plots statisitcs for each glm and shading corrector
+        %PARAMETERS:
+            %stat_array: array of statistics
+                %dim 1: for each repeat
+                %dim 2: for each glm
+                %dim 3: for each shading corrector
+            %stat_name: name of the statistic
         function plotBoxPlot(this,stat_array, stat_name)
             %produce figure
             figure;
@@ -224,12 +238,18 @@ classdef Experiment_GLMVarMean < Experiment
             %shape parameter is number of (images - 1)/2, this comes from the chi
             %squared distribution
             scan = this.getScan();
+            %save the gamma shape parameter
             this.shape_parameter = (scan.n_sample-1)/2;
-
-            this.saveGreyvalueArray();
+            %instantise a mean variance estimator
+            this.mean_variance_estimator = MeanVarianceEstimator(scan);
+            
             %for each shading corrector
             this.i_shad = 1;
             while (this.i_shad <= this.getNShadingCorrector())
+                
+                %for this shading corrector, save the greyvalues
+                this.saveGreyvalueArray();
+                
                 %for each glm
                 for i = 1:this.getNGlm()
                     
@@ -267,27 +287,18 @@ classdef Experiment_GLMVarMean < Experiment
                     %plot the error bars
                     plot(x_plot,up_error,'r--');
                     plot(x_plot,down_error,'r--');
-                    
+                    %label the axis
                     xlabel('mean (arb. unit)');
                     ylabel('variance (arb. unit^2)');
                 end
                 this.i_shad = this.i_shad + 1;
             end
-            
+            %delete the storage of greyvalues
             this.deleteVariables();
         end %plotFullFit
         
-        %SAVE SEGMENTATION
-        %Given segmentation from a scan object, save it as a vector
-        function saveSegmentation(this)
-            scan = this.getScan();
-            this.segmentation = scan.getSegmentation();
-            this.segmentation = reshape(this.segmentation,[],1);
-        end
-        
         %GET MEAN VARIANCE
-        %Get mean and variance vector using the images indicated by the parameter data_index
-        %The mean and variance are already segmented
+        %Get mean and variance vector using the images indicated by the parameter image_index
         %PARAMETERS:
             %image_index: vector of integers, points to which images to use for mean and variance estimation
         %RETURNS:
@@ -295,35 +306,20 @@ classdef Experiment_GLMVarMean < Experiment
             %sample_var: variance vector
         function [sample_mean,sample_var] = getMeanVar(this, image_index)
             %work out the mean and variance
-            sample_mean = mean(this.greyvalue_array(:,image_index),2);
-            sample_var = var(this.greyvalue_array(:,image_index),[],2);
+            [sample_mean,sample_var] = this.mean_variance_estimator.getMeanVar(image_index);
         end
         
-        
         %SAVE GREY VALUE ARRAY
-        %Set up the member variable greyvalue_array
+        %Set up the member variable mean_variance_estimator
         function saveGreyvalueArray(this)
-            
-            %get the number of segmented pixels
-            n_pixel = sum(this.segmentation);
-            
             %get the scan object
             scan = this.getScan();
             %get the shading corrector
             [shading_corrector, reference_index] = this.getShadingCorrector(this.i_shad);
             %add the shading corrector
             scan.addShadingCorrector(shading_corrector, reference_index);
-            
-            %declare the array greyvalue array
-            this.greyvalue_array = zeros(n_pixel, scan.n_sample); 
-            
-            %load the images and reshape it to be a design matrix
-            image_stack = scan.loadImageStack();
-            image_stack = reshape(image_stack,scan.area,scan.n_sample);
-
-            %segment the design matrix
-            this.greyvalue_array = image_stack(this.segmentation,:);
-                
+            %save the greyvalues
+            this.mean_variance_estimator.saveGreyvalueArray(scan);
         end %saveGreyvalueArray
         
         %IMPLEMENTED: GET N BIN

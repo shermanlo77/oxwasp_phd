@@ -23,9 +23,9 @@ classdef Experiment_VarBias2 < Experiment
             %dim 3: for each model
         y_predict;
         
-        %temp variable, dim 1: for each pixel, dim 2: for each image
-        greyvalue_array;
-        segmentation;
+        %temporary variable
+        %stores the grey values of each masked pixel, for each image
+        mean_variance_estimator;
         
         n_train;
         n_image;
@@ -42,7 +42,6 @@ classdef Experiment_VarBias2 < Experiment
             this.n_bootstrap = 1000;
             this.n_plot = 100;
             this.rand_stream = RandStream('mt19937ar','Seed',uint32(3653123410));
-            this.saveSegmentation();
         end
         
         function doExperiment(this)
@@ -125,17 +124,8 @@ classdef Experiment_VarBias2 < Experiment
             
         end
         
-        %SAVE SEGMENTATION
-        %Given segmentation from a scan object, save it as a vector
-        function saveSegmentation(this)
-            scan = this.getScan();
-            this.segmentation = scan.getSegmentation();
-            this.segmentation = reshape(this.segmentation,[],1);
-        end
-        
         %GET MEAN VARIANCE
-        %Get mean and variance vector using the images indicated by the parameter data_index
-        %The mean and variance are already segmented
+        %Get mean and variance vector using the images indicated by the parameter image_index
         %PARAMETERS:
             %image_index: vector of integers, points to which images to use for mean and variance estimation
         %RETURNS:
@@ -143,29 +133,16 @@ classdef Experiment_VarBias2 < Experiment
             %sample_var: variance vector
         function [sample_mean,sample_var] = getMeanVar(this, image_index)
             %work out the mean and variance
-            sample_mean = mean(this.greyvalue_array(:,image_index),2);
-            sample_var = var(this.greyvalue_array(:,image_index),[],2);
+            [sample_mean,sample_var] = this.mean_variance_estimator.getMeanVar(image_index);
         end
         
         %SAVE GREY VALUE ARRAY
         %Set up the member variable greyvalue_array
         function saveGreyvalueArray(this)
             
-            %get the number of segmented pixels
-            n_pixel = sum(this.segmentation);
-            
-            %get the scan object
             scan = this.getScan();
-            
-            %declare the array greyvalue array
-            this.greyvalue_array = zeros(n_pixel, scan.n_sample); 
-            
-            %load the images and reshape it to be a design matrix
-            image_stack = scan.loadImageStack();
-            image_stack = reshape(image_stack,scan.area,scan.n_sample);
-
-            %segment the design matrix
-            this.greyvalue_array = image_stack(this.segmentation,:);
+            this.mean_variance_estimator = MeanVarianceEstimator(scan);
+            this.mean_variance_estimator.saveGreyvalueArray(scan);
             
             this.n_train = round(scan.n_sample/2);
             this.y_array = zeros(this.n_plot, this.n_bootstrap);
@@ -173,7 +150,7 @@ classdef Experiment_VarBias2 < Experiment
             this.shape_parameter = (this.n_train-1)/2;
             this.n_image = scan.n_sample;
             
-            [sample_mean,~] = getMeanVar(this, 1:this.n_image);
+            [sample_mean,~] = this.getMeanVar(1:this.n_image);
             this.x_plot = (linspace(min(sample_mean),max(sample_mean),this.n_plot))';
                 
         end %saveGreyvalueArray
