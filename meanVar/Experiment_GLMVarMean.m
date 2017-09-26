@@ -23,6 +23,8 @@ classdef Experiment_GLMVarMean < Experiment
         n_repeat; %number of itereations to complete the experiment
         n_sample; %number of images in a scan
         n_train; %number of images in the training set (half of n_sample)
+        n_pixel; %number of pixels in the segmented image
+        
         shape_parameter; %shape parameter of gamma
         
         %array of training and test error
@@ -76,18 +78,23 @@ classdef Experiment_GLMVarMean < Experiment
             this.n_repeat = n_repeat;
             this.n_sample = scan.n_sample;
             this.n_train = round(this.n_sample/2);
-            this.n_iteration = this.getNShadingCorrector() * this.getNGlm();
+            
+            this.n_iteration = this.n_repeat * this.getNShadingCorrector() * this.getNGlm();
             
             this.shape_parameter = (this.n_train-1)/2;
             
+            this.mean_variance_estimator = MeanVarianceEstimator(scan);
+            
+            this.assignArray();
+            this.rand_stream = rand_stream;
+        end
+        
+        function assignArray(this)
             this.training_msse_array = zeros(this.n_repeat,this.getNGlm(),this.getNShadingCorrector());
             this.test_msse_array = zeros(this.n_repeat,this.getNGlm(),this.getNShadingCorrector());
             
             this.training_mse_array = zeros(this.n_repeat,this.getNGlm(),this.getNShadingCorrector());
             this.test_mse_array = zeros(this.n_repeat,this.getNGlm(),this.getNShadingCorrector());
-            
-            this.mean_variance_estimator = MeanVarianceEstimator(scan);
-            this.rand_stream = rand_stream;
         end
         
         
@@ -106,9 +113,10 @@ classdef Experiment_GLMVarMean < Experiment
                         %save the mse and msse, training and test
                         this.doIteration();
                         this.i_repeat = this.i_repeat + 1;
+                        
+                        this.i_iteration = this.i_iteration + 1;
+                        this.printProgress(this.i_iteration / this.n_iteration);
                     end
-                    this.i_iteration = this.i_iteration + 1;
-                    this.printProgress(this.i_iteration / this.n_iteration);
                     this.i_repeat = 1;
                     this.i_glm = this.i_glm + 1;
                 end
@@ -212,19 +220,25 @@ classdef Experiment_GLMVarMean < Experiment
             end
             %get the colours for each hold on
             colour_order = ax.ColorOrder;
+            
+            q = quantile(reshape(stat_array,[],1),[0.25,0.75]);
+            iqr = q(end) - q(1);
+            sigma_level = 5;
+            data_lim = [q(1) - (sigma_level-0.5)*iqr, q(end) + (sigma_level-0.5)*iqr];
+            
             %for each shading correction
             for i = 1:this.getNShadingCorrector()
                 %get the position of the box plot for this current shading correction
                 position = (1:this.getNGlm())-0.25+0.5*(i)/(this.getNShadingCorrector()+1);
                 %box plot the errors
-                boxplot(stat_array(:,:,i),'Position',position,'boxstyle','filled','medianstyle','target','outliersize',4,'symbol','o','Color',colour_order(i,:));
+                boxplot(stat_array(:,:,i),'Position',position,'boxstyle','filled','medianstyle','target','outliersize',2,'symbol','o','Color',colour_order(i,:),'DataLim',data_lim);
             end
             %retick the x axis
             ax.XTick = 1:this.getNGlm();
             %label each glm with its name
             ax.XTickLabelRotation = 45;
             ax.XTickLabel = this.glm_name_array;
-            ax.YLim = [min(min(min(stat_array))),max(max(max(stat_array)))];
+            ax.YLim = [max([min(min(min(stat_array))),data_lim(1)]),min([max(max(max(stat_array))),data_lim(end)])];
             %label the axis and legend
             ylabel(stat_name);
             legend(this.shading_corrector_array);
