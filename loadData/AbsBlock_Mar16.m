@@ -18,6 +18,12 @@ classdef AbsBlock_Mar16 < Scan
             %this.min_greyvalue = 5.7588E3;
         end
         
+        %OVERRIDE: SEGMENTATION ONLY TOP HALF
+        function segmentation = getSegmentation(this)
+            segmentation = this.getSegmentation@Scan();
+            segmentation((floor(this.height/2)+1):end,:) = false;
+        end
+        
         %GET SAMPLE MEAN VARIANCE DATA (using top half of the images)
         %PARAMETERS:
             %index (optional): vector of indices of images requested to be
@@ -40,6 +46,8 @@ classdef AbsBlock_Mar16 < Scan
             sample_var = reshape(var(stack,[],3),[],1);
 
         end
+        
+        
 
     end
     

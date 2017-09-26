@@ -20,15 +20,6 @@ classdef Experiment_GLMVarMean_Mar16 < Experiment_GLMVarMean
             this.setUpExperiment@Experiment_GLMVarMean(100, RandStream('mt19937ar','Seed',uint32(176048084)));
         end
         
-        %SAVE SEGMENTATION
-        %Given segmentation from a scan object, save it as a vector
-        function saveSegmentation(this)
-            scan = this.getScan();
-            this.segmentation = scan.getSegmentation();
-            this.segmentation((floor(scan.height/2)+1):end,:) = false;
-            this.segmentation = reshape(this.segmentation,[],1);
-        end
-        
         %IMPLEMENTED: GET SCAN
         function scan = getScan(this)
             scan = AbsBlock_Mar16();
