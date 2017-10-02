@@ -14,12 +14,53 @@ classdef Experiment_ImageVarBias2_Sep16 < Experiment_ImageVarBias2
         %OVERRIDE: SET UP EXPERIMENT
         function setUpExperiment(this, rand_stream)
             %call superclass with 100 repeats and a random stream
-            this.setUpExperiment@Experiment_ImageVarBias2(1000, rand_stream);
+            this.setUpExperiment@Experiment_ImageVarBias2(100, rand_stream);
+        end
+        
+        %OVERRIDE
+        function printResults(this)
+            this.printResults@Experiment_ImageVarBias2();
+            scan = this.getScan();
+            segmentation = scan.getSegmentation();
+            stat_image = nan(scan.height, scan.width);
+            
+            stat_image(segmentation) = this.rss_array(:,1,2);
+            figure;
+            imagesc_truncate(stat_image);
+            colorbar;
+            ax = gca;
+            ax.CLim(1) = 0;
+            
+            stat_image(segmentation) = this.var_array(:,1,2);
+            figure;
+            imagesc_truncate(stat_image);
+            colorbar;
+            ax = gca;
+            ax.CLim(1) = 0;
+            
+            stat_image(segmentation) = this.y_hat_array(:,1,2) - this.y_array(:,1,2);
+            figure;
+            imagesc_truncate(stat_image);
+            colorbar;
+            
+            stat_image(segmentation) = (this.y_hat_array(:,1,2) - this.y_array(:,1,2)).^2;
+            figure;
+            imagesc_truncate(stat_image);
+            colorbar;
+            ax = gca;
+            ax.CLim(1) = 0;
+            
+            stat_image(segmentation) = this.var_array(:,1,2) + (this.y_hat_array(:,1,2) - this.y_array(:,1,2)).^2;
+            figure;
+            imagesc_truncate(stat_image);
+            colorbar;
+            ax = gca;
+            ax.CLim(1) = 0;
         end
         
         %IMPLEMENTED: GET N GLM
         function n_glm = getNGlm(this)
-            n_glm = 5;
+            n_glm = 6;
         end
         
         %IMPLEMENTED: GET GLM
@@ -35,6 +76,8 @@ classdef Experiment_ImageVarBias2_Sep16 < Experiment_ImageVarBias2
                     model = MeanVar_GLM(this.shape_parameter,1,LinkFunction_Log());
                 case 5
                     model = MeanVar_GLM(this.shape_parameter,-1,LinkFunction_Log());
+                case 6
+                    model = MeanVar_kNN(1E3);
             end
         end
         

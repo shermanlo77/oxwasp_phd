@@ -231,7 +231,7 @@ classdef Experiment_GLMVarMean < Experiment
                 %get the position of the box plot for this current shading correction
                 position = (1:this.getNGlm())-0.25+0.5*(i)/(this.getNShadingCorrector()+1);
                 %box plot the errors
-                boxplot(stat_array(:,:,i),'Position',position,'boxstyle','filled','medianstyle','target','outliersize',2,'symbol','o','Color',colour_order(i,:),'DataLim',data_lim);
+                boxplot(stat_array(:,:,i),'Position',position,'boxstyle','filled','medianstyle','target','outliersize',2,'symbol','o','Color',colour_order(i,:));
             end
             %retick the x axis
             ax.XTick = 1:this.getNGlm();

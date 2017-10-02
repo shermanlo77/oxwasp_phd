@@ -14,12 +14,12 @@ classdef Experiment_ImageVarBias2_July16 < Experiment_ImageVarBias2
         %OVERRIDE: SET UP EXPERIMENT
         function setUpExperiment(this, rand_stream)
             %call superclass with 100 repeats and a random stream
-            this.setUpExperiment@Experiment_ImageVarBias2(1000, rand_stream);
+            this.setUpExperiment@Experiment_ImageVarBias2(100, rand_stream);
         end
         
         %IMPLEMENTED: GET N GLM
         function n_glm = getNGlm(this)
-            n_glm = 5;
+            n_glm = 6;
         end
         
         %IMPLEMENTED: GET GLM
@@ -35,6 +35,8 @@ classdef Experiment_ImageVarBias2_July16 < Experiment_ImageVarBias2
                     model = MeanVar_GLM(this.shape_parameter,1,LinkFunction_Log());
                 case 5
                     model = MeanVar_GLM(this.shape_parameter,-1,LinkFunction_Log());
+                case 6
+                    model = MeanVar_kNN(1E3);
             end
         end
         
