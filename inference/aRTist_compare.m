@@ -49,17 +49,12 @@ ylabel('aRTist greyvalue (arb. unit)');
 figure;
 hist3Heatmap(aRTist_vector,d,[100,100],true);
 hold on;
-%get the min and max greyvalue
-min_grey = min([min(min(phantom)),min(min(aRTist))]);
-max_grey = max([max(max(phantom)),max(max(aRTist))]);
-%plot straight line with gradient 1
-plot([min_grey,max_grey],[min_grey,max_grey],'r');
 %label axis
 colorbar;
 xlabel('aRTist greyvalue (arb. unit)');
 ylabel('difference in greyvalue (arb. unit)');
 
-model = MeanVar_kNN(1E3);
+model = MeanVar_kNN(1E5);
 model.train(aRTist_vector,d);
 aRTist_plot = (min(aRTist_vector):max(aRTist_vector))';
 hold on;
@@ -67,6 +62,7 @@ plot(aRTist_plot,model.predict(aRTist_plot),'-r');
 
 d_predict = model.predict(reshape(aRTist,[],1));
 aRTist = aRTist + reshape(d_predict,block_data.height,block_data.width);
+aRTist_plot = (min(min(aRTist)):max(max(aRTist_vector)))';
 
 aRTist_vector = reshape(aRTist(segmentation),[],1);
 d = phantom_vector - aRTist_vector;
@@ -92,6 +88,14 @@ plot([min_grey,max_grey],[min_grey,max_grey],'r');
 colorbar;
 xlabel('phantom greyvalue (arb. unit)');
 ylabel('aRTist greyvalue (arb. unit)');
+
+%plot phantom - aRTist vs aRTist greyvalue as a histogram heatmap
+figure;
+hist3Heatmap(aRTist_vector,d,[100,100],true);
+%label axis
+colorbar;
+xlabel('aRTist greyvalue (arb. unit)');
+ylabel('difference in greyvalue (arb. unit)');
 
 %get the training images
 training_stack = block_data.loadImageStack(training_index);
@@ -122,9 +126,9 @@ test_stack = block_data.loadImageStack(test_index);
 for i = 1:n_test
     %for this test image (the 1st one)
     test = test_stack(:,:,i);
-    var_predict = reshape(model.predict(reshape(test,[],1)),block_data.height, block_data.width);
     %get the z statistic
-    z_image = (test - aRTist)./sqrt(var_predict);
+    d = test - aRTist;
+    z_image = d./sqrt(var_predict);
     
     %set non segmented pixels to be nan
     z_image(~segmentation) = nan;
@@ -133,7 +137,15 @@ for i = 1:n_test
     p_image = 2*(1-normcdf(abs(z_image)));
     
     figure;
-    imagesc(p_image);
+    imagesc_truncate(d);
+    colorbar;
+    
+    figure;
+    imagesc_truncate(z_image);
+    colorbar;
+    
+    figure;
+    imagesc(log10(p_image));
     colorbar;
     
     m = sum(sum(~isnan(z_image)));
@@ -158,7 +170,8 @@ for i = 1:n_test
     ylabel('z statistics quantiles');
 
     %find critical pixels at some level
-    critical_index = reshape(significantFDR(reshape(p_image,[],1),normcdf(-2),true),block_data.height,block_data.width);
+    [critical_index, size] = significantFDR(reshape(p_image,[],1),normcdf(-2),true);
+    critical_index = reshape(critical_index,block_data.height,block_data.width);
     [critical_y, critical_x] = find(critical_index);
 
     %plot the phantom scan with critical pixels highlighted
@@ -167,4 +180,58 @@ for i = 1:n_test
     hold on;
     scatter(critical_x, critical_y,'r.');
     colorbar;
+    
+    %plot phantom - aRTist vs aRTist greyvalue as a histogram heatmap
+    d_plot = norminv(1-size/2) * sqrt(model.predict(aRTist_plot));
+    figure;
+    hist3Heatmap(aRTist(segmentation),d(segmentation),[100,100],true);
+    hold on;
+    plot(aRTist_plot,d_plot,'r--');
+    plot(aRTist_plot,-d_plot,'r--');
+    %label axis
+    colorbar;
+    xlabel('aRTist greyvalue (arb. unit)');
+    ylabel('difference in greyvalue (arb. unit)');
+end
+
+row_array = {547:700, 522:708, 1800:1910, 1060:1260};
+col_array = {580:708, 766:997, 852:1020, 816:1010};
+z_plot = linspace(-5,5,100);
+
+for i = 1:numel(col_array)
+
+    col_index = col_array{i};
+    row_index = row_array{i};
+
+    figure;
+
+    subplot(1,2,1);
+    imagesc(z_image);
+    colorbar;
+    hold on;
+    plot([col_index(1),col_index(end)],[row_index(1),row_index(1)],'r');
+    plot([col_index(1),col_index(end)],[row_index(end),row_index(end)],'r');
+    plot([col_index(1),col_index(1)],[row_index(1),row_index(end)],'r');
+    plot([col_index(end),col_index(end)],[row_index(1),row_index(end)],'r');
+
+    z_sub = reshape(z_image(row_index, col_index),[],1);
+    z_sub(isnan(z_sub)) = [];
+    m = numel(z_sub);
+
+    subplot(1,2,2);
+    histogram(z_sub,'Normalization','CountDensity');
+    hold on;
+    plot(z_plot,normpdf(z_plot)*m);
+    xlabel('z statistic');
+    ylabel('frequency density');
+    
+%     subplot(1,3,3);
+%     scatter(norminv(((1:m)-0.5)/m),sort(z_sub),'x');
+%     hold on;
+%     plot([-5,5],[-5,5],'r--');
+%     xlabel('Standard Normal quantiles');
+%     ylabel('z statistics quantiles');
+%     xlim([-5,5]);
+%     ylim([-5,5]);
+
 end
