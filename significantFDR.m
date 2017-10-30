@@ -6,7 +6,11 @@
     %want_plot: boolean, true to plot the p values in a curve
 %RETURN:
     %sig_array: vector of booleans, true if that p value is significant, false otherwise or if nan
-function sig_array = significantFDR(p_array, size_test, want_plot)
+    %new_size: the new size of the test
+function [sig_array, new_size] = significantFDR(p_array, size_test, want_plot)
+
+    %the non-FDR controlled size of the test is the size of the test
+    new_size = size_test;
 
     %convert p_array to a column vector
     if isrow(p_array)
@@ -34,6 +38,9 @@ function sig_array = significantFDR(p_array, size_test, want_plot)
     
     %if there are p values which are critical
     if ~isempty(p_critical_index)
+        
+        new_size = p_ordered(p_critical_index);
+        
         %set everything in p_array to be false
         %they will be set to true for significant p values
         p_array = zeros(numel(p_array),1);
