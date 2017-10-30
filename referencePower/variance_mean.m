@@ -43,7 +43,7 @@ for i_ref = 1:n_reference
     %append the mean and variance to mean_array and var_array
     mean_array(:, i_ref) = reshape(mean_image,[],1);
     var_array(:, i_ref) = reshape(var_image,[],1);
-    [var_b_array(i_ref),var_w_array(i_ref)] = var_between_within(image_array);
+    [var_b_array(i_ref),var_w_array(i_ref)] = Experiment_referenceShadingCorrection.var_between_within(image_array);
 end
 
 %work out the errors for var_b and var_w
@@ -72,7 +72,9 @@ plot(power_array,mean(mean_array),'LineStyle','none');
 ax = gca;
 x_tick = ax.XTick;
 x_tick_label = ax.XTickLabel;
-boxplot(ax,mean_array,'position', power_array,'boxstyle','filled','medianstyle','target','outliersize',4,'symbol','o');
+boxplot_power_mean = Boxplots(mean_array,false);
+boxplot_power_mean.setPosition(power_array);
+boxplot_power_mean.plot();
 ax = gca;
 ax.XTick = x_tick;
 ax.XTickLabel = x_tick_label;
@@ -80,7 +82,9 @@ xlabel('Power (W)');
 ylabel('Pixel mean (arb. unit)');
 
 figure;
-boxplot(var_array,'position', power_array,'boxstyle','filled','medianstyle','target','outliersize',4,'symbol','o');
+boxplot_power_var = Boxplots(var_array,true);
+boxplot_power_var.setPosition(power_array);
+boxplot_power_var.plot();
 ax = gca;
 ax.XTick = x_tick;
 ax.XTickLabel = x_tick_label;

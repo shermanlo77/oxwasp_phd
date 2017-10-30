@@ -110,10 +110,12 @@ classdef Boxplot < handle
             %plot outliers
             n_outlier = sum(this.outlier_index);
             outlier = line(ones(1,n_outlier)*this.position, this.X(this.outlier_index)');
-            outlier.LineStyle = 'none';
-            outlier.Marker = this.outlier_mark;
-            outlier.Color = this.outlier_colour;
-            outlier.MarkerSize = this.outlier_size;
+            if n_outlier ~= 0
+                outlier.LineStyle = 'none';
+                outlier.Marker = this.outlier_mark;
+                outlier.Color = this.outlier_colour;
+                outlier.MarkerSize = this.outlier_size;
+            end
             
             %draw the whisker
             whisker_line = line([this.position,this.position],this.whisker);
