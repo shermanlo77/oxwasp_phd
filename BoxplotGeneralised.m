@@ -51,16 +51,20 @@ classdef BoxplotGeneralised < Boxplot
             g = log(-q(2)/q(1))/z_p;
             h = 2*log(-g * (q(2)*q(1)) / (sum(q))) / (z_p^2);
 
-            %set a deterministic random number generator
-            stream = RandStream('mt19937ar','Seed',0);
-            %simulate Normal random variabkes
-            Z = stream.randn(this.n_monte_carlo,1);
-            %transform the Normal random variables to Turkey random varibales
-            Y = (exp(g*Z)-1).*exp(h*Z.^2/2) / g;
+%             %USING MONTE CARLO
+%             %set a deterministic random number generator
+%             stream = RandStream('mt19937ar','Seed',0);
+%             %simulate Normal random variabkes
+%             Z = stream.randn(this.n_monte_carlo,1);
+%             %transform the Normal random variables to Turkey random varibales
+%             Y = (exp(g*Z)-1).*exp(h*Z.^2/2) / g;
+% 
+%             %find the critical values for w
+%             %this is found by using the quantiles of the imperical Turkey density
+%             w_critical = quantile(Y,[this.alpha, 1-this.alpha]);
 
-            %find the critical values for w
-            %this is found by using the quantiles of the imperical Turkey density
-            w_critical = quantile(Y,[this.alpha, 1-this.alpha]);
+            p = [this.alpha, 1-this.alpha];
+            w_critical = (exp(g*norminv(p))-1).*exp(h*(norminv(p)).^2/2)/g;
 
             %for each outlier, set the boolean in this.outlier_index ot be true
             this.outlier_index = (w < w_critical(1)) | (w > w_critical(2));
