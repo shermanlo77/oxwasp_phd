@@ -57,7 +57,7 @@ classdef Boxplots < handle
             %colour: colour of the boxplot
         function setColour(this, colour)
             for i_group = 1:this.n_boxplot
-                this.boxplot_array{i_group}.setColour(colour(i_group));
+                this.boxplot_array{i_group}.setColour(colour);
             end
         end
         

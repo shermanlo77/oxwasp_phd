@@ -221,24 +221,22 @@ classdef Experiment_GLMVarMean < Experiment
             %get the colours for each hold on
             colour_order = ax.ColorOrder;
             
-            q = quantile(reshape(stat_array,[],1),[0.25,0.75]);
-            iqr = q(end) - q(1);
-            sigma_level = 5;
-            data_lim = [q(1) - (sigma_level-0.5)*iqr, q(end) + (sigma_level-0.5)*iqr];
-            
             %for each shading correction
             for i = 1:this.getNShadingCorrector()
                 %get the position of the box plot for this current shading correction
                 position = (1:this.getNGlm())-0.25+0.5*(i)/(this.getNShadingCorrector()+1);
                 %box plot the errors
-                boxplot(stat_array(:,:,i),'Position',position,'boxstyle','filled','medianstyle','target','outliersize',2,'symbol','o','Color',colour_order(i,:));
+                boxplot = Boxplots(stat_array(:,:,i),false);
+                boxplot.setPosition(position);
+                boxplot.setColour(colour_order(i,:));
+                boxplot.plot();
             end
             %retick the x axis
             ax.XTick = 1:this.getNGlm();
             %label each glm with its name
             ax.XTickLabelRotation = 45;
             ax.XTickLabel = this.glm_name_array;
-            ax.YLim = [max([min(min(min(stat_array))),data_lim(1)]),min([max(max(max(stat_array))),data_lim(end)])];
+            %ax.YLim = [max([min(min(min(stat_array))),data_lim(1)]),min([max(max(max(stat_array))),data_lim(end)])];
             %label the axis and legend
             ylabel(stat_name);
             legend(this.shading_corrector_array);
