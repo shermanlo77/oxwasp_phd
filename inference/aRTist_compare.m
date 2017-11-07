@@ -140,26 +140,38 @@ for i = 1:n_test
     imagesc_truncate(d);
     colorbar;
     
-    figure;
+    fig = figure;
+    fig.Position(3:4) = [420,315];
     imagesc_truncate(z_image);
     colorbar;
+    fig.CurrentAxes.XTick = [];
+    fig.CurrentAxes.YTick = [];
     
     figure;
     imagesc(log10(p_image));
     colorbar;
     
     m = sum(sum(~isnan(z_image)));
+
+    %find critical pixels at some level
+    [critical_index, size] = significantFDR(reshape(p_image,[],1),normcdf(-4),true);
+    critical_index = reshape(critical_index,block_data.height,block_data.width);
+    [critical_y, critical_x] = find(critical_index);
     
     %histogram
     z_vector = reshape(z_image,[],1);
     z_vector(isnan(z_vector)) = [];
     z_plot = linspace(min(z_vector),max(z_vector),1000);
-    figure;
-    histogram(z_vector,'Normalization','CountDensity');
+    fig = figure;
+    fig.Position(3:4) = [420,315];
+    histogram(z_vector,'Normalization','CountDensity','DisplayStyle','stairs');
     hold on;
-    plot(z_plot,normpdf(z_plot)*m);
+    plot(z_plot,normpdf(z_plot)*m,'--');
+    plot([-norminv(1-size/2),-norminv(1-size/2)],[0,m*normpdf(0)],'r-','LineWidth',2);
+    plot([norminv(1-size/2),norminv(1-size/2)],[0,m*normpdf(0)],'r-','LineWidth',2);
     xlabel('z statistic');
     ylabel('frequency density');
+    legend('histogram','N(0,1)','critical boundary');
     
     %qqplot
     figure;
@@ -169,17 +181,15 @@ for i = 1:n_test
     xlabel('Standard Normal quantiles');
     ylabel('z statistics quantiles');
 
-    %find critical pixels at some level
-    [critical_index, size] = significantFDR(reshape(p_image,[],1),normcdf(-2),true);
-    critical_index = reshape(critical_index,block_data.height,block_data.width);
-    [critical_y, critical_x] = find(critical_index);
-
     %plot the phantom scan with critical pixels highlighted
-    figure;
+    fig = figure;
+    fig.Position(3:4) = [420,315];
     imagesc(test);
     hold on;
     scatter(critical_x, critical_y,'r.');
     colorbar;
+    fig.CurrentAxes.XTick = [];
+    fig.CurrentAxes.YTick = [];
     
     %plot phantom - aRTist vs aRTist greyvalue as a histogram heatmap
     d_plot = norminv(1-size/2) * sqrt(model.predict(aRTist_plot));
@@ -203,35 +213,37 @@ for i = 1:numel(col_array)
     col_index = col_array{i};
     row_index = row_array{i};
 
-    figure;
-
-    subplot(1,2,1);
-    imagesc(z_image);
+    fig = figure;
+    imagesc_truncate(z_image);
     colorbar;
     hold on;
-    plot([col_index(1),col_index(end)],[row_index(1),row_index(1)],'r');
-    plot([col_index(1),col_index(end)],[row_index(end),row_index(end)],'r');
-    plot([col_index(1),col_index(1)],[row_index(1),row_index(end)],'r');
-    plot([col_index(end),col_index(end)],[row_index(1),row_index(end)],'r');
+    plot([col_index(1),col_index(end)],[row_index(1),row_index(1)],'r','LineWidth',2);
+    plot([col_index(1),col_index(end)],[row_index(end),row_index(end)],'r','LineWidth',2);
+    plot([col_index(1),col_index(1)],[row_index(1),row_index(end)],'r','LineWidth',2);
+    plot([col_index(end),col_index(end)],[row_index(1),row_index(end)],'r','LineWidth',2);
+    fig.CurrentAxes.XTick = [];
+    fig.CurrentAxes.YTick = [];
 
     z_sub = reshape(z_image(row_index, col_index),[],1);
     z_sub(isnan(z_sub)) = [];
+    z_sub_plot = linspace(min(z_sub),max(z_sub),100);
     m = numel(z_sub);
 
-    subplot(1,2,2);
-    histogram(z_sub,'Normalization','CountDensity');
+    parzen = Parzen(z_sub);
+    parzen.setParameter(0.2);
+    parzen_plot = parzen.getDensityEstimate(z_sub_plot);
+    
+    fig = figure;
+    histogram(z_sub,'Normalization','CountDensity','DisplayStyle','stairs');
     hold on;
-    plot(z_plot,normpdf(z_plot)*m);
+    plot(z_plot,normpdf(z_plot)*m,'--');
+    plot(z_sub_plot,m*parzen_plot);
+    
+%     plot([-norminv(1-size/2),-norminv(1-size/2)],[0,m*normpdf(0)],'r-','LineWidth',2);
+%     plot([norminv(1-size/2),norminv(1-size/2)],[0,m*normpdf(0)],'r-','LineWidth',2);
     xlabel('z statistic');
     ylabel('frequency density');
-    
-%     subplot(1,3,3);
-%     scatter(norminv(((1:m)-0.5)/m),sort(z_sub),'x');
-%     hold on;
-%     plot([-5,5],[-5,5],'r--');
-%     xlabel('Standard Normal quantiles');
-%     ylabel('z statistics quantiles');
-%     xlim([-5,5]);
-%     ylim([-5,5]);
+    legend('histogram','N(0,1)','Parzen estimate');
+
 
 end
