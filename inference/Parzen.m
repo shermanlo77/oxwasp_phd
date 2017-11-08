@@ -20,15 +20,10 @@ classdef Parzen < handle
         %CONSTRUCTOR
         %PARAMETERS:
             %data: column vector of data
-        function this = Parzen(data)
+            %parameter: gaussian std
+        function this = Parzen(data, parameter)
             this.data = data;
             this.n_data = numel(data);
-        end
-        
-        %METHOD: SET PARAMETER
-        %PARAMETERS:
-            %parameter: gaussian std
-        function setParameter(this, parameter)
             this.parameter = parameter;
         end
         
@@ -44,11 +39,22 @@ classdef Parzen < handle
             p = x;
             %for each value in x
             for i_x = 1:n
-                %find the difference between x(i_x) and all entries in this.data
-                d = x(i_x) - this.data;
-                %take the sum of the Gaussian kernels
-                p(i_x) = sum(normpdf(d/this.parameter))/(this.n_data * this.parameter);
+                %evaluate the estimated density
+                p(i_x) = this.getSumKernel(x(i_x))/(this.n_data * this.parameter);
             end            
+        end
+        
+        %METHOD: GET SUM OF KERNELS
+        %Return the sum of Gaussian kernels at each data point
+        %PARAMETER:
+            %x: center of the Gaussian kernel
+        %RETURN:
+            %s: sum of Gaussian kernels at each data point
+        function s = getSumKernel(this, x)
+            %find the difference between x(i_x) and all entries in this.data
+            d = x - this.data;
+            %take the sum of the Gaussian kernels
+            s = sum(normpdf(d/this.parameter));
         end
         
         %METHOD: GET CDF ESTIMATE
@@ -121,6 +127,17 @@ classdef Parzen < handle
             [~,index_max] = min(mean(ks_array));
             %set this to have that parameter, the one with the minimum ks statistic
             this.setParameter(parameter_array(index_max));
+        end
+        
+        %METHOD: GET LOG SECOND DERIVATE
+        %Return the second derivate of the log density at the value delta
+        %PARAMETER:
+            %delta: the value at which the second derivate of the log density to be evaluated at
+        function d2 = getLogSecondDerivate(this, delta)
+            %get the Gaussian kernel parameter
+            z = (this.data - delta)/this.parameter;
+            %work out the second derivate of the log density
+            d2 = (this.getSumKernel(delta) * sum(normpdf(z).*(z.^2-1)) - (sum(normpdf(z).*z))^2) / (this.parameter*this.getSumKernel(delta))^2;
         end
         
     end

@@ -127,63 +127,45 @@ for i = 1:n_test
     %for this test image (the 1st one)
     test = test_stack(:,:,i);
     %get the z statistic
-    d = test - aRTist;
-    z_image = d./sqrt(var_predict);
-    
+    z_image = (test - aRTist)./sqrt(var_predict);
     %set non segmented pixels to be nan
     z_image(~segmentation) = nan;
+    %find the number of non-nan pixels
+    m = sum(sum(~isnan(z_image)));
     
-    %work out the p value and plot it
-    p_image = 2*(1-normcdf(abs(z_image)));
-    
-    figure;
-    imagesc_truncate(d);
-    colorbar;
-    
+    %put the z image in a tester
+    z_tester = ZTester(z_image);
+    %do statistics on the z statistics
+    z_tester.getPValues();
+    z_tester.doTest();
+
     fig = figure;
-    fig.Position(3:4) = [420,315];
     imagesc_truncate(z_image);
     colorbar;
     fig.CurrentAxes.XTick = [];
     fig.CurrentAxes.YTick = [];
     
     figure;
-    imagesc(log10(p_image));
+    imagesc(log10(z_tester.p_image));
     colorbar;
-    
-    m = sum(sum(~isnan(z_image)));
-
-    %find critical pixels at some level
-    [critical_index, size] = significantFDR(reshape(p_image,[],1),normcdf(-4),true);
-    critical_index = reshape(critical_index,block_data.height,block_data.width);
-    [critical_y, critical_x] = find(critical_index);
     
     %histogram
     z_vector = reshape(z_image,[],1);
     z_vector(isnan(z_vector)) = [];
     z_plot = linspace(min(z_vector),max(z_vector),1000);
-    fig = figure;
-    fig.Position(3:4) = [420,315];
+    figure;
     histogram(z_vector,'Normalization','CountDensity','DisplayStyle','stairs');
     hold on;
     plot(z_plot,normpdf(z_plot)*m,'--');
-    plot([-norminv(1-size/2),-norminv(1-size/2)],[0,m*normpdf(0)],'r-','LineWidth',2);
-    plot([norminv(1-size/2),norminv(1-size/2)],[0,m*normpdf(0)],'r-','LineWidth',2);
+    plot([-norminv(1-z_tester.size_corrected/2),-norminv(1-z_tester.size_corrected/2)],[0,m*normpdf(0)],'r-','LineWidth',2);
+    plot([norminv(1-z_tester.size_corrected/2),norminv(1-z_tester.size_corrected/2)],[0,m*normpdf(0)],'r-','LineWidth',2);
     xlabel('z statistic');
     ylabel('frequency density');
     legend('histogram','N(0,1)','critical boundary');
-    
-    %qqplot
-    figure;
-    scatter(norminv(((1:m)-0.5)/m),sort(z_vector),'x');
-    hold on;
-    plot([min(z_vector),max(z_vector)],[min(z_vector),max(z_vector)],'r--');
-    xlabel('Standard Normal quantiles');
-    ylabel('z statistics quantiles');
 
     %plot the phantom scan with critical pixels highlighted
+    [critical_y, critical_x] = find(z_tester.sig_image);
     fig = figure;
-    fig.Position(3:4) = [420,315];
     imagesc(test);
     hold on;
     scatter(critical_x, critical_y,'r.');
@@ -191,17 +173,6 @@ for i = 1:n_test
     fig.CurrentAxes.XTick = [];
     fig.CurrentAxes.YTick = [];
     
-    %plot phantom - aRTist vs aRTist greyvalue as a histogram heatmap
-    d_plot = norminv(1-size/2) * sqrt(model.predict(aRTist_plot));
-    figure;
-    hist3Heatmap(aRTist(segmentation),d(segmentation),[100,100],true);
-    hold on;
-    plot(aRTist_plot,d_plot,'r--');
-    plot(aRTist_plot,-d_plot,'r--');
-    %label axis
-    colorbar;
-    xlabel('aRTist greyvalue (arb. unit)');
-    ylabel('difference in greyvalue (arb. unit)');
 end
 
 row_array = {547:700, 522:708, 1800:1910, 1060:1260};
@@ -213,6 +184,28 @@ for i = 1:numel(col_array)
     col_index = col_array{i};
     row_index = row_array{i};
 
+    z_sub = z_image(row_index, col_index);
+    m = sum(sum(~isnan(z_sub)));
+    z_tester = ZTester(z_sub);
+    
+    z_sub_plot = linspace(min(min(z_sub)),max(max(z_sub)),100);
+    
+    z_tester.estimateNull(100);
+    z_tester.getPValues();
+    z_tester.doTest();
+    z_critical = z_tester.getZCritical();
+    
+    figure;
+    histogram(z_sub,'Normalization','CountDensity','DisplayStyle','stairs');
+    hold on;
+    plot(z_sub_plot,m*z_tester.density_estimator.getDensityEstimate(z_sub_plot));
+    plot(z_sub_plot,m*normpdf(z_sub_plot,z_tester.mean_null,z_tester.std_null));
+    plot([z_critical(1),z_critical(1)],[0,m*normpdf(0)],'r-','LineWidth',2);
+    plot([z_critical(2),z_critical(2)],[0,m*normpdf(0)],'r-','LineWidth',2);
+    xlabel('z statistic');
+    ylabel('frequency density');
+    legend('histogram','estimated density','null density');
+
     fig = figure;
     imagesc_truncate(z_image);
     colorbar;
@@ -223,27 +216,15 @@ for i = 1:numel(col_array)
     plot([col_index(end),col_index(end)],[row_index(1),row_index(end)],'r','LineWidth',2);
     fig.CurrentAxes.XTick = [];
     fig.CurrentAxes.YTick = [];
-
-    z_sub = reshape(z_image(row_index, col_index),[],1);
-    z_sub(isnan(z_sub)) = [];
-    z_sub_plot = linspace(min(z_sub),max(z_sub),100);
-    m = numel(z_sub);
-
-    parzen = Parzen(z_sub);
-    parzen.setParameter(0.2);
-    parzen_plot = parzen.getDensityEstimate(z_sub_plot);
     
     fig = figure;
-    histogram(z_sub,'Normalization','CountDensity','DisplayStyle','stairs');
+    imagesc_truncate(z_sub);
     hold on;
-    plot(z_plot,normpdf(z_plot)*m,'--');
-    plot(z_sub_plot,m*parzen_plot);
+    colorbar;
+    [critical_y, critical_x] = find(z_tester.sig_image);
+    scatter(critical_x, critical_y,'r.');
+    colorbar;
+    fig.CurrentAxes.XTick = [];
+    fig.CurrentAxes.YTick = [];
     
-%     plot([-norminv(1-size/2),-norminv(1-size/2)],[0,m*normpdf(0)],'r-','LineWidth',2);
-%     plot([norminv(1-size/2),norminv(1-size/2)],[0,m*normpdf(0)],'r-','LineWidth',2);
-    xlabel('z statistic');
-    ylabel('frequency density');
-    legend('histogram','N(0,1)','Parzen estimate');
-
-
 end
