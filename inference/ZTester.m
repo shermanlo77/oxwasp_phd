@@ -85,13 +85,19 @@ classdef ZTester < handle
             this.std_null = (-this.density_estimator.getLogSecondDerivate(this.mean_null))^(-1/2);   
         end
         
+        %METHOD: GET Z CORRECTED
+        %Returns the z image, corrected under the emperical null hypothesis
+        %RETURNS:
+            %z_corrected: 2d array of z statistics, corrected under the emperical null hypothesis
+        function z_corrected = getZCorrected(this)
+            z_corrected = (this.z_image - this.mean_null) / this.std_null;
+        end
+        
         %METHOD: GET P VALUES
         %Calculate the p values (corrected using the emperical null hypothesisis)
         function getPValues(this)
-            %correct the z statistics
-            z_corrected = (this.z_image - this.mean_null) / this.std_null;
             %work out the p values
-            this.p_image = 2*(normcdf(-abs(z_corrected)));
+            this.p_image = 2*(normcdf(-abs(this.getZCorrected())));
         end
         
         %METHOD: DO TEST
