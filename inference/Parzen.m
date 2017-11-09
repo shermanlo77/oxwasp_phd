@@ -22,8 +22,8 @@ classdef Parzen < handle
             %data: column vector of data
             %parameter: gaussian std
         function this = Parzen(data, parameter)
-            this.data = data;
-            this.n_data = numel(data);
+            this.data = data(~isnan(data));
+            this.n_data = numel(this.data);
             this.parameter = parameter;
         end
         
