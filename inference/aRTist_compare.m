@@ -229,7 +229,7 @@ for i = 1:numel(col_array)
     
 end
 
-grid_tester = GridTester(z_image, 200, 200, [0;0]);
+grid_tester = GridTester(z_image, 200, 200, [100;100]);
 
 fig = figure;
 imagesc(test);

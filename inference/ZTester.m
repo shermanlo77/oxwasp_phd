@@ -105,6 +105,9 @@ classdef ZTester < handle
         %Saves significant pixels in the member variable sig_image
         function doTest(this)
             
+            %calculate the p values
+            this.getPValues();
+            
             %declare image of boolean values, true if that pixel is significant
             this.sig_image = this.z_image;
             this.sig_image(:) = false;

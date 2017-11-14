@@ -26,6 +26,7 @@ classdef Parzen < handle
             %set default value for parzen std using Silverman's rule of thumb
             %this.setParameter(1.144 * min([std(this.data),iqr(this.data)/1.34]) * this.n_data^(-1/5) );
             this.setParameter(3.33 * min([std(this.data),iqr(this.data)/1.34]) * this.n_data^(-1/5) );
+            %this.setParameter(0.4);
         end
         
         %METHOD: SET PARAMETER

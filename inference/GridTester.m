@@ -116,7 +116,6 @@ classdef GridTester < handle
                     
                     %do the test
                     this.z_tester_array{i_row,i_col}.estimateNull(n_linspace);
-                    this.z_tester_array{i_row,i_col}.getPValues();
                     this.z_tester_array{i_row,i_col}.doTest();
                     
                     %extract the local significant pixels
@@ -128,11 +127,25 @@ classdef GridTester < handle
             end
             %combine the z statistics together and do the test
             combined_tester = ZTester(this.z0_image);
-            combined_tester.getPValues();
             combined_tester.doTest();
             %save the significant pixels and the p values
             this.combined_sig = combined_tester.sig_image;
             this.p_image = combined_tester.p_image;
+        end
+        
+        %METHOD: SET SIZE
+        %Set the size of the test for each z_tester
+        %PARAMETERS:
+            %size: size of the test
+        function setSize(this, size)
+            %for each column
+            for i_col = 1:this.n_col
+                %for each row
+                for i_row = 1:this.n_row
+                    %set the size of this z_tester
+                    this.z_tester_array{i_row,i_col}.setSize(size);
+                end
+            end
         end
         
     end
