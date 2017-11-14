@@ -251,6 +251,7 @@ sig_null_image(:) = false;
 for i_col = 1:n_grid
     for i_row = 1:n_grid
         z_tester_grid{i_row,i_col} = ZTester(z_image( ((i_row-1)*sub_region_size+1):(i_row*sub_region_size) , ((i_col-1)*sub_region_size+1):(i_col*sub_region_size) ) );
+        %z_tester_grid{i_row,i_col}.setDensityEstimationParameter(0.4);
         z_tester_grid{i_row,i_col}.estimateNull(1000);
         z_null_image( ((i_row-1)*sub_region_size+1):(i_row*sub_region_size) , ((i_col-1)*sub_region_size+1):(i_col*sub_region_size) ) = z_tester_grid{i_row,i_col}.getZCorrected();
         z_tester_grid{i_row,i_col}.getPValues();

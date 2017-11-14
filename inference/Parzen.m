@@ -20,10 +20,19 @@ classdef Parzen < handle
         %CONSTRUCTOR
         %PARAMETERS:
             %data: column vector of data
-            %parameter: gaussian std
-        function this = Parzen(data, parameter)
+        function this = Parzen(data)
             this.data = data(~isnan(data));
             this.n_data = numel(this.data);
+            %set default value for parzen std using Silverman's rule of thumb
+            %this.setParameter(1.144 * min([std(this.data),iqr(this.data)/1.34]) * this.n_data^(-1/5) );
+            this.setParameter(3.33 * min([std(this.data),iqr(this.data)/1.34]) * this.n_data^(-1/5) );
+        end
+        
+        %METHOD: SET PARAMETER
+        %Set the parzen std
+        %PARAMETERS:
+            %parameter: parzen std
+        function setParameter(this, parameter)
             this.parameter = parameter;
         end
         

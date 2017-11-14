@@ -39,7 +39,7 @@ classdef ZTester < handle
             this.mean_null = 0;
             this.std_null = 1;
             this.size = 2*normcdf(-2);
-            this.density_estimation_parameter = 0.2;
+            this.density_estimation_parameter = 0;
             
             %get the number of non_nan values in z_image
             nan_index = isnan(reshape(z_image,[],1));
@@ -152,7 +152,12 @@ classdef ZTester < handle
         %METHOD: GET DENSITY ESTIMATOR
         %Returns a density estimator object
         function density_estimator = getDensityEstimator(this)
-            density_estimator = Parzen(reshape(this.z_image(~isnan(this.z_image)),[],1), this.density_estimation_parameter);
+            %instantise a parzen density estimator
+            density_estimator = Parzen(reshape(this.z_image(~isnan(this.z_image)),[],1));
+            %if the density estimation parameter is not 0, change the parameter of the parzen density estimator
+            if this.density_estimation_parameter ~= 0
+                density_estimator.setParameter(this.density_estimation_parameter);
+            end
         end
         
     end
