@@ -229,8 +229,7 @@ for i = 1:numel(col_array)
     
 end
 
-n_grid = 10;
-sub_region_size = 2000 / n_grid;
+grid_tester = GridTester(z_image, 200, 200, [0;0]);
 
 fig = figure;
 imagesc(test);
@@ -238,40 +237,25 @@ hold on;
 colorbar;
 fig.CurrentAxes.XTick = [];
 fig.CurrentAxes.YTick = [];
-for i = 1:(n_grid-1)
-    plot([0,2000],[i*sub_region_size,i*sub_region_size],'k');
-    plot([i*sub_region_size,i*sub_region_size],[0,2000],'k');
+for i_row = 2:(grid_tester.n_row)
+    corner_cood = grid_tester.getGridCoordinates(i_row, 1);
+    plot([0,2000],[corner_cood(1),corner_cood(1)],'k');
+end
+for i_col = 2:(grid_tester.n_col)
+    corner_cood = grid_tester.getGridCoordinates(1, i_col);
+    plot([corner_cood(2),corner_cood(2)],[0,2000],'k');
 end
 
-z_null_image = test;
-z_null_image(:) = nan;
-z_tester_grid = cell(n_grid,n_grid);
-sig_null_image = test;
-sig_null_image(:) = false;
-for i_col = 1:n_grid
-    for i_row = 1:n_grid
-        z_tester_grid{i_row,i_col} = ZTester(z_image( ((i_row-1)*sub_region_size+1):(i_row*sub_region_size) , ((i_col-1)*sub_region_size+1):(i_col*sub_region_size) ) );
-        %z_tester_grid{i_row,i_col}.setDensityEstimationParameter(0.4);
-        z_tester_grid{i_row,i_col}.estimateNull(1000);
-        z_null_image( ((i_row-1)*sub_region_size+1):(i_row*sub_region_size) , ((i_col-1)*sub_region_size+1):(i_col*sub_region_size) ) = z_tester_grid{i_row,i_col}.getZCorrected();
-        z_tester_grid{i_row,i_col}.getPValues();
-        z_tester_grid{i_row,i_col}.doTest();
-        sig_null_image( ((i_row-1)*sub_region_size+1):(i_row*sub_region_size) , ((i_col-1)*sub_region_size+1):(i_col*sub_region_size) ) = z_tester_grid{i_row,i_col}.sig_image;
-    end
-end
-
-z_tester = ZTester(z_null_image);
-z_tester.getPValues();
-z_tester.doTest();
+grid_tester.doTest(1000);
 
 fig = figure;
-imagesc(log10(z_tester.p_image));
+imagesc(log10(grid_tester.p_image));
 colorbar;
 fig.CurrentAxes.XTick = [];
 fig.CurrentAxes.YTick = [];
 
 fig = figure;
-imagesc(z_null_image);
+imagesc(grid_tester.z0_image);
 colorbar;
 fig.CurrentAxes.XTick = [];
 fig.CurrentAxes.YTick = [];
@@ -281,7 +265,7 @@ imagesc(test);
 colorbar;
 hold on;
 colorbar;
-[critical_y, critical_x] = find(z_tester.sig_image);
+[critical_y, critical_x] = find(grid_tester.combined_sig);
 scatter(critical_x, critical_y,'r.');
 colorbar;
 fig.CurrentAxes.XTick = [];
@@ -292,7 +276,7 @@ imagesc(test);
 colorbar;
 hold on;
 colorbar;
-[critical_y, critical_x] = find(sig_null_image);
+[critical_y, critical_x] = find(grid_tester.local_sig);
 scatter(critical_x, critical_y,'r.');
 colorbar;
 fig.CurrentAxes.XTick = [];
