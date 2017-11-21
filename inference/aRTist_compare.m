@@ -229,43 +229,64 @@ for i = 1:numel(col_array)
     
 end
 
-grid_tester = GridTester(z_image, 200, 200, [100;100]);
+translation_array = [0,50,100,150,150,50; 0,50,100,150,50,150];
+n_translation = 6;
+sig_local_array = zeros(2000,2000,n_translation);
+sig_combine_array = zeros(2000,2000,n_translation);
+p_value_array = zeros(2000,2000,n_translation);
+for i = 1:n_translation
+    grid_tester = GridTester(z_image, 200, 200, [translation_array(1,i);translation_array(2,i)]);
+
+    grid_tester.doTest(1000);
+    sig_local_array(:,:,i) = grid_tester.local_sig;
+    sig_combine_array(:,:,i) = grid_tester.combined_sig;
+    p_value_array(:,:,i) = grid_tester.p_image;
+
+    fig = figure;
+    imagesc(test);
+    colorbar;
+    hold on;
+    colorbar;
+    [critical_y, critical_x] = find(grid_tester.combined_sig);
+    scatter(critical_x, critical_y,'r.');
+    colorbar;
+    for i_row = 2:(grid_tester.n_row)
+        corner_cood = grid_tester.getGridCoordinates(i_row, 1);
+        plot([0,2000],[corner_cood(1),corner_cood(1)],'k');
+    end
+    for i_col = 2:(grid_tester.n_col)
+        corner_cood = grid_tester.getGridCoordinates(1, i_col);
+        plot([corner_cood(2),corner_cood(2)],[0,2000],'k');
+    end
+    fig.CurrentAxes.XTick = [];
+    fig.CurrentAxes.YTick = [];
+
+    fig = figure;
+    imagesc(test);
+    colorbar;
+    hold on;
+    colorbar;
+    [critical_y, critical_x] = find(grid_tester.local_sig);
+    scatter(critical_x, critical_y,'r.');
+    colorbar;
+    for i_row = 2:(grid_tester.n_row)
+        corner_cood = grid_tester.getGridCoordinates(i_row, 1);
+        plot([0,2000],[corner_cood(1),corner_cood(1)],'k');
+    end
+    for i_col = 2:(grid_tester.n_col)
+        corner_cood = grid_tester.getGridCoordinates(1, i_col);
+        plot([corner_cood(2),corner_cood(2)],[0,2000],'k');
+    end
+    fig.CurrentAxes.XTick = [];
+    fig.CurrentAxes.YTick = [];
+end
 
 fig = figure;
 imagesc(test);
-hold on;
-colorbar;
-fig.CurrentAxes.XTick = [];
-fig.CurrentAxes.YTick = [];
-for i_row = 2:(grid_tester.n_row)
-    corner_cood = grid_tester.getGridCoordinates(i_row, 1);
-    plot([0,2000],[corner_cood(1),corner_cood(1)],'k');
-end
-for i_col = 2:(grid_tester.n_col)
-    corner_cood = grid_tester.getGridCoordinates(1, i_col);
-    plot([corner_cood(2),corner_cood(2)],[0,2000],'k');
-end
-
-grid_tester.doTest(1000);
-
-fig = figure;
-imagesc(log10(grid_tester.p_image));
-colorbar;
-fig.CurrentAxes.XTick = [];
-fig.CurrentAxes.YTick = [];
-
-fig = figure;
-imagesc(grid_tester.z0_image);
-colorbar;
-fig.CurrentAxes.XTick = [];
-fig.CurrentAxes.YTick = [];
-
-fig = figure;
-imagesc(test);
 colorbar;
 hold on;
 colorbar;
-[critical_y, critical_x] = find(grid_tester.combined_sig);
+[critical_y, critical_x] = find(sum(sig_combine_array,3)>=3);
 scatter(critical_x, critical_y,'r.');
 colorbar;
 fig.CurrentAxes.XTick = [];
@@ -276,7 +297,28 @@ imagesc(test);
 colorbar;
 hold on;
 colorbar;
-[critical_y, critical_x] = find(grid_tester.local_sig);
+[critical_y, critical_x] = find(sum(sig_local_array,3)>=i);
+scatter(critical_x, critical_y,'r.');
+colorbar;
+fig.CurrentAxes.XTick = [];
+fig.CurrentAxes.YTick = [];
+
+% chi_squared = -2*sum(log(p_value_array),3);
+% chi_squared_p = chi2cdf(chi_squared,2*n_translation,'upper');
+chi_squared_p = median(p_value_array,3);
+p_tester = PTester(chi_squared_p,2*normcdf(-2));
+p_tester.doTest();
+
+fig = figure;
+imagesc(log10(chi_squared_p));
+colorbar;
+fig.CurrentAxes.XTick = [];
+fig.CurrentAxes.YTick = [];
+
+fig = figure;
+imagesc(test);
+hold on;
+[critical_y, critical_x] = find(p_tester.sig_image);
 scatter(critical_x, critical_y,'r.');
 colorbar;
 fig.CurrentAxes.XTick = [];

@@ -38,7 +38,7 @@ classdef GridTester < handle
             this.sub_height = sub_height;
             this.sub_width = sub_width;
             this.z_image = z_image;
-            this.shift = shift;
+            this.shift = shift;            
             [this.height, this.width] = size(z_image);
             this.n_row = ceil((this.height+this.shift(1))/this.sub_height);
             this.n_col = ceil((this.width+this.shift(2))/this.sub_width);
