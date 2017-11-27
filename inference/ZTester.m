@@ -186,6 +186,29 @@ classdef ZTester < handle
             
         end
         
+        %METHOD: GET Q IMAGE
+        %Return the q image, this is the tail fdr evaluated for each point in z image
+        %RETURN
+            %q_image: image of q values
+        function q_image = getQImage(this)
+            %reshape the z values into a column vector
+            q_image = reshape(this.z_image,[],1);
+            %estimate the tail fdr, evaluated for each z value
+            q_image = this.estimateTailFdr(q_image);
+            %reshape the z values into an image
+            q_image = reshape(q_image,size(this.z_image));
+        end
+        
+        %METHOD: GET Q CRITICAL
+        %Return the critical q values, this is the tail fdr evaluated at z critical
+        function q_critical = getQCritical(this)
+            %evaluate the tail fdr at the z critical
+            q_critical = this.estimateTailFdr(this.getZCritical());
+            %both the left and right critical boundary should produce the same q value
+            %take the 1st one
+            q_critical = q_critical(1);
+        end
+        
         %METHOD: ESTIMATE H1 DENSITY
         %Estimates the alternate densisty
         %PARAMETERS:
