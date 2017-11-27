@@ -70,9 +70,10 @@ classdef Parzen < handle
         %METHOD: GET CDF ESTIMATE
         %PARAMETERS:
             %x: column vector of values in the support
+            %is_upper: boolean, true if want right tail cdf
         %RETURN:
             %p: column vector of percentiles for each entry in x
-        function p = getCdfEstimate(this,x)
+        function p = getCdfEstimate(this,x,is_upper)
             %get the number of evaluations to do
             n = numel(x);
             %assign an array with the same size as x
@@ -81,8 +82,12 @@ classdef Parzen < handle
             for i_x = 1:n
                 %find the difference between x(i_x) and all entries in this.data
                 d = x(i_x) - this.data;
-                %take the sum of the Gaussian kernels
-                p(i_x) = sum(normcdf(d/this.parameter))/this.n_data;
+                %take the sum of the Gaussian kernels using the corresponding tailed cdf
+                if is_upper
+                    p(i_x) = sum(normcdf(d/this.parameter,'upper'))/this.n_data;
+                else
+                    p(i_x) = sum(normcdf(d/this.parameter))/this.n_data;
+                end
             end            
         end
         

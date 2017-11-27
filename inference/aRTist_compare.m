@@ -193,18 +193,35 @@ for i = 1:numel(col_array)
     z_tester.estimateNull(100);
     z_tester.getPValues();
     z_tester.doTest();
+    z_tester.estimatePower()
+    p0 = z_tester.estimateP0();
     z_critical = z_tester.getZCritical();
     
     figure;
     histogram(z_sub,'Normalization','CountDensity','DisplayStyle','stairs');
     hold on;
     plot(z_sub_plot,m*z_tester.density_estimator.getDensityEstimate(z_sub_plot));
-    plot(z_sub_plot,m*normpdf(z_sub_plot,z_tester.mean_null,z_tester.std_null));
+    plot(z_sub_plot,p0*m*normpdf(z_sub_plot,z_tester.mean_null,z_tester.std_null));
+    plot(z_sub_plot,(1-p0)*m*z_tester.estimateH1Density(z_sub_plot));
     plot([z_critical(1),z_critical(1)],[0,m*normpdf(0)],'r-','LineWidth',2);
     plot([z_critical(2),z_critical(2)],[0,m*normpdf(0)],'r-','LineWidth',2);
-    xlabel('z statistic');
+    legend('histogram','estimated density','null density','non-null density');
     ylabel('frequency density');
-    legend('histogram','estimated density','null density');
+    
+    figure;
+    yyaxis left;
+    plot(z_sub_plot,z_tester.estimateLocalFdr(z_sub_plot).*z_tester.estimateH1Density(z_sub_plot));
+    hold on;
+    plot(z_sub_plot,z_tester.estimateTailFdr(z_sub_plot));
+    ylabel('fdr');
+    yyaxis right;
+    plot(z_sub_plot,p0*m*normpdf(z_sub_plot,z_tester.mean_null,z_tester.std_null));
+    plot(z_sub_plot,(1-p0)*m*z_tester.estimateH1Density(z_sub_plot));
+    plot([z_critical(1),z_critical(1)],[0,m*normpdf(0)],'r-','LineWidth',2);
+    plot([z_critical(2),z_critical(2)],[0,m*normpdf(0)],'r-','LineWidth',2);
+    ylabel('frequency density');
+    xlabel('z statistic');
+    legend('local fdr','tail fdr','null density','non-null density');
 
     fig = figure;
     imagesc_truncate(z_image);

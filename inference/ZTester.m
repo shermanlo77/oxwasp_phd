@@ -133,6 +133,99 @@ classdef ZTester < handle
             end
         end
         
+        %METHOD: ESTIMATE NULL RATIO
+        %Estimates the proportion of data which are null using the peak densities
+        %RETURN:
+            %p0: proportion of data which are null
+        function p0 = estimateP0(this)
+           p0 =  this.density_estimator.getDensityEstimate(this.mean_null)/normpdf(0,0,this.std_null);
+           p0 = min([p0,1]);
+        end
+        
+        %METHOD: ESTIMATE LOCAL FDR
+        %Estimates the fdr using the densities
+        %RETURN:
+            %fdr: local false discovery rate
+        function fdr = estimateLocalFdr(this, x)
+            fdr = this.estimateP0() * normpdf(x,this.mean_null,this.std_null) ./ this.density_estimator.getDensityEstimate(x);
+        end
+        
+        %METHOD: ESTIMATE TAIL FDR (two tailed)
+        %Estimates the fdr using cdf
+        %RETURN:
+            %fdr: tail false discovery rate
+        function fdr = estimateTailFdr(this, x)
+            %indicate z values which are less than the mean
+            is_left = x < this.mean_null;
+            
+            %declare an array left tail and right tail, all with initial value 0
+            %left tail contain values at the left tail to be evaluated using the cdf
+            %right tail contain values at the right tail to be evaluated using the cdf
+            left_tail = x;
+            right_tail = x;
+            left_tail(:) = 0;
+            right_tail(:) = 0;
+            
+            %for values less than the mean, copy it over to the left tail array
+            left_tail(is_left) = x(is_left);
+            %for values more than the mean, copy it over to the right tail array
+            right_tail(~is_left) = x(~is_left);
+            
+            %for values more than the mean, reflect it to the left tail and save it to the left tail array
+            left_tail(~is_left) = 2*this.mean_null - x(~is_left);
+            %for values less than the mean, reflect it to the right tail and save it to the right tail array
+            right_tail(is_left) = 2*this.mean_null - x(is_left);
+            
+            %get the evaluation of the null cdf at the left tail and the right tail, add them together
+            F0 = normcdf(left_tail,this.mean_null,this.std_null) + normcdf(right_tail,this.mean_null,this.std_null,'upper');
+            %get the evaluation of the non-null cdf at the left tail and the right tail, add them together
+            F = this.density_estimator.getCdfEstimate(left_tail,false) + this.density_estimator.getCdfEstimate(right_tail,true);
+            
+            %estimate the tail fdr
+            fdr = this.estimateP0() * F0 ./ F;
+            
+        end
+        
+        %METHOD: ESTIMATE H1 DENSITY
+        %Estimates the alternate densisty
+        %PARAMETERS:
+            %x: points to be evaluated by the alternative density
+        %RETURN:
+            %f1: alternate density evaluated at x
+        function f1 = estimateH1Density(this, x)
+            %estimate the alternative density
+            f1 = (this.density_estimator.getDensityEstimate(x) - this.estimateP0()*normpdf(x,this.mean_null,this.std_null)) / (1-this.estimateP0());
+            %ensure all values of the density at non-negative
+            f1(f1<0) = 0;
+        end
+        
+        %METHOD: ESTIMATE H1 CDF
+        %Estimates the alternative cdf
+        %PARAMETERS:
+            %x: points to be evaluated by the alternative cdf
+            %is_upper: boolean, true if to evaluate the right hand side of the cdf
+        %RETURN:
+            %F1: alternative cdf evaluated at x
+        function F1 = estimateH1Cdf(this, x, is_upper)
+            %evaluate the cdf using the corresponding tail
+            if is_upper
+                F0 = normcdf(x,this.mean_null,this.std_null,'upper');
+            else
+                F0 = normcdf(x,this.mean_null,this.std_null);
+            end
+            %estimate the H1 cdf
+            F1 = (this.density_estimator.getCdfEstimate(x, is_upper) - this.estimateP0()*F0) / (1-this.estimateP0());
+        end
+        
+        %METHOD: ESTIMATE POWER
+        %Estimate the power using the estimated H1 and the critical boundary
+        function power = estimatePower(this)
+            %get the critical boundaries
+            z_critical = this.getZCritical();
+            %estimate the power
+            power = this.estimateH1Cdf(z_critical(1), false) + this.estimateH1Cdf(z_critical(2), true);
+        end
+        
     end
     
 end
