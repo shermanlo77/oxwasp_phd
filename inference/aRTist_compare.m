@@ -210,7 +210,7 @@ for i = 1:numel(col_array)
     
     figure;
     yyaxis left;
-    plot(z_sub_plot,z_tester.estimateLocalFdr(z_sub_plot).*z_tester.estimateH1Density(z_sub_plot));
+    plot(z_sub_plot,z_tester.estimateLocalFdr(z_sub_plot));
     hold on;
     plot(z_sub_plot,z_tester.estimateTailFdr(z_sub_plot));
     ylabel('fdr');
