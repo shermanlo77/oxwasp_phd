@@ -64,25 +64,17 @@ classdef ZTester < handle
         
         %METHOD: ESTIMATE NULL
         %Estimates the mean and std null hypothesis using a fitted density
-        %The mean is found using the maximum value of the fitted density on n_linspace equally spaced points between min and max of z_array
-        %The std is found using the second derivate of the log density at the mode
         %Updates the parameters of the null hypothesis, stored in the member variables
         %PARAMETERS:
             %n_linspace: number of equally spaced points between min and max of z_array to find the mode of the estimated density
         function estimateNull(this, n_linspace)
             %get the density estimator
             this.density_estimator = this.getDensityEstimator();
-            %declare n_linspace equally spaced points between min and max of z_array
-            z_array = linspace(min(min(this.z_image)), max(max(this.z_image)), n_linspace);
-            %get the density estimate at each point
-            density_estimate = this.density_estimator.getDensityEstimate(z_array);
-            %find the index with the highest density
-            [~, z_max_index] = max(density_estimate);
-            
-            %the z with the highest density is the mode
-            this.mean_null = z_array(z_max_index);
-            %estimate the null std using the log second derivate
-            this.std_null = (-this.density_estimator.getLogSecondDerivate(this.mean_null))^(-1/2);   
+            %get the H0 parameter estiamtes
+            [mean_null_, std_null_] = this.density_estimator.estimateNull(n_linspace);
+            %assign the member variables for mean_null and std_null
+            this.mean_null = mean_null_;
+            this.std_null = std_null_;   
         end
         
         %METHOD: GET Z CORRECTED
@@ -247,6 +239,61 @@ classdef ZTester < handle
             z_critical = this.getZCritical();
             %estimate the power
             power = this.estimateH1Cdf(z_critical(1), false) + this.estimateH1Cdf(z_critical(2), true);
+        end
+        
+        %METHOD: ESTIMATE POWER (USING EXP TAIL FDR)
+        %Estimate the power using the average tail fdr under the non-null density
+        %PARAMETERS:
+            %a: starting point for the trapezium rule
+            %b: end point for the trapezium rule
+            %n: number of trapeziums
+        %RETURN:
+            %power: statistical power
+        function power = estimateTailPower(this, a, b, n)
+            power = this.estimateFdrPower(true, a, b, n);
+        end
+        
+        %METHOD: ESTIMATE POWER (USING EXP LOCAL FDR)
+        %Estimate the power using the average local fdr under the non-null density
+        %PARAMETERS:
+            %a: starting point for the trapezium rule
+            %b: end point for the trapezium rule
+            %n: number of trapeziums
+        %RETURN:
+            %power: statistical power
+        function power = estimateLocalPower(this, a, b, n)
+            power = this.estimateFdrPower(false, a, b, n);
+        end
+        
+        %METHOD: ESTIMATE POWER (USING EXP FDR)
+        %Estimate the power using the average fdr under the non-null density
+        %PARAMETERS:
+            %is_tail: boolea, true if to use the tail fdr, else use local fdr
+            %a: starting point for the trapezium rule
+            %b: end point for the trapezium rule
+            %n: number of trapeziums
+        %RETURN:
+            %power: statistical power
+        function power = estimateFdrPower(this, is_tail, a, b, n)
+            %get n equally spaced points, from a to b
+            x = linspace(a,b,n);
+            %get the height of the trapeziums
+            h = (b-a)/n;
+            %get the density estimate of the non-null density
+            f1 = this.estimateH1Density(x);
+            %get the estimated fdr
+            if is_tail
+                fdr = this.estimateTailFdr(x);
+            else
+                fdr = this.estimateLocalFdr(x);
+            end
+            %get the integrand
+            I = f1.*fdr;
+            
+            %integrate I, divide by the normalisation constand
+            power = (0.5*h*(I(1)+I(end)+2*sum(I(2:(end-1))))) / (0.5*h*(f1(1)+f1(end)+2*sum(f1(2:(end-1)))));
+            %get the power
+            power = 1 - power;
         end
         
     end

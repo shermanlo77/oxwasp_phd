@@ -193,9 +193,15 @@ for i = 1:numel(col_array)
     z_tester.estimateNull(100);
     z_tester.getPValues();
     z_tester.doTest();
-    z_tester.estimatePower()
     p0 = z_tester.estimateP0();
     z_critical = z_tester.getZCritical();
+    
+    disp(strcat('p_0 = ',num2str(p0)));
+    disp(strcat('Power = ',num2str(z_tester.estimatePower())));
+    disp(strcat('Tail Power = ',num2str(z_tester.estimateTailPower(z_sub_plot(1),z_sub_plot(end),numel(z_sub_plot)))));
+    disp(strcat('Local Power = ',num2str(z_tester.estimateLocalPower(z_sub_plot(1),z_sub_plot(end),numel(z_sub_plot)))));
+    
+    
     
     figure;
     histogram(z_sub,'Normalization','CountDensity','DisplayStyle','stairs');
@@ -314,7 +320,7 @@ imagesc(test);
 colorbar;
 hold on;
 colorbar;
-[critical_y, critical_x] = find(sum(sig_local_array,3)>=i);
+[critical_y, critical_x] = find(sum(sig_local_array,3)>=3);
 scatter(critical_x, critical_y,'r.');
 colorbar;
 fig.CurrentAxes.XTick = [];
