@@ -1,3 +1,6 @@
+%CLASS: GRID TESTER
+%Given an image of z values, spilt the image into a grid
+%At each section, do null estimation and hypothesis test
 classdef GridTester < handle
     
     %MEMBER VARIABLES
