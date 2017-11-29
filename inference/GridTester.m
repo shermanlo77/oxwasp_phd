@@ -151,6 +151,27 @@ classdef GridTester < handle
             end
         end
         
+        %METHOD: SET DENSITY ESTIMATION PARAMETER
+        %Set the std of the gaussian kernel used in density estimation
+        %PARAMETERS:
+            %density_estimation_parameter: std of the gaussian kernel used in density estimation
+        function setDensityEstimationParameter(this,density_estimation_parameter)
+            for i = 1:numel(this.z_tester_array)
+                this.z_tester_array{i}.setDensityEstimationParameter(density_estimation_parameter);
+            end
+        end
+        
+        %METHOD: SET DENSITY ESTIMATION FUDGE FACTOR
+        %Set the std of the gaussian kernel used in density estimation by using a fudge factor
+        %parzen std = fudge factor x std x n^(-1/5)
+        %PARAMETERS:
+            %density_estimation_parameter: fudge factor in using a rule of thumb for the kernel width used in density estimation
+        function setDensityEstimationFudgeFactor(this,density_estimation_fudge)
+            for i = 1:numel(this.z_tester_array)
+                this.z_tester_array{i}.setDensityEstimationFudgeFactor(density_estimation_fudge);
+            end
+        end
+        
     end
     
 end

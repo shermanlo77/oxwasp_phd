@@ -19,7 +19,7 @@ classdef ZTester < handle
         std_null; %std of the null hypothesis
         size; %size of the test, default is 2 sigma OR 2*normcdf(-2)
         size_corrected; %corrected size of the test due to multiple testing
-        density_estimation_parameter; %std of the gaussian kernel used in density estimation
+        
         p_image; %2d array of p_values
         sig_image; %boolean 2d array, true if that pixel is significant
         n_test; %number of tests
@@ -39,11 +39,12 @@ classdef ZTester < handle
             this.mean_null = 0;
             this.std_null = 1;
             this.size = 2*normcdf(-2);
-            this.density_estimation_parameter = 0;
             
             %get the number of non_nan values in z_image
             nan_index = isnan(reshape(z_image,[],1));
             this.n_test = sum(~nan_index);
+            
+            this.density_estimator = Parzen(reshape(this.z_image(~isnan(this.z_image)),[],1));
         end
         
         %METHOD: SET SIZE
@@ -59,7 +60,16 @@ classdef ZTester < handle
         %PARAMETERS:
             %density_estimation_parameter: std of the gaussian kernel used in density estimation
         function setDensityEstimationParameter(this,density_estimation_parameter)
-            this.density_estimation_parameter = density_estimation_parameter;
+            this.density_estimator.setParameter(density_estimation_parameter);
+        end
+        
+        %METHOD: SET DENSITY ESTIMATION FUDGE FACTOR
+        %Set the std of the gaussian kernel used in density estimation by using a fudge factor
+        %parzen std = fudge factor x std x n^(-1/5)
+        %PARAMETERS:
+            %density_estimation_parameter: fudge factor in using a rule of thumb for the kernel width used in density estimation
+        function setDensityEstimationFudgeFactor(this,density_estimation_fudge)
+            this.density_estimator.setFudgeFactor(density_estimation_fudge);
         end
         
         %METHOD: ESTIMATE NULL
@@ -68,8 +78,6 @@ classdef ZTester < handle
         %PARAMETERS:
             %n_linspace: number of equally spaced points between min and max of z_array to find the mode of the estimated density
         function estimateNull(this, n_linspace)
-            %get the density estimator
-            this.density_estimator = this.getDensityEstimator();
             %get the H0 parameter estiamtes
             [mean_null_, std_null_] = this.density_estimator.estimateNull(n_linspace);
             %assign the member variables for mean_null and std_null
@@ -112,17 +120,6 @@ classdef ZTester < handle
             z_critical = norminv(this.size_corrected/2);
             z_critical(2) = -z_critical;
             z_critical = z_critical*this.std_null + this.mean_null;
-        end
-        
-        %METHOD: GET DENSITY ESTIMATOR
-        %Returns a density estimator object
-        function density_estimator = getDensityEstimator(this)
-            %instantise a parzen density estimator
-            density_estimator = Parzen(reshape(this.z_image(~isnan(this.z_image)),[],1));
-            %if the density estimation parameter is not 0, change the parameter of the parzen density estimator
-            if this.density_estimation_parameter ~= 0
-                density_estimator.setParameter(this.density_estimation_parameter);
-            end
         end
         
         %METHOD: ESTIMATE NULL RATIO

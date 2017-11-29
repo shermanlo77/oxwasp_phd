@@ -37,6 +37,15 @@ classdef Parzen < handle
             this.parameter = parameter;
         end
         
+        %METHOD: SET FUDGE FACTOR
+        %Set the parzen std using a factor
+        %parzen std = fudge factor x std x n^(-1/5)
+        %PARMAETERS:
+            %parameter: fudge factor
+        function setFudgeFactor(this, parameter)
+            this.setParameter(parameter * min([std(this.data),iqr(this.data)/1.34]) * this.n_data^(-1/5) );
+        end
+        
         %METHOD: GET DENSITY ESTIMATE
         %PARAMETERS:
             %x: column vector of values in the support
