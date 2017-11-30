@@ -136,7 +136,6 @@ for i = 1:n_test
     %put the z image in a tester
     z_tester = ZTester(z_image);
     %do statistics on the z statistics
-    z_tester.getPValues();
     z_tester.doTest();
 
     fig = figure;
@@ -191,7 +190,6 @@ for i = 1:numel(col_array)
     z_sub_plot = linspace(min(min(z_sub)),max(max(z_sub)),100);
     
     z_tester.estimateNull(100);
-    z_tester.getPValues();
     z_tester.doTest();
     p0 = z_tester.estimateP0();
     mean_null = z_tester.mean_null;
@@ -200,7 +198,8 @@ for i = 1:numel(col_array)
     z_critical = z_tester.getZCritical();
     
     if i == 1
-        save('results/subregion1.mat','p0','mean_null','std_null','mean_alt','std_alt');
+        mixture_gaussian = gmdistribution.fit(reshape(z_sub,[],1),2,'SharedCov',false);
+        save('results/subregion1.mat','mixture_gaussian');
     end
     
     disp(strcat('p_0 = ',num2str(p0)));
