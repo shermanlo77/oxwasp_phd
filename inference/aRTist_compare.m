@@ -194,14 +194,19 @@ for i = 1:numel(col_array)
     z_tester.getPValues();
     z_tester.doTest();
     p0 = z_tester.estimateP0();
+    mean_null = z_tester.mean_null;
+    std_null = z_tester.std_null;
+    [mean_alt, std_alt] = z_tester.estimateAlternative(100);
     z_critical = z_tester.getZCritical();
+    
+    if i == 1
+        save('results/subregion1.mat','p0','mean_null','std_null','mean_alt','std_alt');
+    end
     
     disp(strcat('p_0 = ',num2str(p0)));
     disp(strcat('Power = ',num2str(z_tester.estimatePower())));
     disp(strcat('Tail Power = ',num2str(z_tester.estimateTailPower(z_sub_plot(1),z_sub_plot(end),numel(z_sub_plot)))));
     disp(strcat('Local Power = ',num2str(z_tester.estimateLocalPower(z_sub_plot(1),z_sub_plot(end),numel(z_sub_plot)))));
-    
-    
     
     figure;
     histogram(z_sub,'Normalization','CountDensity','DisplayStyle','stairs');

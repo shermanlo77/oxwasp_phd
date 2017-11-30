@@ -164,6 +164,34 @@ classdef Parzen < handle
             d2 = (this.getSumKernel(delta) * sum(normpdf(z).*(z.^2-1)) - (sum(normpdf(z).*z))^2) / (this.parameter*this.getSumKernel(delta))^2;
         end
 
+        %METHOD: GET DENSITY FIRST DERIVATE
+        %Return the 1st derivate of the density
+        %PARAMETERS:
+            %x: values in the support
+        %RETURN:
+            %f1: 1st derivate of the density, evaluated at each point in x
+        function f1 = getDensity_d1(this, x)
+            %normalise x
+            z = (x - this.data)/this.parameter;
+            %take the sum of terms and work out f1
+            s = sum(-z.*normpdf(z));
+            f1 = -s/(this.n_data*this.parameter^2);
+        end
+
+        %METHOD: GET DENSITY SECOND DERIVATE
+        %Return the 2nd derivate of the density
+        %PARAMETERS:
+            %x: values in the support
+        %RETURN:
+            %f2: 2nd derivate of the density, evaluated each each point in x
+        function f2 = getDensity_d2(this, x)
+            %normalise x
+            z = (x - this.data)/this.parameter;
+            %take the sum of terms and work out f2
+            s = sum(normpdf(z) .* (z.^2 - 1));
+            f2 = s/(this.n_data*this.parameter^3);
+        end
+
     end
     
 end

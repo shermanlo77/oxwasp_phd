@@ -314,7 +314,34 @@ classdef ZTester < handle
         %RETURN:
             %mean_h1: mean of H1
             %std_h1: std of H1
-        function [mean_h1, std_h1] = estimateAlternative(this, linspace)          
+        function [mean_h1, std_h1] = estimateAlternative(this, n_linspace)
+            %declare n_linspace equally spaced points between min and max of z_array
+            z_array = linspace(min(min(this.z_image)), max(max(this.z_image)), n_linspace);
+            %get the alternative density evaluated at each point in z_array
+            f1 = this.estimateH1Density(z_array);
+            
+            %find the index with the biggest density
+            [~,z_index] = max(f1);
+            %get the mode, the value of z with the biggest density
+            mean_h1 = z_array(z_index);
+            
+            %get the estimated ratio of null results
+            p0 = this.estimateP0();
+            
+            %get the null density and its derivate
+            f0 = this.density_estimator.getDensityEstimate(mean_h1);
+            f0_d1 = f0 * (mean_h1 - this.mean_null)/this.std_null;
+            f0_d2 = f0 * ( ((mean_h1 - this.mean_null)/this.std_null)^2 + 1) / this.std_null^2;
+            
+            %get the non-null density and its derivate
+            f1 = this.estimateH1Density(mean_h1) * p0;
+            f1_d1 = this.density_estimator.getDensity_d1(mean_h1) - p0*f0_d1;
+            f1_d2 = this.density_estimator.getDensity_d2(mean_h1) - p0*f0_d2;
+            
+            %work out std_h1 using the curvature at the mode
+            d2 = (f1*f1_d2 - (f1_d1)^2)/(f1^2);
+            std_h1 = (-d2)^(-1/2);
+            
         end
         
     end
