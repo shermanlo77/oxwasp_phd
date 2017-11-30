@@ -252,6 +252,50 @@ for i = 1:numel(col_array)
     
 end
 
+
+factor_array = [0.9, 1.144, 2, 3.33]; %array of fudge factors
+for i_factor = 1:numel(factor_array)
+    grid_tester = GridTester(z_image, 200, 200, [0;0]);
+
+    grid_tester.setDensityEstimationFudgeFactor(factor_array(i_factor));
+    grid_tester.doTest(1000);
+    fig = figure;
+    imagesc(test);
+    colorbar;
+    hold on;
+    colorbar;
+    [critical_y, critical_x] = find(grid_tester.local_sig);
+    scatter(critical_x, critical_y,'r.');
+    colorbar;
+    for i_row = 2:(grid_tester.n_row)
+        corner_cood = grid_tester.getGridCoordinates(i_row, 1);
+        plot([0,2000],[corner_cood(1),corner_cood(1)],'k');
+    end
+    for i_col = 2:(grid_tester.n_col)
+        corner_cood = grid_tester.getGridCoordinates(1, i_col);
+        plot([corner_cood(2),corner_cood(2)],[0,2000],'k');
+    end
+    fig.CurrentAxes.XTick = [];
+    fig.CurrentAxes.YTick = [];
+    
+    z_tester = grid_tester.z_tester_array{7,8};
+    z_critical = z_tester.getZCritical();
+    z_vector = reshape(z_tester.z_image,[],1);
+    m = sum(~isnan(z_vector));
+    z_sub_plot = linspace(min(z_vector),max(z_vector),1000);
+    figure;
+    histogram(z_vector,'Normalization','CountDensity','DisplayStyle','stairs');
+    hold on;
+    plot(z_sub_plot,m*z_tester.density_estimator.getDensityEstimate(z_sub_plot));
+    plot(z_sub_plot,p0*m*normpdf(z_sub_plot,z_tester.mean_null,z_tester.std_null));
+    plot([z_critical(1),z_critical(1)],[0,m*normpdf(0)],'r-','LineWidth',2);
+    plot([z_critical(2),z_critical(2)],[0,m*normpdf(0)],'r-','LineWidth',2);
+    legend('histogram','estimated density','null density');
+    ylabel('frequency density');
+    
+end
+
+
 translation_array = [0,50,100,150,150,50; 0,50,100,150,50,150];
 n_translation = 6;
 sig_local_array = zeros(2000,2000,n_translation);
