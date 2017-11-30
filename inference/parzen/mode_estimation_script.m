@@ -43,16 +43,17 @@ for i_n = 1:numel(n_array)
             
             %simulate n N(0,1)
             X = normrnd(0,1,n,1);
-            %get the Parzen density estimate
-            density_estimator = Parzen(X);
+            
+            %instantise z tester
+            z_tester = ZTester(X);
             %set the kernel width
-            density_estimator.setParameter(k * min([std(X),iqr(X)/1.34]) );
+            z_tester.setDensityEstimationParameter(k * min([std(X),iqr(X)/1.34]) );
             %get the mode and half width estimation
-            [mean_null, std_null] = density_estimator.estimateNull(100);
+            z_tester.estimateNull(100);
             
             %save the mode and half width estimation
-            mean_array(i_repeat, i_k, i_n) = mean_null;
-            std_array(i_repeat, i_k, i_n) = std_null;
+            mean_array(i_repeat, i_k, i_n) = z_tester.mean_null;
+            std_array(i_repeat, i_k, i_n) = z_tester.std_null;
             
         end
         

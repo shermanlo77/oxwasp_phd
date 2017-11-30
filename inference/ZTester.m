@@ -74,15 +74,28 @@ classdef ZTester < handle
         
         %METHOD: ESTIMATE NULL
         %Estimates the mean and std null hypothesis using a fitted density
+        %The mean is found using the maximum value of the fitted density on n_linspace equally spaced points between min and max of z_array
+        %The std is found using the second derivate of the log density at the mode
         %Updates the parameters of the null hypothesis, stored in the member variables
         %PARAMETERS:
             %n_linspace: number of equally spaced points between min and max of z_array to find the mode of the estimated density
         function estimateNull(this, n_linspace)
-            %get the H0 parameter estiamtes
-            [mean_null_, std_null_] = this.density_estimator.estimateNull(n_linspace);
-            %assign the member variables for mean_null and std_null
-            this.mean_null = mean_null_;
-            this.std_null = std_null_;   
+            %declare n_linspace equally spaced points between min and max of z_array
+            z_array = linspace(min(min(this.z_image)), max(max(this.z_image)), n_linspace);
+            %get the density estimate at each point
+            density_estimate = this.density_estimator.getDensityEstimate(z_array);
+            %find the index with the highest density
+            [~, z_max_index] = max(density_estimate);
+            
+            %the z with the highest density is the mode
+            this.mean_null = z_array(z_max_index);
+            %estimate the null std using the log second derivate
+            this.std_null = (-this.density_estimator.getLogSecondDerivate(this.mean_null))^(-1/2);
+            
+            %check if the std_null is real
+            if ~isreal(this.std_null)
+                this.std_null = nan;
+            end
         end
         
         %METHOD: GET Z CORRECTED
@@ -291,6 +304,17 @@ classdef ZTester < handle
             power = (0.5*h*(I(1)+I(end)+2*sum(I(2:(end-1))))) / (0.5*h*(f1(1)+f1(end)+2*sum(f1(2:(end-1)))));
             %get the power
             power = 1 - power;
+        end
+        
+        %METHOD: ESTIMATE ALTERNATIVE
+        %Assume the alternative distribution is Gaussian
+        %Estimate the parameters of the alternative distribution using the mode and curvature at the mode
+        %PARAMETERS:
+            %linspace: number of points between the min and max used for mode seeking
+        %RETURN:
+            %mean_h1: mean of H1
+            %std_h1: std of H1
+        function [mean_h1, std_h1] = estimateAlternative(this, linspace)          
         end
         
     end

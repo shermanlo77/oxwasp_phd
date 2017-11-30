@@ -163,44 +163,7 @@ classdef Parzen < handle
             %work out the second derivate of the log density
             d2 = (this.getSumKernel(delta) * sum(normpdf(z).*(z.^2-1)) - (sum(normpdf(z).*z))^2) / (this.parameter*this.getSumKernel(delta))^2;
         end
-        
-        %METHOD: ESTIMATE NULL
-        %Estimates the parameters of the null distribution
-        %The mean is found using the maximum value of the fitted density on n_linspace equally spaced points between min and max of z_array
-        %The std is found using the second derivate of the log density at the mode
-        %PARAMETER:
-            %n_linspace: number of equally spaced points between min and max of z_array to find the mode of the estimated density
-        %RETURN:
-            %mean_null: expectation of the null hypothesis
-            %std_null: std of the null hypothesis
-        function [mean_null, std_null] = estimateNull(this, n_linspace)
-            
-            %there must be more than 1 data point to contine, otherwise return NaN
-            if this.n_data >= 2
-            
-                %declare n_linspace equally spaced points between min and max of z_array
-                z_array = linspace(min(this.data), max(this.data), n_linspace);
-                %get the density estimate at each point
-                density_estimate = this.getDensityEstimate(z_array);
-                %find the index with the highest density
-                [~, z_max_index] = max(density_estimate);
 
-                %the z with the highest density is the mode
-                mean_null = z_array(z_max_index);
-                %estimate the null std using the log second derivate
-                std_null = (-this.getLogSecondDerivate(mean_null))^(-1/2);
-                %if the calculation of the estimator of std_null is complex
-                %set it to nan
-                if ~isreal(std_null)
-                   std_null = nan; 
-                end
-            %there must be more than 1 data point to contine, otherwise return NaN
-            else
-                mean_null = nan;
-                std_null = nan;
-            end
-        end
-        
     end
     
 end
