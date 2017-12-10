@@ -14,8 +14,8 @@ clearvars;
 rng(uint32(2055696007), 'twister');
 
 %declare arrays to store values to be investigated
-n_array = round(10.^linspace(1,5,20))'; %array of n (sample size)
-k_array = linspace(0.09,2.2,20)'; %array of kernel width
+n_array = round(10.^linspace(1,6,20))'; %array of n (sample size)
+k_array = linspace(0.09,1.5,20)'; %array of kernel width
 %number of times to repeat the experiment
 n_repeat = 50;
 
@@ -62,38 +62,107 @@ for i_n = 1:numel(n_array)
 end
 
 %take the mean squared error over repeats
-mean_array_plot = squeeze(nanmean(mean_array.^2));
-std_array_plot = squeeze(nanmean((std_array-1).^2));
+mean_array_plot = log10(squeeze(nanmedian(mean_array.^2)));
+std_array_plot = log10(squeeze(nanmedian((std_array-1).^2)));
 
 %meshgrid for n and k
 [n_plot,k_plot] = meshgrid(log10(n_array),k_array);
 
 %declare rule of thumb curve
 path = n_array.^(-1/5);
-factor_array = [0.9, 1.144, 2, 3.33]; %array of fudge factors
+factor_array = [0.9866, 1.144]; %array of fudge factors
+
+
+k_array_plot = linspace(min(k_array),max(k_array),10*numel(k_array))'; %array of kernel width
+error_plot = k_array;
+n_bootstrap = 100;
+k_optima = zeros(n_bootstrap,numel(n_array));
+for i_n = 1:numel(n_array)
+    
+    array = log((std_array(:,:,i_n)-1).^2);
+    
+    figure;
+    box_plot = Boxplots(array,true);
+    box_plot.setPosition(k_array);
+    box_plot.plot();
+    hold on;
+    fitter = LocalLinearRegression(repmat(k_array,n_repeat,1), reshape(array',[],1));
+    for i_k = 1:numel(k_array_plot)
+        y_0 = fitter.getRegression(k_array_plot(i_k));
+        error_plot(i_k) = y_0;
+    end
+    plot(k_array_plot,error_plot);
+    
+    [~,i_k_optima] = min(error_plot);
+    k_optima(1,i_n) = k_array_plot(i_k_optima);
+    
+    array_bootstrap = array;
+    for i_bootstrap = 2:n_bootstrap
+        
+        for i_k = 1:numel(k_array)
+            array_bootstrap(:,i_k) = array(randi([1,n_repeat],n_repeat,1),i_k);
+        end
+        
+        fitter = LocalLinearRegression(repmat(k_array,n_repeat,1), reshape(array_bootstrap',[],1));
+        for i_k = 1:numel(k_array_plot)
+            y_0 = fitter.getRegression(k_array_plot(i_k));
+            error_plot(i_k) = y_0;
+        end
+
+        [~,i_k_optima] = min(error_plot);
+        k_optima(i_bootstrap,i_n) = k_array_plot(i_k_optima);
+    end
+end
+
+y = reshape(k_optima',[],1);
+y_scale = std(y);
+y = y/y_scale;
+X = [ones(n_bootstrap*numel(n_array),1),repmat(n_array.^(-1/5),n_bootstrap,1)];
+x_shift = mean(X(:,2));
+x_scale = std(X(:,2));
+X(:,2) = (X(:,2)-x_shift)/x_scale;
+[~,~,stats] = glmfit(X,y,'gamma','link','identity','constant','off');
+y_scale * stats.beta(2)/x_scale
+sqrt(stats.covb(end))*y_scale/x_scale
+y_scale * (stats.beta(1) - stats.beta(2)*x_shift/x_scale)
+sqrt(y_scale^2*stats.covb(1)+(x_shift*y_scale/x_scale)^2*stats.covb(end) + 2*y_scale*(x_shift*y_scale/x_scale)*stats.covb(2))
+%model_fit = fitglm(x,y,'Link','log','Distribution','normal');
+
+boxplot_k_optima = Boxplots(k_optima,true);
+boxplot_k_optima.setPosition((n_array).^(-1/5));
+figure;
+boxplot_k_optima.plot();
+
+
+
 
 %for the mode estimation, then half width estimation
-for i_array = 1:2
+for i_array = 1:3
     
     %get the corresponding array
     if i_array == 1
         array = mean_array_plot;
-    else
+        z_label = 'log MSE';
+    elseif i_array == 2
         array = std_array_plot;
+        z_label = 'log MSE';
+    else
+        array = squeeze(nanmean(std_array));
+        z_label = 'H0 std estimate';
     end
     
     %surf plot the error vs 
     figure;
     surf(k_plot,n_plot,array);
     %label axis
-    xlabel('Parzen std');
+    xlabel('kernel width');
     ylabel('log(n)');
-    zlabel('Mean squared error');
+    zlabel(z_label);
     hold on;
     %for each fudge factor
     for i = 1:numel(factor_array)
         %get the rule of thumb kernel width for each n
-        k_path = factor_array(i) * path;
+        k_path = factor_array(i) * path + 0.1739;
         %declare array of error along this path
         error_path = zeros(numel(n_array),1);
         %for each n
@@ -122,5 +191,11 @@ for i_array = 1:2
     ylim(log10(n_array([1,numel(n_array)])));
     view(-166,34);
     ax = gca;
-    legend(ax.Children([4,3,2,1]),{'0.9','1.144','2','3.33'},'Location','best');
+    legend(ax.Children([2,1]),{'0.9','1.144'},'Location','best');
+    
+    if i_array==3
+        hold on;
+        ax = mesh(k_plot,n_plot,ones(size(array)));
+        ax.FaceAlpha = 0;
+    end
 end
