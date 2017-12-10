@@ -36,7 +36,7 @@ classdef Boxplot < handle
             %assign default values to member variables
             this.position = 0;
             this.colour = [0,0,1];
-            this.want_whisker_cap = true;
+            this.want_whisker_cap = false;
             this.whisker_cap_size = 6;
             this.outlier_colour = [1,0,0];
             this.outlier_mark = 'x';
