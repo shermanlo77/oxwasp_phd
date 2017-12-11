@@ -75,8 +75,10 @@ factor_array = [0.9866, 1.144]; %array of fudge factors
 
 k_array_plot = linspace(min(k_array),max(k_array),10*numel(k_array))'; %array of kernel width
 error_plot = k_array;
-n_bootstrap = 100;
+error_std_plot = k_array;
+n_bootstrap = 10;
 k_optima = zeros(n_bootstrap,numel(n_array));
+
 for i_n = 1:numel(n_array)
     
     array = log((std_array(:,:,i_n)-1).^2);
@@ -88,10 +90,13 @@ for i_n = 1:numel(n_array)
     hold on;
     fitter = LocalLinearRegression(repmat(k_array,n_repeat,1), reshape(array',[],1));
     for i_k = 1:numel(k_array_plot)
-        y_0 = fitter.getRegression(k_array_plot(i_k));
+        [y_0, y_error] = fitter.getRegression(k_array_plot(i_k));
         error_plot(i_k) = y_0;
+        error_std_plot(i_k) = y_error;
     end
-    plot(k_array_plot,error_plot);
+    ax = plot(k_array_plot,error_plot);
+    plot(k_array_plot,error_plot+y_error,'Color',ax.Color,'LineStyle',':');
+    plot(k_array_plot,error_plot-y_error,'Color',ax.Color,'LineStyle',':');
     
     [~,i_k_optima] = min(error_plot);
     k_optima(1,i_n) = k_array_plot(i_k_optima);

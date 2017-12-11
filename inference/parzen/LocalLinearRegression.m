@@ -54,7 +54,7 @@ classdef LocalLinearRegression < handle
             this.n = numel(x);
             
             %get the kernel parameter
-            this.lambda = 0.4;
+            this.lambda = 0.5;
         end
         
         %METHOD: SET LAMBDA
@@ -71,7 +71,8 @@ classdef LocalLinearRegression < handle
             %x_0: where the evaluation of the local linear regression takes place
         %RETURN:
             %y_0: evaluation of the local linear regression at x_0
-        function [y_0, error, optima_error] = getRegression(this,x_0)
+            %error: estimated error of y_0
+        function [y_0, error] = getRegression(this,x_0)
             
             %normalise x_0
             x_0 = (x_0 - this.x_shift) / this.x_scale;
@@ -109,17 +110,27 @@ classdef LocalLinearRegression < handle
             %un-normalise y_0
             y_0 = (y_0*this.y_scale) + this.y_shift;
             
-            var_estimate = median( w.*((y_sub - X*beta_estimate).^2)) / (n_sub-2);
-            WX = X;
-            WX(:,1) = X(:,1) .* w_root;
-            WX(:,2) = X(:,2) .* w_root;
-            beta_cov  = var_estimate * (X'*WX);
-            error = sqrt(x_0' * beta_cov * x_0);
-            error = error * this.y_scale;
+            %if the error of y_0 is requested, work it out
+            if nargout >= 2
+                %get the weighted RSS divided by n degrees of freedom
+                var_estimate = mean( w.*((y_sub - X*beta_estimate).^2)) / (n_sub-2);
+                %get the matrix WX, that is diag(w) * X
+                WX = X;
+                WX(:,1) = X(:,1) .* w_root;
+                WX(:,2) = X(:,2) .* w_root;
+                %estimate the covariance matrix of beta
+                beta_cov = var_estimate * (X'*WX);
+                %estimate the variance of y_0
+                error = sqrt(x_0' * beta_cov * x_0);
+                %get the std of y_0
+                error = error * this.y_scale;
+            end
             
-            optima_error = beta_cov(1)/(beta_estimate(2)^2) + beta_cov(end)*(beta_estimate(1)/(beta_estimate(2)^2))^2 - 2*beta_cov(2)*beta_estimate(1)/(beta_estimate(2)^3);
-            optima_error = sqrt(optima_error);
-            optima_error = optima_error * this.y_scale;
+%             %OLD CODE, estimating error in optima value of the minima
+%             %this is done by estimating the variance of alpha/beta
+%             optima_error = beta_cov(1)/(beta_estimate(2)^2) + beta_cov(end)*(beta_estimate(1)/(beta_estimate(2)^2))^2 - 2*beta_cov(2)*beta_estimate(1)/(beta_estimate(2)^3);
+%             optima_error = sqrt(optima_error);
+%             optima_error = optima_error * this.x_scale;
             
         end
         
@@ -131,9 +142,10 @@ classdef LocalLinearRegression < handle
             %k: kernel at x_0
         function k = getKernel(this, x_0)
             %Epanechnikov kernel
-            k = (this.x_data - x_0) / this.lambda;
-            k(abs(k)>=1) = 0;
-            k(abs(k)<1) = 0.75 * (1-k(abs(k)<1).^2);
+            z = (this.x_data - x_0) / this.lambda;
+            k = zeros(this.n,1);
+            k(abs(z)>=1) = 0;
+            k(abs(z)<1) = 0.75 * (1-z(abs(z)<1).^2);
         end
         
     end
