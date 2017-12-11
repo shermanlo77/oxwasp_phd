@@ -137,8 +137,18 @@ boxplot_k_optima = Boxplots(k_optima,true);
 boxplot_k_optima.setPosition((n_array).^(-1/5));
 figure;
 boxplot_k_optima.plot();
-
-
+hold on;
+x_plot = linspace(n_array(1).^(-1/5),n_array(end).^(-1/5),100);
+X = [ones(numel(x_plot),1),((x_plot-x_shift)/x_scale)'];
+y_plot = (X*stats.beta)*y_scale;
+plot(x_plot,y_plot);
+error = zeros(numel(x_plot),1);
+for i = 1:numel(x_plot)
+    x = X(i,:)';
+    error(i) = sqrt(x'*stats.covb*x);
+end
+plot(x_plot, y_plot+error);
+plot(x_plot, y_plot-error);
 
 
 %for the mode estimation, then half width estimation
