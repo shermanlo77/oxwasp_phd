@@ -35,13 +35,14 @@ classdef GridTester < handle
             %sub_height: height of square in grid
             %sub_width: width of square in grid
             %shift: two vector which translates the grid
-                %each element is positive and cannot be more than [sub_height, sub_width]
+                %each element is positive and cannot be more than [1; 1]
+                %translation relative to [sub_height; sub_width]
         function this = GridTester(z_image, sub_height, sub_width, shift)
             %assign member variables
             this.sub_height = sub_height;
             this.sub_width = sub_width;
             this.z_image = z_image;
-            this.shift = shift;            
+            this.shift = shift.*[sub_height; sub_width];         
             [this.height, this.width] = size(z_image);
             this.n_row = ceil((this.height+this.shift(1))/this.sub_height);
             this.n_col = ceil((this.width+this.shift(2))/this.sub_width);
@@ -77,35 +78,8 @@ classdef GridTester < handle
             %top_left: 2 column vector of the top_left corner of the specified square
             %bottom_right: 2 column vector of the bottom_right corner of the specified square
         function [top_left, bottom_right] = getGridCoordinates(this, i_row, i_col)
-            
-            %declare 2 column vectors for the top left and bottom right corners
-            top_left = zeros(2,1);
-            bottom_right = zeros(2,1);
-            
-            %get the coordinates of the top left corner
-            top_left(1) = (i_row - 1) * this.sub_height + 1;
-            top_left(2) = (i_col - 1) * this.sub_width + 1;
-            
-            %get the coordinates of the bottom right corner
-            bottom_right(1) = i_row * this.sub_height;
-            bottom_right(2) = i_col * this.sub_width;
-            
-            %shift the coordinates by this.shift
-            top_left = top_left - this.shift;
-            bottom_right = bottom_right - this.shift;
-            
-            %boundary check, if beyound left and top of the image
-            %set that coordinate to 1
-            top_left(top_left < 1) = 1;
-            
-            %boundary check, if beyound right and bottom of the image
-            %set that coordinate to the size of the z_image
-            if bottom_right(1) > this.height
-                bottom_right(1) = this.height;
-            end
-            if bottom_right(2) > this.width
-                bottom_right(2) = this.width;
-            end
+            %call static version of this method
+            [top_left, bottom_right] = this.STATIC_getGridCoordinates(this.height, this.width, i_row, i_col, this.sub_height, this.sub_width, this.shift);
         end
         
         %METHOD: DO TEST
@@ -172,6 +146,59 @@ classdef GridTester < handle
             end
         end
         
+    end
+    
+    %STATIC METHOD
+    methods (Static)
+        
+        %STATIC METHOD: GET GRID COORDINATE
+        %Returns the coordinates of the top left and bottom right corner of a square in the grid
+        %All coordinates are inclusive to the area of the square so that they can be used for indexing
+        %PARAEMETERS:
+            %height: height of the image
+            %width: width of the image
+            %sub_height: height of square in grid
+            %sub_width: width of square in grid
+            %i_row: index pointing to the square living in the i_row
+            %i_col: index pointing to the square living in the i_col
+            %shift: two vector which translates the grid
+                %each element is positive and cannot be more than [1; 1]
+                %translation relative to [sub_height; sub_width]
+        %RETURN:
+            %top_left: 2 column vector of the top_left corner of the specified square
+            %bottom_right: 2 column vector of the bottom_right corner of the specified square
+        function [top_left, bottom_right] = STATIC_getGridCoordinates(height, width, i_row, i_col, sub_height, sub_width, shift)
+            
+            %declare 2 column vectors for the top left and bottom right corners
+            top_left = zeros(2,1);
+            bottom_right = zeros(2,1);
+            
+            %get the coordinates of the top left corner
+            top_left(1) = (i_row - 1) * sub_height + 1;
+            top_left(2) = (i_col - 1) * sub_width + 1;
+            
+            %get the coordinates of the bottom right corner
+            bottom_right(1) = i_row * sub_height;
+            bottom_right(2) = i_col * sub_width;
+            
+            %shift the coordinates by this.shift
+            top_left = top_left - shift;
+            bottom_right = bottom_right - shift;
+            
+            %boundary check, if beyound left and top of the image
+            %set that coordinate to 1
+            top_left(top_left < 1) = 1;
+            
+            %boundary check, if beyound right and bottom of the image
+            %set that coordinate to the size of the z_image
+            if bottom_right(1) > height
+                bottom_right(1) = height;
+            end
+            if bottom_right(2) > width
+                bottom_right(2) = width;
+            end
+        end
+    
     end
     
 end
