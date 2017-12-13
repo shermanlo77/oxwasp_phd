@@ -141,14 +141,14 @@ hold on;
 x_plot = linspace(n_array(1).^(-1/5),n_array(end).^(-1/5),100);
 X = [ones(numel(x_plot),1),((x_plot-x_shift)/x_scale)'];
 y_plot = (X*stats.beta)*y_scale;
-plot(x_plot,y_plot);
+ax = plot(x_plot,y_plot);
 error = zeros(numel(x_plot),1);
 for i = 1:numel(x_plot)
     x = X(i,:)';
     error(i) = sqrt(x'*stats.covb*x);
 end
-plot(x_plot, y_plot+error);
-plot(x_plot, y_plot-error);
+plot(x_plot, y_plot+error, 'Color', ax.Color,'LineStyle',':');
+plot(x_plot, y_plot-error, 'Color', ax.Color,'LineStyle',':');
 
 
 %for the mode estimation, then half width estimation
