@@ -76,7 +76,7 @@ factor_array = [0.9866, 1.144]; %array of fudge factors
 k_array_plot = linspace(min(k_array),max(k_array),10*numel(k_array))'; %array of kernel width
 error_plot = k_array;
 error_std_plot = k_array;
-n_bootstrap = 10;
+n_bootstrap = 20;
 k_optima = zeros(n_bootstrap,numel(n_array));
 
 for i_n = 1:numel(n_array)
@@ -97,6 +97,9 @@ for i_n = 1:numel(n_array)
     ax = plot(k_array_plot,error_plot);
     plot(k_array_plot,error_plot+y_error,'Color',ax.Color,'LineStyle',':');
     plot(k_array_plot,error_plot-y_error,'Color',ax.Color,'LineStyle',':');
+    ylabel('ln mean squared error');
+    xlabel('kernel width');
+    title(strcat('n=',num2str(n_array(i_n))));
     
     [~,i_k_optima] = min(error_plot);
     k_optima(1,i_n) = k_array_plot(i_k_optima);
@@ -149,6 +152,8 @@ for i = 1:numel(x_plot)
 end
 plot(x_plot, y_plot+error, 'Color', ax.Color,'LineStyle',':');
 plot(x_plot, y_plot-error, 'Color', ax.Color,'LineStyle',':');
+xlabel('n^{-1/5}');
+ylabel('optimal kernel width');
 
 
 %for the mode estimation, then half width estimation
