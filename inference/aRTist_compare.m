@@ -29,43 +29,17 @@ n_pixel = sum(sum(segmentation));
 
 phantom_vector = reshape(phantom(segmentation),[],1);
 aRTist_vector = reshape(aRTist(segmentation),[],1);
-d = phantom_vector - aRTist_vector;
 
-%plot aRTist vs phantom greyvalue as a histogram heatmap
-figure;
-hist3Heatmap(phantom_vector,aRTist_vector,[300,300],true);
-hold on;
-%get the min and max greyvalue
-min_grey = min([min(min(phantom)),min(min(aRTist))]);
-max_grey = max([max(max(phantom)),max(max(aRTist))]);
-%plot straight line with gradient 1
-plot([min_grey,max_grey],[min_grey,max_grey],'r');
-%label axis
-colorbar;
-xlabel('phantom greyvalue (arb. unit)');
-ylabel('aRTist greyvalue (arb. unit)');
+calibrator = DifferenceCalibrator(phantom_vector, aRTist_vector);
+calibrator.setParameter(1E5);
+calibrator.calibrate();
 
-%plot phantom - aRTist vs aRTist greyvalue as a histogram heatmap
-figure;
-hist3Heatmap(aRTist_vector,d,[100,100],true);
-hold on;
-%label axis
-colorbar;
-xlabel('aRTist greyvalue (arb. unit)');
-ylabel('difference in greyvalue (arb. unit)');
+calibrator.plotCalibration([300,300],false);
+calibrator.plotDifference([100,100],false,true);
+calibrator.plotCalibration([300,300],true);
+calibrator.plotDifference([100,100],true,false);
 
-model = MeanVar_kNN(1E5);
-model.train(aRTist_vector,d);
-aRTist_plot = (min(aRTist_vector):max(aRTist_vector))';
-hold on;
-plot(aRTist_plot,model.predict(aRTist_plot),'-r');
-
-d_predict = model.predict(reshape(aRTist,[],1));
-aRTist = aRTist + reshape(d_predict,block_data.height,block_data.width);
-aRTist_plot = (min(min(aRTist)):max(max(aRTist_vector)))';
-
-aRTist_vector = reshape(aRTist(segmentation),[],1);
-d = phantom_vector - aRTist_vector;
+aRTist(segmentation) = reshape(calibrator.aRTist_calibrated,[],1);
 
 %plot the phantom and aRTist image
 figure;
@@ -74,28 +48,6 @@ colorbar;
 figure;
 imagesc(aRTist);
 colorbar;
-
-%plot aRTist vs phantom greyvalue as a histogram heatmap
-figure;
-hist3Heatmap(phantom_vector,aRTist_vector,[300,300],true);
-hold on;
-%get the min and max greyvalue
-min_grey = min([min(min(phantom)),min(min(aRTist))]);
-max_grey = max([max(max(phantom)),max(max(aRTist))]);
-%plot straight line with gradient 1
-plot([min_grey,max_grey],[min_grey,max_grey],'r');
-%label axis
-colorbar;
-xlabel('phantom greyvalue (arb. unit)');
-ylabel('aRTist greyvalue (arb. unit)');
-
-%plot phantom - aRTist vs aRTist greyvalue as a histogram heatmap
-figure;
-hist3Heatmap(aRTist_vector,d,[100,100],true);
-%label axis
-colorbar;
-xlabel('aRTist greyvalue (arb. unit)');
-ylabel('difference in greyvalue (arb. unit)');
 
 %get the training images
 training_stack = block_data.loadImageStack(training_index);
@@ -115,10 +67,6 @@ model.train(training_mean,training_var);
 
 %predict variance given aRTist
 var_predict = reshape(model.predict(reshape(aRTist,[],1)),block_data.height, block_data.width);
-
-%plot the predicted variance
-% figure;
-% imagesc(var_predict);
 
 %get the test images
 test_stack = block_data.loadImageStack(test_index);
