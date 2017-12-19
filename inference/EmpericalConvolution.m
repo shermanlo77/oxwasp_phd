@@ -6,7 +6,11 @@ classdef EmpericalConvolution < handle
         n_row; %number of rows to sample
         kernel_size; %2 column vector [height, width] of the size of the moving window
         z_image; %image of z statistics
+        
+        mean_null; %image of emperical null mean parameter
+        var_null; %image of emperical null var parameter
         p_image; %image of p values
+        sig_image; %boolean image of significant pixels
     end
     
     %METHODS
@@ -26,7 +30,7 @@ classdef EmpericalConvolution < handle
             this.kernel_size = kernel_size;
         end
         
-        function getPValues(this, n_linspace)
+        function estimateNull(this, n_linspace)
             
             %get the size of the z image
             [height, width] = size(this.z_image);
@@ -36,8 +40,9 @@ classdef EmpericalConvolution < handle
             x_array = round(linspace(1,width,this.n_col));
             y_array = round(linspace(1,height,this.n_row));
             
-            %define a p_image which is of size n_row x n_col
-            p_sub_image = zeros(this.n_row, this.n_col);
+            %declare variables which are of size n_row x n_col
+            this.mean_null = zeros(this.n_row, this.n_col);
+            this.var_null = zeros(this.n_row, this.n_col);
             
             %do a meshgrid
             [x_grid, y_grid] = meshgrid(x_array,y_array);
@@ -72,10 +77,10 @@ classdef EmpericalConvolution < handle
                     z_tester = ZTester(this.z_image(y_window,x_window));
                     %get the emperical null
                     z_tester.estimateNull(n_linspace);
-                    %get the p values based on the emperical null
-                    z_tester.getPValues();
+                    
                     %get the p value in the middle of the window
-                    p_sub_image(i_row, i_col) = z_tester.p_image(kernel_half_size(1)+1,kernel_half_size(2)+1);
+                    this.mean_null(i_row, i_col) = z_tester.mean_null;
+                    this.var_null(i_row, i_col) = (z_tester.std_null)^2;
                     
                 end
             end
@@ -83,7 +88,23 @@ classdef EmpericalConvolution < handle
             %meshgrid for 2d interpolation
             [x_full, y_full] = meshgrid(1:width, 1:height);
             %interpolate the image
-            this.p_imageinterp2(x_grid,y_grid,p_sub_image,x_full,y_full);
+            this.mean_null = interp2(x_grid,y_grid,this.mean_null,x_full,y_full);
+            this.var_null = interp2(x_grid,y_grid,this.var_null,x_full,y_full);
+        end
+        
+        function setMask(this, segmentation)
+            this.mean_null(~segmentation) = nan;
+            this.var_null(~segmentation) = nan;
+        end
+        
+        function doTest(this)
+            
+            z_null = (this.z_image - this.mean_null) ./ sqrt(this.var_null);
+            z_tester = ZTester(z_null);
+            z_tester.doTest();
+            this.p_image = z_tester.p_image;
+            this.sig_image = z_tester.sig_image;
+            
         end
         
     end

@@ -254,24 +254,6 @@ n_translation_array = [1,3,4,8,12];
 grid_tester = MultiGridTester(z_image, 200, 200, translation_array);
 grid_tester.doTest(1000);
 
-mean_null = median(grid_tester.mean_null_array,3);
-std_null = median(sqrt(grid_tester.var_null_array),3);
-
-mean_null(~segmentation) = nan;
-std_null(~segmentation) = nan;
-
-fig = figure;
-imagesc(mean_null);
-colorbar;
-fig.CurrentAxes.XTick = [];
-fig.CurrentAxes.YTick = [];
-
-fig = figure;
-imagesc(std_null);
-colorbar;
-fig.CurrentAxes.XTick = [];
-fig.CurrentAxes.YTick = [];
-
 for i_trans_series = 1:numel(n_translation_array)
     
     n_translation = n_translation_array(i_trans_series);
@@ -297,12 +279,54 @@ for i_trans_series = 1:numel(n_translation_array)
     fig.CurrentAxes.YTick = [];
     
     fig = figure;
-    imagesc(log10(mean(grid_tester.p_image_array(:,:,1:n_translation),3)));
+    imagesc(-log10(mean(grid_tester.p_image_array(:,:,1:n_translation),3)));
     colorbar;
     hold on;
     colorbar;
     fig.CurrentAxes.XTick = [];
     fig.CurrentAxes.YTick = [];
+    
+    mean_null = mean(grid_tester.mean_null_array(:,:,1:n_translation),3);
+    std_null = sqrt(mean(grid_tester.var_null_array(:,:,1:n_translation),3));
+    mean_null(~segmentation) = nan;
+    std_null(~segmentation) = nan;
+    z_emperical = (z_image - mean_null) ./ std_null;
+    
+    z_tester = ZTester(z_emperical);
+    z_tester.doTest();
+    p_emperical = z_tester.p_image;
+    
+    fig = figure;
+    imagesc(-log10(p_emperical));
+    colorbar;
+    hold on;
+    colorbar;
+    fig.CurrentAxes.XTick = [];
+    fig.CurrentAxes.YTick = [];
+    
+    fig = figure;
+    imagesc(test);
+    colorbar;
+    hold on;
+    colorbar;
+    [critical_y, critical_x] = find(z_tester.sig_image);
+    scatter(critical_x, critical_y,'r.');
+    fig.CurrentAxes.XTick = [];
+    fig.CurrentAxes.YTick = [];
+    
+    fig = figure;
+    imagesc(mean_null);
+    colorbar;
+    fig.CurrentAxes.XTick = [];
+    fig.CurrentAxes.YTick = [];
+
+    fig = figure;
+    imagesc(std_null);
+    colorbar;
+    fig.CurrentAxes.XTick = [];
+    fig.CurrentAxes.YTick = [];
+    
+    
 
 %     for i_translation = 1:n_translation
 %         
@@ -350,6 +374,43 @@ for i_trans_series = 1:numel(n_translation_array)
 %     end
 end
 
+convolution = EmpericalConvolution(z_image,20, 20, [200,200]);
+tic;
+convolution.estimateNull(1000);
+convolution.setMask(segmentation);
+convolution.doTest();
+toc
+
+fig = figure;
+imagesc(-log10(convolution.p_image));
+colorbar;
+hold on;
+colorbar;
+fig.CurrentAxes.XTick = [];
+fig.CurrentAxes.YTick = [];
+
+fig = figure;
+imagesc(test);
+colorbar;
+hold on;
+colorbar;
+[critical_y, critical_x] = find(convolution.sig_image);
+scatter(critical_x, critical_y,'r.');
+fig.CurrentAxes.XTick = [];
+fig.CurrentAxes.YTick = [];
+
+
+fig = figure;
+imagesc(convolution.mean_null);
+colorbar;
+fig.CurrentAxes.XTick = [];
+fig.CurrentAxes.YTick = [];
+
+fig = figure;
+imagesc(sqrt(convolution.var_null));
+colorbar;
+fig.CurrentAxes.XTick = [];
+fig.CurrentAxes.YTick = [];
 
 % % chi_squared = -2*sum(log(p_value_array),3);
 % % chi_squared_p = chi2cdf(chi_squared,2*n_translation,'upper');
