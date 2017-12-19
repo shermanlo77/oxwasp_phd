@@ -331,27 +331,6 @@ for i_trans_series = 1:numel(n_translation_array)
 %     end
 end
 
-fig = figure;
-imagesc(test);
-colorbar;
-hold on;
-colorbar;
-[critical_y, critical_x] = find(sum(sig_combine_array,3)>=3);
-scatter(critical_x, critical_y,'r.');
-colorbar;
-fig.CurrentAxes.XTick = [];
-fig.CurrentAxes.YTick = [];
-
-fig = figure;
-imagesc(test);
-colorbar;
-hold on;
-colorbar;
-[critical_y, critical_x] = find(sum(sig_local_array,3)>=3);
-scatter(critical_x, critical_y,'r.');
-colorbar;
-fig.CurrentAxes.XTick = [];
-fig.CurrentAxes.YTick = [];
 
 % % chi_squared = -2*sum(log(p_value_array),3);
 % % chi_squared_p = chi2cdf(chi_squared,2*n_translation,'upper');
