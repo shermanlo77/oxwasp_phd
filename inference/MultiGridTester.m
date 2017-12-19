@@ -16,6 +16,10 @@ classdef MultiGridTester < handle
         size; %size of the test (0 uses default value)
         z_image; %image of z statistics
         
+        %array of emperical null parameters
+        mean_null_array; %emperical null mean parameter
+        var_null_array; %emperical null variance parameter
+        
         %array of boolean images, true for significant pixel
         combined_sig_array; %using combined p value analysis
         local_sig_array; %using local p value analysis
@@ -46,6 +50,8 @@ classdef MultiGridTester < handle
             this.shift_array = shift_array; 
             this.n_shift = numel(shift_array(1,:));
             [height, width] = size(z_image);
+            this.mean_null_array = zeros(height, width, this.n_shift);
+            this.var_null_array = zeros(height, width, this.n_shift);
             this.p_image_array = zeros(height, width, this.n_shift);
             this.combined_sig_array = zeros(height, width, this.n_shift);
             this.local_sig_array = zeros(height, width, this.n_shift);
@@ -77,6 +83,9 @@ classdef MultiGridTester < handle
                 end
                 %do the test
                 grid_tester.doTest(n_linspace);
+                %extract the emperical null parameters
+                this.mean_null_array(:,:,i_shift) = grid_tester.mean_null;
+                this.var_null_array(:,:,i_shift) = grid_tester.var_null;
                 %extract the significant pixels and p values
                 %save it in the member variable arrays
                 this.combined_sig_array(:,:,i_shift) = grid_tester.combined_sig;

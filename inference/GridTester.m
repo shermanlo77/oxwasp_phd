@@ -24,6 +24,9 @@ classdef GridTester < handle
         combined_sig; %boolean image, highlighted significant pixels using combined FDR analysis
         local_sig; %boolean image, highlighted significant pixels using the local FDR analysis
         
+        mean_null; %image, emperical null mean parameter for each pixel
+        var_null; %image, emperical null variance parameter for each pixel
+        
     end
     
     %METHODS
@@ -50,6 +53,8 @@ classdef GridTester < handle
             this.p_image = zeros(this.height, this.width);
             this.combined_sig = zeros(this.height, this.width);
             this.local_sig = zeros(this.height, this.width);
+            this.mean_null = zeros(this.height, this.width);
+            this.var_null = zeros(this.height, this.width);
             
             %assign z_tester_array
             %this is an array of ZTester objects, one for each square in the grid
@@ -91,8 +96,13 @@ classdef GridTester < handle
                     %get the coordinates of the square
                     [top_left, bottom_right] = this.getGridCoordinates(i_row, i_col);
                     
-                    %do the test
+                    %get the emperical null
                     this.z_tester_array{i_row,i_col}.estimateNull(n_linspace);
+                    %save the parameters of the emperical null
+                    this.mean_null(top_left(1):bottom_right(1), top_left(2):bottom_right(2)) = this.z_tester_array{i_row,i_col}.mean_null;
+                    this.var_null(top_left(1):bottom_right(1), top_left(2):bottom_right(2)) = (this.z_tester_array{i_row,i_col}.std_null)^2;
+                    
+                    %do the test
                     this.z_tester_array{i_row,i_col}.doTest();
                     
                     %extract the local significant pixels

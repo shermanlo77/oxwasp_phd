@@ -253,6 +253,25 @@ translation_array = [0.00, 0.50, 0.00, 0.50, 0.25, 0.75, 0.00, 0.00, 0.25, 0.75,
 n_translation_array = [1,3,4,8,12];
 grid_tester = MultiGridTester(z_image, 200, 200, translation_array);
 grid_tester.doTest(1000);
+
+mean_null = median(grid_tester.mean_null_array,3);
+std_null = median(sqrt(grid_tester.var_null_array),3);
+
+mean_null(~segmentation) = nan;
+std_null(~segmentation) = nan;
+
+fig = figure;
+imagesc(mean_null);
+colorbar;
+fig.CurrentAxes.XTick = [];
+fig.CurrentAxes.YTick = [];
+
+fig = figure;
+imagesc(std_null);
+colorbar;
+fig.CurrentAxes.XTick = [];
+fig.CurrentAxes.YTick = [];
+
 for i_trans_series = 1:numel(n_translation_array)
     
     n_translation = n_translation_array(i_trans_series);
