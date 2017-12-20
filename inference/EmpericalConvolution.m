@@ -1,3 +1,15 @@
+%CLASS: EMPERICAL NULL CONVOLUTION
+%Estimates the emperical null for a sample of pixels, given an image of z statistics
+%The blanks are then filled in using linear interpolation
+%The z statistics are then corrected for the emperical null
+%
+%HOW TO USE:
+%Pass the image of z statistics through the constructor.
+%The constructor also wants the number of rows and columns to perform a convolution and the size (kernel size) of the window
+%Call the method estimateNull(n_linspace) to work out the emperical null
+%The parameters of the null hypothesis are stored in the member variables mean_null and var_null
+%Call the method setMask(segmentation) to set a mask for the member variables mean_null and var_null
+%Call the method doTest() to do hypothesis testing, the resulting p values and significant pixels are stored in the member variables p_image and sig_image
 classdef EmpericalConvolution < handle
     
     %MEMBER VARIABLES
@@ -6,6 +18,7 @@ classdef EmpericalConvolution < handle
         n_row; %number of rows to sample
         kernel_size; %2 column vector [height, width] of the size of the moving window
         z_image; %image of z statistics
+        test_size; %size of the test (if 0, use default value)
         
         mean_null; %image of emperical null mean parameter
         var_null; %image of emperical null var parameter
@@ -28,8 +41,16 @@ classdef EmpericalConvolution < handle
             this.n_row = n_row;
             this.n_col = n_col;
             this.kernel_size = kernel_size;
+            this.test_size = 0;
         end
         
+        %METHOD: ESTIMATE NULL
+            %Does a convolution of a sample of pixels
+            %Estimates the parameters of the emperical null for each of these pixels
+            %The blanks are then filled in using linear interpolation
+            %The parameters of the null hypothesis are stored in the member variables mean_null and var_null
+        %PARAMETERS:
+            %n_linspace: number of points to search for the mode
         function estimateNull(this, n_linspace)
             
             %get the size of the z image
@@ -92,19 +113,40 @@ classdef EmpericalConvolution < handle
             this.var_null = interp2(x_grid,y_grid,this.var_null,x_full,y_full);
         end
         
+        %METHOD: SET MASK
+        %Set a mask for the member variables mean_null and var_null
+        %Pixels not representing ROI will be set to NaN
+        %PARAMETES:
+            %segmentation: boolean image, true for pixel representing ROI
         function setMask(this, segmentation)
             this.mean_null(~segmentation) = nan;
             this.var_null(~segmentation) = nan;
         end
         
+        %METHOD: DO TEST
+        %Does hypothesis testing, corrected for emperical null
+        %p values and signficant pixels are stored in the member variables p_image and sig_image
         function doTest(this)
-            
+            %correct the z statistics for the emperical null
             z_null = (this.z_image - this.mean_null) ./ sqrt(this.var_null);
+            %instantise a ZTester
             z_tester = ZTester(z_null);
+            %set the size of the test if a specific size is specified
+            if this.test_size ~= 0
+                z_tester.setSize(this.test_size);
+            end
+            %do the hypothesis test
             z_tester.doTest();
+            %extract the p values and significant pixels
             this.p_image = z_tester.p_image;
             this.sig_image = z_tester.sig_image;
             
+        end
+        
+        %METHOD: SET SIZE
+        %Set the size of the test
+        function setSize(this, test_size)
+            this.test_size = test_size;
         end
         
     end
