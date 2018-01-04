@@ -1,30 +1,28 @@
 %EXPERIMENT (Abstract) Superclass for check pointing experiments and saving results
 %   Objects derived from this class has a name and an indicator if the experiment is completed
 %   In addition, it is recommended the constructor of derived class should have no agurments
-%   Results are to be stored in the member variables
-%   
-%   Results are save in a .mat file in the results folder, appended with the experiment name.
+%
+%   The instantised object is saved in a .mat file in the results folder, appended with the experiment name.
 %   
 %   The constructor is designed to be run differently depending if the file exist
-%   1. if there is no file, the constructor save the instantised self to a .mat file
-%   2. if the .mat file can be loaded but is_complete is false, it will run the experiment, change is_complete to true and save
-%   3. if the .mat file can be loaded and is_complete is true, the results are printed
+%   1. if there is no file, the constructor will call the method setup() save the instantised itself to a .mat file
+%   2. if the .mat file can be loaded, the member variables are read from that and instantised with these member variables
 %
 %   Abstract methods:
-%       setUpExperiment (this is where ALL member variables from the derived class are assigned)
-%       doExperiment (DON'T FORGET TO CALL this.saveState at every iteration!!!)
+%       setup() (this is where ALL member variables from the derived class are assigned)
+%       run() (run the experiment, DON'T FORGET TO CALL this.saveState to save the member variables)
 %       printResults (print the results using derived member variables)
 classdef Experiment < handle
     
     %MEMBER VARIABLES
-    properties
+    properties (SetAccess = protected)
         experiment_name; %string, name of the experiment and the file name for storing it in a .mat file
-        is_complete; %boolea, true if the experiment is completed
-        n_arrow;
+        is_complete; %boolean, true if the experiment is completed
+        n_arrow; %number of arrows to be displayed in the progress bar
     end
     
     %METHODS
-    methods
+    methods (Access = public)
         
         %CONSTRUCTOR
         %PARAMETERS:
@@ -41,41 +39,20 @@ classdef Experiment < handle
                 this.is_complete = false;
                 this.n_arrow = -1;
                 %set up the experiment
-                this.setUpExperiment;
-                %save a .mat file and exit the constructor
+                this.setup();
+                %save a .mat file
                 this.saveState();
+                %print text that the experiment has been saved
                 disp(strcat('results/',this.experiment_name,'.mat saved'));
-                return;
             end
-            
-            %if the experiment is completed
-            if this.is_complete
-                %print the results
-                this.printResults();
-            %else the experiment is not completed
-            else
-                %print the name of the experiment and do the experiment
-                disp(cell2mat(strcat({'Running ',this.experiment_name})));
-                this.doExperiment();
-                %change the boolean is_complete to true and save the state of the experiment
-                this.is_complete = true;
-                this.deleteVariables();
-                this.saveState();
-            end
-            
         end %constructor
         
-        %FUNCTION: SAVE STATE
+        %METHOD: SAVE STATE
         function saveState(this)
             save(strcat('results/',this.experiment_name,'.mat'),'this');
         end
         
-        %DELETE VARIABLES
-        %Delete variables when the experiment is completed
-        function deleteVariables(this)
-        end
-        
-        %FUNCTION PRINT PROGRESS
+        %METHOD: PRINT PROGRESS
         %Displays a progress bar (with resoloution of 20)
         %PARAMETERS:
             %p: fraction of progress done (between 0 and 1)
@@ -84,8 +61,10 @@ classdef Experiment < handle
             %get the number of arrows to be displayed
             new_n_arrow = round(p*20);
             
+            %if the number of arrows to be displayed is bigger than the number of arrows displayed before
             if new_n_arrow > this.n_arrow
 
+                %save the number of arrows
                 this.n_arrow = new_n_arrow;
                 
                 %declare an array of . enclosed by square brackets
@@ -110,11 +89,11 @@ classdef Experiment < handle
     methods (Abstract)
         
         %SETUP EXPERIMENT (Abstract method)
-        setUpExperiment(this)
+        setup(this)
         
         %DO EXPERIMENT (Abstract method)
         %Does the experiment
-        doExperiment(this)
+        run(this)
         
         %PRINT RESULTS (Abstract method)
         %Export the results to a figure or table, to be used by latex
