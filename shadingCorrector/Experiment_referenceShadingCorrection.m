@@ -1,23 +1,24 @@
+%EXPERIMENT_REFERNECESHADINGCORRECTION (ABSTRACT)
+%Estimates the between and within pixel variance of the reference images pre/post shading correction
+    %In an iteration of the experiment, one image from each reference scan is used to train the shading correction
+    %The remaining images are used to estimate the between/within variance, one for each reference scan
+    %Between/within variance is plotted vs power
+%Methods to be implemented:
+    %loadData(this)
+        %returns a Scan object containing the reference scans
+    %doExperimentForAllShadingCorrections(this)
+        %calls shadingCorrection_ANOVA for different shading correctors
+%Other things to be implemented:
+    %rand_stream needs to be instantised in setUpExperiment()
 classdef Experiment_referenceShadingCorrection < Experiment
-    %EXPERIMENT_REFERNECESHADINGCORRECTION (ABSTRACT)
-    %Estimates the between and within pixel variance of the reference images pre/post shading correction
-        %In a repeat of the experiment, one image from each reference scan is used to train the shading correction
-        %The remaining images are used to estimate the between/within variance, one for each reference scan
-        %Between/within variance is plotted vs power
-    %Methods to be implemented:
-        %loadData(this)
-            %returns a Scan object containing the reference scans
-        %doExperimentForAllShadingCorrections(this)
-            %calls shadingCorrection_ANOVA for different shading correctors
-    %Other things to be implemented:
-        %rand_stream needs to be instantised in setUpExperiment()
+
     
     %MEMBER VARIABLES
-    properties
+    properties (SetAccess = protected)
         
-        i_repeat; %number of iterations done
-        i_shading_corrector; %number of shading corrections investigated - 1 in the current iteration
-        n_repeat; %number of times to repeat the experiment
+        i_repeat; %non-zero based number of iterations done
+        i_shading_corrector; %pointer to the shading corrector, an integer taking values between 1 and n_shading_corrector inclusive
+        n_repeat; %number of iterations to complete the experiment
         n_shading_corrector; %number of shading correctors to investigate per iteration of the experiment
         n_reference; %number of reference scans
         n_sample; %number of images per scan
@@ -39,7 +40,7 @@ classdef Experiment_referenceShadingCorrection < Experiment
     end
     
     %METHODS
-    methods
+    methods (Access = public)
         
         %CONSTRUCTOR
         %PARAMETERS: name of the experiment
@@ -47,55 +48,7 @@ classdef Experiment_referenceShadingCorrection < Experiment
             %superclass
             this@Experiment(name);
         end
-        
-        %SET UP EXPERIMENT
-        %PARAMETERS:
-            %n_repeat: number of times to repeat the experiment
-            %n_shading_corrector: number of shading corrections to be investigated
-        function setUpExperiment(this, n_repeat, n_shading_corrector)
-            %load the data
-            bgw_data = this.loadData();
-            
-            %assign member variables
-            this.i_repeat = 1;
-            this.i_shading_corrector = 1;
-            this.n_repeat = n_repeat;
-            this.n_shading_corrector = n_shading_corrector;
-            this.n_reference = bgw_data.getNReference();
-            this.reference_white = bgw_data.reference_white;
-            this.n_sample = bgw_data.reference_scan_array(1).n_sample;
-            this.var_b_array = zeros(this.n_repeat, this.n_reference, this.n_shading_corrector);
-            this.var_w_array = zeros(this.n_repeat, this.n_reference, this.n_shading_corrector);
-            this.image_array = cell(this.n_reference, this.n_shading_corrector);
-        end
-        
-        %DO EXPERIMENT (one iteration)
-        function doExperiment(this)
-            
-            %for this.n_repeat times
-            while (this.i_repeat <= this.n_repeat)
-            
-                %use its random stream
-                RandStream.setGlobalStream(this.rand_stream);
-                
-                %do experiment for all shading correctors to be investigated
-                for i_shad = 1:this.n_shading_corrector
-                    %get shading corrector and reference index
-                    [shading_corrector, reference_index] = this.getShadingCorrector(i_shad);
-                    %estimate variances using the given shading corrector
-                    this.shadingCorrection_ANOVA(shading_corrector, reference_index);
-                end
-                
-                %reset the member variable i_shading_corrector to 1
-                this.i_shading_corrector = 1;
-                %print the progress
-                this.printProgress(this.i_repeat / this.n_repeat);
-                %increment i_repeat
-                this.i_repeat = this.i_repeat + 1;
-                
-            end
-        end
-        
+
         %PRINT RESULTS
         %Plots the between/within variance for each shading correction
             %Between/within variance vs power as a box plot
@@ -151,15 +104,70 @@ classdef Experiment_referenceShadingCorrection < Experiment
             end
         end
         
+    end
+    
+    %PROTECTED METHODS
+    methods (Access = protected)
+        
+        %SET UP EXPERIMENT
+        %PARAMETERS:
+            %n_repeat: number of iterations to complete the experiment
+            %n_shading_corrector: number of shading corrections to be investigated
+        function setup(this, n_repeat, n_shading_corrector)
+            %load the data
+            bgw_data = this.loadData();
+            
+            %assign member variables
+            this.i_repeat = 1;
+            this.i_shading_corrector = 1;
+            this.n_repeat = n_repeat;
+            this.n_shading_corrector = n_shading_corrector;
+            this.n_reference = bgw_data.getNReference();
+            this.reference_white = bgw_data.reference_white;
+            this.n_sample = bgw_data.reference_scan_array(1).n_sample;
+            this.var_b_array = zeros(this.n_repeat, this.n_reference, this.n_shading_corrector);
+            this.var_w_array = zeros(this.n_repeat, this.n_reference, this.n_shading_corrector);
+            this.image_array = cell(this.n_reference, this.n_shading_corrector);
+        end
+        
+        %DO EXPERIMENT (one iteration)
+        function doExperiment(this)
+            
+            %for this.n_repeat times
+            while (this.i_repeat <= this.n_repeat)
+            
+                %use its random stream
+                RandStream.setGlobalStream(this.rand_stream);
+                
+                %do experiment for all shading correctors to be investigated
+                while (this.i_shading_corrector <= this.n_shading_corrector)
+                    %get shading corrector and reference index
+                    [shading_corrector, shading_reference_index] = this.getShadingCorrector(this.i_shading_corrector);
+                    %estimate variances using the given shading corrector
+                    this.shadingCorrection_ANOVA(shading_corrector, shading_reference_index);
+                    %increment the shading corrector counter
+                    this.i_shading_corrector = this.i_shading_corrector + 1;
+                end
+                
+                %reset the member variable i_shading_corrector to 1
+                this.i_shading_corrector = 1;
+                %print the progress
+                this.printProgress(this.i_repeat / this.n_repeat);
+                %increment i_repeat
+                this.i_repeat = this.i_repeat + 1;
+                
+            end
+        end
+        
         %SHADING CORRECTION ANOVA
         %Estimates the between and within variance and saves it to the array this.var_b_array and this.var_w_array
         %A random image from each reference image is used for training the shading correction
         %The rest of the images are used in the variance prediction
-        %The memver variable this.i_shading_corrector is incremented
+        %The member variable this.i_shading_corrector is incremented
         %PARAMETERS:
             %shading_corrector: shading corrector to be used
-            %reference_index: row vector containg integers, indicates which reference scans to be used in shading correction training
-        function shadingCorrection_ANOVA(this, shading_corrector, reference_index)
+            %shading_reference_index: row vector containg integers, indicates which reference scans to be used in shading correction training
+        function shadingCorrection_ANOVA(this, shading_corrector, shading_reference_index)
             
             %get the data
             bgw_data = this.loadData();
@@ -177,7 +185,7 @@ classdef Experiment_referenceShadingCorrection < Experiment
             %add the shading correction to the data
             %use 1 image per reference scan for shading correction training
             %the 1st row of image indecies are used to shading correction
-            bgw_data.addShadingCorrector(shading_corrector,reference_index,image_index(1,reference_index));            
+            bgw_data.addShadingCorrector(shading_corrector,shading_reference_index,image_index(1,shading_reference_index));            
             %turn on remove dead pixels
             bgw_data.turnOnRemoveDeadPixels();
             
@@ -204,15 +212,13 @@ classdef Experiment_referenceShadingCorrection < Experiment
                 this.var_w_array(this.i_repeat, i_ref, this.i_shading_corrector) = var_w;
 
             end
-            
-            %increment the shading corrector counter
-            this.i_shading_corrector = this.i_shading_corrector + 1;
+
         end
         
     end
     
     %ABSTRACT METHODS
-    methods (Abstract)
+    methods (Abstract, Access = protected)
         
         %loadData(this)
             %returns a Scan object containing the reference scans

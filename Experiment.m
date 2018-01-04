@@ -3,19 +3,20 @@
 %   In addition, it is recommended the constructor of derived class should have no agurments
 %
 %   The instantised object is saved in a .mat file in the results folder, appended with the experiment name.
+%   Call the method run() to run the experiment
 %   
 %   The constructor is designed to be run differently depending if the file exist
 %   1. if there is no file, the constructor will call the method setup() save the instantised itself to a .mat file
 %   2. if the .mat file can be loaded, the member variables are read from that and instantised with these member variables
 %
 %   Abstract methods:
-%       setup() (this is where ALL member variables from the derived class are assigned)
-%       run() (run the experiment, DON'T FORGET TO CALL this.saveState to save the member variables)
-%       printResults (print the results using derived member variables)
+%       setup() this is where ALL member variables from the derived class are assigned
+%       doExperiment() run the full (or resume) the experiment
+%       printResults() print the results using derived member variables
 classdef Experiment < handle
     
     %MEMBER VARIABLES
-    properties (SetAccess = protected)
+    properties (SetAccess = protected, GetAccess = protected)
         experiment_name; %string, name of the experiment and the file name for storing it in a .mat file
         is_complete; %boolean, true if the experiment is completed
         n_arrow; %number of arrows to be displayed in the progress bar
@@ -41,14 +42,33 @@ classdef Experiment < handle
                 %set up the experiment
                 this.setup();
                 %save a .mat file
-                this.saveState();
+                this.save();
                 %print text that the experiment has been saved
                 disp(strcat('results/',this.experiment_name,'.mat saved'));
             end
         end %constructor
         
+        %METHOD: RUN EXPERIMENT
+        %Does the experiment if the experiment is not completed
+        function run(this)
+            %if the experiment is completed, throw an error
+            if this.is_complete
+                error('Experiment already completed');
+            %else, do the experiment, set is_complete to be true and save it
+            else
+                this.doExperiment();
+                this.is_complete = true;
+                this.save();
+            end
+        end
+        
+    end %methods
+    
+    %PROTECTED METHODS
+    methods (Access = protected)
+        
         %METHOD: SAVE STATE
-        function saveState(this)
+        function save(this)
             save(strcat('results/',this.experiment_name,'.mat'),'this');
         end
         
@@ -81,25 +101,31 @@ classdef Experiment < handle
                 disp(progress_bar);
             end
 
-        end %printProgress
-        
-    end %methods
+        end %printProgress 
+    end
     
-    %ABSTRACT METHODS
-    methods (Abstract)
+    %ABSTRACT PROTECTED METHODS
+    methods (Abstract, Access = protected)
         
         %SETUP EXPERIMENT (Abstract method)
+        %Recommended to be protected
         setup(this)
         
         %DO EXPERIMENT (Abstract method)
-        %Does the experiment
-        run(this)
-        
-        %PRINT RESULTS (Abstract method)
-        %Export the results to a figure or table, to be used by latex
-        printResults(this)
+        %Does (or resume) the experiment
+        %Recommended to be protected
+        doExperiment(this)
          
     end
     
+    %ABSTRACT PUBLIC METHODS
+    methods (Abstract, Access = public)
+        
+        %PRINT RESULTS (Abstract method)
+        %Export the results to a figure or table, to be used by latex
+        %Recommended to be protected
+        printResults(this)
+        
+    end
 end
 

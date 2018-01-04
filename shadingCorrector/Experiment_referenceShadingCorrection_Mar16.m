@@ -2,10 +2,11 @@
 %See superclass Experiment_referenceShadingCorrection
 classdef Experiment_referenceShadingCorrection_Mar16 < Experiment_referenceShadingCorrection
 
-    properties
+    properties (SetAccess = protected)
     end
     
-    methods
+    %METHODS
+    methods (Access = public)
         
         %CONSTRUCTOR
         function this = Experiment_referenceShadingCorrection_Mar16()
@@ -13,11 +14,45 @@ classdef Experiment_referenceShadingCorrection_Mar16 < Experiment_referenceShadi
             this@Experiment_referenceShadingCorrection('referenceShadingCorrection_Mar16');
         end
         
+        %OVERRIDE METHOD: PRINT RESULTS
+        %Image plot the shading corrected image, one for each reference
+        %calls superclass version method to plot variance vs power
+        function printResults(this)
+            %define names of the colours and shading corrections
+            colour_array = {'Black','Grey','White'};
+            shading_array = {'no_shad','bw','bgw','polynomial'};
+            %for each shading correction
+            for i_shad = 1:this.n_shading_corrector
+                %set up the figure
+                fig = figure;
+                fig.Position(3) = 1000;
+                fig.Position(4) = 200;
+                %for each reference image
+                for i_ref = 1:this.n_reference
+                    %plot the shading corrected reference image
+                    subplot(1,this.n_reference,i_ref,imagesc_truncate(this.image_array{i_ref,i_shad}));
+                    colorbar(subplot(1,this.n_reference,i_ref)); %include colour bar
+                    axis(gca,'off'); %turn axis off
+                    title(colour_array{i_ref}); %label the reference image
+                end
+                %save the figure
+                saveas(fig,strcat('reports/figures/shadingCorrection/shadingCorrection_',shading_array{i_shad},'.png'));
+            end
+            
+            %super class print results
+            this.printResults@Experiment_referenceShadingCorrection();
+        end
+        
+    end
+    
+    %PROTECTED METHODS
+    methods (Access = protected)
+        
         %OVERRIDE METHOD: SET UP EXPERIMENT
         %Calls superclass and instantise random stream
-        function setUpExperiment(this)
+        function setup(this)
             %super class, 100 repeats, 4 shading correctors
-            this.setUpExperiment@Experiment_referenceShadingCorrection(100, 4);
+            this.setup@Experiment_referenceShadingCorrection(100, 4);
             %instantise random stream
             this.rand_stream = RandStream('mt19937ar','Seed',uint32(227482200));
         end
@@ -52,35 +87,6 @@ classdef Experiment_referenceShadingCorrection_Mar16 < Experiment_referenceShadi
             end
         end
           
-        %OVERRIDE METHOD: PRINT RESULTS
-        %Image plot the shading corrected image, one for each reference
-        %calls superclass version method to plot variance vs power
-        function printResults(this)
-            %define names of the colours and shading corrections
-            colour_array = {'Black','Grey','White'};
-            shading_array = {'no_shad','bw','bgw','polynomial'};
-            %for each shading correction
-            for i_shad = 1:this.n_shading_corrector
-                %set up the figure
-                fig = figure;
-                fig.Position(3) = 1000;
-                fig.Position(4) = 200;
-                %for each reference image
-                for i_ref = 1:this.n_reference
-                    %plot the shading corrected reference image
-                    subplot(1,this.n_reference,i_ref,imagesc_truncate(this.image_array{i_ref,i_shad}));
-                    colorbar(subplot(1,this.n_reference,i_ref)); %include colour bar
-                    axis(gca,'off'); %turn axis off
-                    title(colour_array{i_ref}); %label the reference image
-                end
-                %save the figure
-                saveas(fig,strcat('reports/figures/shadingCorrection/shadingCorrection_',shading_array{i_shad},'.png'));
-            end
-            
-            %super class print results
-            this.printResults@Experiment_referenceShadingCorrection();
-        end
-        
     end
     
 end

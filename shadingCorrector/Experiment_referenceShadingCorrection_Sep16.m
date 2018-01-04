@@ -5,7 +5,8 @@ classdef Experiment_referenceShadingCorrection_Sep16 < Experiment_referenceShadi
     properties
     end
     
-    methods
+    %METHODS
+    methods (Access = public)
         
         %CONSTRUCTOR
         function this = Experiment_referenceShadingCorrection_Sep16()
@@ -13,11 +14,16 @@ classdef Experiment_referenceShadingCorrection_Sep16 < Experiment_referenceShadi
             this@Experiment_referenceShadingCorrection('referenceShadingCorrection_Sep16');
         end
         
+    end
+    
+    %PROTECTED METHODS
+    methods (Access = protected)
+        
         %OVERRIDE METHOD: SET UP EXPERIMENT
         %Calls superclass and instantise random stream
-        function setUpExperiment(this)
+        function setup(this)
             %super class, 100 repeats, 3 shading correctors
-            this.setUpExperiment@Experiment_referenceShadingCorrection(100, 3);
+            this.setup@Experiment_referenceShadingCorrection(100, 3);
             %instantise random stream
             this.rand_stream = RandStream('mt19937ar','Seed',uint32(3056080743));
         end
