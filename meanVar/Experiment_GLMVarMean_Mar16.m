@@ -6,7 +6,8 @@ classdef Experiment_GLMVarMean_Mar16 < Experiment_GLMVarMean
     properties
     end
     
-    methods
+    %METHODS
+    methods (Access = public)
         
         %CONSTRUCTOR
         function this = Experiment_GLMVarMean_Mar16()
@@ -14,10 +15,15 @@ classdef Experiment_GLMVarMean_Mar16 < Experiment_GLMVarMean
             this@Experiment_GLMVarMean('GLMVarMean_Mar16');
         end
         
+    end
+    
+    %PROTECTED METHODS
+    methods (Access = protected)
+        
         %OVERRIDE: SET UP EXPERIMENT
-        function setUpExperiment(this)
+        function setup(this)
             %call superclass with 100 repeats and a random stream
-            this.setUpExperiment@Experiment_GLMVarMean(100, RandStream('mt19937ar','Seed',uint32(176048084)));
+            this.setup@Experiment_GLMVarMean(100, RandStream('mt19937ar','Seed',uint32(176048084)));
         end
         
         %IMPLEMENTED: GET SCAN
@@ -56,11 +62,13 @@ classdef Experiment_GLMVarMean_Mar16 < Experiment_GLMVarMean
             end
         end
         
+        %IMPLEMENTED: GET NUMBER OF SHADING CORRECTORS
         %returns number of shading correctors to investigate
         function n_shad = getNShadingCorrector(this)
             n_shad = 1;
         end
         
+        %IMPLEMENTED: GET SHADING CORRECTOR
         %returns shading corrector given index
         %index can range from 1 to getNShadingCorrector
         %RETURNS:

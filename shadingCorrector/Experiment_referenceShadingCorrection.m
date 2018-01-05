@@ -1,18 +1,16 @@
 %EXPERIMENT_REFERNECESHADINGCORRECTION (ABSTRACT)
-%Estimates the between and within pixel variance of the reference images pre/post shading correction
-    %In an iteration of the experiment, one image from each reference scan is used to train the shading correction
+%Estimates the between and within pixel variance of the reference images with different shading corrections
+    %In an iteration of the experiment, one randomly selected image from each reference scan is used to train the shading correction
     %The remaining images are used to estimate the between/within variance, one for each reference scan
     %Between/within variance is plotted vs power
 %Methods to be implemented:
-    %loadData(this)
+    %scan = loadData(this)
         %returns a Scan object containing the reference scans
-    %doExperimentForAllShadingCorrections(this)
-        %calls shadingCorrection_ANOVA for different shading correctors
-%Other things to be implemented:
-    %rand_stream needs to be instantised in setUpExperiment()
+    %[shading_corrector, reference_index] = getShadingCorrector(this, index)
+        %returns a newly instantised shading corrector with the reference_index
+            %parameter: integer, ranging from 1 to this.n_shading_corrector
 classdef Experiment_referenceShadingCorrection < Experiment
 
-    
     %MEMBER VARIABLES
     properties (SetAccess = protected)
         
@@ -136,12 +134,12 @@ classdef Experiment_referenceShadingCorrection < Experiment
         %DO EXPERIMENT (one iteration)
         function doExperiment(this)
             
+            %use its random stream
+            RandStream.setGlobalStream(this.rand_stream);
+            
             %for this.n_repeat times
             while (this.i_repeat <= this.n_repeat)
             
-                %use its random stream
-                RandStream.setGlobalStream(this.rand_stream);
-                
                 %do experiment for all shading correctors to be investigated
                 while (this.i_shading_corrector <= this.n_shading_corrector)
                     %get shading corrector and reference index
@@ -225,7 +223,7 @@ classdef Experiment_referenceShadingCorrection < Experiment
         
         %loadData(this)
             %returns a Scan object containing the reference scans
-        loadData(this);
+        scan = loadData(this);
         
         %returns a newly instantised shading corrector with the reference_index
             %parameter: integer, ranging from 1 to this.n_shading_corrector

@@ -3,7 +3,7 @@ classdef Experiment_GLMVarMean_July16_120deg < Experiment_GLMVarMean_July16
     properties
     end
     
-    methods
+    methods (Access = public)
         
         %CONSTRUCTOR
         function this = Experiment_GLMVarMean_July16_120deg()
@@ -11,12 +11,17 @@ classdef Experiment_GLMVarMean_July16_120deg < Experiment_GLMVarMean_July16
             this@Experiment_GLMVarMean_July16('GLMVarMean_July16_120deg');
         end
         
+    end
+    
+    methods (Access = protected)
+        
         %OVERRIDE: SET UP EXPERIMENT
-        function setUpExperiment(this)
+        function setup(this)
             %call superclass with 100 repeats and a random stream
-            this.setUpExperiment@Experiment_GLMVarMean_July16(RandStream('mt19937ar','Seed',uint32(1871182699)));
+            this.setup@Experiment_GLMVarMean_July16(RandStream('mt19937ar','Seed',uint32(1871182699)));
         end
         
+        %IMPLEMENTED: GET SCAN
         function scan = getScan(this)
             scan = AbsBlock_July16_120deg();
         end

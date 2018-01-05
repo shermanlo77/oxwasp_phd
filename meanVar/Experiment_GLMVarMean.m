@@ -1,19 +1,17 @@
+%EXPERIMENT_GLMVARMEAN Assess the performance of Gamma GLM fit on mean var data
+%   The images are spilt into 2 sets, training and test. GLM is used
+%   to model the variance and mean relationship, with variance as the
+%   response. The response is gamma randomly distributed with known
+%   shape parameter.   
+%
+%   The images were segmented to only consider pixels from the ROI.
+%
+%   The training set is used to train the glm, which is then used to
+%   predict the variance of the test set. Various residuals are plotted
 classdef Experiment_GLMVarMean < Experiment
-    %EXPERIMENT_GLMVARMEAN Assess the performance of GLM fit on mean var data
-    %   The images are spilt into 2 parts, training and test. GLM is used
-    %   to model the variance and mean relationship, with variance as the
-    %   response. The response is gamma randomly distributed with known
-    %   shape parameter.   
-    %
-    %   The images were segmented to only consider pixels from the ROI.
-    %
-    %   The training set is used to train the glm, which is then used to
-    %   predict the variance of the test set. The training and mean
-    %   standarised residuals are plotted, that is the residual divided by
-    %   the std of gamma.
     
     %MEMBER VARIABLES
-    properties
+    properties (SetAccess = protected)
         
         i_repeat; %number of folds done
         i_glm; %number of glm done
@@ -23,7 +21,6 @@ classdef Experiment_GLMVarMean < Experiment
         n_repeat; %number of itereations to complete the experiment
         n_sample; %number of images in a scan
         n_train; %number of images in the training set (half of n_sample)
-        n_pixel; %number of pixels in the segmented image
         
         shape_parameter; %shape parameter of gamma
         
@@ -36,7 +33,7 @@ classdef Experiment_GLMVarMean < Experiment
         training_mse_array;
         test_mse_array;
         
-        %temporary variable
+        %temporary variable, to be deleted after the experiment
         %stores the grey values of each masked pixel, for each image
         mean_variance_estimator;
         
@@ -50,7 +47,7 @@ classdef Experiment_GLMVarMean < Experiment
     end
     
     %METHODS
-    methods
+    methods (Access = public)
         
         %CONSTRUCTOR
         %PARAMETERS:
@@ -59,12 +56,26 @@ classdef Experiment_GLMVarMean < Experiment
             %call superclass
             this@Experiment(experiment_name);
         end
+        
+        %PRINT RESULTS
+        %Box plot the training and test MSSE
+        function printResults(this)
+            this.plotBoxPlot(this.training_msse_array,'training MSSE');
+            this.plotBoxPlot(this.test_msse_array,'test MSSE');
+            this.plotBoxPlot(this.training_mse_array,'training MSE');
+            this.plotBoxPlot(this.test_mse_array,'test MSE');
+        end
+        
+    end
+    
+    %PROTECTED METHODS
+    methods (Access = protected)
 
         %SET UP EXPERIMENT
         %PARAMETERS:
             %n_repeat: number of times to repeat the experiment
             %rand_steam: random stream
-        function setUpExperiment(this, n_repeat, rand_stream)
+        function setup(this, n_repeat, rand_stream)
             
             %get the scan object
             scan = this.getScan();
@@ -89,6 +100,8 @@ classdef Experiment_GLMVarMean < Experiment
             this.rand_stream = rand_stream;
         end
         
+        %ASSIGN ARRAY
+        %Declare arrays for storing the training and test MSE and MSSE
         function assignArray(this)
             this.training_msse_array = zeros(this.n_repeat,this.getNGlm(),this.getNShadingCorrector());
             this.test_msse_array = zeros(this.n_repeat,this.getNGlm(),this.getNShadingCorrector());
@@ -102,6 +115,7 @@ classdef Experiment_GLMVarMean < Experiment
         function doExperiment(this)
             %set random stream
             RandStream.setGlobalStream(this.rand_stream);
+            
             %for each shading correction
             while (this.i_shad <= this.getNShadingCorrector())
                 %save the shading corrected greyvalues
@@ -124,7 +138,6 @@ classdef Experiment_GLMVarMean < Experiment
                 this.i_shad = this.i_shad + 1;
             end
             
-            
             %get array of shading corrector names
             this.shading_corrector_array = cell(this.getNShadingCorrector(),1);
             for i = 1:this.getNShadingCorrector()
@@ -139,6 +152,9 @@ classdef Experiment_GLMVarMean < Experiment
                 model = this.getGlm(i);
                 this.glm_name_array{i} = model.getName();
             end
+            
+            %delete variables
+            this.deleteVariables();
             
         end
         
@@ -190,16 +206,6 @@ classdef Experiment_GLMVarMean < Experiment
             %get the test mse
             test_error = model.getPredictionMSSE(sample_mean,sample_var);
 
-        end
-        
-        
-        %PRINT RESULTS
-        %Box plot the training and test MSSE
-        function printResults(this)
-            this.plotBoxPlot(this.training_msse_array,'training MSSE');
-            this.plotBoxPlot(this.test_msse_array,'test MSSE');
-            this.plotBoxPlot(this.training_mse_array,'training MSE');
-            this.plotBoxPlot(this.test_mse_array,'test MSE');
         end
         
         %PLOT BOX PLOT
@@ -341,7 +347,7 @@ classdef Experiment_GLMVarMean < Experiment
         
     end
     
-    methods (Abstract)
+    methods (Abstract, Access = protected)
         
         %returns scan object
         scan = getScan(this);

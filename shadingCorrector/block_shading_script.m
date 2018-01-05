@@ -10,8 +10,7 @@ close all;
 %instantise an object which loads the data
 block_data = AbsBlock_July16_30deg();
 
-figure;
-subplot(2,1,1);
+fig = figure_latexSub;
 imagesc(block_data.loadImage(1));
 colormap gray;
 
