@@ -18,9 +18,9 @@ classdef Experiment_GlmnetVarMean_Sep16 < Experiment_GLMVarMean
         end
         
         %OVERRIDE: SET UP EXPERIMENT
-        function setUpExperiment(this, rand_stream)
+        function setup(this, rand_stream)
             %call superclass with 100 repeats and a random stream
-            this.setUpExperiment@Experiment_GLMVarMean(1, rand_stream);
+            this.setup@Experiment_GLMVarMean(1, rand_stream);
             this.alpha = 0.99;
             this.lambda_array = 10.^linspace(-4,-2,30);
             this.polynomial_array = [4,3,2,1,-1,-2,-3,-4];
