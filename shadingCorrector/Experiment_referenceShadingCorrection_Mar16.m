@@ -51,10 +51,8 @@ classdef Experiment_referenceShadingCorrection_Mar16 < Experiment_referenceShadi
         %OVERRIDE METHOD: SET UP EXPERIMENT
         %Calls superclass and instantise random stream
         function setup(this)
-            %super class, 100 repeats, 4 shading correctors
-            this.setup@Experiment_referenceShadingCorrection(100, 4);
-            %instantise random stream
-            this.rand_stream = RandStream('mt19937ar','Seed',uint32(227482200));
+            %super class, 100 repeats, 4 shading correctors, define random stream
+            this.setup@Experiment_referenceShadingCorrection(100, 4, RandStream('mt19937ar','Seed',uint32(227482200)));
         end
         
         %IMPLEMENT METHOD: LOAD DATA

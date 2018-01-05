@@ -113,7 +113,8 @@ classdef Experiment_referenceShadingCorrection < Experiment
         %PARAMETERS:
             %n_repeat: number of iterations to complete the experiment
             %n_shading_corrector: number of shading corrections to be investigated
-        function setup(this, n_repeat, n_shading_corrector)
+            %rand_stream: random stream
+        function setup(this, n_repeat, n_shading_corrector, rand_stream)
             %load the data
             bgw_data = this.loadData();
             
@@ -128,6 +129,8 @@ classdef Experiment_referenceShadingCorrection < Experiment
             this.var_b_array = zeros(this.n_repeat, this.n_reference, this.n_shading_corrector);
             this.var_w_array = zeros(this.n_repeat, this.n_reference, this.n_shading_corrector);
             this.image_array = cell(this.n_reference, this.n_shading_corrector);
+            
+            this.rand_stream = rand_stream;
         end
         
         %DO EXPERIMENT (one iteration)
