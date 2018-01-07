@@ -242,7 +242,7 @@ classdef Experiment_GLMVarMean < Experiment
             %label each glm with its name
             ax.XTickLabelRotation = 45;
             ax.XTickLabel = this.glm_name_array;
-            %ax.YLim = [max([min(min(min(stat_array))),data_lim(1)]),min([max(max(max(stat_array))),data_lim(end)])];
+            ax.YLim = [max([min(min(min(stat_array))),ax.YLim(1)]),min([max(max(max(stat_array))),ax.YLim(end)])];
             %label the axis and legend
             ylabel(stat_name);
             legend(this.shading_corrector_array);
