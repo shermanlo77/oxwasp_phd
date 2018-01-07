@@ -3,16 +3,16 @@
 %Implements:
     %getLinkDiff: get link function differentated given mean
     %getMean: get mean given eta
-classdef LinkFunction < handle
+classdef Link < handle
 
     %MEMBER VARIABLES
-    properties
+    properties (SetAccess = private)
         name; %name of implemented class
         initial_intercept; %initial value of the intercept
     end
     
     %METHODS
-    methods
+    methods (Access = public)
         
         %CONSTRUCTOR
         %PARAMETERS:

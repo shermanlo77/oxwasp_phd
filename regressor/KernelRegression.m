@@ -14,7 +14,7 @@ classdef KernelRegression < handle
     end
     
     %METHODS
-    methods
+    methods (Access = public)
         
         %CONSTRUCTOR
         %PARAMETERS:

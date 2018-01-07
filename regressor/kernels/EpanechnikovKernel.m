@@ -1,4 +1,4 @@
-classdef EpanechnikovKernel < handle
+classdef EpanechnikovKernel < Kernel
     
     properties
     end

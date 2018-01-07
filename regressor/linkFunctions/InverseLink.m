@@ -1,4 +1,4 @@
-classdef LinkFunction_Canonical < LinkFunction
+classdef InverseLink < Link
 
     properties
     end
@@ -6,8 +6,8 @@ classdef LinkFunction_Canonical < LinkFunction
     methods
         
         %CONSTRUCTOR
-        function this = LinkFunction_Canonical()
-            this@LinkFunction('canonical',-1);
+        function this = InverseLink()
+            this@Link('canonical',-1);
         end
         
         %GET LINK FUNCTION DIFFERENTATED

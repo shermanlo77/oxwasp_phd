@@ -1,4 +1,4 @@
-classdef TricubeKernel < handle
+classdef TricubeKernel < Kernel
     
     properties
     end

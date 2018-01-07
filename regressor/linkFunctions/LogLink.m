@@ -1,4 +1,4 @@
-classdef LinkFunction_Identity < LinkFunction
+classdef LogLink < Link
 
     properties
     end
@@ -6,8 +6,8 @@ classdef LinkFunction_Identity < LinkFunction
     methods
         
         %CONSTRUCTOR
-        function this = LinkFunction_Identity()
-            this@LinkFunction('identity',1);
+        function this = LogLink()
+            this@Link('log',0);
         end
         
         %GET LINK FUNCTION DIFFERENTATED
@@ -16,12 +16,12 @@ classdef LinkFunction_Identity < LinkFunction
         %RETURN:
             %g_dash: colum vector of g'(mu)
         function g_dash = getLinkDiff(this,mu)
-            g_dash = ones(numel(mu),1);
+            g_dash = 1./mu;
         end
         
         %GET MEAN (LINK FUNCTION)
         function mu = getMean(this,eta)
-            mu = eta;
+            mu = exp(eta);
         end
         
     end

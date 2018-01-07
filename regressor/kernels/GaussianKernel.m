@@ -1,4 +1,4 @@
-classdef GaussianKernel < handle
+classdef GaussianKernel < Kernel
 
     properties
     end
