@@ -1,4 +1,4 @@
-classdef MeanVar_GLM < VarianceModel
+classdef GlmGamma < VarianceModel
     %MEANVAR_GLM Class for modelling variance as gamma with known shape parameter given
     %mean greyvalue
     
@@ -27,7 +27,7 @@ classdef MeanVar_GLM < VarianceModel
             %shape_parameter: shape parameter of the gamma distribution
             %polynomial_order: column vector of polynomial order features
             %link_function: object LinkFunction
-        function this = MeanVar_GLM(shape_parameter,polynomial_order,link_function)
+        function this = GlmGamma(shape_parameter,polynomial_order,link_function)
             if nargin ~= 0
                 %assign member variables
                 this.shape_parameter = shape_parameter;

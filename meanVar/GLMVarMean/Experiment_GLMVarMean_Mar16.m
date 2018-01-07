@@ -40,23 +40,23 @@ classdef Experiment_GLMVarMean_Mar16 < Experiment_GLMVarMean
         function model = getGlm(this, index)
             switch index
                 case 1
-                    model = MeanVar_GLM(this.shape_parameter,1,IdentityLink());
+                    model = GlmGamma(this.shape_parameter,1,IdentityLink());
                 case 2
-                    model = MeanVar_GLM(this.shape_parameter,-1,InverseLink());
+                    model = GlmGamma(this.shape_parameter,-1,InverseLink());
                 case 3
-                    model = MeanVar_GLM(this.shape_parameter,-2,InverseLink());
+                    model = GlmGamma(this.shape_parameter,-2,InverseLink());
                 case 4
-                    model = MeanVar_GLM(this.shape_parameter,-3,InverseLink());
+                    model = GlmGamma(this.shape_parameter,-3,InverseLink());
                 case 5
-                    model = MeanVar_GLM(this.shape_parameter,-4,InverseLink());
+                    model = GlmGamma(this.shape_parameter,-4,InverseLink());
                 case 6
-                    model = MeanVar_GLM(this.shape_parameter,1,LogLink());
+                    model = GlmGamma(this.shape_parameter,1,LogLink());
                 case 7
-                    model = MeanVar_GLM(this.shape_parameter,-1,LogLink());
+                    model = GlmGamma(this.shape_parameter,-1,LogLink());
                 case 8
-                    model = MeanVar_GLM(this.shape_parameter,-2,LogLink());
+                    model = GlmGamma(this.shape_parameter,-2,LogLink());
                 case 9
-                    model = MeanVar_GLM(this.shape_parameter,-3,LogLink());
+                    model = GlmGamma(this.shape_parameter,-3,LogLink());
                 case 10
                     model = MeanVar_kNN(1E3);
             end
