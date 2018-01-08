@@ -7,7 +7,7 @@ classdef InverseLink < Link
         
         %CONSTRUCTOR
         function this = InverseLink()
-            this@Link('canonical',-1);
+            this@Link('inverse',-1);
         end
         
         %GET LINK FUNCTION DIFFERENTATED

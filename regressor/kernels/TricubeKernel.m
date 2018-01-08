@@ -5,7 +5,8 @@ classdef TricubeKernel < Kernel
     
     methods (Access = public)
         
-        function this = TricubeKernel() 
+        function this = TricubeKernel()
+            this@Kernel('Tricube');
         end
         
         function k = evaluate(this, x)

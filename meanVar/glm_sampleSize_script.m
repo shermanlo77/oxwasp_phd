@@ -48,7 +48,8 @@ for i_sample = 1:numel(n_sample_array)
     shape_parameter = (n_sample-1)/2;
 
     %model the mean and variance using gamma glm
-    model = MeanVar_GLM(shape_parameter,1,LinkFunction_Identity());
+    model = GlmGamma(1,IdentityLink());
+    model.setShapeParameter(shape_parameter);
     %train the classifier
     model.train(sample_mean,sample_var);
 

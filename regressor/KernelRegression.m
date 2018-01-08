@@ -3,7 +3,7 @@
 %Pass the kernel and scale parameter through the contructor
 %Pass the training data using the method train()
 %Get predictions using the method predict()
-classdef KernelRegression < handle
+classdef KernelRegression < Regressor
     
     %MEMBER VARIABLES
     properties (SetAccess = private)
@@ -40,16 +40,32 @@ classdef KernelRegression < handle
         %METHOD: PREDICT
         %Do kernel regression at the point x
         %PARAMETERS:
-            %x: where to evaluate the kernel regression
+            %x: column vector, where to evaluate the kernel regression
         %RETURN:
-            %y: the evaluation of the kernel regression at point x
+            %y: column vector the evaluation of the kernel regression at point x
         function y = predict(this, x)
-            %for each point in x_train, get the distance to x and divide it by scale_parameter
-            z = (x - this.x_train) / this.scale_parameter;
-            %evaluate the kernel for each value in x
-            k = this.kernel.evaluate(z);
-            %do kernel regression, this is a weighted sum
-            y = sum(k.*this.y_train) / sum(k);
+            %declare a column vector of predictions
+            y = zeros(size(x));
+            %for each point in x
+            for i = 1:numel(x)
+                %get the distance to x and divide it by scale_parameter
+                z = (x(i) - this.x_train) / this.scale_parameter;
+                %evaluate the kernel for each value in x
+                k = this.kernel.evaluate(z);
+                %do kernel regression, this is a weighted sum
+                y(i)= sum(k.*this.y_train) / sum(k);
+            end
+        end
+        
+        %GET NAME
+        %Return name for this glm
+        function name = getName(this)
+            name = cell2mat({this.kernel.name,'-',num2str(this.scale_parameter)});
+        end
+        
+        %GET FILE NAME
+        function name = getFileName(this)
+            name = cell2mat({this.kernel.name,'_',num2str(this.scale_parameter)});
         end
         
     end

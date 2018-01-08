@@ -6,6 +6,7 @@ classdef GaussianKernel < Kernel
     methods (Access = public)
         
         function this = GaussianKernel()
+            this@Kernel('Gaussian');
         end
         
         function k = evaluate(this, x)

@@ -22,18 +22,18 @@ segmentation = reshape(segmentation,[],1);
 sample_mean = sample_mean(segmentation);
 sample_var = sample_var(segmentation);
 
+x_plot = linspace(min(sample_mean),max(sample_mean),500);
+
 %for each k
-for k = [1E2,1E3,1E4,1E5]
+for k = [1E1, 1E3]
     
     %model the mean and variance using kNN
-    model = MeanVar_kNN(k);
+    model = KernelRegression(EpanechnikovKernel(), k);
     %train the classifier
-    model.train(sample_mean,sample_var)
+    model.train(sample_mean,sample_var);
 
-    %get a range of greyvalues to plot the fit
-    x_plot = model.mean_lookup_start + (0:model.n_lookup);
     %get the variance prediction
-    variance_prediction = model.variance_lookup;
+    variance_prediction = model.predict(x_plot);
 
     %plot the frequency density
     figure;

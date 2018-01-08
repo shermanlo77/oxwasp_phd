@@ -1,4 +1,4 @@
-classdef GlmGamma < VarianceModel
+classdef GlmGamma < Regressor
     %MEANVAR_GLM Class for modelling variance as gamma with known shape parameter given
     %mean greyvalue
     
@@ -27,13 +27,12 @@ classdef GlmGamma < VarianceModel
             %shape_parameter: shape parameter of the gamma distribution
             %polynomial_order: column vector of polynomial order features
             %link_function: object LinkFunction
-        function this = GlmGamma(shape_parameter,polynomial_order,link_function)
+        function this = GlmGamma(polynomial_order,link_function)
             if nargin ~= 0
                 %assign member variables
-                this.shape_parameter = shape_parameter;
                 this.polynomial_order = polynomial_order;
                 this.n_order = numel(polynomial_order);
-                this.n_step = 100;
+                this.n_step = 10;
                 this.link_function = link_function;
                 this.initial_parameter = zeros(this.n_order+1,1);
                 this.initial_parameter(1) = this.link_function.initial_intercept;
@@ -41,32 +40,44 @@ classdef GlmGamma < VarianceModel
             end
         end
         
-        %TRAIN CLASSIFIER
+        %METHOD: SET SHAPE PARAMETER
+        %Set the shape parameter of the gamma regression
+        function setShapeParameter(this, alpha)
+            this.shape_parameter = alpha;
+        end
+        
+        %METHOD: TRAIN
         %PARAMETERS:
-            %var_train: column vector of greyvalue variance
-            %mean_train: column vector of greyvalue mean
-        function train(this,mean_train,var_train)
+            %x: column vector of features
+            %y: column vector of gamma responses
+        function train(this,x,y)
 
-            %scale variables and get design matrix
-            this.y_scale = std(var_train);
-            y = var_train./this.y_scale;
-            X = this.getDesignMatrix(mean_train);
+            %scale the response variables
+            this.y_scale = std(y);
+            y = y./this.y_scale;
+            %get the sufficient statistics
+            lny = log(y);
+            
+            %get the design matrix
+            X = this.getDesignMatrix(x);
+            %normalise the features to have mean 0 and std 1
             this.x_shift = mean(X(:,2:end),1);
             this.x_scale = std(X(:,2:end),true,1); %normalise by n
+            %get the normalised design matrix
             X = this.normaliseDesignMatrix(X);
 
             %set inital parameter
             this.parameter = this.initial_parameter;
             %assign training set size
-            this.n_train = numel(var_train);
+            this.n_train = numel(y);
             
             %IRLS SECTION
             
             %initalise variables
             %work out the log likelihhod up to a constant
             %w and z are variables for IRLS
-            [mu, w, z] = this.getIRLSStatistics(X, y, this.parameter);
-            lnL_old = this.getLogLikeLihood(mu,y);
+            [mu, w, z] = this.getIRLSStatistics(X, y);
+            d_old = this.getScaledDeviance(mu, y, lny);
             
             %for n_step times
             for i_step = 1:this.n_step
@@ -82,17 +93,17 @@ classdef GlmGamma < VarianceModel
 
                 %update variables
                 %work out the new log likelihhod up to a constant
-                [mu, w, z] = this.getIRLSStatistics(X, y, this.parameter);
-                lnL_new = this.getLogLikeLihood(mu,y);
+                [mu, w, z] = this.getIRLSStatistics(X, y);
+                d_new = this.getScaledDeviance(mu, y, lny);
                 
                 %if the improvement in log likelihhod is less than tol*n_train
-                if ( (lnL_new - lnL_old) < this.tol*this.n_train)
+                if ( (d_new - d_old) > this.tol*this.n_train)
                     %break the loop
                     break;
                 end
                 
                 %update the log likelihood
-                lnL_old = lnL_new;
+                d_old = d_new;
             end
             
             %%Fisher information matrix
@@ -135,8 +146,8 @@ classdef GlmGamma < VarianceModel
             %lnL: log likelihood
             %w: vector of weights
             %z: response vector
-        function [mu, w, z] = getIRLSStatistics(this, X, y, parameter)
-            eta = X*parameter; %systematic component
+        function [mu, w, z] = getIRLSStatistics(this, X, y)
+            eta = X*this.parameter; %systematic component
             mu = this.getMean(eta); %mean vector
             %v = mu.^2 / this.shape_parameter; %variance vector
             v = mu.^2; %variance vector
@@ -145,7 +156,15 @@ classdef GlmGamma < VarianceModel
             z = (eta + (y-mu).*this.getLinkDiff(mu));
         end
         
-        %GET LOG LIKELIHOOD
+        function d = getDeviance(this, mu, y, lny)
+            d = this.shape_parameter * this.getScaledDeviance(mu, y, lny);
+        end
+        
+        function d = getScaledDeviance(this, mu, y, lny)
+            d = 2*sum((y-mu)./mu - lny + log(mu));
+        end
+        
+        %METHOD: GET LOG LIKELIHOOD
         function lnL = getLogLikeLihood(this,mu,y)
             %work out the log likelihhod up to a constant
             lnL = -this.shape_parameter*(sum(log(mu)+y./mu));

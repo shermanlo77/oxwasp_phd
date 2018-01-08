@@ -18,7 +18,7 @@ classdef Link < handle
         %PARAMETERS:
             %name: name of the implemented subclass
             %initial_intercept: initial value of the intercept
-        function this = LinkFunction(name, initial_intercept)
+        function this = Link(name, initial_intercept)
             %assign member variables
             this.name = name;
             this.initial_intercept = initial_intercept;

@@ -6,6 +6,7 @@ classdef EpanechnikovKernel < Kernel
     methods (Access = public)
         
         function this = EpanechnikovKernel()
+            this@Kernel('Epanechnikov');
         end
         
         function k = evaluate(this, x)

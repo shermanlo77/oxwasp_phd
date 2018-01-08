@@ -33,32 +33,31 @@ classdef Experiment_GLMVarMean_Mar16 < Experiment_GLMVarMean
         
         %IMPLEMENTED: GET N GLM
         function n_glm = getNGlm(this)
-            n_glm = 10;
+            n_glm = 7;
         end
         
         %IMPLEMENTED: GET GLM
         function model = getGlm(this, index)
             switch index
                 case 1
-                    model = GlmGamma(this.shape_parameter,1,IdentityLink());
+                    model = GlmGamma(1,IdentityLink());
+                    model.setShapeParameter(this.shape_parameter);
                 case 2
-                    model = GlmGamma(this.shape_parameter,-1,InverseLink());
+                    model = GlmGamma(-1,InverseLink());
+                    model.setShapeParameter(this.shape_parameter);
                 case 3
-                    model = GlmGamma(this.shape_parameter,-2,InverseLink());
+                    model = GlmGamma(-2,InverseLink());
+                    model.setShapeParameter(this.shape_parameter);
                 case 4
-                    model = GlmGamma(this.shape_parameter,-3,InverseLink());
+                    model = GlmGamma(1,LogLink());
+                    model.setShapeParameter(this.shape_parameter);
                 case 5
-                    model = GlmGamma(this.shape_parameter,-4,InverseLink());
+                    model = GlmGamma(-1,LogLink());
+                    model.setShapeParameter(this.shape_parameter);
                 case 6
-                    model = GlmGamma(this.shape_parameter,1,LogLink());
+                    model = KernelRegression(EpanechnikovKernel(),1E1);
                 case 7
-                    model = GlmGamma(this.shape_parameter,-1,LogLink());
-                case 8
-                    model = GlmGamma(this.shape_parameter,-2,LogLink());
-                case 9
-                    model = GlmGamma(this.shape_parameter,-3,LogLink());
-                case 10
-                    model = MeanVar_kNN(1E3);
+                    model = KernelRegression(EpanechnikovKernel(),1E3);
             end
         end
         

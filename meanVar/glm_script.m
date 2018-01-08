@@ -38,18 +38,20 @@ for i = 1:4
     %functions and polynomial features
     switch i
         case 1
-            model = MeanVar_GLM(shape_parameter,1,LinkFunction_Identity());
+            model = GlmGamma(1,IdentityLink());
         case 2
-            model = MeanVar_GLM(shape_parameter,-1,LinkFunction_Log());
+            model = GlmGamma(-1,LogLink());
         case 3
-            model = MeanVar_GLM(shape_parameter,-1,LinkFunction_Canonical());
+            model = GlmGamma(-1,InverseLink());
         case 4
-            model = MeanVar_GLM(shape_parameter,-2,LinkFunction_Canonical());
+            model = GlmGamma(-2,InverseLink());
     end
+    
+    model.setShapeParameter(shape_parameter);
     
     %train the classifier
     model.train(sample_mean,sample_var);
-
+    
     %plot the frequency density
     figure;
     ax = hist3Heatmap(sample_mean,sample_var,[nbin,nbin],true);
