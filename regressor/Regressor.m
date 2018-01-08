@@ -7,13 +7,13 @@ classdef Regressor < handle
     %be obtained in the method prediction_mse.
     
     %MEMBER VARIABLES
-    properties
+    properties (SetAccess = protected)
         parameter; %parameter to estimate to fit onto the data
         n_train; %size of the training set
     end
     
     %METHODS
-    methods
+    methods (Access = public)
         
         %CONSTRUCTOR
         %Do nothing
@@ -42,7 +42,7 @@ classdef Regressor < handle
     end
     
     %ABSTRACT METHODS
-    methods (Abstract)
+    methods (Abstract, Access = public)
         
         %TRAIN CLASSIFIER
         train(this,sample_mean,sample_var);
@@ -54,6 +54,8 @@ classdef Regressor < handle
             %down_error: 16% percentile
         [variance_prediction, up_error, down_error] = predict(this,sample_mean);
 
+        has_errorbar = hasErrorbar(this)
+        
     end
     
 end

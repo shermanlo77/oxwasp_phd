@@ -25,7 +25,7 @@ sample_var = sample_var(segmentation);
 x_plot = linspace(min(sample_mean),max(sample_mean),500);
 
 %for each k
-for k = [1E1, 1E3]
+for k = [1E0, 1E3]
     
     %model the mean and variance using kNN
     model = KernelRegression(EpanechnikovKernel(), k);

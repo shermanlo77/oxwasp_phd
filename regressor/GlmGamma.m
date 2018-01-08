@@ -3,7 +3,7 @@ classdef GlmGamma < Regressor
     %mean greyvalue
     
     %MEMBER VARIABLES
-    properties
+    properties (SetAccess = protected)
         %shape parameter of the gamma distribution
         shape_parameter;
         %normalising constants for the response and feature
@@ -20,7 +20,7 @@ classdef GlmGamma < Regressor
     end
     
     %METHODS
-    methods
+    methods (Access = public)
         
         %CONSTRUCTOR
         %PARAMETERS:
@@ -116,6 +116,110 @@ classdef GlmGamma < Regressor
             
         end
         
+        %METHOD PREDICT VARIANCE GIVEN MEAN
+        %PARAMETERS:
+            %x: column vector of mean greyvalue
+        %RETURN:
+            %variance_prediction: predicted greyvalue variance (column vector)
+            %up_error: 84% percentile
+            %down_error: 16% percentile
+        function [variance_prediction, up_error, down_error] = predict(this,x)
+            %get design matrix
+            X = this.getNormalisedDesignMatrix(x);
+            %work out variables
+            eta = X*this.parameter;
+            %work out mean, to be used for the variance prediction
+            variance_prediction = this.getMean(eta) * this.y_scale;
+            %get rate parameter
+            gamma_scale = variance_prediction./this.shape_parameter;
+            
+            %work out the [16%, 84%] percentile, to be used for error bars
+            up_error = gaminv(normcdf(1),this.shape_parameter,gamma_scale);
+            down_error = gaminv(normcdf(-1),this.shape_parameter,gamma_scale);
+            
+            %calculate mean estimation error
+            %%NEEDS TO BE REWRITTEN, X*this.parameter_covariance*X' REQUIRES TOO MUCH MEMORY
+            %mean_var = (1/this.y_scale^2) * (this.link_function.getLinkDiff(variance_prediction).^(-2)).* diag(X*this.parameter_covariance*X');
+        end
+        
+        %IMPLEMENTED: HAS ERROR BAR
+        %Return true to indicate this regression does have error bars for the predictions
+        function has_errorbar = hasErrorbar(this)
+            has_errorbar = true;
+        end
+
+        %METHOD SIMULATE
+        %PARAMETERS:
+            %x: column vector of greyvalue means
+            %parameter: parameter for GLM
+        %RETURN:
+            %y: column vector of simulated greyvalue variance
+        function y = simulate(this,x,parameter)
+            
+            %get design matrix
+            X = this.getDesignMatrix(x);
+            
+            %work out systematic component
+            eta = X*parameter;
+            %get rate parameter
+            gamma_scale = this.getMean(eta)./this.shape_parameter;
+
+            %simulate gamma from the natural parameter
+            y = gamrnd(this.shape_parameter,gamma_scale);
+        end
+
+        %PREDICTION MEAN SQUARED STANDARDIZED ERROR
+        %Return the mean squared standardized and mean squared prediction error
+        %PARAMETERS:
+            %y: greyvalue variance (column vector)
+            %x: greyvalue mean (column vector)
+            %x and y are the same size
+        %RETURN:
+            %mse_vector: 2 column vector, [msse; mse]
+        function [mse_vector] = getPredictionMSSE(this,x,y)
+            %given greyvalue mean, predict greyvalue variance
+            y_predict = this.predict(x);
+            %work out the mean squared error
+            residual_squared = (y-y_predict).^2;
+            var = this.getVariance(x);
+            msse = mean(residual_squared./var);
+            mse = mean(residual_squared);
+            mse_vector = [msse; mse];
+        end
+        
+        %GET LINK FUNCTION DIFFERENTATED
+        %PARAMETERS:
+            %mu: column vector of means
+        %RETURN:
+            %g_dash: colum vector of g'(mu)
+        function g_dash = getLinkDiff(this,mu)
+            g_dash = this.link_function.getLinkDiff(mu);
+        end
+        
+        %GET MEAN (LINK FUNCTION)
+        %PARAMETERS:
+            %eta: vector of systematic components
+        %RETURN:
+            %mu: vector of mean responses
+        function mu = getMean(this,eta)
+            mu = this.link_function.getMean(eta);
+        end
+        
+        %GET NAME
+        %Return name for this glm
+        function name = getName(this)
+            name = cell2mat({this.link_function.name,', order ',num2str(this.polynomial_order)});
+        end
+        
+        %GET FILE NAME
+        function name = getFileName(this)
+            name = cell2mat({this.link_function.name,'_order_',num2str(this.polynomial_order)});
+        end
+     
+    end
+    
+    methods (Access = private)
+        
         %UPDATE PARAMETER USING IRLS
         %PARAMETERS:
             %w: vector of weights
@@ -156,10 +260,24 @@ classdef GlmGamma < Regressor
             z = (eta + (y-mu).*this.getLinkDiff(mu));
         end
         
+        %GET DEVIANCE
+        %PARAMETERS:
+            %mu: column vector of means
+            %y: column vector of the response
+            %lny: column vector of ln response
+        %RETURN:
+            %d: deviance
         function d = getDeviance(this, mu, y, lny)
             d = this.shape_parameter * this.getScaledDeviance(mu, y, lny);
         end
         
+        %GET SCALED DEVIANCE
+        %PARAMETERS:
+            %mu: column vector of means
+            %y: column vector of the response
+            %lny: column vector of ln response
+        %RETURN:
+            %d: scaled deviance
         function d = getScaledDeviance(this, mu, y, lny)
             d = 2*sum((y-mu)./mu - lny + log(mu));
         end
@@ -168,52 +286,6 @@ classdef GlmGamma < Regressor
         function lnL = getLogLikeLihood(this,mu,y)
             %work out the log likelihhod up to a constant
             lnL = -this.shape_parameter*(sum(log(mu)+y./mu));
-        end
-        
-        %PREDICT VARIANCE GIVEN MEAN
-        %PARAMETERS:
-            %x: column vector of mean greyvalue
-        %RETURN:
-            %variance_prediction: predicted greyvalue variance (column vector)
-            %up_error: 84% percentile
-            %down_error: 16% percentile
-        function [variance_prediction, up_error, down_error] = predict(this,x)
-            %get design matrix
-            X = this.getNormalisedDesignMatrix(x);
-            %work out variables
-            eta = X*this.parameter;
-            %work out mean, to be used for the variance prediction
-            variance_prediction = this.getMean(eta) * this.y_scale;
-            %get rate parameter
-            gamma_scale = variance_prediction./this.shape_parameter;
-            
-            %work out the [16%, 84%] percentile, to be used for error bars
-            up_error = gaminv(normcdf(1),this.shape_parameter,gamma_scale);
-            down_error = gaminv(normcdf(-1),this.shape_parameter,gamma_scale);
-            
-            %calculate mean estimation error
-            %%NEEDS TO BE REWRITTEN, X*this.parameter_covariance*X' REQUIRES TOO MUCH MEMORY
-            %mean_var = (1/this.y_scale^2) * (this.link_function.getLinkDiff(variance_prediction).^(-2)).* diag(X*this.parameter_covariance*X');
-        end
-
-        %SIMULATE
-        %PARAMETERS:
-            %x: column vector of greyvalue means
-            %parameter: parameter for GLM
-        %RETURN:
-            %y: column vector of simulated greyvalue variance
-        function y = simulate(this,x,parameter)
-            
-            %get design matrix
-            X = this.getDesignMatrix(x);
-            
-            %work out systematic component
-            eta = X*parameter;
-            %get rate parameter
-            gamma_scale = this.getMean(eta)./this.shape_parameter;
-
-            %simulate gamma from the natural parameter
-            y = gamrnd(this.shape_parameter,gamma_scale);
         end
         
         %GET DESIGN MATRIX
@@ -275,56 +347,7 @@ classdef GlmGamma < Regressor
             variance = variance * this.y_scale^2;
         end
         
-        %PREDICTION MEAN SQUARED STANDARDIZED ERROR
-        %Return the mean squared standardized and mean squared prediction error
-        %PARAMETERS:
-            %y: greyvalue variance (column vector)
-            %x: greyvalue mean (column vector)
-            %x and y are the same size
-        %RETURN:
-            %mse_vector: 2 column vector, [msse; mse]
-        function [mse_vector] = getPredictionMSSE(this,x,y)
-            %given greyvalue mean, predict greyvalue variance
-            y_predict = this.predict(x);
-            %work out the mean squared error
-            residual_squared = (y-y_predict).^2;
-            var = this.getVariance(x);
-            msse = mean(residual_squared./var);
-            mse = mean(residual_squared);
-            mse_vector = [msse; mse];
-        end
-        
-        %GET LINK FUNCTION DIFFERENTATED
-        %PARAMETERS:
-            %mu: column vector of means
-        %RETURN:
-            %g_dash: colum vector of g'(mu)
-        function g_dash = getLinkDiff(this,mu)
-            g_dash = this.link_function.getLinkDiff(mu);
-        end
-        
-        %GET MEAN (LINK FUNCTION)
-        %PARAMETERS:
-            %eta: vector of systematic components
-        %RETURN:
-            %mu: vector of mean responses
-        function mu = getMean(this,eta)
-            mu = this.link_function.getMean(eta);
-        end
-        
-        %GET NAME
-        %Return name for this glm
-        function name = getName(this)
-            name = cell2mat({this.link_function.name,', order ',num2str(this.polynomial_order)});
-        end
-        
-        %GET FILE NAME
-        function name = getFileName(this)
-            name = cell2mat({this.link_function.name,'_order_',num2str(this.polynomial_order)});
-        end
-     
     end
-    
-    
+
 end
 

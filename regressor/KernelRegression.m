@@ -57,6 +57,12 @@ classdef KernelRegression < Regressor
             end
         end
         
+        %IMPLEMENTED: HAS ERROR BAR
+        %Return false to indicate this regression doesn't have error bars for the predictions
+        function has_errorbar = hasErrorbar(this)
+            has_errorbar = false;
+        end
+        
         %GET NAME
         %Return name for this glm
         function name = getName(this)

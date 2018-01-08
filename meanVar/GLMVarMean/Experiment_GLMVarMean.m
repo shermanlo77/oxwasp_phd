@@ -247,6 +247,40 @@ classdef Experiment_GLMVarMean < Experiment
             ylabel(stat_name);
             legend(this.shading_corrector_array);
         end
+
+        %GET MEAN VARIANCE
+        %Get mean and variance vector using the images indicated by the parameter image_index
+        %PARAMETERS:
+            %image_index: vector of integers, points to which images to use for mean and variance estimation
+        %RETURNS:
+            %sample_mean: mean vector
+            %sample_var: variance vector
+        function [sample_mean,sample_var] = getMeanVar(this, image_index)
+            %work out the mean and variance
+            [sample_mean,sample_var] = this.mean_variance_estimator.getMeanVar(image_index);
+        end
+        
+        %SAVE GREY VALUE ARRAY
+        %Set up the member variable mean_variance_estimator
+        function saveGreyvalueArray(this)
+            %get the scan object
+            scan = this.getScan();
+            %get the shading corrector
+            [shading_corrector, reference_index] = this.getShadingCorrector(this.i_shad);
+            %add the shading corrector
+            scan.addShadingCorrector(shading_corrector, reference_index);
+            %save the greyvalues
+            this.mean_variance_estimator.saveGreyvalueArray(scan);
+        end %saveGreyvalueArray
+        
+        %IMPLEMENTED: GET N BIN
+        function n_bin = getNBin(this)
+            n_bin = 100;
+        end
+        
+    end
+    
+    methods (Access = public)
         
         %PLOT FULL FIT
         %Plot the variance and mean histogram, along with the fitted glm
@@ -291,20 +325,26 @@ classdef Experiment_GLMVarMean < Experiment
 
                     %plot the frequency density
                     figure;
-                    ax = hist3Heatmap(sample_mean,sample_var,[this.getNBin(),this.getNBin()],false);
+                    ax = hist3Heatmap(sample_mean,sample_var,[this.getNBin(),this.getNBin()],true);
                     colorbar;
                     hold on;
 
                     %get a range of greyvalues to plot the fit
                     x_plot = linspace(ax.XLim(1),ax.XLim(2),100);
                     %get the variance prediction along with the error bars
-                    [variance_prediction, up_error, down_error] = model.predict(x_plot');
+                    if model.hasErrorbar()
+                        [variance_prediction, up_error, down_error] = model.predict(x_plot');
+                    else
+                        variance_prediction = model.predict(x_plot');
+                    end
 
                     %plot the fit/prediction
                     plot(x_plot,variance_prediction,'r');
-                    %plot the error bars
-                    plot(x_plot,up_error,'r--');
-                    plot(x_plot,down_error,'r--');
+                    if model.hasErrorbar()
+                        %plot the error bars
+                        plot(x_plot,up_error,'r--');
+                        plot(x_plot,down_error,'r--');
+                    end
                     %label the axis
                     xlabel('mean (arb. unit)');
                     ylabel('variance (arb. unit^2)');
@@ -314,36 +354,6 @@ classdef Experiment_GLMVarMean < Experiment
             %delete the storage of greyvalues
             this.deleteVariables();
         end %plotFullFit
-        
-        %GET MEAN VARIANCE
-        %Get mean and variance vector using the images indicated by the parameter image_index
-        %PARAMETERS:
-            %image_index: vector of integers, points to which images to use for mean and variance estimation
-        %RETURNS:
-            %sample_mean: mean vector
-            %sample_var: variance vector
-        function [sample_mean,sample_var] = getMeanVar(this, image_index)
-            %work out the mean and variance
-            [sample_mean,sample_var] = this.mean_variance_estimator.getMeanVar(image_index);
-        end
-        
-        %SAVE GREY VALUE ARRAY
-        %Set up the member variable mean_variance_estimator
-        function saveGreyvalueArray(this)
-            %get the scan object
-            scan = this.getScan();
-            %get the shading corrector
-            [shading_corrector, reference_index] = this.getShadingCorrector(this.i_shad);
-            %add the shading corrector
-            scan.addShadingCorrector(shading_corrector, reference_index);
-            %save the greyvalues
-            this.mean_variance_estimator.saveGreyvalueArray(scan);
-        end %saveGreyvalueArray
-        
-        %IMPLEMENTED: GET N BIN
-        function n_bin = getNBin(this)
-            n_bin = 100;
-        end
         
     end
     
