@@ -1,6 +1,6 @@
-%FIT kNN SCRIPT
-%Regress the mean and variance relationship using k nearest neighbours for
-%different k. The frequency density is plotted with the fit
+%FIT KERNEL SCRIPT
+%Regress the mean and variance relationship using kernel regression using different scale parameters
+%The frequency density is plotted with the fit
 
 clc;
 clearvars;
