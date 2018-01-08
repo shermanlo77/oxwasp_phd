@@ -55,7 +55,7 @@ classdef Experiment_GLMVarMean_Mar16 < Experiment_GLMVarMean
                     model = GlmGamma(-1,LogLink());
                     model.setShapeParameter(this.shape_parameter);
                 case 6
-                    model = KernelRegression(EpanechnikovKernel(),1E3);
+                    model = KernelRegression_Lookup(EpanechnikovKernel(),1E3);
             end
         end
         
