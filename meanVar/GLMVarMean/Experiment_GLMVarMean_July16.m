@@ -25,7 +25,7 @@ classdef Experiment_GLMVarMean_July16 < Experiment_GLMVarMean
         
         %IMPLEMENTED: GET N GLM
         function n_glm = getNGlm(this)
-            n_glm = 6;
+            n_glm = 5;
         end
         
         %IMPLEMENTED: GET GLM
@@ -46,8 +46,6 @@ classdef Experiment_GLMVarMean_July16 < Experiment_GLMVarMean
                 case 5
                     model = GlmGamma(-1,LogLink());
                     model.setShapeParameter(this.shape_parameter);
-                case 6
-                    model = KernelRegression_Lookup(EpanechnikovKernel(),1E3);
             end
         end
         
