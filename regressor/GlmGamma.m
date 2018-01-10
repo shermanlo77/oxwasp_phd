@@ -17,6 +17,7 @@ classdef GlmGamma < Regressor
         tol; %stopping conidition for the different in log likelihood * n_train
         link_function; %object LinkFunction which implemented the methods getLinkDiff and getMean
         parameter_covariance;
+        scaled_deviance; %scaled deviance
     end
     
     %METHODS
@@ -105,6 +106,9 @@ classdef GlmGamma < Regressor
                 %update the log likelihood
                 d_old = d_new;
             end
+            
+            %saved the scaled deviance
+            this.scaled_deviance = d_new;
             
             %%Fisher information matrix
             %%Used to calculate the parameter covariance
