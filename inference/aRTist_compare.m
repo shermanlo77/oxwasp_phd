@@ -30,16 +30,16 @@ n_pixel = sum(sum(segmentation));
 phantom_vector = reshape(phantom(segmentation),[],1);
 aRTist_vector = reshape(aRTist(segmentation),[],1);
 
-calibrator = DifferenceCalibrator(phantom_vector, aRTist_vector);
-calibrator.setParameter(1E5);
-calibrator.calibrate();
-
-calibrator.plotCalibration([300,300],false);
-calibrator.plotDifference([100,100],false,true);
-calibrator.plotCalibration([300,300],true);
-calibrator.plotDifference([100,100],true,false);
-
-aRTist(segmentation) = reshape(calibrator.aRTist_calibrated,[],1);
+% calibrator = DifferenceCalibrator(phantom_vector, aRTist_vector);
+% calibrator.setParameter(1E5);
+% calibrator.calibrate();
+% 
+% calibrator.plotCalibration([300,300],false);
+% calibrator.plotDifference([100,100],false,true);
+% calibrator.plotCalibration([300,300],true);
+% calibrator.plotDifference([100,100],true,false);
+% 
+% aRTist(segmentation) = reshape(calibrator.aRTist_calibrated,[],1);
 
 %plot the phantom and aRTist image
 figure;
@@ -62,7 +62,8 @@ training_var = var(training_stack,[],2);
 % hist3Heatmap(training_mean,training_var,[100,100],true);
 
 %train glm using the training set mean and variance
-model = MeanVar_GLM((n_train-1)/2,1,LinkFunction_Identity());
+model = GlmGamma(1,IdentityLink());
+model.setShapeParameter((n_train-1)/2);
 model.train(training_mean,training_var);
 
 %predict variance given aRTist

@@ -23,12 +23,12 @@ test_index = index(n_train-1);
 artist_index = index((n_train+1):end);
 
 aRTist = mean(block_data.loadImageStack(artist_index),3);
-[x_grid, y_grid] = meshgrid(1:block_data.width, 1:block_data.height);
-plane = (1E4/(sqrt(2)*1000)) * (x_grid - block_data.width/2) + (1E4/(sqrt(2)*1000)) * (y_grid - block_data.height/2);
 
-figure;
+fig = figure;
 imagesc(aRTist);
 colorbar;
+fig.CurrentAxes.XTick = [];
+fig.CurrentAxes.YTick = [];
 
 %get the training images
 training_stack = block_data.loadImageStack(meanvar_index);
@@ -38,67 +38,92 @@ training_stack = training_stack(reshape(segmentation,[],1),:);
 %get the segmented mean and variance greyvalue
 training_mean = mean(training_stack,2);
 training_var = var(training_stack,[],2);
-% %plot the variance vs mean
-% figure;
-% hist3Heatmap(training_mean,training_var,[100,100],true);
 
 %train glm using the training set mean and variance
-model = MeanVar_GLM((n_train-2)/2,1,LinkFunction_Identity());
+model = GlmGamma(1,IdentityLink());
+model.setShapeParameter((n_train-2)/2);
 model.train(training_mean,training_var);
 
 %predict variance given aRTist
 var_predict = reshape(model.predict(reshape(aRTist,[],1)),block_data.height, block_data.width);
 
 %get the test images
-test = block_data.loadImageStack(test_index);
-test = test + plane;
-defect_value = 4E3;
-test(962:1038, 962:1038) = test(962:1038, 962:1038) + defect_value;
-defect_noise = model.predict(mean(reshape(test(962:1038, 962:1038),[],1)));
-test(962:1038, 962:1038) = test(962:1038, 962:1038) + normrnd(0,sqrt(defect_noise),77,77);
+test_0 = block_data.loadImageStack(test_index);
 
-z_image = (test - aRTist)./sqrt(var_predict);
-z_image(~segmentation) = nan;
+n_intensity = 20;
+intensity_array = linspace(1E3, 3E3, n_intensity);
+power_array = zeros(1,n_intensity);
 
-convolution = EmpericalConvolution(z_image,20, 20, [200,200]);
-convolution.estimateNull(1000);
-convolution.setMask(segmentation);
-convolution.doTest();
+got_half = false;
 
-fig = figure;
-imagesc(-log10(convolution.p_image));
-colorbar;
-hold on;
-colorbar;
-fig.CurrentAxes.XTick = [];
-fig.CurrentAxes.YTick = [];
+for i_intensity = 1:n_intensity
+    
+    defect_simulator = DefectSimulator(test_0);
+    defect_simulator.addSquareDefectGrid([8;8],[76;76],intensity_array(i_intensity));
+    defect_simulator.addPlane( (1E4/(sqrt(2)*1000))*[1;1], 0);
+    test = defect_simulator.image;
 
-fig = figure;
-imagesc(test);
-colorbar;
-hold on;
-colorbar;
-fig.CurrentAxes.XTick = [];
-fig.CurrentAxes.YTick = [];
+    z_image = (test - aRTist)./sqrt(var_predict);
+    z_image(~segmentation) = nan;
 
-fig = figure;
-imagesc(test);
-colorbar;
-hold on;
-colorbar;
-[critical_y, critical_x] = find(convolution.sig_image);
-scatter(critical_x, critical_y,'r.');
-fig.CurrentAxes.XTick = [];
-fig.CurrentAxes.YTick = [];
+    convolution = EmpericalConvolution(z_image,20, 20, [200,200]);
+    convolution.estimateNull(1000);
+    convolution.setMask(segmentation);
+    convolution.doTest();
+    
+    sig_0 = defect_simulator.sig_image;
+    sig_0(~segmentation) = 0;
+    power_array(i_intensity) = sum(sum(convolution.sig_image & sig_0)) / sum(sum(sig_0));
+    
+    if ~got_half
+        if power_array(i_intensity) > 0.5
+            
+            fig = figure;
+            imagesc(-log10(convolution.p_image));
+            colorbar;
+            hold on;
+            colorbar;
+            fig.CurrentAxes.XTick = [];
+            fig.CurrentAxes.YTick = [];
 
-fig = figure;
-imagesc(convolution.mean_null);
-colorbar;
-fig.CurrentAxes.XTick = [];
-fig.CurrentAxes.YTick = [];
+            fig = figure;
+            imagesc(test);
+            colorbar;
+            hold on;
+            colorbar;
+            fig.CurrentAxes.XTick = [];
+            fig.CurrentAxes.YTick = [];
 
-fig = figure;
-imagesc(sqrt(convolution.var_null));
-colorbar;
-fig.CurrentAxes.XTick = [];
-fig.CurrentAxes.YTick = [];
+            fig = figure;
+            imagesc(test);
+            colorbar;
+            hold on;
+            colorbar;
+            [critical_y, critical_x] = find(convolution.sig_image);
+            scatter(critical_x, critical_y,'r.');
+            fig.CurrentAxes.XTick = [];
+            fig.CurrentAxes.YTick = [];
+
+            fig = figure;
+            imagesc(convolution.mean_null);
+            colorbar;
+            fig.CurrentAxes.XTick = [];
+            fig.CurrentAxes.YTick = [];
+
+            fig = figure;
+            imagesc(sqrt(convolution.var_null));
+            colorbar;
+            fig.CurrentAxes.XTick = [];
+            fig.CurrentAxes.YTick = [];
+            
+            got_half = true;
+        end
+    end
+    
+end
+
+
+figure;
+plot(intensity_array, power_array);
+xlabel('defect intensity');
+ylabel('statistical power');
