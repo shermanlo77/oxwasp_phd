@@ -79,7 +79,7 @@ classdef Experiment < handle
         function printProgress(this, p)
 
             %get the number of arrows to be displayed
-            new_n_arrow = round(p*20);
+            new_n_arrow = floor(p*20);
             
             %if the number of arrows to be displayed is bigger than the number of arrows displayed before
             if new_n_arrow > this.n_arrow
@@ -96,6 +96,11 @@ classdef Experiment < handle
                 for i = 1:this.n_arrow
                     progress_bar(i+1) = '>';
                 end
+                
+                %display time
+                time = clock;
+                time = time(4:5);
+                progress_bar = [progress_bar, '  Time:  ', num2str(time)];
 
                 %display the progress bar
                 disp(progress_bar);
