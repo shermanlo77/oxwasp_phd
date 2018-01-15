@@ -391,14 +391,10 @@ fig.CurrentAxes.XTick = [];
 fig.CurrentAxes.YTick = [];
 
 fig = figure;
-imagesc(test);
-colorbar;
-hold on;
-colorbar;
-[critical_y, critical_x] = find(convolution.sig_image);
-scatter(critical_x, critical_y,'r.');
-fig.CurrentAxes.XTick = [];
-fig.CurrentAxes.YTick = [];
+image_plot = ImagescSignificant(test);
+image_plot.setDilateSize(2);
+image_plot.addSigPixels(convolution.sig_image);
+image_plot.plot();
 
 
 fig = figure;
