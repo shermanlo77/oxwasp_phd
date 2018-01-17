@@ -19,7 +19,7 @@ classdef ZTester < handle
         std_null; %std of the null hypothesis
         size; %size of the test, default is 2 sigma OR 2*normcdf(-2)
         size_corrected; %corrected size of the test due to multiple testing
-        p0; %estimation of propotion of H0 data
+        p0; %estimation of propotion of H0 data, default is 1 for the sake of scaling without emperical null correction
         
         p_image; %2d array of p_values
         sig_image; %boolean 2d array, true if that pixel is significant
@@ -40,6 +40,7 @@ classdef ZTester < handle
             this.mean_null = 0;
             this.std_null = 1;
             this.size = 2*normcdf(-2);
+            this.p0 = 1;
             
             %get the number of non_nan values in z_image
             nan_index = isnan(reshape(z_image,[],1));
@@ -252,6 +253,9 @@ classdef ZTester < handle
             %plot histogram
             this.plotHistogram();
             hold on;
+            %plot critical boundary
+            this.plotCritical();
+            
             ax = gca;
             %get 500 values from min to max
             z_plot = linspace(ax.XLim(1),ax.XLim(2),500);
@@ -261,12 +265,11 @@ classdef ZTester < handle
             this.plotNull(z_plot);
             %plot alt density
             this.plotAlt(z_plot);
-            %plot critical boundary
-            this.plotCritical();
+            
             %label axis and legend
             xlabel('z statistic');
             ylabel('frequency density');
-            legend('histogram','estimated density','null','alt','critical boundary');
+            legend(ax.Children([6,3,2,1,5]),'histogram','estimated density','null','alt','critical boundary');
         end
         
         %METHOD: PLOT HISTOGRAM
@@ -280,9 +283,9 @@ classdef ZTester < handle
         %METHOD: PLOT CRITICAL BOUNDARY
         function plotCritical(this)
             ax = gca;
-            plot([-norminv(1-this.size_corrected/2),-norminv(1-this.size_corrected/2)],[0,ax.YLim(2)],'r--');
+            plot([norminv(this.size_corrected/2,this.mean_null,this.std_null),norminv(this.size_corrected/2,this.mean_null,this.std_null)],[0,ax.YLim(2)],'r--');
             hold on;
-            plot([norminv(1-this.size_corrected/2),norminv(1-this.size_corrected/2)],[0,ax.YLim(2)],'r--');
+            plot([norminv(1-this.size_corrected/2,this.mean_null,this.std_null),norminv(1-this.size_corrected/2,this.mean_null,this.std_null)],[0,ax.YLim(2)],'r--');
         end
         
         %METHOD: PLOT DENSITY ESTIMATE
@@ -296,7 +299,7 @@ classdef ZTester < handle
         %PARAMETERS:
             %z_plot: values to evalute the null density at
         function plotNull(this, z_plot)
-            plot(z_plot,normpdf(z_plot,this.mean_null,this.std_null)*this.n_test);
+            plot(z_plot,normpdf(z_plot,this.mean_null,this.std_null)*this.n_test*this.p0);
         end
         
         %METHOD: PLOT ALT DENSITY
