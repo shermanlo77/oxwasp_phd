@@ -20,6 +20,8 @@ classdef EmpericalConvolution < handle
         z_image; %image of z statistics
         test_size; %size of the test (if 0, use default value)
         
+        z_tester_array; %cell array of z_tester for each position the window is at
+        
         mean_null; %image of emperical null mean parameter
         var_null; %image of emperical null var parameter
         p_image; %image of p values
@@ -44,6 +46,7 @@ classdef EmpericalConvolution < handle
             this.n_col = n_col;
             this.kernel_size = kernel_size;
             this.test_size = 2*normcdf(-2);
+            this.z_tester_array = cell(n_row,n_col);
         end
         
         %METHOD: ESTIMATE NULL
@@ -100,6 +103,8 @@ classdef EmpericalConvolution < handle
                     z_tester_window = ZTester(this.z_image(y_window,x_window));
                     %get the emperical null
                     z_tester_window.estimateNull(n_linspace);
+                    %save the z_tester
+                    this.z_tester_array{i_row,i_col} = z_tester_window;
                     
                     %get the emperical null parameters
                     this.mean_null(i_row, i_col) = z_tester_window.mean_null;
