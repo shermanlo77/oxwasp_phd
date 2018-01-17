@@ -24,6 +24,8 @@ classdef EmpericalConvolution < handle
         var_null; %image of emperical null var parameter
         p_image; %image of p values
         sig_image; %boolean image of significant pixels
+        p_critical; %critical p value
+        z_critical; %critical corrected z value (positive value)
     end
     
     %METHODS
@@ -41,7 +43,7 @@ classdef EmpericalConvolution < handle
             this.n_row = n_row;
             this.n_col = n_col;
             this.kernel_size = kernel_size;
-            this.test_size = 0;
+            this.test_size = 2*normcdf(-2);
         end
         
         %METHOD: ESTIMATE NULL
@@ -99,7 +101,7 @@ classdef EmpericalConvolution < handle
                     %get the emperical null
                     z_tester.estimateNull(n_linspace);
                     
-                    %get the p value in the middle of the window
+                    %get the emperical null parameters
                     this.mean_null(i_row, i_col) = z_tester.mean_null;
                     this.var_null(i_row, i_col) = (z_tester.std_null)^2;
                     
@@ -127,20 +129,25 @@ classdef EmpericalConvolution < handle
         %Does hypothesis testing, corrected for emperical null
         %p values and signficant pixels are stored in the member variables p_image and sig_image
         function doTest(this)
-            %correct the z statistics for the emperical null
-            z_null = (this.z_image - this.mean_null) ./ sqrt(this.var_null);
-            %instantise a ZTester
-            z_tester = ZTester(z_null);
-            %set the size of the test if a specific size is specified
-            if this.test_size ~= 0
-                z_tester.setSize(this.test_size);
-            end
+            %instantise a ZTester, using the corrected z statistics for the emperical null
+            z_tester = ZTester(this.getZNull());
+            %set the size of the test
+            z_tester.setSize(this.test_size);
             %do the hypothesis test
             z_tester.doTest();
             %extract the p values and significant pixels
             this.p_image = z_tester.p_image;
             this.sig_image = z_tester.sig_image;
-            
+            %extract the critical values
+            this.p_critical = z_tester.size_corrected;
+            this.z_critical = z_tester.getZCritical();
+        end
+        
+        %METHOD: Z NULL
+        %Return the z image, corrected for the emperical null
+        function z_null = getZNull(this)
+            %correct the z statistics for the emperical null
+            z_null = (this.z_image - this.mean_null) ./ sqrt(this.var_null);
         end
         
         %METHOD: SET SIZE

@@ -77,44 +77,40 @@ for i_intensity = 1:n_intensity
     
     if ~got_half
         if power_array(i_intensity) > 0.5
+
+            z_hist = reshape(convolution.getZNull(),[],1);
+            figure;
+            histogram(z_hist,'Normalization','countdensity','DisplayStyle','stairs');
+            hold on;
+            ax = gca;
+            ymax = ax.YLim(2);
+            xlim = ax.XLim;
+            plot(convolution.z_critical(1)*[1,1],[0,ymax],'r--');
+            plot(convolution.z_critical(2)*[1,1],[0,ymax],'r--');
+            x_plot = linspace(xlim(1),xlim(2),100);
+            plot(x_plot,normpdf(x_plot)*block_data.area);
+            xlabel('z statistics (corrected for null)');
+            ylabel('frequency density');
             
-            fig = figure;
-            imagesc(-log10(convolution.p_image));
-            colorbar;
-            hold on;
-            colorbar;
-            fig.CurrentAxes.XTick = [];
-            fig.CurrentAxes.YTick = [];
+            figure;
+            image_plot = ImagescSignificant(-log10(convolution.p_image));
+            image_plot.plot();
 
-            fig = figure;
-            imagesc(test);
-            colorbar;
-            hold on;
-            colorbar;
-            fig.CurrentAxes.XTick = [];
-            fig.CurrentAxes.YTick = [];
+            figure;
+            image_plot = ImagescSignificant(test);
+            image_plot.plot();
 
-            fig = figure;
-            imagesc(test);
-            colorbar;
-            hold on;
-            colorbar;
-            [critical_y, critical_x] = find(convolution.sig_image);
-            scatter(critical_x, critical_y,'r.');
-            fig.CurrentAxes.XTick = [];
-            fig.CurrentAxes.YTick = [];
+            figure;
+            image_plot.addSigPixels(convolution.sig_image);
+            image_plot.plot();
 
-            fig = figure;
-            imagesc(convolution.mean_null);
-            colorbar;
-            fig.CurrentAxes.XTick = [];
-            fig.CurrentAxes.YTick = [];
-
-            fig = figure;
-            imagesc(sqrt(convolution.var_null));
-            colorbar;
-            fig.CurrentAxes.XTick = [];
-            fig.CurrentAxes.YTick = [];
+            figure;
+            image_plot = ImagescSignificant(convolution.mean_null);
+            image_plot.plot();
+            
+            figure;
+            image_plot = ImagescSignificant(sqrt(convolution.var_null));
+            image_plot.plot();
             
             got_half = true;
         end
