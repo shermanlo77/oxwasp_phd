@@ -19,6 +19,7 @@ classdef ZTester < handle
         std_null; %std of the null hypothesis
         size; %size of the test, default is 2 sigma OR 2*normcdf(-2)
         size_corrected; %corrected size of the test due to multiple testing
+        p0; %estimation of propotion of H0 data
         
         p_image; %2d array of p_values
         sig_image; %boolean 2d array, true if that pixel is significant
@@ -91,11 +92,15 @@ classdef ZTester < handle
             this.mean_null = z_array(z_max_index);
             %estimate the null std using the log second derivate
             this.std_null = (-this.density_estimator.getLogSecondDerivate(this.mean_null))^(-1/2);
-            
             %check if the std_null is real
             if ~isreal(this.std_null)
                 this.std_null = nan;
             end
+            
+            %estimate p0, propotion of H0 data
+            this.p0 =  this.density_estimator.getDensityEstimate(this.mean_null)/normpdf(0,0,this.std_null);
+            this.p0 = min([this.p0,1]);
+            
         end
         
         %METHOD: GET Z CORRECTED
@@ -134,14 +139,171 @@ classdef ZTester < handle
             z_critical(2) = -z_critical;
             z_critical = z_critical*this.std_null + this.mean_null;
         end
-        
-        %METHOD: ESTIMATE NULL RATIO
-        %Estimates the proportion of data which are null using the peak densities
+
+        %METHOD: ESTIMATE H1 DENSITY
+        %Estimates the alternate densisty
+        %PARAMETERS:
+            %x: points to be evaluated by the alternative density
         %RETURN:
-            %p0: proportion of data which are null
-        function p0 = estimateP0(this)
-           p0 =  this.density_estimator.getDensityEstimate(this.mean_null)/normpdf(0,0,this.std_null);
-           p0 = min([p0,1]);
+            %f1: alternate density evaluated at x
+        function f1 = estimateH1Density(this, x)
+            %estimate the alternative density
+            f1 = (this.density_estimator.getDensityEstimate(x) - this.p0*normpdf(x,this.mean_null,this.std_null)) / (1-this.p0);
+            %ensure all values of the density at non-negative
+            f1(f1<0) = 0;
+        end
+        
+        %METHOD: ESTIMATE H1 CDF
+        %Estimates the alternative cdf
+        %PARAMETERS:
+            %x: points to be evaluated by the alternative cdf
+            %is_upper: boolean, true if to evaluate the right hand side of the cdf
+        %RETURN:
+            %F1: alternative cdf evaluated at x
+        function F1 = estimateH1Cdf(this, x, is_upper)
+            %evaluate the cdf using the corresponding tail
+            if is_upper
+                F0 = normcdf(x,this.mean_null,this.std_null,'upper');
+            else
+                F0 = normcdf(x,this.mean_null,this.std_null);
+            end
+            %estimate the H1 cdf
+            F1 = (this.density_estimator.getCdfEstimate(x, is_upper) - this.p0*F0) / (1-this.p0);
+        end
+        
+        %METHOD: ESTIMATE POWER
+        %Estimate the power using the estimated H1 and the critical boundary
+        function power = estimatePower(this)
+            %get the critical boundaries
+            z_critical = this.getZCritical();
+            %estimate the power
+            power = this.estimateH1Cdf(z_critical(1), false) + this.estimateH1Cdf(z_critical(2), true);
+        end
+        
+        %METHOD: ESTIMATE ALTERNATIVE
+        %Assume the alternative distribution is Gaussian
+        %Estimate the parameters of the alternative distribution using the mode and curvature at the mode
+        %PARAMETERS:
+            %linspace: number of points between the min and max used for mode seeking
+        %RETURN:
+            %mean_h1: mean of H1
+            %std_h1: std of H1
+        function [mean_h1, std_h1] = estimateAlternative(this, n_linspace)
+            %declare n_linspace equally spaced points between min and max of z_array
+            z_array = linspace(min(min(this.z_image)), max(max(this.z_image)), n_linspace);
+            %get the alternative density evaluated at each point in z_array
+            f1 = this.estimateH1Density(z_array);
+            
+            %find the index with the biggest density
+            [~,z_index] = max(f1);
+            %get the mode, the value of z with the biggest density
+            mean_h1 = z_array(z_index);
+            
+            %get the null density and its derivate
+            f0 = this.density_estimator.getDensityEstimate(mean_h1);
+            f0_d1 = f0 * (mean_h1 - this.mean_null)/this.std_null;
+            f0_d2 = f0 * ( ((mean_h1 - this.mean_null)/this.std_null)^2 + 1) / this.std_null^2;
+            
+            %get the non-null density and its derivate
+            f1 = this.estimateH1Density(mean_h1) * this.p0;
+            f1_d1 = this.density_estimator.getDensity_d1(mean_h1) - this.p0*f0_d1;
+            f1_d2 = this.density_estimator.getDensity_d2(mean_h1) - this.p0*f0_d2;
+            
+            %work out std_h1 using the curvature at the mode
+            d2 = (f1*f1_d2 - (f1_d1)^2)/(f1^2);
+            std_h1 = (-d2)^(-1/2);
+            
+        end
+        
+        %METHOD: FIGURE HISTOGRAM CRITICAL BOUNDARY
+        %Produce a figure plots:
+            %histogram of z statistics
+            %emperical null
+            %critical boundary
+        function fig = figureHistCritical(this)
+            %produce a figure
+            fig = figure;
+            %plot histogram
+            this.plotHistogram();
+            hold on;
+            ax = gca;
+            %get 500 values from min to max
+            z_plot = linspace(ax.XLim(1),ax.XLim(2),500);
+            %plot null
+            this.plotNull(z_plot);
+            %plot critical boundary
+            this.plotCritical();
+            %label axis and legend
+            xlabel('z statistic');
+            ylabel('frequency density');
+            legend('histogram','null','critical boundary');
+        end
+        
+        %METHOD: FIGURE HISTOGRAM DENSITY CRITICAL BOUNDARY
+        %Produce a figure plots:
+            %histogram of z statistics
+            %density estimate
+            %emperical null
+            %emperical alt
+            %critical boundary
+        function fig = figureHistDensityCritical(this)
+            %produce a figure
+            fig = figure;
+            %plot histogram
+            this.plotHistogram();
+            hold on;
+            ax = gca;
+            %get 500 values from min to max
+            z_plot = linspace(ax.XLim(1),ax.XLim(2),500);
+            %plot density estimate
+            this.plotDensityEstimate(z_plot);
+            %plot null density
+            this.plotNull(z_plot);
+            %plot alt density
+            this.plotAlt(z_plot);
+            %plot critical boundary
+            this.plotCritical();
+            %label axis and legend
+            xlabel('z statistic');
+            ylabel('frequency density');
+            legend('histogram','estimated density','null','alt','critical boundary');
+        end
+        
+        %METHOD: PLOT HISTOGRAM
+        %Plot histogram of z statistics
+        function plotHistogram(this)
+            z_vector = reshape(this.z_image,[],1);
+            z_vector(isnan(z_vector)) = [];
+            histogram(z_vector,'Normalization','CountDensity','DisplayStyle','stairs');
+        end
+        
+        %METHOD: PLOT CRITICAL BOUNDARY
+        function plotCritical(this)
+            ax = gca;
+            plot([-norminv(1-this.size_corrected/2),-norminv(1-this.size_corrected/2)],[0,ax.YLim(2)],'r--');
+            hold on;
+            plot([norminv(1-this.size_corrected/2),norminv(1-this.size_corrected/2)],[0,ax.YLim(2)],'r--');
+        end
+        
+        %METHOD: PLOT DENSITY ESTIMATE
+        %PARAMETERS:
+            %z_plot: values to evaluate the density estimate at
+        function plotDensityEstimate(this, z_plot)
+            plot(z_plot,this.density_estimator.getDensityEstimate(z_plot)*this.n_test);
+        end
+        
+        %METHOD: PLOT NULL DENSITY
+        %PARAMETERS:
+            %z_plot: values to evalute the null density at
+        function plotNull(this, z_plot)
+            plot(z_plot,normpdf(z_plot,this.mean_null,this.std_null)*this.n_test);
+        end
+        
+        %METHOD: PLOT ALT DENSITY
+        %PARAMETERS:
+            %z_plot: values to evalute the alt density at
+        function plotAlt(this, z_plot)
+            plot(z_plot,(1-this.p0)*this.n_test*this.estimateH1Density(z_plot));
         end
         
         %METHOD: ESTIMATE LOCAL FDR
@@ -149,7 +311,7 @@ classdef ZTester < handle
         %RETURN:
             %fdr: local false discovery rate
         function fdr = estimateLocalFdr(this, x)
-            fdr = this.estimateP0() * normpdf(x,this.mean_null,this.std_null) ./ this.density_estimator.getDensityEstimate(x);
+            fdr = this.p0 * normpdf(x,this.mean_null,this.std_null) ./ this.density_estimator.getDensityEstimate(x);
         end
         
         %METHOD: ESTIMATE TAIL FDR (two tailed)
@@ -184,7 +346,7 @@ classdef ZTester < handle
             F = this.density_estimator.getCdfEstimate(left_tail,false) + this.density_estimator.getCdfEstimate(right_tail,true);
             
             %estimate the tail fdr
-            fdr = this.estimateP0() * F0 ./ F;
+            fdr = this.p0 * F0 ./ F;
             
         end
         
@@ -209,46 +371,6 @@ classdef ZTester < handle
             %both the left and right critical boundary should produce the same q value
             %take the 1st one
             q_critical = q_critical(1);
-        end
-        
-        %METHOD: ESTIMATE H1 DENSITY
-        %Estimates the alternate densisty
-        %PARAMETERS:
-            %x: points to be evaluated by the alternative density
-        %RETURN:
-            %f1: alternate density evaluated at x
-        function f1 = estimateH1Density(this, x)
-            %estimate the alternative density
-            f1 = (this.density_estimator.getDensityEstimate(x) - this.estimateP0()*normpdf(x,this.mean_null,this.std_null)) / (1-this.estimateP0());
-            %ensure all values of the density at non-negative
-            f1(f1<0) = 0;
-        end
-        
-        %METHOD: ESTIMATE H1 CDF
-        %Estimates the alternative cdf
-        %PARAMETERS:
-            %x: points to be evaluated by the alternative cdf
-            %is_upper: boolean, true if to evaluate the right hand side of the cdf
-        %RETURN:
-            %F1: alternative cdf evaluated at x
-        function F1 = estimateH1Cdf(this, x, is_upper)
-            %evaluate the cdf using the corresponding tail
-            if is_upper
-                F0 = normcdf(x,this.mean_null,this.std_null,'upper');
-            else
-                F0 = normcdf(x,this.mean_null,this.std_null);
-            end
-            %estimate the H1 cdf
-            F1 = (this.density_estimator.getCdfEstimate(x, is_upper) - this.estimateP0()*F0) / (1-this.estimateP0());
-        end
-        
-        %METHOD: ESTIMATE POWER
-        %Estimate the power using the estimated H1 and the critical boundary
-        function power = estimatePower(this)
-            %get the critical boundaries
-            z_critical = this.getZCritical();
-            %estimate the power
-            power = this.estimateH1Cdf(z_critical(1), false) + this.estimateH1Cdf(z_critical(2), true);
         end
         
         %METHOD: ESTIMATE POWER (USING EXP TAIL FDR)
@@ -304,44 +426,6 @@ classdef ZTester < handle
             power = (0.5*h*(I(1)+I(end)+2*sum(I(2:(end-1))))) / (0.5*h*(f1(1)+f1(end)+2*sum(f1(2:(end-1)))));
             %get the power
             power = 1 - power;
-        end
-        
-        %METHOD: ESTIMATE ALTERNATIVE
-        %Assume the alternative distribution is Gaussian
-        %Estimate the parameters of the alternative distribution using the mode and curvature at the mode
-        %PARAMETERS:
-            %linspace: number of points between the min and max used for mode seeking
-        %RETURN:
-            %mean_h1: mean of H1
-            %std_h1: std of H1
-        function [mean_h1, std_h1] = estimateAlternative(this, n_linspace)
-            %declare n_linspace equally spaced points between min and max of z_array
-            z_array = linspace(min(min(this.z_image)), max(max(this.z_image)), n_linspace);
-            %get the alternative density evaluated at each point in z_array
-            f1 = this.estimateH1Density(z_array);
-            
-            %find the index with the biggest density
-            [~,z_index] = max(f1);
-            %get the mode, the value of z with the biggest density
-            mean_h1 = z_array(z_index);
-            
-            %get the estimated ratio of null results
-            p0 = this.estimateP0();
-            
-            %get the null density and its derivate
-            f0 = this.density_estimator.getDensityEstimate(mean_h1);
-            f0_d1 = f0 * (mean_h1 - this.mean_null)/this.std_null;
-            f0_d2 = f0 * ( ((mean_h1 - this.mean_null)/this.std_null)^2 + 1) / this.std_null^2;
-            
-            %get the non-null density and its derivate
-            f1 = this.estimateH1Density(mean_h1) * p0;
-            f1_d1 = this.density_estimator.getDensity_d1(mean_h1) - p0*f0_d1;
-            f1_d2 = this.density_estimator.getDensity_d2(mean_h1) - p0*f0_d2;
-            
-            %work out std_h1 using the curvature at the mode
-            d2 = (f1*f1_d2 - (f1_d1)^2)/(f1^2);
-            std_h1 = (-d2)^(-1/2);
-            
         end
         
     end

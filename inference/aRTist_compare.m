@@ -94,22 +94,11 @@ for i = 1:n_test
     fig.CurrentAxes.YTick = [];
     
     figure;
-    imagesc(log10(z_tester.p_image));
+    imagesc(-log10(z_tester.p_image));
     colorbar;
     
     %histogram
-    z_vector = reshape(z_image,[],1);
-    z_vector(isnan(z_vector)) = [];
-    z_plot = linspace(min(z_vector),max(z_vector),1000);
-    figure;
-    histogram(z_vector,'Normalization','CountDensity','DisplayStyle','stairs');
-    hold on;
-    plot(z_plot,normpdf(z_plot)*m,'--');
-    plot([-norminv(1-z_tester.size_corrected/2),-norminv(1-z_tester.size_corrected/2)],[0,m*normpdf(0)],'r-','LineWidth',2);
-    plot([norminv(1-z_tester.size_corrected/2),norminv(1-z_tester.size_corrected/2)],[0,m*normpdf(0)],'r-','LineWidth',2);
-    xlabel('z statistic');
-    ylabel('frequency density');
-    legend('histogram','N(0,1)','critical boundary');
+    z_tester.figureHistCritical();
 
     %plot the phantom scan with critical pixels highlighted
     [critical_y, critical_x] = find(z_tester.sig_image);
@@ -140,7 +129,7 @@ for i = 1:numel(col_array)
     
     z_tester.estimateNull(100);
     z_tester.doTest();
-    p0 = z_tester.estimateP0();
+    p0 = z_tester.p0;
     mean_null = z_tester.mean_null;
     std_null = z_tester.std_null;
     [mean_alt, std_alt] = z_tester.estimateAlternative(100);
@@ -156,16 +145,7 @@ for i = 1:numel(col_array)
     disp(strcat('Tail Power = ',num2str(z_tester.estimateTailPower(z_sub_plot(1),z_sub_plot(end),numel(z_sub_plot)))));
     disp(strcat('Local Power = ',num2str(z_tester.estimateLocalPower(z_sub_plot(1),z_sub_plot(end),numel(z_sub_plot)))));
     
-    figure;
-    histogram(z_sub,'Normalization','CountDensity','DisplayStyle','stairs');
-    hold on;
-    plot(z_sub_plot,m*z_tester.density_estimator.getDensityEstimate(z_sub_plot));
-    plot(z_sub_plot,p0*m*normpdf(z_sub_plot,z_tester.mean_null,z_tester.std_null));
-    plot(z_sub_plot,(1-p0)*m*z_tester.estimateH1Density(z_sub_plot));
-    plot([z_critical(1),z_critical(1)],[0,m*normpdf(0)],'r-','LineWidth',2);
-    plot([z_critical(2),z_critical(2)],[0,m*normpdf(0)],'r-','LineWidth',2);
-    legend('histogram','estimated density','null density','non-null density');
-    ylabel('frequency density');
+    z_tester.figureHistDensityCritical();
     
     figure;
     yyaxis left;
@@ -231,20 +211,7 @@ for i_factor = 1:numel(factor_array)
     fig.CurrentAxes.XTick = [];
     fig.CurrentAxes.YTick = [];
     
-    z_tester = grid_tester.z_tester_array{7,8};
-    z_critical = z_tester.getZCritical();
-    z_vector = reshape(z_tester.z_image,[],1);
-    m = sum(~isnan(z_vector));
-    z_sub_plot = linspace(min(z_vector),max(z_vector),1000);
-    figure;
-    histogram(z_vector,'Normalization','CountDensity','DisplayStyle','stairs');
-    hold on;
-    plot(z_sub_plot,m*z_tester.density_estimator.getDensityEstimate(z_sub_plot));
-    plot(z_sub_plot,p0*m*normpdf(z_sub_plot,z_tester.mean_null,z_tester.std_null));
-    plot([z_critical(1),z_critical(1)],[0,m*normpdf(0)],'r-','LineWidth',2);
-    plot([z_critical(2),z_critical(2)],[0,m*normpdf(0)],'r-','LineWidth',2);
-    legend('histogram','estimated density','null density');
-    ylabel('frequency density');
+    z_tester.figureHistDensityCritical();
     
 end
 
@@ -376,11 +343,9 @@ for i_trans_series = 1:numel(n_translation_array)
 end
 
 convolution = EmpericalConvolution(z_image,20, 20, [200,200]);
-tic;
 convolution.estimateNull(1000);
 convolution.setMask(segmentation);
 convolution.doTest();
-toc
 
 fig = figure;
 imagesc(-log10(convolution.p_image));
