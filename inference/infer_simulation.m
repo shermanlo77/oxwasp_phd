@@ -78,19 +78,7 @@ for i_intensity = 1:n_intensity
     if ~got_half
         if power_array(i_intensity) > 0.5
 
-            z_hist = reshape(convolution.getZNull(),[],1);
-            figure;
-            histogram(z_hist,'Normalization','countdensity','DisplayStyle','stairs');
-            hold on;
-            ax = gca;
-            ymax = ax.YLim(2);
-            xlim = ax.XLim;
-            plot(convolution.z_critical(1)*[1,1],[0,ymax],'r--');
-            plot(convolution.z_critical(2)*[1,1],[0,ymax],'r--');
-            x_plot = linspace(xlim(1),xlim(2),100);
-            plot(x_plot,normpdf(x_plot)*block_data.area);
-            xlabel('z statistics (corrected for null)');
-            ylabel('frequency density');
+            convolution.z_tester.figureHistCritical();
             
             figure;
             image_plot = ImagescSignificant(-log10(convolution.p_image));

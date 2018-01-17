@@ -24,8 +24,8 @@ classdef EmpericalConvolution < handle
         var_null; %image of emperical null var parameter
         p_image; %image of p values
         sig_image; %boolean image of significant pixels
-        p_critical; %critical p value
-        z_critical; %critical corrected z value (positive value)
+        
+        z_tester; %z_tester object testing the corrected z statistics
     end
     
     %METHODS
@@ -97,13 +97,13 @@ classdef EmpericalConvolution < handle
                     y_window(y_window>height) = [];
                     
                     %instantise a z tester
-                    z_tester = ZTester(this.z_image(y_window,x_window));
+                    z_tester_window = ZTester(this.z_image(y_window,x_window));
                     %get the emperical null
-                    z_tester.estimateNull(n_linspace);
+                    z_tester_window.estimateNull(n_linspace);
                     
                     %get the emperical null parameters
-                    this.mean_null(i_row, i_col) = z_tester.mean_null;
-                    this.var_null(i_row, i_col) = (z_tester.std_null)^2;
+                    this.mean_null(i_row, i_col) = z_tester_window.mean_null;
+                    this.var_null(i_row, i_col) = (z_tester_window.std_null)^2;
                     
                 end
             end
@@ -130,17 +130,14 @@ classdef EmpericalConvolution < handle
         %p values and signficant pixels are stored in the member variables p_image and sig_image
         function doTest(this)
             %instantise a ZTester, using the corrected z statistics for the emperical null
-            z_tester = ZTester(this.getZNull());
+            this.z_tester = ZTester(this.getZNull());
             %set the size of the test
-            z_tester.setSize(this.test_size);
+            this.z_tester.setSize(this.test_size);
             %do the hypothesis test
-            z_tester.doTest();
+            this.z_tester.doTest();
             %extract the p values and significant pixels
-            this.p_image = z_tester.p_image;
-            this.sig_image = z_tester.sig_image;
-            %extract the critical values
-            this.p_critical = z_tester.size_corrected;
-            this.z_critical = z_tester.getZCritical();
+            this.p_image = this.z_tester.p_image;
+            this.sig_image = this.z_tester.sig_image;
         end
         
         %METHOD: Z NULL
