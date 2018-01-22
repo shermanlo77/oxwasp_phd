@@ -76,7 +76,7 @@ for i_intensity = 1:n_intensity
     power_array(i_intensity) = sum(sum(convolution.sig_image & sig_0)) / sum(sum(sig_0));
     
     if ~got_half
-        if power_array(i_intensity) > 0.5
+        if i_intensity == 13
 
             convolution.z_tester.figureHistCritical();
             
@@ -98,6 +98,10 @@ for i_intensity = 1:n_intensity
             
             figure;
             image_plot = ImagescSignificant(sqrt(convolution.var_null));
+            image_plot.plot();
+            
+            figure;
+            image_plot.addSigPixels(convolution.sig_image);
             image_plot.plot();
             
             hotspot = convolution.z_tester_array{6,12};
