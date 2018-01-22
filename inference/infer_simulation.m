@@ -51,7 +51,7 @@ var_predict = reshape(model.predict(reshape(aRTist,[],1)),block_data.height, blo
 test_0 = block_data.loadImageStack(test_index);
 
 n_intensity = 20;
-intensity_array = linspace(1E3, 3E3, n_intensity);
+intensity_array = 10.^linspace(2, 3, n_intensity);
 power_array = zeros(1,n_intensity);
 
 got_half = false;
@@ -76,7 +76,7 @@ for i_intensity = 1:n_intensity
     power_array(i_intensity) = sum(sum(convolution.sig_image & sig_0)) / sum(sum(sig_0));
     
     if ~got_half
-        if i_intensity == 13
+        if (power_array(i_intensity) > 0.5)
 
             convolution.z_tester.figureHistCritical();
             
@@ -100,18 +100,6 @@ for i_intensity = 1:n_intensity
             image_plot = ImagescSignificant(sqrt(convolution.var_null));
             image_plot.plot();
             
-            figure;
-            image_plot.addSigPixels(convolution.sig_image);
-            image_plot.plot();
-            
-            hotspot = convolution.z_tester_array{6,12};
-            hotspot.doTest();
-            hotspot.figureHistDensityCritical();
-            
-            figure;
-            image_plot = ImagescSignificant(hotspot.z_image);
-            image_plot.plot();
-            
             got_half = true;
         end
     end
@@ -120,6 +108,6 @@ end
 
 
 figure;
-plot(intensity_array, power_array);
+semilogx(intensity_array, power_array);
 xlabel('defect intensity');
 ylabel('statistical power');

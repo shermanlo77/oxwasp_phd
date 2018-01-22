@@ -277,7 +277,7 @@ classdef ZTester < handle
         function plotHistogram(this)
             z_vector = reshape(this.z_image,[],1);
             z_vector(isnan(z_vector)) = [];
-            histogram(z_vector,'Normalization','CountDensity','DisplayStyle','stairs');
+            histogram_custom(z_vector);
         end
         
         %METHOD: PLOT CRITICAL BOUNDARY

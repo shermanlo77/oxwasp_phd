@@ -28,6 +28,9 @@ classdef EmpericalConvolution < handle
         sig_image; %boolean image of significant pixels
         
         z_tester; %z_tester object testing the corrected z statistics
+        
+        var_uniform_null; %value of the emperical null var parameter if we assume it is uniform
+        use_var_uniform; %boolean, true if to assume the null var is uniform
     end
     
     %METHODS
@@ -47,6 +50,7 @@ classdef EmpericalConvolution < handle
             this.kernel_size = kernel_size;
             this.test_size = 2*normcdf(-2);
             this.z_tester_array = cell(n_row,n_col);
+            this.use_var_uniform = true;
         end
         
         %METHOD: ESTIMATE NULL
@@ -118,6 +122,9 @@ classdef EmpericalConvolution < handle
             %interpolate the image
             this.mean_null = interp2(x_grid,y_grid,this.mean_null,x_full,y_full);
             this.var_null = interp2(x_grid,y_grid,this.var_null,x_full,y_full);
+            
+            %get the variance null if we assume it is uniform
+            this.setVarUniformNull();
         end
         
         %METHOD: SET MASK
@@ -128,6 +135,16 @@ classdef EmpericalConvolution < handle
         function setMask(this, segmentation)
             this.mean_null(~segmentation) = nan;
             this.var_null(~segmentation) = nan;
+        end
+        
+        %METHOD: SET VARIANCE UNIFORM NULL
+        %Set the member variable var_uniform_null
+        %This is the emperical null variance assuming it is uniform
+        %This is worked out using the emperical null of all mean corrected z statistics
+        function setVarUniformNull(this)
+            this.z_tester = ZTester((this.z_image - this.mean_null));
+            this.z_tester.estimateNull(1000);
+            this.var_uniform_null = this.z_tester.std_null^2;
         end
         
         %METHOD: DO TEST
@@ -148,14 +165,33 @@ classdef EmpericalConvolution < handle
         %METHOD: Z NULL
         %Return the z image, corrected for the emperical null
         function z_null = getZNull(this)
-            %correct the z statistics for the emperical null
-            z_null = (this.z_image - this.mean_null) ./ sqrt(this.var_null);
+            %if we assume the null variance is uniform
+            if this.var_uniform_null
+                %get the null variance
+                var_uniform = this.var_null;
+                %set all the variance to be this.var_uniform_null
+                var_uniform(~isnan(var_uniform)) = this.var_uniform_null;
+                %correct the z statistics for the emperical null
+                z_null = (this.z_image - this.mean_null) ./ sqrt(var_uniform);
+            %else use this.var_null for the null variance
+            else
+                %correct the z statistics for the emperical null
+                z_null = (this.z_image - this.mean_null) ./ sqrt(this.var_null);
+            end
         end
         
         %METHOD: SET SIZE
         %Set the size of the test
         function setSize(this, test_size)
             this.test_size = test_size;
+        end
+        
+        %METHOD: SET USE VARIANCE UNIFORM
+        %Set the member variable use_var_uniform
+        %PARAMETERS:
+            %use_var_uniform: boolean, true if to assume the null var is uniform
+        function setUseVarUniform(this, use_var_uniform)
+            this.use_var_uniform = use_var_uniform;
         end
         
     end
