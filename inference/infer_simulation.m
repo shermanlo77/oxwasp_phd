@@ -100,6 +100,14 @@ for i_intensity = 1:n_intensity
             image_plot = ImagescSignificant(sqrt(convolution.var_null));
             image_plot.plot();
             
+            hotspot = convolution.z_tester_array{6,12};
+            hotspot.doTest();
+            hotspot.figureHistDensityCritical();
+            
+            figure;
+            image_plot = ImagescSignificant(hotspot.z_image);
+            image_plot.plot();
+            
             got_half = true;
         end
     end
