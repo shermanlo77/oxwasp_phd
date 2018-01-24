@@ -16,9 +16,11 @@
 classdef Experiment < handle
     
     %MEMBER VARIABLES
-    properties (SetAccess = protected, GetAccess = protected)
+    properties (SetAccess = protected)
         experiment_name; %string, name of the experiment and the file name for storing it in a .mat file
         is_complete; %boolean, true if the experiment is completed
+    end
+    properties (SetAccess = protected, GetAccess = protected)
         n_arrow; %number of arrows to be displayed in the progress bar
     end
     
