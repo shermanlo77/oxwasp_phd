@@ -16,8 +16,9 @@ classdef GlmGamma < Regressor
         initial_parameter; %the initial value of the parameter
         tol; %stopping conidition for the different in log likelihood * n_train
         link_function; %object LinkFunction which implemented the methods getLinkDiff and getMean
-        parameter_covariance;
+        fisher;
         scaled_deviance; %scaled deviance
+        n; %sample size
     end
     
     %METHODS
@@ -38,6 +39,7 @@ classdef GlmGamma < Regressor
                 this.initial_parameter = zeros(this.n_order+1,1);
                 this.initial_parameter(1) = this.link_function.initial_intercept;
                 this.tol = 1E-1;
+                this.shape_parameter = 1;
             end
         end
         
@@ -53,6 +55,9 @@ classdef GlmGamma < Regressor
             %y: column vector of gamma responses
         function train(this,x,y)
 
+            %save the sample size
+            this.n = numel(x);
+            
             %scale the response variables
             this.y_scale = std(y);
             y = y./this.y_scale;
@@ -111,12 +116,12 @@ classdef GlmGamma < Regressor
             this.scaled_deviance = d_new;
             
             %%Fisher information matrix
-            %%Used to calculate the parameter covariance
-            %WX = zeros(this.n_train,this.n_order+1);
-            %for i = 1:(this.n_order+1)
-            %   WX(:,i) = w(i)*X(:,i); 
-            %end
-            %this.parameter_covariance = inv(X'*WX);
+            %Used to calculate the parameter covariance
+            WX = zeros(this.n_train,this.n_order+1);
+            for i = 1:(this.n_order+1)
+              WX(:,i) = w(i)*X(:,i); 
+            end
+            this.fisher = inv(X'*WX);
             
         end
         
@@ -127,15 +132,15 @@ classdef GlmGamma < Regressor
             %variance_prediction: predicted greyvalue variance (column vector)
             %up_error: 84% percentile
             %down_error: 16% percentile
-        function [variance_prediction, up_error, down_error] = predict(this,x)
+        function [y_hat, up_error, down_error] = predict(this,x)
             %get design matrix
             X = this.getNormalisedDesignMatrix(x);
             %work out variables
             eta = X*this.parameter;
             %work out mean, to be used for the variance prediction
-            variance_prediction = this.getMean(eta) * this.y_scale;
+            y_hat = this.getMean(eta) * this.y_scale;
             %get rate parameter
-            gamma_scale = variance_prediction./this.shape_parameter;
+            gamma_scale = y_hat./this.shape_parameter;
             
             %work out the [16%, 84%] percentile, to be used for error bars
             up_error = gaminv(normcdf(1),this.shape_parameter,gamma_scale);
@@ -218,6 +223,21 @@ classdef GlmGamma < Regressor
         %GET FILE NAME
         function name = getFileName(this)
             name = cell2mat({this.link_function.name,'_order_',num2str(this.polynomial_order)});
+        end
+        
+        %METHOD: ESTIMATE SHAPE PARAMETER
+        function estimateShapeParameter(this)
+            this.shape_parameter = (this.n - 2)/this.scaled_deviance;
+        end
+        
+        function [a,b] = getParameter(this)
+            a = zeros(2,1);
+            b = zeros(2,1);
+            a(1) = (this.parameter(1)-this.parameter(2)*this.x_shift/this.x_scale)*this.y_scale;
+            b(1) = this.parameter(2) * this.y_scale / this.x_scale;
+            standard_error = sqrt(diag(this.fisher)/this.shape_parameter).*[this.y_scale;this.y_scale/this.x_scale];
+            a(2) = standard_error(1);
+            b(2) = standard_error(2);
         end
      
     end
