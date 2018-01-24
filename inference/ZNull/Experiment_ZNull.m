@@ -38,10 +38,8 @@ classdef Experiment_ZNull < Experiment
         %IMPLEMENTED: PRINT RESULTS
         function printResults(this)
             
-            %declare rule of thumb curve
-            path = this.n_array.^(-1/5);
             %meshgrid for n and k
-            [n_plot,k_plot] = meshgrid(log10(this.n_array),this.k_array);
+            [logn_plot,k_plot] = meshgrid(log10(this.n_array),this.k_array);
             factor_array = [0.9866, 1.144]; %array of fudge factors
             
             %for the mode estimation, then half width estimation
@@ -59,52 +57,45 @@ classdef Experiment_ZNull < Experiment
                     z_label = 'H0 std estimate';
                 end
 
-                %surf plot the error vs 
+                %surf plot the error vs k and log n
                 figure;
-                surf(k_plot,n_plot,array);
+                surf(k_plot,logn_plot,array);
                 %label axis
                 xlabel('kernel width');
                 ylabel('log(n)');
                 zlabel(z_label);
                 hold on;
+                
+                %plot the path of the rule of thumb
+                %logn_path is array of logn to evaluate the rule of thumb
+                logn_path = interp1((1:numel(this.n_array))',log10(this.n_array),linspace(1,numel(this.n_array),1000*numel(this.n_array))');
                 %for each fudge factor
                 for i = 1:numel(factor_array)
-                    %get the rule of thumb kernel width for each n
-                    k_path = factor_array(i) * path;
-                    %declare array of error along this path
-                    error_path = zeros(numel(this.n_array),1);
-                    %for each n
-                    for j = 1:numel(this.n_array)
-                        %get the kernel width using the rule of thumb
-                        k = k_path(j);
-                        %get the k which is closest to a k in k_array
-                        [~,k_index] = sort(abs(k-this.k_array));
-                        %order the k_index so that k_index(1) < k_index(2)
-                        if k_index(1) > k_index(2)
-                            k_index(1:2) = flipud(k_index(1:2));
-                        end
-                        %the 2 k neighbouring k_path(j) is k_neighbour
-                        k_neighbour = this.k_array(k_index(1:2));
-
-                        %interpolate error using the 2 neighbouring ks
-                        r = (k - k_neighbour(1)) / (k_neighbour(2) - k_neighbour(1));
-                        error_path(j) = r*(array(k_index(2),j) - array(k_index(1),j)) + array(k_index(1),j);
-                    end
-                    hold on;
+                    %for each logn_path, work out the rule of thumb k
+                    k_path = factor_array(i)*((10.^logn_path).^(-1/5));
+                    %then for each k and logn pair, interpolate to get the value of the array
+                    path = interp2(logn_plot,k_plot,array,logn_path,k_path);
                     %plot the error along the rule of thumb
-                    plot3(k_path,log10(this.n_array),error_path,'LineWidth',2');
+                    plot3(k_path,logn_path,path,'LineWidth',3');
                 end
                 %set the axis and view angle
                 xlim(this.k_array([1,numel(this.k_array)]));
                 ylim(log10(this.n_array([1,numel(this.n_array)])));
                 view(-166,34);
-                ax = gca;
-                legend(ax.Children([2,1]),{'0.9','1.144'},'Location','best');
 
+                %for the 3rd array
                 if i_array==3
                     hold on;
-                    ax = mesh(k_plot,n_plot,ones(size(array)));
+                    %meshplot the true value of the null variance
+                    ax = mesh(k_plot,logn_plot,ones(size(array)));
                     ax.FaceAlpha = 0;
+                    %plot legend
+                    ax = gca;
+                    legend(ax.Children([3,2]),{'0.9','1.144'},'Location','best');
+                else
+                    %plot legend
+                    ax = gca;
+                    legend(ax.Children([2,1]),{'0.9','1.144'},'Location','best');
                 end
             end
         end
