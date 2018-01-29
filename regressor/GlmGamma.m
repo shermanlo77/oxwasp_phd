@@ -121,7 +121,7 @@ classdef GlmGamma < Regressor
             for i = 1:(this.n_order+1)
               WX(:,i) = w(i)*X(:,i); 
             end
-            this.fisher = inv(X'*WX);
+            this.fisher = X'*WX;
             
         end
         
@@ -230,14 +230,11 @@ classdef GlmGamma < Regressor
             this.shape_parameter = (this.n - 2)/this.scaled_deviance;
         end
         
-        function [a,b] = getParameter(this)
-            a = zeros(2,1);
-            b = zeros(2,1);
-            a(1) = (this.parameter(1)-this.parameter(2)*this.x_shift/this.x_scale)*this.y_scale;
-            b(1) = this.parameter(2) * this.y_scale / this.x_scale;
-            standard_error = sqrt(diag(this.fisher)/this.shape_parameter).*[this.y_scale;this.y_scale/this.x_scale];
-            a(2) = standard_error(1);
-            b(2) = standard_error(2);
+        function [beta,beta_err] = getParameter(this)
+            A = [this.y_scale, -this.y_scale*this.x_shift/this.x_scale;
+                 0, this.y_scale / this.x_scale];
+            beta = A * this.parameter;
+            beta_err = sqrt(diag(A * ((inv(this.fisher))/this.shape_parameter) * A'));
         end
      
     end

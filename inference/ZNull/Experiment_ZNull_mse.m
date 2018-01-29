@@ -57,17 +57,6 @@ classdef Experiment_ZNull_mse < Experiment
             
             [a,b] = glm_gamma.getParameter()
             
-%             y_scale = std(y);
-%             y = y/y_scale;
-%             X = [ones(numel(previous.n_array),1),previous.n_array.^(-1/5)];
-%             x_shift = mean(X(:,2));
-%             x_scale = std(X(:,2));
-%             X(:,2) = (X(:,2)-x_shift)/x_scale;
-%             [~,~,stats] = glmfit(X,y,'gamma','link','identity','constant','off');
-%             y_scale * stats.beta(2)/x_scale
-%             sqrt(stats.covb(end))*y_scale/x_scale
-%             y_scale * (stats.beta(1) - stats.beta(2)*x_shift/x_scale)
-%             sqrt(y_scale^2*stats.covb(1)+(x_shift*y_scale/x_scale)^2*stats.covb(end) + 2*y_scale*(x_shift*y_scale/x_scale)*stats.covb(2))
            
         end
         
@@ -135,7 +124,7 @@ classdef Experiment_ZNull_mse < Experiment
         
         function fitter = getRegression(this)
             fitter = LocalQuadraticRegression(GaussianKernel(),0.1);
-            %fitter = LocalLinearRegression(EpanechnikovKernel(),0.5);
+            %fitter = LocalQuadraticRegression(EpanechnikovKernel(),0.3);
         end
         
         function previous = getPreviousResult(this)
