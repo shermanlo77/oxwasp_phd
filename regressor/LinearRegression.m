@@ -7,11 +7,13 @@ classdef LinearRegression < handle
         y_shift;
         y_scale;
         w;
+        n_feature
     end
     
     methods
         
         function this = LinearRegression()
+            this.n_feature = 2;
         end
         
         function addWeights(this, w)
@@ -42,13 +44,13 @@ classdef LinearRegression < handle
             %get the number of data with positive weights
             n_sub = sum(this.w>0);
             %normalise the weights so that the sum = n
-            w_sub = (n_sub/sum(w)) * this.w;
+            w_sub = (n_sub/sum(this.w)) * this.w;
 
             %get the square root of the weights
             w_root = sqrt(w_sub);
 
             %get the weighted design matrix
-            X = X.*repmat(w_root,1,2);
+            X = X.*repmat(w_root,1,this.n_feature);
 
             %get the weighted response vector
             y = w_root .* y;
@@ -73,7 +75,7 @@ classdef LinearRegression < handle
             %X: n x this.n_order + 1 design matrix
         function X = getDesignMatrix(this,x)
             %declare design matrix
-            X = zeros(numel(x),2);
+            X = zeros(numel(x),this.n_feature);
             %first column is a constant
             X(:,1) = 1;
             X(:,2) = x;

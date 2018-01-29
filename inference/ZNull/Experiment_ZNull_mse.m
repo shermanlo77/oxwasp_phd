@@ -134,7 +134,7 @@ classdef Experiment_ZNull_mse < Experiment
         end
         
         function fitter = getRegression(this)
-            fitter = KernelRegression(GaussianKernel(),0.08);
+            fitter = LocalQuadraticRegression(GaussianKernel(),0.1);
             %fitter = LocalLinearRegression(EpanechnikovKernel(),0.5);
         end
         

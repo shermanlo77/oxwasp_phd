@@ -7,7 +7,7 @@
 classdef LocalLinearRegression < Regressor
     
     %MEMBER VARAIBLES
-    properties (SetAccess = private)
+    properties (SetAccess = protected)
         
         x_data; %column vector of independent variables
         y_data; %column vector for dependent variables
@@ -61,34 +61,16 @@ classdef LocalLinearRegression < Regressor
                 %get kernel weights
                 w = this.kernel.evaluate((x_0 - this.x_data)/this.lambda);
 
-                linear_regression = LinearRegression();
-                linear_regression.addWeights(w);
-                linear_regression.train(this.x_data,this.y_data);
-                y(i) = linear_regression.predict(x_0);
-
-    %             %if the error of y_0 is requested, work it out
-    %             if nargout >= 2
-    %                 %get the weighted RSS divided by n degrees of freedom
-    %                 var_estimate = mean( w.*((y_sub - X*beta_estimate).^2)) / (n_sub-2);
-    %                 %get the matrix WX, that is diag(w) * X
-    %                 WX = X;
-    %                 WX(:,1) = X(:,1) .* w_root;
-    %                 WX(:,2) = X(:,2) .* w_root;
-    %                 %estimate the covariance matrix of beta
-    %                 beta_cov = var_estimate * (X'*WX);
-    %                 %estimate the variance of y_0
-    %                 error = sqrt(x_0' * beta_cov * x_0);
-    %                 %get the std of y_0
-    %                 error = error * this.y_scale;
-    %             end
-
-    %             %OLD CODE, estimating error in optima value of the minima
-    %             %this is done by estimating the variance of alpha/beta
-    %             optima_error = beta_cov(1)/(beta_estimate(2)^2) + beta_cov(end)*(beta_estimate(1)/(beta_estimate(2)^2))^2 - 2*beta_cov(2)*beta_estimate(1)/(beta_estimate(2)^3);
-    %             optima_error = sqrt(optima_error);
-    %             optima_error = optima_error * this.x_scale;
+                local_regression = this.getLocalRegression();
+                local_regression.addWeights(w);
+                local_regression.train(this.x_data,this.y_data);
+                y(i) = local_regression.predict(x_0);
             end
             
+        end
+        
+        function regression = getLocalRegression(this)
+            regression = LinearRegression();
         end
         
         
