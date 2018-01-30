@@ -40,7 +40,7 @@ classdef Experiment_ZNull < Experiment
             
             %meshgrid for n and k
             [logn_plot,k_plot] = meshgrid(log10(this.n_array),this.k_array);
-            factor_array = [0.9866, 1.144]; %array of fudge factors
+            factor_array = [0.9, 1.06]; %array of fudge factors
             
             %for the mode estimation, then half width estimation
             for i_array = 1:3
@@ -91,11 +91,11 @@ classdef Experiment_ZNull < Experiment
                     ax.FaceAlpha = 0;
                     %plot legend
                     ax = gca;
-                    legend(ax.Children([3,2]),{'0.9','1.144'},'Location','best');
+                    legend(ax.Children([3,2]),{'0.9','1.06'},'Location','best');
                 else
                     %plot legend
                     ax = gca;
-                    legend(ax.Children([2,1]),{'0.9','1.144'},'Location','best');
+                    legend(ax.Children([2,1]),{'0.9','1.06'},'Location','best');
                 end
             end
         end

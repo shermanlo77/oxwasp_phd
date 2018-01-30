@@ -24,9 +24,10 @@ classdef Parzen < handle
             this.data = data(~isnan(data));
             this.n_data = numel(this.data);
             %set default value for parzen std using Silverman's rule of thumb
-            this.setParameter(1.144 * min([std(this.data),iqr(this.data)/1.34]) * this.n_data^(-1/5) );
+            %this.setParameter(1.144 * min([std(this.data),iqr(this.data)/1.34]) * this.n_data^(-1/5) );
             %this.setParameter(3.33 * min([std(this.data),iqr(this.data)/1.34]) * this.n_data^(-1/5) );
             %this.setParameter(0.4);
+            this.setParameter(0.9 * min([std(this.data),iqr(this.data)/1.34]) * this.n_data^(-1/5) + 0.16);
         end
         
         %METHOD: SET PARAMETER
@@ -39,11 +40,12 @@ classdef Parzen < handle
         
         %METHOD: SET FUDGE FACTOR
         %Set the parzen std using a factor
-        %parzen std = fudge factor x std x n^(-1/5)
+        %parzen std = gradient x std x n^(-1/5) + intercept
         %PARMAETERS:
-            %parameter: fudge factor
-        function setFudgeFactor(this, parameter)
-            this.setParameter(parameter * min([std(this.data),iqr(this.data)/1.34]) * this.n_data^(-1/5) );
+            %gradient
+            %intercept
+        function setFudgeFactor(this, gradient, intercept)
+            this.setParameter(gradient * min([std(this.data),iqr(this.data)/1.34]) * this.n_data^(-1/5) + intercept);
         end
         
         %METHOD: GET DENSITY ESTIMATE

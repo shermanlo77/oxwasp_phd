@@ -64,7 +64,9 @@ classdef Experiment_ZNull_mse < Experiment
             errorbar(this.lambda_array,coeff_array(1,:),error_array(1,:));
             hold on;
             errorbar(this.lambda_array,coeff_array(2,:),error_array(2,:));
-           
+            xlabel('smoothness');
+            ylabel('estimated parameter');
+            legend('intercept','gradient');
         end
 
     end
