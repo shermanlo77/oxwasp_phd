@@ -42,10 +42,21 @@ classdef DefectSimulator < handle
             end
         end
         
-        function addPlane(this, grad, intercept)
+        function addPlane(this, grad)
             [x_grid, y_grid] = meshgrid(1:this.width, 1:this.height);
-            plane = grad(2) * (x_grid - this.width/2) + grad(1) * (y_grid - this.height/2) + intercept;
+            plane = grad(2) * (x_grid - this.width/2) + grad(1) * (y_grid - this.height/2);
             this.image = this.image + plane;
+        end
+        
+        function addSinusoid(this, amplitude, wavelength, angular_offset)
+            [x_grid, y_grid] = meshgrid(1:this.width, 1:this.height);
+            x_grid = x_grid - this.width/2;
+            y_grid = y_grid - this.height/2;
+            
+            f = 1./wavelength;
+            
+            sinusoid = amplitude * sin( 2*pi*(f(1)*y_grid + f(2)*x_grid) + angular_offset);
+            this.image = this.image + sinusoid;
         end
         
     end

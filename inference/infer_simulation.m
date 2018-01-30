@@ -61,6 +61,7 @@ for i_intensity = 1:n_intensity
     defect_simulator = DefectSimulator(test_0);
     defect_simulator.addSquareDefectGrid([8;8],[76;76],intensity_array(i_intensity));
     defect_simulator.addPlane( (1E4/(sqrt(2)*1000))*[1;1], 0);
+    defect_simulator.addSinusoid(1E3, [750;750],0);
     test = defect_simulator.image;
 
     z_image = (test - aRTist)./sqrt(var_predict);
@@ -100,13 +101,13 @@ for i_intensity = 1:n_intensity
             image_plot = ImagescSignificant(sqrt(convolution.var_null));
             image_plot.plot();
             
-            hotspot = convolution.z_tester_array{6,12};
-            hotspot.doTest();
-            hotspot.figureHistDensityCritical();
-            
-            figure;
-            image_plot = ImagescSignificant(hotspot.z_image);
-            image_plot.plot();
+%             hotspot = convolution.z_tester_array{6,12};
+%             hotspot.doTest();
+%             hotspot.figureHistDensityCritical();
+%             
+%             figure;
+%             image_plot = ImagescSignificant(hotspot.z_image);
+%             image_plot.plot();
             
             got_half = true;
         end
