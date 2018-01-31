@@ -58,11 +58,11 @@ got_half = false;
 
 for i_intensity = 1:n_intensity
     
-    defect_simulator = DefectSimulator(test_0);
+    defect_simulator = DefectSimulator([block_data.height,block_data.width]);
     defect_simulator.addSquareDefectGrid([8;8],[76;76],intensity_array(i_intensity));
-    defect_simulator.addPlane( (1E4/(sqrt(2)*1000))*[1;1], 0);
+    defect_simulator.addPlane( (1E3/(sqrt(2)*1000))*[1;1]);
     defect_simulator.addSinusoid(1E3, [750;750],0);
-    test = defect_simulator.image;
+    test = defect_simulator.defectImage(test_0);
 
     z_image = (test - aRTist)./sqrt(var_predict);
     z_image(~segmentation) = nan;

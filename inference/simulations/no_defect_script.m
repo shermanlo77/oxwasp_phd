@@ -18,6 +18,10 @@ segmentation = block_data.getSegmentation();
 %get the number of segmented images
 n_pixel = sum(sum(segmentation));
 
+defect_simulator = DefectSimulator([block_data.height,block_data.width]);
+defect_simulator.addPlane( (1E3/(sqrt(2)*1000))*[1;1]);
+defect_simulator.addSinusoid(1E3, [750;750],0);
+
 meanvar_index = index(1:(n_train-1));
 test_index = index(n_train-1);
 artist_index = index((n_train+1):end);
@@ -32,12 +36,22 @@ fig.CurrentAxes.YTick = [];
 
 %get the training images
 training_stack = block_data.loadImageStack(meanvar_index);
+
+for i = 1:numel(meanvar_index)
+    training_stack(:,:,i) = defect_simulator.defectImage(training_stack(:,:,i));
+end
+
 %segment the image
 training_stack = reshape(training_stack,block_data.area,n_train-1);
 training_stack = training_stack(reshape(segmentation,[],1),:);
 %get the segmented mean and variance greyvalue
 training_mean = mean(training_stack,2);
 training_var = var(training_stack,[],2);
+figure;
+hist3Heatmap(training_mean,training_var,[100,100],true);
+xlabel('mean');
+ylabel('variance');
+colorbar;
 
 %train glm using the training set mean and variance
 model = GlmGamma(1,IdentityLink());
@@ -49,14 +63,7 @@ var_predict = reshape(model.predict(reshape(aRTist,[],1)),block_data.height, blo
 
 %get the test images
 test_0 = block_data.loadImageStack(test_index);
-
-defect_intensity = 1E3;
-    
-defect_simulator = DefectSimulator(test_0);
-%defect_simulator.addSquareDefectGrid([8;8],[76;76],defect_intensity);
-%defect_simulator.addPlane( (1E4/(sqrt(2)*1000))*[1;1]);
-defect_simulator.addSinusoid(1E4, [750;750],0);
-test = defect_simulator.image;
+test = defect_simulator.defectImage(test_0);
 
 z_image = (test - aRTist)./sqrt(var_predict);
 z_image(~segmentation) = nan;
