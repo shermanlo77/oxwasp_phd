@@ -112,7 +112,7 @@ classdef EmpericalConvolution < handle
                     
                     %get the emperical null parameters
                     this.mean_null(i_row, i_col) = z_tester_window.mean_null;
-                    this.var_null(i_row, i_col) = (z_tester_window.std_null)^2;
+                    this.var_null(i_row, i_col) = z_tester_window.var_null;
                     
                 end
             end
@@ -144,7 +144,7 @@ classdef EmpericalConvolution < handle
         function setVarUniformNull(this)
             z_tester_all = ZTester((this.z_image - this.mean_null));
             z_tester_all.estimateNull(1000);
-            this.var_uniform_null = z_tester_all.std_null^2;
+            this.var_uniform_null = z_tester_all.var_null;
         end
         
         %METHOD: DO TEST

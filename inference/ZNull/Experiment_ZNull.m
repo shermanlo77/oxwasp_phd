@@ -168,7 +168,7 @@ classdef Experiment_ZNull < Experiment
                             z_tester.estimateNull(this.null_linspace);
                             
                             %if the null std is not nan, set the flag got_null to true
-                            if ~isnan(z_tester.std_null)
+                            if ~isnan(z_tester.var_null)
                                 got_null = true;
                             %else, the null estimation failed, update fail_count_array
                             else
@@ -178,7 +178,7 @@ classdef Experiment_ZNull < Experiment
 
                         %save the mode and half width estimation
                         this.mean_array(i_repeat, i_k, i_n) = z_tester.mean_null;
-                        this.var_array(i_repeat, i_k, i_n) = z_tester.std_null^2;
+                        this.var_array(i_repeat, i_k, i_n) = z_tester.var_null;
 
                         %update iteartion and progress bar
                         this.i_iteration = this.i_iteration + 1;

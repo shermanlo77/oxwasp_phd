@@ -16,7 +16,7 @@ classdef ZTester < handle
     properties (SetAccess = protected)
         z_image; %2d array of z statistics
         mean_null; %mean of the null hypothesis
-        std_null; %std of the null hypothesis
+        var_null; %variance of the null hypothesis
         size; %size of the test, default is 2 sigma OR 2*normcdf(-2)
         size_corrected; %corrected size of the test due to multiple testing
         p0; %estimation of propotion of H0 data, default is 1 for the sake of scaling without emperical null correction
@@ -38,7 +38,7 @@ classdef ZTester < handle
             this.z_image = z_image;
             %assign default values to the member variables
             this.mean_null = 0;
-            this.std_null = 1;
+            this.var_null = 1;
             this.p0 = 1;
             this.setSigma(2);
             
@@ -75,11 +75,12 @@ classdef ZTester < handle
         
         %METHOD: SET DENSITY ESTIMATION FUDGE FACTOR
         %Set the std of the gaussian kernel used in density estimation by using a fudge factor
-        %parzen std = fudge factor x std x n^(-1/5)
+        %parzen std = gradient x std x n^(-1/5) + intercept
         %PARAMETERS:
-            %density_estimation_parameter: fudge factor in using a rule of thumb for the kernel width used in density estimation
-        function setDensityEstimationFudgeFactor(this,density_estimation_fudge)
-            this.density_estimator.setFudgeFactor(density_estimation_fudge);
+            %gradient
+            %intercept
+        function setDensityEstimationFudgeFactor(this,gradient,intercept)
+            this.density_estimator.setFudgeFactor(gradient,intercept);
         end
         
         %METHOD: ESTIMATE NULL
@@ -99,15 +100,15 @@ classdef ZTester < handle
             
             %the z with the highest density is the mode
             this.mean_null = z_array(z_max_index);
-            %estimate the null std using the log second derivate
-            this.std_null = (-this.density_estimator.getLogSecondDerivate(this.mean_null))^(-1/2);
+            %estimate the null var
+            this.var_null = this.density_estimator.getNullVar(this.mean_null);
             %check if the std_null is real
-            if ~isreal(this.std_null)
-                this.std_null = nan;
+            if ~isreal(this.var_null)
+                this.var_null = nan;
             end
             
             %estimate p0, propotion of H0 data
-            this.p0 =  this.density_estimator.getDensityEstimate(this.mean_null)/normpdf(0,0,this.std_null);
+            this.p0 =  this.density_estimator.getDensityEstimate(this.mean_null)/normpdf(0,0,sqrt(this.var_null));
             this.p0 = min([this.p0,1]);
             
         end
@@ -117,7 +118,7 @@ classdef ZTester < handle
         %RETURNS:
             %z_corrected: 2d array of z statistics, corrected under the emperical null hypothesis
         function z_corrected = getZCorrected(this)
-            z_corrected = (this.z_image - this.mean_null) / this.std_null;
+            z_corrected = (this.z_image - this.mean_null) / sqrt(this.var_null);
         end
         
         %METHOD: GET P VALUES
@@ -146,7 +147,7 @@ classdef ZTester < handle
         function z_critical = getZCritical(this)
             z_critical = norminv(this.size_corrected/2);
             z_critical(2) = -z_critical;
-            z_critical = z_critical*this.std_null + this.mean_null;
+            z_critical = z_critical*sqrt(this.var_null) + this.mean_null;
         end
 
         %METHOD: ESTIMATE H1 DENSITY
@@ -157,7 +158,7 @@ classdef ZTester < handle
             %f1: alternate density evaluated at x
         function f1 = estimateH1Density(this, x)
             %estimate the alternative density
-            f1 = (this.density_estimator.getDensityEstimate(x) - this.p0*normpdf(x,this.mean_null,this.std_null)) / (1-this.p0);
+            f1 = (this.density_estimator.getDensityEstimate(x) - this.p0*normpdf(x,this.mean_null,sqrt(this.var_null))) / (1-this.p0);
             %ensure all values of the density at non-negative
             f1(f1<0) = 0;
         end
@@ -172,9 +173,9 @@ classdef ZTester < handle
         function F1 = estimateH1Cdf(this, x, is_upper)
             %evaluate the cdf using the corresponding tail
             if is_upper
-                F0 = normcdf(x,this.mean_null,this.std_null,'upper');
+                F0 = normcdf(x,this.mean_null,sqrt(this.var_null),'upper');
             else
-                F0 = normcdf(x,this.mean_null,this.std_null);
+                F0 = normcdf(x,this.mean_null,sqrt(this.var_null));
             end
             %estimate the H1 cdf
             F1 = (this.density_estimator.getCdfEstimate(x, is_upper) - this.p0*F0) / (1-this.p0);
@@ -210,8 +211,8 @@ classdef ZTester < handle
             
             %get the null density and its derivate
             f0 = this.density_estimator.getDensityEstimate(mean_h1);
-            f0_d1 = f0 * (mean_h1 - this.mean_null)/this.std_null;
-            f0_d2 = f0 * ( ((mean_h1 - this.mean_null)/this.std_null)^2 + 1) / this.std_null^2;
+            f0_d1 = f0 * (mean_h1 - this.mean_null)/sqrt(this.var_null);
+            f0_d2 = f0 * ( (mean_h1 - this.mean_null)^2/this.var_null + 1) / this.var_null;
             
             %get the non-null density and its derivate
             f1 = this.estimateH1Density(mean_h1) * this.p0;
@@ -291,9 +292,9 @@ classdef ZTester < handle
         %METHOD: PLOT CRITICAL BOUNDARY
         function plotCritical(this)
             ax = gca;
-            plot([norminv(this.size_corrected/2,this.mean_null,this.std_null),norminv(this.size_corrected/2,this.mean_null,this.std_null)],[0,ax.YLim(2)],'r--');
+            plot([norminv(this.size_corrected/2,this.mean_null,sqrt(this.var_null)),norminv(this.size_corrected/2,this.mean_null,sqrt(this.var_null))],[0,ax.YLim(2)],'r--');
             hold on;
-            plot([norminv(1-this.size_corrected/2,this.mean_null,this.std_null),norminv(1-this.size_corrected/2,this.mean_null,this.std_null)],[0,ax.YLim(2)],'r--');
+            plot([norminv(1-this.size_corrected/2,this.mean_null,sqrt(this.var_null)),norminv(1-this.size_corrected/2,this.mean_null,sqrt(this.var_null))],[0,ax.YLim(2)],'r--');
         end
         
         %METHOD: PLOT DENSITY ESTIMATE
@@ -307,7 +308,7 @@ classdef ZTester < handle
         %PARAMETERS:
             %z_plot: values to evalute the null density at
         function plotNull(this, z_plot)
-            plot(z_plot,normpdf(z_plot,this.mean_null,this.std_null)*this.n_test*this.p0);
+            plot(z_plot,normpdf(z_plot,this.mean_null,sqrt(this.var_null))*this.n_test*this.p0);
         end
         
         %METHOD: PLOT ALT DENSITY
@@ -317,129 +318,129 @@ classdef ZTester < handle
             plot(z_plot,(1-this.p0)*this.n_test*this.estimateH1Density(z_plot));
         end
         
-        %METHOD: ESTIMATE LOCAL FDR
-        %Estimates the fdr using the densities
-        %RETURN:
-            %fdr: local false discovery rate
-        function fdr = estimateLocalFdr(this, x)
-            fdr = this.p0 * normpdf(x,this.mean_null,this.std_null) ./ this.density_estimator.getDensityEstimate(x);
-        end
-        
-        %METHOD: ESTIMATE TAIL FDR (two tailed)
-        %Estimates the fdr using cdf
-        %RETURN:
-            %fdr: tail false discovery rate
-        function fdr = estimateTailFdr(this, x)
-            %indicate z values which are less than the mean
-            is_left = x < this.mean_null;
-            
-            %declare an array left tail and right tail, all with initial value 0
-            %left tail contain values at the left tail to be evaluated using the cdf
-            %right tail contain values at the right tail to be evaluated using the cdf
-            left_tail = x;
-            right_tail = x;
-            left_tail(:) = 0;
-            right_tail(:) = 0;
-            
-            %for values less than the mean, copy it over to the left tail array
-            left_tail(is_left) = x(is_left);
-            %for values more than the mean, copy it over to the right tail array
-            right_tail(~is_left) = x(~is_left);
-            
-            %for values more than the mean, reflect it to the left tail and save it to the left tail array
-            left_tail(~is_left) = 2*this.mean_null - x(~is_left);
-            %for values less than the mean, reflect it to the right tail and save it to the right tail array
-            right_tail(is_left) = 2*this.mean_null - x(is_left);
-            
-            %get the evaluation of the null cdf at the left tail and the right tail, add them together
-            F0 = normcdf(left_tail,this.mean_null,this.std_null) + normcdf(right_tail,this.mean_null,this.std_null,'upper');
-            %get the evaluation of the non-null cdf at the left tail and the right tail, add them together
-            F = this.density_estimator.getCdfEstimate(left_tail,false) + this.density_estimator.getCdfEstimate(right_tail,true);
-            
-            %estimate the tail fdr
-            fdr = this.p0 * F0 ./ F;
-            
-        end
-        
-        %METHOD: GET Q IMAGE
-        %Return the q image, this is the tail fdr evaluated for each point in z image
-        %RETURN
-            %q_image: image of q values
-        function q_image = getQImage(this)
-            %reshape the z values into a column vector
-            q_image = reshape(this.z_image,[],1);
-            %estimate the tail fdr, evaluated for each z value
-            q_image = this.estimateTailFdr(q_image);
-            %reshape the z values into an image
-            q_image = reshape(q_image,size(this.z_image));
-        end
-        
-        %METHOD: GET Q CRITICAL
-        %Return the critical q values, this is the tail fdr evaluated at z critical
-        function q_critical = getQCritical(this)
-            %evaluate the tail fdr at the z critical
-            q_critical = this.estimateTailFdr(this.getZCritical());
-            %both the left and right critical boundary should produce the same q value
-            %take the 1st one
-            q_critical = q_critical(1);
-        end
-        
-        %METHOD: ESTIMATE POWER (USING EXP TAIL FDR)
-        %Estimate the power using the average tail fdr under the non-null density
-        %PARAMETERS:
-            %a: starting point for the trapezium rule
-            %b: end point for the trapezium rule
-            %n: number of trapeziums
-        %RETURN:
-            %power: statistical power
-        function power = estimateTailPower(this, a, b, n)
-            power = this.estimateFdrPower(true, a, b, n);
-        end
-        
-        %METHOD: ESTIMATE POWER (USING EXP LOCAL FDR)
-        %Estimate the power using the average local fdr under the non-null density
-        %PARAMETERS:
-            %a: starting point for the trapezium rule
-            %b: end point for the trapezium rule
-            %n: number of trapeziums
-        %RETURN:
-            %power: statistical power
-        function power = estimateLocalPower(this, a, b, n)
-            power = this.estimateFdrPower(false, a, b, n);
-        end
-        
-        %METHOD: ESTIMATE POWER (USING EXP FDR)
-        %Estimate the power using the average fdr under the non-null density
-        %PARAMETERS:
-            %is_tail: boolea, true if to use the tail fdr, else use local fdr
-            %a: starting point for the trapezium rule
-            %b: end point for the trapezium rule
-            %n: number of trapeziums
-        %RETURN:
-            %power: statistical power
-        function power = estimateFdrPower(this, is_tail, a, b, n)
-            %get n equally spaced points, from a to b
-            x = linspace(a,b,n);
-            %get the height of the trapeziums
-            h = (b-a)/n;
-            %get the density estimate of the non-null density
-            f1 = this.estimateH1Density(x);
-            %get the estimated fdr
-            if is_tail
-                fdr = this.estimateTailFdr(x);
-            else
-                fdr = this.estimateLocalFdr(x);
-            end
-            %get the integrand
-            I = f1.*fdr;
-            
-            %integrate I, divide by the normalisation constand
-            power = (0.5*h*(I(1)+I(end)+2*sum(I(2:(end-1))))) / (0.5*h*(f1(1)+f1(end)+2*sum(f1(2:(end-1)))));
-            %get the power
-            power = 1 - power;
-        end
-        
     end
     
 end
+
+%         %METHOD: ESTIMATE LOCAL FDR
+%         %Estimates the fdr using the densities
+%         %RETURN:
+%             %fdr: local false discovery rate
+%         function fdr = estimateLocalFdr(this, x)
+%             fdr = this.p0 * normpdf(x,this.mean_null,sqrt(this.var_null)) ./ this.density_estimator.getDensityEstimate(x);
+%         end
+%         
+%         %METHOD: ESTIMATE TAIL FDR (two tailed)
+%         %Estimates the fdr using cdf
+%         %RETURN:
+%             %fdr: tail false discovery rate
+%         function fdr = estimateTailFdr(this, x)
+%             %indicate z values which are less than the mean
+%             is_left = x < this.mean_null;
+%             
+%             %declare an array left tail and right tail, all with initial value 0
+%             %left tail contain values at the left tail to be evaluated using the cdf
+%             %right tail contain values at the right tail to be evaluated using the cdf
+%             left_tail = x;
+%             right_tail = x;
+%             left_tail(:) = 0;
+%             right_tail(:) = 0;
+%             
+%             %for values less than the mean, copy it over to the left tail array
+%             left_tail(is_left) = x(is_left);
+%             %for values more than the mean, copy it over to the right tail array
+%             right_tail(~is_left) = x(~is_left);
+%             
+%             %for values more than the mean, reflect it to the left tail and save it to the left tail array
+%             left_tail(~is_left) = 2*this.mean_null - x(~is_left);
+%             %for values less than the mean, reflect it to the right tail and save it to the right tail array
+%             right_tail(is_left) = 2*this.mean_null - x(is_left);
+%             
+%             %get the evaluation of the null cdf at the left tail and the right tail, add them together
+%             F0 = normcdf(left_tail,this.mean_null,sqrt(this.var_null)) + normcdf(right_tail,this.mean_null,sqrt(this.var_null),'upper');
+%             %get the evaluation of the non-null cdf at the left tail and the right tail, add them together
+%             F = this.density_estimator.getCdfEstimate(left_tail,false) + this.density_estimator.getCdfEstimate(right_tail,true);
+%             
+%             %estimate the tail fdr
+%             fdr = this.p0 * F0 ./ F;
+%             
+%         end
+%         
+%         %METHOD: GET Q IMAGE
+%         %Return the q image, this is the tail fdr evaluated for each point in z image
+%         %RETURN
+%             %q_image: image of q values
+%         function q_image = getQImage(this)
+%             %reshape the z values into a column vector
+%             q_image = reshape(this.z_image,[],1);
+%             %estimate the tail fdr, evaluated for each z value
+%             q_image = this.estimateTailFdr(q_image);
+%             %reshape the z values into an image
+%             q_image = reshape(q_image,size(this.z_image));
+%         end
+%         
+%         %METHOD: GET Q CRITICAL
+%         %Return the critical q values, this is the tail fdr evaluated at z critical
+%         function q_critical = getQCritical(this)
+%             %evaluate the tail fdr at the z critical
+%             q_critical = this.estimateTailFdr(this.getZCritical());
+%             %both the left and right critical boundary should produce the same q value
+%             %take the 1st one
+%             q_critical = q_critical(1);
+%         end
+%         
+%         %METHOD: ESTIMATE POWER (USING EXP TAIL FDR)
+%         %Estimate the power using the average tail fdr under the non-null density
+%         %PARAMETERS:
+%             %a: starting point for the trapezium rule
+%             %b: end point for the trapezium rule
+%             %n: number of trapeziums
+%         %RETURN:
+%             %power: statistical power
+%         function power = estimateTailPower(this, a, b, n)
+%             power = this.estimateFdrPower(true, a, b, n);
+%         end
+%         
+%         %METHOD: ESTIMATE POWER (USING EXP LOCAL FDR)
+%         %Estimate the power using the average local fdr under the non-null density
+%         %PARAMETERS:
+%             %a: starting point for the trapezium rule
+%             %b: end point for the trapezium rule
+%             %n: number of trapeziums
+%         %RETURN:
+%             %power: statistical power
+%         function power = estimateLocalPower(this, a, b, n)
+%             power = this.estimateFdrPower(false, a, b, n);
+%         end
+%         
+%         %METHOD: ESTIMATE POWER (USING EXP FDR)
+%         %Estimate the power using the average fdr under the non-null density
+%         %PARAMETERS:
+%             %is_tail: boolea, true if to use the tail fdr, else use local fdr
+%             %a: starting point for the trapezium rule
+%             %b: end point for the trapezium rule
+%             %n: number of trapeziums
+%         %RETURN:
+%             %power: statistical power
+%         function power = estimateFdrPower(this, is_tail, a, b, n)
+%             %get n equally spaced points, from a to b
+%             x = linspace(a,b,n);
+%             %get the height of the trapeziums
+%             h = (b-a)/n;
+%             %get the density estimate of the non-null density
+%             f1 = this.estimateH1Density(x);
+%             %get the estimated fdr
+%             if is_tail
+%                 fdr = this.estimateTailFdr(x);
+%             else
+%                 fdr = this.estimateLocalFdr(x);
+%             end
+%             %get the integrand
+%             I = f1.*fdr;
+%             
+%             %integrate I, divide by the normalisation constand
+%             power = (0.5*h*(I(1)+I(end)+2*sum(I(2:(end-1))))) / (0.5*h*(f1(1)+f1(end)+2*sum(f1(2:(end-1)))));
+%             %get the power
+%             power = 1 - power;
+%         end
 
