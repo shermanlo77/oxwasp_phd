@@ -17,6 +17,11 @@ classdef QuadraticRegression < LinearRegression
             this.n_feature = 3;
         end
         
+    end
+    
+    %PROTECTED METHODS
+    methods (Access = protected)
+        
         %OVERRIDE: GET DESIGN MATRIX
         %Returns a design matrix with polynomial features given a column vector of explanatory variables
         %PARAMETERS:
