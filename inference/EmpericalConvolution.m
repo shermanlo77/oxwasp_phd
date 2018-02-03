@@ -41,14 +41,14 @@ classdef EmpericalConvolution < handle
             %z_image: image of z statistics
             %n_row: number of rows to sample
             %n_col: number of columns to sample
-            %kernel_soze: 2 column vector [height, width] of the size of the moving window
+            %kernel_size: 2 column vector [height, width] of the size of the moving window
         function this = EmpericalConvolution(z_image, n_row, n_col, kernel_size)
             %assign member variables
             this.z_image = z_image;
             this.n_row = n_row;
             this.n_col = n_col;
             this.kernel_size = kernel_size;
-            this.test_size = 2*normcdf(-2);
+            this.setSigma(2);
             this.z_tester_array = cell(n_row,n_col);
             this.use_var_uniform = true;
         end
@@ -182,8 +182,19 @@ classdef EmpericalConvolution < handle
         
         %METHOD: SET SIZE
         %Set the size of the test
+        %PARAMETERS:
+            %test_size: size of the test
         function setSize(this, test_size)
             this.test_size = test_size;
+        end
+        
+        %METHOD: SET SIGMA
+        %Set the threshold of the test
+        %The size of the test = 2*normcdf(-sigma)
+        %PARAMETERS:
+            %sigma: threshold of the test
+        function setSigma(this, sigma)
+            this.setSize(2*normcdf(-sigma));
         end
         
         %METHOD: SET USE VARIANCE UNIFORM

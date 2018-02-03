@@ -39,8 +39,8 @@ classdef ZTester < handle
             %assign default values to the member variables
             this.mean_null = 0;
             this.std_null = 1;
-            this.size = 2*normcdf(-2);
             this.p0 = 1;
+            this.setSigma(2);
             
             %get the number of non_nan values in z_image
             nan_index = isnan(reshape(z_image,[],1));
@@ -55,6 +55,14 @@ classdef ZTester < handle
             %size: the size of the hypothesis test
         function setSize(this, size)
             this.size = size;
+        end
+        
+        %METHOD: SET SIGMA
+        %Set the size of the hypothesis test to be 2*normcdf(-sigma)
+        %PARAMETERS:
+            %sigma: threshold of the test
+        function setSigma(this, sigma)
+            this.setSize(2*normcdf(-sigma));
         end
         
         %METHOD: SET DENSITY ESTIMATION PARAMETER
