@@ -1,25 +1,40 @@
+%CLASS: LINEAR REGRESSION
+%1D regression
 classdef LinearRegression < handle
     
-    properties
-        beta;
-        x_shift;
-        x_scale;
-        y_shift;
-        y_scale;
-        w;
-        n_feature
+    %MEMBER VARIABLES
+    properties (SetAccess = protected)
+        beta; %2 column vector, for the parameter
+        x_shift; %central normalisation constant for x
+        x_scale; %scale normalisation constant for x
+        y_shift; %central normalisation constant for y
+        y_scale; %scale normalisation constant for y
+        w; %column vector of weights
+        n_feature; %number of features
     end
     
-    methods
+    %METHODS
+    methods (Access = public)
         
+        %CONSTRUCTOR
         function this = LinearRegression()
+            %set the number of features
             this.n_feature = 2;
         end
         
+        %METHOD: ADD WEIGHTS
+        %PARAMETERS:
+            %w: column vector of weights
         function addWeights(this, w)
-            this.w = w;
+            %normalise the weights and assign it
+            this.w = numel(w)*w/sum(w);
         end
         
+        %METHOD: TRAIN
+        %Train the linear regression
+        %PARAMETERS:
+            %x: column vector of features
+            %y: column vector of responses
         function train(this, x, y)
             %get number of data
             n = numel(x);
@@ -60,14 +75,27 @@ classdef LinearRegression < handle
             
         end
         
+        %METHOD: PREDICT
+        %Predict given x
+        %PARAMETERS:
+            %x: column vector of features
+        %RETURN:
+            %y: column vector of the regression evaluated for each value in x
         function y = predict(this, x)
+            %for the design matrix
             X = this.getNormalisedDesignMatrix(x);
+            %get the regression
             y = X * this.beta;
+            %un-normalise the regression
             y = (y * this.y_scale) + this.y_shift;
         end
         
+    end
+    
+    %PROTECTED METHODS
+    methods (Access = protected)
         
-        %GET DESIGN MATRIX
+        %METHOD: GET DESIGN MATRIX
         %Returns a design matrix with polynomial features given a column vector of explanatory variables
         %PARAMETERS:
             %x: column vector of greyvalues
@@ -81,7 +109,7 @@ classdef LinearRegression < handle
             X(:,2) = x;
         end
         
-        %GET NORMALISED DESIGN MATRIX
+        %METHOD: GET NORMALISED DESIGN MATRIX
         %Return a normalised design matrix given a vector of data (with polynomial features)
         %PARAMETERS:
             %x: column vector of greyvalues
@@ -92,7 +120,7 @@ classdef LinearRegression < handle
             X = this.normaliseDesignMatrix(X);
         end
         
-        %NORMALISE DESIGN MATRIX
+        %METHOD: NORMALISE DESIGN MATRIX
         %Normalise a given design matrix (1st column constants) to have
             %columns with mean 0
             %columns with var 1 (n divisor)
