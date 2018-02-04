@@ -9,13 +9,15 @@ classdef Experiment_noDefect < Experiment
         parameter_array; %array of parameters for the function
         sigma_array; %array of test threshold
         n_repeat; %number of times to repeat the experiment
-        %cell array of fdr for each sigma, each element contains a 2d matrix
+        %array of fdr for each sigma, each parammeter and each repeat
             %dim of each element of the cell array:
                 %dim 1: for each n_repeat
                 %dim 2: for each parameter
+                %dim 3: for each sigma
         fdr_array;
         plot_index; %2 column vector, pointer to which sigma and parameter to plot respectively
         convolution_plot; %resulting convolution to plot
+        aRTist_plot; %image of aRTist, pointed by plot_index
         
         %progress bar member variables
         i_iteration;
@@ -33,7 +35,36 @@ classdef Experiment_noDefect < Experiment
             this@Experiment(name);
         end
         
-        function printResults(this)
+        %IMPLEMENTED: PRINT RESULTS
+        %PARAMETERS:
+            %parameter_name: name of the parameter of axis label purposes
+        function printResults(this, parameter_name)
+            %for each sigma
+            for i_sigma = 1:numel(this.sigma_array)
+                %boxplot the false positive rate vs parameter
+                figure;
+                box_plot = Boxplots(this.fdr_array(:,:,i_sigma),true);
+                box_plot.setPosition(this.parameter_array);
+                box_plot.plot();
+                ylabel('false positive rate');
+                xlabel(parameter_name);
+            end
+            
+            %plot aRTist
+            figure;
+            image_plot = ImagescSignificant(this.aRTist);
+            image_plot.addSigPixels(this.convolution.sig_image);
+            image_plot.plot();
+            
+            %print emperical null mean
+            figure;
+            image_plot = ImagescSignificant(this.convolution_plot.mean_null);
+            image_plot.plot();
+            
+            %print -ln p value
+            figure;
+            image_plot = ImagescSignificant(-log10(this.convolution_plot.p_image));
+            image_plot.plot();
             
         end
     end
@@ -49,15 +80,11 @@ classdef Experiment_noDefect < Experiment
             this.rng = rng;
             this.parameter_array = parameter_array;
             this.sigma_array = [2,3,4,5];
-            this.n_repeat = 10;
-            this.fdr_array = cell(numel(this.sigma_array),1);
+            this.n_repeat = 20;
+            this.fdr_array = zeros(this.n_repeat, numel(this.parameter_array), numel(this.sigma_array));
             this.plot_index = [1;numel(this.parameter_array)];
             this.i_iteration = 0;
             this.n_iteration = numel(this.parameter_array) * this.n_repeat;
-            %assign matrix for each element in this.fdr_array
-            for i_sigma = 1:numel(this.sigma_array)
-                this.fdr_array{i_sigma} = zeros(this.n_repeat, numel(this.parameter_array));
-            end
         end
         
         %IMPLEMENTED: DO EXPERIMENT
@@ -119,7 +146,7 @@ classdef Experiment_noDefect < Experiment
                     
                     %get the emperical null
                     convolution = EmpericalConvolution(z_image,20, 20, [200,200]);
-                    convolution.setUseVarUniform(false);
+                    convolution.setUseVarUniform(true);
                     convolution.estimateNull(1000);
                     convolution.setMask(segmentation);
                     
@@ -133,12 +160,14 @@ classdef Experiment_noDefect < Experiment
                         convolution.setSigma(this.sigma_array(i_sigma));
                         convolution.doTest();
                         %all positives are false, save the FDR
-                        this.fdr_array{i_sigma}(i_repeat,i_parameter) = sum(sum(convolution.sig_image))/n_pixel;
+                        this.fdr_array(i_repeat,i_parameter,i_sigma) = sum(sum(convolution.sig_image))/n_pixel;
                         
                         %if this is the first repeat and this particular sigma and parameter is to be plotted
                         if ( (i_repeat == 1) && all([i_sigma;i_parameter] == this.plot_index) )
                             %save the convolution
                             this.convolution_plot = convolution;
+                            %save the aRTist image
+                            this.aRTist_plot = aRTist;
                         end
                         
                     end
@@ -159,7 +188,7 @@ classdef Experiment_noDefect < Experiment
     methods (Abstract, Access = protected)
         %ABSTRACT METHOD: GET DEFECT SIMULATOR
         %Return defect simulator which adds a smooth function given a parameter
-        defectSimulator = getDefectSimulator(this, parameter);
+        defect_simulator = getDefectSimulator(this, parameter);
     end
     
 end

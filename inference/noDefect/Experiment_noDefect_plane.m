@@ -15,6 +15,11 @@ classdef Experiment_noDefect_plane < Experiment_noDefect
             this@Experiment_noDefect('noDefect_plane');
         end
         
+        %OVERRIDE: PRINT RESULTS
+        function printResults(this)
+            this.printResults@Experiment_noDefect('gradient');
+        end
+        
     end
     
     %PROTECTED METHODS
@@ -23,7 +28,7 @@ classdef Experiment_noDefect_plane < Experiment_noDefect
         %OVERRIDE: SETUP
         function setup(this)
             %call superclass version of setup
-            this.setup@Experiment_noDefect(RandStream('mt19937ar','Seed',uint32(2272397425)), linspace(0,0.7,6));
+            this.setup@Experiment_noDefect(RandStream('mt19937ar','Seed',uint32(2272397425)), linspace(0,7,10));
         end
         
         %IMPLEMENTED: GET DEFECT SIMULATOR
@@ -33,7 +38,7 @@ classdef Experiment_noDefect_plane < Experiment_noDefect
             defect_simulator = DefectSimulator([data.height,data.width]);
             defect_simulator.addPlane( parameter*[1;1]);
         end
+        
     end
     
 end
-

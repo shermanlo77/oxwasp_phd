@@ -15,6 +15,11 @@ classdef Experiment_noDefect_sinusoid < Experiment_noDefect
             this@Experiment_noDefect('noDefect_sinusoid');
         end
         
+        %OVERRIDE: PRINT RESULTS
+        function printResults(this)
+            this.printResults@Experiment_noDefect('amplitude');
+        end
+        
     end
     
     %PROTECTED METHODS
@@ -23,7 +28,7 @@ classdef Experiment_noDefect_sinusoid < Experiment_noDefect
         %OVERRIDE: SETUP
         function setup(this)
             %call superclass version of setup
-            this.setup@Experiment_noDefect(RandStream('mt19937ar','Seed',uint32(707037501)), linspace(0,1E4,6));
+            this.setup@Experiment_noDefect(RandStream('mt19937ar','Seed',uint32(707037501)), linspace(0,1E4,10));
         end
         
         %IMPLEMENTED: GET DEFECT SIMULATOR
