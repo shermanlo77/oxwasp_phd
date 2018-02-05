@@ -7,7 +7,7 @@ classdef Experiment_noDefect < Experiment
     properties (SetAccess = private)
         rng; %random number generator
         parameter_array; %array of parameters for the function
-        sigma_array; %array of test threshold
+        size_array; %array of test threshold (units of sigma)
         n_repeat; %number of times to repeat the experiment
         %array of fdr for each sigma, each parammeter and each repeat
             %dim of each element of the cell array:
@@ -44,7 +44,7 @@ classdef Experiment_noDefect < Experiment
             fdr_max = max(max(max(this.fdr_array)));
             
             %for each sigma
-            for i_sigma = 1:numel(this.sigma_array)
+            for i_sigma = 1:numel(this.size_array)
                 %boxplot the false positive rate vs parameter
                 figure;
                 box_plot = Boxplots(this.fdr_array(:,:,i_sigma),true);
@@ -56,7 +56,7 @@ classdef Experiment_noDefect < Experiment
             end
             
             %meshgrid to plot mean FPR vs parameter vs sigma
-            [sigma_grid, parameter_grid] = meshgrid(this.sigma_array, this.parameter_array);
+            [sigma_grid, parameter_grid] = meshgrid(this.size_array, this.parameter_array);
             figure;
             surf(parameter_grid,sigma_grid,squeeze(mean(this.fdr_array)));
             xlabel(parameter_name);
@@ -92,9 +92,9 @@ classdef Experiment_noDefect < Experiment
         function setup(this, rng, parameter_array)
             this.rng = rng;
             this.parameter_array = parameter_array;
-            this.sigma_array = [2,3,4,5];
+            this.size_array = [2,3,4,5];
             this.n_repeat = 20;
-            this.fdr_array = zeros(this.n_repeat, numel(this.parameter_array), numel(this.sigma_array));
+            this.fdr_array = zeros(this.n_repeat, numel(this.parameter_array), numel(this.size_array));
             this.plot_index = [1;numel(this.parameter_array)];
             this.i_iteration = 0;
             this.n_iteration = numel(this.parameter_array) * this.n_repeat;
@@ -168,11 +168,11 @@ classdef Experiment_noDefect < Experiment
                     this.printProgress(this.i_iteration / this.n_iteration);
                     
                     %for each sigma to investigate
-                    for i_sigma = 1:numel(this.sigma_array)
+                    for i_size = 1:numel(this.size_array)
                         %get the false positive rate
-                        this.getFdr(this, convolution, defect_simulator, i_parameter, i_repeat, i_sigma, n_pixel);
+                        this.getFdr(this, convolution, defect_simulator, i_parameter, i_repeat, i_size, n_pixel);
                         %if this is the first repeat and this particular sigma and parameter is to be plotted
-                        if ( (i_repeat == 1) && all([i_sigma;i_parameter] == this.plot_index) )
+                        if ( (i_repeat == 1) && all([i_size;i_parameter] == this.plot_index) )
                             %save the convolution
                             this.convolution_plot = convolution;
                             %save the aRTist image
@@ -191,14 +191,14 @@ classdef Experiment_noDefect < Experiment
             %defect_simulator: not used here
             %i_parameter: iteration integer
             %i_repeat: interation integer
-            %i_sigma: iteration integer
+            %i_size: iteration integer
             %n_pixel: number of pixels in the masked image
-        function getFdr(this, convolution, ~, i_parameter, i_repeat, i_sigma, n_pixel)
+        function getFdr(this, convolution, ~, i_parameter, i_repeat, i_size, n_pixel)
             %set the threshold of the test and do the test
-            convolution.setSigma(this.sigma_array(i_sigma));
+            convolution.setSigma(this.size_array(i_size));
             convolution.doTest();
             %all positives are false, save the FDR
-            this.fdr_array(i_repeat,i_parameter,i_sigma) = sum(sum(convolution.sig_image))/n_pixel;
+            this.fdr_array(i_repeat,i_parameter,i_size) = sum(sum(convolution.sig_image))/n_pixel;
         end
         
         %METHOD: GET DATA
