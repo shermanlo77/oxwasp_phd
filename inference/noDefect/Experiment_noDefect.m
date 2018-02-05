@@ -52,8 +52,8 @@ classdef Experiment_noDefect < Experiment
             
             %plot aRTist
             figure;
-            image_plot = ImagescSignificant(this.aRTist);
-            image_plot.addSigPixels(this.convolution.sig_image);
+            image_plot = ImagescSignificant(this.aRTist_plot);
+            image_plot.addSigPixels(this.convolution_plot.sig_image);
             image_plot.plot();
             
             %print emperical null mean
