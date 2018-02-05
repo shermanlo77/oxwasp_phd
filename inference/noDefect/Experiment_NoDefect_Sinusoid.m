@@ -2,7 +2,7 @@
 %See superclass Experiment_noDefect
 %
 %This implementation uses a sinusoid as a smooth function
-classdef Experiment_noDefect_sinusoid < Experiment_noDefect
+classdef Experiment_NoDefect_Sinusoid < Experiment_NoDefect
     
     properties
     end
@@ -11,13 +11,13 @@ classdef Experiment_noDefect_sinusoid < Experiment_noDefect
     methods (Access = public)
         
         %CONSTRUCTOR
-        function this = Experiment_noDefect_sinusoid()
-            this@Experiment_noDefect('noDefect_sinusoid');
+        function this = Experiment_NoDefect_Sinusoid()
+            this@Experiment_NoDefect('NoDefect_Sinusoid');
         end
         
         %OVERRIDE: PRINT RESULTS
         function printResults(this)
-            this.printResults@Experiment_noDefect('amplitude');
+            this.printResults@Experiment_NoDefect('amplitude');
         end
         
     end
@@ -28,7 +28,7 @@ classdef Experiment_noDefect_sinusoid < Experiment_noDefect
         %OVERRIDE: SETUP
         function setup(this)
             %call superclass version of setup
-            this.setup@Experiment_noDefect(RandStream('mt19937ar','Seed',uint32(707037501)), linspace(0,1E4,10));
+            this.setup@Experiment_NoDefect(RandStream('mt19937ar','Seed',uint32(707037501)), linspace(0,1E4,10));
         end
         
         %IMPLEMENTED: GET DEFECT SIMULATOR

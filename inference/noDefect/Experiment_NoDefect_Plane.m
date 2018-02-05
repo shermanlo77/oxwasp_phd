@@ -2,7 +2,7 @@
 %See superclass Experiment_noDefect
 %
 %This implementation uses a plane as a smooth function
-classdef Experiment_noDefect_plane < Experiment_noDefect
+classdef Experiment_NoDefect_Plane < Experiment_NoDefect
     
     properties
     end
@@ -11,13 +11,13 @@ classdef Experiment_noDefect_plane < Experiment_noDefect
     methods (Access = public)
         
         %CONSTRUCTOR
-        function this = Experiment_noDefect_plane()
-            this@Experiment_noDefect('noDefect_plane');
+        function this = Experiment_NoDefect_Plane()
+            this@Experiment_NoDefect('NoDefect_Plane');
         end
         
         %OVERRIDE: PRINT RESULTS
         function printResults(this)
-            this.printResults@Experiment_noDefect('gradient');
+            this.printResults@Experiment_NoDefect('gradient');
         end
         
     end
@@ -28,7 +28,7 @@ classdef Experiment_noDefect_plane < Experiment_noDefect
         %OVERRIDE: SETUP
         function setup(this)
             %call superclass version of setup
-            this.setup@Experiment_noDefect(RandStream('mt19937ar','Seed',uint32(2272397425)), linspace(0,7,10));
+            this.setup@Experiment_NoDefect(RandStream('mt19937ar','Seed',uint32(2272397425)), linspace(0,7,10));
         end
         
         %IMPLEMENTED: GET DEFECT SIMULATOR

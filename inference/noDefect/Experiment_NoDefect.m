@@ -1,7 +1,7 @@
 %ABSTRACT CLASS: EXPERIMENT NO DEFECT
 %Experiment for investigating the FDR rate when doing inference on an image with a smooth function added to it
 %Different thresholds and strength of the function are investigated
-classdef Experiment_noDefect < Experiment
+classdef Experiment_NoDefect < Experiment
     
     %MEMBER VARIABLES
     properties (SetAccess = private)
@@ -30,7 +30,7 @@ classdef Experiment_noDefect < Experiment
         %CONSTRUCTOR
         %PARAMETERS:
             %name: name of experiment
-        function this = Experiment_noDefect(name)
+        function this = Experiment_NoDefect(name)
             %call superclass
             this@Experiment(name);
         end
