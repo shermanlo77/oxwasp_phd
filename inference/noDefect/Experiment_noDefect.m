@@ -39,6 +39,10 @@ classdef Experiment_noDefect < Experiment
         %PARAMETERS:
             %parameter_name: name of the parameter of axis label purposes
         function printResults(this, parameter_name)
+            
+            %get the maximum fdr
+            fdr_max = max(max(max(this.fdr_array)));
+            
             %for each sigma
             for i_sigma = 1:numel(this.sigma_array)
                 %boxplot the false positive rate vs parameter
@@ -48,7 +52,16 @@ classdef Experiment_noDefect < Experiment
                 box_plot.plot();
                 ylabel('false positive rate');
                 xlabel(parameter_name);
+                ylim([0,fdr_max]);
             end
+            
+            %meshgrid to plot mean FPR vs parameter vs sigma
+            [sigma_grid, parameter_grid] = meshgrid(this.sigma_array, this.parameter_array);
+            figure;
+            surf(parameter_grid,sigma_grid,squeeze(mean(this.fdr_array)));
+            xlabel(parameter_name);
+            ylabel('sigma threshold');
+            zlabel('mean false positive rate');
             
             %plot aRTist
             figure;
