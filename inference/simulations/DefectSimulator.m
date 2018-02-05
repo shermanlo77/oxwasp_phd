@@ -36,23 +36,15 @@ classdef DefectSimulator < handle
             %defect_size: column vector defining the size of the square defect
             %intensity: greyvalue of the square
         function addSquareDefect(this, co_od, defect_size, intensity)
-            %get the coordinates of the 2 corners of the square
-            top_left = co_od - floor(defect_size/2);
-            bottom_right = co_od +ceil(defect_size/2);
-            
-            %correct boundaries for the coordinates
-            top_left(top_left < 1) = 1;
-            if bottom_right(1) > this.height
-                bottom_right(1) = this.height;
-            end
-            if bottom_right(2) > this.width
-                bottom_right(2) = this.width;
-            end
+            %get the range of columns and rows to fill with a defect
+            row_index = this.getRange(co_od(1), defect_size(1));
+            column_index = this.getRange(co_od(2), defect_size(2));
+            [row_index, column_index] = this.checkBoundary(row_index, column_index);
             
             %add the square to this.defect_image
-            this.defect_image(top_left(1):bottom_right(1),top_left(2):bottom_right(2)) = this.defect_image(top_left(1):bottom_right(1),top_left(2):bottom_right(2)) + intensity;
+            this.defect_image(row_index, column_index) = this.defect_image(row_index, column_index) + intensity;
             %set the square in this.sig_image to be true
-            this.sig_image(top_left(1):bottom_right(1),top_left(2):bottom_right(2)) = true;
+            this.sig_image(row_index, column_index) = true;
         end
         
         %METHOD: ADD SQUARE DEFECT GRID
@@ -73,6 +65,81 @@ classdef DefectSimulator < handle
                     this.addSquareDefect(round([y_cood(i_y);x_cood(i_x)]),defect_size,intensity);
                 end
             end
+        end
+        
+        %METHOD: ADD LINE DEFECT
+        %Add a vertical line
+        %PARAMETERS:
+            %x_cood: x coordinate of the center of the line
+            %thickness: the thickness of the line
+            %intensity: greyvalue of the line
+        function addLineDefect(this, x_cood, thickness, intensity)
+            %get the column index which the defect is to be added
+            defect_column = this.getRange(x_cood, thickness);
+            defect_column = this.checkColumnBoundary(defect_column);
+            %add the line to this.defect_image
+            this.defect_image(:,defect_column) = this.defect_image(:,defect_column) + intensity;
+            %set the line in this.sig_image to true
+            this.sig_image(:, defect_column) = true;
+        end
+        
+        %METHOD: GET RANGE
+        %Get the list of index given the coordinates of the center and the length
+        %PARAMETERS:
+            %centre_cood: centre of the range
+            %length: length of the range
+        %RETURN:
+            %range: length number of integers, where centre_cood is in the middle
+        function range = getRange(this, centre_cood, length)
+            %if the length is odd
+            if mod(length,2)
+                %get the range of integers
+                %example: XXOXX where O is the centre
+                range = (centre_cood - (length-1)/2) : (centre_cood + (length-1)/2);
+            %else the length is even
+            else
+                %get the range of integers, including the middle and cutting the right hand side
+                %example: XXOX where I is the centre
+                range = (centre_cood - length/2) : (centre_cood + length/2 - 1);
+            end
+        end
+        
+        %METHOD: CHECK BOUNDARY
+        %Given indices for the rows and columns, remove the ones which are outside the boundary
+        %PARAMETERS:
+            %row_index: indices of rows
+            %column_index: indicies of columns
+        %RETURN:
+            %row_index: row_index with boundary check
+            %column_index: column_index with bounday check
+        function [row_index, column_index] = checkBoundary(this, row_index, column_index)
+            %check the boundary of the rows and columns and return it
+            row_index = this.checkRowBoundary(row_index);
+            column_index = this.checkColumnBoundary(column_index);
+        end
+        
+        %METHOD: CHECK ROW BOUNDARY
+        %Given indices for the rows, remove the ones which are outside the boundary
+        %PARAMETERS:
+            %row_index: indices of rows
+        %RETURN:
+            %row_index: row_index with boundary check
+        function row_index = checkRowBoundary(this, row_index)
+            %remove the rows where it is equal and below 0 and bigger than the height
+            index_remove = (row_index <= 0) | (row_index > this.height);
+            row_index(index_remove) = [];
+        end
+        
+        %METHOD: CHECK COLUMN BOUNDARY
+        %Given indices for the columns, remove the ones which are outside the boundary
+        %PARAMETERS:
+            %column_index: indicies of columns
+        %RETURN:
+            %column_index: column_index with bounday check
+        function column_index = checkColumnBoundary(this, column_index)
+            %remove the columns where it is equal and below 0 and bigger than the width
+            index_remove = (column_index <= 0) | (column_index > this.width);
+            column_index(index_remove) = [];
         end
         
         %METHOD: ADD PLANE
