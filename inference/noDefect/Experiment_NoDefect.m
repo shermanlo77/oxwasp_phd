@@ -4,7 +4,7 @@
 classdef Experiment_NoDefect < Experiment
     
     %MEMBER VARIABLES
-    properties (SetAccess = private)
+    properties (SetAccess = protected)
         rng; %random number generator
         parameter_array; %array of parameters for the function
         size_array; %array of test threshold (units of sigma)
@@ -163,14 +163,10 @@ classdef Experiment_NoDefect < Experiment
                     convolution.estimateNull(1000);
                     convolution.setMask(segmentation);
                     
-                    %print progress bar
-                    this.i_iteration = this.i_iteration + 1;
-                    this.printProgress(this.i_iteration / this.n_iteration);
-                    
                     %for each sigma to investigate
                     for i_size = 1:numel(this.size_array)
                         %get the false positive rate
-                        this.getFdr(this, convolution, defect_simulator, i_parameter, i_repeat, i_size, n_pixel);
+                        this.getFdr(convolution, defect_simulator, i_parameter, i_repeat, i_size, n_pixel);
                         %if this is the first repeat and this particular sigma and parameter is to be plotted
                         if ( (i_repeat == 1) && all([i_size;i_parameter] == this.plot_index) )
                             %save the convolution
@@ -180,6 +176,10 @@ classdef Experiment_NoDefect < Experiment
                         end
                         
                     end
+                    
+                    %print progress bar
+                    this.i_iteration = this.i_iteration + 1;
+                    this.printProgress(this.i_iteration / this.n_iteration);
                 end
             end
         end
