@@ -117,6 +117,7 @@ classdef Experiment_NoDefect < Experiment
                 
                 %get the defect simulator for this parameter
                 defect_simulator = this.getDefectSimulator(this.parameter_array(i_parameter));
+                defect_simulator.setMask(segmentation);
                 
                 %for this.n_repeat times
                 for i_repeat = 1:this.n_repeat
@@ -166,7 +167,7 @@ classdef Experiment_NoDefect < Experiment
                     %for each sigma to investigate
                     for i_size = 1:numel(this.size_array)
                         %get the false positive rate
-                        this.getFdr(convolution, defect_simulator, i_parameter, i_repeat, i_size, n_pixel);
+                        this.getFdr(convolution, defect_simulator, i_parameter, i_repeat, i_size, defect_simulator);
                         %if this is the first repeat and this particular sigma and parameter is to be plotted
                         if ( (i_repeat == 1) && all([i_size;i_parameter] == this.plot_index) )
                             %save the convolution
@@ -192,13 +193,12 @@ classdef Experiment_NoDefect < Experiment
             %i_parameter: iteration integer
             %i_repeat: interation integer
             %i_size: iteration integer
-            %n_pixel: number of pixels in the masked image
-        function getFdr(this, convolution, ~, i_parameter, i_repeat, i_size, n_pixel)
+        function getFdr(this, convolution, ~, i_parameter, i_repeat, i_size)
             %set the threshold of the test and do the test
             convolution.setSigma(this.size_array(i_size));
             convolution.doTest();
             %all positives are false, save the FDR
-            this.fdr_array(i_repeat,i_parameter,i_size) = sum(sum(convolution.sig_image))/n_pixel;
+            this.fdr_array(i_repeat,i_parameter,i_size) = sum(sum(convolution.sig_image))/defect_simulator.n_null;
         end
         
         %METHOD: GET DATA

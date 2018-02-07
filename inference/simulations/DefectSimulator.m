@@ -13,6 +13,8 @@ classdef DefectSimulator < handle
         width; %width of the image
         defect_image; %image of combination of smooth function and defects
         sig_image; %boolean image, true for defect, false for no defect
+        n_sig; %number of significant pixels (calculated after the method setMask() is called)
+        n_null; %number of null pixels (calculated after the method setMask() is called)
     end
     
     %METHODS
@@ -183,6 +185,17 @@ classdef DefectSimulator < handle
             %image: image + this.defect_image
         function image = defectImage(this, image)
             image = image + this.defect_image;
+        end
+        
+        %METHOD: SET MASK
+        %Set the mask of the sig_image, pixels outside the mask are set to false
+        %Also calculates the number of sig and non-sig pixels
+        %PARMAETERS:
+            %mask: boolean image, true if that pixel is a mask
+        function setMask(this, mask)
+            this.sig_image(~mask) = false;
+            this.n_sig = sum(sum(this.sig_image));
+            this.n_null = sum(sum( (~this.sig_image) & mask));
         end
         
     end

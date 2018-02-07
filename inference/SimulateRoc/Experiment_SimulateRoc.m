@@ -10,6 +10,23 @@ classdef Experiment_SimulateRoc < Experiment_NoDefect
             this@Experiment_NoDefect(name);
         end
         
+        function printResults(this)
+            
+            for i_parameter = 1:numel(this.parameter_array)
+                figure;
+                ax = gca;
+                for i_repeat = 1:this.n_repeat
+                    index = ((i_repeat-1)*numel(this.size_array)+1) : (i_repeat*numel(this.size_array));
+                    x = this.fdr_array(index, 1, i_parameter );
+                    y = this.fdr_array(index, 2, i_parameter );
+                    plot(x,y,'Color',ax.ColorOrder(1,:));
+                    hold on;
+                end
+                scatter(this.fdr_array(:,1,i_parameter),this.fdr_array(:,2,i_parameter),'MarkerEdgeColor',ax.ColorOrder(2,:),'Marker','x');
+            end
+            
+        end
+        
     end
     
     %PROTECTED METHODS
@@ -34,19 +51,18 @@ classdef Experiment_SimulateRoc < Experiment_NoDefect
         %Given a convolution, do the test, get the false positive rate and save it
         %PARAMETERS:
             %convolution: EmpericalConvolution object
-            %defect_simulator: not used here
+            %defect_simulator: the defect simulator for this current iteration
             %i_parameter: iteration integer
             %i_repeat: interation integer
             %i_size: iteration integer
-            %n_pixel: number of pixels in the masked image
-        function getFdr(this, convolution, defect_simulator, i_parameter, i_repeat, i_size, n_pixel)
+        function getFdr(this, convolution, defect_simulator, i_parameter, i_repeat, i_size)
             %set the threshold of the test and do the test
             convolution.setSigma(this.size_array(i_size));
             convolution.doTest();
             %get the false positive rate
-            this.fdr_array( (i_repeat-1)*numel(this.size_array)+i_size, 1, i_parameter ) = sum(sum(convolution.sig_image & (~defect_simulator.sig_image)))/n_pixel;
+            this.fdr_array( (i_repeat-1)*numel(this.size_array)+i_size, 1, i_parameter ) = sum(sum(convolution.sig_image & (~defect_simulator.sig_image)))/defect_simulator.n_null;
             %get the true positive rate
-            this.fdr_array( (i_repeat-1)*numel(this.size_array)+i_size, 2, i_parameter ) = sum(sum(convolution.sig_image & (defect_simulator.sig_image)))/n_pixel;
+            this.fdr_array( (i_repeat-1)*numel(this.size_array)+i_size, 2, i_parameter ) = sum(sum(convolution.sig_image & (defect_simulator.sig_image)))/defect_simulator.n_sig;
         end
         
         %METHOD: GET DATA

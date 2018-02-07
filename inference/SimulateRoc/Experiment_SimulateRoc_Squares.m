@@ -11,10 +11,6 @@ classdef Experiment_SimulateRoc_Squares < Experiment_SimulateRoc
             this@Experiment_SimulateRoc('SimulateRoc_Squares');
         end
         
-        %OVERRIDE: PRINT RESULTS
-        function printResults(this)
-        end
-        
     end
     
     %PROTECTED METHODS
