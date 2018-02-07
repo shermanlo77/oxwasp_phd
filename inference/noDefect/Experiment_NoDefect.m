@@ -16,8 +16,11 @@ classdef Experiment_NoDefect < Experiment
                 %dim 3: for each sigma
         fdr_array;
         plot_index; %2 column vector, pointer to which sigma and parameter to plot respectively
-        convolution_plot; %resulting convolution to plot
-        aRTist_plot; %image of aRTist, pointed by plot_index
+        aRTist_plot; %image of aRTist, parameter and size pointed by plot_index
+        ln_p_plot; %image of -lnp values, parameter and size pointed by plot_index
+        sig_plot; %boolean image of significant pixels, parameter and size pointed by plot_index
+        null_mean_plot; %image of the emperical null mean, parameter and size pointed by plot_index
+        
         
         %progress bar member variables
         i_iteration;
@@ -63,21 +66,8 @@ classdef Experiment_NoDefect < Experiment
             ylabel('sigma threshold');
             zlabel('mean false positive rate');
             
-            %plot aRTist
-            figure;
-            image_plot = ImagescSignificant(this.aRTist_plot);
-            image_plot.addSigPixels(this.convolution_plot.sig_image);
-            image_plot.plot();
-            
-            %print emperical null mean
-            figure;
-            image_plot = ImagescSignificant(this.convolution_plot.mean_null);
-            image_plot.plot();
-            
-            %print -ln p value
-            figure;
-            image_plot = ImagescSignificant(-log10(this.convolution_plot.p_image));
-            image_plot.plot();
+            %plot aRTist and the result of the test of one specific saved example
+            this.plotConvolution();
             
         end
     end
@@ -107,8 +97,6 @@ classdef Experiment_NoDefect < Experiment
             data = this.getData();
             %get the segmentation image
             segmentation = data.getSegmentation();
-            %get the number of segmented images
-            n_pixel = sum(sum(segmentation));
             %get the number of training images
             n_train = round(data.n_sample/2);
             
@@ -167,13 +155,14 @@ classdef Experiment_NoDefect < Experiment
                     %for each sigma to investigate
                     for i_size = 1:numel(this.size_array)
                         %get the false positive rate
-                        this.getFdr(convolution, defect_simulator, i_parameter, i_repeat, i_size, defect_simulator);
+                        this.getFdr(convolution, defect_simulator, i_parameter, i_repeat, i_size);
                         %if this is the first repeat and this particular sigma and parameter is to be plotted
                         if ( (i_repeat == 1) && all([i_size;i_parameter] == this.plot_index) )
-                            %save the convolution
-                            this.convolution_plot = convolution;
-                            %save the aRTist image
+                            %save the p values, signifiant pixels, emperical null mean and the defected aRTist
                             this.aRTist_plot = aRTist;
+                            this.ln_p_plot = -log10(convolution.p_image);
+                            this.sig_plot = convolution.sig_image;
+                            this.null_mean_plot = convolution.mean_null;
                         end
                         
                     end
@@ -183,6 +172,26 @@ classdef Experiment_NoDefect < Experiment
                     this.printProgress(this.i_iteration / this.n_iteration);
                 end
             end
+        end
+        
+        %METHOD: PRINT CONVOLUTION
+        %Plots aRTist with significant pixels, the emperical null mean and the -ln p values
+        function printConvolution(this)
+            %plot aRTist
+            figure;
+            image_plot = ImagescSignificant(this.aRTist_plot);
+            image_plot.addSigPixels(this.sig_plot);
+            image_plot.plot();
+            
+            %print -ln p value
+            figure;
+            image_plot = ImagescSignificant(this.ln_p_plot);
+            image_plot.plot();
+            
+            %print emperical null mean
+            figure;
+            image_plot = ImagescSignificant(this.null_mean_plot);
+            image_plot.plot();
         end
         
         %METHOD: GET FDR
