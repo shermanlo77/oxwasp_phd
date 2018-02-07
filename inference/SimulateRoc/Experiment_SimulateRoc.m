@@ -1,8 +1,16 @@
+%CLASS: EXPERIMENT SIMULATE ROC
+%See superclass Experiment_NoDefect
+%
+%This class does an experiment simulating defects of different intensities
+%ROC (Receiver operating characteristic) curves are plotted for different defect intensities
+%ROC curves are repeated multiple times
+%Ares of the ROC curves are calculated and plotted vs defect intensity
 classdef Experiment_SimulateRoc < Experiment_NoDefect
     
     properties
     end
     
+    %METHODS
     methods (Access = public)
         
         %CONSTRUCTOR
@@ -12,6 +20,9 @@ classdef Experiment_SimulateRoc < Experiment_NoDefect
         
         %OVERRIDE: PRINT RESULTS
         function printResults(this)
+            
+            roc_area = zeros(this.n_repeat,numel(this.parameter_array));
+            
             %for each parameter
             for i_parameter = 1:numel(this.parameter_array)
                 figure;
@@ -24,14 +35,26 @@ classdef Experiment_SimulateRoc < Experiment_NoDefect
                     y = this.fdr_array(index, 2, i_parameter );
                     plot(x,y,'Color',ax.ColorOrder(1,:));
                     hold on;
+                    %get the area of the roc
+                    trapezium_areas = 0.5*(y(1:(end-1))+y(2:end)).*(x(2:end)-x(1:(end-1)));
+                    roc_area(i_repeat,i_parameter) = sum(trapezium_areas);
                 end
+                xlabel('false positive rate');
+                ylabel('true positive rate');
                 %scatter plot all TPR vs FPR points
-                scatter(this.fdr_array(:,1,i_parameter),this.fdr_array(:,2,i_parameter),'MarkerEdgeColor',ax.ColorOrder(2,:),'Marker','x');
+                %scatter(this.fdr_array(:,1,i_parameter),this.fdr_array(:,2,i_parameter),'MarkerEdgeColor',ax.ColorOrder(2,:),'Marker','x');
             end
+            
+            %boxplot the area of roc vs defect intensity
+            figure;
+            box_plot = Boxplots(roc_area,true);
+            box_plot.setPosition(this.parameter_array);
+            box_plot.plot();
+            xlabel('defect intensity');
+            ylabel('area of roc');
             
             %plot aRTist and the result of the test of one specific saved example
             this.printConvolution();
-            
         end
         
     end
