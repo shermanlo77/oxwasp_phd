@@ -67,7 +67,7 @@ classdef Experiment_NoDefect < Experiment
             zlabel('mean false positive rate');
             
             %plot aRTist and the result of the test of one specific saved example
-            this.plotConvolution();
+            this.printConvolution();
             
         end
     end
@@ -198,11 +198,11 @@ classdef Experiment_NoDefect < Experiment
         %Given a convolution, do the test, get the false positive rate and save it
         %PARAMETERS:
             %convolution: EmpericalConvolution object
-            %defect_simulator: not used here
+            %defect_simulator: the defect simulator for this current iteration
             %i_parameter: iteration integer
             %i_repeat: interation integer
             %i_size: iteration integer
-        function getFdr(this, convolution, ~, i_parameter, i_repeat, i_size)
+        function getFdr(this, convolution, defect_simulator, i_parameter, i_repeat, i_size)
             %set the threshold of the test and do the test
             convolution.setSigma(this.size_array(i_size));
             convolution.doTest();

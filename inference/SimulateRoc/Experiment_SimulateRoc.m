@@ -39,6 +39,7 @@ classdef Experiment_SimulateRoc < Experiment_NoDefect
                     trapezium_areas = 0.5*(y(1:(end-1))+y(2:end)).*(x(2:end)-x(1:(end-1)));
                     roc_area(i_repeat,i_parameter) = sum(trapezium_areas);
                 end
+                plot([0,1],[0,1],'k--');
                 xlabel('false positive rate');
                 ylabel('true positive rate');
                 %scatter plot all TPR vs FPR points
