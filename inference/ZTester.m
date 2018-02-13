@@ -118,7 +118,7 @@ classdef ZTester < handle
                     end
                     %if any of the variables are nan, break the loop as well
                     if any(isnan([dx_lnf, d2x_lnf, this.mean_null]))
-                        breal;
+                        break;
                     end
                 end
                 
