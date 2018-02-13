@@ -99,15 +99,22 @@ classdef Parzen < handle
             end            
         end
        
-        %METHOD: GET EMPERICAL NULL VARIANCE
-        %Return the emperical null variance using the second derivate of the log density at the value delta
+        %METHOD: GET DERIVATE LOG DENSITY
+        %Evaluate and return the derivate of the log density at a point x
         %PARAMETER:
-            %delta: the value at which the second derivate of the log density to be evaluated at
-        function null_var = getNullVar(this, delta)
-            %get the Gaussian kernel parameter
-            z = (this.data - delta)/this.parameter;
-            %work out the second derivate of the log density
-            null_var =  -((this.parameter*this.getSumKernel(delta))^2 )/ (this.getSumKernel(delta) * sum(normpdf(z).*(z.^2-1)) - (sum(normpdf(z).*z))^2);
+            %x: the value at which the derivate of the log density to be evaluated at
+        %RETURN:
+            %dx_lnf: 1st derivate of the log density at x
+            %d2x_lnf: 2nd derivate of the log density at x
+        function [dx_lnf, d2x_lnf] = getDLnDensity(this, x)
+            %get sum of kernels terms
+            z = (this.data - x)/this.parameter;
+            sum_kernel = this.getSumKernel(x);
+            sum_kernel_z = sum(normpdf(z).*z);
+            sum_kernel_z2 = sum(normpdf(z).*(z.^2));
+            %work out the derivates and return it
+            dx_lnf = sum_kernel_z/(this.parameter*sum_kernel);
+            d2x_lnf = (sum_kernel*(sum_kernel_z2 - sum_kernel) - sum_kernel_z^2)/((this.parameter*sum_kernel)^2);
         end
 
         %METHOD: GET DENSITY FIRST DERIVATE

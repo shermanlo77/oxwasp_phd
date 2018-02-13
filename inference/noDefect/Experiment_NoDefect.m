@@ -149,7 +149,7 @@ classdef Experiment_NoDefect < Experiment
                     %get the emperical null
                     convolution = EmpericalConvolution(z_image,20, 20, [200,200]);
                     convolution.setUseVarUniform(true);
-                    convolution.estimateNull(1000);
+                    convolution.estimateNull();
                     convolution.setMask(segmentation);
                     
                     %for each sigma to investigate

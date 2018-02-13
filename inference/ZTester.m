@@ -25,6 +25,10 @@ classdef ZTester < handle
         sig_image; %boolean 2d array, true if that pixel is significant
         n_test; %number of tests
         density_estimator; %density estimator object
+        
+        n_step; %maximum number of steps in the newton raphson method
+        tol; %the smallest change of the grad density to declare convergence in the newton raphson method
+        rng; %random number generator for when newton raphson method fails
     end
     
     %METHODS
@@ -47,6 +51,10 @@ classdef ZTester < handle
             this.n_test = sum(~nan_index);
             
             this.density_estimator = Parzen(reshape(this.z_image(~isnan(this.z_image)),[],1));
+            
+            this.n_step = 10;
+            this.tol = 1E-5;
+            this.rng = RandStream('mt19937ar','Seed',507957022);
         end
         
         %METHOD: SET SIZE
@@ -84,24 +92,48 @@ classdef ZTester < handle
         end
         
         %METHOD: ESTIMATE NULL
-        %Estimates the mean and std null hypothesis using a fitted density
-        %The mean is found using the maximum value of the fitted density on n_linspace equally spaced points between min and max of z_array
+        %Estimates the mean and var null hypothesis using a fitted density
+        %The mean is found using the Newton-Raphson method, starting point at the mean
         %The std is found using the second derivate of the log density at the mode
         %Updates the parameters of the null hypothesis, stored in the member variables
-        %PARAMETERS:
-            %n_linspace: number of equally spaced points between min and max of z_array to find the mode of the estimated density
-        function estimateNull(this, n_linspace)
-            %declare n_linspace equally spaced points between min and max of z_array
-            z_array = linspace(min(min(this.z_image)), max(max(this.z_image)), n_linspace);
-            %get the density estimate at each point
-            density_estimate = this.density_estimator.getDensityEstimate(z_array);
-            %find the index with the highest density
-            [~, z_max_index] = max(density_estimate);
+        function estimateNull(this, ~)
+            %initialise the Newton-Raphson method at the median
+            this.mean_null = median(reshape(this.z_image,[],1));
+            %declare a boolean which flags if Newton-Raphson has converged
+            has_converge = false;
             
-            %the z with the highest density is the mode
-            this.mean_null = z_array(z_max_index);
+            %while the mode has not been found, ie Newton-Raphson has not converged yet
+            while ~has_converge
+                %get the 1st and 2nd diff of the ln density at the initial value
+                [dx_lnf, d2x_lnf] = this.density_estimator.getDLnDensity(this.mean_null);
+                %for n_step
+                for i_step = 1:this.n_step
+                    %update the solution to the mode
+                    this.mean_null = this.mean_null - dx_lnf/d2x_lnf;
+                    %get the 1st and 2nd diff of the ln density at the new value
+                    [dx_lnf, d2x_lnf] = this.density_estimator.getDLnDensity(this.mean_null);
+                    %if this gradient is within tolerance, break the i_step for loop
+                    if (abs(dx_lnf)<this.tol)
+                        break;
+                    end
+                    %if any of the variables are nan, break the loop as well
+                    if any(isnan([dx_lnf, d2x_lnf, this.mean_null]))
+                        breal;
+                    end
+                end
+                
+                %check if the solution to the mode is a maxima by looking at the 2nd diff
+                if d2x_lnf < 0
+                    %then the algorithm has converged
+                    has_converge = true;
+                %else the algorithm hasn't converged, set a random initial value and try again
+                else
+                    this.mean_null = this.z_image(this.rng.randi([0,numel(this.z_image)]));
+                end
+            end
+            
             %estimate the null var
-            this.var_null = this.density_estimator.getNullVar(this.mean_null);
+            this.var_null = -1/d2x_lnf;
             %check if the std_null is real
             if ~isreal(this.var_null)
                 this.var_null = nan;

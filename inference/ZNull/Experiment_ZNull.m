@@ -24,8 +24,6 @@ classdef Experiment_ZNull < Experiment
             %dim 2: for each n
         fail_count_array;
         
-        null_linspace; %number of points to evaluate to search for emperical mean
-        
         i_iteration; %number of iterations done
         n_iteration; %number of iterations in the whole experiments
         
@@ -129,7 +127,6 @@ classdef Experiment_ZNull < Experiment
                 %dim 2: for each n
             this.fail_count_array = zeros(numel(this.k_array), numel(this.n_array) );
             %assign other member variables
-            this.null_linspace = 500;
             this.i_iteration = 0;
             this.n_iteration = this.n_repeat * (numel(this.n_array)) * (numel(this.k_array));
         end
@@ -165,7 +162,7 @@ classdef Experiment_ZNull < Experiment
                             %set the kernel width
                             z_tester.setDensityEstimationParameter(k);
                             %get the mode and half width estimation
-                            z_tester.estimateNull(this.null_linspace);
+                            z_tester.estimateNull();
                             
                             %if the null std is not nan, set the flag got_null to true
                             if ~isnan(z_tester.var_null)

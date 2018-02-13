@@ -58,9 +58,7 @@ classdef EmpericalConvolution < handle
             %Estimates the parameters of the emperical null for each of these pixels
             %The blanks are then filled in using linear interpolation
             %The parameters of the null hypothesis are stored in the member variables mean_null and var_null
-        %PARAMETERS:
-            %n_linspace: number of points to search for the mode
-        function estimateNull(this, n_linspace)
+        function estimateNull(this, ~)
             
             %get the size of the z image
             [height, width] = size(this.z_image);
@@ -106,7 +104,7 @@ classdef EmpericalConvolution < handle
                     %instantise a z tester
                     z_tester_window = ZTester(this.z_image(y_window,x_window));
                     %get the emperical null
-                    z_tester_window.estimateNull(n_linspace);
+                    z_tester_window.estimateNull();
                     %save the z_tester
                     this.z_tester_array{i_row,i_col} = z_tester_window;
                     
