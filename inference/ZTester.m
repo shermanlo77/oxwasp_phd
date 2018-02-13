@@ -97,51 +97,59 @@ classdef ZTester < handle
         %The std is found using the second derivate of the log density at the mode
         %Updates the parameters of the null hypothesis, stored in the member variables
         function estimateNull(this, ~)
-            %initialise the Newton-Raphson method at the median
-            this.mean_null = median(reshape(this.z_image,[],1));
-            %declare a boolean which flags if Newton-Raphson has converged
-            has_converge = false;
-            
-            %while the mode has not been found, ie Newton-Raphson has not converged yet
-            while ~has_converge
-                %get the 1st and 2nd diff of the ln density at the initial value
-                [dx_lnf, d2x_lnf] = this.density_estimator.getDLnDensity(this.mean_null);
-                %for n_step
-                for i_step = 1:this.n_step
-                    %update the solution to the mode
-                    this.mean_null = this.mean_null - dx_lnf/d2x_lnf;
-                    %get the 1st and 2nd diff of the ln density at the new value
-                    [dx_lnf, d2x_lnf] = this.density_estimator.getDLnDensity(this.mean_null);
-                    %if this gradient is within tolerance, break the i_step for loop
-                    if (abs(dx_lnf)<this.tol)
-                        break;
-                    end
-                    %if any of the variables are nan, break the loop as well
-                    if any(isnan([dx_lnf, d2x_lnf, this.mean_null]))
-                        break;
-                    end
-                end
-                
-                %check if the solution to the mode is a maxima by looking at the 2nd diff
-                if d2x_lnf < 0
-                    %then the algorithm has converged
-                    has_converge = true;
-                %else the algorithm hasn't converged, set a random initial value and try again
-                else
-                    this.mean_null = this.z_image(this.rng.randi([0,numel(this.z_image)]));
-                end
-            end
-            
-            %estimate the null var
-            this.var_null = -1/d2x_lnf;
-            %check if the std_null is real
-            if ~isreal(this.var_null)
+            %if the density estimator has no data, return nan
+            if this.density_estimator.n_data == 0
+                this.mean_null = nan;
                 this.var_null = nan;
+            %else get the emperical null parameters
+            else
+                %initialise the Newton-Raphson method at the median
+                this.mean_null = median(reshape(this.z_image,[],1));
+                %declare a boolean which flags if Newton-Raphson has converged
+                has_converge = false;
+
+                %while the mode has not been found, ie Newton-Raphson has not converged yet
+                while ~has_converge
+                    %get the 1st and 2nd diff of the ln density at the initial value
+                    [dx_lnf, d2x_lnf] = this.density_estimator.getDLnDensity(this.mean_null);
+                    %for n_step
+                    for i_step = 1:this.n_step
+                        %update the solution to the mode
+                        this.mean_null = this.mean_null - dx_lnf/d2x_lnf;
+                        %get the 1st and 2nd diff of the ln density at the new value
+                        [dx_lnf, d2x_lnf] = this.density_estimator.getDLnDensity(this.mean_null);
+                        %if this gradient is within tolerance, break the i_step for loop
+                        if (abs(dx_lnf)<this.tol)
+                            break;
+                        end
+                        %if any of the variables are nan, break the loop as well
+                        if any(isnan([dx_lnf, d2x_lnf, this.mean_null]))
+                            break;
+                        end
+                    end
+
+                    %check if the solution to the mode is a maxima by looking at the 2nd diff
+                    if d2x_lnf < 0
+                        %then the algorithm has converged
+                        has_converge = true;
+                    %else the algorithm hasn't converged, set a quantile initial value and try again
+                    else
+                        this.mean_null = quantile(reshape(this.z_image,[],1),this.rng.randi([0,1]));
+                    end
+                end
+
+                %estimate the null var
+                this.var_null = -1/d2x_lnf;
+                %check if the std_null is real
+                if ~isreal(this.var_null)
+                    this.var_null = nan;
+                end
+
+                %estimate p0, propotion of H0 data
+                this.p0 =  this.density_estimator.getDensityEstimate(this.mean_null)/normpdf(0,0,sqrt(this.var_null));
+                this.p0 = min([this.p0,1]);
+                
             end
-            
-            %estimate p0, propotion of H0 data
-            this.p0 =  this.density_estimator.getDensityEstimate(this.mean_null)/normpdf(0,0,sqrt(this.var_null));
-            this.p0 = min([this.p0,1]);
             
         end
         
