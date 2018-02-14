@@ -104,7 +104,7 @@ classdef ZTester < handle
             %else get the emperical null parameters
             else
                 %initialise the Newton-Raphson method at the median
-                this.mean_null = median(reshape(this.z_image,[],1));
+                this.mean_null = median(this.density_estimator.data);
                 %declare a boolean which flags if Newton-Raphson has converged
                 has_converge = false;
 
@@ -134,7 +134,7 @@ classdef ZTester < handle
                         has_converge = true;
                     %else the algorithm hasn't converged, set a quantile initial value and try again
                     else
-                        this.mean_null = quantile(reshape(this.z_image,[],1),this.rng.randi([0,1]));
+                        this.mean_null = quantile(this.density_estimator.data,this.rng.rand());
                     end
                 end
 
