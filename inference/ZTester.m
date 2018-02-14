@@ -28,6 +28,7 @@ classdef ZTester < handle
         
         n_step; %maximum number of steps in the newton raphson method
         tol; %the smallest change of the grad density to declare convergence in the newton raphson method
+        quantile_array; %quantiles to use for the initial value for newton raphson
         rng; %random number generator for when newton raphson method fails
     end
     
@@ -54,6 +55,7 @@ classdef ZTester < handle
             
             this.n_step = 10;
             this.tol = 1E-5;
+            this.quantile_array = [0.25,0.5,0.75];
             this.rng = RandStream('mt19937ar','Seed',507957022);
         end
         
@@ -103,41 +105,46 @@ classdef ZTester < handle
                 this.var_null = nan;
             %else get the emperical null parameters
             else
-                %initialise the Newton-Raphson method at the median
-                this.mean_null = median(this.density_estimator.data);
-                %declare a boolean which flags if Newton-Raphson has converged
-                has_converge = false;
-
-                %while the mode has not been found, ie Newton-Raphson has not converged yet
-                while ~has_converge
-                    %get the 1st and 2nd diff of the ln density at the initial value
-                    [dx_lnf, d2x_lnf] = this.density_estimator.getDLnDensity(this.mean_null);
-                    %for n_step
-                    for i_step = 1:this.n_step
-                        %update the solution to the mode
-                        this.mean_null = this.mean_null - dx_lnf/d2x_lnf;
-                        %get the 1st and 2nd diff of the ln density at the new value
-                        [dx_lnf, d2x_lnf] = this.density_estimator.getDLnDensity(this.mean_null);
-                        %if this gradient is within tolerance, break the i_step for loop
-                        if (abs(dx_lnf)<this.tol)
-                            break;
-                        end
-                        %if any of the variables are nan, break the loop as well
-                        if any(isnan([dx_lnf, d2x_lnf, this.mean_null]))
-                            break;
-                        end
-                    end
-
-                    %check if the solution to the mode is a maxima by looking at the 2nd diff
-                    if d2x_lnf < 0
-                        %then the algorithm has converged
-                        has_converge = true;
-                    %else the algorithm hasn't converged, set a quantile initial value and try again
-                    else
-                        this.mean_null = quantile(this.density_estimator.data,this.rng.rand());
-                    end
+                
+                %declare array of starting initial values
+                z_initial_array = quantile(this.density_estimator.data,this.quantile_array);
+                %declare array to store mode solutions, lnf and d2x_lnf for each of the modes
+                z_null_array = zeros(numel(this.quantile_array),1);
+                lnf_array = zeros(numel(this.quantile_array),1);
+                d2x_lnf_array = zeros(numel(this.quantile_array),1);
+                
+                %for each starting point
+                for i_quantile = 1:numel(this.quantile_array)
+                    %get the mode, log density and d2x log density
+                    [z_null_array(i_quantile), lnf_array(i_quantile), d2x_lnf_array(i_quantile)] = this.findMode(z_initial_array(i_quantile));
                 end
-
+                
+                %get the z with the maximum log density
+                [lnf_max,z_index] = max(lnf_array);
+                %if the log density is nan, repeat
+                if isnan(lnf_max)
+                    %warn for using random initial values
+                    warning('using random initial values');
+                    %set a boolean flag for convergence
+                    has_converge = false;
+                    %while the mode has not been found, ie Newton-Raphson has not converged yet
+                    while ~has_converge
+                        z_null = quantile(this.density_estimator.data,this.rng.rand());
+                        [z_null, ~, d2x_lnf] = this.findMode(z_null);
+                        %check if the solution to the mode is a maxima by looking at the 2nd diff
+                        if d2x_lnf < 0
+                            %then the algorithm has converged
+                            has_converge = true;
+                        end
+                    end
+                    %save the mode
+                    this.mean_null = z_null;
+                %else, save the mode and 2nd derivate
+                else
+                    this.mean_null = z_null_array(z_index);
+                    d2x_lnf = d2x_lnf_array(z_index);
+                end
+                
                 %estimate the null var
                 this.var_null = -1/d2x_lnf;
                 %check if the std_null is real
@@ -151,6 +158,42 @@ classdef ZTester < handle
                 
             end
             
+        end
+        
+        %METHOD: FIND MODE
+        %Find the mode of the density estimator using the Newton Raphson algorithm
+        %PARAMETER:
+            %z_null: initial value
+        %RETURN:
+            %z_null: mode
+            %lnf: log density at the mode
+            %d2x_lnf: 2nd derivate of the log density at the mode
+        function [z_null, lnf, d2x_lnf] = findMode(this, z_null)
+            %get the 1st and 2nd diff of the ln density at the initial value
+            [dx_lnf, d2x_lnf] = this.density_estimator.getDLnDensity(z_null);
+            %for n_step
+            for i_step = 1:this.n_step
+                %update the solution to the mode
+                z_null = z_null - dx_lnf/d2x_lnf;
+                %get the 1st and 2nd diff of the ln density at the new value
+                [dx_lnf, d2x_lnf] = this.density_estimator.getDLnDensity(z_null);
+                %if this gradient is within tolerance, break the i_step for loop
+                if (abs(dx_lnf)<this.tol)
+                    break;
+                end
+                %if any of the variables are nan, break the loop as well
+                if any(isnan([dx_lnf, d2x_lnf, z_null]))
+                    break;
+                end
+            end
+            %check if the solution to the mode is a maxima by looking at the 2nd diff
+            %return the log density
+            if d2x_lnf < 0
+                lnf = log(this.density_estimator.getDensityEstimate(z_null));
+            else
+                z_null = nan;
+                lnf = nan;
+            end
         end
         
         %METHOD: GET Z CORRECTED
