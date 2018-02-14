@@ -102,19 +102,27 @@ classdef Parzen < handle
         %METHOD: GET DERIVATE LOG DENSITY
         %Evaluate and return the derivate of the log density at a point x
         %PARAMETER:
-            %x: the value at which the derivate of the log density to be evaluated at
+            %x: vector of values at which the derivate of the log density to be evaluated at
         %RETURN:
-            %dx_lnf: 1st derivate of the log density at x
-            %d2x_lnf: 2nd derivate of the log density at x
+            %dx_lnf: vector of 1st derivates of the log density at each x
+            %d2x_lnf: vector of 2nd derivate of the log density at each x
         function [dx_lnf, d2x_lnf] = getDLnDensity(this, x)
-            %get sum of kernels terms
-            z = (this.data - x)/this.parameter;
-            sum_kernel = this.getSumKernel(x);
-            sum_kernel_z = sum(normpdf(z).*z);
-            sum_kernel_z2 = sum(normpdf(z).*(z.^2));
-            %work out the derivates and return it
-            dx_lnf = sum_kernel_z/(this.parameter*sum_kernel);
-            d2x_lnf = (sum_kernel*(sum_kernel_z2 - sum_kernel) - sum_kernel_z^2)/((this.parameter*sum_kernel)^2);
+            %get number of points to be evaluated
+            n = numel(x);
+            %declare array of derivates
+            dx_lnf = zeros(size(x));
+            d2x_lnf = zeros(size(x));
+            %for each evaluation point
+            for i = 1:n
+                %get sum of kernels terms
+                z = (this.data - x(i))/this.parameter;
+                sum_kernel = this.getSumKernel(x(i));
+                sum_kernel_z = sum(normpdf(z).*z);
+                sum_kernel_z2 = sum(normpdf(z).*(z.^2));
+                %work out the derivates and save it
+                dx_lnf(i) = sum_kernel_z/(this.parameter*sum_kernel);
+                d2x_lnf(i) = (sum_kernel*(sum_kernel_z2 - sum_kernel) - sum_kernel_z^2)/((this.parameter*sum_kernel)^2);
+            end
         end
 
         %METHOD: GET DENSITY FIRST DERIVATE
