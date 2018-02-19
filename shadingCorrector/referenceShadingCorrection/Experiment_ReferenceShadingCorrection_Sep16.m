@@ -1,6 +1,6 @@
 %EXPERIMENT REFRENCE SHADING CORRECTION SEP 16
-%See superclass Experiment_referenceShadingCorrection
-classdef Experiment_referenceShadingCorrection_Sep16 < Experiment_referenceShadingCorrection
+%See superclass Experiment_ReferenceShadingCorrection
+classdef Experiment_ReferenceShadingCorrection_Sep16 < Experiment_ReferenceShadingCorrection
     
     properties
     end
@@ -9,9 +9,9 @@ classdef Experiment_referenceShadingCorrection_Sep16 < Experiment_referenceShadi
     methods (Access = public)
         
         %CONSTRUCTOR
-        function this = Experiment_referenceShadingCorrection_Sep16()
+        function this = Experiment_ReferenceShadingCorrection_Sep16()
             %super class, pass on experiment name in parameter
-            this@Experiment_referenceShadingCorrection('referenceShadingCorrection_Sep16');
+            this@Experiment_ReferenceShadingCorrection('ReferenceShadingCorrection_Sep16');
         end
         
     end
@@ -23,7 +23,7 @@ classdef Experiment_referenceShadingCorrection_Sep16 < Experiment_referenceShadi
         %Calls superclass and instantise random stream
         function setup(this)
             %super class, 100 repeats, 3 shading correctors
-            this.setup@Experiment_referenceShadingCorrection(100, 3, RandStream('mt19937ar','Seed',uint32(3056080743)));
+            this.setup@Experiment_ReferenceShadingCorrection(100, 3, RandStream('mt19937ar','Seed',uint32(3056080743)));
         end
         
         %IMPLEMENT METHOD: LOAD DATA

@@ -9,7 +9,7 @@
     %[shading_corrector, reference_index] = getShadingCorrector(this, index)
         %returns a newly instantised shading corrector with the reference_index
             %parameter: integer, ranging from 1 to this.n_shading_corrector
-classdef Experiment_referenceShadingCorrection < Experiment
+classdef Experiment_ReferenceShadingCorrection < Experiment
 
     %MEMBER VARIABLES
     properties (SetAccess = protected)
@@ -42,7 +42,7 @@ classdef Experiment_referenceShadingCorrection < Experiment
         
         %CONSTRUCTOR
         %PARAMETERS: name of the experiment
-        function this = Experiment_referenceShadingCorrection(name)
+        function this = Experiment_ReferenceShadingCorrection(name)
             %superclass
             this@Experiment(name);
         end
