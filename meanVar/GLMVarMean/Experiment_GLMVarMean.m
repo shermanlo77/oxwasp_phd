@@ -113,8 +113,6 @@ classdef Experiment_GLMVarMean < Experiment
         
         %DO EXPERIMENT
         function doExperiment(this)
-            %set random stream
-            RandStream.setGlobalStream(this.rand_stream);
             
             %for each shading correction
             while (this.i_shad <= this.getNShadingCorrector())
@@ -188,7 +186,7 @@ classdef Experiment_GLMVarMean < Experiment
             model = this.getGlm(this.i_glm);
 
             %get random index of the training and test data
-            index_suffle = randperm(this.n_sample);
+            index_suffle = this.rand_stream.randperm(this.n_sample);
             training_index = index_suffle(1:this.n_train);
             test_index = index_suffle((this.n_train+1):end);
 

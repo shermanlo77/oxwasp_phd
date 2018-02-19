@@ -134,9 +134,6 @@ classdef Experiment_referenceShadingCorrection < Experiment
         %DO EXPERIMENT (one iteration)
         function doExperiment(this)
             
-            %use its random stream
-            RandStream.setGlobalStream(this.rand_stream);
-            
             %for this.n_repeat times
             while (this.i_repeat <= this.n_repeat)
             
@@ -180,7 +177,7 @@ classdef Experiment_referenceShadingCorrection < Experiment
             %for each reference scan
             for i = 1:this.n_reference
                 %get a random permutation of integers and save it to image_index
-                image_index(:,i) = randperm(this.n_sample)';
+                image_index(:,i) = this.rand_stream.randperm(this.n_sample)';
             end
 
             %add the shading correction to the data
