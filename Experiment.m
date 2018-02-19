@@ -55,7 +55,7 @@ classdef Experiment < handle
         function run(this)
             %if the experiment is completed, throw an error
             if this.is_complete
-                error('Experiment already completed');
+                disp(cell2mat({this.experiment_name,' already completed'}));
             %else, do the experiment, set is_complete to be true and save it
             else
                 this.doExperiment();
