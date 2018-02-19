@@ -1,7 +1,7 @@
 %EXPERIMENT GLM VAR MEAN MAR 16
-%See superclass Experiment_GLMVarMean
+%See superclass Experiment_GlmVarMean
 %For the dataset AbsBlock_Mar13, only top half of the image is used to avoid the foam
-classdef Experiment_GLMVarMean_Mar16 < Experiment_GLMVarMean
+classdef Experiment_GlmVarMean_Mar16 < Experiment_GlmVarMean
     
     properties
     end
@@ -10,9 +10,9 @@ classdef Experiment_GLMVarMean_Mar16 < Experiment_GLMVarMean
     methods (Access = public)
         
         %CONSTRUCTOR
-        function this = Experiment_GLMVarMean_Mar16()
+        function this = Experiment_GlmVarMean_Mar16()
             %call superclass with experiment name
-            this@Experiment_GLMVarMean('GLMVarMean_Mar16');
+            this@Experiment_GlmVarMean('GlmVarMean_Mar16');
         end
         
     end
@@ -23,7 +23,7 @@ classdef Experiment_GLMVarMean_Mar16 < Experiment_GLMVarMean
         %OVERRIDE: SET UP EXPERIMENT
         function setup(this)
             %call superclass with 100 repeats and a random stream
-            this.setup@Experiment_GLMVarMean(20, RandStream('mt19937ar','Seed',uint32(176048084)));
+            this.setup@Experiment_GlmVarMean(20, RandStream('mt19937ar','Seed',uint32(176048084)));
         end
         
         %IMPLEMENTED: GET SCAN

@@ -1,4 +1,4 @@
-classdef Experiment_GlmDeviance < Experiment_GLMVarMean
+classdef Experiment_GlmDeviance < Experiment_GlmVarMean
     
     properties
         

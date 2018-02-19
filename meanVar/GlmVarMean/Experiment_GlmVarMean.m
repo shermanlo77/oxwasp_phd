@@ -8,7 +8,7 @@
 %
 %   The training set is used to train the glm, which is then used to
 %   predict the variance of the test set. Various residuals are plotted
-classdef Experiment_GLMVarMean < Experiment
+classdef Experiment_GlmVarMean < Experiment
     
     %MEMBER VARIABLES
     properties (SetAccess = protected)

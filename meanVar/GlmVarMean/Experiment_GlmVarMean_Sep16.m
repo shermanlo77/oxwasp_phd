@@ -1,6 +1,6 @@
-%EXPERIMENT GLM VAR MEAN July 16
+%EXPERIMENT GLM VAR MEAN Sep 16
 %See superclass Experiment_GLMVarMean
-classdef Experiment_GLMVarMean_July16 < Experiment_GLMVarMean
+classdef Experiment_GlmVarMean_Sep16 < Experiment_GlmVarMean
     
     properties
     end
@@ -8,9 +8,9 @@ classdef Experiment_GLMVarMean_July16 < Experiment_GLMVarMean
     methods (Access = public)
         
         %CONSTRUCTOR
-        function this = Experiment_GLMVarMean_July16(experiment_name)
+        function this = Experiment_GlmVarMean_Sep16(experiment_name)
             %call superclass with experiment name
-            this@Experiment_GLMVarMean(experiment_name);
+            this@Experiment_GlmVarMean(experiment_name);
         end
         
     end
@@ -20,7 +20,7 @@ classdef Experiment_GLMVarMean_July16 < Experiment_GLMVarMean
         %OVERRIDE: SET UP EXPERIMENT
         function setup(this, rand_stream)
             %call superclass with 100 repeats and a random stream
-            this.setup@Experiment_GLMVarMean(100, rand_stream);
+            this.setup@Experiment_GlmVarMean(100, rand_stream);
         end
         
         %IMPLEMENTED: GET N GLM
@@ -53,8 +53,8 @@ classdef Experiment_GLMVarMean_July16 < Experiment_GLMVarMean
         %returns number of shading correctors to investigate
         function n_shad = getNShadingCorrector(this)
             n_shad = 3;
-        end 
-
+        end
+        
         %IMPLEMENTED: GET SHADING CORRECTOR
         %returns shading corrector given index
         %index can range from 1 to getNShadingCorrector
@@ -74,7 +74,7 @@ classdef Experiment_GLMVarMean_July16 < Experiment_GLMVarMean
                     reference_index = [1,reference_white];
                 case 3
                     shading_corrector = ShadingCorrector();
-                    reference_index = 1:scan.reference_white;
+                    reference_index = 1:reference_white;
             end
         end
         
@@ -85,7 +85,7 @@ classdef Experiment_GLMVarMean_July16 < Experiment_GLMVarMean
         %returns scan object
         scan = getScan(this);
         
-    end   
+    end
     
 end
 
