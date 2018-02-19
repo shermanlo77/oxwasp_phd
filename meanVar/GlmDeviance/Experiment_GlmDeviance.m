@@ -17,7 +17,7 @@ classdef Experiment_GlmDeviance < Experiment_GlmVarMean
             %experiment_name
         function this = Experiment_GlmDeviance(experiment_name)
             %call superclass
-            this@Experiment_GLMVarMean(experiment_name);
+            this@Experiment_GlmVarMean(experiment_name);
         end
         
     end
@@ -29,7 +29,7 @@ classdef Experiment_GlmDeviance < Experiment_GlmVarMean
             %n_repeat: number of times to repeat the experiment
             %rand_steam: random stream
         function setup(this, n_repeat, rand_stream)
-            this.setup@Experiment_GLMVarMean(n_repeat, rand_stream);
+            this.setup@Experiment_GlmVarMean(n_repeat, rand_stream);
             this.shape_parameter = (this.n_sample-1)/2;
         end
         
