@@ -52,7 +52,7 @@ classdef Experiment_GlmVarMean < Experiment
         %CONSTRUCTOR
         %PARAMETERS:
             %experiment_name
-        function this = Experiment_GLMVarMean(experiment_name)
+        function this = Experiment_GlmVarMean(experiment_name)
             %call superclass
             this@Experiment(experiment_name);
         end
