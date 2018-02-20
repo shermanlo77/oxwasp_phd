@@ -293,8 +293,6 @@ classdef Experiment_GlmMse < Experiment
             scan = this.getScan();
             %save the gamma shape parameter
             this.shape_parameter = (scan.n_sample-1)/2;
-            %instantise a mean variance estimator
-            this.mean_variance_estimator = MeanVarianceEstimator(scan);
             
             %for each shading corrector
             this.i_shad = 1;
@@ -325,7 +323,7 @@ classdef Experiment_GlmMse < Experiment
                     sample_var = sample_var(not_outlier);
 
                     %plot the frequency density
-                    figure;
+                    fig = LatexFigure.main();
                     ax = hist3Heatmap(sample_mean,sample_var,[this.getNBin(),this.getNBin()],true);
                     colorbar;
                     hold on;
@@ -348,7 +346,10 @@ classdef Experiment_GlmMse < Experiment
                     end
                     %label the axis
                     xlabel('mean (arb. unit)');
-                    ylabel('variance (arb. unit^2)');
+                    ylabel('variance (arb. unit)');
+                    
+                    %save the figure
+                    saveas(fig,fullfile('reports','figures','meanVar',strcat('full_',this.experiment_name,'_iShad',num2str(this.i_shad),'_iGlm',num2str(i),'.eps')),'epsc');
                 end
                 this.i_shad = this.i_shad + 1;
             end
