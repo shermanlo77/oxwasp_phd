@@ -8,7 +8,7 @@
 classdef MeanVarianceEstimator < handle
 
     %MEMBER VARIABLES
-    properties
+    properties (SetAccess = private)
         %array of masked greyvalues for each image
             %dim 1: for each pixel
             %dim 2: for each image
@@ -20,25 +20,18 @@ classdef MeanVarianceEstimator < handle
     end
     
     %METHODS
-    methods
+    methods (Access = public)
         
         %CONSTRUCTOR
         %PARAMETERS:
             %scan: scan object containing images
         %Saves the segmentation
+        %NOTES:
+            %shading correction should be applied prior to construction
         function this = MeanVarianceEstimator(scan)
             %get the segmentation of the scan
             %reshape the segmentation to be a column vector
             this.segmentation = reshape(scan.getSegmentation(),[],1);
-        end
-        
-        %SAVE GREAYVALUE ARRAY
-        %Resave the greyvalue array using a different scan (eg. different shading correction)
-        %PARAMETERS:
-            %scan: scan object containing images
-        %NOTES:
-            %shading correction should be applied prior to construction
-        function saveGreyvalueArray(this, scan)
             %load the images and reshape it to be a design matrix
             image_stack = scan.loadImageStack();
             image_stack = reshape(image_stack,scan.area,scan.n_sample);

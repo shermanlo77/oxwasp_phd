@@ -94,8 +94,6 @@ classdef Experiment_GlmMse < Experiment
             
             this.shape_parameter = (this.n_train-1)/2;
             
-            this.mean_variance_estimator = MeanVarianceEstimator(scan);
-            
             this.assignArray();
             this.rand_stream = rand_stream;
         end
@@ -273,7 +271,7 @@ classdef Experiment_GlmMse < Experiment
             %add the shading corrector
             scan.addShadingCorrector(shading_corrector, reference_index);
             %save the greyvalues
-            this.mean_variance_estimator.saveGreyvalueArray(scan);
+            this.mean_variance_estimator = MeanVarianceEstimator(scan);
         end %saveGreyvalueArray
         
         %IMPLEMENTED: GET N BIN
