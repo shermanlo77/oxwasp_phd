@@ -8,7 +8,7 @@ classdef Experiment_GlmVarMean_July16_30deg  < Experiment_GlmVarMean_July16
         %CONSTRUCTOR
         function this = Experiment_GlmVarMean_July16_30deg()
             %call superclass with experiment name
-            this@Experiment_GlmVarMean_July16('GLMVarMean_July16_30deg');
+            this@Experiment_GlmVarMean_July16('GlmVarMean_July16_30deg');
         end
         
     end
