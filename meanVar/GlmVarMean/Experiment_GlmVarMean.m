@@ -216,7 +216,7 @@ classdef Experiment_GlmVarMean < Experiment
             %stat_name: name of the statistic
         function plotBoxPlot(this,stat_array, stat_name)
             %produce figure
-            figure;
+            fig = LatexFigure.main();
             ax = gca;
             for i = 1:this.getNShadingCorrector()
                 plot(0,0);
@@ -241,9 +241,14 @@ classdef Experiment_GlmVarMean < Experiment
             ax.XTickLabelRotation = 45;
             ax.XTickLabel = this.glm_name_array;
             ax.YLim = [max([min(min(min(stat_array))),ax.YLim(1)]),min([max(max(max(stat_array))),ax.YLim(end)])];
+            ax.XLim = [0.5,numel(this.glm_name_array)+0.5];
             %label the axis and legend
             ylabel(stat_name);
-            legend(this.shading_corrector_array);
+            legend(this.shading_corrector_array,'Location','bestoutside');
+            
+            file_name = fullfile('reports','figures','meanVar',strcat(this.experiment_name,'_',stat_name,'.eps'));
+            file_name(file_name==' ') = '_';
+            saveas(fig,file_name,'epsc');
         end
 
         %GET MEAN VARIANCE

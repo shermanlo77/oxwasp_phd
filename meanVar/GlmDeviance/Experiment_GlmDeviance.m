@@ -2,7 +2,7 @@ classdef Experiment_GlmDeviance < Experiment_GlmVarMean
     
     properties
         
-        %array of deviance
+        %array of scaled deviance
             %dim 1: for each repeat
             %dim 2: for each glm
             %dim 3: for each shading corrector
@@ -18,6 +18,18 @@ classdef Experiment_GlmDeviance < Experiment_GlmVarMean
         function this = Experiment_GlmDeviance(experiment_name)
             %call superclass
             this@Experiment_GlmVarMean(experiment_name);
+        end
+        
+        function printResults(this)
+            this.plotBoxPlot(this.deviance_array,'scaled deviance');
+%             scan = this.getScan();
+%             n = sum(sum(scan.getSegmentation()));
+%             model = this.getGlm(1);
+%             shape_parameter = model.shape_parameter;
+%             hold on;
+%             plot([0.5,this.getNGlm()+0.5],chi2inv(normcdf(-1),n-2)*[1,1],'k--');
+%             plot([0.5,this.getNGlm()+0.5],chi2inv(normcdf(1),n-2)*[1,1],'k--');
+%             disp(chi2inv(normcdf([-1,1]),n-2));
         end
         
     end
