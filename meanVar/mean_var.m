@@ -1,3 +1,7 @@
+%MEAN VAR
+%Plots the mean and variance frequency density heatmap for the data containing reference images
+%Also plots the quantiles of the mean and variance of the reference images
+
 clc;
 clearvars;
 close all;
