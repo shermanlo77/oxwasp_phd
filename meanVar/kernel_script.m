@@ -13,15 +13,10 @@ nbin = 100;
 block_data = AbsBlock_Mar16();
 
 %get variance mean data of the top half of the scans (images 1 to 100)
-[sample_mean,sample_var] = block_data.getSampleMeanVar_topHalf();
+mean_var_estimator = MeanVarianceEstimator(block_data);
+[sample_mean,sample_var] = mean_var_estimator.getMeanVar(1:block_data.n_sample);
 
-%segment the mean variance data to only include the 3d printed sample
-segmentation = block_data.getSegmentation();
-segmentation = segmentation(1:(block_data.height/2),:);
-segmentation = reshape(segmentation,[],1);
-sample_mean = sample_mean(segmentation);
-sample_var = sample_var(segmentation);
-
+%get an array of x to evaluate the kernel density at
 x_plot = linspace(min(sample_mean),max(sample_mean),500);
 
 %for each k
@@ -36,9 +31,17 @@ for k = [1E0, 1E3]
     variance_prediction = model.predict(x_plot);
 
     %plot the frequency density
-    figure;
-    hist3Heatmap(sample_mean,sample_var,[nbin,nbin],false)
+    fig = LatexFigure.main();
+    hist3Heatmap(sample_mean,sample_var,[nbin,nbin],true);
     hold on;
     %plot the fit/prediction
     plot(x_plot,variance_prediction,'r');
+    %put in the colour bar
+    colorbar;
+    %label the axis
+    xlabel('mean (arb. unit)');
+    ylabel('variance (arb. unit)');
+    
+    %save the figure
+    saveas(fig,fullfile('reports','figures','meanVar',strcat('kernel',num2str(log10(k)),'.eps')),'epsc');
 end
