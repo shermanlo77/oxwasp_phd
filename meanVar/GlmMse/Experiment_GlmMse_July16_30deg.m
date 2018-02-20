@@ -1,4 +1,4 @@
-classdef Experiment_GlmVarMean_July16_30deg  < Experiment_GlmVarMean_July16
+classdef Experiment_GlmMse_July16_30deg  < Experiment_GlmMse_July16
     
     properties
     end
@@ -6,9 +6,9 @@ classdef Experiment_GlmVarMean_July16_30deg  < Experiment_GlmVarMean_July16
     methods (Access = public)
         
         %CONSTRUCTOR
-        function this = Experiment_GlmVarMean_July16_30deg()
+        function this = Experiment_GlmMse_July16_30deg()
             %call superclass with experiment name
-            this@Experiment_GlmVarMean_July16('GlmVarMean_July16_30deg');
+            this@Experiment_GlmMse_July16('GlmMse_July16_30deg');
         end
         
     end
@@ -18,7 +18,7 @@ classdef Experiment_GlmVarMean_July16_30deg  < Experiment_GlmVarMean_July16
         %OVERRIDE: SET UP EXPERIMENT
         function setup(this)
             %call superclass with 100 repeats and a random stream
-            this.setup@Experiment_GlmVarMean_July16(RandStream('mt19937ar','Seed',uint32(2045467681)));
+            this.setup@Experiment_GlmMse_July16(RandStream('mt19937ar','Seed',uint32(2045467681)));
         end
         
         %IMPLEMENTED: GET SCAN

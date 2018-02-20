@@ -23,7 +23,7 @@ classdef Experiment_GlmDeviance_Mar16 < Experiment_GlmDeviance
         %OVERRIDE: SET UP EXPERIMENT
         function setup(this)
             %call superclass with 100 repeats and a random stream
-            this.setup@Experiment_GLMVarMean(100, RandStream('mt19937ar','Seed',uint32(2034516703)));
+            this.setup@Experiment_GlmDeviance(100, RandStream('mt19937ar','Seed',uint32(2034516703)));
         end
         
         %IMPLEMENTED: GET SCAN

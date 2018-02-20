@@ -8,7 +8,7 @@
 %
 %   The training set is used to train the glm, which is then used to
 %   predict the variance of the test set. Various residuals are plotted
-classdef Experiment_GlmVarMean < Experiment
+classdef Experiment_GlmMse < Experiment
     
     %MEMBER VARIABLES
     properties (SetAccess = protected)
@@ -52,7 +52,7 @@ classdef Experiment_GlmVarMean < Experiment
         %CONSTRUCTOR
         %PARAMETERS:
             %experiment_name
-        function this = Experiment_GlmVarMean(experiment_name)
+        function this = Experiment_GlmMse(experiment_name)
             %call superclass
             this@Experiment(experiment_name);
         end

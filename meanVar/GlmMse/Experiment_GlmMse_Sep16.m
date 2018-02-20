@@ -1,6 +1,6 @@
 %EXPERIMENT GLM VAR MEAN Sep 16
-%See superclass Experiment_GLMVarMean
-classdef Experiment_GlmVarMean_Sep16 < Experiment_GlmVarMean
+%See superclass Experiment_GLMMse
+classdef Experiment_GlmMse_Sep16 < Experiment_GlmMse
     
     properties
     end
@@ -8,9 +8,9 @@ classdef Experiment_GlmVarMean_Sep16 < Experiment_GlmVarMean
     methods (Access = public)
         
         %CONSTRUCTOR
-        function this = Experiment_GlmVarMean_Sep16(experiment_name)
+        function this = Experiment_GlmMse_Sep16(experiment_name)
             %call superclass with experiment name
-            this@Experiment_GlmVarMean(experiment_name);
+            this@Experiment_GlmMse(experiment_name);
         end
         
     end
@@ -20,7 +20,7 @@ classdef Experiment_GlmVarMean_Sep16 < Experiment_GlmVarMean
         %OVERRIDE: SET UP EXPERIMENT
         function setup(this, rand_stream)
             %call superclass with 100 repeats and a random stream
-            this.setup@Experiment_GlmVarMean(100, rand_stream);
+            this.setup@Experiment_GlmMse(100, rand_stream);
         end
         
         %IMPLEMENTED: GET N GLM
