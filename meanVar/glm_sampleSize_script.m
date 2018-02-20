@@ -13,12 +13,6 @@ rng(uint32(189224219), 'twister');
 %instantise an object pointing to the dataset
 block_data = AbsBlock_Mar16();
 
-%segment the mean variance data to only include the 3d printed sample,
-%threshold indicate pixels which belong to the background
-segmentation = block_data.getSegmentation();
-segmentation = segmentation(1:(block_data.height/2),:);
-segmentation = reshape(segmentation,[],1);
-
 %number of bins for the frequency density plot
 nbin = 100;
 
@@ -29,22 +23,22 @@ n_sample_array = [25,50,75,100];
 fig_array = cell(1,numel(n_sample_array));
 axe_array = cell(1,numel(n_sample_array));
 
+%object for estimating the mean and variance
+mean_var_estimator = MeanVarianceEstimator(block_data);
+
 %for each sample size
 for i_sample = 1:numel(n_sample_array)
     
     %get the sample size
     n_sample = n_sample_array(i_sample);
     
-    %set n_sample mean/var data
+    %set n_sample of images
     data_index = randperm(block_data.n_sample);
     data_index = data_index(1:n_sample);
-    [sample_mean,sample_var] = block_data.getSampleMeanVar_topHalf(data_index);
-    %segment the mean var data
-    sample_mean = sample_mean(segmentation);
-    sample_var = sample_var(segmentation);
+    %work out the mean and variance over these n_sample images
+    [sample_mean,sample_var] = mean_var_estimator.getMeanVar(data_index);
 
-    %shape parameter is number of (images - 1)/2, this comes from the chi
-    %squared distribution
+    %shape parameter is number of (images - 1)/2, this comes from the chi squared distribution
     shape_parameter = (n_sample-1)/2;
 
     %model the mean and variance using gamma glm
@@ -59,7 +53,7 @@ for i_sample = 1:numel(n_sample_array)
     [variance_prediction, up_error, down_error] = model.predict(x_plot');
 
     %plot the frequency density
-    fig_array{i_sample} = figure;
+    fig_array{i_sample} = LatexFigure.main();
     axe_array{i_sample} = hist3Heatmap(sample_mean,sample_var,[nbin,nbin],true);
     hold on;
     %plot the fit/prediction
@@ -67,7 +61,9 @@ for i_sample = 1:numel(n_sample_array)
     %plot the error bars
     plot(x_plot,up_error,'r--');
     plot(x_plot,down_error,'r--');
-    
+    colorbar;
+    xlabel('mean (arb. unit)');
+    ylabel('variance (arb. unit)');
 end
 
 %rescale the colorbar
@@ -115,7 +111,7 @@ for i_sample = 1:numel(n_sample_array)
     %export the background
     fig_array{i_sample}.InvertHardcopy = 'off';
     %set the background to white (of the figure)
-    fig_array{i_sample}.Color = 'white';
+%     fig_array{i_sample}.Color = 'white';
     %export the figure
-    saveas(fig_array{i_sample},strcat('reports/figures/meanVar/sample_size_',num2str(n_sample_array(i_sample)),'.png'),'png');
+    saveas(fig_array{i_sample},fullfile('reports','figures','meanVar',strcat('sample_size_',num2str(n_sample_array(i_sample)),'.eps')),'epsc');
 end
