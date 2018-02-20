@@ -26,7 +26,7 @@ for i_data = 1:4
         case 4
             block_data = AbsBlock_July16_120deg();
             block_data.addDefaultShadingCorrector();
-            data_name = 'AbsBlock_July16_120deg';
+            data_name = 'AbsBlock_Sep16_120deg';
     end
     
     %get the number of reference images
