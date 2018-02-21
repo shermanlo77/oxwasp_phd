@@ -24,7 +24,7 @@ classdef Experiment_MeanVarFit_Mar16 < Experiment_MeanVarFit
         
         %IMPLEMENTED: GET N GLM
         function n_glm = getNGlm(this)
-            n_glm = 9;
+            n_glm = 10;
         end
         
         %IMPLEMENTED: GET GLM
@@ -46,12 +46,14 @@ classdef Experiment_MeanVarFit_Mar16 < Experiment_MeanVarFit
                     model = GlmGamma(-1,LogLink());
                     model.setShapeParameter(this.shape_parameter);
                 case 6
-                    model = KernelRegression(EpanechnikovKernel(),1E1);
+                    model = KernelRegression(EpanechnikovKernel(),1E0);
                 case 7
-                    model = KernelRegression(EpanechnikovKernel(),1E2);
+                    model = KernelRegression(EpanechnikovKernel(),1E1);
                 case 8
-                    model = KernelRegression(EpanechnikovKernel(),1E3);
+                    model = KernelRegression(EpanechnikovKernel(),1E2);
                 case 9
+                    model = KernelRegression(EpanechnikovKernel(),1E3);
+                case 10
                     model = KernelRegression(EpanechnikovKernel(),1E4);
             end
         end
