@@ -56,7 +56,7 @@ classdef Experiment_GlmDeviance < Experiment_GlmMse
             model = this.getGlm(this.i_glm);
 
             %get bootstrap index of the training and test data
-            index_bootstrap = randi([1,this.n_sample],this.n_sample,1);
+            index_bootstrap = this.rand_stream.randi([1,this.n_sample],this.n_sample,1);
 
             %get variance mean data of the training set
             [sample_mean,sample_var] = this.getMeanVar(index_bootstrap);
