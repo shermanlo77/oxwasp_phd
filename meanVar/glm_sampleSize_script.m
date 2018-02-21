@@ -8,7 +8,7 @@ clearvars;
 close all;
 
 %set random seed
-rng(uint32(189224219), 'twister');
+rand_stream = RandStream('mt19937ar','Seed',uint32(189224219));
 
 hist_plot = Hist3Heatmap();
 
@@ -35,7 +35,7 @@ for i_sample = 1:numel(n_sample_array)
     n_sample = n_sample_array(i_sample);
     
     %set n_sample of images
-    data_index = randperm(block_data.n_sample);
+    data_index = rand_stream.randperm(block_data.n_sample);
     data_index = data_index(1:n_sample);
     %work out the mean and variance over these n_sample images
     [sample_mean,sample_var] = mean_var_estimator.getMeanVar(data_index);
