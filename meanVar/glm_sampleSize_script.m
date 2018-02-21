@@ -10,6 +10,8 @@ close all;
 %set random seed
 rng(uint32(189224219), 'twister');
 
+hist_plot = Hist3Heatmap();
+
 %instantise an object pointing to the dataset
 block_data = AbsBlock_Mar16();
 
@@ -54,14 +56,13 @@ for i_sample = 1:numel(n_sample_array)
 
     %plot the frequency density
     fig_array{i_sample} = LatexFigure.main();
-    axe_array{i_sample} = hist3Heatmap(sample_mean,sample_var,[nbin,nbin],true);
+    axe_array{i_sample} = hist_plot.plot(sample_mean,sample_var);
     hold on;
     %plot the fit/prediction
     plot(x_plot,variance_prediction,'r');
     %plot the error bars
     plot(x_plot,up_error,'r--');
     plot(x_plot,down_error,'r--');
-    colorbar;
     xlabel('mean (arb. unit)');
     ylabel('variance (arb. unit)');
 end
@@ -111,7 +112,7 @@ for i_sample = 1:numel(n_sample_array)
     %export the background
     fig_array{i_sample}.InvertHardcopy = 'off';
     %set the background to white (of the figure)
-%     fig_array{i_sample}.Color = 'white';
+    fig_array{i_sample}.Color = 'white';
     %export the figure
     saveas(fig_array{i_sample},fullfile('reports','figures','meanVar',strcat('sample_size_',num2str(n_sample_array(i_sample)),'.eps')),'epsc');
 end

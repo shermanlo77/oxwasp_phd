@@ -6,6 +6,8 @@ clc;
 clearvars;
 close all;
 
+hist_plot = Hist3Heatmap();
+
 %for each data set
 for i_data = 1:4
     
@@ -24,7 +26,7 @@ for i_data = 1:4
             block_data.addDefaultShadingCorrector();
             data_name = 'AbsBlock_Sep16_30deg';
         case 4
-            block_data = AbsBlock_July16_120deg();
+            block_data = AbsBlock_Sep16_120deg();
             block_data.addDefaultShadingCorrector();
             data_name = 'AbsBlock_Sep16_120deg';
     end
@@ -72,8 +74,7 @@ for i_data = 1:4
 
     %heatmap plot the mean and variance frequency density
     fig = LatexFigure.main();
-    hist3Heatmap(mean_stack, var_stack, [100,100], true);
-    colorbar;
+    hist_plot.plot(mean_stack, var_stack);
     xlabel('mean (arb. unit)');
     ylabel('variance (arb. unit)');
     hold on;

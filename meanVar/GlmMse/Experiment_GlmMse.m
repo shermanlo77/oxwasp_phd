@@ -274,11 +274,6 @@ classdef Experiment_GlmMse < Experiment
             this.mean_variance_estimator = MeanVarianceEstimator(scan);
         end %saveGreyvalueArray
         
-        %IMPLEMENTED: GET N BIN
-        function n_bin = getNBin(this)
-            n_bin = 100;
-        end
-        
     end
     
     methods (Access = public)
@@ -287,6 +282,8 @@ classdef Experiment_GlmMse < Experiment
         %Plot the variance and mean histogram, along with the fitted glm
         %Using all n_sample images, for all GLM
         function plotFullFit(this)
+            
+            hist_plot = Hist3Heatmap();
 
             %shape parameter is number of (images - 1)/2, this comes from the chi
             %squared distribution
@@ -301,31 +298,21 @@ classdef Experiment_GlmMse < Experiment
                 %for this shading corrector, save the greyvalues
                 this.saveGreyvalueArray();
                 
+                %get the sample mean and variance
+                [sample_mean,sample_var] = this.getMeanVar(1:this.n_sample);
+                
                 %for each glm
                 for i = 1:this.getNGlm()
                     
                     %get the glm
                     model = this.getGlm(i);
 
-                    %get the sample mean and variance
-                    [sample_mean,sample_var] = this.getMeanVar(1:this.n_sample);
-                    
                     %train the glm
                     model.train(sample_mean,sample_var);
-                    
-                    %indicate sample means and variances which are not outliers
-                    mean_not_outlier = removeOutliers_iqr(sample_mean);
-                    var_not_outlier = removeOutliers_iqr(sample_var);
-                    %get boolean vector, true for values which are not outliers for both mean and variance
-                    not_outlier = mean_not_outlier & var_not_outlier;
-                    %remove outliers in the vector sample_mean and sample_var
-                    sample_mean = sample_mean(not_outlier);
-                    sample_var = sample_var(not_outlier);
 
                     %plot the frequency density
-                    fig = LatexFigure.main();
-                    ax = hist3Heatmap(sample_mean,sample_var,[this.getNBin(),this.getNBin()],true);
-                    colorbar;
+                    fig = LatexFigure.sub();
+                    ax = hist_plot.plot(sample_mean,sample_var);
                     hold on;
 
                     %get a range of greyvalues to plot the fit

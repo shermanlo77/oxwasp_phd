@@ -6,8 +6,7 @@ clc;
 clearvars;
 close all;
 
-%number of bins for the frequency density plot
-nbin = 100;
+hist_plot = Hist3Heatmap();
 
 %instantise an object pointing to the dataset
 block_data = AbsBlock_Mar16();
@@ -32,12 +31,10 @@ for k = [1E0, 1E3]
 
     %plot the frequency density
     fig = LatexFigure.main();
-    hist3Heatmap(sample_mean,sample_var,[nbin,nbin],true);
+    hist_plot.plot(sample_mean,sample_var);
     hold on;
     %plot the fit/prediction
     plot(x_plot,variance_prediction,'r');
-    %put in the colour bar
-    colorbar;
     %label the axis
     xlabel('mean (arb. unit)');
     ylabel('variance (arb. unit)');
