@@ -14,27 +14,51 @@ addpath(genpath(fullfile('inference')));
 % this = Experiment_ReferenceShadingCorrection_Sep16();
 % this.run();
 
-
-this = Experiment_GlmVarMean_Mar16();
+this = Experiment_MeanVarFit_Mar16();
 this.run();
 this.printResults();
 
-this = Experiment_GlmVarMean_July16_30deg();
+this = Experiment_MeanVarFit_July16_30deg();
 this.run();
 this.printResults();
 
-this = Experiment_GlmVarMean_July16_120deg();
+this = Experiment_MeanVarFit_July16_120deg();
 this.run();
 this.printResults();
 
-this = Experiment_GlmVarMean_Sep16_30deg();
+this = Experiment_MeanVarFit_Sep16_30deg();
 this.run();
 this.printResults();
 
-this = Experiment_GlmVarMean_Sep16_120deg();
+this = Experiment_MeanVarFit_Sep16_120deg();
 this.run();
 this.printResults();
 
+
+this = Experiment_GlmMse_Mar16();
+this.run();
+this.printResults();
+
+this = Experiment_GlmMse_July16_30deg();
+this.run();
+this.printResults();
+
+this = Experiment_GlmMse_July16_120deg();
+this.run();
+this.printResults();
+
+this = Experiment_GlmMse_Sep16_30deg();
+this.run();
+this.printResults();
+
+this = Experiment_GlmMse_Sep16_120deg();
+this.run();
+this.printResults();
+
+
+this = Experiment_GlmDeviance_Mar16();
+this.run();
+this.printResults();
 
 this = Experiment_GlmDeviance_July16_30deg();
 this.run();
