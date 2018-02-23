@@ -13,7 +13,7 @@
 classdef EmpericalConvolution < handle
     
     %MEMBER VARIABLES
-    properties (SetAccess = private)
+    properties (SetAccess = protected)
         n_col; %number of columns to sample
         n_row; %number of rows to sample
         kernel_size; %2 column vector [height, width] of the size of the moving window
