@@ -75,7 +75,7 @@ classdef EmpericalConvolution < handle
             %do a meshgrid
             [x_grid, y_grid] = meshgrid(x_array,y_array);
             
-            kernel_half_size = round(this.kernel_size / 2);
+            kernel_half_size = floor(this.kernel_size / 2);
             
             %for each column
             for i_col = 1:this.n_col
