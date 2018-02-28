@@ -65,7 +65,7 @@ classdef Experiment_GlmDeviance < Experiment_GlmMse
             model.train(sample_mean,sample_var);
             
             %save the scaled deviance
-            this.deviance_array(this.i_repeat,this.i_glm,this.i_shad) = model.scaled_deviance;
+            this.deviance_array(this.i_repeat,this.i_glm,this.i_shad) = model.getScaledDeviance(sample_mean, sample_var);
         end
         
     end

@@ -33,7 +33,7 @@ classdef Experiment_GlmDeviance_Mar16 < Experiment_GlmDeviance
         
         %IMPLEMENTED: GET N GLM
         function n_glm = getNGlm(this)
-            n_glm = 5;
+            n_glm = 6;
         end
         
         %IMPLEMENTED: GET GLM
@@ -54,6 +54,8 @@ classdef Experiment_GlmDeviance_Mar16 < Experiment_GlmDeviance
                 case 5
                     model = GlmGamma(-1,LogLink());
                     model.setShapeParameter(this.shape_parameter);
+                case 6
+                    model = KernelRegression_Lookup(EpanechnikovKernel(),1E3);
             end
         end
         

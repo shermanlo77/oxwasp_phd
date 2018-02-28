@@ -83,7 +83,7 @@ classdef GlmGamma < Regressor
             %work out the log likelihhod up to a constant
             %w and z are variables for IRLS
             [mu, w, z] = this.getIRLSStatistics(X, y);
-            d_old = this.getScaledDeviance(mu, y, lny);
+            d_old = this.getScaledDeviance2(mu, y, lny);
             
             %for n_step times
             for i_step = 1:this.n_step
@@ -100,7 +100,7 @@ classdef GlmGamma < Regressor
                 %update variables
                 %work out the new log likelihhod up to a constant
                 [mu, w, z] = this.getIRLSStatistics(X, y);
-                d_new = this.getScaledDeviance(mu, y, lny);
+                d_new = this.getScaledDeviance2(mu, y, lny);
                 
                 %if the improvement in log likelihhod is less than tol*n_train
                 if ( (d_new - d_old) > this.tol*this.n_train)
@@ -289,7 +289,7 @@ classdef GlmGamma < Regressor
         %RETURN:
             %d: deviance
         function d = getDeviance(this, mu, y, lny)
-            d = this.shape_parameter * this.getScaledDeviance(mu, y, lny);
+            d = this.shape_parameter * this.getScaledDeviance2(mu, y, lny);
         end
         
         %GET SCALED DEVIANCE
@@ -299,7 +299,7 @@ classdef GlmGamma < Regressor
             %lny: column vector of ln response
         %RETURN:
             %d: scaled deviance
-        function d = getScaledDeviance(this, mu, y, lny)
+        function d = getScaledDeviance2(this, mu, y, lny)
             d = 2*sum((y-mu)./mu - lny + log(mu));
         end
         

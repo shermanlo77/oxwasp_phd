@@ -35,10 +35,22 @@ classdef Regressor < handle
             mse = sum((y-y_predict).^2)/numel(y);
         end
         
+        %GET SCALED DEVIANCE
+        %PARAMETERS:
+            %mu: column vector of means
+            %y: column vector of the response
+            %lny: column vector of ln response
+        %RETURN:
+            %d: scaled deviance
+        function d = getScaledDeviance(this, x, y)
+            y_predict = this.predict(x);
+            d = 2*sum((y-y_predict)./y_predict - log(y) + log(y_predict));
+        end
+        
         function [mse_vector] = getPredictionMSSE(this, x, y)
             mse_vector = [nan; this.getPredictionMSE(x,y)];
         end
-
+        
     end
     
     %ABSTRACT METHODS
