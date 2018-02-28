@@ -2330,7 +2330,7 @@ It is given that $D\sim\chi_{m-2}^2$ which implies that $\expectation\left[D\rig
 
 The analysis on the deviance was conducted by fitting GLMs with different link functions and polynomial orders $p$ onto the variance-mean data using all $n=100$ images from \texttt{Mar16}. The deviance was then calculated. This procedure was done using multiple bootstrap samples \citep{efron1992bootstrap} of the $m$ images to get a sample of scaled deviance.
 
-The resulting 100 bootstrapped scaled deviance are shown in Figure \ref{fig:meanvar_deviance_mar16}. The scaled deviance does not vary much from model to model and suggests that the goodness of fit are all very similar.
+The resulting 100 bootstrapped scaled deviance are shown in Figure \ref{fig:meanvar_deviance_mar16}. The kernel regression was also included. The scaled deviance does not vary much from model to model and suggests that the goodness of fit are all very similar.
 
 \begin{figure}
     \centering
@@ -2339,57 +2339,75 @@ The resulting 100 bootstrapped scaled deviance are shown in Figure \ref{fig:mean
     \label{fig:meanvar_deviance_mar16}
 \end{figure}
 
-In this particular example, $m\approx 2\times 10^6$ and $n=100$. Then one would expect the scaled deviance to have values
+In this particular example, $m\approx 1.3\times 10^6$ and $n=100$. Then one would expect the scaled deviance to have values
 \begin{align*}
     \expectation\left[D^*\right]&=\frac{1}{\alpha}\expectation\left[D\right]
     \\
     &=\frac{2}{n-1}\times (m-2)
     \\
-    &\approx \frac{2}{100}\times 2\times 10^6
+    &\approx \frac{2}{100-1}\times (1.3\times 10^6-2)
     \\
-    &\approx 4 \times 10^4
+    &\approx 2.6 \times 10^4
 \end{align*}
-which is similar in magnitude obtained from the bootstrap samples.
-
+which is similar in magnitude but lower compared to the scaled deviances obtained from the bootstrap samples. This suggests the shape parameter $\alpha=(n-1)/2$ is too big and perhaps should be smaller. The estimation of the shape parameter here is however not too important as it is not used to further calculations.
 
 \subsection{Cross Validation}
 
+Another way to do model selection is cross validation \cite{friedman2001elements}. In the \texttt{Mar16} dataset, the 100 images were spilt into 2 equally sized sets called the training set and the test set. This produced 2 variance-mean data, one from each set. The regression was fitted onto the training set and the training set only.
+
+Prediction using the fitted regression can be accessed. This was done by calculating the mean squared error of the prediction of the training set, known as the training error, or the test set, known as the test error.
+
+20 samples of training and test errors were obtained by repeating the analysis using another random allocation of the training and test set. The results are shown in Figure \ref{fig:meanvar_mar16mse}. Each of the regressions considered all have similar prediction ability with the exception of GLM with log link and $p=1$ which performed significantly worse.
+
+\begin{figure}
+	\centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/meanVar/GlmMse_Mar16_training_MSE.eps}
+        \caption{Training error}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/meanVar/GlmMse_Mar16_test_MSE.eps}
+        \caption{Test error}
+    \end{subfigure}
+    }
+    \caption{Mean squared error in variance prediction using different regressions on the variance-mean data from \texttt{Mar16}.}
+    \label{fig:meanvar_mar16mse}
+\end{figure}
+
 \subsection{Shading Correction}
 
-\section{Conclusion}
+%\begin{figure}
+%	\centering
+%    \centerline{
+%    \begin{subfigure}[b]{0.49\textwidth}
+%        \includegraphics[width=\textwidth]{../figures/meanVar/meanVarAbsBlock_July16_30deg.eps}
+%        \caption{30 deg}
+%    \end{subfigure}
+%    \begin{subfigure}[b]{0.49\textwidth}
+%        \includegraphics[width=\textwidth]{../figures/meanVar/meanVarAbsBlock_July16_120deg.eps}
+%        \caption{120 deg}
+%    \end{subfigure}
+%    }
+%    \caption{Log frequency density of the within pixel variance-mean data from \texttt{July16}. The error bars represent the variance-mean quartiles from the reference images.}
+%\end{figure}
+%
+%\begin{figure}
+%	\centering
+%    \centerline{
+%    \begin{subfigure}[b]{0.49\textwidth}
+%        \includegraphics[width=\textwidth]{../figures/meanVar/meanVarAbsBlock_Sep16_30deg.eps}
+%        \caption{30 deg}
+%    \end{subfigure}
+%    \begin{subfigure}[b]{0.49\textwidth}
+%        \includegraphics[width=\textwidth]{../figures/meanVar/meanVarAbsBlock_Sep16_120deg.eps}
+%        \caption{120 deg}
+%    \end{subfigure}
+%    }
+%    \caption{Log frequency density of the within pixel variance-mean data from \texttt{Sep16}. The error bars represent the variance-mean quartiles from the reference images.}
+%\end{figure}
 
-
-\begin{figure}
-	\centering
-    \centerline{
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/meanVarAbsBlock_July16_30deg.eps}
-        \caption{30 deg}
-    \end{subfigure}
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/meanVarAbsBlock_July16_120deg.eps}
-        \caption{120 deg}
-    \end{subfigure}
-    }
-    \caption{Log frequency density of the within pixel variance-mean data from \texttt{July16}. The error bars represent the variance-mean quartiles from the reference images.}
-\end{figure}
-
-\begin{figure}
-	\centering
-    \centerline{
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/meanVarAbsBlock_Sep16_30deg.eps}
-        \caption{30 deg}
-    \end{subfigure}
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/meanVarAbsBlock_Sep16_120deg.eps}
-        \caption{120 deg}
-    \end{subfigure}
-    }
-    \caption{Log frequency density of the within pixel variance-mean data from \texttt{Sep16}. The error bars represent the variance-mean quartiles from the reference images.}
-\end{figure}
-
-
+It was investigated how shading correction affects the variance-mean relationship. Figure \ref{fig:meanvar_shadingcorrection_july16_30deg} shows the sample variance-mean for the \texttt{July16 30deg} data with different types of shading correction applied. At a quick glance, it appeared the shading correction did not do much to the sample variance-mean data. However a closer look at low means showed that shading correction had a particular effect and formed a tighter cluster in the bottom-left of the variance-mean histogram. This implied that shading correction made more dark pixels have similar grey values.
 
 \begin{figure}
 	\centering
@@ -2410,85 +2428,12 @@ which is similar in magnitude obtained from the bootstrap samples.
     \end{subfigure}
     }
     \caption{Log frequency density of the within pixel variance-mean data from \texttt{July16 30deg} using different shading corrections. Fitted is a Gamma GLM with identity link. Error bars represent the $\Phi(\pm1)$ quantile.}
+    \label{fig:meanvar_shadingcorrection_july16_30deg}
 \end{figure}
 
+In this section, the datasets \texttt{July16 30deg}, \texttt{July16 120deg}, \texttt{Sep16 30deg} and \texttt{Sep16 120deg} were considered. These are the only datasets with black, grey and white images which are used in shading correction.
 
-
-\begin{figure}
-	\centering
-    \centerline{
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/GlmMse_Mar16_training_MSE.eps}
-        \caption{Training error}
-    \end{subfigure}
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/GlmMse_Mar16_test_MSE.eps}
-        \caption{Test error}
-    \end{subfigure}
-    }
-    \caption{Mean squared error in variance prediction using different regressions on the variance-mean data from \texttt{Mar16}.}
-\end{figure}
-
-\begin{figure}
-	\centering
-    \centerline{
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/GlmMse_July16_30deg_training_MSE.eps}
-        \caption{Training error}
-    \end{subfigure}
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/GlmMse_July16_30deg_test_MSE.eps}
-        \caption{Test error}
-    \end{subfigure}
-    }
-    \caption{Mean squared error in variance prediction using different regressions on the variance-mean data from \texttt{July16 30deg}.}
-\end{figure}
-
-\begin{figure}
-	\centering
-    \centerline{
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/GlmMse_July16_120deg_training_MSE.eps}
-        \caption{Training error}
-    \end{subfigure}
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/GlmMse_July16_120deg_test_MSE.eps}
-        \caption{Test error}
-    \end{subfigure}
-    }
-    \caption{Mean squared error in variance prediction using different regressions on the variance-mean data from \texttt{July16 120deg}.}
-\end{figure}
-
-\begin{figure}
-	\centering
-    \centerline{
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/GlmMse_Sep16_30deg_training_MSE.eps}
-        \caption{Training error}
-    \end{subfigure}
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/GlmMse_Sep16_30deg_test_MSE.eps}
-        \caption{Test error}
-    \end{subfigure}
-    }
-    \caption{Mean squared error in variance prediction using different regressions on the variance-mean data from \texttt{Sep16 30deg}.}
-\end{figure}
-
-\begin{figure}
-	\centering
-    \centerline{
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/GlmMse_Sep16_120deg_training_MSE.eps}
-        \caption{Training error}
-    \end{subfigure}
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/GlmMse_Sep16_120deg_test_MSE.eps}
-        \caption{Test error}
-    \end{subfigure}
-    }
-    \caption{Mean squared error in variance prediction using different regressions on the variance-mean data from \texttt{Sep16 120deg}.}
-\end{figure}
-
+A regression was fitted using all images in each dataset to get the sample variance-mean data. The scaled deviance was calculated and repeated using bootstrapped samples of the images to get 100 samples of the scaled deviance. These are shown in Figures \ref{fig:meanvar_deviance_july16} and \ref{fig:meanvar_deviance_sep16} for the datasets \texttt{July16} and \texttt{Sep16} respectively.
 
 \begin{figure}
 	\centering
@@ -2503,6 +2448,7 @@ which is similar in magnitude obtained from the bootstrap samples.
     \end{subfigure}
     }
     \caption{Scaled deviance when fitting Gamma GLM on the within pixel variance-mean data from \texttt{July16}.}
+    \label{fig:meanvar_deviance_july16}
 \end{figure}
 
 \begin{figure}
@@ -2518,9 +2464,102 @@ which is similar in magnitude obtained from the bootstrap samples.
     \end{subfigure}
     }
     \caption{Scaled deviance when fitting Gamma GLM on the within pixel variance-mean data from \texttt{Sep16}.}
+    \label{fig:meanvar_deviance_sep16}
+\end{figure}
+
+The scaled deviance did not vary much from model to model and shading correction to another. However there was one notable exception in \texttt{July16 120deg} where it appeared the scaled deviance preferred the log link with $p=-2$. Figure \ref{fig:meanvar_july16_glm} shows how the curvature of the log link captured the sample variance-mean data.
+
+\begin{figure}
+	\centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/meanVar/MeanVarFit_July16_120deg_iShad1_iGlm1.eps}
+        \caption{Identity link, $p=1$}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/meanVar/MeanVarFit_July16_120deg_iShad1_iGlm3.eps}
+        \caption{Log link, $p=-2$}
+    \end{subfigure}
+    }
+    \caption{Log frequency density graph of the sample variance-mean data from the \texttt{July16 120deg} dataset.}
+    \label{fig:meanvar_july16_glm}
+\end{figure}
+
+Worryingly there appeared to be a significant change in the scaled deviance at different angles in the \texttt{July 16} dataset. This is unexplained.
+
+Another analysis was done by holding out half of the images and assigned it as the test set. The remaining images were assigned to be the training set and was used to train different types of regressions. The training and test MSE are shown in Figures \ref{fig:meanvar_mse_july16_30deg}, \ref{fig:meanvar_mse_july16_120deg}, \ref{fig:meanvar_mse_sep16_30deg} \& \ref{fig:meanvar_mse_sep16_120deg} for the datasets \texttt{July16 30deg}, \texttt{July16 120deg}, \texttt{Sep16 30deg} and \texttt{Sep16 120deg} respectively.
+
+What is remarkable is how much shading correction improved the training and test MSE, in particular in the \texttt{Sep16} dataset.
+
+\begin{figure}
+\centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/meanVar/GlmMse_July16_30deg_training_MSE.eps}
+        \caption{Training error}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/meanVar/GlmMse_July16_30deg_test_MSE.eps}
+        \caption{Test error}
+    \end{subfigure}
+    }
+    \caption{Mean squared error in variance prediction using different regressions on the variance-mean data from \texttt{July16 30deg}.}
+    \label{fig:meanvar_mse_july16_30deg}
+\end{figure}
+
+\begin{figure}
+	\centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/meanVar/GlmMse_July16_120deg_training_MSE.eps}
+        \caption{Training error}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/meanVar/GlmMse_July16_120deg_test_MSE.eps}
+        \caption{Test error}
+    \end{subfigure}
+    }
+    \caption{Mean squared error in variance prediction using different regressions on the variance-mean data from \texttt{July16 120deg}.}
+    \label{fig:meanvar_mse_july16_120deg}
+\end{figure}
+
+\begin{figure}
+	\centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/meanVar/GlmMse_Sep16_30deg_training_MSE.eps}
+        \caption{Training error}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/meanVar/GlmMse_Sep16_30deg_test_MSE.eps}
+        \caption{Test error}
+    \end{subfigure}
+    }
+    \caption{Mean squared error in variance prediction using different regressions on the variance-mean data from \texttt{Sep16 30deg}.}
+    \label{fig:meanvar_mse_sep16_30deg}
+\end{figure}
+
+\begin{figure}
+	\centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/meanVar/GlmMse_Sep16_120deg_training_MSE.eps}
+        \caption{Training error}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/meanVar/GlmMse_Sep16_120deg_test_MSE.eps}
+        \caption{Test error}
+    \end{subfigure}
+    }
+    \caption{Mean squared error in variance prediction using different regressions on the variance-mean data from \texttt{Sep16 120deg}.}
+    \label{fig:meanvar_mse_sep16_120deg}
 \end{figure}
 
 
+\section{Conclusion}
+Experimentally it was found that a Gamma GLM with identity link and $p=1$ performed just as well with other GLM with different link functions and non-parametric regressions. A Gamma GLM with identity link and $p=1$ is essentially a simple linear regression. The simple linear regression is attractive as the linear relationship between the variance and mean is backed up by the compound Poisson model of x-ray photon behaviour. The simple linear regression is also a good candidate for the variance-mean model to those who prefer simpler models and follows Occam’s razor.
+
+It was also found that shading correction aid in variance prediction. This highlights the important of shading correction and should be applied to images whenever possible.
 
 \chapter{Inference}
 
