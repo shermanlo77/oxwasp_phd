@@ -2563,6 +2563,31 @@ It was also found that shading correction aid in variance prediction. This highl
 
 \chapter{Inference}
 
+The aim of this project is to obtain an x-ray image of a 3D printed sample and compare it with a simulation of that scan using software called \texttt{aRTist}. \texttt{aRTist} can simulate x-ray scans of the 3D printed sample given the specifications of the scan, such as the x-ray source, the x-ray detector and the blueprint of the 3D printed sample. Users of \texttt{aRTist} can align the simulated x-ray image to the real x-ray image using numerical methods, however this is outside the scope of this thesis.
+
+Disagreement between the scan and \texttt{aRTist} can be found by simply subtracting one image from the other, any values too big in magnitude can be considered as a defect. However in the previous chapters, it was found that x-ray photons behave randomly and large differences in the comparison can be due to chance. Thus the comparisons should be done under the face of uncertainty.
+
+A pixel by pixel inference was proposed to do defect detection. A statistic $z_{i,j}$ for the $(i,j)$ positioned pixel can be calculated for all pixels. This statistic is
+\begin{equation}
+    z_{i,j} = 
+    \dfrac{
+        \text{scan}_{i,j} - \text{aRTist}_{i,j}
+    }
+    {
+        \sqrt{\widehat{\variance}\left[\text{scan}_{i,j}\right]}
+    }
+\end{equation}
+where $\widehat{\variance}\left[\text{scan}_{i,j}\right]$ is the estimated grey value variance of pixel $(i,j)$ in the scan. Under mild assumptions, it was shown in the previous chapters that the grey values in the scan are Normal. Thus by treating the simulated image from \texttt{aRTist} as known, then
+\begin{equation}
+z_{i,j}\sim \normal(0,1) \ .
+\end{equation}
+This means the randomness of the $z_{i,j}$ statistics can be quantified.
+
+The estimation of the grey value variance given the grey value, that is $\widehat{\variance}\left[\text{scan}_{i,j}\right]$ will be explained here. The variance model can be calibrated, or trained, by holding out a number replicated x-ray scans of a 3D printed sample. These replicated x-ray scans provide variance-mean data which then can be used to train the variance model, such as a Gamma distributed GLM. The method on doing so was described in the previous chapter and it was found a linear relationship between the variance and the mean was a good model.
+
+This method can be applied to the dataset \texttt{Sep16 120deg}. The 20 x-ray images were spilt into 3. 10 images were used to train the variance-mean model, 
+
+
 \bibliographystyle{apalike}
 \bibliography{../bib}
 
