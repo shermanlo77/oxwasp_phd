@@ -50,8 +50,21 @@ classdef ImagescSignificant < handle
         %Plots this.image using imagesc
         %colours in significant pixels, indicated by this.sig_image
         function plot(this)
-            %plot the image
-            im = imagesc(this.image, this.clim);
+            %get the colour map
+            colour_map = colormap;
+            %get the number of steps in this colour map
+            n_colour_step = numel(colour_map(:,1));
+            %get the dimensions of the image and the area
+            [height,width] = size(this.image);
+            area = height*width;
+            
+            %declare a height x width x 3 RGB matrix
+            image_plot = zeros(height,width,3);
+            %for each colour
+            for i = 1:3
+                %interpolate the colourmap
+                image_plot(:,:,i) = interp1(linspace(this.clim(1),this.clim(2),n_colour_step),colour_map(:,i),this.image);
+            end
             
             %if sig_image is not empty, ie it has a value
             if ~isempty(this.sig_image)
@@ -63,16 +76,18 @@ classdef ImagescSignificant < handle
                     %dilate the significant map
                     sig_plot = imdilate(sig_plot,strel('square',this.dilate_size));
                 end
-                %make the significant pixels transparent
-                im.AlphaData = ~sig_plot;
-                %set the background of the image ot sig_color
-                im.Parent.Color = this.sig_color;
+                %for each colour
+                for i = 1:3
+                    %change the colour of the significant pixels
+                    image_plot(find(sig_plot)+(i-1)*area) = this.sig_color(i);
+                end
             end
             
-            %plot the colour bar and remove the x and y ticks
+            %plot the image
+            im = imshow(image_plot,'InitialMagnification','fit');   
+            %plot the colour bar and set it
             colorbar;
-            im.Parent.XTick = [];
-            im.Parent.YTick = [];
+            im.Parent.CLim = this.clim;
         end
         
     end
