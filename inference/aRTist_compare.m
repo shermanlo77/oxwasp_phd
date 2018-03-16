@@ -11,43 +11,18 @@ block_data.addDefaultShadingCorrector();
 
 %get random permutation for each image
 index = randperm(block_data.n_sample);
-n_train = block_data.n_sample - 2;
 n_test = 1;
-n_calibrate = 1;
+n_train = block_data.n_sample - n_test;
 training_index = index(1:n_train);
 test_index = index((n_train+1):(n_train+n_test));
-calibrate_index = index((n_train+n_test+1):end);
 
 %get a phanton image and aRTist image
-phantom = mean(block_data.loadImageStack(calibrate_index),3);
 aRTist = block_data.getShadingCorrectedARTistImage(ShadingCorrector(),1:block_data.reference_white);
 
 %get the segmentation image
 segmentation = block_data.getSegmentation();
 %get the number of segmented images
 n_pixel = sum(sum(segmentation));
-
-phantom_vector = reshape(phantom(segmentation),[],1);
-aRTist_vector = reshape(aRTist(segmentation),[],1);
-
-% calibrator = DifferenceCalibrator(phantom_vector, aRTist_vector);
-% calibrator.setParameter(1E5);
-% calibrator.calibrate();
-% 
-% calibrator.plotCalibration([300,300],false);
-% calibrator.plotDifference([100,100],false,true);
-% calibrator.plotCalibration([300,300],true);
-% calibrator.plotDifference([100,100],true,false);
-% 
-% aRTist(segmentation) = reshape(calibrator.aRTist_calibrated,[],1);
-
-%plot the phantom and aRTist image
-figure;
-imagesc(phantom);
-colorbar;
-figure;
-imagesc(aRTist);
-colorbar;
 
 %get the training images
 training_stack = block_data.loadImageStack(training_index);
@@ -57,9 +32,6 @@ training_stack = training_stack(reshape(segmentation,[],1),:);
 %get the segmented mean and variance greyvalue
 training_mean = mean(training_stack,2);
 training_var = var(training_stack,[],2);
-%plot the variance vs mean
-% figure;
-% hist3Heatmap(training_mean,training_var,[100,100],true);
 
 %train glm using the training set mean and variance
 model = GlmGamma(1,IdentityLink());
@@ -70,294 +42,85 @@ model.train(training_mean,training_var);
 var_predict = reshape(model.predict(reshape(aRTist,[],1)),block_data.height, block_data.width);
 
 %get the test images
-test_stack = block_data.loadImageStack(test_index);
+test = block_data.loadImageStack(test_index);
 
-for i = 1:n_test
-    %for this test image (the 1st one)
-    test = test_stack(:,:,i);
-    %get the z statistic
-    z_image = (test - aRTist)./sqrt(var_predict);
-    %set non segmented pixels to be nan
-    z_image(~segmentation) = nan;
-    %find the number of non-nan pixels
-    m = sum(sum(~isnan(z_image)));
-    
-    %put the z image in a tester
-    z_tester = ZTester(z_image);
-    %do statistics on the z statistics
-    z_tester.doTest();
+%get the z statistic
+z_image = (test - aRTist)./sqrt(var_predict);
+%set non segmented pixels to be nan
+z_image(~segmentation) = nan;
+%find the number of non-nan pixels
+m = sum(sum(~isnan(z_image)));
 
-    fig = figure;
-    imagesc_truncate(z_image);
-    colorbar;
-    fig.CurrentAxes.XTick = [];
-    fig.CurrentAxes.YTick = [];
+%put the z image in a tester
+z_tester = ZTester(z_image);
+%do statistics on the z statistics
+z_tester.doTest();
     
-    figure;
-    imagesc(-log10(z_tester.p_image));
-    colorbar;
-    
-    %histogram
-    z_tester.figureHistCritical();
+%plot the phantom and aRTist image
+fig = LatexFigure.sub();
+phantom_plot = ImagescSignificant(test);
+phantom_plot.plot();
+ax = gca;
+ax.CLim = [2.2E4,5.5E4];
+saveas(fig,fullfile('reports','figures','inference','scan.eps'),'epsc');
 
-    %plot the phantom scan with critical pixels highlighted
-    [critical_y, critical_x] = find(z_tester.sig_image);
-    fig = figure;
-    imagesc(test);
-    hold on;
-    scatter(critical_x, critical_y,'r.');
-    colorbar;
-    fig.CurrentAxes.XTick = [];
-    fig.CurrentAxes.YTick = [];
-    
-end
+fig = LatexFigure.sub();
+phantom_plot = ImagescSignificant(aRTist);
+phantom_plot.plot();
+ax = gca;
+ax.CLim = [2.2E4,5.5E4];
+saveas(fig,fullfile('reports','figures','inference','aRTist.eps'),'epsc');
 
-row_array = {547:700, 522:708, 1800:1910, 1060:1260};
-col_array = {580:708, 766:997, 852:1020, 816:1010};
-z_plot = linspace(-5,5,100);
+fig = LatexFigure.sub();
+image_plot = ImagescSignificant(z_image);
+image_plot.plot();
+saveas(fig,fullfile('reports','figures','inference','z_image.eps'),'epsc');
 
-for i = 1:numel(col_array)
+fig = LatexFigure.sub();
+image_plot = ImagescSignificant(-log10(z_tester.p_image));
+image_plot.plot();
+saveas(fig,fullfile('reports','figures','inference','logp.eps'),'epsc');
 
-    col_index = col_array{i};
-    row_index = row_array{i};
+%plot the phantom scan with critical pixels highlighted
+fig = LatexFigure.main;
+image_plot = ImagescSignificant(test);
+image_plot.addSigPixels(z_tester.sig_image);
+image_plot.plot();
+saveas(fig,fullfile('reports','figures','inference','sig_pixels.eps'),'epsc');
 
-    z_sub = z_image(row_index, col_index);
-    m = sum(sum(~isnan(z_sub)));
-    z_tester = ZTester(z_sub);
-    
-    z_sub_plot = linspace(min(min(z_sub)),max(max(z_sub)),100);
-    
-    z_tester.estimateNull(100);
-    z_tester.doTest();
-    p0 = z_tester.p0;
-    mean_null = z_tester.mean_null;
-    std_null = z_tester.std_null;
-    [mean_alt, std_alt] = z_tester.estimateAlternative(100);
-    z_critical = z_tester.getZCritical();
-    
-    if i == 1
-        mixture_gaussian = gmdistribution.fit(reshape(z_sub,[],1),2,'SharedCov',false);
-        save('results/subregion1.mat','mixture_gaussian');
-    end
-    
-    disp(strcat('p_0 = ',num2str(p0)));
-    disp(strcat('Power = ',num2str(z_tester.estimatePower())));
-    disp(strcat('Tail Power = ',num2str(z_tester.estimateTailPower(z_sub_plot(1),z_sub_plot(end),numel(z_sub_plot)))));
-    disp(strcat('Local Power = ',num2str(z_tester.estimateLocalPower(z_sub_plot(1),z_sub_plot(end),numel(z_sub_plot)))));
-    
-    z_tester.figureHistDensityCritical();
-    
-    figure;
-    yyaxis left;
-    plot(z_sub_plot,z_tester.estimateLocalFdr(z_sub_plot));
-    hold on;
-    plot(z_sub_plot,z_tester.estimateTailFdr(z_sub_plot));
-    ylabel('fdr');
-    yyaxis right;
-    plot(z_sub_plot,p0*m*normpdf(z_sub_plot,z_tester.mean_null,z_tester.std_null));
-    plot(z_sub_plot,(1-p0)*m*z_tester.estimateH1Density(z_sub_plot));
-    plot([z_critical(1),z_critical(1)],[0,m*normpdf(0)],'r-','LineWidth',2);
-    plot([z_critical(2),z_critical(2)],[0,m*normpdf(0)],'r-','LineWidth',2);
-    ylabel('frequency density');
-    xlabel('z statistic');
-    legend('local fdr','tail fdr','null density','non-null density');
+%histogram
+fig = LatexFigure.main(z_tester.figureHistCritical());
+saveas(fig,fullfile('reports','figures','inference','z_histo.eps'),'epsc');
 
-    fig = figure;
-    imagesc_truncate(z_image);
-    colorbar;
-    hold on;
-    plot([col_index(1),col_index(end)],[row_index(1),row_index(1)],'r','LineWidth',2);
-    plot([col_index(1),col_index(end)],[row_index(end),row_index(end)],'r','LineWidth',2);
-    plot([col_index(1),col_index(1)],[row_index(1),row_index(end)],'r','LineWidth',2);
-    plot([col_index(end),col_index(end)],[row_index(1),row_index(end)],'r','LineWidth',2);
-    fig.CurrentAxes.XTick = [];
-    fig.CurrentAxes.YTick = [];
-    
-    fig = figure;
-    imagesc_truncate(z_sub);
-    hold on;
-    colorbar;
-    [critical_y, critical_x] = find(z_tester.sig_image);
-    scatter(critical_x, critical_y,'r.');
-    colorbar;
-    fig.CurrentAxes.XTick = [];
-    fig.CurrentAxes.YTick = [];
-    
-end
+z_critical = z_tester.getZCritical();
+z_critical = z_critical(2);
+file_id = fopen(fullfile('reports','figures','inference','z_critical.txt'),'w');
+fprintf(file_id,'%.2f',z_critical);
+fclose(file_id);
 
-
-factor_array = [0.9, 1.144, 2, 3.33]; %array of fudge factors
-for i_factor = 1:numel(factor_array)
-    grid_tester = GridTester(z_image, 200, 200, [0;0]);
-
-    grid_tester.setDensityEstimationFudgeFactor(factor_array(i_factor));
-    grid_tester.doTest(1000);
-    fig = figure;
-    imagesc(test);
-    colorbar;
-    hold on;
-    colorbar;
-    [critical_y, critical_x] = find(grid_tester.local_sig);
-    scatter(critical_x, critical_y,'r.');
-    colorbar;
-    for i_row = 2:(grid_tester.n_row)
-        corner_cood = grid_tester.getGridCoordinates(i_row, 1);
-        plot([0,2000],[corner_cood(1),corner_cood(1)],'k');
-    end
-    for i_col = 2:(grid_tester.n_col)
-        corner_cood = grid_tester.getGridCoordinates(1, i_col);
-        plot([corner_cood(2),corner_cood(2)],[0,2000],'k');
-    end
-    fig.CurrentAxes.XTick = [];
-    fig.CurrentAxes.YTick = [];
-    
-    z_tester.figureHistDensityCritical();
-    
-end
-
-
-translation_array = [0.00, 0.50, 0.00, 0.50, 0.25, 0.75, 0.00, 0.00, 0.25, 0.75, 0.75, 0.25
-                     0.00, 0.00, 0.50, 0.50, 0.00, 0.00, 0.25, 0.75, 0.25, 0.75, 0.25, 0.75];
-n_translation_array = [1,3,4,8,12];
-grid_tester = MultiGridTester(z_image, 200, 200, translation_array);
-grid_tester.doTest(1000);
-
-for i_trans_series = 1:numel(n_translation_array)
-    
-    n_translation = n_translation_array(i_trans_series);
-    
-    fig = figure;
-    imagesc(test);
-    colorbar;
-    hold on;
-    colorbar;
-    [critical_y, critical_x] = find(grid_tester.majorityLocalVoteIndex(1:n_translation));
-    scatter(critical_x, critical_y,'r.');
-    fig.CurrentAxes.XTick = [];
-    fig.CurrentAxes.YTick = [];
-    
-    fig = figure;
-    imagesc(test);
-    colorbar;
-    hold on;
-    colorbar;
-    [critical_y, critical_x] = find(grid_tester.majorityCombinedVoteIndex(1:n_translation));
-    scatter(critical_x, critical_y,'r.');
-    fig.CurrentAxes.XTick = [];
-    fig.CurrentAxes.YTick = [];
-    
-    fig = figure;
-    imagesc(-log10(mean(grid_tester.p_image_array(:,:,1:n_translation),3)));
-    colorbar;
-    hold on;
-    colorbar;
-    fig.CurrentAxes.XTick = [];
-    fig.CurrentAxes.YTick = [];
-    
-    mean_null = mean(grid_tester.mean_null_array(:,:,1:n_translation),3);
-    std_null = sqrt(mean(grid_tester.var_null_array(:,:,1:n_translation),3));
-    mean_null(~segmentation) = nan;
-    std_null(~segmentation) = nan;
-    z_emperical = (z_image - mean_null) ./ std_null;
-    
-    z_tester = ZTester(z_emperical);
-    z_tester.doTest();
-    p_emperical = z_tester.p_image;
-    
-    fig = figure;
-    imagesc(-log10(p_emperical));
-    colorbar;
-    hold on;
-    colorbar;
-    fig.CurrentAxes.XTick = [];
-    fig.CurrentAxes.YTick = [];
-    
-    fig = figure;
-    imagesc(test);
-    colorbar;
-    hold on;
-    colorbar;
-    [critical_y, critical_x] = find(z_tester.sig_image);
-    scatter(critical_x, critical_y,'r.');
-    fig.CurrentAxes.XTick = [];
-    fig.CurrentAxes.YTick = [];
-    
-    fig = figure;
-    imagesc(mean_null);
-    colorbar;
-    fig.CurrentAxes.XTick = [];
-    fig.CurrentAxes.YTick = [];
-
-    fig = figure;
-    imagesc(std_null);
-    colorbar;
-    fig.CurrentAxes.XTick = [];
-    fig.CurrentAxes.YTick = [];
-    
-    
-
-%     for i_translation = 1:n_translation
-%         
-%         shift = translation_array(:,i_translation);
-%         n_row = ceil((2000+shift(1))/200);
-%         n_col = ceil((2000+shift(2))/200);
-%         
-%         fig = figure;
-%         imagesc(test);
-%         colorbar;
-%         hold on;
-%         colorbar;
-%         [critical_y, critical_x] = find(grid_tester.combined_sig_array(:,:,i_translation));
-%         scatter(critical_x, critical_y,'r.');
-%         colorbar;
-%         for i_row = 2:(n_row)
-%             corner_cood = GridTester.STATIC_getGridCoordinates(2000, 2000, i_row, 1, 200, 200, shift.*[200; 200]);
-%             plot([0,2000],[corner_cood(1),corner_cood(1)],'k');
-%         end
-%         for i_col = 2:(n_col)
-%             corner_cood = GridTester.STATIC_getGridCoordinates(2000, 2000, 1, i_col, 200, 200, shift.*[200; 200]);
-%             plot([corner_cood(2),corner_cood(2)],[0,2000],'k');
-%         end
-%         fig.CurrentAxes.XTick = [];
-%         fig.CurrentAxes.YTick = [];
-% 
-%         fig = figure;
-%         imagesc(test);
-%         colorbar;
-%         hold on;
-%         colorbar;
-%         [critical_y, critical_x] = find(grid_tester.local_sig_array(:,:,i_translation));
-%         scatter(critical_x, critical_y,'r.');
-%         colorbar;
-%         for i_row = 2:(n_row)
-%             corner_cood = GridTester.STATIC_getGridCoordinates(2000, 2000, i_row, 1, 200, 200, shift.*[200; 200]);
-%             plot([0,2000],[corner_cood(1),corner_cood(1)],'k');
-%         end
-%         for i_col = 2:(n_col)
-%             corner_cood = GridTester.STATIC_getGridCoordinates(2000, 2000, 1, i_col, 200, 200, shift.*[200; 200]);
-%             plot([corner_cood(2),corner_cood(2)],[0,2000],'k');
-%         end
-%         fig.CurrentAxes.XTick = [];
-%         fig.CurrentAxes.YTick = [];
-%     end
-end
-
+tic;
 convolution = EmpericalConvolution(z_image,20, 20, [200,200]);
-convolution.estimateNull(1000);
+convolution.estimateNull();
 convolution.setMask(segmentation);
 convolution.doTest();
+toc;
+
+fig = figure();
+fig.Position(3:4) = [420,315];
+image_plot = ImagescSignificant(z_image-convolution.mean_null);
+image_plot.plot();
+
+convolution.z_tester.figureHistCritical();
 
 fig = figure;
-imagesc(-log10(convolution.p_image));
-colorbar;
-hold on;
-colorbar;
-fig.CurrentAxes.XTick = [];
-fig.CurrentAxes.YTick = [];
+fig.Position(3:4) = [420,315];
+image_plot = ImagescSignificant(-log10(convolution.p_image));
+image_plot.plot();
 
 fig = figure;
+fig.Position(3:4) = [420,315];
 image_plot = ImagescSignificant(test);
-image_plot.setDilateSize(2);
+image_plot.setDilateSize(1);
 image_plot.addSigPixels(convolution.sig_image);
 image_plot.plot();
 
@@ -373,24 +136,3 @@ imagesc(sqrt(convolution.var_null));
 colorbar;
 fig.CurrentAxes.XTick = [];
 fig.CurrentAxes.YTick = [];
-
-% % chi_squared = -2*sum(log(p_value_array),3);
-% % chi_squared_p = chi2cdf(chi_squared,2*n_translation,'upper');
-% chi_squared_p = median(p_value_array,3);
-% p_tester = PTester(chi_squared_p,2*normcdf(-2));
-% p_tester.doTest();
-% 
-% fig = figure;
-% imagesc(log10(chi_squared_p));
-% colorbar;
-% fig.CurrentAxes.XTick = [];
-% fig.CurrentAxes.YTick = [];
-% 
-% fig = figure;
-% imagesc(test);
-% hold on;
-% [critical_y, critical_x] = find(p_tester.sig_image);
-% scatter(critical_x, critical_y,'r.');
-% colorbar;
-% fig.CurrentAxes.XTick = [];
-% fig.CurrentAxes.YTick = [];
