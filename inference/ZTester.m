@@ -329,7 +329,7 @@ classdef ZTester < handle
             %label axis and legend
             xlabel('z statistic');
             ylabel('frequency density');
-            legend('histogram','null','critical boundary');
+            legend('z stats','null','critical boundary');
         end
         
         %METHOD: FIGURE HISTOGRAM DENSITY CRITICAL BOUNDARY
