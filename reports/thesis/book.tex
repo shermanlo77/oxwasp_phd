@@ -2583,10 +2583,69 @@ z_{i,j}\sim \normal(0,1) \ .
 \end{equation}
 This means the randomness of the $z_{i,j}$ statistics can be quantified.
 
-The estimation of the grey value variance given the grey value, that is $\widehat{\variance}\left[\text{scan}_{i,j}\right]$ will be explained here. The variance model can be calibrated, or trained, by holding out a number replicated x-ray scans of a 3D printed sample. These replicated x-ray scans provide variance-mean data which then can be used to train the variance model, such as a Gamma distributed GLM. The method on doing so was described in the previous chapter and it was found a linear relationship between the variance and the mean was a good model.
+The estimation of the grey value variance, that is $\widehat{\variance}\left[\text{scan}_{i,j}\right]$ will be explained here. The variance model can be calibrated, or trained, by holding out a number replicated x-ray scans of a 3D printed sample. These replicated x-ray scans provide variance-mean data which then can be used to train the variance model, such as a Gamma distributed GLM. The method on doing so was described in the previous chapter and it was found a linear relationship between the variance and the mean was a good model. The variance was then predicted using the grey value in the \texttt{aRTist} simulation.
 
-This method can be applied to the dataset \texttt{Sep16 120deg}. The 20 x-ray images were spilt into 3. 10 images were used to train the variance-mean model, 
+This method for inference can be applied to the dataset \texttt{Sep16 120deg}. The 20 x-ray images were spilt into 2. 19 images were used to train the variance-mean model. One image, called the test image, was used to compare with \texttt{aRTist}, as shown in Figure \ref{fig:inference_scan_aRTist}.
 
+\begin{figure}
+	\centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/scan.eps}
+        \caption{X-ray image}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/aRTist.eps}
+        \caption{\texttt{aRTist} simulation}
+    \end{subfigure}
+    }
+    \caption{An x-ray scan of a 3D printed cuboid, from the \texttt{Sep16 120deg} dataset. This can be compared directly to the \texttt{aRTist} simulation for defects.}
+    \label{fig:inference_scan_aRTist}
+\end{figure}
+
+For each pixel, a $z_{i,j}$ statistic was calculated. A $z_{i,j}$ statistic too large in magnitude can be considered to be evidence of a positive result. Another way to represent the $z_{i,j}$ statistic is the $p$-value which is given as
+\begin{equation}
+    p_{i,j} = 2(1-\Phi(\|z_{i,j}\|))
+\end{equation}
+which can takes values $0\leqslant p_{i,j} \leqslant 1$. A $p$-value too small is considered to be evidence of a positive result. The result $z$ statistics and $p$-values are shown in Figure \ref{fig:logp_z}.
+
+\begin{figure}
+	\centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/logp.eps}
+        \caption{$-\log p\text{-values}$}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/z_image.eps}
+        \caption{$z$ statistics}
+    \end{subfigure}
+    }
+    \caption{The resulting z statistics and $p$ values comparing an x-ray scan with the \texttt{aRTist} simulation.}
+    \label{fig:logp_z}
+\end{figure}
+
+The resulting $z$ statistics and $p$-values are concerning. This is because the $p$-values are not very smooth on the surfaces of the sample. It should be expected that small $p$-values are in areas of the defects. Significant pixels were chosen for $\|z\|>\input{../figures/inference/z_critical.txt}$, this value was chosen by using the \cite{benjamini1995controlling} algorithm at the $z_\alpha = 2$ significance level. The significant pixels are shown in Figure \ref{fig:sig_pixels}.
+
+This proposed method for defect detection failed because too many false positives were detected. These false positives appear to have some structure, for example clustering in the corners or on surfaces. In addition, false negatives were detected because not all of the defects were detected.
+
+Model misspecification appears to be the main source of error. The $z$ statistics can be inspected using a histogram, as shown in Figure \ref{fig:z_histo}. The histogram of the $z$ statistics do not look Normal which seems to suggest that the assumption of $z_{i,j}\sim \normal(0,1)$ is incorrect. However this assumption can relaxed and can be done using the empirical null \citep{efron2004large}.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.7\textwidth]{../figures/inference/sig_pixels.eps}
+    \caption{Signficiant pixels highlighted at the $z_\alpha = 2$ significance level.}
+    \label{fig:sig_pixels}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.7\textwidth]{../figures/inference/z_histo.eps}
+    \caption{Histogram of the $z$ statistics}
+    \label{fig:z_histo}
+\end{figure}
+
+This chapter will cover hypothesis testing, for a single test and then for multiple tests. The empirical null will then be reviewed which then can be extended to an image filter, called the empirical null filter. This filter will adjust each $z$ statistic according to its neighbours, ironing out false positive results. Simulations and actual results will be shown at the end of the chapter.
 
 \bibliographystyle{apalike}
 \bibliography{../bib}
