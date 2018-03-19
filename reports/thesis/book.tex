@@ -2647,6 +2647,51 @@ Model misspecification appears to be the main source of error. The $z$ statistic
 
 This chapter will cover hypothesis testing, for a single test and then for multiple tests. The empirical null will then be reviewed which then can be extended to an image filter, called the empirical null filter. This filter will adjust each $z$ statistic according to its neighbours, ironing out false positive results. Simulations and actual results will be shown at the end of the chapter.
 
+\section{Hypothesis Testing}
+
+Hypothesis testing dates back to \cite{pearson1900on}, \cite{neyman1933on} and \cite{fisher1970statistical}. It is so fundamental in science that it is now taught in schools.
+
+The focus on this section is on the single hypothesis test. Here the random variable $Z\sim\normal(\mu,1)$ will be studied here as this is of interest in this project. It also appears in other tests such as the difference in sample means.
+
+In the context of this project, an example of hypothesis testing will be given here. Here, it was assumed that $Z\sim\normal(0,1)$. A null hypothesis can be written down to describe this
+\begin{equation}
+    H_0:\mu=0 \ .
+\end{equation}
+It specifies the assumptions made on the random variable $Z$. Any data behaving as assumed is treated as a negative result.
+
+A positive result is obtained when unlikely data is obtained and this happens if $Z$ deviates too much from 0. This can be described as testing $H_0$ against an alternative hypothesis $H_1$ where
+\begin{equation}
+    H_1:\mu\neq0 \ .
+\end{equation}
+How much $Z$ deviates from 0 to be considered a positive is up to the user but typically $\|Z\|>z_\alpha$ where $z_\alpha =2$ is considered significant.
+
+A way to quantify the threshold for a positive result is to use something called the size of the test, otherwise known as the significance level, denoted as $\alpha$. This is the probability of a false positive result, which can be denoted as
+\begin{equation}
+    \prob(\|Z\|>z_\alpha|H_0) = \alpha \ .
+\end{equation}
+Using the fact the Normal distribution is symmetric then
+\begin{equation}
+    2(1 - \Phi(z_\alpha)) = \alpha \ .
+    \label{eq:inference_single_alpha}
+\end{equation}
+The choice of $z_\alpha=2$ will set the size of the test to be $\alpha\approx 4.55\%$. This sort of choice of threshold and size is sensible.
+
+The $p$-value is a way to represent an observation of the data $Z=z$. Similar to the size, the $p$-value is
+\begin{equation}
+    p=2(1-\Phi(\|z\|)) \ .
+\end{equation}
+As a result, the $p$-value can be compared directly to the size of the test. That is there is a positive result if $p<\alpha$, otherwise it is a negative result.
+
+The power of the test is defined as the probability of a true positive result. For unknown $\mu$, it is useful to investigate the power for a range of $\mu$.
+
+\section{Multiple Hypothesis Testing}
+
+\section{Empirical Null}
+
+\section{Empirical Null Filter}
+
+\section{Results}
+
 \bibliographystyle{apalike}
 \bibliography{../bib}
 
