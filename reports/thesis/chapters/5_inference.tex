@@ -121,6 +121,49 @@ The power of the test is defined as the probability of a true positive result. F
 
 \section{Multiple Hypothesis Testing}
 
+In this section, the single hypothesis test will be extended and the multiple hypothesis testing \citep{shaffer1995multiple} shall be reviewed.
+
+Suppose $n$ test statistics were obtained $Z_1,Z_2,\dotdotdot,Z_n$ where $Z_i\sim\normal(\mu,1)$ for $i=1,2,\dotdotdot,n$ and i.i.d. One can test each of these statistics for the following hypotheses $H_0:\mu=0$ and $H_1:\mu\neq 0$. Using the method from the single hypothesis test at the $z_\alpha=2$ level, any statistic where $\|Z_i\|>2$ for $i=1,2,\dotdotdot,n$ would be considered a positive result.
+
+Bringing in methods from single hypothesis testing to the multiple version has drawbacks. Assuming that the null hypothesis is true for all $Z_i$ for $i=1,2,\dotdotdot,n$, then by definition $\alpha\approx 4.55\%$ of the data will be tested positive, and falsely positive. Still under the same assumption, the probability of at least one positive result, known as the family-wise error rate (FWER) \citep{shaffer1995multiple}, is
+\begin{align}
+    \text{FWER}&=1-\prob(\text{no positive results}|H_0) \nonumber\\
+    \text{FWER}&=1-\left[(1-\alpha)^n\right] \label{eq:inference_fwer}\ .
+\end{align}
+To put into context, for $\alpha\approx 4.55\%$ and $n=20$ then remarkably $\text{FWER}\approx60.6\%$. This method for multiple hypothesis testing will have too many false positive results.
+
+The Bonferroni correction \citep{shaffer1995multiple, bland1995multiple, perneger1998what} controls the family wise error rate. This is done by adjusting the size of the test to be $\alpha/n$. By using the adjusted size, Equation \eqref{eq:inference_fwer} becomes
+\begin{equation}
+    \text{FWER}=1-\left[(1-\alpha/n)^n\right]\ .
+\end{equation}
+Using the approximation $(1-\alpha/n)^n\approx = 1-\alpha$ then
+\begin{equation}
+    \text{FWER}\approx \alpha \ .
+\end{equation}
+This shows that the Bonferroni correction controls the family-wise error rate. However in practice the Bonferroni correction is not very powerful \citep{perneger1998what}, meaning it does give too many false negative results. This is because the correction traded too many false positives for false negatives.
+
+The \cite{benjamini1995controlling} (BH) procedure controls the false discovery rate (FDR) \citep{benjamini2010discovering} rather than the false positive or family-wise rate. The FDR is the proportion of false positives out of all positive results.
+
+In practice the BH procedure adjusts the size of the test between the Bonferroni correction and the uncorrected test. The BH procedure also adapts to the data, meaning the procedure chooses different sizes for different data.
+
+The procedure is as follows. Suppose $n$ test statistics were obtained $Z_1,Z_2,\dotdotdot,Z_n$. They will need to be converted to $p$-values and ordered such that $p_{(1)}\leqslant p_{(2)}\leqslant \dotdotdot \leqslant p_{(n)}$. The adjusted size $\alpha_{\text{BH}}$ is
+\begin{equation}
+    \alpha_{\text{BH}} = \frac{\alpha k}{n}
+\end{equation}
+where
+\begin{equation}
+    k\text{ is the largest }i\text{ for which }p_{(i)}\leqslant\frac{i}{n}\alpha
+    \ .
+\end{equation}
+This essentially declare $p_{(1)},p_{(2)},\dotdotdot,p_{(k)}$ as positive results. For completeness, if $p_{(1)}>\alpha/n$, then $k=1$ and the Bonferroni correction is recovered. The procedure comes from the fact that assuming the null hypothesis is true for all $Z_i$, then the $p$-values are uniformly distributed \citep{simes1986improved}.
+
+It can be shown that the BH procedure controls the FDR such that
+\begin{equation}
+    \expectation[\text{FDR}]\leqslant\pi_0\alpha\leqslant\alpha
+\end{equation}
+where $\pi_0$ is the proportion of true nulls out of $n$ tests \citep{benjamini1995controlling}, this is usually unknown in practice.
+
+
 \section{Empirical Null}
 
 \section{Empirical Null Filter}
