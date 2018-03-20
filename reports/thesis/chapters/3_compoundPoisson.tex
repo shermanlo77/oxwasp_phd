@@ -1,0 +1,1613 @@
+In this chapter, the compound Poisson-Gamma distribution is reviewed and studied. Firstly methods for evaluating the density of the compound Poisson-Gamma distribution are discussed. Approximations such as the Normal approximation or saddlepoint approximation \citep{daniels1954saddlepoint} can be used. These approximate densities can be written in closed form. Exact methods can be computationally challenging when dealing with the infinite sum but can be done when summing over important terms \citep{dunn2005series}. Next, a method for parameter estimation will be proposed here using the EM algorithm \citep{dempster1977maximum}. However in the end of the chapter, it will be shown that no unique maximum likelihood estimator exist when certain parameters of the compound Poisson-Gamma distribution gets too large.
+
+\section{Density Evaluation}
+Suppose $X\sim\CPoisson(\lambda,\alpha,\beta)$ and $\lambda,\alpha,\beta>0$ then the p.d.f.~of $X$ is
+\begin{equation}
+	p_X(x) = 
+	\begin{cases}
+		\delta(x) \euler^{-\lambda} & \text{ for } x=0 \\ 
+		\euler^{-\beta x-\lambda}\frac{1}{x}\sum_{y=1}^{\infty}W_y & \text{ for } x>0 
+	\end{cases}
+\end{equation}
+where
+\begin{equation}
+	W_y = \frac{\beta^{y\alpha}\lambda^yx^{y\alpha}}{\Gamma(y\alpha)y!}
+	\ .
+	\label{eq:compoundPoisson_w}
+\end{equation}
+The evaluation of this p.d.f.~is difficult because the sum of $W_y$ cannot be simplified. However the m.g.f.~of $X$ can be written down in closed form
+\begin{equation}
+	M(\theta)=\exp\left[\lambda\left(\left(\frac{\beta}{\beta-\theta}\right)^{\alpha}-1\right)\right]
+	\ .
+\end{equation}
+The m.g.f.~allows the study of limiting distributions of the compound Poisson-Gamma distribution. These limiting distributions then can be used to approximate the p.d.f.~of a compound Poisson-Gamma random variable.
+
+The saddlepoint approximation \citep{daniels1954saddlepoint} gives an approximate solution to inverting the Laplace transformation  of the m.g.f.~giving the p.d.f. However inverting the Fourier transformation of the characteristic function also gives the p.d.f.~using computational methods \citep{dunn2008evaluation}. The saddlepoint approximation will be studied here.
+
+Lastly the infinite sum can be computationally summed in a clever way. This was done by summing only large terms in the sum and ignores small terms. By using Stirling's approximation, the largest term in the sum can be approximately found \citep{dunn2005series}.
+
+\subsection{Normal Approxmation}
+The m.g.f.~provides a starting point to what limiting distributions the compound Poisson-Gamma distribution converges to for large parameters. However the m.g.f.~of $X$ itself it not useful because when considering $\lambda\rightarrow\infty$ or $\alpha\rightarrow\infty$ then $M_X(\theta)\rightarrow\infty$. Also for $\beta\rightarrow\infty$, then $M_X(\theta)\rightarrow 1$ which is not useful either.
+
+The compound Poisson-Gamma random variable $X$ should be standardised to obtain useful limiting results from the m.g.f. Let
+\begin{equation}
+	Z = \frac{X-\expectation[X]}{\sqrt{\variance[X]}}
+	\ ,
+\end{equation}
+then using previous results
+\begin{equation*}
+	Z = \frac{\beta}{\sqrt{\alpha(\alpha+1)\lambda}}
+	\left(
+		X-\frac{\alpha\lambda}{\beta}
+	\right)
+\end{equation*}
+\begin{equation}
+	Z = bX+a
+\end{equation}
+where
+\begin{equation}
+	b = \frac{\beta}{\sqrt{\alpha(\alpha+1)\lambda}}
+\end{equation}
+and
+\begin{equation}
+	a = -\sqrt{\frac{\alpha\lambda}{\alpha+1}}
+	\ .
+\end{equation}
+
+The m.g.f.~of $Z$ is then
+\begin{equation*}
+	M_Z(\theta)=\expectation\left[\euler^{Z\theta}\right]
+\end{equation*}
+\begin{equation*}
+	M_Z(\theta)=\expectation\left[\euler^{(bX+a)\theta}\right]
+\end{equation*}
+\begin{equation*}
+	M_Z(\theta)=\euler^{a\theta}M_X(b\theta)
+	\ .
+\end{equation*}
+Substituting in the values
+\begin{equation*}
+	M_Z(\theta)=
+	\exp\left(
+	    -\theta\sqrt{\frac{\alpha\lambda}{\alpha+1}}
+    \right)
+	\exp\left[
+		\lambda
+		\left(
+			\left(
+				\frac{\beta}{\beta-\frac{\beta\theta}{\sqrt{\alpha(\alpha+1)\lambda}}}
+			\right)^\alpha
+			-1
+		\right)
+	\right]
+\end{equation*}
+\begin{equation*}
+	M_Z(\theta)=
+	\exp\left(
+	    -\theta\sqrt{\frac{\alpha\lambda}{\alpha+1}}
+    \right)
+	\exp\left[
+		\lambda
+		\left(
+			\left(
+				\frac{\sqrt{\alpha(\alpha+1)\lambda}}{\sqrt{\alpha(\alpha+1)\lambda}-\theta}
+			\right)^\alpha
+			-1
+		\right)
+	\right]
+\end{equation*}
+or in a different form
+\begin{equation}
+	M_Z(\theta)=
+	\exp\left(
+	    -\theta\sqrt{\frac{\alpha\lambda}{\alpha+1}}
+    \right)
+	\exp\left[
+		\lambda
+		\left(
+			\left(
+				1-\frac{\theta}{\sqrt{\alpha(\alpha+1)\lambda}}	
+			\right)^{-\alpha}
+			-1
+		\right)
+	\right]
+	\ .
+\end{equation}
+
+The above form is useful so that the binomial expansion can be conducted, that is
+\begin{multline}
+	\left(
+		1-\frac{\theta}{\sqrt{\alpha(\alpha+1)\lambda}}
+	\right)^{-\alpha}
+	=
+	1+
+	\sum_{r=1}^\infty \frac{\theta^r\prod_{s=1}^r(\alpha+s-1)}{(\alpha(\alpha+1)\lambda)^{r/2}r!}
+	\\
+	\text{for }\frac{\|\theta\|}{\sqrt{\alpha(\alpha+1)\lambda}}<1 \ .
+\end{multline}
+Substituting in the binomial expansion
+\begin{equation*}
+	M_Z(\theta)=
+	\exp\left(
+	    -\theta\sqrt{\frac{\alpha\lambda}{\alpha+1}}
+    \right)
+	\exp\left[
+		\lambda
+		\sum_{r=1}^\infty \frac{\theta^r\prod_{s=1}^r(\alpha+s-1)}{(\alpha(\alpha+1)\lambda)^{r/2}r!}
+	\right]
+	\ .
+\end{equation*}
+Writing in full the $r=1,2$ terms
+\begin{multline*}
+	M_Z(\theta)=
+	\exp\left(
+	    -\theta\sqrt{\frac{\alpha\lambda}{\alpha+1}}
+    \right)
+	\exp\left[
+		\theta\sqrt{\frac{\alpha\lambda}{\alpha+1}}
+		+\frac{\theta^2}{2}
+	\right.
+	\\
+	\left.
+		+\lambda\sum_{r=3}^\infty \frac{\theta^r\prod_{s=1}^r(\alpha+s-1)}{(\alpha(\alpha+1)\lambda)^{r/2}r!}
+	\right]
+\end{multline*}
+and a term cancels out to get
+\begin{equation}
+	M_Z(\theta)=
+	\exp\left[
+		\frac{\theta^2}{2}
+		+\sum_{r=3}^\infty
+		\frac
+			{\theta^r\prod_{s=1}^r(\alpha+s-1)}
+			{(\alpha(\alpha+1))^{r/2}r!}
+		\lambda^{1-r/2}
+	\right]
+	\ .
+\end{equation}
+
+For large $\lambda$
+\begin{equation}
+	\lim_{\lambda\rightarrow\infty}M_Z(\theta)=\exp\left[\frac{\theta^2}{2}\right]
+\end{equation}
+which is the same as the m.g.f.~of a standard Normal variable, therefore
+\begin{equation}
+	\lim_{\lambda\rightarrow\infty}Z\sim\normal(0,1) \ .
+\end{equation}
+This should make sense as for high $\lambda$, the Poisson random variable has a high expectation, increasing the number of Gamma random variables in a summation. Increasing the number of terms in a summation will trigger the central limit theorem.
+
+Next for high $\alpha$, it should be noted that
+\begin{equation*}
+	\lim_{\alpha\rightarrow\infty}
+	\frac{
+		\prod_{s=1}^r(\alpha+s-1)
+	}
+	{
+		\alpha(\alpha+1))^{r/2}
+	}
+	=
+	\frac{
+		\prod_{s=1}^r\alpha
+	}
+	{
+		\alpha^{r}
+	}
+\end{equation*}
+so that
+\begin{equation}
+	\lim_{\alpha\rightarrow\infty}
+	\frac{
+		\prod_{s=1}^r(\alpha+s-1)
+	}
+	{
+		(\alpha(\alpha+1))^{r/2}
+	}
+	= 1
+	\ .
+\end{equation}
+As a result
+\begin{equation}
+	\lim_{\alpha\rightarrow\infty}
+	M_Z(\theta)=
+	\exp\left[
+		\frac{\theta^2}{2}
+		+\sum_{r=3}^\infty
+		\frac{\theta^r}{r!}
+		\lambda^{1-r/2}
+	\right]
+	\ .
+\end{equation}
+However this shows that taking the limit $\alpha\rightarrow\infty$ is not enough to get a Normal limiting distribution. For a Normal limiting distribution, the limit must be accompanied with the limit $\lambda\rightarrow\infty$, that is
+\begin{equation}
+	\lim_{\lambda\rightarrow\infty}\lim_{\alpha\rightarrow\infty}Z\sim\normal(0,1)
+	\ .
+\end{equation}
+
+Finally it should be noted that $M_Z(\theta)$ is independent of $\beta$. Thus $\beta$ will have no effect on the convergence to a Normal limiting distribution.
+
+The above results justify the use of the approximation
+\begin{equation}
+	X\sim\normal\left(\frac{\lambda\alpha}{\beta},\frac{\lambda\alpha(\alpha+1)}{\beta^2}\right)
+\end{equation}
+for large $\lambda$. The limiting case where $\lambda\rightarrow 0$, $\alpha\rightarrow 0$ and $\beta\rightarrow 0$ will not be discussed here.
+
+\subsection{Normal Approximation - General Case}
+It was shown in certain situations, the compound Poisson-Gamma distribution can be approximated with the Normal distribution. This can be extended to the general compound Poisson.
+
+Let $Y\sim\poisson(\lambda)$ where $\lambda>0$ is the Poisson rate parameter. Let $U_i$ be some random variable for i.i.d.~$i=1,2,3,\dotdotdot$ with m.g.f.~$M_U(\theta)$. Let
+\begin{equation}
+	X|Y = \sum_{i=1}^{Y}U_i
+	\ .
+\end{equation}
+
+It can be shown that the m.g.f.~of $X$ is
+\begin{equation}
+	M_X(\theta)=
+	\exp\left[
+		\lambda(M_U(\theta)-1)
+	\right]
+	\ .
+\end{equation}
+As in the compound Poisson-Gamma case, it is useful to standardise $X$ using
+\begin{equation*}
+	Z = \frac{X-\lambda\expectation[U]}{\sqrt{\lambda\expectation[U^2]}}
+\end{equation*}
+\begin{equation}
+	Z = \frac{X}{\sqrt{\lambda\expectation[U^2]}}
+	-\frac{\sqrt{\lambda}\expectation[U]}{\sqrt{\expectation[U^2]}}
+	\ .
+\end{equation}
+The m.g.f.~of $Z$ is then
+\begin{equation*}
+	M_Z(\theta)=\expectation\left[\euler^{Z\theta}\right]
+\end{equation*}
+\begin{equation*}
+	M_Z(\theta)=
+	\exp\left[
+	    -\theta\frac{\sqrt{\lambda}\expectation[U]}{\sqrt{\expectation[U^2]}}
+	\right]
+	\exp\left[
+	\lambda
+	\left(
+		M_U
+		\left(
+			\frac{\theta}{\sqrt{\lambda\expectation[U^2]}}\right)-1
+		\right)
+	\right]
+\end{equation*}
+
+Taking the Maclaurin series of $M_U(\theta)$
+\begin{equation}
+	M_U(\theta) = 1 + \sum_{r=1}^\infty\frac{\theta^r}{r!}M_U^{(r)}(0)
+	\quad\text{for }\lim_{r\rightarrow\infty}
+	\left\|
+		\frac{\theta}{r+1}\frac{M_U^{(r+1)}(0)}{M_U^{(r)}(0)}
+	\right\|<1
+\end{equation}
+and substituting it into $M_Z(\theta)$
+\begin{equation*}
+	M_Z(\theta)=
+	\exp\left[
+	    -\theta\frac{\sqrt{\lambda}\expectation[U]}{\sqrt{\expectation[U^2]}}
+    \right]
+	\exp\left[
+		\lambda\sum_{r=1}^\infty\frac{\theta^r}{(\lambda\expectation[U^2])^{r/2}r!}M_U^{(r)}(0)
+	\right]
+	\ .
+\end{equation*}
+Writing out in full the $r=1,2$ terms
+\begin{multline*}
+	M_Z(\theta)=\exp\left[
+	    -\theta\frac{\sqrt{\lambda}\expectation[U]}{\sqrt{\expectation[U^2]}}
+	\right]
+	\exp\left[
+		\theta\frac{\sqrt{\lambda}M_U'(0)}{\sqrt{\expectation[U^2]}}
+		+
+		\frac{\theta^2M_U''(0)}{2\expectation[U^2]}
+	\right.
+	\\+
+	\left.
+		\lambda\sum_{r=3}^\infty\frac{\theta^r}{(\lambda\expectation[U^2])^{r/2}r!}M_U^{(r)}(0)
+	\right]
+	\ .
+\end{multline*}
+By using the fact that $\expectation[U^r]=M_U^{(r)}(0)$ for $r=0,1,2\dotdotdot$, a few terms cancel out to get
+\begin{equation}
+	M_Z(\theta)=
+	\exp\left[
+		\frac{\theta^2}{2}
+		+
+		\sum_{r=3}^\infty\frac{\theta^r \expectation[U^r]}{(\expectation[U^2])^{r/2}r!}\lambda^{1-r/2}
+	\right]
+	\ .
+\end{equation}
+
+For the limit $\lambda\rightarrow\infty$
+\begin{equation}
+	\lim_{\lambda\rightarrow\infty}M_Z(\theta) = \exp\left[\frac{\theta^2}{2}\right]
+\end{equation}
+then it can be concluded that
+\begin{equation}
+	\lim_{\lambda\rightarrow\infty}Z\sim\normal(0,1)
+	\ .
+\end{equation}
+The convergence can be aided if the ratio $\dfrac{\expectation[U^r]}{(\expectation[U^2])^{r/2}}$ for $r=3,4,5,\dotdotdot$ are small.
+
+\subsection{Saddlepoint approximation}
+The m.g.f.~of a random variable $X$ is defined to be
+\begin{equation}
+	M_X(\theta)=\expectation[\euler^{\theta X}]
+	=
+	\int_{-\infty}^{\infty}\euler^{x\theta} p_X(x) \diff x
+	\ .
+\end{equation}
+For a given m.g.f., the saddlepoint approximation \citep{daniels1954saddlepoint} \citep{butler2007saddlepoint} finds an approximate $p_X(x)$. The saddlepoint approximation is given as
+\begin{equation}
+	p_X(x)\approx\left(2\pi K_X''(s)\right)^{-1/2}\exp\left[K_X(s)-sx\right]
+	\label{eq:saddlePoint:generalSaddlePoint}
+\end{equation}
+where $K_X(\theta) = \ln\left(M_X(\theta)\right)$, and $s=s(x)$ is the solution to the saddle point equation $K_X'(s)=x$.
+
+For the compound Poisson-Gamma distribution, the saddle point approximation is given as 
+\begin{multline}
+	p_X(x)\approx
+	\frac{\left(\lambda\alpha\beta^\alpha\right)^{\frac{1}{2(\alpha+1)}}\euler^{-\lambda}}{\sqrt{2\pi(\alpha+1)}}x^{-\frac{\alpha+2}{2(\alpha+1)}}
+	\euler^{-x\beta}
+	\exp\left[x^{\frac{\alpha}{\alpha+1}}
+		\frac{(\lambda\beta^\alpha)^{\frac{1}{\alpha+1}}(\alpha+1)}{\alpha^{\frac{\alpha}{\alpha+1}}}
+	\right]
+	\\
+	\text{for }x>0 \ .
+	\label{eq:saddle_point_approx}
+\end{multline}
+It appears the approximation is not well defined for $x=0$.
+
+The integral of the density approximation over the support may not equal to one, it can be numerically re-normalised if necessary. Thus it may be more sensible to write the approximation up to a constant
+\begin{equation}
+	p_X(x)\propto x^{-\frac{\alpha+2}{2(\alpha+1)}}\euler^{-x\beta}
+	\exp\left[
+		x^{\frac{\alpha}{\alpha+1}}
+		\frac{
+			(\lambda\beta^\alpha)^{\frac{1}{\alpha+1}}(\alpha+1)
+		}
+		{
+			\alpha^{\frac{\alpha}{\alpha+1}}
+		}
+	\right]
+	\ .
+\end{equation}
+
+For the remainder of this section, it will be shown how the saddlepoint approximation can be algebraically derived. First of all the cumulant generating function $K_X(\theta)$ can be obtained from the m.g.f.
+\begin{equation}
+	K_X(\theta) = \lambda
+	\left[
+		\left(\frac{\beta}{\beta-\theta}\right)^\alpha-1
+	\right]
+	\ .
+\end{equation}
+Taking the derivative with respect to $\theta$
+\begin{equation}
+	K_X'(\theta)=\frac{\lambda\alpha\beta^\alpha}{(\beta-\theta)^{\alpha+1}}
+\end{equation}
+and this is known as the saddlepoint equation. The quantity $s=s(x)$ is the solution to the equation $K_X'(s)=x$, that is
+\begin{equation*}
+	\frac{\lambda\alpha\beta^\alpha}{(\beta-s)^{\alpha+1}} = x
+\end{equation*}
+with solution
+\begin{equation}
+	s = \beta - \left(\frac{\lambda\alpha\beta^\alpha}{x}\right)^{\frac{1}{\alpha+1}}
+	\ .
+\end{equation}
+
+The second derivative of the cumulant generating function is
+\begin{equation}
+	K_X''(\theta)=\frac{\lambda\alpha(\alpha+1)\beta^\alpha}{(\beta-\theta)^{\alpha+2}} \ .
+\end{equation}
+Substituting this and $K_X(\theta)$ into Equation \eqref{eq:saddlePoint:generalSaddlePoint}
+\begin{equation*}
+	p_X(x)\approx
+	\frac{1}{\sqrt{2\pi}}
+	\left[
+		\frac{
+			(\beta-s)^{\alpha+2}
+		}
+		{
+			\lambda\alpha(\alpha+1)\beta^\alpha
+		}
+	\right]^{1/2}
+	\exp\left[
+		\lambda\left(\left(\frac{\beta}{\beta-s}\right)^\alpha-1\right)-sx
+	\right]
+	\ .
+\end{equation*}
+Substituting in $s=s(x)$
+\begin{multline*}
+	p_X(x)\approx
+	\frac{1}{\sqrt{2\pi}}
+	\left[
+		\frac{\left(\beta-\beta+\left(\frac{\lambda\alpha\beta^\alpha}{x}\right)^{\frac{1}{\alpha+1}}\right)^{\alpha+2}}{\lambda\alpha(\alpha+1)\beta^\alpha}
+	\right]^{1/2}
+	\\
+	\exp\left[
+		\lambda
+		\left(
+			\left(
+				\frac{\beta}{\beta-\beta+\left(\frac{\lambda\alpha\beta^\alpha}{x}\right)^{\frac{1}{\alpha+1}}}
+			\right)^\alpha
+			-1
+		\right)
+		-x\left(
+			\beta-\left(\frac{\lambda\alpha\beta^\alpha}{x}\right)^{\frac{1}{\alpha+1}}
+		\right)
+	\right]
+\end{multline*}
+simplifying further
+\begin{multline*}
+	p_X(x)\approx
+	\frac{1}{\sqrt{2\pi}}
+	\left[
+		\frac{
+			\left(\frac{\lambda\alpha\beta^\alpha}{x}\right)^{\frac{\alpha+2}{\alpha+1}}
+		}
+		{
+			\lambda\alpha(\alpha+1)\beta^\alpha
+		}
+	\right]^{1/2}
+	\\
+	\exp\left[
+		\lambda
+		\left(
+			\beta^\alpha
+			\left(\frac{x}{\lambda\alpha\beta^\alpha}\right)^{\frac{\alpha}{\alpha+1}}
+			-1
+		\right)
+		-x\beta
+		+(\lambda\alpha\beta^\alpha)^{\frac{1}{\alpha+1}}x^{1-\frac{1}{\alpha+1}}
+	\right]
+\end{multline*}
+\begin{multline*}
+	p_X(x)\approx
+	\frac{1}{\sqrt{2\pi(\alpha+1)}}x^{-\frac{\alpha+2}{2(\alpha+1)}}
+	\left(\lambda\alpha\beta^\alpha\right)^{\left(\frac{\alpha+2}{\alpha+1}-1\right)/2}
+	\\
+	\exp\left[
+		\lambda\left(
+			\beta^\alpha
+			\left(\frac{x}{\lambda\alpha\beta^\alpha}\right)^{\frac{\alpha}{\alpha+1}}
+			-1
+		\right)
+		-x\beta
+		+(\lambda\alpha\beta^\alpha)^{\frac{1}{\alpha+1}}x^{\frac{\alpha}{\alpha+1}}
+	\right]
+\end{multline*}
+\begin{multline*}
+	p_X(x)\approx
+	\frac{
+		\left(
+			\lambda\alpha\beta^\alpha
+		\right)^{\frac{1}{2(\alpha+1)}}
+	}
+	{
+		\sqrt{2\pi(\alpha+1)}}x^{-\frac{\alpha+2}{2(\alpha+1)}
+	}	
+	\\
+	\exp\left[
+		-\lambda
+		-x\beta
+		+x^{\frac{\alpha}{\alpha+1}}
+		\left(
+			\frac{
+				\lambda\beta^\alpha
+			}
+			{
+				\left(\lambda\alpha\beta^\alpha\right)^{\frac{\alpha}{\alpha+1}}
+			}
+			+
+			\left(
+				\lambda\alpha\beta^\alpha
+			\right)^{\frac{1}{\alpha+1}}
+		\right)
+	\right]
+\end{multline*}
+\begin{multline*}
+	p_X(x)\approx
+	\frac{
+		\left(
+			\lambda\alpha\beta^\alpha
+		\right)^{\frac{1}{2(\alpha+1)}}\euler^{-\lambda}
+	}
+	{
+		\sqrt{2\pi(\alpha+1)}}x^{-\frac{\alpha+2}{2(\alpha+1)}
+	}
+	\euler^{-x\beta}
+	\\
+	\exp\left[
+		x^{\frac{\alpha}{\alpha+1}}
+		\left(
+			(\lambda\beta^\alpha)^{1-\frac{\alpha}{\alpha+1}}\alpha^{-\frac{\alpha}{\alpha+1}}
+			+
+			\left(
+				\lambda\alpha\beta^\alpha
+			\right)^{\frac{1}{\alpha+1}}
+		\right)
+	\right]
+\end{multline*}
+\begin{multline*}
+	p_X(x)\approx
+	\frac{
+		\left(\lambda\alpha\beta^\alpha\right)^{\frac{1}{2(\alpha+1)}}\euler^{-\lambda}
+	}
+	{
+		\sqrt{2\pi(\alpha+1)}
+	}
+	x^{-\frac{\alpha+2}{2(\alpha+1)}}\euler^{-x\beta}
+	\\
+	\exp\left[
+		x^{\frac{\alpha}{\alpha+1}}
+		\left(
+			(\lambda\beta^\alpha)^{\frac{1}{\alpha+1}}
+			\alpha^{-\frac{\alpha}{\alpha+1}}
+			+
+			\left(\lambda\alpha\beta^\alpha\right)^{\frac{1}{\alpha+1}}
+		\right)
+	\right]
+\end{multline*}
+\begin{multline*}
+	p_X(x)\approx
+	\frac{
+		\left(\lambda\alpha\beta^\alpha\right)^{\frac{1}{2(\alpha+1)}}\euler^{-\lambda}
+	}
+	{
+		\sqrt{2\pi(\alpha+1)}
+	}
+	x^{-\frac{\alpha+2}{2(\alpha+1)}}\euler^{-x\beta}
+	\\
+	\exp\left[
+		x^{\frac{\alpha}{\alpha+1}}(\lambda\beta^\alpha)^{\frac{1}{\alpha+1}}
+		\left(
+			\alpha^{-\frac{\alpha}{\alpha+1}}+\alpha^{\frac{1}{\alpha+1}}
+		\right)
+	\right]
+	\ .
+\end{multline*}
+
+The expression $\alpha^{-\frac{\alpha}{\alpha+1}}+\alpha^{\frac{1}{\alpha+1}}$ can be simplified by putting the two terms over a common denominator
+\begin{align}
+	\alpha^{-\frac{\alpha}{\alpha+1}}+\alpha^{\frac{1}{\alpha+1}}
+	& = \alpha^{\frac{1}{\alpha+1}}+\frac{1}{\alpha^{\frac{\alpha}{\alpha+1}}}
+	\nonumber\\
+	& = \frac{\alpha^{\frac{1}{\alpha+1}}\alpha^{\frac{\alpha}{\alpha+1}}+1}{\alpha^{\frac{\alpha}{\alpha+1}}}
+	\nonumber\\
+	& = \frac{\alpha+1}{\alpha^{\frac{\alpha}{\alpha+1}}}
+\end{align}
+so that
+\begin{equation*}
+p_X(x)\approx
+	\frac{
+		\left(\lambda\alpha\beta^\alpha\right)^{\frac{1}{2(\alpha+1)}}\euler^{-\lambda}
+	}
+	{
+		\sqrt{2\pi(\alpha+1)}
+	}
+	x^{-\frac{\alpha+2}{2(\alpha+1)}}
+	\euler^{-x\beta}
+	\exp\left[
+		x^{\frac{\alpha}{\alpha+1}}
+		\frac{(\lambda\beta^\alpha)^{\frac{1}{\alpha+1}}(\alpha+1)}{\alpha^{\frac{\alpha}{\alpha+1}}}
+	\right]
+	\ .
+\end{equation*}
+
+\subsection{Series Evaluation}
+Evaluation of the p.d.f.~of the compound Poisson-Gamma distribution is difficult because of the infinite sum
+\begin{equation}
+p_X(x) = 
+	\delta(x) \euler^{-\lambda}
+	+
+	\euler^{-\beta x-\lambda}\frac{1}{x}\sum_{y=1}^{\infty}W_y
+	\quad\text{for }x\geqslant 0
+\end{equation}
+where
+\begin{equation}
+	W_y = \frac{\beta^{y\alpha}\lambda^yx^{y\alpha}}{\Gamma(y\alpha)y!}
+	\ .
+	\label{eq:compoundPoisson_Wy}
+\end{equation}
+$W_y$ can be expressed in a different way using different parameters
+\begin{equation}
+	W_y(x,p,\phi)=\frac{x^{y\alpha}}{\phi^{y(1+\alpha)}(p-1)^{y\alpha}(2-p)^yy!\Gamma(y\alpha)}
+\end{equation}
+where
+\begin{equation}
+	p=\frac{2+\alpha}{1+\alpha}
+\end{equation}
+and
+\begin{equation}
+	\phi = \frac{\alpha+1}{\beta^{2-p}(\lambda\alpha)^{p-1}} \ .
+\end{equation}
+
+\cite{dunn2005series} approximated the sum by truncation
+\begin{equation}
+	\sum_{y=1}^\infty W_y \approx \sum_{y=y_\text{l}}^{y_\text{u}}W_y
+\end{equation}
+where $y_\text{l}<y_{\text{max}}<y_\text{u}$ and $y_{\text{max}}$ is the value of $y$ which maximises $W_y$. \cite{dunn2005series} used Stirling's approximation to find $y_{\text{max}}$. This was done by treating $W_y$ as a continuous function of $y$ and is differentiable with respect to $y$.
+
+It is easier to differentiate $\ln(W_y)$ where
+\begin{multline*}
+	\ln(W_y) = y\alpha\ln(x)-y(1+\alpha)\ln(\phi)-y\alpha\ln(p-1)\\-y\ln(2-p)-\ln(y!)-\ln\Gamma(y\alpha)
+\end{multline*}
+\begin{equation}
+	\ln(W_y) =
+	y
+	\ln\left(
+		\frac{x^\alpha}{\phi^{1+\alpha}(p-1)^\alpha(2-p)}
+	\right)
+	-\ln(y!)-\ln\Gamma(y\alpha)
+	\ .
+\end{equation}
+Using Stirling's approximation
+\begin{equation}
+	\ln(n!)\approx\ln\Gamma(n)\approx n\ln(n!)-n
+\end{equation}
+then
+\begin{equation}
+	\ln(W_y) \approx
+	y\ln\left(
+		\frac{x^\alpha}{\phi^{1+\alpha}(p-1)^\alpha(2-p)}
+	\right)
+	-y\ln(y)+y-y\alpha\ln(y\alpha) + y\alpha
+	\ .
+\end{equation}
+Taking the derivative with respect to $y$
+\begin{multline*}
+	\frac{\partial \ln(W_y)}{\partial y} \approx
+	\ln\left(
+		\frac{x^\alpha}{\phi^{1+\alpha}(p-1)^\alpha(2-p)}
+	\right)
+	-\ln(y)-1+1
+	\\
+	-\alpha\ln(y\alpha)-\alpha+\alpha
+\end{multline*}
+\begin{equation}
+	\frac{\partial \ln(W_y)}{\partial y} \approx
+	\ln\left(
+		\frac{x^\alpha}{\phi^{1+\alpha}(p-1)^\alpha(2-p)}
+	\right)
+	-\ln(y)
+	-\alpha\ln(y\alpha)
+	\ .
+\end{equation}
+
+Setting the derivative to zero
+\begin{equation*}
+	0 \approx \ln\left(
+		\frac{
+			x^\alpha
+		}
+		{
+			\phi^{1+\alpha}(p-1)^\alpha(2-p)y_{\text{max}}^{1+\alpha}\alpha^\alpha
+		}
+	\right)
+\end{equation*}
+\begin{equation*}
+	1 \approx 
+	\frac{x^\alpha}{\phi^{1+\alpha}(p-1)^\alpha(2-p)y_{\text{max}}^{1+\alpha}\alpha^\alpha}
+\end{equation*}
+\begin{equation*}
+	y_{\text{max}}^{1+\alpha} \approx 
+	\frac{x^\alpha}{\phi^{1+\alpha}(p-1)^\alpha(2-p)\alpha^\alpha}
+\end{equation*}
+\begin{equation*}
+	y_{\text{max}} \approx 
+	\frac{1}{\phi}
+	\left(
+		\frac{x}{(p-1)\alpha}
+	\right)^{\frac{\alpha}{1+\alpha}}
+	(2-p)^{\frac{-1}{1+\alpha}}
+	\ .
+\end{equation*}
+This can be simplified using the fact that 
+\begin{equation*}
+	\alpha=\frac{2-p}{p-1}
+	\ ,
+\end{equation*}
+\begin{equation*}
+	\frac{1}{1+\alpha} = p-1
+\end{equation*}
+and
+\begin{equation*}
+	\frac{\alpha}{1+\alpha} = 2-p
+\end{equation*}
+then
+\begin{equation*}
+	y_{\text{max}} \approx 
+	\frac{1}{\phi}
+	\left(
+		\frac{x}{2-p}
+	\right)^{2-p}
+	(2-p)^{1-p}
+\end{equation*}
+and finally
+\begin{equation}
+	y_{\text{max}} \approx \frac{x^{2-p}}{\phi(2-p)}
+	\ .
+\end{equation}
+Because values of $y$ should be a positive integer, it would be appropriate to round the solution to $y_\text{max}$ accordingly
+\begin{equation}
+	y_{\text{max}} = \text{max}\left[
+		1,\text{round}\left(\frac{x^{2-p}}{\phi(2-p)}\right)
+	\right]
+	\ .
+\end{equation}
+
+To verify that $y_\text{max}$ is a maximum, the second derivative can be investigated
+\begin{equation}
+	\frac{\partial^2\ln(W_y)}{\partial y^2}
+	\approx
+	-\frac{1}{y}(\alpha+1)
+\end{equation}
+to see that
+\begin{equation}
+	\frac{\partial^2\ln(W_y)}{\partial y^2} < 0 \quad \text{for }y=1,2,3,\dotdotdot
+\end{equation}
+therefore $y_\text{max}$ is a maximum.
+
+Returning back to the truncation of the infinite sum
+\begin{equation}
+	\sum_{y=1}^\infty W_y \approx \sum_{y=y_\text{l}}^{y_\text{u}}W_y
+	\ ,
+\end{equation}
+$y_\text{l}$ and $y_\text{u}$ can be chosen such that $W_{y_\text{l}}$ and $W_{y_\text{u}}$ are less than $\epsilon W_{y_\text{max}}$ where $\epsilon$ is some small constant, for example $\epsilon=\euler^{-37}$ will be better than machine precision in 64 bits \citep{dunn2005series}. To prevent overflow problems, it is advised to calculate each term in the summation in log scale \citep{dunn2005series} and using the following equation
+\begin{equation}
+	\ln\left[
+		\sum_{y=y_\text{l}}^{y_\text{u}}W_y
+	\right]
+	= 
+	\ln\left(
+		W_{y_\text{max}}
+	\right)
+	+\ln\sum_{y=y_\text{l}}^{y_\text{u}}
+	\exp\left[
+		\ln\left(W_y\right)-\ln\left(W_{y_\text{max}}\right)
+	\right]
+	\ .
+\end{equation}
+
+\subsection{Simulation Studies}
+
+Simulations of a compound Poisson-Gamma random variable were conducted with the aim to compare how well these density evaluations methods perform. This was done by comparing the evaluated densities with the histogram of simulations and a Q-Q plot. The following compound Poisson-Gamma distributions were used in the simulations to capture the variety in the compound Poisson-Gamma family: $\CPoisson(1,1,1)$, $\CPoisson(10,1,1)$, $\CPoisson(1,100,1)$, $\CPoisson(100,100,1)$.
+
+A few technical details will be stated here. The Normal approximation does not support probability mass at $x=0$, but instead has a support of $-\infty<x<\infty$. The Normal approximation with $-\infty<x<\infty$ support was used here.
+
+Suppose realizations of $X$ were simulated $\left\{x_1,x_2,x_3,\dotdotdot,x_n\right\}$. The saddlepoint approximation was computed up to a constant using
+\begin{equation}
+	p_X(x) \propto
+	\exp\left[
+		-\frac{\alpha+2}{2(\alpha+1)}
+		\ln(x)
+		-x\beta
+		+\left(
+		\frac{x\beta}{\alpha}
+		\right)^{\frac{\alpha}{\alpha+1}}\lambda^{\frac{1}{\alpha+1}}(\alpha+1) - k
+	\right]
+\end{equation}
+for 500 equally spaced points from and including the minimum non-zero simulated value to the maximum simulated value. $k$ is some constant to control over/underflow and it was chosen to be
+\begin{equation}
+	k =
+	\max_{i\in\left\{1,2,3,\dotdotdot,n\right\}}
+	\left[
+		-\frac{\alpha+2}{2(\alpha+1)}
+		\ln(x_i)
+		-x_i\beta
+		+\left(
+			\frac{x_i\beta}{\alpha}
+		\right)^{\frac{\alpha}{\alpha+1}}\lambda^{\frac{1}{\alpha+1}}(\alpha+1)
+	\right]
+	\ .
+\end{equation}
+The density was then was normalised by numerically integrating it using the trapezium rule using the 500 evaluated points.
+
+A Q-Q plot is a plot which compares the empirical with the theoretical c.d.f. Let
+\begin{equation}
+	F_X(x) = \prob(X\leqslant x)
+\end{equation}
+\begin{equation}
+	\widehat{F}_X(x) = \frac{1}{n}\cdot\text{max}
+	\left[
+		\left(\sum_{i=1}^n\mathbb{I}(x_i\leqslant x)\right)-0.5,0
+	\right]
+	\ ,
+\end{equation}
+then a Q-Q plot plot is a parametric plot which plots $\widehat{F}_X^{-1}(p)$ against $F_X^{-1}(p)$ for $p=\frac{0.5}{n},\frac{1.5}{n},\frac{2.5}{n},\dotdotdot,\frac{n-0.5}{n}$. If $F_X(x)$ and $\widehat{F}_X(x)$ are similar, a Q-Q plot should be a straight line with gradient 1, intercepting the origin. However there is no closed form for $F_X(x)$. When using the exact or saddlepoint method, $F_X(x)$ was found numerically by evaluating the p.d.f.~at $10\,000$ equally spaced points from and including the minimum to the maximum of the simulated samples, and then summing the required trapeziums. $\widehat{F}_X^{-1}(p)$ was then calculated by interpolation. For the saddlepoint approximation where $x=0$ cannot be evaluated and their exist a zero value in the sample, the lower limit of the numerical integral was chosen, arbitrary, to be
+\begin{equation}
+	\frac{
+		\euler^{-\lambda}\lambda\cdot\text{min}\left(\text{non-zero samples}\right)
+	}
+	{
+		\euler^{-\lambda}(1+\lambda)
+	}
+	\times 0.1
+	\ .
+\end{equation}
+
+For low $\lambda$ (Figures \ref{fig:cp_simulation_1} and \ref{fig:cp_simulation_3}) there is a chance of simulating zeros. The Normal approximation failed to capture the probability mass at zero because the Normal distribution is symmetric. The saddlepoint approximation did capture probability mass at zero as shown by an increase in probability density towards zero. However in Figure \ref{fig:cp_simulation_3}, the compound Poisson-Gamma distribution looked like a mixture model and the saddlepoint approximation was not flexible enough to capture each individual peak. In addition, the Q-Q plots looked quite sensitive at the tails of each peak, perhaps there were a few inaccuracies in the exact evaluation of the p.d.f.~at low densities.
+
+As $\lambda$ increased, all 3 density evaluation methods performed quite well. In Figure \ref{fig:cp_simulation_2}, the Normal approximation did not quite capture the skewness of the histogram. However in Figure \ref{fig:cp_simulation_4} for the Normal looking compound Poisson-Gamma random variable, all methods performed well.
+
+\begin{figure}
+	\centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/cp_hist1.png}
+        \caption{Histogram - Exact method}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/cp_qq1.png}
+        \caption{Q-Q plot - Exact method}
+    \end{subfigure}
+    }
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/cp_norm_hist1.png}
+        \caption{Histogram - Normal approx.}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/cp_norm_qq1.png}
+        \caption{Q-Q plot - Normal approx.}
+    \end{subfigure}
+    }
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/cp_saddle_hist1.png}
+        \caption{Histogram - Saddlepoint approx.}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/cp_saddle_qq1.png}
+        \caption{Q-Q plot - Saddlepoint approx.}
+    \end{subfigure}
+    }
+    \caption{Simulations of $\CPoisson(1,1,1)$ compared to different density evaluation methods}
+    \label{fig:cp_simulation_1}
+\end{figure}
+
+\begin{figure}
+	\centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/cp_hist2.png}
+        \caption{Histogram - Exact method}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/cp_qq2.png}
+        \caption{Q-Q plot - Exact method}
+    \end{subfigure}
+    }
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/cp_norm_hist2.png}
+        \caption{Histogram - Normal approx.}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/cp_norm_qq2.png}
+        \caption{Q-Q plot - Normal approx.}
+    \end{subfigure}
+    }
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/cp_saddle_hist2.png}
+        \caption{Histogram - Saddlepoint approx.}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/cp_saddle_qq2.png}
+        \caption{Q-Q plot - Saddlepoint approx.}
+    \end{subfigure}
+    }
+    \caption{Simulations of $\CPoisson(10,1,1)$ compared to different density evaluation methods}
+    \label{fig:cp_simulation_2}
+\end{figure}
+
+\begin{figure}
+	\centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/cp_hist3.png}
+        \caption{Histogram - Exact method}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/cp_qq3.png}
+        \caption{Q-Q plot - Exact method}
+    \end{subfigure}
+    }
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/cp_norm_hist3.png}
+        \caption{Histogram - Normal approx.}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/cp_norm_qq3.png}
+        \caption{Q-Q plot - Normal approx.}
+    \end{subfigure}
+    }
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/cp_saddle_hist3.png}
+        \caption{Histogram - Saddlepoint approx.}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/cp_saddle_qq3.png}
+        \caption{Q-Q plot - Saddlepoint approx.}
+    \end{subfigure}
+    }
+    \caption{Simulations of $\CPoisson(1,100,1)$ compared to different density evaluation methods}
+    \label{fig:cp_simulation_3}
+\end{figure}
+
+\begin{figure}
+	\centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/cp_hist4.png}
+        \caption{Histogram - Exact method}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/cp_qq4.png}
+        \caption{Q-Q plot - Exact method}
+    \end{subfigure}
+    }
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/cp_norm_hist4.png}
+        \caption{Histogram - Normal approx.}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/cp_norm_qq4.png}
+        \caption{Q-Q plot - Normal approx.}
+    \end{subfigure}
+    }
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/cp_saddle_hist4.png}
+        \caption{Histogram - Saddlepoint approx.}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/cp_saddle_qq4.png}
+        \caption{Q-Q plot - Saddlepoint approx.}
+    \end{subfigure}
+    }
+    \caption{Simulations of $\CPoisson(100,100,1)$ compared to different density evaluation methods}
+    \label{fig:cp_simulation_4}
+\end{figure}
+
+\section{EM Algorithm}
+
+The EM algorithm \citep{dempster1977maximum} will be proposed here as a method to estimate the parameters of a $X\sim\CPoisson(\lambda,\alpha,\beta)$ random variable given a sample of measurements of it $\left\{x_1,x_2,x_3,\dotdotdot,x_n\right\}$.
+
+A popular method for parameter estimation is the maximum log likelihood method. Let $\widehat{\lambda}$, $\widehat{\alpha}$ and $\widehat{\beta}$ be estimators of $\lambda$, $\alpha$ and $\beta$ respectively. The log likelihood is defined to be
+\begin{equation*}
+	\ln L(\lambda,\alpha,\beta;X) = \sum_{i=1}^n
+	\left[
+		\mathbb{I}(x_i=0)\ln \prob(X=x_i)
+		+\mathbb{I}(x_i>0)\ln p_X(x_i)
+	\right]
+\end{equation*}
+\begin{multline}
+	\ln L(\lambda,\alpha,\beta;X) = \sum_{i=1}^n
+	\left[
+		-\mathbb{I}(x_i=0)\lambda
+		\vphantom{\sum_i^i}
+	\right.
+	\\
+	\left.
+		+\mathbb{I}(x_i>0)\left(
+		-1-\beta x_i-\lambda-\ln x -\ln\sum_{y=1}^\infty W_y
+		\right)
+	\right]
+\end{multline}
+where $W_y=W_y(\lambda,\alpha,\beta)$ was defined in Equation \eqref{eq:compoundPoisson_w}. $\widehat{\lambda}$, $\widehat{\alpha}$ and $\widehat{\beta}$ are values of $\lambda$, $\alpha$ and $\beta$ which jointly maximises the log likelihood. The gradient of the log likelihood can be evaluated \citep{dunn2005series} and optimisation can be done using gradient methods.
+
+The EM algorithm \citep{dempster1977maximum} instead treats $Y\sim\poisson(\lambda)$ as a latent variable. Let $\left\{Y_1,Y_2,Y_3,\dotdotdot, Y_n\right\}$ be realizations of $Y$ and $\left\{x_1,x_2,x_3,\dotdotdot, x_n\right\}$ be measurements of $X|Y$. Define the joint log likelihood to be
+\begin{multline*}
+	\ln L(\lambda,\alpha,\beta;X,Y)
+	=
+	\sum_{i=1}^n
+	\left[
+		\mathbb{I}(x_i=0)
+		\ln
+		\prob(Y=0)
+	\right.
+	\\
+	\left.
+		+
+		\mathbb{I}(x_i>0)
+		\ln
+		\left[
+			p_{X|Y}(x_i|Y_i)\prob(Y=Y_i)
+		\right]
+	\right]
+\end{multline*}
+so that
+\begin{multline}
+	\ln L(\lambda,\alpha,\beta;X,Y)=
+	\sum_{i=1}^n
+	\left[
+		-\mathbb{I}(x_i=0)
+		\lambda
+	\right.
+	\\
+	\left.+
+		\mathbb{I}(x_i>0)
+		\left(
+			Y_i\alpha\ln\beta-\ln\Gamma(Y_i\alpha)+(Y_i\alpha-1)\ln x_i - \beta x_i
+		\right.
+	\right.
+	\\
+	\left.
+		\left.	
+			- \lambda + Y_i \ln \lambda - \ln(Y_i!)
+		\right)
+	\right]
+	\ .
+\end{multline}
+The estimators are found by optimising the joint log likelihood. This is done iteratively by estimating the $Y$s given the $X$s and parameters (E step), followed by estimating the parameters given the $Y$s and $X$s (M step) until some convergence conditions are met.
+
+It will be shown that using some approximations, the E step and M step can be implemented. The Cram\'er-Rao lower bound \citep{rao1945information} \citep{cramer1946mathematical} can also be found by using a few approximations. However simulations show that these estimators struggle for high $\lambda$ and it will be shown that this will be the case for all estimators.
+
+\subsection{E Step}
+
+In the E step, the realizations of $Y$ are estimate using
+\begin{equation}
+	y_i =
+	\expectation\left[
+		Y|X=x_i
+	\right]
+\end{equation}
+for given parameters $\lambda$, $\alpha$ and $\beta$. The conditional expectation is calculated using
+\begin{equation}
+	y_i = 
+	\begin{cases}
+		0 & \text{ for } x=0 \\ 
+		\dfrac{\sum_{y=1}^\infty y \prob(Y=y|X=x_i)}{\sum_{y=1}^\infty \prob(Y=y|X=x_i)} & \text{ for } x>0
+	\end{cases}
+\end{equation}
+where
+\begin{equation*}
+	\prob(Y=y|X=x) = \frac{p_{X|Y}(x|y)\prob(Y=y)}{p_X(x)}
+	\ .
+\end{equation*}
+Focussing on the $x>0$ case for now
+\begin{equation*}
+	\prob(Y=y|X=x) = \frac{1}{p_X(x)}\frac{\beta^{y\alpha}}{\Gamma(y\alpha)}x^{y\alpha-1}\euler^{-\beta x}\frac{\euler^{-\lambda}\lambda^y}{y!}
+\end{equation*}
+and
+\begin{equation}
+	\prob(Y=y|X=x) = W_y \frac{\euler^{-\lambda-\beta x}}{x}
+\end{equation}
+where $W_y$ is defined in Equation \eqref{eq:compoundPoisson_Wy}.
+Then the conditional expectation is
+\begin{equation}
+	y_i = \frac{\sum_{y=1}^\infty y W_y}{\sum_{y=1}^\infty W_y}
+	\ .
+\end{equation}
+It was already established how the denominator can be evaluated \citep{dunn2005series}. A similar method for evaluating the numerator can be obtained by truncating the sum and summing large terms.
+
+Let
+\begin{equation}
+	W_y^{(r)} = y^r W_y
+\end{equation}
+so that
+\begin{equation}
+	y_i = \frac{\sum_{y=1}^\infty W^{(1)}_y}{\sum_{y=1}^\infty W_y}
+\end{equation}
+and
+\begin{equation}
+	\variance[Y|X=x_i] = \frac{\sum_{y=1}^\infty W^{(2)}_y}{\sum_{y=1}^\infty W_y} - \left(y_i\right)^2
+	\ .
+\end{equation}
+The exponent $r=0,1,2,\dotdotdot$ will be useful in the M step where higher conditional moments are needed.
+The sum can be truncated
+\begin{equation}
+	\sum_{y=1}^\infty W^{(r)}_y \approx \sum_{y=y_\text{l}}^{y_\text{u}} W^{(r)}_y
+\end{equation}
+where $y_\text{l}<y_\text{max}<y_\text{u}$ and $y_\text{max}$ is the value of $y$ which maximises $W_y^{(r)}$. By expressing $\ln(W^{(r)}_y)$ as
+\begin{equation}
+	\ln\left(W_y^{(r)}\right)=r\ln(y)+\ln(W_y)
+\end{equation}
+and then taking the derivative with respect to $y$
+\begin{equation}
+	\frac{\partial \ln(W_y^{(r)})}{\partial y} = \frac{r}{y } + \frac{\partial \ln(W_y)}{\partial y}
+	\ .
+\end{equation}
+Keep in mind that $y=1,2,3,\dotdotdot$ so for large $y$, an approximation can be made $r/y\approx 0$ so that
+\begin{equation}
+	\frac{\partial \ln(W_y^{(r)})}{\partial y} \approx \frac{\partial \ln(W_y)}{\partial y}
+	\ .
+\end{equation}
+By using such an approximation, the method for evaluating the sum $\sum_{y=1}^\infty W^{(r)}_y$ is almost exactly the same as evaluating the sum $\sum_{y=1}^\infty W_y$, in particular $y_\text{max}$ are the same. For a given $r=0,1,2,\dotdotdot$, the limit of the sum $\sum_{y=y_\text{l}}^{y_\text{u}} W^{(r)}_y$ are chosen such that $W_{y_\text{l}}$ and $W_{y_\text{u}}$ are less than $\epsilon W_{y_\text{max}}^{(r)}$ where $\epsilon$ is some small constant. The limits will be different for different values of $r$.
+
+\subsection{M Step}
+
+In the M step, the conditional expected joint log likelihood is maximised with respect to the parameters $\lambda$, $\alpha$ and $\beta$. The objective function is then
+\begin{multline*}
+	T(\lambda,\alpha,\beta)=
+	\sum_{i=1}^n
+	\expectation\left[
+		-\mathbb{I}(x_i=0)
+		\lambda
+	\right.
+	\\
+	\left.+
+		\mathbb{I}(x_i>0)
+		\left(
+			Y_i\alpha\ln\beta-\ln\Gamma(Y_i\alpha)+(Y_i\alpha-1)\ln x_i - \beta x_i
+		\right.
+	\right.
+	\\
+	\left.
+		\left.	
+			- \lambda + Y_i \ln \lambda - \ln(Y_i!)
+		\right)
+		|X_i=x_i
+	\right]
+\end{multline*}
+\begin{multline*}
+	T(\lambda,\alpha,\beta)=
+	-n\lambda
+	\\
+	+\sum_{i=1}^n
+	\mathbb{I}(x_i>0)
+	\left[
+		\expectation[Y_i|X_i=x_i]\alpha\ln\beta-\expectation[\ln\Gamma(Y_i\alpha)|X_i=x_i]
+	\right.
+	\\
+	\left.
+		+\expectation[Y_i|X_i=x_i]\alpha\ln x_i - \beta x_i
+		+ \expectation[Y_i|X_i=x_i] \ln \lambda
+	\right] + c
+\end{multline*}
+where $c$ is some constant not dependent on $\lambda$, $\alpha$ or $\beta$.
+
+The conditional expectation $y_i = \expectation[Y_i|X_i=x_i]$ was calculated in the E step. The quantity $\expectation[\ln\Gamma(Y_i\alpha)|X_i=x_i]$ can be calculated using the approximation
+\begin{equation}
+	\expectation[\ln\Gamma(Y_i\alpha)|X_i=x_i] \approx
+	\ln\Gamma(\alpha y_i) + \frac{1}{2}\zeta_i\alpha^2\psi'(y_i\alpha)
+\end{equation}
+where
+\begin{equation}
+	\zeta_i = \variance[Y_i|X_i=x_i]
+\end{equation}
+calculated in the E step and $\psi$ is the digamma function. The objective function is then
+\begin{multline}
+	T(\lambda,\alpha,\beta)=
+	-n\lambda
+	+\sum_{i=1}^n
+	\mathbb{I}(x_i>0)
+	\left[
+		y_i\alpha\ln\beta-\ln\Gamma(\alpha y_i) - \frac{1}{2}\zeta_i\alpha^2\psi'(y_i\alpha)
+	\right.
+	\\
+	\left.
+		+y_i\alpha\ln x_i - \beta x_i
+		+ y_i \ln \lambda
+		\vphantom{\frac{1}{1}}
+	\right]
+	+ c
+	\ .
+\end{multline}
+
+Taking the derivative with respect to $\lambda$
+\begin{equation}
+	\frac{\partial T}{\partial\lambda} = -n + \frac{\sum_{i=1}^ny_i}{\lambda}
+\end{equation}
+and setting it to zero
+\begin{equation}
+	\widehat{\lambda} = \frac{\sum_{i=1}^n y_i}{n}
+\end{equation}
+obtains a M step estimator, and a familiar one, for $\lambda$. Taking the second derivative with respect to $\lambda$
+\begin{equation}
+	\frac{\partial^2 T}{\partial \lambda^2} = -\frac{\sum_{i=1}^ny_i}{\lambda^2} < 0
+\end{equation}
+verifies $\widehat{\lambda}$ maximises T. In addition
+\begin{equation}
+	\frac{\partial^2 T}{\partial \alpha \partial \lambda } = 0
+\end{equation}
+and
+\begin{equation}
+	\frac{\partial^2 T}{\partial \beta \partial \lambda } = 0
+	\ .
+\end{equation}
+
+Maximising $T$ with respect to $\alpha$ and $\beta$ can be done numerically using the Newton-Raphson method since derivatives up to the second order can be obtained. For the first order these are:
+\begin{multline}
+	\frac{\partial T}{\partial \alpha} =
+	\sum_{i=1}^n\mathbb{I}(x_i>0)
+	\left[
+		y_i\ln\beta -\psi(\alpha y_i)y_i-\zeta_i\alpha\psi'(\alpha y_i)
+		\vphantom{\frac{1}{1}}
+	\right.
+	\\
+	\left.
+		- \frac{1}{2}\zeta_i\alpha^2\psi''(\alpha y_i)y_i + y_i\ln x_i
+	\right]
+\end{multline}
+and
+\begin{equation}
+	\frac{\partial T}{\partial \beta} = \sum_{i=1}^n\mathbb{I}(x_i>0)\left[
+	\frac{\alpha y_i}{\beta}-x_i
+	\right]
+	\ .
+\end{equation}
+The second orders are:
+\begin{equation}
+	\frac{\partial^2 T}{\partial \alpha \partial \beta} =
+	\sum_{i=1}^n \mathbb{I}(x_i>0)\left[\frac{y_i}{\beta}\right]
+	\ ,
+	\label{eq:compoundPoisson:d2tdadb}
+\end{equation}
+\begin{equation}
+	\frac{\partial^2 T}{\partial \beta^2} = \sum_{i=1}^n\mathbb{I}(x_i>0)\left[-\frac{\alpha y_i}{\beta^2}
+	\right]
+	\label{eq:compoundPoisson:d2td2b}
+\end{equation}
+and
+\begin{multline*}
+	\frac{\partial^2 T}{\partial \alpha^2} = 
+	\sum_{i=1}^n\mathbb{I}(x_i>0)
+	\left[
+		-y_i^2\psi'(\alpha y_i) - \zeta_i\psi'(\alpha y_i) - \zeta_i\alpha y_i\psi''(\alpha y_i)
+		\vphantom{\frac{1}{2}}\right.\\\left.	
+		- \zeta_i\alpha\psi''(\alpha y_i)y_i
+		-\frac{1}{2}\zeta_i\alpha^2\psi'''(\alpha y_i)y_i^2
+	\right]
+\end{multline*}
+simplifying to
+\begin{multline}
+	\frac{\partial^2 T}{\partial \alpha^2} = 
+	\sum_{i=1}^n\mathbb{I}(x_i>0)
+	\left[
+		-(y_i^2+\zeta_i)\psi'(\alpha y_i) - 2\zeta_i\alpha y_i\psi''(\alpha y_i)
+		\vphantom{\frac{1}{2}}
+	\right.
+	\\
+	\left.	
+		-\frac{1}{2}\zeta_i\alpha^2y_i^2\psi'''(\alpha y_i)
+	\right] \ .
+	\label{eq:compoundPoisson:d2td2a}
+\end{multline}
+
+All the derivatives can be used in the Newton-Raphson iterative update, which is
+\begin{equation}
+	\begin{pmatrix}
+		\alpha \\ \beta
+	\end{pmatrix}
+	\leftarrow
+	\begin{pmatrix}
+		\alpha \\ \beta
+	\end{pmatrix}
+	\left[
+		\nabla_{\alpha,\beta}\nabla_{\alpha,\beta}\T T
+	\right]^{-1}
+	\left[
+		\nabla_{\alpha,\beta} T
+	\right]
+\end{equation}
+where
+\begin{equation}
+	\nabla_{\alpha,\beta}=
+	\begin{pmatrix}
+		{\partial}/{\partial \alpha}
+		\\
+		{\partial}/{\partial \beta}
+	\end{pmatrix}
+	\ .
+\end{equation}
+Since increasing $T$ is sufficient for the EM algorithm \citep{dempster1977maximum}, one step of the Newton-Raphson iterative update was chosen in the M step to avoid implementing a convergence condition.
+
+\subsection{Estimation Error}
+
+The variance of the M step estimators can be obtained by using the Cram\'er-Rao lower bound \citep{rao1945information} \citep{cramer1946mathematical} from the Fisher's information matrix defined as
+\begin{equation}
+	\matr{I} = -\expectation\left[
+		\nabla_{\lambda,\alpha,\beta}\nabla_{\lambda,\alpha,\beta}\T \ln L(\lambda,\alpha,\beta;X,Y)
+	\right]
+	\ .
+\end{equation}
+The calculation is similar to the derivatives of $T$, so using the same approximations and the fact that $\expectation[Y]=\lambda$, then
+\begin{equation}
+	\matr{I}=
+	\begin{pmatrix}
+		\dfrac{n}{\lambda} & 0 & 0 \\
+		0 & (\lambda^2+\lambda)\psi'(\alpha\lambda)+2\alpha\lambda^2\psi''(\alpha\lambda)+\frac{1}{2}\alpha^2\lambda^3\psi'''(\alpha\lambda) & -\dfrac{n\lambda}{\beta}\\
+		0 & -\dfrac{n\lambda}{\beta} & \dfrac{n\alpha\lambda}{\beta^2}
+	\end{pmatrix}
+	\ .
+\end{equation}
+The Cram\'er-Rao lower bound is then
+\begin{equation}
+	\cov\left[
+		\begin{pmatrix}
+			\widehat{\lambda}\\\widehat{\alpha}\\\widehat{\beta}
+		\end{pmatrix}
+	\right]
+	=
+	\matr{I}^{-1}
+	\ .
+\end{equation}
+
+\subsection{Simulations}
+
+An experiment was conducted to assess the performance on the EM algorithm. For a given set of parameters, 1\,000 samples of a $\CPoisson(\lambda,\alpha,\beta)$ random variable were simulated. The EM algorithm was initialised with its parameters at the true values to investigate the convergence in that vicinity. The log likelihood $\ln L(\lambda,\alpha,\beta;X)$ and the parameters were recorded at every EM step. The experiment was repeated 10 times using different simulated samples.
+
+The results for $\CPoisson(1,1,1)$, $\CPoisson(10,1,1)$, $\CPoisson(1,100,1)$ and $\CPoisson(100,100,1)$ are shown in Figures \ref{fig:compoundPoisson_convergence_1}, \ref{fig:compoundPoisson_convergence_2}, \ref{fig:compoundPoisson_convergence_3} and \ref{fig:compoundPoisson_convergence_4} respectively. Good performance can be seen for the $\lambda=1$ case with convergence of all 3 parameters within a step or two. The Cram\'er-Rao lower bound captured the spread of the estimates well.
+
+However for $\lambda=10$ and $\lambda=100$ case, the estimates of $\alpha$ and $\beta$ struggled to converge and increased/decreased without bounds without affecting the log likelihood. It appears the EM algorithm failed for $\lambda>10$ looking at these particular examples.
+
+\begin{figure}[p]
+	\centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/convergence_1_lnL.eps}
+        \caption{Log likelihood}
+    \end{subfigure}
+        \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/convergence_1_lambda.eps}
+        \caption{$\lambda$}
+    \end{subfigure}
+    }
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/convergence_1_alpha.eps}
+        \caption{$\alpha$}
+    \end{subfigure}
+        \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/convergence_1_beta.eps}
+        \caption{$\beta$}
+    \end{subfigure}
+    }
+    \caption{EM algorithm was used to estimate the parameters of a $\CPoisson(1,1,1)$ random variable using 1\,000 simulated samples, repeated 10 times. The graphs show the log likelihood and the estimated parameters at each EM step for each repeat of the experiment. The dashed lines show the standard deviation using the Cram\'er-Rao lower bound.}
+    \label{fig:compoundPoisson_convergence_1}
+\end{figure}
+
+\begin{figure}[p]
+	\centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/convergence_2_lnL.eps}
+        \caption{Log likelihood}
+    \end{subfigure}
+        \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/convergence_2_lambda.eps}
+        \caption{$\lambda$}
+    \end{subfigure}
+    }
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/convergence_2_alpha.eps}
+        \caption{$\alpha$}
+    \end{subfigure}
+        \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/convergence_2_beta.eps}
+        \caption{$\beta$}
+    \end{subfigure}
+    }
+    \caption{EM algorithm was used to estimate the parameters of a $\CPoisson(10,1,1)$ random variable using 1\,000 simulated samples, repeated 10 times. The graphs show the log likelihood and the estimated parameters at each EM step for each repeat of the experiment. The dashed lines show the standard deviation using the Cram\'er-Rao lower bound.}
+    \label{fig:compoundPoisson_convergence_2}
+\end{figure}
+
+\begin{figure}[p]
+	\centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/convergence_3_lnL.eps}
+        \caption{Log likelihood}
+    \end{subfigure}
+        \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/convergence_3_lambda.eps}
+        \caption{$\lambda$}
+    \end{subfigure}
+    }
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/convergence_3_alpha.eps}
+        \caption{$\alpha$}
+    \end{subfigure}
+        \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/convergence_3_beta.eps}
+        \caption{$\beta$}
+    \end{subfigure}
+    }
+    \caption{EM algorithm was used to estimate the parameters of a $\CPoisson(1,100,1)$ random variable using 1\,000 simulated samples, repeated 10 times. The graphs show the log likelihood and the estimated parameters at each EM step for each repeat of the experiment. The dashed lines show the standard deviation using the Cram\'er-Rao lower bound.}
+    \label{fig:compoundPoisson_convergence_3}
+\end{figure}
+
+\begin{figure}[p]
+	\centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/convergence_4_lnL.eps}
+        \caption{Log likelihood}
+    \end{subfigure}
+        \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/convergence_4_lambda.eps}
+        \caption{$\lambda$}
+    \end{subfigure}
+    }
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/convergence_4_alpha.eps}
+        \caption{$\alpha$}
+    \end{subfigure}
+        \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/compoundPoisson/convergence_4_beta.eps}
+        \caption{$\beta$}
+    \end{subfigure}
+    }
+    \caption{EM algorithm was used to estimate the parameters of a $\CPoisson(100,100,1)$ random variable using 1\,000 simulated samples, repeated 10 times. The graphs show the log likelihood and the estimated parameters at each EM step for each repeat of the experiment. The dashed lines show the standard deviation using the Cram\'er-Rao lower bound.}
+    \label{fig:compoundPoisson_convergence_4}
+\end{figure}
+
+\subsection{Failure Evaluation}
+It should be convincing that the EM algorithm failed when the compound-Poisson Gamma random variable starts behaving Normally. In particular in Figure \ref{fig:compoundPoisson_convergence_4}, estimates of $\lambda$ are stable while estimates of $\alpha$ and $\beta$ struggled to converge. This could be because as the compound-Poisson Gamma random variable approach being Normal, the parameters $(\lambda,\alpha,\beta)$ becomes degenerate and there is more than one way to represent a two parameter random variable $\normal(\mu,\sigma^2)$.
+
+One way to see this is to look at the Newton-Raphson step, in the M step, in particular the Hessian matrix $\nabla_{\alpha,\beta}\nabla_{\alpha,\beta}\T T$ for high $\lambda$. The elements of the Hessian matrix can be found in Equations \eqref{eq:compoundPoisson:d2tdadb}, \eqref{eq:compoundPoisson:d2td2b} and \eqref{eq:compoundPoisson:d2td2a}. The $\dfrac{\partial^2T}{\partial\alpha^2}$ element is 
+\begin{multline*}
+	\frac{\partial^2 T}{\partial \alpha^2} = 
+	\sum_{i=1}^n\mathbb{I}(x_i>0)\left[
+		-(y_i^2+\zeta_i)\psi'(\alpha y_i) - 2\zeta_i\alpha y_i\psi''(\alpha y_i)
+		\vphantom{\frac{1}{2}}
+	\right.
+	\\
+	\left.	
+		-\frac{1}{2}\zeta_i\alpha^2y_i^2\psi'''(\alpha y_i)
+	\right]
+	\ .
+\end{multline*}
+For high $\alpha$ and high $\lambda$, and hence high $y_i$'s, an approximation can be used for the polygamma functions $\psi^{(k)}(n)$. Firstly using Stirling's approximation
+\begin{equation}
+	\ln\Gamma(n)\approx\ln(n!)\approx n\ln n-n
+\end{equation}
+then
+\begin{equation}
+	\psi(n) = \frac{\partial\ln\Gamma(n)}{\partial n} \approx \ln n
+	\ .
+\end{equation}
+Differentiating further
+\begin{align}
+	\psi'(n) &\approx 1/n \\
+	\psi''(n) & \approx -1/n^2 \\
+	\psi'''(n) & \approx 2/n^3
+	\ .
+\end{align}
+Using the approximations, $\dfrac{\partial^2T}{\partial\alpha^2}$ can be approximated
+\begin{equation*}
+	\frac{\partial^2 T}{\partial \alpha^2} \approx 
+	\sum_{i=1}^n\mathbb{I}(x_i>0)
+	\left[
+		-\frac{y_i^2+\zeta_i}{\alpha y_i} + 2\frac{\zeta_i\alpha y_i}{\alpha^2 y_i^2}
+		-\frac{1}{2}\frac{2\zeta_i\alpha^2y_i^2}{\alpha^3 y_i^3}
+	\right]
+\end{equation*}
+to get
+\begin{equation}
+	\frac{\partial^2 T}{\partial \alpha^2} \approx 
+	\sum_{i=1}^n\mathbb{I}(x_i>0)
+	\left[
+		-\frac{y_i}{\alpha}
+	\right]
+	\ .
+\end{equation}
+
+The Hessian matrix is then
+\begin{equation}
+	\nabla_{\alpha,\beta}\nabla_{\alpha,\beta}\T T \approx
+	\sum_{i=1}^n
+	\mathbb{I}(x_i>0)
+	\begin{pmatrix}
+		-y_i/\alpha  & y_i/\beta \\
+		y_i/\beta & -\alpha y_i/\beta^2
+	\end{pmatrix}
+	\ . 
+\end{equation}
+The determinant of the Hessian matrix is then
+\begin{equation*}
+	\|\nabla_{\alpha,\beta}\nabla_{\alpha,\beta}\T T\|
+	\approx
+	\left(\sum_{i=1}^n-\frac{\alpha y_i}{\beta^2}\right)
+	\left(\sum_{i=1}^n-\frac{y_i}{\alpha}\right) - \left(\sum_{i=1}^n\frac{y_i}{\beta}\right)^2
+\end{equation*}
+\begin{equation*}
+	\|\nabla_{\alpha,\beta}\nabla_{\alpha,\beta}\T T\|
+	\approx
+	\left(\sum_{i=1}^n\sum_{j=1}^n\frac{y_iy_j}{\beta^2}\right)
+	 - \left(\sum_{i=1}^n\frac{y_i}{\beta}\right)\left(\sum_{j=1}^n\frac{y_j}{\beta}\right)
+\end{equation*}
+\begin{equation*}
+	\|\nabla_{\alpha,\beta}\nabla_{\alpha,\beta}\T T\|
+	\approx
+	\left(\sum_{i=1}^n\sum_{j=1}^n\frac{y_iy_j}{\beta^2}\right)
+	 - \left(\sum_{i=1}^n\sum_{j=1}^n\frac{y_iy_j}{\beta^2}\right)
+\end{equation*}
+to get
+\begin{equation}
+	\|\nabla_{\alpha,\beta}\nabla_{\alpha,\beta}\T T\|
+	\approx
+	0
+	\ .
+\end{equation}
+
+This results in a few things. Firstly $\nabla_{\alpha,\beta}\nabla_{\alpha,\beta}\T T$ is singular thus its inverse cannot be evaluated, needed for the Newton-Raphson method. Secondly, the sufficient conditions to classify a stationary point as a maximum are that the diagonal elements of the Hessian matrix are negative and the determinate is positive. For high $\lambda$ and $\alpha$, the second condition is not met.
+
+Another argument which can be made is to restrict the parameter $\beta$ for a given mean to be
+\begin{equation}
+	\beta = \frac{\lambda\alpha}{\widehat{\mu}}
+	\label{eq:compoundPoisson:beta_restrict}
+\end{equation}
+where
+\begin{equation}
+	\widehat{\mu} = \frac{1}{n}\sum_{i=1}^n x_i
+\end{equation}
+and investigate whenever a unique solution to $\dfrac{\partial T}{\partial \alpha} = 0$ can be found for high $\lambda$ and $\alpha$. The constrained objective function is
+\begin{multline*}
+	T(\lambda,\alpha)
+	=
+	-n\lambda+
+	\sum_{i=1}^n
+	\mathbb{I}(x_i>0)
+	\left[
+	y_i\alpha
+	\ln\left(\frac{\lambda\alpha}{\widehat{\mu}}\right)-\ln\Gamma(\alpha y_i) - \frac{1}{2}\zeta_i\alpha^2\psi'(y_i\alpha)
+	\right.
+	\\
+	\left.
+		+y_i\alpha\ln x_i - \frac{\lambda\alpha x_i}{\widehat{\mu}}
+		+ y_i \ln \lambda
+		\vphantom{\frac{1}{1}}
+	\right]
+	+ c
+\end{multline*}
+which can be approximated to
+\begin{multline*}
+	T(\lambda,\alpha)=
+	-n\lambda+
+	\sum_{i=1}^n
+	\mathbb{I}(x_i>0)
+	\left[
+		y_i\alpha\ln\left(\frac{\lambda\alpha}{\widehat{\mu}}\right)-\alpha y_i\ln(\alpha y_i) + \alpha y_i - \frac{1}{2}\frac{\zeta_i\alpha}{y_i}
+	\right.
+	\\
+	\left.
+		+y_i\alpha\ln x_i - \frac{\lambda\alpha x_i}{\widehat{\mu}}
+		+ y_i \ln \lambda
+		\vphantom{\frac{1}{1}}
+	\right]
+	+ c
+\end{multline*}
+\begin{multline*}
+	T(\lambda,\alpha)=
+	-n\lambda+
+	\sum_{i=1}^n
+	\mathbb{I}(x_i>0)
+	\left[
+		y_i\alpha\ln\left(\frac{\lambda}{y_i\widehat{\mu}}\right) + \alpha y_i - \frac{1}{2}\frac{\zeta_i\alpha}{y_i}
+	\right.
+	\\
+	\left.
+		+y_i\alpha\ln x_i - \frac{\lambda\alpha x_i}{\widehat{\mu}}
+		+ y_i \ln \lambda
+		\vphantom{\frac{1}{1}}
+	\right]
+	+ c
+	\ .
+\end{multline*}
+Taking the derivative with respect to $\alpha$
+\begin{equation*}
+	\frac{\partial T}{\partial \alpha} =
+	\sum_{i=1}^n
+	\mathbb{I}(x_i>0)
+	\left[
+		y_i\ln\left(\frac{\lambda}{y_i\widehat{\mu}}\right)
+		+ y_i - \frac{1}{2}\frac{\zeta_i}{y_i}
+		+y_i\ln x_i - \frac{\lambda x_i}{\widehat{\mu}}
+		\vphantom{\frac{1}{1}}
+	\right]
+\end{equation*}
+and this is not $\alpha$ dependent, thus there is no solution to $\alpha$.

@@ -1,0 +1,474 @@
+In the previous chapter, it was found that it is very hard to fit a compound Poisson random variable onto the grey values directly itself. It is not totally useless however. The compound Poisson model showed that the variance of the grey value has a linear relationship with the mean grey value. Given this, it would be possible to predict the variance of the grey value, given the grey value. This opens up new ways to predict the uncertainty of each individual pixel in an x-ray scan.
+
+In this chapter, different types of regressions were tested to see if they perform well in predicting grey value variance given the grey value. Two types of regressions were used. Generalised linear models \citep{nelder1972generalized} \citep{nelder1972generalized_2} \citep{mccullagh1984generalized} (GLM) is a parametric regression which models the response variable as a random variable in the exponential family. In this project, a Gamma distributed random variable was chosen as the response variable. A non-parametric regression was also considered, here there kernel regression \citep{friedman2001elements} was used.
+
+Using the replicated x-ray images, the within individual pixel sample mean and sample variance were obtained. The sample variance-mean data were then used for the regressions to be fitted on. The deviance was investigated as a method of model selection. The regression was also used to test it's prediction performance on held out images.
+
+In the end, a GLM with a linear relationship between the variance and the mean was good enough. Its performance is similar to other complicated models and its simple form attracts those who follows Occam's razor, that the simpler models are usually better. The linear relationship is also justified by the compound Poisson model.
+
+\section{Variance-Mean Relationship}
+
+The sample variance-mean data were obtained from the replicated x-ray images, assuming each image are i.i.d.
+
+Let $x_{i,j}^{(r)}$ be the grey value of the pixel in the $i$th row and $j$th column in the $r$th image for $r=1,2,3,\dotdotdot,n$. The within individual pixel sample mean is
+\begin{equation}
+    \bar{x}_{i,j}=\frac{1}{n}\sum_{r=1}^n x_{i,j}^{(r)}
+\end{equation}
+and the within individual pixel sample variance is
+\begin{equation}
+    y_{i,j} =
+    \frac{1}{n-1}
+    \sum_{r=1}^n
+        \left(
+            x_{i,j}^{(r)} - \bar{x}_{i,j}
+        \right)^2
+    \ .
+\end{equation}
+
+Only the masked pixels will be considered here as this is the region of interest (ROI). The sample variance-mean data can be obtained by calculating the within individual pixel sample mean and variance for all ROI pixels and can be plotted as a histogram. For example, the sample variance-mean data for \texttt{Mar16} can be seen in Figure \ref{fig:meanvar_mar16_100}.
+
+\subsection{Generalised Linear Models}
+By making some assumptions, some useful and simple results can be obtained. Firstly, it was assumed the standard error from estimating the mean was negligible. Secondly, it was assumed for a given pixel, the grey value from each each were Normal i.i.d. Following from these assumptions, the sample variance is Gamma distributed with shape parameter $(n-1)/2$. Furthermore the standard error of the sample variance is proportional to $(n-1)^{-1/2}$, meaning the sample variance is more precise when more and more images were used to estimate the variance. This was experimentally shown in Figure \ref{fig:meanvar_mar16_differentn}, the spread of the sample variance decreased as $n$ increased.
+
+\begin{figure}
+	\centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/meanVar/sample_size_25.eps}
+        \caption{$n=25$}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/meanVar/sample_size_50.eps}
+        \caption{$n=50$}
+    \end{subfigure}
+    }
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/meanVar/sample_size_75.eps}
+        \caption{$n=75$}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/meanVar/sample_size_100.eps}
+        \caption{$n=100$}
+        \label{fig:meanvar_mar16_100}
+    \end{subfigure}
+    }
+    \caption{Log frequency density of the within pixel variance-mean data from \texttt{Mar16} using $n$ of the images. Fitted is a Gamma GLM with identity link. Error bars represent the $\Phi(\pm1)$ quantile.}
+    \label{fig:meanvar_mar16_differentn}
+\end{figure}
+
+A GLM \citep{nelder1972generalized} \citep{nelder1972generalized_2} \citep{mccullagh1984generalized}, with Gamma distributed response, would then be an appropriate regression to be used. Let $Y$ be the grey value sample variance and $X$ be the grey value, then a GLM models $Y$ via the following
+\begin{equation}
+    Y|X \sim 
+    \gammaDist\left(
+        \frac{n-1}{2},
+        f(X)
+    \right)
+\end{equation}
+where $f(X)$ is some user specified function. Conventionally it is useful for the specified function to be a parameter of the conditional mean $Y|X$. This function is known as the link function and can be expressed as
+\begin{equation}
+g(\mu_X) = \eta(X)
+\end{equation}
+where $\mu_X=\expectation\left[Y|X\right]$ and $\eta(X)$ is a linear function of $X$, for example
+\begin{equation}
+\eta(X) = \beta_0 + \beta_1 X^p \ .
+\end{equation}
+For a specified link function and $p$, the GLM is fitted onto the data by estimating the parameters $\beta_0$ and $\beta_1$.
+
+In this project, the identity, inverse and log link functions were investigated for a selected few integer values of $p$. These link functions are shown in Table \ref{table:meanvar_linkfunctions}. They are fitted on the variance-mean data from \texttt{Mar16} as shown in Figure \ref{fig:meanvar_mar16}.
+
+\begin{table}
+    \centering
+    \begin{tabular}{c|c|c|c}
+    &\multicolumn{3}{c}{Link functions}\\
+    &Identity&Inverse&Log\\
+    \hline
+    $g(\mu)$&$\mu$&$1/\mu$&$\ln(\mu)$\\
+    \hline
+    $\expectation[Y|X=x]$&$\beta_0 + \beta_1 x^p$&$\left[\beta_0 + \beta_1 x^p\right]^{-1}$&$\exp\left[\beta_0 + \beta_1 x^p\right]$
+    \end{tabular}
+    \caption{Link functions}
+    \label{table:meanvar_linkfunctions}
+\end{table}
+
+\begin{figure}
+	\centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/meanVar/MeanVarFit_Mar16_iShad1_iGlm2.eps}
+        \caption{Inverse link, $p=-1$}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/meanVar/MeanVarFit_Mar16_iShad1_iGlm3.eps}
+        \caption{Inverse link, $p=-2$}
+    \end{subfigure}
+    }
+    \centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/meanVar/MeanVarFit_Mar16_iShad1_iGlm4.eps}
+        \caption{Log link, $p=1$}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/meanVar/MeanVarFit_Mar16_iShad1_iGlm5.eps}
+        \caption{Log link, $p=-1$}
+    \end{subfigure}
+    }
+    \caption{Log frequency density of the variance-mean data from \texttt{Mar16}. Fitted are Gamma GLM with different link functions polynomial features. Error bars represent the $\Phi(\pm1)$ quantile.}
+    \label{fig:meanvar_mar16}
+\end{figure}
+
+\subsection{Kernel Regression}
+
+Kernel regression \citep{friedman2001elements} is a type of non-parametric regression and its prediction is done using a weighted sum of the data rather then fitting a parametric model. Suppose a collection of variance-mean data were collected $\{(y_1,x_1),(y_2,x_2),\dotdotdot,(y_m,x_m)\}$, then the kernel regression is
+\begin{equation}
+    \widehat{y}(x)=
+    \dfrac{
+        \sum_{i=1}^m k\left(\dfrac{x-x_i}{\lambda}\right) y_i
+    }
+    {
+        \sum_{i=1}^m k\left(\dfrac{x-x_i}{\lambda}\right)
+    }
+\end{equation}
+where $k(x)$ is a specified kernel function and $\lambda$ is called the bandwidth. Popular choices for the kernel include the Gaussian kernel \citep{friedman2001elements}
+\begin{equation}
+    k(x)=\phi(x)
+\end{equation}
+and the Epanechnikov kernel \citep{friedman2001elements}
+\begin{equation}
+    k(x) = 
+    \begin{cases}
+        \frac{3}{4}\left(1-x^2\right)& \text{ for } -1<x<1 \\ 
+        0 & \text{ otherwise } 
+    \end{cases}
+    \ .
+\end{equation}
+
+An example of the kernel regression using the Epanechnikov kernel is shown in Figure \ref{fig:meanvar_epanechnikov}. It shows the kernel regression fitted onto the \texttt{Mar16} variance-mean data for different values of $\lambda$. The bandwidth controls how smooth the kernel regression is. Just by observation, $\lambda=1$ is too small because it is capturing the noise whereas $\lambda=10^4$ is too large as it did not captured the general shape of the variance-mean relationship.
+
+\begin{figure}
+	\centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/meanVar/MeanVarFit_Mar16_iShad1_iGlm6.eps}
+        \caption{$\lambda=10^0$}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/meanVar/MeanVarFit_Mar16_iShad1_iGlm8.eps}
+        \caption{$\lambda=10^2$}
+    \end{subfigure}
+    }
+    \centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/meanVar/MeanVarFit_Mar16_iShad1_iGlm9.eps}
+        \caption{$\lambda=10^3$}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/meanVar/MeanVarFit_Mar16_iShad1_iGlm10.eps}
+        \caption{$\lambda=10^4$}
+    \end{subfigure}
+    }
+    \caption{Epanechnikov kernel regression, with bandwidth $\lambda$, fitted on the variance-mean data from \texttt{Mar16}.}
+    \label{fig:meanvar_epanechnikov}
+\end{figure}
+
+Choosing a good bandwidth can be done using cross validation methods \citep{friedman2001elements} but this can be computationally expensive thus time consuming. By eyeballing the figure and choosing a bandwidth which captures a smooth variance-mean relationship, a value of $\lambda=10^3$ was chosen.
+
+\section{Model Selection}
+
+In the previous section, several models for the variance-mean relationship have been described. This section will use model selection techniques to access the goodness of fit and prediction performance for each model. 
+
+\subsection{Deviance}
+The deviance is one way to assess the goodness of fit of the regression on the variance-mean data. The deviance is defined to be
+\begin{equation}
+    D = 2\left(
+        \ln L_s - \ln L    
+    \right)
+\end{equation}
+where $L$ and $L_s$ are the likelihood and saturated likelihood respectively. 
+
+Let $\alpha=(n-1)/2$ be the shape parameter. Suppose the variance-mean data consist of the following values $\{(y_1,x_1),(y_2,x_2),\dotdotdot,(y_m,x_m)\}$ and $\widehat{y}_i$ is the predicted $Y$ given $x_i$, then the log likelihood is
+\begin{equation}
+    \ln L = \sum_{i=1}^m \left[
+        \alpha\ln\alpha
+        -\alpha\ln \widehat{y_i}
+        -\ln\Gamma(\alpha)
+        +(\alpha-1)\ln y_i
+        -\frac{\alpha y_i}{\widehat{y}_i}
+    \right]
+    \ .
+\end{equation}
+The log saturated likelihood is obtained by replacing all $\widehat{y}_i$ with $y_i$ so that
+\begin{equation}
+    \ln L_s = \sum_{i=1}^m \left[
+        \alpha\ln\alpha
+        -\alpha\ln{y_i}
+        -\ln\Gamma(\alpha)
+        +(\alpha-1)\ln y_i
+        -\alpha
+    \right]
+    \ .
+\end{equation}
+Following from this, the deviance is then
+\begin{equation}
+    D = 2\alpha
+    \sum_{i=1}^m\left[
+        \dfrac{
+            y_i-\widehat{y}_i
+        }
+        {
+            \widehat{y}_i
+        }
+        - \ln\left(\dfrac{y_i}{\widehat{y}_i}\right)
+    \right]
+    \ .
+\end{equation}
+The scaled deviance can be obtained by removing the factor of $\alpha$ to get
+\begin{equation}
+    D^* = 2
+    \sum_{i=1}^m\left[
+        \dfrac{
+            y_i-\widehat{y}_i
+        }
+        {
+            \widehat{y}_i
+        }
+        - \ln\left(\dfrac{y_i}{\widehat{y}_i}\right)
+    \right]
+    \ .
+\end{equation}
+It is given that $D\sim\chi_{m-2}^2$ which implies that $\expectation\left[D\right]=m-2$. Because the GLMs considered here all have 2 parameters with known $\alpha$, the best model is the model with the lowest scaled deviance.
+
+The analysis on the deviance was conducted by fitting GLMs with different link functions and polynomial orders $p$ onto the variance-mean data using all $n=100$ images from \texttt{Mar16}. The deviance was then calculated. This procedure was done using multiple bootstrap samples \citep{efron1992bootstrap} of the $m$ images to get a sample of scaled deviance.
+
+The resulting 100 bootstrapped scaled deviance are shown in Figure \ref{fig:meanvar_deviance_mar16}. The kernel regression was also included. The scaled deviance does not vary much from model to model and suggests that the goodness of fit are all very similar.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.49\textwidth]{../figures/meanVar/GlmDeviance_Mar16_scaled_deviance.eps}
+    \caption{Scaled deviance when fitting Gamma GLM on the variance-mean data from \texttt{Mar16}.}
+    \label{fig:meanvar_deviance_mar16}
+\end{figure}
+
+In this particular example, $m\approx 1.3\times 10^6$ and $n=100$. Then one would expect the scaled deviance to have values
+\begin{align*}
+    \expectation\left[D^*\right]&=\frac{1}{\alpha}\expectation\left[D\right]
+    \\
+    &=\frac{2}{n-1}\times (m-2)
+    \\
+    &\approx \frac{2}{100-1}\times (1.3\times 10^6-2)
+    \\
+    &\approx 2.6 \times 10^4
+\end{align*}
+which is similar in magnitude but lower compared to the scaled deviances obtained from the bootstrap samples. This suggests the shape parameter $\alpha=(n-1)/2$ is too big and perhaps should be smaller. The estimation of the shape parameter here is however not too important as it is not used to further calculations.
+
+\subsection{Cross Validation}
+
+Another way to do model selection is cross validation \cite{friedman2001elements}. In the \texttt{Mar16} dataset, the 100 images were spilt into 2 equally sized sets called the training set and the test set. This produced 2 variance-mean data, one from each set. The regression was fitted onto the training set and the training set only.
+
+Prediction using the fitted regression can be accessed. This was done by calculating the mean squared error of the prediction of the training set, known as the training error, or the test set, known as the test error.
+
+20 samples of training and test errors were obtained by repeating the analysis using another random allocation of the training and test set. The results are shown in Figure \ref{fig:meanvar_mar16mse}. Each of the regressions considered all have similar prediction ability with the exception of GLM with log link and $p=1$ which performed significantly worse.
+
+\begin{figure}
+	\centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/meanVar/GlmMse_Mar16_training_MSE.eps}
+        \caption{Training error}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/meanVar/GlmMse_Mar16_test_MSE.eps}
+        \caption{Test error}
+    \end{subfigure}
+    }
+    \caption{Mean squared error in variance prediction using different regressions on the variance-mean data from \texttt{Mar16}.}
+    \label{fig:meanvar_mar16mse}
+\end{figure}
+
+\subsection{Shading Correction}
+
+%\begin{figure}
+%	\centering
+%    \centerline{
+%    \begin{subfigure}[b]{0.49\textwidth}
+%        \includegraphics[width=\textwidth]{../figures/meanVar/meanVarAbsBlock_July16_30deg.eps}
+%        \caption{30 deg}
+%    \end{subfigure}
+%    \begin{subfigure}[b]{0.49\textwidth}
+%        \includegraphics[width=\textwidth]{../figures/meanVar/meanVarAbsBlock_July16_120deg.eps}
+%        \caption{120 deg}
+%    \end{subfigure}
+%    }
+%    \caption{Log frequency density of the within pixel variance-mean data from \texttt{July16}. The error bars represent the variance-mean quartiles from the reference images.}
+%\end{figure}
+%
+%\begin{figure}
+%	\centering
+%    \centerline{
+%    \begin{subfigure}[b]{0.49\textwidth}
+%        \includegraphics[width=\textwidth]{../figures/meanVar/meanVarAbsBlock_Sep16_30deg.eps}
+%        \caption{30 deg}
+%    \end{subfigure}
+%    \begin{subfigure}[b]{0.49\textwidth}
+%        \includegraphics[width=\textwidth]{../figures/meanVar/meanVarAbsBlock_Sep16_120deg.eps}
+%        \caption{120 deg}
+%    \end{subfigure}
+%    }
+%    \caption{Log frequency density of the within pixel variance-mean data from \texttt{Sep16}. The error bars represent the variance-mean quartiles from the reference images.}
+%\end{figure}
+
+It was investigated how shading correction affects the variance-mean relationship. Figure \ref{fig:meanvar_shadingcorrection_july16_30deg} shows the sample variance-mean for the \texttt{July16 30deg} data with different types of shading correction applied. At a quick glance, it appeared the shading correction did not do much to the sample variance-mean data. However a closer look at low means showed that shading correction had a particular effect and formed a tighter cluster in the bottom-left of the variance-mean histogram. This implied that shading correction made more dark pixels have similar grey values.
+
+\begin{figure}
+	\centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/meanVar/MeanVarFit_July16_30deg_iShad1_iGlm1.eps}
+        \caption{No shading correction}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/meanVar/MeanVarFit_July16_30deg_iShad2_iGlm1.eps}
+        \caption{BW shading correction}
+    \end{subfigure}
+    }
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/meanVar/MeanVarFit_July16_30deg_iShad3_iGlm1.eps}
+        \caption{Linear shading correction}
+    \end{subfigure}
+    }
+    \caption{Log frequency density of the within pixel variance-mean data from \texttt{July16 30deg} using different shading corrections. Fitted is a Gamma GLM with identity link. Error bars represent the $\Phi(\pm1)$ quantile.}
+    \label{fig:meanvar_shadingcorrection_july16_30deg}
+\end{figure}
+
+In this section, the datasets \texttt{July16 30deg}, \texttt{July16 120deg}, \texttt{Sep16 30deg} and \texttt{Sep16 120deg} were considered. These are the only datasets with black, grey and white images which are used in shading correction.
+
+A regression was fitted using all images in each dataset to get the sample variance-mean data. The scaled deviance was calculated and repeated using bootstrapped samples of the images to get 100 samples of the scaled deviance. These are shown in Figures \ref{fig:meanvar_deviance_july16} and \ref{fig:meanvar_deviance_sep16} for the datasets \texttt{July16} and \texttt{Sep16} respectively.
+
+\begin{figure}
+	\centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/meanVar/GlmDeviance_July16_30deg_scaled_deviance.eps}
+        \caption{30 deg}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/meanVar/GlmDeviance_July16_120deg_scaled_deviance.eps}
+        \caption{120 deg}
+    \end{subfigure}
+    }
+    \caption{Scaled deviance when fitting Gamma GLM on the within pixel variance-mean data from \texttt{July16}.}
+    \label{fig:meanvar_deviance_july16}
+\end{figure}
+
+\begin{figure}
+	\centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/meanVar/GlmDeviance_Sep16_30deg_scaled_deviance.eps}
+        \caption{30 deg}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/meanVar/GlmDeviance_Sep16_120deg_scaled_deviance.eps}
+        \caption{120 deg}
+    \end{subfigure}
+    }
+    \caption{Scaled deviance when fitting Gamma GLM on the within pixel variance-mean data from \texttt{Sep16}.}
+    \label{fig:meanvar_deviance_sep16}
+\end{figure}
+
+The scaled deviance did not vary much from model to model and shading correction to another. However there was one notable exception in \texttt{July16 120deg} where it appeared the scaled deviance preferred the log link with $p=-2$. Figure \ref{fig:meanvar_july16_glm} shows how the curvature of the log link captured the sample variance-mean data.
+
+\begin{figure}
+	\centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/meanVar/MeanVarFit_July16_120deg_iShad1_iGlm1.eps}
+        \caption{Identity link, $p=1$}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/meanVar/MeanVarFit_July16_120deg_iShad1_iGlm3.eps}
+        \caption{Log link, $p=-2$}
+    \end{subfigure}
+    }
+    \caption{Log frequency density graph of the sample variance-mean data from the \texttt{July16 120deg} dataset.}
+    \label{fig:meanvar_july16_glm}
+\end{figure}
+
+Worryingly there appeared to be a significant change in the scaled deviance at different angles in the \texttt{July 16} dataset. This is unexplained.
+
+Another analysis was done by holding out half of the images and assigned it as the test set. The remaining images were assigned to be the training set and was used to train different types of regressions. The training and test MSE are shown in Figures \ref{fig:meanvar_mse_july16_30deg}, \ref{fig:meanvar_mse_july16_120deg}, \ref{fig:meanvar_mse_sep16_30deg} \& \ref{fig:meanvar_mse_sep16_120deg} for the datasets \texttt{July16 30deg}, \texttt{July16 120deg}, \texttt{Sep16 30deg} and \texttt{Sep16 120deg} respectively.
+
+What is remarkable is how much shading correction improved the training and test MSE, in particular in the \texttt{Sep16} dataset.
+
+\begin{figure}
+\centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/meanVar/GlmMse_July16_30deg_training_MSE.eps}
+        \caption{Training error}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/meanVar/GlmMse_July16_30deg_test_MSE.eps}
+        \caption{Test error}
+    \end{subfigure}
+    }
+    \caption{Mean squared error in variance prediction using different regressions on the variance-mean data from \texttt{July16 30deg}.}
+    \label{fig:meanvar_mse_july16_30deg}
+\end{figure}
+
+\begin{figure}
+	\centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/meanVar/GlmMse_July16_120deg_training_MSE.eps}
+        \caption{Training error}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/meanVar/GlmMse_July16_120deg_test_MSE.eps}
+        \caption{Test error}
+    \end{subfigure}
+    }
+    \caption{Mean squared error in variance prediction using different regressions on the variance-mean data from \texttt{July16 120deg}.}
+    \label{fig:meanvar_mse_july16_120deg}
+\end{figure}
+
+\begin{figure}
+	\centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/meanVar/GlmMse_Sep16_30deg_training_MSE.eps}
+        \caption{Training error}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/meanVar/GlmMse_Sep16_30deg_test_MSE.eps}
+        \caption{Test error}
+    \end{subfigure}
+    }
+    \caption{Mean squared error in variance prediction using different regressions on the variance-mean data from \texttt{Sep16 30deg}.}
+    \label{fig:meanvar_mse_sep16_30deg}
+\end{figure}
+
+\begin{figure}
+	\centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/meanVar/GlmMse_Sep16_120deg_training_MSE.eps}
+        \caption{Training error}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/meanVar/GlmMse_Sep16_120deg_test_MSE.eps}
+        \caption{Test error}
+    \end{subfigure}
+    }
+    \caption{Mean squared error in variance prediction using different regressions on the variance-mean data from \texttt{Sep16 120deg}.}
+    \label{fig:meanvar_mse_sep16_120deg}
+\end{figure}
+
+
+\section{Conclusion}
+Experimentally it was found that a Gamma GLM with identity link and $p=1$ performed just as well with other GLM with different link functions and non-parametric regressions. A Gamma GLM with identity link and $p=1$ is essentially a simple linear regression. The simple linear regression is attractive as the linear relationship between the variance and mean is backed up by the compound Poisson model of x-ray photon behaviour. The simple linear regression is also a good candidate for the variance-mean model to those who prefer simpler models and follows Occam’s razor.
+
+It was also found that shading correction aid in variance prediction. This highlights the important of shading correction and should be applied to images whenever possible.

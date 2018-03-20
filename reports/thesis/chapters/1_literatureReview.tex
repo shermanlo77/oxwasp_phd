@@ -1,0 +1,384 @@
+3D printing, formally additive manufacturing \citep{gibson2010additive} \citep{wong2012review}, has recently become state of the art technology which manufactures objects of complicated shapes with very high precision. It was developed in the 1980's \citep{kodama1981automatic} but recently it has been commercialised and is used in medical science \citep{kang20163d} and engineering \citep{wong2012review}. Because of such a wide range of applications, there has been a need for quality control and this can be done by scanning the 3D printed sample using x-ray computed tomography.
+
+\section{X-ray Imaging}
+
+\subsection{X-Ray Production}
+Photons in CT scanning are produced in an X-ray tube. In an X-ray tube, a cathode, consisting of a heated filament, fires projectile electrons through an electric potential to a target which forms the anode \citep{michael2001x}, as shown in Figure \ref{fig:x_ray_tube}. Most of the kinetic energy of the projectile electrons is converted into heat however some is converted into electromagnetic radiation. This depends on how the projectile electrons interact with the atoms in the anode \citep{cantatore2011introduction}.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.8\textwidth]{figures/x_ray_tube.png}
+	\caption{An X-ray tube produces photons by firing projectile electrons from a cathode to an anode. \citep{michael2001x}}
+	\label{fig:x_ray_tube}
+\end{figure}
+
+Bremsstrahlung is the result of projectile electrons deaccelerating due to the electrostatic field produced by nucleus of the target. The kinetic energy of the projectile electrons is then converted to electromagnetic radiation to produce X-ray radiation. As a result, the photon energies in bremsstrahlung radiation is  a continuous spectrum and can range up to the maximum kinetic energy of the projectile electrons \citep{michael2001x}.
+
+Characteristic radiation is due to projectile electrons colliding with electrons in the target atom and ionizing them. This produce vacancies in the electron shell and emits photons when the electrons in the target atom drops down back to the ground state. The energy of the emitted radiation is monoenergetic and depends on the binding energy of the target's atoms \citep{michael2001x}.
+
+A typical energy spectrum of photons emitted from an X-ray tube is as shown in Figure \ref{fig:x_ray_spectrum}. The energy spectrum consist of both bremsstrahlung and characteristic radiation \citep{michael2001x}.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.8\textwidth]{figures/x_ray_spectrum.png}
+	\caption{A typical energy spectrum of photons emitted from an X-ray tube. The continuous spectrum is the result of bremmsstrahlung. The peaks are the result of characteristic radiation. \citep{michael2001x}}
+	\label{fig:x_ray_spectrum}
+\end{figure}
+
+The voltage and current can be varied in the X-ray tube to produce different energy spectrums and rate of photon production. This can vary the results produced when collecting CT data \citep{cantatore2011introduction}. Another important factor is the focal spot size because smaller spot sizes produce sharper edges. Larger spot sizes produce unsharp results and this is know as the penumbra effect, as shown in Figure \ref{fig:x_ray_penumbra}. However spot sizes too small can produce concentrated heat \citep{welkenhuyzen2009industrial} and can damage the X-ray tube.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=1\textwidth]{figures/x_ray_penumbra.png}
+	\caption{Larger focal spot sizes produces unsharp results. This is know as the penumbra effect. \emph{Source: F.~Welkenhuyzen et al.~(2009)\citep{welkenhuyzen2009industrial}}}
+	\label{fig:x_ray_penumbra}
+\end{figure}
+
+\subsection{Photon Interactions}
+Photons emitted by the X-ray tube are projected onto the sample and interacts with it in a number of ways \citep{cantatore2011introduction}.
+
+The sample can effectively absorb photons via the photoelectric effect or pair production \citep{cantatore2011introduction}. In the photoelectric effect, the photons transfers all its energy to a bounded electron and ejects it from the sample's atom \citep{millikan1916direct}. In pair production, the photons convert into electron-position pairs by interacting with the Coulomb field of the sample's atomic nucleus \citep{hubbell2006electron}. In addition to getting absorbed, photons can be scattered by the sample. This happens when photons collide inelastically with and transfers its energy to the sample's electrons. This process is known as Compton scattering \citep{compton1923quantum}.
+
+Suppose a mono-energetic X-ray pencil beam attenuating through an object with varying attenuation coefficient in position $\mu=\mu(x)$. The beam starts at $x=0$ and is detected at $x=L$, then the attenuation (decrease in X-ray intensity from $I_0$ to $I_1$) is given as \citep{cantatore2011introduction}
+\begin{equation}
+	I_1 = I_0\exp\left[\int_0^L-\mu(x)\diff x\right].\label{eq:beerLaw}
+\end{equation}
+By comparing the intensity before and after attenuation, the integral of the attenuation coefficient along the path of the X-ray can be calculated. Because of the discrete nature of pixels, the integral is usually replaced by a sum \citep{michael2001x}. 
+
+However it was shown that the attenuation coefficient does depend on the energy of the photons \citep{elbakri2002statistical}. Thus $\mu=\mu(x,E)$ should be made dependent on the energy of the photons \citep{cantatore2011introduction}. In general low energy photons are more likely to be absorbed than high energy photons, this increases the average energy of the attenuated photons and can be a source of error in CT scanning. This is referred to beam hardening and can cause inaccuracies in Equation \eqref{eq:beerLaw} \citep{michael2001x}. This can be reduced by placing a thin sheet of filter to absorb low energy photons \citep{welkenhuyzen2009industrial} or by correcting it in the data analysis stage \citep{michael2001x}.
+
+\subsection{Detection}
+Most X-ray detectors are made up of a scintillator material \citep{greskovich1997ceramic} and photodiodes. Firstly the x-ray photons interact with the scintiallator material and produce visible light \citep{rossner1993conversion}. Lastly the visible light is then detected by photodiodes and coverts it into electricical current \citep{michael2001x}. Not all of the visible light photons are detected by the photodiodes, thus not all the x-ray photons are detected. The ratio between the number of x-ray photons detected by the detector and the number of x-ray photons arriving at the detector is called the quantum efficiency \citep{cierniak2011x}.
+
+The detection is a two stage process \citep{cierniak2011x}, although there exist equipment which detects x-ray directly such as a xenon gas ionization detector \citep{fuchs2000direct}, solid state CT systems such as sintillator-photodiodes detectors have high quantum efficiency of about 98\% to 99.5\% \citep{hsieh2000investigation}. The detectors used in CT scanning are typically flat bed scanners which consist of an array of panels of photodiodes \citep{cantatore2011introduction}. The electrical signal from the photodiodes are subject to sampling and quantisation to store these signals as an image on a computer \citep{cierniak2011x}.
+
+\section{X-ray Computed Tomography}
+Computed tomography (CT) scanning is a 3D imaging technique. It does this by reconstructing the geometry of the sample through a series of 2D X-ray images of the sample. The sample rotates after each image taken \citep{cantatore2011introduction}.
+
+Figure \ref{fig:x_ray_ct} shows a diagram on how CT scanning works. A 2D image is taken by projecting X-ray photons onto the stationary sample. The photons are then scattered or absobred by the sample.  Some of these photons are then detected by an X-ray detector on the other side of the sample, which produces an image. After an image has been taken, the object rotates and another image is taken. Finally after a number of images, a 3D reconstruction of the object can be estimated \citep{cantatore2011introduction}.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.7\textwidth]{figures/x_ray_ct.png}
+	\caption{X-ray computed tomography reconstructs the sample by projecting photons onto a rotating sample. The photons are then detected by the detector. \emph{Source: \url{http://www.phoenix-xray.com/}}}
+	\label{fig:x_ray_ct}
+\end{figure}
+
+CT was solved theoretically by \cite{cormack1973reconstruction} and implemented by \cite{hounsfield1973computerized} \citep{hounsfield1980computed}. It was mainly used for medical imaging. The setup for CT scanning is different when scanning patients because the detector and X-ray source rotates around the patient \citep{cantatore2011introduction}. Recently CT has been used industrially for non-destructive testing in manufacturing \citep{cantatore2011introduction}. One possible application would be inspecting 3D printed samples \citep{villarraga2015assessing}. Other uses in science include the investigation of batteries \citep{o2017investigating} and materials \citep{wang2017x} \citep{zhang2016x}.
+
+Methods used to reconstruct the 3D surface of the sample are available such as filtered back-projection \citep{brooks1976principles} and the FDK algorithm \citep{feldkamp1984practical}. There exist software such as \emph{VGStudio MAX} \citep{reinhart2008industrial} which automatically aligns and scales the 3D reconstruction with the computed aided design and compares them.
+
+Studies have been done to use x-ray CT to do defection detection on 3D printing \citep{kim2016inspection} \citep{villarraga2015assessing}. This was done by investigating the variation of the material thickness and the distribution of the volume of voids \citep{villarraga2015assessing}. Voids then can be classified as defects if the voids are larger than some volume threshold. This threshold controls the probability of the detection of defects \citep{amrhein2014characterization} \citep{gandossi2010probability}.
+
+Full 3D x-ray CT scans can be slow and may not generalised well in production lines. However there is potential to bring in methods such as those used in airport luggage inspection to speed up to process \citep{warnett2016towards}.
+
+There are many sources of error in CT scanning \citep{cantatore2011introduction} and this can cause problems when reconstructing the geometry of the sample. Sources of error include: dead pixels in the detector \citep{brettschneider2014spatial}, use of cone beams \citep{sun2016applications}, beam hardening and the orientation of the sample \citep{corcoran2016observations}.
+
+The scale of the 2D images can be calibrated with the use of reference standards \citep{bartscher2007enhancement} \citep{lifton2013application}.
+
+\section{Compound Poisson}
+
+The greyvalues of each pixel in the detector can be modelled as a random variable, due to the random behaviour of photons being produced, interacting with the phantom and interacting with the scintillator in the detector. When the photons interact with the scintillator, they are converted into visible light. The visible light photons are then detected and converted into a greyvalue. How the detected visible light is converted is important in modelling the greyvalue.
+
+Should the greyvalue be proportional to the number of photons detected, the detector is known as a quantum counter and the greyvalue is a Poisson random variable, up to a constant \citep{whiting2006properties}. However if the greyvalue records the signal strength, proportional to the energy detected, then the detector is an energy integrating detector. The greyvalue has the compound Poisson distribution, again up to a constant \citep{whiting2006properties}. There are other types of detection schemes \citep{whiting2006properties} but it shall be not be considered here.
+
+Many reconstruction algorithms have been proposed considering the compound Poisson nature of the detector \citep{elbakri2002statistical} \citep{elbakri2003statistical} \citep{lasio2007statistical} \citep{xie2008x} and with beam hardening correction \citep{elbakri2003efficient}. These will not be discussed here as they are beyond the scope of this thesis.
+
+Experiments have been done to verify the compound Poisson nature of the detector. This was done by investigating the variance of radiographs of air \citep{hsieh2015compound} and a polyethylene cylinder \citep{yang2009evaluation} \citep{yang2010noise} at different voltages and powers. It was found there were 2 components in the noise, one was signal dependent and comes from the compound Poisson, the other was signal independent and may be electronic noise. The electronic noise can be modelled as Normally distributed \citep{xu2009electronic}.
+
+The compound Poisson can be formally written. Let $Y$ be the number of photons detected in a pixel for some time exposure $\tau$,
+\begin{equation*}
+	Y\sim\poisson(\lambda)
+\end{equation*}
+that is
+\begin{equation*}
+	\prob(Y=y)=\euler^{-\lambda}\frac{\lambda^y}{y!} \quad \text{for }y=0,1,2,\dotdotdot
+\end{equation*}
+where $\lambda>0$ is the Poisson rate parameter. Let $U_i$ be the energy of the $i$th photon in a pixel for i.i.d.~$i=1,2,3,\dotdotdot$ with p.d.f.~$p_U(u)$. Let $X$ be the greyvalue of a pixel and is an energy integrating detector, then
+\begin{equation}
+	X|Y = \sum_{i=1}^{Y}U_i+\kappa
+	\label{eq:compoundPoisson_X|Y}
+\end{equation}
+where $\kappa$ is some offset. For now let $\kappa=0$, then the marginal $X$ has the compound Poisson distribution. The p.d.f.~of $X$ can be obtained by marginalising the joint p.d.f.
+\begin{equation*}
+	p_X(x)=\sum_{y=0}^\infty p_{X|Y}(x|y)\prob(Y=y) \quad\text{for }x\geqslant 0
+	\ .
+\end{equation*}
+However it should be noted that $X=0$ if and only if $Y=0$ with probability
+\begin{equation*}
+	\prob(X=0)=\euler^{-\lambda} \ .
+\end{equation*}
+Formally $X$ has probability mass at $X=0$ and probability density at $X>0$, then 
+\begin{equation}
+	p_X(x) = 
+	\begin{cases}
+		\delta(x) \euler^{-\lambda}  & \text{ for } x=0 \\ 
+		\sum_{y=1}^\infty p_{X|Y}(x|y)\euler^{-\lambda}\frac{\lambda^y}{y!} \quad\text{for } & \text{ for } x>0
+	\end{cases}
+\end{equation}
+where $\delta(x)$ is the Dirac delta function. It is quite often the case this cannot be written in closed form.
+
+The m.g.f.~of $X$ has a nicer form however. Let the m.g.f.~of $X$ be
+\begin{equation*}
+	M_X(\theta)=\expectation\left[\euler^{X\theta}\right]
+	\ .
+\end{equation*}
+This can be computed using the result for conditional expectations
+\begin{equation*}
+	M_X(\theta)=\expectation\expectation\left[\euler^{X\theta}|Y\right]
+	\ .
+\end{equation*}
+Using the definition of $X|Y$ in Equation \eqref{eq:compoundPoisson_X|Y}, then
+\begin{equation*}
+	M_X(\theta)=\expectation\expectation\left[\exp\left(\theta U_1 + \theta U_2 + \dotdotdot + \theta U_Y\right)|Y\right]
+\end{equation*}
+\begin{equation*}
+	M_X(\theta)=\expectation\expectation\left[\euler^{\theta U_1}\cdot\euler^{\theta U_2}\cdot\dotdotdot\cdot\euler^{\theta U_Y}|Y\right]
+	\ .
+\end{equation*}
+But because $U_i$ for $i=1,2,3,\dotdotdot$ are i.i.d., then each $U_i$ has a common m.g.f.
+\begin{equation*}
+	M_U(\theta)=\expectation\left[\euler^{U\theta}\right]
+	\ ,
+\end{equation*}
+then
+\begin{equation*}
+	M_X(\theta)=\expectation\left(
+		\expectation\left[\euler^{\theta U_1}|Y\right]\cdot
+		\expectation\left[\euler^{\theta U_2}|Y\right]\cdot
+		\dotdotdot \cdot
+		\expectation\left[\euler^{\theta U_Y}|Y\right]
+	\right)
+\end{equation*}
+\begin{equation*}
+	M_X(\theta)=\expectation\left[\left(M_U(\theta)\right)^Y\right]
+\end{equation*}
+\begin{equation*}
+	M_X(\theta)=\expectation\left[\euler^{Y\ln(M_U(\theta))}\right]
+\end{equation*}
+\begin{equation*}
+	M_X(\theta) = M_Y\left(\ln(M_U(\theta)\right)
+\end{equation*}
+where $M_Y(\theta)$ is the m.g.f.~of $Y$. It can be shown that the m.g.f.~of $Y$ is
+\begin{equation}
+	M_Y(\theta)=\expectation\left[\euler^{Y\theta}\right]=
+	\exp
+	\left[
+		\lambda
+		\left(
+		  \euler^\theta-1
+		\right)
+	\right]
+\end{equation}
+then
+\begin{equation}
+	M_X(\theta)=
+	\exp\left[
+		\lambda
+		\left(
+			M_U(\theta)-1
+		\right)
+	\right]
+	\ .
+\end{equation}
+As long as the m.g.f.~of $U$ is known, then m.g.f.~of $X$ can be written in closed form.
+
+Moments of $X$ can be obtained from the m.g.f.~by differentiating it and setting it to zero
+\begin{align*}
+	M_X'(\theta)&=\exp\left[\lambda\left(M_U(\theta)-1\right)\right]\cdot\lambda M_U'(\theta) \\
+	M_X'(\theta)&=M_X(\theta)\lambda M_U'(\theta)
+\end{align*}
+then
+\begin{equation}
+	\expectation\left[X\right]=\lambda\expectation\left[U\right]
+	\ .
+\end{equation}
+Conducting the same procedure
+\begin{equation*}
+	M_X''(\theta)=M_X'(\theta)\lambda M_U'(\theta)+M_X(\theta)\lambda M_U''(\theta)
+	\ ,
+\end{equation*}
+the variance can be obtained
+\begin{equation*}
+	\variance\left[X\right]=M_X''(0)-\left[M_X'(0)\right]^2
+\end{equation*}
+\begin{equation*}
+	\variance\left[X\right]=M_X'(0)\lambda M_U'(0)+M_X(0)\lambda M_U''(0)-\left[\lambda\expectation\left[U\right]\right]^2
+\end{equation*}
+\begin{equation*}
+	\variance\left[X\right]=\lambda^2 \left(\expectation\left[U\right]\right)^2+\lambda \expectation\left[U^2\right]-\left[\lambda\expectation\left[U\right]\right]^2
+\end{equation*}
+resulting in
+\begin{equation}
+	\variance\left[X\right] = \lambda\expectation\left[U^2\right]
+	\ .
+\end{equation}
+This can be extended for higher moments.
+
+Because the m.g.f.~can be written down in closed form, so is the characterisation function or Fourier transform of the p.d.f.~of $X$. By obtaining an empirical version of $p_U(u)$, moments of $X$ can be estimated using the m.g.f.~and the p.d.f.~can be estimated by using fast Fourier transform on the empirical characteristic function \citep{whiting2006properties}.
+
+If the distribution of $U$ cannot be obtained or estimated, then one can guess that distribution. \cite{xu2009electronic} for example used a Gamma distribution
+\begin{equation}
+	U\sim\gammaDist\left(\alpha,\beta\right)
+\end{equation}
+where $\alpha>0$ is the Gamma shape parameter and $\beta>0$ is the Gamma rate parameter. This is a special case of the compound Poisson called the compound Poisson-Gamma model and one can write
+\begin{equation}
+	X\sim\CPoisson(\lambda,\alpha,\beta)
+	\ .
+\end{equation}
+The conditional distribution can be shown to be
+\begin{equation}
+	X|Y\sim\gammaDist\left(Y\alpha,\beta\right)
+	\ .
+\end{equation}
+
+Using results derived earlier, the m.g.f.~of the of $X$ is
+\begin{equation}
+	M_X(\theta)=\exp\left[\lambda\left(\left(\frac{\beta}{\beta-\theta}\right)^{\alpha}-1\right)\right]
+\end{equation}
+and moments can be obtained from it such as
+\begin{equation}
+	\expectation\left[X\right]=\frac{\alpha\lambda}{\beta}
+\end{equation}
+\begin{equation}
+	\variance\left[X\right]=\frac{\alpha(\alpha+1)\lambda}{\beta^2}
+	\label{eq:compoundPoisson_variance}
+\end{equation}
+and
+\begin{equation}
+	\expectation\left[(X-\expectation[X])^3\right] = \frac{\alpha(\alpha+1)(\alpha+2)\lambda}{\beta^3}
+	\ .
+\end{equation}
+
+The p.d.f.~can be shown to be
+\begin{equation}
+	p_X(x) = 
+	\begin{cases}
+		\delta(x) \euler^{-\lambda} & \text{ for } x=0 \\ 
+		\sum_{y=1}^{\infty}\frac{\beta^{y\alpha}}{\Gamma(y\alpha)}x^{y\alpha-1}\euler^{-\beta x}\euler^{-\lambda}\frac{\lambda^y}{y!} & \text{ for } x>0
+	\end{cases}
+	\label{eq:compoundPoisson_pdf}
+\end{equation}
+and it is well known the infinite sum cannot be written in closed form. There are a number of approximations or computational methods to evaluate the p.d.f.~such as Fourier inverting the characteristic function \citep{dunn2008evaluation}, using the saddlepoint approximation \citep{daniels1954saddlepoint} or cleverly sum over certain terms in the infinite sum \citep{dunn2005series}. Of course direct simulation of a compound Poisson-Gamma random variable is incredibly easy if $U$ can be simulated. The p.d.f.~then can be estimated using these simulated samples.
+
+For a given i.i.d.~random sample of a compound Poisson-Gamma random variable, parameter estimation can be difficult. Maximum likelihood estimation is very complicated \citep{withers2011compound}. It can be made simpler by fixing $\alpha$ to be known \citep{withers2011compound} but this is not useful in this context.
+
+Because the moments of a compound Poisson-Gamma random variable can be obtained easily, method of moments estimators can be obtained. Suppose $\widehat{\mu}$ is an estimator of $\expectation[X]$ and $\widehat{\mu}_j$ is an estimator of $\expectation\left[\left(X-\expectation[X]\right)^j\right]$ for $j=2,3$. Then the estimators
+\begin{equation}
+	\widehat{\lambda}=\frac{\widehat{\mu}^2\widehat{\mu}_2}{\left(2\widehat{\mu}_2^2-\widehat{\mu}_3\widehat{\mu}\right)}
+\end{equation}
+\begin{equation}
+	\widehat{\alpha}=\frac{\widehat{\mu}_3\widehat{\mu}-2\widehat{\mu}_2^2}{\widehat{\mu}_2^2-\widehat{\mu}\widehat{\mu}_3}
+\end{equation}
+\begin{equation}
+	\widehat{\beta}=\frac{\widehat{\mu}\widehat{\mu}_2}{\widehat{\mu}\widehat{\mu}_3-\widehat{\mu}_2^2}
+\end{equation}
+are method of moments estimators of $\lambda$, $\alpha$ and $\beta$ respectively \citep{withers2011compound}. These estimators suffer because estimation is not done through the sufficient statistics and can be negative, this is a problem because the parameters do not take non-positive values.
+
+However, parameter estimation can be made easier once it can be realised that the compound Poisson-Gamma distribution is in the exponential family for fixed $\alpha$ \citep{jorgensen1987exponential}. To show this, it is particular useful to reparametrize the compound Poisson-Gamma distribution using the following:
+\begin{equation}
+	p=\frac{2+\alpha}{1+\alpha}
+	\ ,
+\end{equation}
+\begin{equation}
+	\mu=\frac{\lambda\alpha}{\beta}
+	\ ,
+\end{equation}
+\begin{equation}
+	\phi = \frac{\alpha+1}{\beta^{2-p}(\lambda\alpha)^{p-1}}
+	\ .
+\end{equation}
+The parameters $p$, $\mu$ and $\phi$ are called the index, mean and dispersion parameters respectively. It can be shown that $1<p<2$, $\mu>0$ and $\phi>0$.
+
+By rearranging the parameters to get
+\begin{equation}
+	\lambda=\frac{\mu^{2-p}}{\phi(2-p)}
+\end{equation}
+\begin{equation}
+	\alpha=\frac{2-p}{p-1}
+\end{equation}
+\begin{equation}
+	beta=\frac{1}{\phi(p-1)\mu^{p-1}}
+\end{equation}
+and substituting it into Equation \eqref{eq:compoundPoisson_pdf}, the p.m.f.~at zero can be shown to be
+\begin{equation}
+	\prob(X=0) = \exp
+	\left[
+	    -\frac{\mu^{2-p}}{\phi(2-p)}
+	\right]
+\end{equation}
+and the p.d.f.~for $x>0$ is
+\begin{multline*}
+	p_X(x) = \sum_{y=1}^{\infty}
+	\left[
+		\frac{1}{\phi(p-1)\mu^{p-1}}
+	\right]^{y\alpha}
+	\frac{1}{\Gamma(y\alpha)}
+	x^{y\alpha-1}
+	\exp\left[
+	    -\frac{x}{\phi(p-1)\mu^{p-1}}
+	\right]
+	\\
+	\exp\left[
+	    -\frac{\mu^{2-p}}{\phi(2-p)}
+	\right]
+	\left[
+		\frac{\mu^{2-p}}{\phi(2-p)}
+	\right]^y
+	\frac{1}{y!}
+	\ .
+\end{multline*}
+Tidying up the equation
+\begin{multline*}
+	p_X(x) = 
+	\exp\left[
+		\frac{1}{\phi}\left(x\frac{\mu^{1-p}}{1-p}-\frac{\mu^{2-p}}{2-p}\right)
+	\right]
+	\frac{1}{x}
+	\\
+	\sum_{y=1}^{\infty}\frac{x^{y\alpha}\mu^{y[2-p-\alpha(p-1)]}}{\phi^{y(1+\alpha)}(p-1)^{y\alpha}(2-p)^yy!\Gamma(y\alpha)}
+	\ .
+\end{multline*}
+To simplify further, it should be noted that
+\begin{align*}
+	2-p-\alpha(p-1) &= 2-p - \frac{2-p}{p-1}(p-1)
+	\\&=0
+\end{align*}
+so that
+\begin{equation}
+	p_X(x) = 
+	\exp\left[
+		\frac{1}{\phi}
+		\left(
+			x\frac{\mu^{1-p}}{1-p}-\frac{\mu^{2-p}}{2-p}
+		\right)
+	\right]
+	\frac{1}{x}
+	\sum_{y=1}^{\infty}W_y(x,p,\phi)
+\end{equation}
+where
+\begin{equation}
+	W_y(x,p,\phi)=\frac{x^{y\alpha}}{\phi^{y(1+\alpha)}(p-1)^{y\alpha}(2-p)^yy!\Gamma(y\alpha)}
+	\ .
+\end{equation}
+
+Those familiar with generalised linear models \citep{nelder1972generalized} \citep{mccullagh1984generalized} will notice that for fixed $p$ or $\alpha$, the above is in the form of a distribution in the dispersive exponential family. Parameter estimation then can be done via the generalised linear model framework and can be extended to include linear mixed models \citep{zhang2013likelihood}. These has applications in for example insurance claim data \citep{jorgensen1994fitting} \citep{smyth2002fitting}.
+
+Estimating $p$ is difficult and various methods were discussed by \cite{zhang2013likelihood}. One easy way is to estimate $\mu$ and $\phi$ on a grid of $p$'s and then select the $p$ which maximises the likelihood \citep{dunn2005series}.
+
+One special property of the compound Poisson-Gamma distribution is that it is in the Tweedie dispersion exponential family \citep{jorgensen1987exponential}. It has a special variance mean relationship
+\begin{equation}
+	\variance[X] = \phi \mu^p
+\end{equation}
+where, as a reminder, $1<p<2$. This can be derived using Equation \eqref{eq:compoundPoisson_variance} or via the partition function $Z$. That is let
+\begin{equation}
+	\theta = \frac{\mu^{1-p}}{1-p}
+\end{equation}
+and
+\begin{equation}
+	\ln Z = \frac{1}{\phi(2-p)\theta^\alpha(1-p)^\alpha} \ ,
+\end{equation}
+then
+\begin{equation}
+	\variance[X] = \phi^2 \frac{\partial^2\ln Z}{\partial\theta^2} \ .
+\end{equation}
