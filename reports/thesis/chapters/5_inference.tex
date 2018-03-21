@@ -127,12 +127,42 @@ Suppose $n$ test statistics were obtained $Z_1,Z_2,\dotdotdot,Z_n$ where $Z_i\si
 
 Bringing in methods from single hypothesis testing to the multiple version has drawbacks. Assuming that the null hypothesis is true for all $Z_i$ for $i=1,2,\dotdotdot,n$, then by definition $\alpha\approx 4.55\%$ of the data will be tested positive, and falsely positive. Still under the same assumption, the probability of at least one positive result, known as the family-wise error rate (FWER) \citep{shaffer1995multiple}, is
 \begin{align}
+    \text{FWER}&=1-\prob(\text{no false positives}) \nonumber\\
     \text{FWER}&=1-\prob(\text{no positive results}|H_0) \nonumber\\
     \text{FWER}&=1-\left[(1-\alpha)^n\right] \label{eq:inference_fwer}\ .
 \end{align}
 To put into context, for $\alpha\approx 4.55\%$ and $n=20$ then remarkably $\text{FWER}\approx60.6\%$. This method for multiple hypothesis testing will have too many false positive results.
 
-The Bonferroni correction \citep{shaffer1995multiple, bland1995multiple, perneger1998what} controls the family wise error rate. This is done by adjusting the size of the test to be $\alpha/n$. By using the adjusted size, Equation \eqref{eq:inference_fwer} becomes
+While the uncorrected method for multiple hypothesis testing has it flaws, it does control the per comparison error rate (PCER) \citep{benjamini1995controlling}. PCER is the proportion of false positives out of all tests. There are corrections for multiple hypothesis testing which controls different things. Conventionally they are expressed in terms of the number of errors made in testing, these are defined in Table \ref{table:inference_randomvariables}. Using the notation, formally PCER is defined as
+\begin{equation}
+    \text{PCER}=
+    \dfrac{
+        1
+    }
+    {
+        n
+    }
+    \expectation[V]
+    \ .
+\end{equation}
+It can be seen that if the uncorrected test controls the false positive rate such that $\expectation[V]/n_0 = \alpha$, then it controls the PCER such that
+\begin{equation}
+    \text{PCER}\leqslant\alpha \ .
+\end{equation}
+
+\begin{table}
+    \centering
+    \begin{tabular}{c|c|c|c}
+        &Negative&Positive&Total\\\hline
+        True null & $U$ & $V$ & $n_0$\\
+        Non-true null & $T$ & $S$ & $n-n_0$\\\hline
+        &$n-R$&$R$&$n$
+    \end{tabular}
+    \caption{Random variable definitions for the different types of error made in multiple hypothesis testing}
+    \label{table:inference_randomvariables}
+\end{table}
+
+The Bonferroni correction \citep{shaffer1995multiple, bland1995multiple, perneger1998what} controls the FWER. This is done by adjusting the size of the test to be $\alpha/n$. By using the adjusted size, Equation \eqref{eq:inference_fwer} becomes
 \begin{equation}
     \text{FWER}=1-\left[(1-\alpha/n)^n\right]\ .
 \end{equation}
@@ -140,9 +170,19 @@ Using the approximation $(1-\alpha/n)^n\approx = 1-\alpha$ then
 \begin{equation}
     \text{FWER}\approx \alpha \ .
 \end{equation}
-This shows that the Bonferroni correction controls the family-wise error rate. However in practice the Bonferroni correction is not very powerful \citep{perneger1998what}, meaning it does give too many false negative results. This is because the correction traded too many false positives for false negatives.
+This shows that the Bonferroni correction controls the family-wise error rate such that
+\begin{equation}
+    \text{FWER} \leqslant \alpha \ .
+\end{equation}
+However in practice the Bonferroni correction is not very powerful \citep{perneger1998what}, meaning it does give too many false negative results. This is because the correction traded too many false positives for false negatives.
 
-The \cite{benjamini1995controlling} (BH) procedure controls the false discovery rate (FDR) \citep{benjamini2010discovering} rather than the false positive or family-wise rate. The FDR is the proportion of false positives out of all positive results.
+The \cite{benjamini1995controlling} (BH) procedure controls the false discovery rate (FDR) \citep{benjamini2010discovering} rather than the false positive or family-wise rate. The FDR is the proportion of false positives out of all positive results, that is
+\begin{equation}
+    \expectation[\text{FDR}] = \expectation\left[
+        \dfrac{V}{R}
+    \right]
+    \ .
+\end{equation}
 
 In practice the BH procedure adjusts the size of the test between the Bonferroni correction and the uncorrected test. The BH procedure also adapts to the data, meaning the procedure chooses different sizes for different data.
 
@@ -155,14 +195,37 @@ where
     k\text{ is the largest }i\text{ for which }p_{(i)}\leqslant\frac{i}{n}\alpha
     \ .
 \end{equation}
-This essentially declare $p_{(1)},p_{(2)},\dotdotdot,p_{(k)}$ as positive results. For completeness, if $p_{(1)}>\alpha/n$, then $k=1$ and the Bonferroni correction is recovered. The procedure comes from the fact that assuming the null hypothesis is true for all $Z_i$, then the $p$-values are uniformly distributed \citep{simes1986improved}.
+This essentially declare $p_{(1)},p_{(2)},\dotdotdot,p_{(k)}$ as positive results. For completeness, if $p_{(1)}>\alpha/n$, then $k=1$ and the Bonferroni correction is recovered. The procedure comes from the fact that assuming the null hypothesis is true for all $Z_i$ and all tests are independent, then the $p$-values are uniformly distributed \citep{simes1986improved}. However it can be shown that the BH procedure works for many scenarios of dependencies \citep{benjamini2001control}. 
 
 It can be shown that the BH procedure controls the FDR such that
 \begin{equation}
-    \expectation[\text{FDR}]\leqslant\pi_0\alpha\leqslant\alpha
+    \text{FDR}\leqslant\pi_0\alpha\leqslant\alpha
 \end{equation}
-where $\pi_0$ is the proportion of true nulls out of $n$ tests \citep{benjamini1995controlling}, this is usually unknown in practice.
+where $\pi_0=n_0/n$ \citep{benjamini1995controlling}, this is usually unknown in practice.
 
+In summary, the uncorrected, Bonferroni and BH correction controls for different error rates according to the threshold $\alpha$, summarised in Table \ref{table:inference_corrections}.
+
+\begin{table}
+    \centering
+    \begin{tabular}{c|c}
+        Correction&Controls for\\\hline
+        No correction&$\text{PCER}\leqslant\alpha$\\
+        Bonferroni&$\text{FWER}\leqslant\alpha$\\
+        BH&$\text{FDR}\leqslant\alpha$
+    \end{tabular}
+    \caption{Different types of corrections for multiple hypothesis testing are listed here, along with what they control for.}
+    \label{table:inference_corrections}
+\end{table}
+
+\begin{table}
+    \input{../tables/inference_error_rate1.tex_table}
+    \caption{Various error rates when using different types of corrections for multiple hypothesis testing at the $z_\alpha=2$ level. 1\,000 test statistics were simulated, all standard Normal. Error bars represent the standard errors after 1\,000 repeats of the experiment.}
+\end{table}
+
+\begin{table}
+    \input{../tables/inference_error_rate2.tex_table}
+    \caption{Various error rates when using different types of corrections for multiple hypothesis testing at the $z_\alpha=2$ level. 1\,000 test statistics were simulated, 800 from the standard Normal, 200 from $\normal(2,1)$. Error bars represent the standard errors after 1\,000 repeats of the experiment.}
+\end{table}
 
 \section{Empirical Null}
 
