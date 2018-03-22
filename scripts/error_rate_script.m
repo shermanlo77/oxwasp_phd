@@ -57,13 +57,14 @@ for i_case = 1:2
         false_positive_array(i,1) = sum(is_positive & is_null); %get the number of false positive results
 
         %BONFERONNI hypothesis testing
-        is_positive = abs(Z)>norminv(1-alpha/(2*n)); %get boolean, is it a positive result
+        is_positive = abs(Z)>norminv(1-alpha/(z_alpha*n)); %get boolean, is it a positive result
         n_positive_array(i,2) = sum(is_positive); %get the number of positive results
         false_positive_array(i,2) = sum(is_positive & is_null); %get the number of false positive results
 
         %BH hypothesis testing
         %instantise a z tester and do the test
         z_tester = ZTester(Z);
+        z_tester.setSigma(z_alpha);
         z_tester.doTest();
         is_positive = z_tester.sig_image; %get boolean, is it a positive result
         n_positive_array(i,3) = sum(is_positive); %get the number of positive results
