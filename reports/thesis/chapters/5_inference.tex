@@ -121,7 +121,7 @@ The power of the test is defined as the probability of a true positive result. F
 
 \section{Multiple Hypothesis Testing}
 
-In this section, the single hypothesis test will be extended and the multiple hypothesis testing \citep{shaffer1995multiple} shall be reviewed.
+In this section, the single hypothesis test will be extended and the multiple hypothesis testing \citep{shaffer1995multiple, dudoit2003multiple} shall be reviewed.
 
 Suppose $n$ test statistics were obtained $Z_1,Z_2,\dotdotdot,Z_n$ where $Z_i\sim\normal(\mu,1)$ for $i=1,2,\dotdotdot,n$ and i.i.d. One can test each of these statistics for the following hypotheses $H_0:\mu=0$ and $H_1:\mu\neq 0$. Using the method from the single hypothesis test at the $z_\alpha=2$ level, any statistic where $\|Z_i\|>2$ for $i=1,2,\dotdotdot,n$ would be considered a positive result.
 
@@ -183,6 +183,7 @@ The \cite{benjamini1995controlling} (BH) procedure controls the false discovery 
     \right]
     \ .
 \end{equation}
+It is defined that $\text{FDR}=0$ when $R=0$.
 
 In practice the BH procedure adjusts the size of the test between the Bonferroni correction and the uncorrected test. The BH procedure also adapts to the data, meaning the procedure chooses different sizes for different data.
 
@@ -195,7 +196,7 @@ where
     k\text{ is the largest }i\text{ for which }p_{(i)}\leqslant\frac{i}{n}\alpha
     \ .
 \end{equation}
-This essentially declare $p_{(1)},p_{(2)},\dotdotdot,p_{(k)}$ as positive results. For completeness, if $p_{(1)}>\alpha/n$, then $k=1$ and the Bonferroni correction is recovered. The procedure comes from the fact that assuming the null hypothesis is true for all $Z_i$ and all tests are independent, then the $p$-values are uniformly distributed \citep{simes1986improved}. However it can be shown that the BH procedure works for many scenarios of dependencies \citep{benjamini2001control}. 
+This essentially declare $p_{(1)},p_{(2)},\dotdotdot,p_{(k)}$ as positive results. For the case where $p_{(1)}>\alpha/n$, then $k=1$ shall be chosen so that the Bonferroni correction is used instead. The BH procedure comes from the fact that assuming the null hypothesis is true for all $Z_i$ and all tests are independent, then the $p$-values are uniformly distributed \citep{simes1986improved}. However it can be shown that the BH procedure works for many scenarios of dependencies \citep{benjamini2001control}. 
 
 It can be shown that the BH procedure controls the FDR such that
 \begin{equation}
@@ -218,11 +219,13 @@ In summary, the uncorrected, Bonferroni and BH correction controls for different
 \end{table}
 
 \begin{table}
+    \centering
     \input{../tables/inference_error_rate1.tex_table}
     \caption{Various error rates when using different types of corrections for multiple hypothesis testing at the $z_\alpha=2$ level. 1\,000 test statistics were simulated, all standard Normal. Error bars represent the standard errors after 1\,000 repeats of the experiment.}
 \end{table}
 
 \begin{table}
+    \centering
     \input{../tables/inference_error_rate2.tex_table}
     \caption{Various error rates when using different types of corrections for multiple hypothesis testing at the $z_\alpha=2$ level. 1\,000 test statistics were simulated, 800 from the standard Normal, 200 from $\normal(2,1)$. Error bars represent the standard errors after 1\,000 repeats of the experiment.}
 \end{table}
