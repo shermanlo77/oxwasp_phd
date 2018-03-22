@@ -7,9 +7,9 @@ function histogram_custom(X, edges)
     end
     
     bin_width = edges(2:end) - edges(1:(end-1));
-    freq_density = [N./bin_width, 0];
+    freq_density = [0, N./bin_width, 0];
     
-    stairs(edges, freq_density);
+    stairs([edges(1),edges], freq_density);
 
 end
 
