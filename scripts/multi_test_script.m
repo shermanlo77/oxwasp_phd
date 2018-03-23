@@ -77,6 +77,14 @@ z_bh = z_bh(end);
 file_id = fopen(fullfile('reports','figures','inference','alt_z_critical.txt'),'w');
 fprintf(file_id,'%.2f',z_bh);
 fclose(file_id);
+%save the number of positive results for uncorrected
+file_id = fopen(fullfile('reports','figures','inference','alt_n_positive_uncorrected.txt'),'w');
+fprintf(file_id,'%.0f',sum(abs(X)>=z_uncorrected));
+fclose(file_id);
+%save the number of positive results for BH
+file_id = fopen(fullfile('reports','figures','inference','alt_n_positive_bh.txt'),'w');
+fprintf(file_id,'%.0f',sum(abs(X)>=z_bh));
+fclose(file_id);
 
 %plot histogram of test statistics
 fig = LatexFigure.main();

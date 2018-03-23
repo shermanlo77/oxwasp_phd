@@ -218,6 +218,60 @@ In summary, the uncorrected, Bonferroni and BH correction controls for different
     \label{table:inference_corrections}
 \end{table}
 
+\subsection{Examples}
+
+A few numerical examples will be shown here to explore the properties of the 3 different types of method to do multiple hypothesis testing. Two scenarios will be shown here. In the first case. 1\,000 $\normal(0,1)$ test statistics are simulated, all test statistics are all null. In the second case, 800 null $\normal(0,1)$ and 200 alternative $\normal(2,1)$ test statistics were simulated. 
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.7\textwidth]{../figures/inference/nullhisto.eps}
+	\caption{A histogram of simulated of 1\,000 null test statistics. Also provided are the critical boundaries at the $z_\alpha=2$ level, one uncorrected for multiple testing, another corrected using the Bonferroni correction.}
+	\label{fig:inference_nullhisto}
+\end{figure}
+
+A histogram of the test statistics in the all null case is shown in Figure \ref{fig:inference_nullhisto}. The critical boundaries are also shown. In the uncorrected case, the critical region is $\|Z\|>2$. Using the Bonferroni correction, the critical region becomes $\|Z\|>4.08$. By inspection of the histogram, the uncorrected method tested a number of test statistics to be positive and falsely so. The Bonferroni correction performs well because it tested all the test statistics as negative correctly.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.7\textwidth]{../figures/inference/nullpvalues.eps}
+	\caption{Ordered $p$-values of simulated 1\,000 null test statistics. Any values below the critical line are declared positive using the BH procedure.}
+	\label{fig:inference_nullpvalues}
+\end{figure} 
+
+The ordered $p$-values are shown in Figure \ref{fig:inference_nullpvalues}. The $p$-values form a straight line as a result of being uniformly distributed. The critical line is $0.0455\times\text{order}/1\,000$. This corresponds to the BH procedure and $p$-values below where the 2 curves intersect are considered positive results. In the all null case, the $p$-values are all larger than the critical line, thus no test statistic were tested positive using the BH procedure. As a result, the Bonferroni and BH procedure tested all test statistics to be negative correctly.
+
+\begin{figure}
+	\centering
+	\includegraphics[width = 0.7\textwidth]{../figures/inference/althisto.eps}
+	\caption{A histogram of simulated of 800 null $\normal(0,1)$ and 200 non-null $\normal(2,1)$ test statistics. Also provided are the critical boundaries at the $z_\alpha=2$ level using no correction, Bonferroni correction and the BH procedure.}
+	\label{fig:inference_althisto}
+\end{figure}
+
+In the second scenario, 800 $\normal(0,1)$ and 200 $\normal(2,1)$ test statistics were simulated. The histogram of the simulated test statistics, along with the critical regions, is shown in Figure \ref{fig:inference_althisto}. The uncorrected and Bonferroni corrected critical regions are still the same as the first scenario. However this time the critical region using the BH procedure is different, it is $\|Z\|\geqslant\input{../figures/inference/alt_z_critical.txt}$.
+
+\begin{figure}
+	\centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/altpvalues.eps}
+        \caption{All $p$-values}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/altpvalues_zoom.eps}
+        \caption{Zoomed in}
+    \end{subfigure}
+    }
+    \caption{Ordered $p$-values of simulated 800 null $\normal(0,1)$ and 200 non-null $\normal(2,1)$ test statistics. Any values below the critical line are declared positive using the BH procedure.}
+	\label{fig:altpvalues}
+\end{figure}
+
+The ordered $p$-values are shown in Figure \ref{fig:altpvalues}. This time there are $p$-values below the critical line according to the BH procedure, testing $\input{../figures/inference/alt_n_positive_bh.txt}$ test statistics as positive. The uncorrected test tested $\input{../figures/inference/alt_n_positive_uncorrected.txt}$ test statistics as positive.
+
+This example shows a number of things. The BH procedure adapts to the data to control for the FDR. The uncorrected method did produce more positive results but at a cost of more false positives. It may seem unimpressive that the BH procedure only tested $\input{../figures/inference/alt_n_positive_bh.txt}$ positive results, but this is to control the FDR or the number of false positives out of all positive results.
+
+Unfortunately not all 200 non-null test statistics were tested as positive, statisticians would describe it as not powerful. This is however unavoidable as a number of null and non-null test statistics will be similar in value. The aim of hypothesis testing is not to classify positive and negative results correctly, but rather highlight a number of test statistics which are worth investigating.
+
+
 \begin{table}
     \centering
     \input{../tables/inference_error_rate1.tex_table}
@@ -229,6 +283,9 @@ In summary, the uncorrected, Bonferroni and BH correction controls for different
     \input{../tables/inference_error_rate2.tex_table}
     \caption{Various error rates when using different types of corrections for multiple hypothesis testing at the $z_\alpha=2$ level. 1\,000 test statistics were simulated, 800 from the standard Normal, 200 from $\normal(2,1)$. Error bars represent the standard errors after 1\,000 repeats of the experiment.}
 \end{table}
+
+
+
 
 \section{Empirical Null}
 
