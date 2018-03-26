@@ -125,7 +125,7 @@ In this section, the single hypothesis test will be extended and the multiple hy
 
 Suppose $n$ test statistics were obtained $Z_1,Z_2,\dotdotdot,Z_n$ where $Z_i\sim\normal(\mu,1)$ for $i=1,2,\dotdotdot,n$ and i.i.d. One can test each of these statistics for the following hypotheses $H_0:\mu=0$ and $H_1:\mu\neq 0$. Using the method from the single hypothesis test at the $z_\alpha=2$ level, any statistic where $\|Z_i\|>2$ for $i=1,2,\dotdotdot,n$ would be considered a positive result.
 
-Bringing in methods from single hypothesis testing to the multiple version has drawbacks. Assuming that the null hypothesis is true for all $Z_i$ for $i=1,2,\dotdotdot,n$, then by definition $\alpha\approx 4.55\%$ of the data will be tested positive, and falsely positive. Still under the same assumption, the probability of at least one positive result, known as the family-wise error rate (FWER) \citep{shaffer1995multiple}, is
+Bringing in methods from single hypothesis testing to the multiple version has drawbacks. Assuming that the null hypothesis is true for all $Z_i$ for $i=1,2,\dotdotdot,n$, then by definition $\alpha\approx 4.55\%$ of the data will be tested positive, and falsely positive. Still under the same assumption, the probability of at least one false positive result, known as the family-wise error rate (FWER) \citep{shaffer1995multiple}, is
 \begin{align}
     \text{FWER}&=1-\prob(\text{no false positives}) \nonumber\\
     \text{FWER}&=1-\prob(\text{no positive results}|H_0) \nonumber\\
@@ -178,12 +178,12 @@ However in practice the Bonferroni correction is not very powerful \citep{perneg
 
 The \cite{benjamini1995controlling} (BH) procedure controls the false discovery rate (FDR) \citep{benjamini2010discovering} rather than the false positive or family-wise rate. The FDR is the proportion of false positives out of all positive results, that is
 \begin{equation}
-    \expectation[\text{FDR}] = \expectation\left[
+    \text{FDR} = \expectation\left[
         \dfrac{V}{R}
     \right]
     \ .
 \end{equation}
-It is defined that $\text{FDR}=0$ when $R=0$.
+It is defined that $V/R=0$ when $R=0$.
 
 In practice the BH procedure adjusts the size of the test between the Bonferroni correction and the uncorrected test. The BH procedure also adapts to the data, meaning the procedure chooses different sizes for different data.
 
@@ -247,8 +247,6 @@ The ordered $p$-values are shown in Figure \ref{fig:inference_nullpvalues}. The 
 	\label{fig:inference_althisto}
 \end{figure}
 
-In the second scenario, 800 $\normal(0,1)$ and 200 $\normal(2,1)$ test statistics were simulated. The histogram of the simulated test statistics, along with the critical regions, is shown in Figure \ref{fig:inference_althisto}. The uncorrected and Bonferroni corrected critical regions are still the same as the first scenario. However this time the critical region using the BH procedure is different, it is $\|Z\|\geqslant\input{../figures/inference/alt_z_critical.txt}$.
-
 \begin{figure}
 	\centering
     \centerline{
@@ -265,26 +263,47 @@ In the second scenario, 800 $\normal(0,1)$ and 200 $\normal(2,1)$ test statistic
 	\label{fig:altpvalues}
 \end{figure}
 
-The ordered $p$-values are shown in Figure \ref{fig:altpvalues}. This time there are $p$-values below the critical line according to the BH procedure, testing $\input{../figures/inference/alt_n_positive_bh.txt}$ test statistics as positive. The uncorrected test tested $\input{../figures/inference/alt_n_positive_uncorrected.txt}$ test statistics as positive.
+In the second scenario, 800 $\normal(0,1)$ and 200 $\normal(2,1)$ test statistics were simulated. The histogram of the simulated test statistics, along with the critical regions, is shown in Figure \ref{fig:inference_althisto}. The uncorrected and Bonferroni corrected critical regions are still the same as the first scenario. However this time the critical region using the BH procedure is different, it is $\|Z\|\geqslant\input{../figures/inference/alt_z_critical.txt}$.
+
+The ordered $p$-values are shown in Figure \ref{fig:altpvalues}. There are $p$-values below the critical line according to the BH procedure, testing $\input{../figures/inference/alt_n_positive_bh.txt}$ test statistics as positive. The uncorrected test tested $\input{../figures/inference/alt_n_positive_uncorrected.txt}$ test statistics as positive.
 
 This example shows a number of things. The BH procedure adapts to the data to control for the FDR. The uncorrected method did produce more positive results but at a cost of more false positives. It may seem unimpressive that the BH procedure only tested $\input{../figures/inference/alt_n_positive_bh.txt}$ positive results, but this is to control the FDR or the number of false positives out of all positive results.
 
 Unfortunately not all 200 non-null test statistics were tested as positive, statisticians would describe it as not powerful. This is however unavoidable as a number of null and non-null test statistics will be similar in value. The aim of hypothesis testing is not to classify positive and negative results correctly, but rather highlight a number of test statistics which are worth investigating.
 
+The error rates can be estimated as a result of knowing whenever each test statistic is truly null or non-null. Suppose the simulation was repeated $N$ times and $r_1,r_2,\dotdotdot,r_N$ test statistics were tested positive. From these positive results, suppose in addition that $v_1,v_2,\dotdotdot,v_N$ false positives were observed, following the notation in Table \ref{table:inference_randomvariables}. The error rates can be estimated
+\begin{equation}
+	\widehat{\text{PCER}} = \frac{1}{Nn}\sum_{i=1}^N v_i
+\end{equation}
+\begin{equation}
+	\widehat{\text{FWER}} = \frac{1}{N} \sum_{i=1}^N \mathbb{I}(v_i\neq 0)
+\end{equation}
+\begin{equation}
+	\widehat{\text{FDR}} = \frac{1}{N}\sum_{i=1}^N\dfrac{v_i}{r_i}\times\mathbb{I}(r_i\neq0)
+	\ .
+\end{equation}
+The estimates of PCER and FDR is esentially the sample mean, so the standard error can be used to quantify the error. For the FWER, the variance of the Beta distribution is used to quantify the error
+\begin{equation}
+	\text{standard error of }\widehat{\text{FWER}} = 
+	\sqrt{\dfrac{ab}{(a+b)^2(a+b+1)}}
+\end{equation}
+where $a = \sum_{i=1}^N \mathbb{I}(v_i\neq 0)$ and $b = N - a$.
 
 \begin{table}
     \centering
     \input{../tables/inference_error_rate1.tex_table}
     \caption{Various error rates when using different types of corrections for multiple hypothesis testing at the $z_\alpha=2$ level. 1\,000 test statistics were simulated, all standard Normal. Error bars represent the standard errors after 1\,000 repeats of the experiment.}
+    \label{table:inference_error_rate1}
 \end{table}
 
 \begin{table}
     \centering
     \input{../tables/inference_error_rate2.tex_table}
     \caption{Various error rates when using different types of corrections for multiple hypothesis testing at the $z_\alpha=2$ level. 1\,000 test statistics were simulated, 800 from the standard Normal, 200 from $\normal(2,1)$. Error bars represent the standard errors after 1\,000 repeats of the experiment.}
+     \label{table:inference_error_rate1}
 \end{table}
 
-
+Error rates estimations for the two scenarios are shown in Tables \ref{table:inference_error_rate1} and \ref{table:inference_error_rate1} for $N=1\,000$. These estimations show that the 3 different types of multiple hypothesis controls for different rates. The uncorrected, Bonferroni and BH controls the PCER, FWER and FDR to be equal or below $\alpha\approx 0.455$ respectively, equality is met when all the test statistics are all truly null.
 
 
 \section{Empirical Null}
