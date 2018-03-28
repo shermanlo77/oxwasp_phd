@@ -229,7 +229,7 @@ A few numerical examples will be shown here to explore the properties of the 3 d
 	\label{fig:inference_nullhisto}
 \end{figure}
 
-A histogram of the test statistics in the all null case is shown in Figure \ref{fig:inference_nullhisto}. The critical boundaries are also shown. In the uncorrected case, the critical region is $\|Z\|>2$. Using the Bonferroni correction, the critical region becomes $\|Z\|>4.08$. By inspection of the histogram, the uncorrected method tested a number of test statistics to be positive and falsely so. The Bonferroni correction performs well because it tested all the test statistics as negative correctly.
+A histogram of the test statistics in the all null case is shown in Figure \ref{fig:inference_nullhisto}. The critical boundaries are also shown. In the uncorrected case, the critical region is $\|Z\|>2$. Using the Bonferroni correction, the critical region becomes $\|Z\|>4.08...$. By inspection of the histogram, the uncorrected method tested a number of test statistics to be positive and falsely so. The Bonferroni correction performs well because it tested all the test statistics as negative correctly.
 
 \begin{figure}
 	\centering
@@ -238,7 +238,7 @@ A histogram of the test statistics in the all null case is shown in Figure \ref{
 	\label{fig:inference_nullpvalues}
 \end{figure} 
 
-The ordered $p$-values are shown in Figure \ref{fig:inference_nullpvalues}. The $p$-values form a straight line as a result of being uniformly distributed. The critical line is $0.0455\times\text{order}/1\,000$. This corresponds to the BH procedure and $p$-values below where the 2 curves intersect are considered positive results. In the all null case, the $p$-values are all larger than the critical line, thus no test statistic were tested positive using the BH procedure. As a result, the Bonferroni and BH procedure tested all test statistics to be negative correctly.
+The ordered $p$-values are shown in Figure \ref{fig:inference_nullpvalues}. The $p$-values form a straight line as a result of being uniformly distributed. The critical line is $0.0455...\times\text{order}/1\,000$. This corresponds to the BH procedure and $p$-values below where the 2 curves intersect are considered positive results. In the all null case, the $p$-values are all larger than the critical line, thus no test statistic were tested positive using the BH procedure. As a result, the Bonferroni and BH procedure tested all test statistics to be negative correctly.
 
 \begin{figure}
 	\centering
@@ -325,7 +325,7 @@ By treating each pixel as a hypothesis test, methods for multiple hypothesis can
     \label{fig:inference_sub_z}
 \end{figure}
 
-A $200\times200$ section of the $z$ image was investigated by plotting the histogram as shown in Figure \ref{fig:inference_sub_z}. One could simply use the BH procedure at the $z_\alpha=2$ level to get the critical region of $\|Z\|>\input{../figures/inference/sub_boundary.txt}$. However a quick look at the histogram will show that almost half of the pixels will be tested as positive. It is questionable whenever such number of positive results is sensible, in particular in an area where defects are not expected.
+A $200\times200$ section of the $z$ image was investigated by plotting the histogram as shown in Figure \ref{fig:inference_sub_z}. One could simply use the BH procedure at the $z_\alpha=2$ level to get the critical region of $\|Z\|>\input{../figures/inference/sub_boundary.txt}...$. However a quick look at the histogram will show that almost half of the pixels will be tested as positive. It is questionable whenever such number of positive results is sensible, in particular in an area where defects are not expected.
 
 The histogram showed that the majority of the $z$ statistics are centred around 2 and has a bell shaped curve, a characteristic of the Normal distribution. If the data shows that the majority is centred elsewhere then expected, is it right to then to test the majority of the data as positive? This is an example of model misspecification because it was assumed that the $z$ statistics are distributed as $\normal(0,1)$ when in reality they are distributed as $\normal(\mu_0,\sigma_0^2)$.
 
@@ -357,27 +357,59 @@ where $s_z$ and $\text{iqr}_z$ are the standard deviation and interquartile rang
         \caption{Kernel density estimate}
     \end{subfigure}
     }
-    \caption{The density of the test statistics can be estimated using a histogram or a kernel density estimate.}
+    \caption{The density of the test statistics can be estimated using a histogram or a kernel density estimate. The dotted lines in the kernel density estimate shows the empirical null mean and standard deviation estimation.}
     \label{fig:inference_sub_density_estimate}
 \end{figure}
 
- Next, the mode of the kernel density estimate, denoted as $\widehat{\mu}_0$. is to be found. This is then used as the mean of the empirical null. The calculation of $\widehat{\mu}_0$ can be numerically using the Newton-Raphson method. Using the mode, the standard deviation of the empirical null is estimated using
- \begin{equation}
- 	\widehat{\sigma}_0 = \left[
- 		\left.
- 			-\dfrac{\partial^2}{\partial z^2}\ln\widehat{p}(z)
- 		\right|_{z=\widehat{\mu}_0}
- 	\right]^{-1/2}
- \end{equation}
+Next, the mode of the kernel density estimate, denoted as $\widehat{\mu}_0$, is to be found. This is then used as the mean of the empirical null \citep{efron2004large}. The calculation of $\widehat{\mu}_0$ can be numerically found using the Newton-Raphson method. Using the mode, the standard deviation of the empirical null is estimated using \citep{efron2004large}
+\begin{equation}
+	\widehat{\sigma}_0 = \left[
+		\left.
+			-\dfrac{\partial^2}{\partial z^2}\ln\widehat{p}(z)
+		\right|_{z=\widehat{\mu}_0}
+	\right]^{-1/2}
+	\ .
+\end{equation}
+In this particular example, it was found that $\widehat{\mu}_0=\input{../figures/inference/sub_null_mu.txt}...$ and $\widehat{\sigma}_0=\input{../figures/inference/sub_null_sigma.txt}...$. It was found that both of these estimators have negligible bootstrap \citep{efron1992bootstrap} variance or error.
 
-\subsection{Statistical Details}
+
+The empirical null is used to correct the test statistics $z_1,z_2,\dotdotdot,z_n$ to $\zeta_1,\zeta_2,\dotdotdot,\zeta_n$ by standardising the test statistics
+\begin{equation}
+	\zeta_i = \dfrac{
+		z_i - \widehat{\mu}_0
+	}
+	{
+		\widehat{\sigma}_0
+	}
+	\ .
+\end{equation}
+The corrected test statistics $\zeta_1,\zeta_2,\dotdotdot,\zeta_n$ are then used in any multiple hypothesis testing procedures. Using the BH procedure, the critical region was found to be $\|\zeta\|\geqslant\input{../figures/inference/sub_null_critical_zeta.txt}...$ or in terms of the original units $Z \leqslant \input{../figures/inference/sub_null_critical1.txt}...$ and $\input{../figures/inference/sub_null_critical2.txt}...\leqslant Z$.
+
+\begin{figure}
+	\centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/sub_z_histo_null.eps}
+        \caption{Histogram of $z$}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/sub_z_p_values.eps}
+        \caption{Ordered $p$ values}
+    \end{subfigure}
+    }
+    \caption{The critical regions were adjusted using the empirical null. The empirical null were also used to adjust the $z$ statistics, producing sensible $p$-values}
+    \label{fig:inference_sub_z_critical_regions}
+\end{figure}
+
+These new critical regions are shown in Figure \ref{fig:inference_sub_z_critical_regions}. No positive results were found and the $p$-values are sensible as they look uniformly distributed. This demonstrated that the empirical null adjusts the parameters of the null distribution to fit the data in order to make sensible inference.
+
+In this section, a more mathematical approach to the empirical null will be taken to examine why and when this method works. Next computational concepts will be discussed such as on how the mode of the kernel density estimator is found and what makes a good bandwidth in the kernel density estimator. 
+
+
+\subsection{Statistical Justification}
 
 \subsection{Mode Finding}
 
 \subsection{Bandwidth Selection}
 
-\subsection{Results}
-
 \section{Empirical Null Filter}
-
-\section{Results}
