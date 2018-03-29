@@ -66,7 +66,7 @@ fig = LatexFigure.sub();
 image_plot = ImagescSignificant(z_image);
 image_plot.plot();
 hold on;
-rectangle('Position',[col_subsample(1), row_subsample(1), col_subsample(2)-col_subsample(1)+1, row_subsample(2)-row_subsample(1)+1],'EdgeColor','r','LineStyle','--');
+rectangle('Position',[col_subsample(1), row_subsample(1), col_subsample(end)-col_subsample(1)+1, row_subsample(end)-row_subsample(1)+1],'EdgeColor','r','LineStyle','--');
 saveas(fig,fullfile('reports','figures','inference','sub_z_image.eps'),'epsc');
 
 %get the subsample of z statistics and do BH multiple hypothesis testing

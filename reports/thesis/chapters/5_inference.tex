@@ -333,7 +333,7 @@ The empirical null \citep{efron2004large} adjusts the assumptions made on the $z
 
 The method will be described here. Suppose the following test statistics were obtained $z_1,z_2,\dotdotdot,z_n$. First the histogram needs to be smoothed. \cite{efron2004large} recommended using splines but a kernel density estimate \citep{parzen1962on, friedman2001elements} will be used here because it has simpler mathematical properties. The kernel density estimate is
 \begin{equation}
-	\widehat{p}(z)=
+	\widehat{p}_Z(z)=
 	\frac{1}{nh}
 	\sum_{i=1}^n\phi\left(
 		\dfrac{z_i-z}{h}
@@ -406,7 +406,114 @@ These new critical regions are shown in Figure \ref{fig:inference_sub_z_critical
 In this section, a more mathematical approach to the empirical null will be taken to examine why and when this method works. Next computational concepts will be discussed such as on how the mode of the kernel density estimator is found and what makes a good bandwidth in the kernel density estimator. 
 
 
-\subsection{Statistical Justification}
+\subsection{More on the Empirical Null}
+
+\cite{efron2004large} invented the empirical null to tackle problems observed in large scale multiple hypothesis testing, for example in microarrays \citep{hedenfalk2001gene, efron2002empirical, efron2003robbins}. These problems are similar to the one observed at the start of this chapter. The empirical null is now used widely, including in neuroimaging \citep{schwartzman2008false,schwartzman2009empirical}.
+
+For formality, the null and alternative hypotheses shall be described here. Assume that the $z$ statistics under the null hypothesis are such that
+\begin{equation}
+	Z_i|H_0\sim\normal(\mu,\widehat{\sigma}_0^2)
+\end{equation}
+for $i=1,2,\dotdotdot,n$ and i.i.d. The hypotheses are then
+\begin{equation}
+	H_0:\mu = \widehat{\mu}_0
+\end{equation}
+and
+\begin{equation}
+	H_1:\mu\neq\widehat{\mu}_0
+	\ .
+\end{equation}
+Essentially null $z$ statistics are assumed to be Normal distributed, with parameters using the empirical null. Statistics which deviates too much from $\widehat{\mu}_0$ are considered to be positive.
+
+The distribution of the $z$ statistics can be described using a mixture model. Let the random variable $Z$ have the probability density function
+\begin{equation}
+	p_Z(z) =
+	\pi_0 p_{Z|H_0}(z) + \pi_1 p_{Z|H_1}(z)
+\end{equation}
+where $0\leqslant\pi_0\leqslant 1$ and  $\pi_1 = 1-\pi_0$. In addition, the null distribution is
+\begin{equation}
+	p_{Z|H_0}(z) = 
+	\dfrac{1}{\sqrt{2\pi}\widehat{\sigma}_0}
+	\exp\left[
+		-\dfrac{1}{2}
+		\left(
+			\dfrac{z-\widehat{\mu}_0}{\widehat{\sigma}_0}
+		\right)^2
+	\right]
+\end{equation}
+as it was assumed to be Normal. The non-null distribution $p_{Z|H_1}(z)$ does not need to be specified.
+
+The empirical null parameters can be obtained from the following. Assume that $\pi_0$ is large, say bigger than 0.9 \citep{efron2004large}, and at and around the mode the probability density function is dominated by the null distribution. This implies that
+\begin{equation}
+	p_{Z}(z) \approx \pi_0 p_{Z|H_0}(z)
+\end{equation}
+for values of $z$ around the mode. Finding the maximum for $p_{Z}(z)$ and $p_{Z|H_0}(z)$ should yield the same solution. This justifies the use of the mode for the empirical null mean \citep{efron2004large}
+\begin{equation}
+	\widehat{\mu}_0 = \argmax\widehat{p}_Z(z) \ .
+\end{equation} 
+The empirical null standard deviation can be obtained by noting that
+\begin{equation}
+	p_{Z}(z) = 
+	\dfrac{\pi_0}{\sqrt{2\pi}\widehat{\sigma}_0}
+	\exp\left[
+		-\dfrac{1}{2}
+		\left(
+			\dfrac{z-\widehat{\mu}_0}{\widehat{\sigma}_0}
+		\right)^2
+	\right] \ .
+\end{equation}
+Taking the log of both sides
+\begin{equation}
+	\ln p_{Z}(z) = 
+	\ln\left[
+		\dfrac{\pi_0}{\sqrt{2\pi}\widehat{\sigma}_0}
+	\right]
+	-\dfrac{1}{2}
+	\left(
+		\dfrac{z-\widehat{\mu}_0}{\widehat{\sigma}_0}
+	\right)^2
+	\ .
+\end{equation}
+Taking derivatives of the log density
+\begin{equation}
+	\dfrac{\partial}{\partial z} \ln p_{Z}(z) =
+	-\left(
+		\dfrac{
+			z-\widehat{\mu}_0
+		}
+		{
+			\widehat{\sigma}_0^2
+		}
+	\right)
+\end{equation}
+\begin{equation}
+	\dfrac{\partial^2}{\partial^2 z} \ln p_{Z}(z) =
+	-\dfrac{
+		1
+	}
+	{
+		\widehat{\sigma}_0^2
+	}
+\end{equation}
+which motivates the estimator \citep{efron2004large}
+\begin{equation}
+	\widehat{\sigma}_0 = \left[
+		\left.
+			-\dfrac{\partial^2}{\partial z^2}\ln\widehat{p}(z)
+		\right|_{z=\widehat{\mu}_0}
+	\right]^{-1/2}
+	\ .
+\end{equation}
+The evaluation of $z=\widehat{\mu}_0$ is used as in that region, one would hope that null test statistics would dominate and non-null test statistics would not contribute much to the density estimate.
+
+This method does not need estimations of $\pi_0$ which makes it quite useful. The estimations of $\pi_0$ is discussed in literature such as \cite{benjamini2000adaptive, pounds2003estimating, storey2003statistical, pounds2004improving, langaas2005estimating, durnez2014posthoc}. Because of the assumptions made on the empirical null, the easiest method is
+\begin{equation}
+	\widehat{\pi}_0 = \dfrac{\widehat{p}_Z(z)}{p_{Z|H_0}(\widehat{\mu}_0)}
+	\ .
+\end{equation}
+\cite{efron2004large} also motives the use of the empirical null by investigating various types of false discovery rates \citep{storey2002direct, storey2003positive, efron2002empirical, efron2007size} which will not be discussed here.
+
+
 
 \subsection{Mode Finding}
 
