@@ -338,6 +338,7 @@ The method will be described here. Suppose the following test statistics were ob
 	\sum_{i=1}^n\phi\left(
 		\dfrac{z_i-z}{h}
 	\right)
+	\label{eq:inference_kernel_density_estimate}
 \end{equation}
 where $h$ is the bandwidth. The bandwidth was chosen such that
 \begin{equation}
@@ -513,9 +514,378 @@ This method does not need estimations of $\pi_0$ which makes it quite useful. Th
 \end{equation}
 \cite{efron2004large} also motives the use of the empirical null by investigating various types of false discovery rates \citep{storey2002direct, storey2003positive, efron2002empirical, efron2007size} which will not be discussed here.
 
-
-
 \subsection{Mode Finding}
+
+The mode can be found by solving for $\widehat{\mu}_0 = \argmax\widehat{p}_Z(z)$. This cannot be solved in closed form easily and should be done numerically. The  Newton-Raphson method can be used to solve $\hat{p}_Z'(z) = 0$ for $z$. Instead the log space will be used, solving
+\begin{equation}
+	\dfrac{
+		\partial
+	}
+	{
+		\partial z
+	}
+	\ln\widehat{p}_Z(z)
+	= 0
+\end{equation}
+for $z$. This will at least find stationary points.
+
+The Newton-Raphson method is an iterative algorithm and requires an initial value $z^{(0)}$. The iterative step is
+\begin{equation}
+	z^{(r+1)} =
+	z^{(r)}
+	-\dfrac{
+		\left.
+			\dfrac{
+				\partial
+			}
+			{
+				\partial z
+			}
+			\ln\widehat{p}_Z(z)
+		\right|_{z = z^{(r)}}
+	}
+	{
+		\left.
+			\dfrac{
+				\partial^2
+			}
+			{
+				\partial z^2
+			}
+			\ln\widehat{p}_Z(z)
+		\right|_{z = z^{(r)}}
+	} 
+\end{equation}
+for $r=0,1,2,3,\dotdotdot$ until some convergence condition is met. The derivatives for the log density can be obtained via the following. Recall that the kernel density estimate is
+\begin{equation}
+	\widehat{p}_Z(z)=
+	\frac{1}{nh}
+	\sum_{i=1}^n\phi\left(
+		\dfrac{z_i-z}{h}
+	\right)
+	\tag{\ref{eq:inference_kernel_density_estimate}}
+\end{equation}
+so that the log density is
+\begin{equation}
+	\ln\widehat{p}_Z(z)=
+	\ln\left(
+		\dfrac{1}{nh}
+	\right)
+	+
+	\ln\left[
+		\sum_{i=1}^n
+		\phi\left(
+			\dfrac{
+				z_i - z
+			}
+			{
+				h
+			}
+		\right)
+	\right]
+	\ .
+\end{equation}
+Taking the first derivative
+\begin{equation}
+	\dfrac{
+		\partial
+	}
+	{
+		\partial z
+	}
+	\ln\widehat{p}_Z(z)
+	=
+	\dfrac{
+		1
+	}
+	{
+		\sum_{i=1}^n
+		\phi\left(
+			\dfrac{
+				z_i - z
+			}
+			{
+				h
+			}
+		\right)
+	}
+	\times
+	\sum_{i=1}^n
+	\phi'\left(
+		\dfrac{
+			z_i - z
+		}
+		{
+			h
+		}
+	\right)
+	\left(
+		-\dfrac{
+			1
+		}
+		{
+			h
+		}
+	\right)
+	\ .
+\end{equation}
+Using the fact that $\phi(z)=(2\pi)^{-1/2}\exp(-z^2/2)$, then $\phi'(z)=-z\phi(z)$. This can be used to simplify the equation to be
+\begin{equation}
+	\dfrac{
+		\partial
+	}
+	{
+		\partial z
+	}
+	\ln\widehat{p}_Z(z)
+	=
+	\dfrac{
+		\sum_{i=1}^n
+		\phi\left(
+			\dfrac{
+				z_i - z
+			}
+			{
+				h
+			}
+		\right)
+		\left(
+			\dfrac{
+				z_i - z
+			}
+			{
+				h
+			}
+		\right)
+	}
+	{
+		h
+		\sum_{i=1}^n
+		\phi\left(
+			\dfrac{
+				z_i - z
+			}
+			{
+				h
+			}
+		\right)
+	}
+	\ .
+\end{equation}
+
+Taking the derivative again
+\begin{multline}
+	\dfrac{
+		\partial^2
+	}
+	{
+		\partial z^2
+	}
+	\ln\widehat{p}_Z(z)
+	=
+	\left[
+		h\sum_{i=1}^n
+		\phi\left(
+			\dfrac{
+				z_i-z
+			}
+			{
+				h
+			}
+		\right)
+	\right]^{-2}
+	\times
+	\left\{
+		h\left[
+			\sum_{i=1}^n
+			\phi\left(
+				\dfrac{
+					z_i-z
+				}
+				{
+					h
+				}
+			\right)
+		\right]
+	\right.
+	\\
+	\left.
+		\times
+		\sum_{i=1}^n\left[
+			\phi'\left(
+				\dfrac{
+					z_i-z
+				}
+				{
+					h
+				}
+			\right)
+			\left(
+				-\dfrac{
+					1
+				}
+				{
+					h
+				}
+			\right)
+			\left(
+				\dfrac{
+					z_i-z
+				}
+				{
+					h
+				}
+			\right)
+			+\phi\left(
+				\dfrac{
+					z_i-z
+				}
+				{
+					h
+				}
+			\right)
+			\left(
+				-\dfrac{
+					1
+				}
+				{
+					h
+				}
+			\right)
+		\right]
+	\right.
+	\\
+	\left.
+		-
+		\left[
+			\sum_{i=1}^n
+			\phi\left(
+				\dfrac{
+					z_i-z
+				}
+				{
+					h
+				}
+			\right)
+			\left(
+				\dfrac{
+					z_i-z
+				}
+				{
+					h
+				}
+			\right)
+		\right]
+		\left[
+			h\sum_{i=1}^n
+			\phi'\left(
+				\dfrac{
+					z_i-z
+				}
+				{
+					h
+				}
+			\right)
+			\left(
+				-\dfrac{
+					1
+				}
+				{
+					h
+				}
+			\right)
+		\right]
+	\right\}
+	\ .
+\end{multline}
+Using the fact that $\phi'(z)=-z\phi(z)$, then it can be simplified to
+\begin{multline}
+	\dfrac{
+		\partial^2
+	}
+	{
+		\partial z^2
+	}
+	\ln\widehat{p}_Z(z)
+	=
+	\left[
+		h\sum_{i=1}^n
+		\phi\left(
+			\dfrac{
+				z_i-z
+			}
+			{
+				h
+			}
+		\right)
+	\right]^{-2}
+	\times
+	\left\{
+		\left[
+			\sum_{i=1}^n
+			\phi\left(
+				\dfrac{
+					z_i-z
+				}
+				{
+					h
+				}
+			\right)
+		\right]
+	\right.
+	\\
+	\left.
+		\times
+		\left[
+			\sum_{i=1}^n
+			\phi\left(
+				\dfrac{
+					z_i-z
+				}
+				{
+					h
+				}
+			\right)
+			\left(
+				\left(
+					\dfrac{
+						z_i-z
+					}
+					{
+						h
+					}
+				\right)^2
+				-1
+			\right)
+		\right]
+		-
+		\left[
+			\sum_{i=1}^n
+			\phi\left(
+				\dfrac{
+					z_i-z
+				}
+				{
+					h
+				}
+			\right)
+		\right.
+	\right.
+	\\
+	\left.
+		\left.
+			\left(
+				\dfrac{
+					z_i-z
+				}
+				{
+					h
+				}
+			\right)
+		\right]^2
+	\right\}
+	\ .
+\end{multline}
 
 \subsection{Bandwidth Selection}
 
