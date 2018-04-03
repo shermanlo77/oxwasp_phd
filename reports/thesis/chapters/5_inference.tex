@@ -672,7 +672,6 @@ Using the fact that $\phi(z)=(2\pi)^{-1/2}\exp(-z^2/2)$, then $\phi'(z)=-z\phi(z
 	}
 	\ .
 \end{equation}
-
 Taking the derivative again
 \begin{multline}
 	\dfrac{
@@ -886,6 +885,36 @@ Using the fact that $\phi'(z)=-z\phi(z)$, then it can be simplified to
 	\right\}
 	\ .
 \end{multline}
+
+It was chosen that convergence is met when either 10 update steps were taken or when
+\begin{equation}
+	\left\|
+		\dfrac{
+			\partial
+		}
+		{
+			\partial z
+		}
+	\ln\widehat{p}_Z(z)
+	\right\|
+	<10^{-5}
+\end{equation}
+at the current step. This was chosen arbitrary to speed up the algorithm without losing too much accuracy. At the end of the algorithm, for a successful convergence it was required, in addition, that
+\begin{equation}
+	\left.
+		\dfrac{
+			\partial^2
+		}
+		{
+			\partial z^2
+		}
+		\ln\widehat{p}_Z(z)
+	\right|_{z=\widehat{\mu}_0}
+	< 0 \ .
+\end{equation}
+Following a successful convergence, the estimator $\widehat{\sigma}_0$ can be calculated straight away.
+
+The algorithm does depend on the initial value so using different initial values is recommended. It was chosen here to use the quartiles of the data as the initial values and then select the best solution, the one with the largest $\ln\widehat{p}_Z\left(\widehat{\mu}_0\right)$, out of the different initial values. Should the algorithm still fail, a random data point is selected to be the initial value until a successful convergence is achieved. The Newton-Raphson method can fail if it converges to a stationary point other than a global maximum, for example a local maxima or a point of inflection. 
 
 \subsection{Bandwidth Selection}
 
