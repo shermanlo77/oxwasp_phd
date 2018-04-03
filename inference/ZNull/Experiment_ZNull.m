@@ -42,28 +42,28 @@ classdef Experiment_ZNull < Experiment
             
             %meshgrid for n and k
             [logn_plot,k_plot] = meshgrid(log10(this.n_array),this.k_array);
-            factor_array = [0.9, 1.06]; %array of fudge factors
+            factor_array = [0.9, 1.06, 1.144]; %array of fudge factors
             
             %for the mode estimation, then half width estimation
             for i_array = 1:3
 
                 %get the corresponding array
                 if i_array == 1
-                    array = log10(squeeze(median(this.mean_array.^2)));
-                    z_label = 'log MSE';
+                    array = (squeeze(median(this.mean_array.^2)));
+                    z_label = 'median squared error';
                 elseif i_array == 2
-                    array = log10(squeeze(median((this.var_array-1).^2)));
-                    z_label = 'log MSE';
+                    array = (squeeze(median((this.var_array-1).^2)));
+                    z_label = 'median squared error';
                 else
                     array = squeeze(median(this.var_array));
-                    z_label = 'H0 std estimate';
+                    z_label = '\sigma_0 estimate';
                 end
 
                 %surf plot the error vs k and log n
-                figure;
+                fig = LatexFigure.sub();
                 surf(k_plot,logn_plot,array);
                 %label axis
-                xlabel('kernel width');
+                xlabel('bandwidth');
                 ylabel('log(n)');
                 zlabel(z_label);
                 hold on;
@@ -93,12 +93,44 @@ classdef Experiment_ZNull < Experiment
                     ax.FaceAlpha = 0;
                     %plot legend
                     ax = gca;
-                    legend(ax.Children([3,2]),{'0.9','1.06'},'Location','best');
+                    legend(ax.Children([4,3,2]),{'0.9','1.06','1.144'},'Location','best');
+                    
                 else
                     %plot legend
                     ax = gca;
-                    legend(ax.Children([2,1]),{'0.9','1.06'},'Location','best');
+                    legend(ax.Children([3,2,1]),{'0.9','1.06','1.144'},'Location','best');
                 end
+                
+                %save the figure;
+                saveas(fig,fullfile('reports','figures','inference',strcat(this.experiment_name,num2str(i_array),'.eps')),'epsc');
+
+                %if this is a plot of the estimator itself, save the figure using a heatmap
+                linestyle_array = {'k--','k-.','k:'};
+                if i_array==3
+                    fig = LatexFigure.sub();
+                    %heatmap the array
+                    imagesc(log10(this.n_array),this.k_array,array);
+                    axis xy;
+                    hold on;
+                    %make a contour plot
+                    contour(log10(this.n_array),this.k_array,array,[0,1],'k-');
+                    %make a blank plot for the purpose of legend
+                    plot([0,0],[0,0],'k-');
+                    %for each factor
+                    for i = 1:numel(factor_array)
+                        %plot the rule of thumb
+                        k_path = factor_array(i)*((10.^logn_path).^(-1/5));
+                        plot(logn_path,k_path,linestyle_array{i},'LineWidth',1');
+                    end
+                    %label axis
+                    ax = gca;
+                    legend(ax.Children([4,3,2,1]),{'empirical truth','0.9','1.06','1.144'},'Location','northeast');
+                    ylabel('bandwidth');
+                    xlabel('log(n)');
+                    colorbar;
+                    saveas(fig,fullfile('reports','figures','inference',strcat(this.experiment_name,num2str(i_array+1),'.png')),'png');
+                end
+                
             end
         end
         

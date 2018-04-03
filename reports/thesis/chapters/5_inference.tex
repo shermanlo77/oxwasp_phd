@@ -383,6 +383,7 @@ The empirical null is used to correct the test statistics $z_1,z_2,\dotdotdot,z_
 		\widehat{\sigma}_0
 	}
 	\ .
+	\label{eq:inference_zeta}
 \end{equation}
 The corrected test statistics $\zeta_1,\zeta_2,\dotdotdot,\zeta_n$ are then used in any multiple hypothesis testing procedures. Using the BH procedure, the critical region was found to be $\|\zeta\|\geqslant\input{../figures/inference/sub_null_critical_zeta.txt}...$ or in terms of the original units $Z \leqslant \input{../figures/inference/sub_null_critical1.txt}...$ and $\input{../figures/inference/sub_null_critical2.txt}...\leqslant Z$.
 
@@ -917,5 +918,64 @@ Following a successful convergence, the estimator $\widehat{\sigma}_0$ can be ca
 The algorithm does depend on the initial value so using different initial values is recommended. It was chosen here to use the quartiles of the data as the initial values and then select the best solution, the one with the largest $\ln\widehat{p}_Z\left(\widehat{\mu}_0\right)$, out of the different initial values. Should the algorithm still fail, a random data point is selected to be the initial value until a successful convergence is achieved. The Newton-Raphson method can fail if it converges to a stationary point other than a global maximum, for example a local maxima or a point of inflection. 
 
 \subsection{Bandwidth Selection}
+
+The choice of the bandwidth $h$ is important for the kernel density estimator. It controls how smooth the kernel density estimator is, with higher values of $h$ producing smoother curves \citep{friedman2001elements}. Cross validation methods do exist \citep{bowman1984alternative, sheather2004density} but they can be computationally expensive. Another option are rules of thumb \citep{silverman1986density, sheather2004density} and are typically of the form
+\begin{equation}
+	h = bn^{-1/5}\times\text{min}\left(s_z,\text{iqr}_z/1.34\right)
+\end{equation}
+where $b=0.9$ \citep{silverman1986density}. This rule of thumb was developed with consideration of bimodal Normal distributions \citep{silverman1986density}. Other options include $b=1.06$ and $b=1.144$ to produce smoother curves \citep{sheather2004density}.
+
+In the context of the empirical null, the kernel density estimator is only used to obtain values of $\widehat{\mu}_0$ and $\widehat{\sigma}_0$. Thus a good bandwidth is one which has good properties of $\widehat{\mu}_0$ and $\widehat{\sigma}_0$ rather than the density estimate. However exact properties of these estimators based on the kernel density estimators can be rather complicated. Empirical properties shall be studied here.
+
+\begin{figure}
+	\centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/ZNull1.eps}
+        \caption{$\mu_0$}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/ZNull2.eps}
+        \caption{$\sigma_0$}
+    \end{subfigure}
+    }
+    \caption{Median squared error of the estimators of the empirical null parameters from 50 repeats of simulated $\normal(0,1)$ data. Lines represent the rule of thumb for various values of $b$.}
+    \label{fig:inference_ZNull1}
+\end{figure}
+
+\begin{figure}
+	\centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/ZNull3.eps}
+        \caption{3D plot}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/ZNull4.png}
+        \caption{Heatmap}
+    \end{subfigure}
+    }
+    \caption{Median value of $\widehat{\sigma}_0$ from 50 repeats of simulated $\normal(0,1)$ data. Lines represent the rule of thumb for various values of $b$.}
+    \label{fig:inference_ZNull2}
+\end{figure}
+
+An experiment was conducted to investigate the behaviour of the estimators, $\widehat{\mu}_0$ and $\widehat{\sigma}_0$, on a dataset of simulated all null $\normal(0,1)$. Various values of $h$ and $n$ were investigated. In reality non-null test statistics may appear in the dataset but they should not be too common and interfere with the density estimate too much. For a given $h$ and $n$, 50 values of $\widehat{\mu}_0$ and $\widehat{\sigma}_0$ were obtained by repeating the simulation. The median squared error for each of the estimators were plotted as shown in Figure \ref{fig:inference_ZNull1}.
+
+$\widehat{\mu}_0$ has low median squared error for large bandwidths, in particular for low $n$. This is because smoother curves prevents any false bimodal features appearing, making it easier to find the mode.
+
+A smooth valley can be seen for the median squared error for $\widehat{\sigma}_0$. It appears for a given $n$, there exist a bandwidth which minimise the median squared error. However the rules of thumb does not optimise for $\widehat{\sigma}_0$ and undershoots it. This can be particularly seen in Figure \ref{fig:inference_ZNull2} where the median values of $\widehat{\sigma}_0$ are plotted. In this simulation, the true value is $\sigma_0=1$ and all rules of thumb produced biased estimates, in particular underestimates it.
+
+Overestimates and underestimates are both dangerous, but it depends on the importance of false positives and false negatives. This is because $\widehat{\sigma}_0$ is used to rescale the test statistics accordingly. Recall that the corrected test statistics are
+\begin{equation}
+	\zeta_i = \dfrac{
+		z_i - \widehat{\mu}_0
+	}
+	{
+		\widehat{\sigma}_0
+	}
+	\ .
+	\tag{\ref{eq:inference_zeta}}
+\end{equation}
+Low values of $\widehat{\sigma}_0$ will produce high values in magnitude of $\zeta_i$, potentially testing more of these test statistics as positive. High values of $\widehat{\sigma}_0$ does the opposite. Large number of positive results can led to more false positive results and vice versa. 
 
 \section{Empirical Null Filter}
