@@ -52,10 +52,10 @@ classdef Experiment_ZNull < Experiment
                     array = (squeeze(median(this.mean_array.^2)));
                     z_label = 'median squared error';
                 elseif i_array == 2
-                    array = (squeeze(median((this.var_array-1).^2)));
+                    array = squeeze( median( (sqrt(this.var_array)-1).^2 ) );
                     z_label = 'median squared error';
                 else
-                    array = squeeze(median(this.var_array));
+                    array = squeeze(median(sqrt(this.var_array)));
                     z_label = '\sigma_0 estimate';
                 end
 
@@ -83,7 +83,6 @@ classdef Experiment_ZNull < Experiment
                 %set the axis and view angle
                 xlim(this.k_array([1,numel(this.k_array)]));
                 ylim(log10(this.n_array([1,numel(this.n_array)])));
-                view(-166,34);
 
                 %for the 3rd array
                 if i_array==3
@@ -94,8 +93,9 @@ classdef Experiment_ZNull < Experiment
                     %plot legend
                     ax = gca;
                     legend(ax.Children([4,3,2]),{'0.9','1.06','1.144'},'Location','best');
-                    
+                    view(-115,11);
                 else
+                    view(164,44);
                     %plot legend
                     ax = gca;
                     legend(ax.Children([3,2,1]),{'0.9','1.06','1.144'},'Location','best');

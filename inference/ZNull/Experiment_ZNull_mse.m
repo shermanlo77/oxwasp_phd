@@ -57,7 +57,7 @@ classdef Experiment_ZNull_mse < Experiment
             for i_n = 1:numel(previous.n_array)
                 %get the ln MSE
                 array = this.getObjective(previous.var_array(:,:,i_n));
-                figure;
+                fig = LatexFigure.sub();
                 %boxplot the ln MSE for each kernel width
                 box_plot = Boxplots(array,true);
                 %set the values of the kernel width
@@ -67,16 +67,19 @@ classdef Experiment_ZNull_mse < Experiment
                 %plot the local quadratic regression
                 plot(this.k_plot,this.error_regress(:,i_n));
                 %label axis and graph
-                ylabel('ln mean squared error');
-                xlabel('kernel width');
-                title(strcat('n=',num2str(previous.n_array(i_n))));
+                ylabel('ln squared error');
+                xlabel('bandwidth');
+                title(strcat('log n=',num2str(log10(previous.n_array(i_n)))));
+                ylim([-15,5]);
+                saveas(fig,fullfile('reports','figures','inference',strcat(this.experiment_name,'plot',num2str(i_n),'.eps')),'epsc');
             end
             
             %boxplot the optimal kernel widths
             boxplot_k_optima = Boxplots(this.k_optima_bootstrap,true);
             %vs n^(-1/5)
             boxplot_k_optima.setPosition((previous.n_array).^(-1/5));
-            figure;
+            
+            fig = LatexFigure.main();
             boxplot_k_optima.plot();
             hold on;
             %plot the glm fit of optimal kernel width vs n^(-1/5)
@@ -88,7 +91,8 @@ classdef Experiment_ZNull_mse < Experiment
             plot(x_plot, down_error, 'Color', ax.Color,'LineStyle',':');
             %label axis
             xlabel('n^{-1/5}');
-            ylabel('optimal kernel width');
+            ylabel('optimal bandwidth');
+            saveas(fig,fullfile('reports','figures','inference',strcat(this.experiment_name,'rule_of_thumb','.eps')),'epsc');
             
             %declare array for storing the parameters
             coeff_array = zeros(2,numel(this.lambda_array));
@@ -104,14 +108,19 @@ classdef Experiment_ZNull_mse < Experiment
             end
             
             %plot the glm coefficient vs lambda (parameter of the local quadratic regression)
-            figure;
+            fig = LatexFigure.main();
             errorbar(this.lambda_array,coeff_array(1,:),error_array(1,:)); %plot intercept
             hold on;
             errorbar(this.lambda_array,coeff_array(2,:),error_array(2,:)); %plot gradient
             %label axis
-            xlabel('smoothness');
+            xlabel('lqr smoothness');
             ylabel('estimated parameter');
-            legend('intercept','gradient');
+            legend('intercept','gradient','Location','east');
+            saveas(fig,fullfile('reports','figures','inference',strcat(this.experiment_name,'sensitive','.eps')),'epsc');
+            
+            %save the intercept and gradient
+            latex_table = LatexTable(coeff_array(:,this.plot_index), error_array(:,this.plot_index),{'Intercept','Gradient'} , {'Estimate'});
+            latex_table.print(fullfile('reports','tables','ZNull_mse_glm_estimate.txt'));
         end
 
     end
@@ -253,7 +262,7 @@ classdef Experiment_ZNull_mse < Experiment
         %RETURN:
             %objective: array of ln mse of the estimate variances
         function objective = getObjective(this, var_array)
-            objective = log((var_array.^2-1).^2);
+            objective = log((sqrt(var_array)-1).^2);
         end
         
         %METHOD: FIND OPTIMA
