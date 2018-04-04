@@ -343,6 +343,7 @@ The method will be described here. Suppose the following test statistics were ob
 where $h$ is the bandwidth. The bandwidth was chosen such that
 \begin{equation}
 	h = 0.9n^{-1/5}\times\text{min}\left(s_z,\text{iqr}_z/1.34\right) + 0.16
+	\label{eq:inference_ourruleofthumb}
 \end{equation}
 where $s_z$ and $\text{iqr}_z$ are the standard deviation and interquartile range. The parameters of the empirical null are estimated using the kernel density estimate. The resulting estimated density is shown in Figure \ref{fig:inference_sub_density_estimate}.
 
@@ -976,6 +977,78 @@ Overestimates and underestimates are both dangerous, but it depends on the impor
 	\ .
 	\tag{\ref{eq:inference_zeta}}
 \end{equation}
-Low values of $\widehat{\sigma}_0$ will produce high values in magnitude of $\zeta_i$, potentially testing more of these test statistics as positive. High values of $\widehat{\sigma}_0$ does the opposite. Large number of positive results can led to more false positive results and vice versa. 
+Low values of $\widehat{\sigma}_0$ will produce high values in magnitude of $\zeta_i$, potentially testing more of these test statistics as positive. High values of $\widehat{\sigma}_0$ does the opposite. Large number of positive results can led to more false positive results and vice versa.
+
+The optimal bandwidth for a given $n$ was found numerically. Such a relationship can be seen clearly seen in Figure \ref{fig:inference_ZNull_mse_plot} which plots the log mean squared error against the bandwidth for various $n$. A local quadratic regression \citep{friedman2001elements} was fitted and this was used to find the bandwidth which minimises the log squared error for a given $n$.
+
+\begin{figure}
+	\centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/ZNull_mseplot1.eps}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/ZNull_mseplot5.eps}
+    \end{subfigure}
+    }
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/ZNull_mseplot9.eps}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/ZNull_mseplot12.eps}
+    \end{subfigure}
+    }
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/ZNull_mseplot16.eps}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/ZNull_mseplot20.eps}
+    \end{subfigure}
+    }
+    \caption{A local quadratic regression was fitted on the log mean squared error for estimating $\sigma_0$ against the bandwidth. The estimator $\widehat{\sigma}_0$ uses the kernel density estimator fitted onto $n$ simulated standard Normal data. Boxplots were used to represent the variation of the error from 50 repeats.}
+    \label{fig:inference_ZNull_mse_plot}
+\end{figure}
+
+A relationship between the optimal bandwidth and $n$ was attempted to be found. It was assumed such a relationship has the linear from
+\begin{equation}
+	h_{\text{optimal}} = b n^{-1/5} + a
+\end{equation}
+where $b$ and $a$ are parameters to be fitted. Figure \ref{fig:inference_ZNull_mserule_of_thumb} show the fitting of an identity link Gamma GLM in order to estimate $b$ and $a$. The estimated parameters are shown in Table \ref{table:inference_ZNull_mse_glm_estimate}.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.7\textwidth]{../figures/inference/ZNull_mserule_of_thumb.eps}
+	\caption{An identity link Gamma GLM was fitted onto the relationship between the optimal bandwidth and $n^{-1/5}$. The boxplot show the bootstrap error in finding the optimal bandwidth, which is only there for illustration purposes.}
+	\label{fig:inference_ZNull_mserule_of_thumb}
+\end{figure}
+
+\begin{table}
+	\centering
+	\input{../tables/ZNull_mse_glm_estimate.txt}
+	\caption{Estimated and standard error gradient and intercept from the linear relationship in Figure \ref{fig:inference_ZNull_mserule_of_thumb}.}
+	\label{table:inference_ZNull_mse_glm_estimate}
+\end{table}
+
+The results show that the rules of thumb can be improved if a small bias is added to it. This is because an intercept was found when fitting a linear relationship between the optimal bandwidth and $n^{-1/5}$. Adding this bias should improve the performance of the estimator $\widehat{\sigma}_0$. The gradient is similar to the rules of thumb in the literature \citep{sheather2004density}.
+
+Those familiar with local quadratic regressions would know that a kernel and a smoothness parameter need to be specified \citep{friedman2001elements}. In these plots a Gaussian kernel was used with smoothness parameter $\input{../tables/ZNull_bandwidth.txt}$. The smoothness parameter $\input{../tables/ZNull_bandwidth.txt}$ was chosen from a quick inspection of the curves. The units of the smoothness parameter is not too important here. But one should note that the smoothness parameter would affect the solution to the optimal bandwidth.
+
+To take into the sensitivity to the smoothness parameter, the whole analysis was repeated using various smoothness parameters. The gradient and intercept for various smoothness parameters are shown in Figure \ref{fig:inference_ZNull_msesensitive}. It can seen that the intercept is fairly stable, including the gradient at smoothness parameter around $\input{../tables/ZNull_bandwidth.txt}$.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.7\textwidth]{../figures/inference/ZNull_msesensitive.eps}
+	\caption{Finding the relationship between the optimal bandwidth and $n^{-1/5}$ was repeated for various smoothness parameters in the local quadratic regression. Error bars represent the standard error.} 
+	\label{fig:inference_ZNull_msesensitive}
+\end{figure}
+
+In conclusion, a small bias added to the rule of thumb will improve the performance of the estimator $\widehat{\sigma}_0$. \cite{silverman1986density} pointed out that a smaller bandwidth should be used when in particular the distribution is bimodal, this is why \cite{silverman1986density} suggest the use of $b=0.9$ rather than $b=1.06$. Following from this, it was chosen that the intercept shall be added to Silverman's rule of thumb for the use in the empirical null
+\begin{equation}
+	h = 0.9n^{-1/5}\times\text{min}\left(s_z,\text{iqr}_z/1.34\right) + 0.16
+	\ .
+	\tag{\ref{eq:inference_ourruleofthumb}}
+\end{equation}
 
 \section{Empirical Null Filter}

@@ -121,6 +121,11 @@ classdef Experiment_ZNull_mse < Experiment
             %save the intercept and gradient
             latex_table = LatexTable(coeff_array(:,this.plot_index), error_array(:,this.plot_index),{'Intercept','Gradient'} , {'Estimate'});
             latex_table.print(fullfile('reports','tables','ZNull_mse_glm_estimate.txt'));
+            
+            %save the bandwidth used in the plots
+            file_id = fopen(fullfile('reports','tables','ZNull_bandwidth.txt'),'w');
+            fprintf(file_id,'%.4f',this.lambda_array(this.plot_index));
+            fclose(file_id);
         end
 
     end
@@ -145,8 +150,8 @@ classdef Experiment_ZNull_mse < Experiment
             this.k_optima = zeros(numel(previous.n_array),1);
             this.k_optima_bootstrap = zeros(this.n_bootstrap,numel(previous.n_array));
             this.error_regress = zeros(numel(this.k_plot),numel(previous.n_array));
-            this.plot_index = 4;
-            this.lambda_array = linspace(0.02,0.2,10);
+            this.plot_index = 6;
+            this.lambda_array = linspace(0.02,0.3,20);
             this.glm_array = cell(numel(this.lambda_array),1);
             
             this.i_iteration = 0;
