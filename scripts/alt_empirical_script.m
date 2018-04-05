@@ -91,14 +91,13 @@ z_bh_empirical = z_tester.getZCritical();
 %Plot the histogram of z statistics
 %Also plot the empirical null BH critical boundary
 fig = LatexFigure.sub();
-ax = gca;
 z_tester.plotHistogram();
 hold on;
 z_tester.plotCritical();
 ylabel('frequency density');
 xlabel('z');
 hold on;
-legend('z histogram','critical boundary','Location','northeast');
+legend('z histogram','critical','Location','northeast');
 saveas(fig,fullfile('reports','figures','inference','alt_empirical_z_histo_null.eps'),'epsc');
 
 %FIGURE
@@ -106,8 +105,7 @@ saveas(fig,fullfile('reports','figures','inference','alt_empirical_z_histo_null.
 fig = LatexFigure.sub();
 plot(x_plot,f_hat); %plot density estimate
 hold on;
-plot([z_bh_empirical(1),z_bh_empirical(1)],ax.YLim,'r--');
-plot([z_bh_empirical(2),z_bh_empirical(2)],ax.YLim,'r--');
+z_tester.plotCritical();
 plot([mu_0,mu_0],[0,numel(z_sample)*density_estimate.getDensityEstimate(mu_0)],'k--'); %plot mode
 %get the value of the density estimate at mu +/- sigma
 f_at_sigma_1 = mean(density_estimate.getDensityEstimate([mu_0-sigma_0,mu_0+sigma_0]));
@@ -118,7 +116,7 @@ scatter(mu_0+sigma_0,numel(z_sample)*f_at_sigma_1,'k>','filled');
 ylabel('frequency density');
 xlabel('z');
 hold on;
-legend('density estimate','critical boundary','Location','northeast');
+legend('density estimate','critical','Location','northeast');
 saveas(fig,fullfile('reports','figures','inference','alt_empirical_z_parzen.eps'),'epsc');
 
 %FIGURE

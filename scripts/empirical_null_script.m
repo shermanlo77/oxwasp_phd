@@ -85,14 +85,13 @@ fclose(file_id);
 %Plot the histogram of the z statistics
 %Plot the histogram of the z statistics with the BH critical boundary
 fig = LatexFigure.sub();
-ax = gca;
 z_tester.plotHistogram();
 ylabel('frequency density');
 xlabel('z stat');
 hold on;
 saveas(fig,fullfile('reports','figures','inference','sub_z_histo_nocritical.eps'),'epsc');
 z_tester.plotCritical();
-legend('z histogram','critical boundary','Location','southeast');
+legend('z histogram','critical','Location','southeast');
 saveas(fig,fullfile('reports','figures','inference','sub_z_histo.eps'),'epsc');
 
 %estimate the empirical null
@@ -178,7 +177,7 @@ ylabel('frequency density');
 xlabel('z stat');
 hold on;
 z_tester.plotCritical();
-legend('z histogram','critical boundary','Location','southeast');
+legend('z histogram','critical','Location','southeast');
 saveas(fig,fullfile('reports','figures','inference','sub_z_histo_null.eps'),'epsc');
 
 %FIGURE
@@ -186,8 +185,5 @@ saveas(fig,fullfile('reports','figures','inference','sub_z_histo_null.eps'),'eps
 %also plot the BH critical boundary
 fig = LatexFigure.sub();
 z_tester.plotPValues();
-hold on;
-%plot the BH critical line
-plot([1,z_tester.n_test],z_tester.size/z_tester.n_test*[1,z_tester.n_test],'--');
 legend('p values','critical','Location','northwest');
 saveas(fig,fullfile('reports','figures','inference','sub_z_p_values.eps'),'epsc');

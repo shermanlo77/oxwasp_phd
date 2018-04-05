@@ -41,7 +41,7 @@ uncorrected_test.plotCritical();
 bonferroni_test.plotCritical();
 xlabel('z');
 ylabel('frequency density');
-legend(ax.Children([5,4,2]),'z histogram','uncorrected boundary','bonferroni boundary');
+legend(ax.Children([5,4,2]),'z histogram','uncorrected critical','bonferroni critical');
 saveas(fig,fullfile('reports','figures','inference','nullhisto.eps'),'epsc');
 
 %plot the ordered p values
@@ -97,7 +97,7 @@ bonferroni_test.plotCritical();
 z_tester.plotCritical();
 xlabel('z');
 ylabel('frequency density');
-legend(ax.Children([6,5,3,1]),'z histogram','uncorrected boundary','bonferroni boundary','BH boundary','Location','northwest');
+legend(ax.Children([6,5,3,1]),'z histogram','uncorrected critical','bonferroni critical','BH critical','Location','northwest');
 saveas(fig,fullfile('reports','figures','inference','althisto.eps'),'epsc');
 
 %plot the p values in order
