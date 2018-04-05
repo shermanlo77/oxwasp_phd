@@ -20,27 +20,31 @@ n = 1000;
 %simulated all null
 X = rand_stream.randn(n,1);
 
-z_uncorrected = 2; %set sigma level
-alpha = 2*(1-normcdf(z_uncorrected)); %significance level
-z_bonferroni = -norminv(alpha/(2*n)); %get bonferroni boundary
+%instantise and set up various z testers
+uncorrected_test = ZTester_Uncorrected(X);
+bonferroni_test = ZTester_Bnfrrn(X);
+z_tester = ZTester(X);
+uncorrected_test.doTest();
+bonferroni_test.doTest();
+z_tester.doTest();
+uncorrected_test.setCriticalColour([0,0.4470,0.7410]);
+bonferroni_test.setCriticalColour([0.9290,0.6940,0.1250]);
 
 %plot histogram of test statistics
 fig = LatexFigure.main();
-histogram_custom(X);
+uncorrected_test.plotHistogram();
 ax = gca;
+ax.XLim = [-5,5];
 hold on;
 %plot the critical boundary for the uncorrected case and bonferroni case
-plot([-z_uncorrected,-z_uncorrected],ax.YLim,'k-');
-plot([-z_bonferroni,-z_bonferroni],ax.YLim,'b-.');
-plot([z_uncorrected,z_uncorrected],ax.YLim,'k-');
-plot([z_bonferroni,z_bonferroni],ax.YLim,'b-.');
+uncorrected_test.plotCritical();
+bonferroni_test.plotCritical();
 xlabel('z');
 ylabel('frequency density');
-legend('z histogram','uncorrected boundary','bonferroni boundary');
+legend(ax.Children([5,4,2]),'z histogram','uncorrected boundary','bonferroni boundary');
 saveas(fig,fullfile('reports','figures','inference','nullhisto.eps'),'epsc');
 
-z_tester = ZTester(X);
-z_tester.doTest();
+%plot the ordered p values
 fig = LatexFigure.main();
 z_tester.plotPValues();
 legend('p values','critical','Location','northwest');
@@ -55,13 +59,16 @@ X = rand_stream.randn(n*4/5,1);
 %simulate true alt test statistics
 X = [X;2+rand_stream.randn(n*1/5,1)];
 
-%instantise ZTester object and do the BH procedure
+%instantise and set up various z testers
 z_tester = ZTester(X);
 z_tester.doTest();
+bonferroni_test = ZTester_Bnfrrn(X);
+bonferroni_test.doTest();
+bonferroni_test.setCriticalColour([0.9290,0.6940,0.1250]);
+uncorrected_test = ZTester_Uncorrected(X);
+uncorrected_test.doTest();
+uncorrected_test.setCriticalColour([0,0.4470,0.7410]);
 
-z_uncorrected = 2; %set sigma level
-alpha = 2*(1-normcdf(z_uncorrected)); %significance level
-z_bonferroni = -norminv(alpha/(2*n)); %get bonferroni boundary
 %get the boundary from the BH procedure
 z_bh = z_tester.getZCritical();
 z_bh = z_bh(end);
@@ -71,28 +78,26 @@ fprintf(file_id,'%.2f',z_bh);
 fclose(file_id);
 %save the number of positive results for uncorrected
 file_id = fopen(fullfile('reports','figures','inference','alt_n_positive_uncorrected.txt'),'w');
-fprintf(file_id,'%.0f',sum(abs(X)>=z_uncorrected));
+fprintf(file_id,'%.0f',sum(uncorrected_test.sig_image));
 fclose(file_id);
 %save the number of positive results for BH
 file_id = fopen(fullfile('reports','figures','inference','alt_n_positive_bh.txt'),'w');
-fprintf(file_id,'%.0f',sum(abs(X)>=z_bh));
+fprintf(file_id,'%.0f',sum(z_tester.sig_image));
 fclose(file_id);
 
 %plot histogram of test statistics
 fig = LatexFigure.main();
-histogram_custom(X);
+z_tester.plotHistogram();
 ax = gca;
+ax.XLim = [-4,5];
 hold on;
-%plot the critical boundary for the uncorrected case and bonferroni case
-plot([-z_uncorrected,-z_uncorrected],ax.YLim,'k-');
-plot([-z_bonferroni,-z_bonferroni],ax.YLim,'b-.');
-plot([-z_bh,-z_bh],ax.YLim,'r--');
-plot([z_uncorrected,z_uncorrected],ax.YLim,'k-');
-plot([z_bonferroni,z_bonferroni],ax.YLim,'b-.');
-plot([z_bh,z_bh],ax.YLim,'r--');
+%plot the critical boundary
+uncorrected_test.plotCritical();
+bonferroni_test.plotCritical();
+z_tester.plotCritical();
 xlabel('z');
 ylabel('frequency density');
-legend('z histogram','uncorrected boundary','bonferroni boundary','BH boundary','Location','northwest');
+legend(ax.Children([6,5,3,1]),'z histogram','uncorrected boundary','bonferroni boundary','BH boundary','Location','northwest');
 saveas(fig,fullfile('reports','figures','inference','althisto.eps'),'epsc');
 
 %plot the p values in order

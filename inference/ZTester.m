@@ -30,6 +30,8 @@ classdef ZTester < handle
         tol; %the smallest change of the grad density to declare convergence in the newton raphson method
         quantile_array; %quantiles to use for the initial value for newton raphson
         rng; %random number generator for when newton raphson method fails
+        
+        critical_colour; %colour of the critical boundary
     end
     
     %METHODS
@@ -57,6 +59,8 @@ classdef ZTester < handle
             this.tol = 1E-5;
             this.quantile_array = [0.25,0.5,0.75];
             this.rng = RandStream('mt19937ar','Seed',507957022);
+            
+            this.critical_colour = [0.8500, 0.3250, 0.0980];
         end
         
         %METHOD: SET SIZE
@@ -375,9 +379,22 @@ classdef ZTester < handle
         %METHOD: PLOT CRITICAL BOUNDARY
         function plotCritical(this)
             ax = gca;
-            plot([norminv(this.size_corrected/2,this.mean_null,sqrt(this.var_null)),norminv(this.size_corrected/2,this.mean_null,sqrt(this.var_null))],[0,ax.YLim(2)],'r--');
+            critical = this.getZCritical();
+            
+            %LEFT HAND SIDE
+            %check if the boundary can be plotted
+            if ax.XLim(1) < critical(1)
+                %plot the critical boundary
+                area_transparent([ax.XLim(1),critical(1)],[ax.YLim(2),ax.YLim(2)],this.critical_colour);
+            end
+            
             hold on;
-            plot([norminv(1-this.size_corrected/2,this.mean_null,sqrt(this.var_null)),norminv(1-this.size_corrected/2,this.mean_null,sqrt(this.var_null))],[0,ax.YLim(2)],'r--');
+            
+            %RIGHT HAND SIDE
+            %check if the boundary can be plotted
+            if critical(2) < ax.XLim(2)
+                area_transparent([critical(2),ax.XLim(2)],[ax.YLim(2),ax.YLim(2)],this.critical_colour);
+            end
         end
         
         %METHOD: PLOT DENSITY ESTIMATE
@@ -413,15 +430,15 @@ classdef ZTester < handle
             hold on;
             %plot the BH critical line
             ax = gca;
-            ax_area = area(order_index,this.size/this.n_test*order_index);
-            %set properties of curves
-            ax_area.FaceAlpha = 0.2;
-            ax_area.LineStyle = '--';
-            ax_area.EdgeColor = ax.ColorOrder(2,:);
-            ax_area.FaceColor = ax.ColorOrder(2,:);
-            ax = gca;
+            area_transparent(order_index, this.size/this.n_test*order_index, this.critical_colour);
             ax.XScale = 'log';
             ax.YScale = 'log';
+        end
+        
+        %METHOD: SET CRITICAL COLOUR
+        %Set the colour of the area to show the critical region
+        function setCriticalColour(this, colour)
+            this.critical_colour = colour;
         end
         
     end

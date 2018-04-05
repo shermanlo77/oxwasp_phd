@@ -92,12 +92,12 @@ z_bh_empirical = z_tester.getZCritical();
 %Also plot the empirical null BH critical boundary
 fig = LatexFigure.sub();
 ax = gca;
-histogram_custom(reshape(z_sample,[],1));
+z_tester.plotHistogram();
+hold on;
+z_tester.plotCritical();
 ylabel('frequency density');
 xlabel('z');
 hold on;
-plot([z_bh_empirical(1),z_bh_empirical(1)],ax.YLim,'r--');
-plot([z_bh_empirical(2),z_bh_empirical(2)],ax.YLim,'r--');
 legend('z histogram','critical boundary','Location','northeast');
 saveas(fig,fullfile('reports','figures','inference','alt_empirical_z_histo_null.eps'),'epsc');
 
