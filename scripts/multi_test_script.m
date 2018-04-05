@@ -39,19 +39,11 @@ ylabel('frequency density');
 legend('z histogram','uncorrected boundary','bonferroni boundary');
 saveas(fig,fullfile('reports','figures','inference','nullhisto.eps'),'epsc');
 
-%get the p values and order them
-p = 2*(normcdf(abs(X),'upper'));
-p = sort(p);
-
-%plot the p values in order
+z_tester = ZTester(X);
+z_tester.doTest();
 fig = LatexFigure.main();
-plot(p);
-xlabel('order');
-ylabel('p value');
-hold on;
-%plot the BH critical line
-plot([1,n],alpha/n*[1,n],'--');
-legend('p values','critical');
+z_tester.plotPValues();
+legend('p values','critical','Location','northwest');
 saveas(fig,fullfile('reports','figures','inference','nullpvalues.eps'),'epsc');
 
 %%%%%CASE 2%%%%%
@@ -103,31 +95,8 @@ ylabel('frequency density');
 legend('z histogram','uncorrected boundary','bonferroni boundary','BH boundary','Location','northwest');
 saveas(fig,fullfile('reports','figures','inference','althisto.eps'),'epsc');
 
-%get the p values and order them
-p = 2*(normcdf(abs(X),'upper'));
-p = sort(p);
-
 %plot the p values in order
-fig = LatexFigure.sub();
-plot(p);
-xlabel('order');
-ylabel('p value');
-hold on;
-%plot the BH critical line
-plot([1,n],alpha/n*[1,n],'--');
-legend('p values','critical');
+fig = LatexFigure.main();
+z_tester.plotPValues();
+legend('p values','critical','Location','northwest');
 saveas(fig,fullfile('reports','figures','inference','altpvalues.eps'),'epsc');
-
-%ZOOMED IN FIGURE
-%plot the p values in order
-fig = LatexFigure.sub();
-scatter(1:n,p,'x');
-xlabel('order');
-ylabel('p value');
-hold on;
-%plot the BH critical line
-plot([1,n],alpha/n*[1,n],'--');
-%change the x axis to zoom in
-xlim([1,50]); 
-legend('p values','critical');
-saveas(fig,fullfile('reports','figures','inference','altpvalues_zoom.eps'),'epsc');

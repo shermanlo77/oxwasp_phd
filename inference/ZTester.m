@@ -401,6 +401,29 @@ classdef ZTester < handle
             plot(z_plot,(1-this.p0)*this.n_test*this.estimateH1Density(z_plot));
         end
         
+        %METHOD: PLOT P VALUES
+        %Plot the p values in order with the BH critical region
+        function plotPValues(this)
+            %get array of x axis values : integers representing the order
+            order_index = 1:this.n_test;
+            %scatter plot the ordered p values
+            scatter(1:this.n_test, sort(reshape(this.p_image,[],1)),'.');
+            xlabel('order');
+            ylabel('p value');
+            hold on;
+            %plot the BH critical line
+            ax = gca;
+            ax_area = area(order_index,this.size/this.n_test*order_index);
+            %set properties of curves
+            ax_area.FaceAlpha = 0.2;
+            ax_area.LineStyle = '--';
+            ax_area.EdgeColor = ax.ColorOrder(2,:);
+            ax_area.FaceColor = ax.ColorOrder(2,:);
+            ax = gca;
+            ax.XScale = 'log';
+            ax.YScale = 'log';
+        end
+        
     end
     
 end
