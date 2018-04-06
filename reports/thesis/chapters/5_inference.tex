@@ -69,13 +69,20 @@ Model misspecification appears to be the main source of error. The $z$ statistic
 \begin{figure}
     \centering
     \includegraphics[width=0.7\textwidth]{../figures/inference/sig_pixels.eps}
-    \caption{Signficiant pixels highlighted at the $z_\alpha = 2$ significance level.}
+    \caption{Significant pixels highlighted at the $z_\alpha = 2$ significance level.}
     \label{fig:sig_pixels}
 \end{figure}
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.7\textwidth]{../figures/inference/z_histo.eps}
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+    	\includegraphics[width=\textwidth]{../figures/inference/z_histo.eps}
+    \end{subfigure}
+	\begin{subfigure}[b]{0.49\textwidth}
+    	\includegraphics[width=\textwidth]{../figures/inference/z_qq.eps}
+    \end{subfigure}
+	}
     \caption{Histogram of the $z$ statistics}
     \label{fig:z_histo}
 \end{figure}
@@ -1095,3 +1102,25 @@ The empirical null is a good tool for defect detection under model misspecificat
 
 
 \section{Empirical Null Filter}
+
+The empirical null filter is an extension to the empirical null. In this setting, the parameters of the empirical null varies spatially. Let $Z_{x,y}$ be the test statistic at position $(x,y)$, then
+\begin{equation}
+	Z_{x,y}\sim\normal\left(
+		\mu_{0,x,y},\sigma_{0,x,y}^2
+	\right)
+\end{equation}
+where $\mu_{0,x,y}$ and $\sigma_{0,x,y}$ are the empirical null mean and standard deviation at position $(x,y)$ respectively. The empirical null filter aims to estimate these parameters.
+
+The method is the following. A window size needs to be specified, say $201\times201$. The window is placed over and centred at pixel $(x,y)$ capturing the pixels $z_{i,j}$ for $x-100\leqslant i \leqslant x+100$ and $y-100\leqslant j \leqslant y+100$. The estimators $\widehat{\mu}_{0,x,y}$ and $\widehat{\sigma}_{0,x,y}$ are the empirical null mean and standard deviation estimators, respectively, using the pixels captured in that window. This is then repeated for all $x$ and $y$. The $z$ statistics are then corrected using
+\begin{equation}
+	\zeta_{x,y} = 
+	\dfrac{
+		z_{x,y}-\widehat{\mu}_{0,x,y}
+	}
+	{
+		\widehat{\sigma}_{0,x,y}
+	}
+\end{equation}
+and only the corrected test statistics are used in the BH procedure.
+
+There are ways to speed up the implementation of the empirical null filter by sacrificing accuracy. For example, instead of estimating the empirical null parameters for every pixel, a number of them can be estimated and then the remaining values can be interpolated. However it was found that interpolating $\widehat{\sigma}_{0,x,y}$ can yield highly varying results. To avoid this problem, it can be assumed that $\sigma_{0,x,y}=\sigma_0$ for all $x$ and $y$. Then the estimator $\widehat{\sigma}_0$ is the empirical null standard deviation estimator using all location corrected $z$ test statistics.

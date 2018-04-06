@@ -89,8 +89,14 @@ image_plot.plot();
 saveas(fig,fullfile('reports','figures','inference','sig_pixels.eps'),'epsc');
 
 %histogram
-fig = LatexFigure.main(z_tester.figureHistCritical());
+fig = LatexFigure.sub(z_tester.figureHistCritical());
 saveas(fig,fullfile('reports','figures','inference','z_histo.eps'),'epsc');
+
+%qq plot
+fig = LatexFigure.sub();
+z_tester.plotQQ();
+legend('critical','Location','northwest');
+saveas(fig,fullfile('reports','figures','inference','z_qq.eps'),'epsc');
 
 z_critical = z_tester.getZCritical();
 z_critical = z_critical(2);
@@ -98,41 +104,26 @@ file_id = fopen(fullfile('reports','figures','inference','z_critical.txt'),'w');
 fprintf(file_id,'%.2f',z_critical);
 fclose(file_id);
 
-tic;
 convolution = EmpericalConvolution(z_image,20, 20, [200,200]);
 convolution.estimateNull();
 convolution.setMask(segmentation);
 convolution.doTest();
-toc;
-
-fig = figure();
-fig.Position(3:4) = [420,315];
-image_plot = ImagescSignificant(z_image-convolution.mean_null);
-image_plot.plot();
 
 convolution.z_tester.figureHistCritical();
 
 fig = figure;
-fig.Position(3:4) = [420,315];
+image_plot = ImagescSignificant(convolution.getZNull());
+image_plot.plot();
+
+fig = figure;
 image_plot = ImagescSignificant(-log10(convolution.p_image));
 image_plot.plot();
 
 fig = figure;
-fig.Position(3:4) = [420,315];
 image_plot = ImagescSignificant(test);
-image_plot.setDilateSize(1);
 image_plot.addSigPixels(convolution.sig_image);
 image_plot.plot();
 
-
 fig = figure;
-imagesc(convolution.mean_null);
-colorbar;
-fig.CurrentAxes.XTick = [];
-fig.CurrentAxes.YTick = [];
-
-fig = figure;
-imagesc(sqrt(convolution.var_null));
-colorbar;
-fig.CurrentAxes.XTick = [];
-fig.CurrentAxes.YTick = [];
+image_plot = ImagescSignificant(convolution.mean_null);
+image_plot.plot();

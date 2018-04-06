@@ -441,6 +441,40 @@ classdef ZTester < handle
             this.critical_colour = colour;
         end
         
+        %METHOD: PLOT QQ PLOT
+        %Plot quantile-quantile plot, x-axis theortical quantile, y-axis observed quantile
+        function plotQQ(this)
+            %sort the data, this will be the observed quantiles
+            y = sort(reshape(this.z_image,[],1));
+            y(isnan(y))=[];
+            %get the theortical quantiles
+            x = norminv( ((1:this.n_test)-0.5) / this.n_test ) * sqrt(this.var_null) + this.mean_null;
+            %for legend purposes
+            area_transparent(0,0,this.critical_colour);
+            hold on;
+            %plot the quantiles
+            scatter(x,y,'.');
+            %plot the straight line
+            plot(y,y,'k-.');
+            %get the critical value
+            z_critical = this.getZCritical();
+            %get graph data
+            ax = gca;
+            ylim = ax.YLim;
+            xlim = ax.XLim;
+            %if the critical boundary can be plotted, plot the upper critical boundary
+            if z_critical(2) < ylim(2)
+                rectangle_transparent([xlim(1), z_critical(2), xlim(2)-xlim(1), ylim(2)-z_critical(2)],this.critical_colour);
+            end
+            %if the critical boundary can be plotted, plot the lower critical boundary
+            if ylim(1) < z_critical(1)
+                rectangle_transparent([xlim(1), ylim(1), xlim(2)-xlim(1), z_critical(1)-ylim(1)],this.critical_colour);
+            end
+            %label axis
+            ylabel('observed quantile');
+            xlabel('theortical quantile');
+        end
+        
     end
     
 end

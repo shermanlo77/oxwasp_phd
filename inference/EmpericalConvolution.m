@@ -141,7 +141,7 @@ classdef EmpericalConvolution < handle
         %This is worked out using the emperical null of all mean corrected z statistics
         function setVarUniformNull(this)
             z_tester_all = ZTester((this.z_image - this.mean_null));
-            z_tester_all.estimateNull(1000);
+            z_tester_all.estimateNull();
             this.var_uniform_null = z_tester_all.var_null;
         end
         
