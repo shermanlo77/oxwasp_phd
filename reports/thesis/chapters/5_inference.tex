@@ -1044,6 +1044,8 @@ In conclusion, a small bias added to the rule of thumb will improve the performa
 
 \subsection{Further Discussion}
 
+A further example will be given here. A $200\times200$ sub-sample, containing a defect, was taken as shown in Figure \ref{fig:inference_alt_empirical_z_image}. The histogram of the test statistics are shown in Figure \ref{fig:inference_alt_empirical_z_histogram}. It can be seen that the null distribution is not centred at zero, however the empirical null takes that into account. The estimation of the empirical null parameters are robust as it only depends on the density estimate at the mode only, it should not be affected by non-null test statistics.
+
 \begin{figure}
 	\centering
     \centerline{
@@ -1073,14 +1075,23 @@ In conclusion, a small bias added to the rule of thumb will improve the performa
     \end{subfigure}
     }
     \caption{Histogram and kernel density estimate of the $z$ statistics, taken from the sub-sample.}
+    \label{fig:inference_alt_empirical_z_histogram}
 \end{figure}
+
+The BH procedure can be conducted, corrected for the empirical null. The $p$-values are shown in \ref{fig:inference_alt_empirical_z_p_values}, a number of them are significant. The significant pixels are shown in red in Figure \ref{fig:inference_alt_empirical_z_image}. The majority of the significant pixels are cluster together and highlighting the defect. Not all of the defect was tested positive, but a good number of them are. This should be enough to raise suspicion in that particular area.
 
 \begin{figure}
 	\centering
 	\includegraphics[width=0.8\textwidth]{../figures/inference/alt_empirical_z_p_values.eps}
 	\caption{Ordered $p$ values corrected for the empirical null.}
+	\label{fig:inference_alt_empirical_z_p_values}
 \end{figure}
 
+Only a few pixels were falsely tested as positive, however they are typically isolated single pixels. Isolated positive pixels should be discarded as they are more than likely to be tested positive by random chance. The technician should of improved the resolution of the x-ray apparatus if one is looking for defects, a or two pixel in size, for the given resolution.
+
+Clusters of significant pixels should raise suspicions. One could create a binary image, assigning a Boolean value whether that pixel is tested positive or not. A binary image filter, such as erode followed by a dilate, can be used to remove isolate significant pixels and emphasise the cluster of significant pixels.
+
+The empirical null is a good tool for defect detection under model misspecification. One possible implementation is to spilt the $z$ image into a grid and conduct inference in each section separately. There are problems with this though. The first problem is that how the grid is overlaid can be arbitrary, for example the grid can be translated to produce different sections. Secondly one could ask how the results from each section are combined \citep{efron2008simultaneous}? The empirical null filter is another implementation for the empirical null which only requires a window size to be specified.
 
 
 \section{Empirical Null Filter}
