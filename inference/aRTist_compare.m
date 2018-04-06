@@ -42,7 +42,8 @@ image_plot.plot();
 saveas(fig,fullfile('reports','figures','inference','sig_pixels.eps'),'epsc');
 
 %histogram
-fig = LatexFigure.sub(z_tester.figureHistCritical());
+fig = LatexFigure.sub();
+z_tester.plotHistCritical()
 saveas(fig,fullfile('reports','figures','inference','z_histo.eps'),'epsc');
 
 %qq plot
@@ -57,27 +58,3 @@ z_critical = z_critical(2);
 file_id = fopen(fullfile('reports','figures','inference','z_critical.txt'),'w');
 fprintf(file_id,'%.2f',z_critical);
 fclose(file_id);
-
-convolution = EmpericalConvolution(z_image,20, 20, [200,200]);
-convolution.estimateNull();
-convolution.setMask(segmentation);
-convolution.doTest();
-
-convolution.z_tester.figureHistCritical();
-
-fig = figure;
-image_plot = ImagescSignificant(convolution.getZNull());
-image_plot.plot();
-
-fig = figure;
-image_plot = ImagescSignificant(-log10(convolution.p_image));
-image_plot.plot();
-
-fig = figure;
-image_plot = ImagescSignificant(test);
-image_plot.addSigPixels(convolution.sig_image);
-image_plot.plot();
-
-fig = figure;
-image_plot = ImagescSignificant(convolution.mean_null);
-image_plot.plot();

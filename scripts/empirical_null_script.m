@@ -138,5 +138,4 @@ saveas(fig,fullfile('reports','figures','inference','sub_z_histo_null.eps'),'eps
 %also plot the BH critical boundary
 fig = LatexFigure.sub();
 z_tester.plotPValues();
-legend('p values','critical','Location','northwest');
 saveas(fig,fullfile('reports','figures','inference','sub_z_p_values.eps'),'epsc');

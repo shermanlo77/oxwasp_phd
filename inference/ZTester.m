@@ -317,9 +317,7 @@ classdef ZTester < handle
             %histogram of z statistics
             %emperical null
             %critical boundary
-        function fig = figureHistCritical(this)
-            %produce a figure
-            fig = figure;
+        function plotHistCritical(this)
             %plot histogram
             this.plotHistogram();
             hold on;
@@ -334,38 +332,6 @@ classdef ZTester < handle
             xlabel('z statistic');
             ylabel('frequency density');
             legend('z stats','null','critical');
-        end
-        
-        %METHOD: FIGURE HISTOGRAM DENSITY CRITICAL BOUNDARY
-        %Produce a figure plots:
-            %histogram of z statistics
-            %density estimate
-            %emperical null
-            %emperical alt
-            %critical boundary
-        function fig = figureHistDensityCritical(this)
-            %produce a figure
-            fig = figure;
-            %plot histogram
-            this.plotHistogram();
-            hold on;
-            %plot critical boundary
-            this.plotCritical();
-            
-            ax = gca;
-            %get 500 values from min to max
-            z_plot = linspace(ax.XLim(1),ax.XLim(2),500);
-            %plot density estimate
-            this.plotDensityEstimate(z_plot);
-            %plot null density
-            this.plotNull(z_plot);
-            %plot alt density
-            this.plotAlt(z_plot);
-            
-            %label axis and legend
-            xlabel('z statistic');
-            ylabel('frequency density');
-            legend(ax.Children([6,3,2,1,5]),'histogram','estimated density','null','alt','critical boundary');
         end
         
         %METHOD: PLOT HISTOGRAM
@@ -408,14 +374,7 @@ classdef ZTester < handle
         %PARAMETERS:
             %z_plot: values to evalute the null density at
         function plotNull(this, z_plot)
-            plot(z_plot,normpdf(z_plot,this.mean_null,sqrt(this.var_null))*this.n_test*this.p0);
-        end
-        
-        %METHOD: PLOT ALT DENSITY
-        %PARAMETERS:
-            %z_plot: values to evalute the alt density at
-        function plotAlt(this, z_plot)
-            plot(z_plot,(1-this.p0)*this.n_test*this.estimateH1Density(z_plot));
+            plot(z_plot,normpdf(z_plot,this.mean_null,sqrt(this.var_null))*this.n_test);
         end
         
         %METHOD: PLOT P VALUES
@@ -424,15 +383,21 @@ classdef ZTester < handle
             %get array of x axis values : integers representing the order
             order_index = 1:this.n_test;
             %scatter plot the ordered p values
-            scatter(1:this.n_test, sort(reshape(this.p_image,[],1)),'.');
+            p_vector = sort(reshape(this.p_image,1,[]));
+            p_vector(isnan(p_vector)) = [];
+            scatter(1:this.n_test, sort(p_vector),'.');
             xlabel('order');
             ylabel('p value');
             hold on;
             %plot the BH critical line
             ax = gca;
             area_transparent(order_index, this.size/this.n_test*order_index, this.critical_colour);
+            %set the scale to log
             ax.XScale = 'log';
             ax.YScale = 'log';
+            %set other graph properties
+            ax.XLim = [1,this.n_test];
+            legend('p values','critical','Location','northwest');
         end
         
         %METHOD: SET CRITICAL COLOUR
@@ -599,5 +564,44 @@ end
 %             power = (0.5*h*(I(1)+I(end)+2*sum(I(2:(end-1))))) / (0.5*h*(f1(1)+f1(end)+2*sum(f1(2:(end-1)))));
 %             %get the power
 %             power = 1 - power;
+%         end
+
+% %METHOD: FIGURE HISTOGRAM DENSITY CRITICAL BOUNDARY
+%         %Produce a figure plots:
+%             %histogram of z statistics
+%             %density estimate
+%             %emperical null
+%             %emperical alt
+%             %critical boundary
+%         function fig = figureHistDensityCritical(this)
+%             %produce a figure
+%             fig = figure;
+%             %plot histogram
+%             this.plotHistogram();
+%             hold on;
+%             %plot critical boundary
+%             this.plotCritical();
+%             
+%             ax = gca;
+%             %get 500 values from min to max
+%             z_plot = linspace(ax.XLim(1),ax.XLim(2),500);
+%             %plot density estimate
+%             this.plotDensityEstimate(z_plot);
+%             %plot null density
+%             this.plotNull(z_plot);
+%             %plot alt density
+%             this.plotAlt(z_plot);
+%             
+%             %label axis and legend
+%             xlabel('z statistic');
+%             ylabel('frequency density');
+%             legend(ax.Children([6,3,2,1,5]),'histogram','estimated density','null','alt','critical boundary');
+%         end
+% 
+%         METHOD: PLOT ALT DENSITY
+%         PARAMETERS:
+%             z_plot: values to evalute the alt density at
+%         function plotAlt(this, z_plot)
+%             plot(z_plot,(1-this.p0)*this.n_test*this.estimateH1Density(z_plot));
 %         end
 

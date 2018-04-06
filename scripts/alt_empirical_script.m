@@ -33,7 +33,6 @@ mu_0 = z_tester.mean_null; %get the empirical null mean
 sigma_0 = sqrt(z_tester.var_null); %get the empirical null std
 density_estimate = z_tester.density_estimator; %get the density estimator
 x_plot = linspace(min(min(z_sample)),max(max(z_sample)),500); %define what values of x to plot the density estimate
-f_hat = numel(z_sample)*density_estimate.getDensityEstimate(x_plot); %get the freqency density estimate
 
 %Do hypothesis test, corrected using the empirical null
 z_tester.doTest();
@@ -56,7 +55,7 @@ saveas(fig,fullfile('reports','figures','inference','alt_empirical_z_histo_null.
 %FIGURE
 %Plot the frequency density estimate along with the empirical null mean and std
 fig = LatexFigure.sub();
-plot(x_plot,f_hat); %plot density estimate
+z_tester.plotDensityEstimate(x_plot);
 hold on;
 z_tester.plotCritical();
 plot([mu_0,mu_0],[0,numel(z_sample)*density_estimate.getDensityEstimate(mu_0)],'k--'); %plot mode
@@ -77,7 +76,6 @@ saveas(fig,fullfile('reports','figures','inference','alt_empirical_z_parzen.eps'
 %also plot the BH critical boundary
 fig = LatexFigure.main();
 z_tester.plotPValues();
-legend('p values','critical','Location','northwest');
 saveas(fig,fullfile('reports','figures','inference','alt_empirical_z_p_values.eps'),'epsc');
 
 fig = LatexFigure.main();

@@ -1126,3 +1126,51 @@ The method is the following. A window size needs to be specified, say $201\times
 and only the corrected test statistics are used in the BH procedure.
 
 There are ways to speed up the implementation of the empirical null filter by sacrificing accuracy. For example, instead of estimating the empirical null parameters for every pixel, a number of them can be estimated and then the remaining values can be interpolated. However it was found that interpolating $\widehat{\sigma}_{0,x,y}$ can yield highly varying results. To avoid this problem, it can be assumed that $\sigma_{0,x,y}=\sigma_0$ for all $x$ and $y$. Then the estimator $\widehat{\sigma}_0$ is the empirical null standard deviation estimator using all location corrected $z$ test statistics.
+
+The empirical null filter was used on the example at the start of the chapter. It was used on a grid of $20\times 20$ points, the remaining values were interpolated. It was also assumed the empirical null standard deviation was constant, the methodology discussed in the previous paragraph.
+
+\begin{figure}
+	\centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/filter_z_image.eps}
+        \caption{$z$ image}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/filter_p_image.eps}
+        \caption{$\log p$-value image}
+    \end{subfigure}
+    }
+    \caption{The $z$ image and $p$-value image after using the empirical null filter.}
+    \label{fig:inference_filter_z_p_image}
+\end{figure}
+
+\begin{figure}
+	\centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/filter_histogram.eps}
+        \caption{Histogram of $z$ statistics}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/filter_p.eps}
+        \caption{Ordered $p$ values}
+    \end{subfigure}
+    }
+    \caption{Histogram of $z$ statistics and the corresponding ordered $p$-values}
+    \label{fig:inference_filter_z_ordered_p}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.7\textwidth]{../figures/inference/filter_sig_image.eps}
+	\caption{Using the empirical null filter, significant pixels were highlighted in red.} 
+	\label{fig:inference_filter_sig_image}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.7\textwidth]{../figures/inference/filter_mean_null.eps}
+	\caption{The estimated empirical null mean} 
+	\label{fig:inference_filter_mean_null}
+\end{figure}
