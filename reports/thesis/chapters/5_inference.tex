@@ -64,7 +64,7 @@ The resulting $z$ statistics and $p$-values are concerning. This is because the 
 
 This proposed method for defect detection failed because too many false positives were detected. These false positives appear to have some structure, for example clustering in the corners or on surfaces. In addition, false negatives were detected because not all of the defects were detected.
 
-Model misspecification appears to be the main source of error. The $z$ statistics can be inspected using a histogram, as shown in Figure \ref{fig:z_histo}. The histogram of the $z$ statistics do not look Normal which seems to suggest that the assumption of $z_{i,j}\sim \normal(0,1)$ is incorrect. However this assumption can relaxed and can be done using the empirical null \citep{efron2004large}.
+Model misspecification appears to be the main source of error. The $z$ statistics can be inspected using a histogram or a QQ plot, as shown in Figure \ref{fig:z_histo}. It can be seen that the $z$ statistics do not look Normal which seems to suggest that the assumption of $z_{i,j}\sim \normal(0,1)$ is incorrect. However this assumption can relaxed and can be done using the empirical null \citep{efron2004large}.
 
 \begin{figure}
     \centering
@@ -78,12 +78,14 @@ Model misspecification appears to be the main source of error. The $z$ statistic
     \centerline{
     \begin{subfigure}[b]{0.49\textwidth}
     	\includegraphics[width=\textwidth]{../figures/inference/z_histo.eps}
+    	\caption{Histogram}
     \end{subfigure}
 	\begin{subfigure}[b]{0.49\textwidth}
     	\includegraphics[width=\textwidth]{../figures/inference/z_qq.eps}
+    	\caption{QQ plot}
     \end{subfigure}
 	}
-    \caption{Histogram of the $z$ statistics}
+    \caption{Distribution of the  $z$ statistics with the BH procedure critical region}
     \label{fig:z_histo}
 \end{figure}
 
