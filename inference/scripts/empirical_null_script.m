@@ -1,5 +1,5 @@
 %EMPIRICAL NULL SCRIPT
-%Takes a sample from a z image
+%Takes a sample from a z image, containing all null
 %Plots a histogram of the z statistics before any empirical null correction
 %Does the empirical null correction and print results
 
@@ -20,7 +20,7 @@ image_plot = ImagescSignificant(z_image);
 image_plot.plot();
 hold on;
 rectangle('Position',[col_subsample(1), row_subsample(1), col_subsample(end)-col_subsample(1)+1, row_subsample(end)-row_subsample(1)+1],'EdgeColor','r','LineStyle','--');
-saveas(fig,fullfile('reports','figures','inference','sub_z_image.eps'),'epsc');
+saveas(fig,fullfile('reports','figures','inference','empirical_null_sub_z_image.eps'),'epsc');
 
 %get the subsample of z statistics and do BH multiple hypothesis testing
 z_sample = reshape(z_image(row_subsample, col_subsample),[],1);
@@ -30,7 +30,7 @@ z_bh = z_tester.getZCritical();
 
 %SAVE VALUE
 %Save the critical boundary for the BH procedure
-file_id = fopen(fullfile('reports','figures','inference','sub_boundary.txt'),'w');
+file_id = fopen(fullfile('reports','tables','empirical_null_sub_boundary.txt'),'w');
 fprintf(file_id,'%.2f',z_bh(2));
 fclose(file_id);
 
@@ -42,10 +42,10 @@ z_tester.plotHistogram();
 ylabel('frequency density');
 xlabel('z stat');
 hold on;
-saveas(fig,fullfile('reports','figures','inference','sub_z_histo_nocritical.eps'),'epsc');
+saveas(fig,fullfile('reports','figures','inference','empirical_null_sub_z_histo_nocritical.eps'),'epsc');
 z_tester.plotCritical();
 legend('z histogram','critical','Location','southeast');
-saveas(fig,fullfile('reports','figures','inference','sub_z_histo.eps'),'epsc');
+saveas(fig,fullfile('reports','figures','inference','empirical_null_sub_z_histo.eps'),'epsc');
 
 %estimate the empirical null
 z_tester.estimateNull();
@@ -69,7 +69,7 @@ scatter(mu_0-sigma_0,numel(z_sample)*f_at_sigma_1,'k<','filled');
 scatter(mu_0+sigma_0,numel(z_sample)*f_at_sigma_1,'k>','filled');
 ylabel('frequency density');
 xlabel('z stat');
-saveas(fig,fullfile('reports','figures','inference','sub_z_parzen.eps'),'epsc');
+saveas(fig,fullfile('reports','figures','inference','empirical_null_sub_z_parzen.eps'),'epsc');
 
 %%%%SECTION FOR BOOTSTRAP
 %It was found the std of the estimators are pretty much negliable
@@ -86,13 +86,13 @@ saveas(fig,fullfile('reports','figures','inference','sub_z_parzen.eps'),'epsc');
 
 %SAVE VALUE
 %save the empirical null mean
-file_id = fopen(fullfile('reports','figures','inference','sub_null_mu.txt'),'w');
+file_id = fopen(fullfile('reports','tables','empirical_null_sub_null_mu.txt'),'w');
 fprintf(file_id,'%.2f',mu_0);
 fclose(file_id);
 
 %SAVE VALUE
 %save the empirical null std
-file_id = fopen(fullfile('reports','figures','inference','sub_null_sigma.txt'),'w');
+file_id = fopen(fullfile('reports','tables','empirical_null_sub_null_sigma.txt'),'w');
 fprintf(file_id,'%.2f',sigma_0);
 fclose(file_id);
 
@@ -103,20 +103,20 @@ z_bh_empirical = z_tester.getZCritical();
 
 %SAVE VALUE
 %Save the lower critical boundary for the empirical null BH procedure
-file_id = fopen(fullfile('reports','figures','inference','sub_null_critical1.txt'),'w');
+file_id = fopen(fullfile('reports','tables','empirical_null_sub_null_critical1.txt'),'w');
 fprintf(file_id,'%.2f',z_bh_empirical(1));
 fclose(file_id);
 
 %SAVE VALUE
 %Save the upper critical boundary for the empirical null BH procedure
-file_id = fopen(fullfile('reports','figures','inference','sub_null_critical2.txt'),'w');
+file_id = fopen(fullfile('reports','tables','empirical_null_sub_null_critical2.txt'),'w');
 fprintf(file_id,'%.2f',z_bh_empirical(2));
 fclose(file_id);
 
 %SAVE VALUE
 %Save the standarised critical boundary for the empirical null BH procedure
 z_critical = norminv(1-z_tester.size_corrected/2);
-file_id = fopen(fullfile('reports','figures','inference','sub_null_critical_zeta.txt'),'w');
+file_id = fopen(fullfile('reports','tables','empirical_null_sub_null_critical_zeta.txt'),'w');
 fprintf(file_id,'%.2f',z_critical);
 fclose(file_id);
 
@@ -131,11 +131,11 @@ xlabel('z stat');
 hold on;
 z_tester.plotCritical();
 legend('z histogram','critical','Location','southeast');
-saveas(fig,fullfile('reports','figures','inference','sub_z_histo_null.eps'),'epsc');
+saveas(fig,fullfile('reports','figures','inference','empirical_null_sub_z_histo_null.eps'),'epsc');
 
 %FIGURE
 %plot the p values in order
 %also plot the BH critical boundary
 fig = LatexFigure.sub();
 z_tester.plotPValues();
-saveas(fig,fullfile('reports','figures','inference','sub_z_p_values.eps'),'epsc');
+saveas(fig,fullfile('reports','figures','inference','empirical_null_sub_z_p_values.eps'),'epsc');

@@ -1,3 +1,8 @@
+%SET UP INFERENCE EXAMPLE SCRIPT
+%This script sets up the z_image for the AbsBlock_Sep16_120deg() dataset
+%19 images are used to train the variance-mean relationship
+%1 (held out) image is then compared with the aRTist simulation, obtaining a z image
+
 %set random seed
 rand_stream = RandStream('mt19937ar','Seed',uint32(3538096789));
 

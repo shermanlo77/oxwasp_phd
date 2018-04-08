@@ -1,7 +1,6 @@
 %EMPIRICAL NULL SCRIPT
-%Takes a sample from a z image
-%Plots a histogram of the z statistics before any empirical null correction
-%Does the empirical null correction and print results
+%Takes a sample from a z image, containing a defect
+%Plots a histogram of the z statistics with the BH critical region, corrected for the empirical null
 
 clc;
 close all;
@@ -53,7 +52,7 @@ legend('z histogram','critical','Location','northeast');
 saveas(fig,fullfile('reports','figures','inference','alt_empirical_z_histo_null.eps'),'epsc');
 
 %FIGURE
-%Plot the frequency density estimate along with the empirical null mean and std
+%Plot the frequency density estimate along with the empirical null mean and std, and critical boundary
 fig = LatexFigure.sub();
 z_tester.plotDensityEstimate(x_plot);
 hold on;
@@ -78,6 +77,8 @@ fig = LatexFigure.main();
 z_tester.plotPValues();
 saveas(fig,fullfile('reports','figures','inference','alt_empirical_z_p_values.eps'),'epsc');
 
+%FIGURE
+%plot the z image with highlighted significant pixels
 fig = LatexFigure.main();
 image_plot = ImagescSignificant(z_image(row_subsample, col_subsample));
 image_plot.addSigPixels(z_tester.sig_image);

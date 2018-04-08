@@ -11,6 +11,7 @@ close all;
 clearvars;
 
 %%%%%CASE 1%%%%%
+%1000 N(0,1)
 
 %declare rng
 rand_stream = RandStream('mt19937ar','Seed',uint32(3499211588));
@@ -42,15 +43,16 @@ bonferroni_test.plotCritical();
 xlabel('z');
 ylabel('frequency density');
 legend(ax.Children([5,4,2]),'z histogram','uncorrected critical','bonferroni critical');
-saveas(fig,fullfile('reports','figures','inference','nullhisto.eps'),'epsc');
+saveas(fig,fullfile('reports','figures','inference','multi_test_nullhisto.eps'),'epsc');
 
 %plot the ordered p values
 fig = LatexFigure.main();
 z_tester.plotPValues();
 legend('p values','critical','Location','northwest');
-saveas(fig,fullfile('reports','figures','inference','nullpvalues.eps'),'epsc');
+saveas(fig,fullfile('reports','figures','inference','multi_test_nullpvalues.eps'),'epsc');
 
 %%%%%CASE 2%%%%%
+%800 N(0,1) and 200 N(0,1)
 
 %number of test statistics to be simulated
 n = 1000;
@@ -73,15 +75,15 @@ uncorrected_test.setCriticalColour([0,0.4470,0.7410]);
 z_bh = z_tester.getZCritical();
 z_bh = z_bh(end);
 %save the boundary
-file_id = fopen(fullfile('reports','figures','inference','alt_z_critical.txt'),'w');
+file_id = fopen(fullfile('reports','tables','multi_test_alt_z_critical.txt'),'w');
 fprintf(file_id,'%.2f',z_bh);
 fclose(file_id);
 %save the number of positive results for uncorrected
-file_id = fopen(fullfile('reports','figures','inference','alt_n_positive_uncorrected.txt'),'w');
+file_id = fopen(fullfile('reports','tables','multi_test_alt_n_positive_uncorrected.txt'),'w');
 fprintf(file_id,'%.0f',sum(uncorrected_test.sig_image));
 fclose(file_id);
 %save the number of positive results for BH
-file_id = fopen(fullfile('reports','figures','inference','alt_n_positive_bh.txt'),'w');
+file_id = fopen(fullfile('reports','tables','multi_test_alt_n_positive_bh.txt'),'w');
 fprintf(file_id,'%.0f',sum(z_tester.sig_image));
 fclose(file_id);
 
@@ -98,10 +100,10 @@ z_tester.plotCritical();
 xlabel('z');
 ylabel('frequency density');
 legend(ax.Children([6,5,3,1]),'z histogram','uncorrected critical','bonferroni critical','BH critical','Location','northwest');
-saveas(fig,fullfile('reports','figures','inference','althisto.eps'),'epsc');
+saveas(fig,fullfile('reports','figures','inference','multi_test_althisto.eps'),'epsc');
 
 %plot the p values in order
 fig = LatexFigure.main();
 z_tester.plotPValues();
 legend('p values','critical','Location','northwest');
-saveas(fig,fullfile('reports','figures','inference','altpvalues.eps'),'epsc');
+saveas(fig,fullfile('reports','figures','inference','multi_test_altpvalues.eps'),'epsc');
