@@ -71,14 +71,18 @@ classdef Experiment_ZNull < Experiment
                 %plot the path of the rule of thumb
                 %logn_path is array of logn to evaluate the rule of thumb
                 logn_path = interp1((1:numel(this.n_array))',log10(this.n_array),linspace(1,numel(this.n_array),1000*numel(this.n_array))');
-                %for each fudge factor
-                for i = 1:numel(factor_array)
-                    %for each logn_path, work out the rule of thumb k
-                    k_path = factor_array(i)*((10.^logn_path).^(-1/5));
-                    %then for each k and logn pair, interpolate to get the value of the array
-                    path = interp2(logn_plot,k_plot,array,logn_path,k_path);
-                    %plot the error along the rule of thumb
-                    plot3(k_path,logn_path,path,'LineWidth',3');
+                if i_array ~= 3
+                    %for each fudge factor
+                    for i = 1:numel(factor_array)
+                        %for each logn_path, work out the rule of thumb k
+                        k_path = factor_array(i)*((10.^logn_path).^(-1/5));
+                        %then for each k and logn pair, interpolate to get the value of the array
+                        path = interp2(logn_plot,k_plot,array,logn_path,k_path) + 0.01;
+                        %plot the error along the rule of thumb
+                        plot3(k_path,logn_path,path,'LineWidth',3');
+                    end
+                    ax = gca;
+                    ax.Children(numel(factor_array)).Color = [0,1,1];
                 end
                 %set the axis and view angle
                 xlim(this.k_array([1,numel(this.k_array)]));
@@ -88,12 +92,10 @@ classdef Experiment_ZNull < Experiment
                 if i_array==3
                     hold on;
                     %meshplot the true value of the null variance
-                    ax = mesh(k_plot,logn_plot,ones(size(array)));
-                    ax.FaceAlpha = 0;
-                    %plot legend
-                    ax = gca;
-                    legend(ax.Children([4,3,2]),{'0.9','1.06','1.144'},'Location','best');
-                    view(-115,11);
+                    ax = surf(k_plot,logn_plot,ones(size(array)));
+                    ax.FaceColor = [0.75,0.75,0.75];
+                    %ax.FaceAlpha = 0;
+                    view(-33,20);
                 else
                     view(164,44);
                     %plot legend
