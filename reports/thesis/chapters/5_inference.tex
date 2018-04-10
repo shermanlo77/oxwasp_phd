@@ -1129,7 +1129,7 @@ There are ways to speed up the implementation of the empirical null filter by sa
 
 The empirical null filter was used on the example at the start of the chapter. It was used on a grid of $20\times 20$ points, the remaining values were interpolated. It was also assumed the empirical null standard deviation was constant, the methodology discussed in the previous paragraph.
 
-The $z$ and $p$-value image, as shown in Figure \ref{fig:inference_filter_z_p_image}, now look more
+The $z$ and $p$-value image, as shown in Figure \ref{fig:inference_filter_z_p_image}, now look more spatially uniform. The defects and some of the edges and corners are highlighted with their small $p$-values. In particular, Figure \ref{fig:inference_filter_z_ordered_p} shows that the test statistics look more Normal but with heavier tails. The heavier tails are contributed to non-null test statistics. Significant pixels are shown in Figure \ref{fig:inference_filter_sig_image}. It is encouraging to see less false positives and more defects being picked up. Because the BH procedure controls the FDR, some false positives are inevitable.
 
 \begin{figure}
 	\centering
@@ -1176,3 +1176,144 @@ The $z$ and $p$-value image, as shown in Figure \ref{fig:inference_filter_z_p_im
 	\caption{The estimated empirical null mean} 
 	\label{fig:inference_filter_mean_null}
 \end{figure}
+
+In summary, the empirical null filter irons out each pixel in the $z$ image using the local mode. Figure \ref{fig:inference_filter_mean_null} shows the $\widehat{\mu}_{0,x,y}$ image, which varies a lot but smoothly. This demonstrated that by corrected the test statistics accordingly, sensible inference was achieved.
+
+In the remaining of the chapter, properties of the empirical null filter are investigated.
+
+\subsection{All Null Simulation}
+
+An experiment was conducted to investigate how well the empirical null filter performs with no defects. The dataset \texttt{July 30deg} was used in this experiment.
+
+The images in the dataset were spilt into two halves randomly. The mean over the first half of the images was taken and this was used as the ground truth, acting like an \texttt{aRTist} simulation. A smooth function was added to the ground truth to contaminate it and cause some systematic error. The idea was that the empirical null filter did inference without being effected too much by the smooth function.
+
+In the second half, all but one of the images were used in the training of the variance-mean model. The remaining image, the test image, was then used to compare with the simulated ground truth, producing a $z$ image. The $z$ image was then inferred using the empirical null filter and then the BH procedure.
+
+The smooth functions investigated were a plane and a sinusoid. The harshness of the smooth functions were controlled using the gradient for the plane, and the amplitude for the sinusoid. The smooth functions are for the plane
+\begin{equation}
+	\delta\left[
+		(x-x_0)+(y-y_0)
+	\right]
+\end{equation}
+and the sinusoid
+\begin{equation}
+	A\sin\left[
+		\dfrac{
+			2\pi
+		}
+		{
+			750
+		}
+		\left(
+			(y-y_0)-(x-x_0)
+		\right)
+	\right]
+\end{equation}
+where $\delta$ is the gradient, $A$ is the amplitude and $(x_0,y_0)$ is the centre of the image.
+
+Because no defects were implemented in this experiment, any positive results are false. The false positive rates were investigated for different harshness of the smooth functions. The experiment was repeated 20 times by randomly reallocating the images used for the ground truth, variance-mean training and testing.
+
+Figures \ref{fig:inference_NoDefect_Plane_sigma} and \ref{fig:inference_NoDefect_Sinusoid_sigma} shows the false positive rate for the plane and sinusoid contamination respectively. It can be seen that false positives can happen and in particular when the smooth function is quite harsh and varies a lot spatially. This showed that the empirical null filter was not completely perfect and false positives can happen.
+
+\begin{figure}
+	\centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/NoDefect_Plane2sigma.eps}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/NoDefect_Plane3sigma.eps}
+    \end{subfigure}
+    }
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/NoDefect_Plane4sigma.eps}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/NoDefect_Plane5sigma.eps}
+    \end{subfigure}
+    }
+    \caption{False positive rate when using the empirical null filter on an $z$ image where the ground truth was contaminated by a plane. Various $z_\alpha$ levels and gradients are shown.}
+    \label{fig:inference_NoDefect_Plane_sigma}
+\end{figure}
+
+\begin{figure}
+	\centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/NoDefect_Sinusoid2sigma.eps}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/NoDefect_Sinusoid3sigma.eps}
+    \end{subfigure}
+    }
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/NoDefect_Sinusoid4sigma.eps}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/NoDefect_Sinusoid5sigma.eps}
+    \end{subfigure}
+    }
+    \caption{False positive rate when using the empirical null filter on an $z$ image where the ground truth was contaminated by a sinusoid. Various $z_\alpha$ levels and gradients are shown.}
+    \label{fig:inference_NoDefect_Sinusoid_sigma}
+\end{figure}
+
+The spatial properties of the false positives did depend on the smooth function. Figures \ref{fig:inference_NoDefect_Plane_p_sig} and \ref{fig:inference_NoDefect_Sinusoid_p_sig} shows the location of the positive results for the plane and sinusoid contamination respectively. The $p$-values are also shown. These false positives are concerning as they are clustered together, giving false indication of a defect.
+
+In practice, the amount of contamination won't be as harsh as the one demonstrated here. As long as the smooth function is slowly varying spatially, the empirical null filter will correct the test statistics accordingly.
+
+\begin{figure}
+	\centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/NoDefect_Plane_pvalues.eps}
+        \caption{$\log p$-values}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/NoDefect_Plane_sig.eps}
+        \caption{$z$ image with red significant pixels}
+    \end{subfigure}
+    }
+    \caption{The $p$-values and significant pixels when using the empirical null filter on an $z$ image where the ground truth was contaminated by a plane with gradient 7.0.}
+    \label{fig:inference_NoDefect_Plane_p_sig}
+\end{figure}
+
+\begin{figure}
+	\centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/NoDefect_Sinusoid_pvalues.eps}
+        \caption{$\log p$-values}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/NoDefect_Sinusoid_sig.eps}
+        \caption{$z$ image with red significant pixels}
+    \end{subfigure}
+    }
+    \caption{The $p$-values and significant pixels when using the empirical null filter on an $z$ image where the ground truth was contaminated by a sinusoid with amplitude $10^4$.}
+    \label{fig:inference_NoDefect_Sinusoid_p_sig}
+\end{figure}
+
+Figure \ref{fig:inference_NoDefect_nullmean} shows the estimated empirical null mean. It is remarkable that the empirical null mean recovers the smooth functions but artefacts from interpolation can be seen for the sinusoid contamination. The grid like structure in Figure \ref{fig:inference_NoDefect_Sinusoid_nullmean} shows that the estimated empirical null mean was not very smooth and more points should of been used to reduce the amount of interpolation, increasing the accuracy of the estimation.
+
+\begin{figure}
+	\centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/NoDefect_Plane_nullmean.eps}
+        \caption{Plane, $\delta = 7.0$}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/NoDefect_Sinusoid_nullmean.eps}
+        \caption{Sinusoid, $A=10^4$}
+        \label{fig:inference_NoDefect_Sinusoid_nullmean}
+    \end{subfigure}
+    }
+    \caption{Empirical null mean when using the empirical null filter on an $z$ image where the ground truth was contaminated by a smooth function.}
+    \label{fig:inference_NoDefect_nullmean}
+\end{figure}
+
+These examples showed that the empirical null filter corrected the test statistics accordingly. However in extreme cases, the empirical null filter can fail producing clusters of low $p$-values giving an illusion of a defect. In practice, extreme cases should not happen. Referring back to the real life example in Figure \ref{fig:inference_filter_mean_null}, the empirical null mean only varied around $0\pm3$ which is a small variation compared to Figure \ref{fig:inference_NoDefect_nullmean}.
+
+\subsection{Defected Simulation}

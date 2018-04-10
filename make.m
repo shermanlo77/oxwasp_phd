@@ -79,18 +79,24 @@ this.printResults();
 
 this = Experiment_ZNull();
 this.run();
+this.printResults();
 
 this = Experiment_ZNull_mse();
 this.run();
+this.printResults();
 
 this = Experiment_NoDefect_Plane();
 this.run();
+this.printResults();
 
 this = Experiment_NoDefect_Sinusoid();
 this.run();
+this.printResults();
 
 this = Experiment_SimulateRoc_Squares();
 this.run();
+this.printResults();
 
 this = Experiment_SimulateRoc_Line();
 this.run();
+this.printResults();
