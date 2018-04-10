@@ -203,6 +203,21 @@ classdef EmpericalConvolution < handle
             this.use_var_uniform = use_var_uniform;
         end
         
+        %METHOD: CLONE
+        %Return a deep copy of itself
+        function that = clone(this)
+            that = EmpericalConvolution(this.z_image, this.n_row, this.n_col, this.kernel_size);
+            that.test_size = this.test_size; %size of the test (if 0, use default value)
+            that.z_tester_array = this.z_tester_array; %cell array of z_tester for each position the window is at
+            that.mean_null = this.mean_null; %image of emperical null mean parameter
+            that.var_null = this.var_null; %image of emperical null var parameter
+            that.p_image = this.p_image; %image of p values
+            that.sig_image = this.sig_image; %boolean image of significant pixels
+            that.z_tester = this.z_tester; %z_tester object testing the corrected z statistics
+            that.var_uniform_null = this.var_uniform_null; %value of the emperical null var parameter if we assume it is uniform
+            that.use_var_uniform = this.use_var_uniform; %boolean, true if to assume the null var is uniform
+        end
+        
     end
     
 end

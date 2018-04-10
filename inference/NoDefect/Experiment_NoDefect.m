@@ -52,9 +52,9 @@ classdef Experiment_NoDefect < Experiment
                 box_plot.plot();
                 ylabel('false positive rate');
                 xlabel(parameter_name);
-                title(strcat('z_\alpha = ',num2str(i_sigma)));
+                title(strcat('z_\alpha = ',num2str(this.size_array(i_sigma))));
                 ylim([0,fdr_max]);
-                saveas(fig,fullfile('reports','figures','inference',strcat(this.experiment_name,num2str(i_sigma),'sigma.eps')),'epsc');
+                saveas(fig,fullfile('reports','figures','inference',strcat(this.experiment_name,num2str(this.size_array(i_sigma)),'sigma.eps')),'epsc');
             end
             
 %             %meshgrid to plot mean FPR vs parameter vs sigma
@@ -159,7 +159,7 @@ classdef Experiment_NoDefect < Experiment
                         if ( (i_repeat == 1) && all([i_size;i_parameter] == this.plot_index) )
                             %save the defected aRTist and the convolution
                             this.aRTist_plot = aRTist;
-                            this.convolution_plot = convolution;
+                            this.convolution_plot = convolution.clone();
                         end
                         
                     end

@@ -56,6 +56,7 @@ classdef Experiment_SimulateRoc < Experiment_NoDefect
             
             %plot aRTist and the result of the test of one specific saved example
             this.printConvolution();
+            
         end
         
     end
