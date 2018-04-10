@@ -17,10 +17,7 @@ classdef Experiment_NoDefect < Experiment
         fdr_array;
         plot_index; %2 column vector, pointer to which sigma and parameter to plot respectively
         aRTist_plot; %image of aRTist, parameter and size pointed by plot_index
-        ln_p_plot; %image of -lnp values, parameter and size pointed by plot_index
-        sig_plot; %boolean image of significant pixels, parameter and size pointed by plot_index
-        null_mean_plot; %image of the emperical null mean, parameter and size pointed by plot_index
-        
+        convolution_plot; %convolution object to be printed for results, parameters pointed by plot_index 
         
         %progress bar member variables
         i_iteration;
@@ -49,22 +46,24 @@ classdef Experiment_NoDefect < Experiment
             %for each sigma
             for i_sigma = 1:numel(this.size_array)
                 %boxplot the false positive rate vs parameter
-                figure;
+                fig = LatexFigure.sub();
                 box_plot = Boxplots(this.fdr_array(:,:,i_sigma),true);
                 box_plot.setPosition(this.parameter_array);
                 box_plot.plot();
                 ylabel('false positive rate');
                 xlabel(parameter_name);
+                title(strcat('z_\alpha = ',num2str(i_sigma)));
                 ylim([0,fdr_max]);
+                saveas(fig,fullfile('reports','figures','inference',strcat(this.experiment_name,num2str(i_sigma),'sigma.eps')),'epsc');
             end
             
-            %meshgrid to plot mean FPR vs parameter vs sigma
-            [sigma_grid, parameter_grid] = meshgrid(this.size_array, this.parameter_array);
-            figure;
-            surf(parameter_grid,sigma_grid,squeeze(mean(this.fdr_array)));
-            xlabel(parameter_name);
-            ylabel('sigma threshold');
-            zlabel('mean false positive rate');
+%             %meshgrid to plot mean FPR vs parameter vs sigma
+%             [sigma_grid, parameter_grid] = meshgrid(this.size_array, this.parameter_array);
+%             figure;
+%             surf(parameter_grid,sigma_grid,squeeze(mean(this.fdr_array)));
+%             xlabel(parameter_name);
+%             ylabel('sigma threshold');
+%             zlabel('mean false positive rate');
             
             %plot aRTist and the result of the test of one specific saved example
             this.printConvolution();
@@ -158,11 +157,9 @@ classdef Experiment_NoDefect < Experiment
                         this.getFdr(convolution, defect_simulator, i_parameter, i_repeat, i_size);
                         %if this is the first repeat and this particular sigma and parameter is to be plotted
                         if ( (i_repeat == 1) && all([i_size;i_parameter] == this.plot_index) )
-                            %save the p values, signifiant pixels, emperical null mean and the defected aRTist
+                            %save the defected aRTist and the convolution
                             this.aRTist_plot = aRTist;
-                            this.ln_p_plot = -log10(convolution.p_image);
-                            this.sig_plot = convolution.sig_image;
-                            this.null_mean_plot = convolution.mean_null;
+                            this.convolution_plot = convolution;
                         end
                         
                     end
@@ -178,20 +175,24 @@ classdef Experiment_NoDefect < Experiment
         %Plots aRTist with significant pixels, the emperical null mean and the -ln p values
         function printConvolution(this)
             %plot aRTist
-            figure;
+            fig = LatexFigure.sub();
             image_plot = ImagescSignificant(this.aRTist_plot);
-            image_plot.addSigPixels(this.sig_plot);
+            image_plot.addSigPixels(this.convolution_plot.sig_image);
             image_plot.plot();
+            saveas(fig,fullfile('reports','figures','inference',strcat(this.experiment_name,'_sig.eps')),'epsc');
             
             %print -ln p value
-            figure;
-            image_plot = ImagescSignificant(this.ln_p_plot);
+            fig = LatexFigure.sub();
+            image_plot = ImagescSignificant(-log10(this.convolution_plot.p_image));
             image_plot.plot();
+            saveas(fig,fullfile('reports','figures','inference',strcat(this.experiment_name,'_pvalues.eps')),'epsc');
             
             %print emperical null mean
-            figure;
-            image_plot = ImagescSignificant(this.null_mean_plot);
+            fig = LatexFigure.main();
+            image_plot = ImagescSignificant(this.convolution_plot.mean_null);
             image_plot.plot();
+            saveas(fig,fullfile('reports','figures','inference',strcat(this.experiment_name,'_nullmean.eps')),'epsc');
+            
         end
         
         %METHOD: GET FDR
