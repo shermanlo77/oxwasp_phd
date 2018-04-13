@@ -60,7 +60,7 @@ which can takes values $0\leqslant p_{i,j} \leqslant 1$. A $p$-value too small i
     \label{fig:inference_initial_artist_logp_z}
 \end{figure}
 
-The resulting $z$ statistics and $p$-values are concerning. This is because the $p$-values are not very smooth on the surfaces of the sample. It should be expected that small $p$-values are in areas of the defects. Significant pixels were chosen for $\|z\|>\input{../tables/initial_artist_z_critical.txt}$, this value was chosen by using the \cite{benjamini1995controlling} algorithm at the $z_\alpha = 2$ significance level. The significant pixels are shown in Figure \ref{fig:inference_initial_artist_sig_pixels}.
+The resulting $z$ statistics and $p$-values are concerning. This is because the $p$-values are not very smooth on the surfaces of the sample. It should be expected that small $p$-values are in areas of the defects. Significant pixels were chosen for $\|z\|>\input{../tables/initial_artist_z_critical.txt}$, this value was chosen by using the \cite{benjamini1995controlling} (BH) procedure at the $z_\alpha = 2$ significance level. The significant pixels are shown in Figure \ref{fig:inference_initial_artist_sig_pixels}.
 
 This proposed method for defect detection failed because too many false positives were detected. These false positives appear to have some structure, for example clustering in the corners or on surfaces. In addition, false negatives were detected because not all of the defects were detected.
 
@@ -411,7 +411,7 @@ In this section, a more mathematical approach to the empirical null will be take
 
 \subsection{More on the Empirical Null}
 
-\cite{efron2004large} was motivated to tackle problems observed in large scale multiple hypothesis testing, for example in microarrays \citep{hedenfalk2001gene, efron2002empirical, efron2003robbins}. These problems are similar to the one observed at the start of this chapter. The empirical null is now used widely, including in neuroimaging \citep{schwartzman2008false,schwartzman2009empirical}.
+\cite{efron2004large} was motivated to tackle problems observed in large scale multiple hypothesis testing, for example in microarrays \citep{hedenfalk2001gene, efron2002empirical, efron2003robbins}. These problems are similar to the one observed at the start of this chapter. The empirical null is now used widely, including in neuroimaging \citep{schwartzman2008false, schwartzman2009empirical} and has been extended to include non-Normal null distributions \citep{schwartzman2008false, schwartzman2008empirical}.
 
 For formality, the null and alternative hypotheses shall be described here. Assume that the $z$ statistics under the null hypothesis are such that
 \begin{equation}
@@ -1087,7 +1087,7 @@ A further example will be given here. A $200\times200$ sub-sample, containing a 
     \label{fig:inference_alt_empirical_z_histogram}
 \end{figure}
 
-The BH procedure can be conducted, corrected for the empirical null. The $p$-values are shown in \ref{fig:inference_alt_empirical_z_p_values}, a number of them are significant. The significant pixels are shown in red in Figure \ref{fig:inference_alt_empirical_z_image}. The majority of the significant pixels are cluster together and highlighting the defect. Not all of the defect was tested positive, but a good number of them are. This should be enough to raise suspicion in that particular area.
+The BH procedure can be conducted, corrected for the empirical null. The $p$-values are shown in \ref{fig:inference_alt_empirical_z_p_values}, a number of them are significant. The significant pixels are shown in red in Figure \ref{fig:inference_alt_empirical_z_image}. The majority of the significant pixels are cluster together and highlighting the defect. Not all of the defects were tested positive, but a good number of them are. This should be enough to raise suspicion in that particular area.
 
 \begin{figure}
 	\centering
@@ -1140,7 +1140,7 @@ The $z$ and $p$-value image, as shown in Figure \ref{fig:inference_filter_z_p_im
     \end{subfigure}
     \begin{subfigure}[b]{0.49\textwidth}
         \includegraphics[width=\textwidth]{../figures/inference/filter_p_image.eps}
-        \caption{$\log p$-value image}
+        \caption{$-\log p$-values}
     \end{subfigure}
     }
     \caption{The $z$ image and $p$-value image after using the empirical null filter.}
@@ -1275,7 +1275,7 @@ In practice, the amount of contamination won't be as harsh as the one demonstrat
         \caption{$z$ image with red significant pixels}
     \end{subfigure}
     }
-    \caption{The $p$-values and significant pixels when using the empirical null filter on an $z$ image where the ground truth was contaminated by a plane with gradient 7.0.}
+    \caption{The $p$-values and significant pixels, at the $z_\alpha=2$ level, when using the empirical null filter on an $z$ image where the ground truth was contaminated by a plane with gradient 7.0.}
     \label{fig:inference_NoDefect_Plane_p_sig}
 \end{figure}
 
@@ -1291,7 +1291,7 @@ In practice, the amount of contamination won't be as harsh as the one demonstrat
         \caption{$z$ image with red significant pixels}
     \end{subfigure}
     }
-    \caption{The $p$-values and significant pixels when using the empirical null filter on an $z$ image where the ground truth was contaminated by a sinusoid with amplitude $10^4$.}
+    \caption{The $p$-values and significant pixels, at the $z_\alpha=2$ level, when using the empirical null filter on an $z$ image where the ground truth was contaminated by a sinusoid with amplitude $10^4$.}
     \label{fig:inference_NoDefect_Sinusoid_p_sig}
 \end{figure}
 
@@ -1314,6 +1314,8 @@ Figure \ref{fig:inference_NoDefect_nullmean} shows the estimated empirical null 
     \label{fig:inference_NoDefect_nullmean}
 \end{figure}
 
-These examples showed that the empirical null filter corrected the test statistics accordingly. However in extreme cases, the empirical null filter can fail producing clusters of low $p$-values giving an illusion of a defect. In practice, extreme cases should not happen. Referring back to the real life example in Figure \ref{fig:inference_filter_mean_null}, the empirical null mean only varied around $0\pm3$ which is a small variation compared to Figure \ref{fig:inference_NoDefect_nullmean}.
+These examples showed that the empirical null filter corrected the test statistics accordingly. However in extreme cases, the empirical null filter can fail and producing clusters of low $p$-values giving an illusion of a defect. In practice, extreme cases should not happen. Referring back to the real life example in Figure \ref{fig:inference_filter_mean_null}, the empirical null mean only varied around $0\pm3$ which is a small variation compared to Figure \ref{fig:inference_NoDefect_nullmean}.
 
 \subsection{Defected Simulation}
+
+receiver operating characteristic \citep{green1966signal, metz1978basic, hanley1982meaning, friedman2001elements, cook2007use}
