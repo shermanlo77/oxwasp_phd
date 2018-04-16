@@ -15,7 +15,7 @@ classdef Experiment_NoDefect < Experiment
                 %dim 2: for each parameter
                 %dim 3: for each sigma
         fdr_array;
-        plot_index; %2 column vector, pointer to which sigma and parameter to plot respectively
+        plot_index; %pointer to which parameter to plot respectively
         aRTist_plot; %image of aRTist, parameter and size pointed by plot_index
         convolution_plot; %convolution object to be printed for results, parameters pointed by plot_index 
         
@@ -84,7 +84,7 @@ classdef Experiment_NoDefect < Experiment
             this.size_array = [2,3,4,5];
             this.n_repeat = 20;
             this.fdr_array = zeros(this.n_repeat, numel(this.parameter_array), numel(this.size_array));
-            this.plot_index = [1;numel(this.parameter_array)];
+            this.plot_index = numel(this.parameter_array);
             this.i_iteration = 0;
             this.n_iteration = numel(this.parameter_array) * this.n_repeat;
         end
@@ -151,17 +151,19 @@ classdef Experiment_NoDefect < Experiment
                     convolution.estimateNull();
                     convolution.setMask(segmentation);
                     
+                    %if this is the first repeat and this parameter is to be plotted
+                    if ( (i_repeat == 1) && all(i_parameter == this.plot_index) )
+                        %save the defected aRTist and the convolution (with the default value)
+                        this.aRTist_plot = aRTist;
+                        this.convolution_plot = convolution.clone();
+                        %do the test for this particular clone
+                        this.convolution_plot.doTest();
+                    end
+                    
                     %for each sigma to investigate
                     for i_size = 1:numel(this.size_array)
                         %get the false positive rate
                         this.getFdr(convolution, defect_simulator, i_parameter, i_repeat, i_size);
-                        %if this is the first repeat and this particular sigma and parameter is to be plotted
-                        if ( (i_repeat == 1) && all([i_size;i_parameter] == this.plot_index) )
-                            %save the defected aRTist and the convolution
-                            this.aRTist_plot = aRTist;
-                            this.convolution_plot = convolution.clone();
-                        end
-                        
                     end
                     
                     %print progress bar

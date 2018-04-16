@@ -74,7 +74,7 @@ classdef Experiment_SimulateRoc < Experiment_NoDefect
             this.size_array = linspace(0,1,41);
             this.n_repeat = 5;
             this.fdr_array = zeros(this.n_repeat*numel(this.size_array), 2, numel(this.parameter_array));
-            this.plot_index = [3;round(numel(this.parameter_array)/2)];
+            this.plot_index = round(numel(this.parameter_array)/2);
             this.i_iteration = 0;
             this.n_iteration = numel(this.parameter_array) * this.n_repeat;
         end
