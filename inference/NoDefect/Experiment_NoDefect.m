@@ -190,7 +190,7 @@ classdef Experiment_NoDefect < Experiment
             saveas(fig,fullfile('reports','figures','inference',strcat(this.experiment_name,'_pvalues.eps')),'epsc');
             
             %print emperical null mean
-            fig = LatexFigure.main();
+            fig = LatexFigure.sub();
             image_plot = ImagescSignificant(this.convolution_plot.mean_null);
             image_plot.plot();
             saveas(fig,fullfile('reports','figures','inference',strcat(this.experiment_name,'_nullmean.eps')),'epsc');

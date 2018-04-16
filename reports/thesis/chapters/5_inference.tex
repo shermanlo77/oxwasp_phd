@@ -1318,4 +1318,122 @@ These examples showed that the empirical null filter corrected the test statisti
 
 \subsection{Defected Simulation}
 
-receiver operating characteristic \citep{green1966signal, metz1978basic, hanley1982meaning, friedman2001elements, cook2007use}
+An experiment was conducted to see if the empirical null filter detect defects under contamination. Just like the previous experiment, the dataset \texttt{July 30deg} was used. The images in the dataset were spilt, the mean of the first half acted as the ground truth, the rest were used to train the variance-mean model, one held out for testing. A plane with gradient $\delta=3$ was added to the ground truth to contaminate it. The contamination from the plane is quite mild following from the previous experiment.
+
+Furthermore, defects were added to the ground truth by increasing selected pixels' grey-values. Shapes such as squares and lines were used to simulate voids and cracks.
+
+The receiver operating characteristic (ROC) curves \citep{green1966signal, metz1978basic, hanley1982meaning, friedman2001elements, cook2007use} were investigated. The ROC curve is a parametric plot, plotting the true positive rate against the false positive rate for varying thresholds. Other authors \citep{metz1978basic} use terminology such as sensitivity and specificity instead.
+
+The area under the ROC curve is a commonly used statistic to quantify the performance of the test \citep{friedman2001elements}. Interpretations of the area do exist \citep{metz1978basic,hanley1982meaning} and discussed throughly in \citep{cook2007use}. The area under the ROC curve was recorded for different intensity values of the defect.
+
+Figures \ref{fig:inference_SimulateRoc_Line_p_sig} and \ref{fig:inference_SimulateRoc_Squares_p_sig} shows the results of using the empirical null filter for inference. In this example an array of squares and a single vertical line were used to defect the ground truth by adding 298 to the grey value, a particular small number. The defects were picked up which is remarkable. The structure of the false positives is quite similar to Figure \ref{fig:inference_NoDefect_Plane_p_sig}, indicating that the plane was still quite harsh and responsible for the false positives.
+
+The empirical null filter can fail if it treats a defect as the null. This can be mildly seen in Figure \ref{fig:inference_SimulateRoc_Squares_p_sig}, the top rows of square defects were not detected but the area outside the defect were tested as positive.
+
+\begin{figure}
+	\centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/SimulateRoc_Line_pvalues.eps}
+        \caption{$-\log p$-values}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/SimulateRoc_Line_sig.eps}
+        \caption{Image with significant pixels}
+    \end{subfigure}
+    }
+    \caption{Hypothesis test using the empirical null filter on a simulated comparison. The ground truth was contaminated by a plane and defected by a single vertical line with value 298.}
+    \label{fig:inference_SimulateRoc_Line_p_sig}
+\end{figure}
+
+\begin{figure}
+	\centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/SimulateRoc_Squares_pvalues.eps}
+        \caption{$-\log p$-values}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/SimulateRoc_Squares_sig.eps}
+        \caption{Image with significant pixels}
+    \end{subfigure}
+    }
+    \caption{Hypothesis test using the empirical null filter on a simulated comparison. The ground truth was contaminated by a plane and defected by an array of squares with value 298.}
+    \label{fig:inference_SimulateRoc_Squares_p_sig}
+\end{figure}
+
+The ROC curves for different defect intensities are shown in Figures \ref{fig:inference_SimulateRoc_Lines_roc} and \ref{fig:inference_SimulateRoc_Squares_roc}. The dotted diagonal line show the ROC curve if the test classify each pixel randomly. Perfect classification happens on the top left when the true positive rate is one and the false positive rate is zero. A sample of ROC curves were obtained by reallocating the images to the ground truth, variance-mean training and testing, this was done 5 times. 
+
+\begin{figure}
+	\centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/SimulateRoc_Line_roc_1.eps}
+        \caption{Defect intensity = 100}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/SimulateRoc_Line_roc_7.eps}
+        \caption{Defect intensity = 207}
+    \end{subfigure}
+    }
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/SimulateRoc_Line_roc_14.eps}
+        \caption{Defect intensity = 483}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/SimulateRoc_Line_roc_20.eps}
+        \caption{Defect intensity = 1000}
+    \end{subfigure}
+    }
+    \caption{ROC curves when using the empirical null filter on a simulated comparison. The ground truth was contaminated by a plane and defected by an single vertical line. Each line represent a different fold when allocating images to the ground truth, variance-mean training and testing. This was done 5 times.}
+    \label{fig:inference_SimulateRoc_Lines_roc}
+\end{figure}
+
+\begin{figure}
+	\centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/SimulateRoc_Squares_roc_1.eps}
+        \caption{Defect intensity = 100}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/SimulateRoc_Squares_roc_7.eps}
+        \caption{Defect intensity = 207}
+    \end{subfigure}
+    }
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/SimulateRoc_Squares_roc_14.eps}
+        \caption{Defect intensity = 483}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/SimulateRoc_Squares_roc_20.eps}
+        \caption{Defect intensity = 1000}
+    \end{subfigure}
+    }
+    \caption{ROC curves when using the empirical null filter on a simulated comparison. The ground truth was contaminated by a plane and defected by an array of squares. Each line represent a different fold when allocating images to the ground truth, variance-mean training and testing. This was done 5 times.}
+    \label{fig:inference_SimulateRoc_Squares_roc}
+\end{figure}
+
+Figure \ref{fig:inference_SimulateRoc_roc_area} shows the area under the ROC curves for the single vertical line and array of squares defect. The areas were calculated using the trapezium rule. The results are promising with near perfect performance with defect intensities at least 600.
+
+\begin{figure}
+	\centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/SimulateRoc_Line_roc_area.eps}
+        \caption{Line}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/SimulateRoc_Squares_roc_area.eps}
+        \caption{Squares}
+    \end{subfigure}
+    }
+    \caption{The area under the ROC curves for different defects and defect intensities. The ground truth was contaminated by a plane and defected. The experiment was repeated 5 times by reallocating images to the ground truth, variance-mean training and testing. The box plot represent those 5 repeats.}
+    \label{fig:inference_SimulateRoc_roc_area}
+\end{figure}
+
+The experiments shows that the empirical null filter can correct the null distribution locally, giving better inference. In extreme cases, for example if the defect intensity is very small or the amount of contamination is rather large, the empirical null filter can fail. Harsh contamination can produce false positives because spatially rapidly changing grey values could be detected as a defect. The worst case would be that this would make defects appear to be the null, giving completely the opposite inference.
+
+These extreme cases should not happen. As seen in the real life example at the start of the section, false positives are rare but they do have some spatial structure. If the defect intensity is too small to be detected, the contrast of the x-ray imaging apparatus should be adjusted to cater for it.

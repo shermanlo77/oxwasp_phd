@@ -25,7 +25,7 @@ classdef Experiment_SimulateRoc < Experiment_NoDefect
             
             %for each parameter
             for i_parameter = 1:numel(this.parameter_array)
-                figure;
+                fig = LatexFigure.sub();
                 ax = gca;
                 %for each repeat
                 for i_repeat = 1:this.n_repeat
@@ -42,17 +42,20 @@ classdef Experiment_SimulateRoc < Experiment_NoDefect
                 plot([0,1],[0,1],'k--');
                 xlabel('false positive rate');
                 ylabel('true positive rate');
+                saveas(fig,fullfile('reports','figures','inference',strcat(this.experiment_name,'_roc_',num2str(i_parameter),'.eps')),'epsc');
                 %scatter plot all TPR vs FPR points
                 %scatter(this.fdr_array(:,1,i_parameter),this.fdr_array(:,2,i_parameter),'MarkerEdgeColor',ax.ColorOrder(2,:),'Marker','x');
             end
             
             %boxplot the area of roc vs defect intensity
-            figure;
+            fig = LatexFigure.sub();
             box_plot = Boxplots(roc_area,true);
             box_plot.setPosition(this.parameter_array);
             box_plot.plot();
             xlabel('defect intensity');
             ylabel('area of roc');
+            ylim([0.5,1]);
+            saveas(fig,fullfile('reports','figures','inference',strcat(this.experiment_name,'_roc_area.eps')),'epsc');
             
             %plot aRTist and the result of the test of one specific saved example
             this.printConvolution();
