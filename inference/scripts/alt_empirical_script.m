@@ -42,38 +42,32 @@ z_bh_empirical = z_tester.getZCritical();
 %Plot the histogram of z statistics
 %Also plot the empirical null BH critical boundary
 fig = LatexFigure.sub();
-z_tester.plotHistogram();
-hold on;
-z_tester.plotCritical();
-ylabel('frequency density');
-xlabel('z');
-hold on;
-legend('z histogram','critical','Location','northeast');
+z_tester.plotHistCritical();
 saveas(fig,fullfile('reports','figures','inference','alt_empirical_z_histo_null.eps'),'epsc');
 
-%FIGURE
-%Plot the frequency density estimate along with the empirical null mean and std, and critical boundary
-fig = LatexFigure.sub();
-z_tester.plotDensityEstimate(x_plot);
-hold on;
-z_tester.plotCritical();
-plot([mu_0,mu_0],[0,numel(z_sample)*density_estimate.getDensityEstimate(mu_0)],'k--'); %plot mode
-%get the value of the density estimate at mu +/- sigma
-f_at_sigma_1 = mean(density_estimate.getDensityEstimate([mu_0-sigma_0,mu_0+sigma_0]));
-%plot line and arrows to represent 2 std
-plot([mu_0-sigma_0,mu_0+sigma_0],numel(z_sample)*[f_at_sigma_1,f_at_sigma_1],'k--');
-scatter(mu_0-sigma_0,numel(z_sample)*f_at_sigma_1,'k<','filled');
-scatter(mu_0+sigma_0,numel(z_sample)*f_at_sigma_1,'k>','filled');
-ylabel('frequency density');
-xlabel('z');
-hold on;
-legend('density estimate','critical','Location','northeast');
-saveas(fig,fullfile('reports','figures','inference','alt_empirical_z_parzen.eps'),'epsc');
+% %FIGURE
+% %Plot the frequency density estimate along with the empirical null mean and std, and critical boundary
+% fig = LatexFigure.sub();
+% z_tester.plotDensityEstimate(x_plot);
+% hold on;
+% z_tester.plotCritical();
+% plot([mu_0,mu_0],[0,numel(z_sample)*density_estimate.getDensityEstimate(mu_0)],'k--'); %plot mode
+% %get the value of the density estimate at mu +/- sigma
+% f_at_sigma_1 = mean(density_estimate.getDensityEstimate([mu_0-sigma_0,mu_0+sigma_0]));
+% %plot line and arrows to represent 2 std
+% plot([mu_0-sigma_0,mu_0+sigma_0],numel(z_sample)*[f_at_sigma_1,f_at_sigma_1],'k--');
+% scatter(mu_0-sigma_0,numel(z_sample)*f_at_sigma_1,'k<','filled');
+% scatter(mu_0+sigma_0,numel(z_sample)*f_at_sigma_1,'k>','filled');
+% ylabel('frequency density');
+% xlabel('z');
+% hold on;
+% legend('density estimate','critical','Location','northeast');
+% saveas(fig,fullfile('reports','figures','inference','alt_empirical_z_parzen.eps'),'epsc');
 
 %FIGURE
 %plot the p values in order
 %also plot the BH critical boundary
-fig = LatexFigure.main();
+fig = LatexFigure.sub();
 z_tester.plotPValues();
 saveas(fig,fullfile('reports','figures','inference','alt_empirical_z_p_values.eps'),'epsc');
 
@@ -86,3 +80,9 @@ image_plot.plot();
 ax = gca;
 ax.CLim = clim_for_all;
 saveas(fig,fullfile('reports','figures','inference','alt_empirical_z_image_2.eps'),'epsc');
+
+%SAVE VALUE
+%save the number of significant pixels
+file_id = fopen(fullfile('reports','tables','alt_empirical_n_sig.txt'),'w');
+fprintf(file_id,'%u',sum(sum(z_tester.sig_image)));
+fclose(file_id);

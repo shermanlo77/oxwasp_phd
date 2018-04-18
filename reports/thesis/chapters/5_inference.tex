@@ -1,26 +1,26 @@
-The aim of this project is to obtain an x-ray image of a 3D printed sample and compare it with a simulation of that scan using software called \texttt{aRTist}. \texttt{aRTist} can simulate x-ray scans of the 3D printed sample given the specifications of the scan, such as the x-ray source, the x-ray detector and the blueprint of the 3D printed sample. Users of \texttt{aRTist} can align the simulated x-ray image to the real x-ray image using numerical methods, however this is outside the scope of this thesis.
+The aim of this project was to obtain an x-ray image of a 3D printed sample and compare it with a simulation of that scan using software called \texttt{aRTist} \citep{bellon2007artist, jaenisch2008artist, bellon2012radiographic}. \texttt{aRTist} can simulate x-ray scans of the 3D printed sample given the specifications of the scan, such as the x-ray source, the x-ray detector and the blueprint of the 3D printed sample \citep{bellon2011simulation, deresch2012simulating}. Users of \texttt{aRTist} can align the simulated x-ray image to the real x-ray image using numerical methods, however this is outside the scope of this thesis.
 
-Disagreement between the scan and \texttt{aRTist} can be found by simply subtracting one image from the other, any values too big in magnitude can be considered as a defect. However in the previous chapters, it was found that x-ray photons behave randomly and large differences in the comparison can be due to chance. Thus the comparisons should be done under the face of uncertainty.
+Disagreement between the scan and \texttt{aRTist} can be found by simply subtracting one image from the other, any values too big in magnitude can be considered as a defect. However in the previous chapters, it was found that x-ray photons behave randomly and differences in the comparison can be due to chance. Thus the comparisons should be done under the face of uncertainty.
 
-A pixel by pixel inference was proposed to do defect detection. A statistic $z_{i,j}$ for the $(i,j)$ positioned pixel can be calculated for all pixels. This statistic is
+A pixel by pixel inference was proposed to do defect detection. A statistic $z_{x,y}$ for the $(x,y)$ positioned pixel was calculated for all pixels. This statistic is
 \begin{equation}
-    z_{i,j} = 
+    Z_{x,y} = 
     \dfrac{
-        \text{scan}_{i,j} - \text{aRTist}_{i,j}
+        \text{scan}_{x,y} - \text{aRTist}_{x,y}
     }
     {
-        \sqrt{\widehat{\variance}\left[\text{scan}_{i,j}\right]}
+        \sqrt{\widehat{\variance}\left[\text{scan}_{x,y}\right]}
     }
 \end{equation}
-where $\widehat{\variance}\left[\text{scan}_{i,j}\right]$ is the estimated grey value variance of pixel $(i,j)$ in the scan. Under mild assumptions, it was shown in the previous chapters that the grey values in the scan are Normal. Thus by treating the simulated image from \texttt{aRTist} as known, then
+where $\widehat{\variance}\left[\text{scan}_{x,y}\right]$ is the estimated grey value variance of pixel $(x,y)$ in the scan. Under mild assumptions, it was shown in the previous chapters that the grey values in the scan were Normal. Thus by treating the simulated image from \texttt{aRTist} as known and the ground truth, then the randomness of the $z_{i,j}$ statistics can be quantified
 \begin{equation}
-z_{i,j}\sim \normal(0,1) \ .
+Z_{i,j}\sim \normal(0,1) \ .
 \end{equation}
-This means the randomness of the $z_{i,j}$ statistics can be quantified.
+As with usual statistical convention, upper case $Z$ denote a random variable. Whereas lower case $z$ denote a realisation or an observation of that random variable.
 
-The estimation of the grey value variance, that is $\widehat{\variance}\left[\text{scan}_{i,j}\right]$ will be explained here. The variance model can be calibrated, or trained, by holding out a number replicated x-ray scans of a 3D printed sample. These replicated x-ray scans provide variance-mean data which then can be used to train the variance model, such as a Gamma distributed GLM. The method on doing so was described in the previous chapter and it was found a linear relationship between the variance and the mean was a good model. The variance was then predicted using the grey value in the \texttt{aRTist} simulation.
+The estimation of the grey value variance, that is $\widehat{\variance}\left[\text{scan}_{i,j}\right]$ is be explained here. The variance model can be calibrated, or trained, by holding out a number replicated x-ray scans of a 3D printed sample. These replicated x-ray scans provide variance-mean data which was used to train the variance model, such as a Gamma distributed GLM. The method on doing so was described in the previous chapter and it was found a linear relationship between the variance and the mean was a good model. The variance was then predicted using the grey value in the \texttt{aRTist} simulation.
 
-This method for inference can be applied to the dataset \texttt{Sep16 120deg}. The 20 x-ray images were spilt into 2. 19 images were used to train the variance-mean model. One image, called the test image, was used to compare with \texttt{aRTist}, as shown in Figure \ref{fig:inference_initial_artist_scan_aRTist}.
+This method for inference was applied to the dataset \texttt{Sep16 120deg}. Here a cuboid with voids were purposefully manufactured to see if they can be detected. The 20 x-ray images were spilt into 2. 19 images were used to train the variance-mean model. One image, called the test image, was used to compare with \texttt{aRTist}, as shown in Figure \ref{fig:inference_initial_artist_scan_aRTist}. In the \texttt{aRTist} simulation, the software did a simulation as if the voids were not there. 
 
 \begin{figure}
 	\centering
@@ -38,11 +38,11 @@ This method for inference can be applied to the dataset \texttt{Sep16 120deg}. T
     \label{fig:inference_initial_artist_scan_aRTist}
 \end{figure}
 
-For each pixel, a $z_{i,j}$ statistic was calculated. A $z_{i,j}$ statistic too large in magnitude can be considered to be evidence of a positive result. Another way to represent the $z_{i,j}$ statistic is the $p$-value which is given as
+For each pixel, a $z$ statistic was calculated. A $z$ statistic too large in magnitude can be considered to be evidence of a positive result. Another way to represent the $z$ statistic is the $p$-value which is given as
 \begin{equation}
-    p_{i,j} = 2(1-\Phi(\|z_{i,j}\|))
+    p_{x,y} = 2(1-\Phi(\|z_{x,y}\|))
 \end{equation}
-which can takes values $0\leqslant p_{i,j} \leqslant 1$. A $p$-value too small is considered to be evidence of a positive result. The result $z$ statistics and $p$-values are shown in Figure \ref{fig:inference_initial_artist_logp_z}.
+which can takes values $0\leqslant p_{i,j} \leqslant 1$. A $p$-value too small is considered to be evidence of a defect. The resulting $z$ statistics and $p$-values are shown in Figure \ref{fig:inference_initial_artist_logp_z}.
 
 \begin{figure}
 	\centering
@@ -56,20 +56,20 @@ which can takes values $0\leqslant p_{i,j} \leqslant 1$. A $p$-value too small i
         \caption{$z$ statistics}
     \end{subfigure}
     }
-    \caption{The resulting z statistics and $p$ values comparing an x-ray scan with the \texttt{aRTist} simulation.}
+    \caption{The resulting $z$ statistics and $p$ values comparing an x-ray scan with the \texttt{aRTist} simulation.}
     \label{fig:inference_initial_artist_logp_z}
 \end{figure}
 
-The resulting $z$ statistics and $p$-values are concerning. This is because the $p$-values are not very smooth on the surfaces of the sample. It should be expected that small $p$-values are in areas of the defects. Significant pixels were chosen for $\|z\|>\input{../tables/initial_artist_z_critical.txt}$, this value was chosen by using the \cite{benjamini1995controlling} (BH) procedure at the $z_\alpha = 2$ significance level. The significant pixels are shown in Figure \ref{fig:inference_initial_artist_sig_pixels}.
+The resulting $z$ statistics and $p$-values are concerning. This is because the $p$-values are not very smooth on the surfaces of the sample. It should be expected that small $p$-values are in areas of the defects. Pixels are significant, or considered to be evidence of a defect, when for $\|z_{x,y}\|>\input{../tables/initial_artist_z_critical.txt}$, this value was chosen by using the \cite{benjamini1995controlling} (BH) procedure at the $z_\alpha = 2$ significance level. The significant pixels are shown in Figure \ref{fig:inference_initial_artist_sig_pixels}.
 
 This proposed method for defect detection failed because too many false positives were detected. These false positives appear to have some structure, for example clustering in the corners or on surfaces. In addition, false negatives were detected because not all of the defects were detected.
 
-Model misspecification appears to be the main source of error. The $z$ statistics can be inspected using a histogram or a QQ plot, as shown in Figure \ref{fig:inference_initial_artist_z_histo}. It can be seen that the $z$ statistics do not look Normal which seems to suggest that the assumption of $z_{i,j}\sim \normal(0,1)$ is incorrect. However this assumption can relaxed and can be done using the empirical null \citep{efron2004large}.
+Model misspecification appeared to be the main source of error. The $z$ statistics was inspected using a histogram and a QQ plot, as shown in Figure \ref{fig:inference_initial_artist_z_histo}. It can be seen that the $z$ statistics does not look Normal which seems to suggest that the assumption of $z_{i,j}\sim \normal(0,1)$ is incorrect. However this assumption can relaxed and can be done using the empirical null \citep{efron2004large}.
 
 \begin{figure}
     \centering
     \includegraphics[width=0.7\textwidth]{../figures/inference/initial_artist_sig_pixels.eps}
-    \caption{Significant pixels highlighted at the $z_\alpha = 2$ significance level.}
+    \caption{Significant pixels highlighted using the BH procedure at the $z_\alpha = 2$ significance level.}
     \label{fig:inference_initial_artist_sig_pixels}
 \end{figure}
 
@@ -85,29 +85,29 @@ Model misspecification appears to be the main source of error. The $z$ statistic
     	\caption{QQ plot}
     \end{subfigure}
 	}
-    \caption{Distribution of the  $z$ statistics with the BH procedure critical region}
+    \caption{Distribution of the  $z$ statistics with the BH procedure critical region at the $z_\alpha=2$ level.}
     \label{fig:inference_initial_artist_z_histo}
 \end{figure}
 
-This chapter will cover hypothesis testing, for a single test and then for multiple tests. The empirical null will then be reviewed which then can be extended to an image filter, called the empirical null filter. This filter will adjust each $z$ statistic according to its neighbours, ironing out false positive results. Simulations and actual results will be shown at the end of the chapter.
+This chapter covers hypothesis testing, for a single test and then for multiple tests, treating each pixel as a test. The empirical null is reviewed and then extended to an image filter, called the empirical null filter. This filter adjust each $z$ statistic according to its neighbours, ironing out false positive results. Simulations and actual results was shown at the end of the chapter.
 
 \section{Hypothesis Testing}
 
-Hypothesis testing dates back to \cite{pearson1900on}, \cite{neyman1933on} and \cite{fisher1970statistical}. It is so fundamental in science that it is now taught in schools.
+Hypothesis testing dates back to \cite{pearson1900on}, \cite{neyman1933on} and \cite{fisher1970statistical}. It is one of the most fundamental methods in science.
 
-The focus on this section is on the single hypothesis test. Here the random variable $Z\sim\normal(\mu,1)$ will be studied here as this is of interest in this project. It also appears in other tests such as the difference in sample means.
+The focus on this section is on the single hypothesis test. A Normal random variable is studied as this is of interest in this project. It also appears in other tests such as the difference in sample means.
 
-In the context of this project, an example of hypothesis testing will be given here. Here, it was assumed that $Z\sim\normal(0,1)$. A null hypothesis can be written down to describe this
+In the context of this project, an example of hypothesis testing is given here. Here, it was assumed that the test statistic $Z\sim\normal(0,1)$. A null hypothesis is written down to describe this. This is done by specifying the random variable as $Z\sim\normal(\mu,1)$ and the null hypothesis
 \begin{equation}
     H_0:\mu=0 \ .
 \end{equation}
-It specifies the assumptions made on the random variable $Z$. Any data behaving as assumed is treated as a negative result.
+This specifies the assumptions made on the random variable $Z$, here the mean is zero. Any data behaving as assumed is treated as a negative result or not significant.
 
-A positive result is obtained when unlikely data is obtained and this happens if $Z$ deviates too much from 0. This can be described as testing $H_0$ against an alternative hypothesis $H_1$ where
+A positive, or significant, result is obtained when unlikely data is obtained and this happens if $Z$ deviates too much from 0. This can be described as testing $H_0$ against an alternative hypothesis $H_1$ where
 \begin{equation}
     H_1:\mu\neq0 \ .
 \end{equation}
-How much $Z$ deviates from 0 to be considered a positive is up to the user but typically $\|Z\|>z_\alpha$ where $z_\alpha =2$ is considered significant.
+How much $Z$ deviates from 0 to be considered a positive is up to the user but typically $\|Z\|>z_\alpha$ where $z_\alpha =2$ is a typical choice for the threshold.
 
 A way to quantify the threshold for a positive result is to use something called the size of the test, otherwise known as the significance level, denoted as $\alpha$. This is the probability of a false positive result, which can be denoted as
 \begin{equation}
@@ -118,7 +118,7 @@ Using the fact the Normal distribution is symmetric then
     2(1 - \Phi(z_\alpha)) = \alpha \ .
     \label{eq:inference_single_alpha}
 \end{equation}
-The choice of $z_\alpha=2$ will set the size of the test to be $\alpha\approx 4.55\%$. This sort of choice of threshold and size is sensible.
+The choice of $z_\alpha=2$ set the size of the test to be $\alpha\approx 4.55\%$. The $z_\alpha=2$ level is used throughout this project.
 
 The $p$-value is a way to represent an observation of the data $Z=z$. Similar to the size, the $p$-value is
 \begin{equation}
@@ -130,9 +130,9 @@ The power of the test is defined as the probability of a true positive result. F
 
 \section{Multiple Hypothesis Testing}
 
-In this section, the single hypothesis test will be extended and the multiple hypothesis testing \citep{shaffer1995multiple, dudoit2003multiple} shall be reviewed.
+In this section, the single hypothesis test is extended and the multiple hypothesis testing \citep{shaffer1995multiple, dudoit2003multiple} is reviewed.
 
-Suppose $n$ test statistics were obtained $Z_1,Z_2,\dotdotdot,Z_n$ where $Z_i\sim\normal(\mu,1)$ for $i=1,2,\dotdotdot,n$ and i.i.d. One can test each of these statistics for the following hypotheses $H_0:\mu=0$ and $H_1:\mu\neq 0$. Using the method from the single hypothesis test at the $z_\alpha=2$ level, any statistic where $\|Z_i\|>2$ for $i=1,2,\dotdotdot,n$ would be considered a positive result.
+Suppose $n$ test statistics were obtained $Z_1,Z_2,\dotdotdot,Z_n$ where $Z_i\sim\normal(\mu,1)$ for $i=1,2,\dotdotdot,n$ and i.i.d. Suppose each individual statistic were used to test the following hypotheses $H_0:\mu=0$ and $H_1:\mu\neq 0$. Using the method from the single hypothesis test at the $z_\alpha=2$ level, any statistic where $\|Z_i\|>2$ for $i=1,2,\dotdotdot,n$ would be considered significant.
 
 Bringing in methods from single hypothesis testing to the multiple version has drawbacks. Assuming that the null hypothesis is true for all $Z_i$ for $i=1,2,\dotdotdot,n$, then by definition $\alpha\approx 4.55\%$ of the data will be tested positive, and falsely positive. Still under the same assumption, the probability of at least one false positive result, known as the family-wise error rate (FWER) \citep{shaffer1995multiple}, is
 \begin{align}
@@ -142,7 +142,7 @@ Bringing in methods from single hypothesis testing to the multiple version has d
 \end{align}
 To put into context, for $\alpha\approx 4.55\%$ and $n=20$ then remarkably $\text{FWER}\approx60.6\%$. This method for multiple hypothesis testing will have too many false positive results.
 
-While the uncorrected method for multiple hypothesis testing has it flaws, it does control the per comparison error rate (PCER) \citep{benjamini1995controlling}. PCER is the proportion of false positives out of all tests. There are corrections for multiple hypothesis testing which controls different things. Conventionally they are expressed in terms of the number of errors made in testing, these are defined in Table \ref{table:inference_randomvariables}. Using the notation, formally PCER is defined as
+While the uncorrected method for multiple hypothesis testing has it flaws, it does control the per comparison error rate (PCER) \citep{benjamini1995controlling}. PCER is the proportion of false positives out of all tests. There are corrections for multiple hypothesis testing which controls different things. Conventionally they are expressed in terms of the number true/false positives/negatives, these are defined in Table \ref{table:inference_randomvariables}. Using the notation, formally PCER is defined as
 \begin{equation}
     \text{PCER}=
     \dfrac{
@@ -167,7 +167,7 @@ It can be seen that if the uncorrected test controls the false positive rate suc
         Non-true null & $T$ & $S$ & $n-n_0$\\\hline
         &$n-R$&$R$&$n$
     \end{tabular}
-    \caption{Random variable definitions for the different types of error made in multiple hypothesis testing}
+    \caption{Random variable definitions for true/false positives/negatives made in multiple hypothesis testing}
     \label{table:inference_randomvariables}
 \end{table}
 
@@ -183,9 +183,9 @@ This shows that the Bonferroni correction controls the family-wise error rate su
 \begin{equation}
     \text{FWER} \leqslant \alpha \ .
 \end{equation}
-However in practice the Bonferroni correction is not very powerful \citep{perneger1998what}, meaning it does give too many false negative results. This is because the correction traded too many false positives for false negatives.
+However in practice the Bonferroni correction is not very powerful \citep{perneger1998what}, meaning it does give too many false negatives. This is because the correction traded too many false positives for false negatives.
 
-The \cite{benjamini1995controlling} (BH) procedure controls the false discovery rate (FDR) \citep{benjamini2010discovering} rather than the false positive or family-wise rate. The FDR is the proportion of false positives out of all positive results, that is
+The \cite{benjamini1995controlling} (BH) procedure controls the false discovery rate (FDR) \citep{benjamini2010discovering} rather than the PCER or FWER. The FDR is the proportion of false positives out of all positive results, that is
 \begin{equation}
     \text{FDR} = \expectation\left[
         \dfrac{V}{R}
@@ -196,7 +196,7 @@ It is defined that $V/R=0$ when $R=0$.
 
 In practice the BH procedure adjusts the size of the test between the Bonferroni correction and the uncorrected test. The BH procedure also adapts to the data, meaning the procedure chooses different sizes for different data.
 
-The procedure is as follows. Suppose $n$ test statistics were obtained $Z_1,Z_2,\dotdotdot,Z_n$. They will need to be converted to $p$-values and ordered such that $p_{(1)}\leqslant p_{(2)}\leqslant \dotdotdot \leqslant p_{(n)}$. The adjusted size $\alpha_{\text{BH}}$ is
+The procedure is as follows. Suppose $n$ test statistics were obtained $Z_1,Z_2,\dotdotdot,Z_n$. They are converted to $p$-values and ordered such that $p_{(1)}\leqslant p_{(2)}\leqslant \dotdotdot \leqslant p_{(n)}$. Suppose a size $\alpha$ is provided beforehand. The size is then adjusted to
 \begin{equation}
     \alpha_{\text{BH}} = \frac{\alpha k}{n}
 \end{equation}
@@ -205,7 +205,7 @@ where
     k\text{ is the largest }i\text{ for which }p_{(i)}\leqslant\frac{i}{n}\alpha
     \ .
 \end{equation}
-This essentially declare $p_{(1)},p_{(2)},\dotdotdot,p_{(k)}$ as positive results. For the case where $p_{(1)}>\alpha/n$, then $k=1$ shall be chosen so that the Bonferroni correction is used instead. The BH procedure comes from the fact that assuming the null hypothesis is true for all $Z_i$ and all tests are independent, then the $p$-values are uniformly distributed \citep{simes1986improved}. However it can be shown that the BH procedure works for many scenarios of dependencies \citep{benjamini2001control}. 
+This essentially declare $p_{(1)},p_{(2)},\dotdotdot,p_{(k)}$ as significant. For the case where $p_{(1)}>\alpha/n$, then $k=1$ was chosen so that the Bonferroni correction is used instead. The BH procedure comes from the fact that assuming the null hypothesis is true for all $Z_i$ and all tests are independent, then the $p$-values are uniformly distributed \citep{simes1986improved}. However it can be shown that the BH procedure works for many scenarios of dependencies \citep{benjamini2001control}. 
 
 It can be shown that the BH procedure controls the FDR such that
 \begin{equation}
@@ -229,47 +229,47 @@ In summary, the uncorrected, Bonferroni and BH correction controls for different
 
 \subsection{Examples}
 
-A few numerical examples will be shown here to explore the properties of the 3 different types of methods to do multiple hypothesis testing. Two scenarios will be shown here. In the first case, 1\,000 $\normal(0,1)$ independent test statistics were simulated, all test statistics are all null. In the second case, 800 null $\normal(0,1)$ and 200 alternative $\normal(2,1)$ independent test statistics were simulated. 
+A few numerical examples is shown here to explore the properties of the 3 different types of methods to do multiple hypothesis testing. Two scenarios is shown here. In the first case, 1\,000 $\normal(0,1)$ independent test statistics were simulated, all test statistics were null. In the second case, 800 null $\normal(0,1)$ and 200 non-null $\normal(2,1)$ independent test statistics were simulated. 
+
+A histogram of the test statistics in the all null case is shown in Figure \ref{fig:inference_multi_test_nullhisto_pvalues}. The critical boundaries are also shown. In the uncorrected case, the critical region is $\|Z\|>2$. Using the Bonferroni correction, the critical region becomes $\|Z\|>4.08...$. By inspection of the histogram, the uncorrected method tested a number of test statistics to be positive and falsely so. The Bonferroni correction performs well because it tested all the test statistics as negative correctly.
+
+The ordered $p$-values are shown in Figure \ref{fig:inference_multi_test_nullhisto_pvalues}. The $p$-values form a straight line as a result of being uniformly distributed. The critical line is $0.0455...\times\text{order}/1\,000$ using the BH procedure. In the all null case, the $p$-values are all larger than the critical line, thus no test statistic were tested positive using the BH procedure. As a result, the Bonferroni and BH procedure tested all test statistics to be negative correctly.
 
 \begin{figure}
-	\centering
-	\includegraphics[width=0.8\textwidth]{../figures/inference/multi_test_nullhisto.eps}
-	\caption{A histogram of simulated of 1\,000 null test statistics. Also provided are the critical boundaries at the $z_\alpha=2$ level, one uncorrected for multiple testing, another corrected using the Bonferroni correction.}
-	\label{fig:inference_multi_test_nullhisto}
+    \centering
+    \begin{subfigure}[b]{0.8\textwidth}
+    	\includegraphics[width=\textwidth]{../figures/inference/multi_test_nullhisto.eps}
+    	\caption{Histogram}
+    \end{subfigure}
+	\begin{subfigure}[b]{0.8\textwidth}
+    	\includegraphics[width=\textwidth]{../figures/inference/multi_test_nullpvalues.eps}
+    	\caption{Ordered $p$-values}
+    \end{subfigure}
+    \caption{1\,000 null test statistics were simulated. a) Critical boundaries are shown at the $z_\alpha=2$ level, one uncorrected for multiple testing, another corrected using the Bonferroni correction. b) Any values below the critical line are declared significant using the BH procedure.}
+    \label{fig:inference_multi_test_nullhisto_pvalues}
 \end{figure}
 
-A histogram of the test statistics in the all null case is shown in Figure \ref{fig:inference_multi_test_nullhisto}. The critical boundaries are also shown. In the uncorrected case, the critical region is $\|Z\|>2$. Using the Bonferroni correction, the critical region becomes $\|Z\|>4.08...$. By inspection of the histogram, the uncorrected method tested a number of test statistics to be positive and falsely so. The Bonferroni correction performs well because it tested all the test statistics as negative correctly.
+In the second scenario, 800 $\normal(0,1)$ and 200 $\normal(2,1)$ test statistics were simulated. The histogram of the simulated test statistics, along with the critical regions, is shown in Figure \ref{fig:inference_multi_test_althisto_pvalues}. The uncorrected and Bonferroni corrected critical regions are still the same as the first scenario. However this time the critical region using the BH procedure is different, it is $\|Z\|\geqslant\input{../tables/multi_test_alt_z_critical.txt}...$.
+
+The ordered $p$-values are shown in Figure \ref{fig:inference_multi_test_althisto_pvalues}. There are $p$-values below the critical line according to the BH procedure. $p$-values below where the curves intersect are considered significant, testing $\input{../tables/multi_test_alt_n_positive_bh.txt}$ test statistics as positive. The uncorrected test tested $\input{../tables/multi_test_alt_n_positive_uncorrected.txt}$ test statistics as positive.
 
 \begin{figure}
-	\centering
-	\includegraphics[width=0.8\textwidth]{../figures/inference/multi_test_nullpvalues.eps}
-	\caption{Ordered $p$-values of simulated 1\,000 null test statistics. Any values below the critical line are declared positive using the BH procedure.}
-	\label{fig:inference_multi_test_nullpvalues}
-\end{figure} 
-
-The ordered $p$-values are shown in Figure \ref{fig:inference_multi_test_nullpvalues}. The $p$-values form a straight line as a result of being uniformly distributed. The critical line is $0.0455...\times\text{order}/1\,000$. This corresponds to the BH procedure and $p$-values below where the 2 curves intersect are considered positive results. In the all null case, the $p$-values are all larger than the critical line, thus no test statistic were tested positive using the BH procedure. As a result, the Bonferroni and BH procedure tested all test statistics to be negative correctly.
-
-\begin{figure}
-	\centering
-	\includegraphics[width = 0.8\textwidth]{../figures/inference/multi_test_althisto.eps}
-	\caption{A histogram of simulated of 800 null $\normal(0,1)$ and 200 non-null $\normal(2,1)$ test statistics. Also provided are the critical boundaries at the $z_\alpha=2$ level using no correction, Bonferroni correction and the BH procedure.}
-	\label{fig:inference_multi_test_althisto}
+    \centering
+    \begin{subfigure}[b]{0.8\textwidth}
+    	\includegraphics[width=\textwidth]{../figures/inference/multi_test_althisto.eps}
+    	\caption{Histogram}
+    \end{subfigure}
+	\begin{subfigure}[b]{0.8\textwidth}
+    	\includegraphics[width=\textwidth]{../figures/inference/multi_test_altpvalues.eps}
+    	\caption{Ordered $p$-values}
+    \end{subfigure}
+    \caption{800 null $\normal(0,1)$ and 200 non-null $\normal(2,1)$ test statistics were simulated. a) Critical boundaries are shown at the $z_\alpha=2$ level, one uncorrected for multiple testing, another corrected using the Bonferroni correction. b) Any values below the critical line are declared significant using the BH procedure.}
+    \label{fig:inference_multi_test_althisto_pvalues}
 \end{figure}
-
-\begin{figure}
-	\centering
-	\includegraphics[width=0.8\textwidth]{../figures/inference/multi_test_altpvalues.eps}
-    \caption{Ordered $p$-values of simulated 800 null $\normal(0,1)$ and 200 non-null $\normal(2,1)$ test statistics. Any values below the critical line are declared positive using the BH procedure.}
-	\label{fig:inference_multi_test_altpvalues}
-\end{figure}
-
-In the second scenario, 800 $\normal(0,1)$ and 200 $\normal(2,1)$ test statistics were simulated. The histogram of the simulated test statistics, along with the critical regions, is shown in Figure \ref{fig:inference_multi_test_althisto}. The uncorrected and Bonferroni corrected critical regions are still the same as the first scenario. However this time the critical region using the BH procedure is different, it is $\|Z\|\geqslant\input{../tables/multi_test_alt_z_critical.txt}$.
-
-The ordered $p$-values are shown in Figure \ref{fig:inference_multi_test_altpvalues}. There are $p$-values below the critical line according to the BH procedure, testing $\input{../tables/multi_test_alt_n_positive_bh.txt}$ test statistics as positive. The uncorrected test tested $\input{../tables/multi_test_alt_n_positive_uncorrected.txt}$ test statistics as positive.
 
 This example shows a number of things. The BH procedure adapts to the data to control for the FDR. The uncorrected method did produce more positive results but at a cost of more false positives. It may seem unimpressive that the BH procedure only tested $\input{../tables/multi_test_alt_n_positive_bh.txt}$ positive results, but this is to control the FDR or the number of false positives out of all positive results.
 
-Unfortunately not all 200 non-null test statistics were tested as positive, statisticians would describe it as not powerful. This is however unavoidable as a number of null and non-null test statistics will be similar in value. The aim of hypothesis testing is not to classify positive and negative results correctly, but rather highlight a number of test statistics which are worth investigating.
+Unfortunately not all 200 non-null test statistics were tested as positive, statisticians would describe it as not powerful. This is however unavoidable as a number of null and non-null test statistics will be similar in value. The aim of hypothesis testing is not to classify positive and negative results correctly, but rather highlight a number of test statistics which are worth investigation.
 
 The error rates can be estimated as a result of knowing whenever each test statistic is truly null or non-null. Suppose the simulation was repeated $N$ times and $r_1,r_2,\dotdotdot,r_N$ number of test statistics were observed to be tested positive. From these positive results, suppose in addition that $v_1,v_2,\dotdotdot,v_N$ false positives were observed. In other words, they are realisations of the random variables defined in Table \ref{table:inference_randomvariables}. The error rates can be estimated
 \begin{equation}
@@ -282,28 +282,30 @@ The error rates can be estimated as a result of knowing whenever each test stati
 	\widehat{\text{FDR}} = \frac{1}{N}\sum_{i=1}^N\dfrac{v_i}{r_i}\times\mathbb{I}(r_i\neq0)
 	\ .
 \end{equation}
-The estimates of PCER and FDR is esentially the sample mean, so the standard error can be used to quantify the error. For the FWER, the variance of the Beta distribution is used to quantify the error
+The estimates of PCER and FDR is essentially the sample mean, so the standard error can be used to quantify the error. For the FWER, the standard error was chosen to be
 \begin{equation}
 	\text{standard error of }\widehat{\text{FWER}} = 
 	\sqrt{\dfrac{ab}{(a+b)^2(a+b+1)}}
 \end{equation}
-where $a = \sum_{i=1}^N \mathbb{I}(v_i\neq 0)$ and $b = N - a$.
+where $a = \sum_{i=1}^N \mathbb{I}(v_i\neq 0)$ and $b = N - a$. Without going into too much detail, this comes from setting a prior $\text{FWER}\sim\betaDist(0,0)$ and assuming that $\mathbb{I}(V\neq0)\sim\bernoulli(\text{FWER})$. The posterior distribution is $\text{FWER}|V_1,V_2,\dotdotdot V_N\sim\betaDist(a,b)$ and the variance was used for the standard error.
 
 \begin{table}
     \centering
-    \input{../tables/inference_error_rate1.txt}
-    \caption{Various error rates when using different types of corrections for multiple hypothesis testing at the $z_\alpha=2$ level. 1\,000 test statistics were simulated, all standard Normal. Error bars represent the standard errors after 1\,000 repeats of the experiment.}
-    \label{table:inference_error_rate1}
+    \begin{subtable}{\textwidth}
+    	\centering
+    	\input{../tables/inference_error_rate1.txt}
+    	\caption{1\,000 $\normal(0,1)$}
+    \end{subtable}
+    \begin{subtable}{\textwidth}
+    	\centering
+    	\input{../tables/inference_error_rate2.txt}
+    	\caption{800 $\normal(0,1)$ and 200 $\normal(2,1)$}
+    \end{subtable}
+    \caption{Various error rates when using different types of corrections for multiple hypothesis testing at the $z_\alpha=2$ level. 1\,000 test statistics were simulated, in a) all test statistics are null and b) some are non-null. Error bars represent the standard errors after 1\,000 repeats of the experiment.}
+    \label{table:inference_error_rate}
 \end{table}
 
-\begin{table}
-    \centering
-    \input{../tables/inference_error_rate2.txt}
-    \caption{Various error rates when using different types of corrections for multiple hypothesis testing at the $z_\alpha=2$ level. 1\,000 test statistics were simulated, 800 from the standard Normal, 200 from $\normal(2,1)$. Error bars represent the standard errors after 1\,000 repeats of the experiment.}
-     \label{table:inference_error_rate1}
-\end{table}
-
-Error rates estimations for the two scenarios are shown in Tables \ref{table:inference_error_rate1} and \ref{table:inference_error_rate1} for $N=1\,000$. These estimations show that the 3 different types of multiple hypothesis controls for different rates. The uncorrected, Bonferroni and BH controls the PCER, FWER and FDR to be equal or below $\alpha\approx 0.455$ respectively, equality is met when all the test statistics are all truly null.
+Error rates estimations for the two scenarios are shown in Table \ref{table:inference_error_rate} for $N=1\,000$. These estimations show that the 3 different types of multiple hypothesis controls for different error rates. The uncorrected, Bonferroni and BH controls the PCER, FWER and FDR to be equal or below $\alpha\approx 0.455$ respectively, equality is met when all the test statistics are all truly null.
 
 \section{Empirical Null}
 
@@ -321,17 +323,17 @@ By treating each pixel as a hypothesis test, methods for multiple hypothesis can
         \caption{Histogram of section}
     \end{subfigure}
     }
-    \caption{The resulting $z$ image. A histogram of a section of the $z$ image is shown.}
+    \caption{The resulting $z$ image. A histogram of a section of the $z$ image is shown. The critical region was obtained using the BH procedure.}
     \label{fig:inference_empirical_null_sub_z}
 \end{figure}
 
-A $200\times200$ section of the $z$ image was investigated by plotting the histogram as shown in Figure \ref{fig:inference_empirical_null_sub_z}. One could simply use the BH procedure at the $z_\alpha=2$ level to get the critical region of $\|Z\|>\input{../tables/empirical_null_sub_boundary.txt}...$. However a quick look at the histogram will show that almost half of the pixels will be tested as positive. It is questionable whether such number of positive results is sensible, in particular in an area where defects are not expected.
+A $200\times200$ section of the $z$ image was investigated by plotting the histogram as shown in Figure \ref{fig:inference_empirical_null_sub_z}. The BH procedure was used at the $z_\alpha=2$ level to get the critical region of $\|Z\|>\input{../tables/empirical_null_sub_boundary.txt}...$. However a quick look at the histogram showed that almost half of the pixels were significant. It is questionable whether such number of positive results is sensible, in particular in an area where defects were not expected.
 
-The histogram showed that the majority of the $z$ statistics are centred around 2 and has a bell shaped curve, a characteristic of the Normal distribution. If the data shows that the majority is centred elsewhere then expected, is it right to then to test the majority of the data as positive? This is an example of model misspecification because it was assumed that the $z$ statistics are distributed as $\normal(0,1)$ when in reality they are distributed as $\normal(\mu_0,\sigma_0^2)$.
+The histogram showed that the majority of the $z$ statistics are centred around 2 and has a bell shaped curve, a characteristic of the Normal distribution. If the data showed that the majority is centred elsewhere then expected, is it right to then to test the majority of the data as positive? This is an example of model misspecification because it was assumed that the $z$ statistics are distributed as $\normal(0,1)$ when in reality they are distributed as $\normal(\mu_0,\sigma_0^2)$.
 
 The empirical null \citep{efron2004large} adjusts the assumptions made on the $z$ statistics according to the majority of the data and treating it as the norm, relaxing the assumptions needed. It requires the following assumptions: the majority of the data are truly null, non-null test statistics are rare and the null test statistics are Normal distributed.
 
-The method will be described here. Suppose the following test statistics were obtained $z_1,z_2,\dotdotdot,z_n$. First the histogram needs to be smoothed. \cite{efron2004large} recommended using splines but a kernel density estimate \citep{parzen1962on, friedman2001elements} will be used here because it has simpler mathematical properties. The kernel density estimate is
+The method is described here. Suppose the following test statistics were obtained $z_1,z_2,\dotdotdot,z_n$. First the histogram is smoothed. \cite{efron2004large} recommended using splines but a kernel density estimate \citep{parzen1962on, friedman2001elements} was used here because it has simpler mathematical properties. The kernel density estimate \citep{parzen1962on} is
 \begin{equation}
 	\widehat{p}_Z(z)=
 	\frac{1}{nh}
@@ -359,23 +361,22 @@ where $s_z$ and $\text{iqr}_z$ are the standard deviation and interquartile rang
         \caption{Kernel density estimate}
     \end{subfigure}
     }
-    \caption{The density of the test statistics can be estimated using a histogram or a kernel density estimate. The dotted lines in the kernel density estimate shows the empirical null mean and standard deviation estimation.}
+    \caption{The density of the test statistics was estimated using a histogram or a kernel density estimate. The dotted lines in the kernel density estimate shows the empirical null mean and standard deviation estimation.}
     \label{fig:inference_empirical_null_sub_density_estimate}
 \end{figure}
 
-Next, the mode of the kernel density estimate, denoted as $\widehat{\mu}_0$, is to be found. This is then used as the mean of the empirical null \citep{efron2004large}. The calculation of $\widehat{\mu}_0$ can be numerically found using the Newton-Raphson method. Using the mode, the standard deviation of the empirical null is estimated using \citep{efron2004large}
+Next, the mode of the kernel density estimate, denoted as $\widehat{\mu}_0$, is found. This is used as the mean of the empirical null \citep{efron2004large}. The calculation of $\widehat{\mu}_0$ was numerically found using the Newton-Raphson method. Using the mode, the standard deviation of the empirical null was estimated using \citep{efron2004large}
 \begin{equation}
 	\widehat{\sigma}_0 = \left[
 		\left.
-			-\dfrac{\partial^2}{\partial z^2}\ln\widehat{p}(z)
+			-\dfrac{\partial^2}{\partial z^2}\ln\widehat{p}_Z(z)
 		\right|_{z=\widehat{\mu}_0}
 	\right]^{-1/2}
 	\ .
 \end{equation}
 In this particular example, it was found that $\widehat{\mu}_0=\input{../tables/empirical_null_sub_null_mu.txt}...$ and $\widehat{\sigma}_0=\input{../tables/empirical_null_sub_null_sigma.txt}...$. It was found that both of these estimators have negligible bootstrap \citep{efron1992bootstrap} variance or error.
 
-
-The empirical null is used to correct the test statistics $z_1,z_2,\dotdotdot,z_n$ to $\zeta_1,\zeta_2,\dotdotdot,\zeta_n$ by standardising the test statistics
+The empirical null was used to correct the test statistics $z_1,z_2,\dotdotdot,z_n$ to $\zeta_1,\zeta_2,\dotdotdot,\zeta_n$ by standardising the test statistics
 \begin{equation}
 	\zeta_i = \dfrac{
 		z_i - \widehat{\mu}_0
@@ -386,7 +387,7 @@ The empirical null is used to correct the test statistics $z_1,z_2,\dotdotdot,z_
 	\ .
 	\label{eq:inference_zeta}
 \end{equation}
-The corrected test statistics $\zeta_1,\zeta_2,\dotdotdot,\zeta_n$ are then used in any multiple hypothesis testing procedures. Using the BH procedure, the critical region was found to be $\|\zeta\|\geqslant\input{../tables/empirical_null_sub_null_critical_zeta.txt}...$ or in terms of the original units $Z \leqslant \input{../tables/empirical_null_sub_null_critical1.txt}...$ and $\input{../tables/empirical_null_sub_null_critical2.txt}...\leqslant Z$.
+The corrected test statistics $\zeta_1,\zeta_2,\dotdotdot,\zeta_n$ were used in any multiple hypothesis testing procedures. Using the BH procedure, the critical region was found to be $\|\zeta\|\geqslant\input{../tables/empirical_null_sub_null_critical_zeta.txt}...$ or in terms of the original units $Z \leqslant \input{../tables/empirical_null_sub_null_critical1.txt}...$ and $\input{../tables/empirical_null_sub_null_critical2.txt}...\leqslant Z$.
 
 \begin{figure}
 	\centering
@@ -404,29 +405,27 @@ The corrected test statistics $\zeta_1,\zeta_2,\dotdotdot,\zeta_n$ are then used
     \label{fig:inference_empirical_null_sub_z_critical_regions}
 \end{figure}
 
-These new critical regions are shown in Figure \ref{fig:inference_empirical_null_sub_z_critical_regions}. No positive results were found and the $p$-values are sensible as they look uniformly distributed. This demonstrated that the empirical null adjusts the parameters of the null distribution to fit the data in order to make sensible inference.
+These new critical regions are shown in Figure \ref{fig:inference_empirical_null_sub_z_critical_regions}. No positive results were found and the $p$-values are sensible as they look uniformly distributed. This demonstrated that the empirical null adjust the parameters of the null distribution to fit the majority of the data in order to make sensible inference.
 
-In this section, a more mathematical approach to the empirical null will be taken to examine why and when this method works. Next computational concepts will be discussed such as on how the mode of the kernel density estimator is found and what makes a good bandwidth in the kernel density estimator. 
-
+In this section, a more mathematical approach to the empirical null is taken to examine why and when this method works. Next computational concepts is discussed such as on how the mode of the kernel density estimator is found and what makes a good bandwidth in the kernel density estimator. This section is finished with a further discussion.
 
 \subsection{More on the Empirical Null}
 
-\cite{efron2004large} was motivated to tackle problems observed in large scale multiple hypothesis testing, for example in microarrays \citep{hedenfalk2001gene, efron2002empirical, efron2003robbins}. These problems are similar to the one observed at the start of this chapter. The empirical null is now used widely, including in neuroimaging \citep{schwartzman2008false, schwartzman2009empirical} and has been extended to include non-Normal null distributions \citep{schwartzman2008false, schwartzman2008empirical}.
+\cite{efron2004large} was motivated to tackle problems observed in large scale multiple hypothesis testing, for example in microarrays \citep{hedenfalk2001gene, efron2002empirical, efron2003robbins}. These problems are similar to the one observed at the start of this chapter. The empirical null is used widely, including in neuroimaging \citep{schwartzman2008false, schwartzman2009empirical} and has been extended to include non-Normal null distributions \citep{schwartzman2008false, schwartzman2008empirical}.
 
-For formality, the null and alternative hypotheses shall be described here. Assume that the $z$ statistics under the null hypothesis are such that
+For formality, the null and alternative hypotheses is described here. Assume that the $z$ statistics under the null hypothesis are such that
 \begin{equation}
-	Z_i|H_0\sim\normal(\mu,\widehat{\sigma}_0^2)
+	Z_i|H_0\sim\normal(\mu,\sigma_0^2)
 \end{equation}
 for $i=1,2,\dotdotdot,n$ and i.i.d. The hypotheses are then
 \begin{equation}
-	H_0:\mu = \widehat{\mu}_0
+	H_0:\mu = \mu_0
 \end{equation}
 and
 \begin{equation}
-	H_1:\mu\neq\widehat{\mu}_0
-	\ .
+	H_1:\mu\neq\mu_0
 \end{equation}
-Essentially null $z$ statistics are assumed to be Normal distributed, with parameters using the empirical null. Statistics which deviates too much from $\widehat{\mu}_0$ are considered to be positive.
+where $\mu_0$ and $\sigma_0$ are the empirical null mean and standard deviation respectively. Essentially null $z$ statistics are assumed to be Normal distributed, with parameters using the empirical null. Statistics which deviates too much from $\mu_0$ are considered to be positive.
 
 The distribution of the $z$ statistics can be described using a mixture model. Let the random variable $Z$ have the probability density function
 \begin{equation}
@@ -440,13 +439,13 @@ where $0\leqslant\pi_0\leqslant 1$ and  $\pi_1 = 1-\pi_0$. In addition, the null
 	\exp\left[
 		-\dfrac{1}{2}
 		\left(
-			\dfrac{z-\widehat{\mu}_0}{\widehat{\sigma}_0}
+			\dfrac{z-{\mu}_0}{{\sigma}_0}
 		\right)^2
 	\right]
 \end{equation}
 as it was assumed to be Normal. The non-null distribution $p_{Z|H_1}(z)$ does not need to be specified.
 
-The empirical null parameters can be obtained from the following. Assume that $\pi_0$ is large, say bigger than 0.9 \citep{efron2004large}, and at and around the mode the probability density function is dominated by the null distribution. This implies that
+The empirical null parameters are to be estimated. Assuming that $\pi_0$ is large, say bigger than 0.9 \citep{efron2004large}, and at and around the mode the probability density function is dominated by the null distribution. This implies that
 \begin{equation}
 	p_{Z}(z) \approx \pi_0 p_{Z|H_0}(z)
 \end{equation}
@@ -454,38 +453,27 @@ for values of $z$ around the mode. Finding the maximum for $p_{Z}(z)$ and $p_{Z|
 \begin{equation}
 	\widehat{\mu}_0 = \argmax\widehat{p}_Z(z) \ .
 \end{equation} 
-The empirical null standard deviation can be obtained by noting that
-\begin{equation}
-	p_{Z}(z) = 
-	\dfrac{\pi_0}{\sqrt{2\pi}\widehat{\sigma}_0}
-	\exp\left[
-		-\dfrac{1}{2}
-		\left(
-			\dfrac{z-\widehat{\mu}_0}{\widehat{\sigma}_0}
-		\right)^2
-	\right] \ .
-\end{equation}
-Taking the log of both sides
+The empirical null standard deviation was obtained from the log density. For values of $z$ at and around the mode
 \begin{equation}
 	\ln p_{Z}(z) = 
 	\ln\left[
-		\dfrac{\pi_0}{\sqrt{2\pi}\widehat{\sigma}_0}
+		\dfrac{\pi_0}{\sqrt{2\pi}{\sigma}_0}
 	\right]
 	-\dfrac{1}{2}
 	\left(
-		\dfrac{z-\widehat{\mu}_0}{\widehat{\sigma}_0}
+		\dfrac{z-{\mu}_0}{{\sigma}_0}
 	\right)^2
 	\ .
 \end{equation}
-Taking derivatives of the log density
+Taking derivatives
 \begin{equation}
 	\dfrac{\partial}{\partial z} \ln p_{Z}(z) =
 	-\left(
 		\dfrac{
-			z-\widehat{\mu}_0
+			z-{\mu}_0
 		}
 		{
-			\widehat{\sigma}_0^2
+			{\sigma}_0^2
 		}
 	\right)
 \end{equation}
@@ -495,7 +483,7 @@ Taking derivatives of the log density
 		1
 	}
 	{
-		\widehat{\sigma}_0^2
+		{\sigma}_0^2
 	}
 \end{equation}
 which motivates the estimator \citep{efron2004large}
@@ -509,16 +497,11 @@ which motivates the estimator \citep{efron2004large}
 \end{equation}
 The evaluation of $z=\widehat{\mu}_0$ is used as in that region, one would hope that null test statistics would dominate and non-null test statistics would not contribute much to the density estimate.
 
-This method does not need estimations of $\pi_0$ which makes it quite useful. The estimations of $\pi_0$ is discussed in literature such as \cite{benjamini2000adaptive, pounds2003estimating, storey2003statistical, pounds2004improving, langaas2005estimating, durnez2014posthoc}. Because of the assumptions made on the empirical null, the easiest method is
-\begin{equation}
-	\widehat{\pi}_0 = \dfrac{\widehat{p}_Z(z)}{p_{Z|H_0}(\widehat{\mu}_0)}
-	\ .
-\end{equation}
-\cite{efron2004large} also motives the use of the empirical null by investigating various types of false discovery rates \citep{storey2002direct, storey2003positive, efron2002empirical, efron2007size} which will not be discussed here.
+This method does not need estimations of $\pi_0$ which makes it quite useful. The estimations of $\pi_0$ is discussed in literature such as \cite{benjamini2000adaptive, pounds2003estimating, storey2003statistical, pounds2004improving, langaas2005estimating, durnez2014posthoc}. \cite{efron2004large} motives the use of the empirical null by investigating various types of false discovery rates \citep{storey2002direct, storey2003positive, efron2002empirical, efron2007size} which will not be discussed here.
 
 \subsection{Mode Finding}
 
-The mode can be found by solving for $\widehat{\mu}_0 = \argmax\widehat{p}_Z(z)$. This cannot be solved in closed form easily and should be done numerically. The  Newton-Raphson method can be used to solve $\hat{p}_Z'(z) = 0$ for $z$. Instead the log space will be used, solving
+The mode was found by solving for $\widehat{\mu}_0 = \argmax\widehat{p}_Z(z)$. This cannot be solved in closed form easily and should be done numerically. The  Newton-Raphson method can be used to solve $\hat{p}_Z'(z) = 0$ for $z$. Instead the log space was used, solving
 \begin{equation}
 	\dfrac{
 		\partial
@@ -529,7 +512,7 @@ The mode can be found by solving for $\widehat{\mu}_0 = \argmax\widehat{p}_Z(z)$
 	\ln\widehat{p}_Z(z)
 	= 0
 \end{equation}
-for $z$. This will at least find stationary points.
+for $z$. This at least find stationary points.
 
 The Newton-Raphson method is an iterative algorithm and requires an initial value $z^{(0)}$. The iterative step is
 \begin{equation}
@@ -558,7 +541,7 @@ The Newton-Raphson method is an iterative algorithm and requires an initial valu
 		\right|_{z = z^{(r)}}
 	} 
 \end{equation}
-for $r=0,1,2,3,\dotdotdot$ until some convergence condition is met. The derivatives for the log density can be obtained via the following. Recall that the kernel density estimate is
+for $r=0,1,2,3,\dotdotdot$ until some convergence condition is met. The derivatives for the log density was obtained via the following. Recall that the kernel density estimate is
 \begin{equation}
 	\widehat{p}_Z(z)=
 	\frac{1}{nh}
@@ -631,7 +614,7 @@ Taking the first derivative
 	\right)
 	\ .
 \end{equation}
-Using the fact that $\phi(z)=(2\pi)^{-1/2}\exp(-z^2/2)$, then $\phi'(z)=-z\phi(z)$. This can be used to simplify the equation to be
+Using the fact that $\phi(z)=(2\pi)^{-1/2}\exp(-z^2/2)$, then $\phi'(z)=-z\phi(z)$. This is used to simplify the equation to be
 \begin{equation}
 	\dfrac{
 		\partial
@@ -799,7 +782,7 @@ Taking the derivative again
 	\right\}
 	\ .
 \end{multline}
-Using the fact that $\phi'(z)=-z\phi(z)$, then it can be simplified to
+Using the fact that $\phi'(z)=-z\phi(z)$, then it is simplified to
 \begin{multline}
 	\dfrac{
 		\partial^2
@@ -888,7 +871,7 @@ Using the fact that $\phi'(z)=-z\phi(z)$, then it can be simplified to
 	\ .
 \end{multline}
 
-It was chosen that convergence is met when either 10 update steps were taken or when
+It was chosen that convergence was met when either 10 update steps were taken or when
 \begin{equation}
 	\left\|
 		\dfrac{
@@ -914,9 +897,9 @@ at the current step. This was chosen arbitrary to speed up the algorithm without
 	\right|_{z=\widehat{\mu}_0}
 	< 0 \ .
 \end{equation}
-Following a successful convergence, the estimator $\widehat{\sigma}_0$ can be calculated straight away.
+Following a successful convergence, the estimator $\widehat{\sigma}_0$ was calculated straight away.
 
-The algorithm does depend on the initial value so using different initial values is recommended. It was chosen here to use the quartiles of the data as the initial values and then select the best solution, the one with the largest $\ln\widehat{p}_Z\left(\widehat{\mu}_0\right)$, out of the different initial values. Should the algorithm still fail, a random data point is selected to be the initial value until a successful convergence is achieved. The Newton-Raphson method can fail if it converges to a stationary point other than a global maximum, for example a local maxima or a point of inflection. 
+The algorithm does depend on the initial value so using different initial values is recommended. It was chosen here to use the quartiles of the data as the initial values and then select the best solution, the one with the largest $\ln\widehat{p}_Z\left(\widehat{\mu}_0\right)$, out of all the different initial values. Should the algorithm still fail, a random data point is selected to be the initial value until a successful convergence is achieved. The Newton-Raphson method can fail if it converges to a stationary point other than a global maximum, for example a local maximum or a point of inflection. 
 
 \subsection{Bandwidth Selection}
 
@@ -926,7 +909,13 @@ The choice of the bandwidth $h$ is important for the kernel density estimator. I
 \end{equation}
 where $b=0.9$ \citep{silverman1986density}. This rule of thumb was developed with consideration of bimodal Normal distributions \citep{silverman1986density}. Other options include $b=1.06$ and $b=1.144$ to produce smoother curves \citep{sheather2004density}.
 
-In the context of the empirical null, the kernel density estimator is only used to obtain values of $\widehat{\mu}_0$ and $\widehat{\sigma}_0$. Thus a good bandwidth is one which has good properties of $\widehat{\mu}_0$ and $\widehat{\sigma}_0$ rather than the density estimate. However exact properties of these estimators based on the kernel density estimators can be rather complicated. Empirical properties shall be studied here.
+In the context of the empirical null, the kernel density estimator is only used to obtain values of $\widehat{\mu}_0$ and $\widehat{\sigma}_0$. Thus a good bandwidth is one which has good properties of $\widehat{\mu}_0$ and $\widehat{\sigma}_0$ rather than the density estimate. However exact properties of these estimators based on the kernel density estimators can be rather complicated. Empirical properties is studied here.
+
+An experiment was conducted to investigate the behaviour of the estimators, $\widehat{\mu}_0$ and $\widehat{\sigma}_0$, on a dataset of $n$ simulated all null $\normal(0,1)$. Various values of $h$ and $n$ were investigated. In reality non-null test statistics may appear in the dataset but they should not be too common and interfere with the density estimate too much. For a given $h$ and $n$, 50 values of $\widehat{\mu}_0$ and $\widehat{\sigma}_0$ were obtained by repeating the simulation. The median squared error, over the 50 repeats, for each of the estimators were plotted as shown in Figure \ref{fig:inference_ZNull1}.
+
+$\widehat{\mu}_0$ has low median squared error for large bandwidths. For low $n$, large bandwidths are particularly important because smoother curves prevents any false bimodal features appearing, making it easier to find the mode.
+
+A smooth valley can be seen for the median squared error for $\widehat{\sigma}_0$. It appears for a given $n$, there exist a bandwidth which minimise the median squared error. However the rules of thumb does not optimise for $\widehat{\sigma}_0$ and undershoots it. This can be particularly seen in Figure \ref{fig:inference_ZNull2} where the median values of $\widehat{\sigma}_0$ are plotted. In this simulation, the true value is $\sigma_0=1$ and all rules of thumb produced biased estimates, in particular underestimates it.
 
 \begin{figure}
 	\centering
@@ -940,7 +929,7 @@ In the context of the empirical null, the kernel density estimator is only used 
         \caption{$\sigma_0$}
     \end{subfigure}
     }
-    \caption{Median squared error of the estimators of the empirical null parameters from 50 repeats of simulated $\normal(0,1)$ data. Lines represent the rule of thumb for various values of $b$.}
+    \caption{Median squared error of the estimators of the empirical null parameters from 50 repeats of $n$ simulated $\normal(0,1)$ data. Lines represent the rule of thumb for various values of $b$.}
     \label{fig:inference_ZNull1}
 \end{figure}
 
@@ -956,17 +945,11 @@ In the context of the empirical null, the kernel density estimator is only used 
         \caption{Heatmap}
     \end{subfigure}
     }
-    \caption{Median value of $\widehat{\sigma}_0$ from 50 repeats of simulated $\normal(0,1)$ data. On the right, lines represent the rule of thumb for various values of $b$. On the left shows the true value of $\sigma_0=1$ as a plane, the empirical truth is where that plan intersects the surface.}
+    \caption{Median value of $\widehat{\sigma}_0$ from 50 repeats of $n$ simulated $\normal(0,1)$ data. On the right, lines represent the rule of thumb for various values of $b$. On the left shows the true value of $\sigma_0=1$ as a plane, the empirical truth is where that plan intersects the surface.}
     \label{fig:inference_ZNull2}
 \end{figure}
 
-An experiment was conducted to investigate the behaviour of the estimators, $\widehat{\mu}_0$ and $\widehat{\sigma}_0$, on a dataset of simulated all null $\normal(0,1)$. Various values of $h$ and $n$ were investigated. In reality non-null test statistics may appear in the dataset but they should not be too common and interfere with the density estimate too much. For a given $h$ and $n$, 50 values of $\widehat{\mu}_0$ and $\widehat{\sigma}_0$ were obtained by repeating the simulation. The median squared error for each of the estimators were plotted as shown in Figure \ref{fig:inference_ZNull1}.
-
-$\widehat{\mu}_0$ has low median squared error for large bandwidths, in particular for low $n$. This is because smoother curves prevents any false bimodal features appearing, making it easier to find the mode.
-
-A smooth valley can be seen for the median squared error for $\widehat{\sigma}_0$. It appears for a given $n$, there exist a bandwidth which minimise the median squared error. However the rules of thumb does not optimise for $\widehat{\sigma}_0$ and undershoots it. This can be particularly seen in Figure \ref{fig:inference_ZNull2} where the median values of $\widehat{\sigma}_0$ are plotted. In this simulation, the true value is $\sigma_0=1$ and all rules of thumb produced biased estimates, in particular underestimates it.
-
-Overestimates and underestimates are both dangerous, but it depends on the importance of false positives and false negatives. This is because $\widehat{\sigma}_0$ is used to rescale the test statistics accordingly. Recall that the corrected test statistics are
+Overestimates and underestimates are both dangerous, but it depends on the importance of false positives and false negatives. This is because $\widehat{\sigma}_0$ was used to rescale the test statistics accordingly. Recall that the corrected test statistics are
 \begin{equation}
 	\zeta_i = \dfrac{
 		z_i - \widehat{\mu}_0
@@ -977,9 +960,9 @@ Overestimates and underestimates are both dangerous, but it depends on the impor
 	\ .
 	\tag{\ref{eq:inference_zeta}}
 \end{equation}
-Low values of $\widehat{\sigma}_0$ will produce high values in magnitude of $\zeta_i$, potentially testing more of these test statistics as positive. High values of $\widehat{\sigma}_0$ does the opposite. Large number of positive results can led to more false positive results and vice versa.
+Low values of $\widehat{\sigma}_0$ produce large values in magnitude of $\zeta_i$, potentially testing more of these test statistics as significant. High values of $\widehat{\sigma}_0$ does the opposite. Large number of positive results can led to more false positive results and vice versa.
 
-The optimal bandwidth for a given $n$ was found numerically. Such a relationship can be seen clearly seen in Figure \ref{fig:inference_ZNull_mse_plot} which plots the log mean squared error against the bandwidth for various $n$. A local quadratic regression \citep{friedman2001elements} was fitted and this was used to find the bandwidth which minimises the log squared error for a given $n$.
+The optimal bandwidth for a given $n$ was found numerically. Such a relationship can be seen in Figure \ref{fig:inference_ZNull_mse_plot} which plots the log squared error against the bandwidth for various $n$. A local quadratic regression \citep{friedman2001elements} was fitted and this was used to find the bandwidth which minimises the log squared error for a given $n$.
 
 \begin{figure}
 	\centering
@@ -1031,7 +1014,7 @@ where $b$ and $a$ are parameters to be fitted. Figure \ref{fig:inference_ZNull_m
 	\label{table:inference_ZNull_mse_glm_estimate}
 \end{table}
 
-The results show that the rules of thumb can be improved if a small bias is added to it. This is because an intercept was found when fitting a linear relationship between the optimal bandwidth and $n^{-1/5}$. Adding this bias should improve the performance of the estimator $\widehat{\sigma}_0$. The gradient is similar to the rules of thumb in the literature \citep{sheather2004density}.
+The results showed that the rules of thumb can be improved if a small bias is added to it. This is because an intercept was found when fitting a linear relationship between the optimal bandwidth and $n^{-1/5}$. Adding this bias should improve the performance of the estimator $\widehat{\sigma}_0$. The gradient is similar to the rules of thumb in the literature \citep{sheather2004density}.
 
 Those familiar with local quadratic regressions would know that a kernel and a smoothness parameter need to be specified \citep{friedman2001elements}. In these plots a Gaussian kernel was used with smoothness parameter $\input{../tables/ZNull_bandwidth.txt}$. The smoothness parameter $\input{../tables/ZNull_bandwidth.txt}$ was chosen from a quick inspection of the curves. The units of the smoothness parameter is not too important here. But one should note that the smoothness parameter would affect the solution to the optimal bandwidth.
 
@@ -1044,7 +1027,7 @@ To take into the sensitivity to the smoothness parameter, the whole analysis was
 	\label{fig:inference_ZNull_msesensitive}
 \end{figure}
 
-In conclusion, a small bias added to the rule of thumb will improve the performance of the estimator $\widehat{\sigma}_0$. \cite{silverman1986density} pointed out that a smaller bandwidth should be used when in particular the distribution is bimodal, this is why \cite{silverman1986density} suggest the use of $b=0.9$ rather than $b=1.06$. Following from this, it was chosen that the intercept shall be added to Silverman's rule of thumb for the use in the empirical null
+In conclusion, a small bias added to the rule of thumb improved the performance of the estimator $\widehat{\sigma}_0$. \cite{silverman1986density} pointed out that a smaller bandwidth should be used when in particular the distribution is bimodal, this is why \cite{silverman1986density} suggest the use of $b=0.9$ rather than $b=1.06$. Following from this, it was chosen that the intercept was added to Silverman's rule of thumb for the use in the empirical null
 \begin{equation}
 	h = 0.9n^{-1/5}\times\text{min}\left(s_z,\text{IQR}_z/1.34\right) + 0.16
 	\ .
@@ -1053,7 +1036,7 @@ In conclusion, a small bias added to the rule of thumb will improve the performa
 
 \subsection{Further Discussion}
 
-A further example will be given here. A $200\times200$ sub-sample, containing a defect, was taken as shown in Figure \ref{fig:inference_alt_empirical_z_image}. The histogram of the test statistics are shown in Figure \ref{fig:inference_alt_empirical_z_histogram}. It can be seen that the null distribution is not centred at zero, however the empirical null takes that into account. The estimation of the empirical null parameters are robust as it only depends on the density estimate at the mode only, it should not be affected by non-null test statistics.
+A further example is given here. A $200\times200$ sub-sample, containing a defect, was taken as shown in Figure \ref{fig:inference_alt_empirical_z_image}. The histogram of the test statistics, along with the empirical null, is shown in Figure \ref{fig:inference_alt_empirical_z_histogram}. It can be seen that the null distribution is not centred at zero, however the empirical null takes that into account. The estimation of the empirical null parameters are robust as it only depends on the density estimate at the mode only, it should not be affected by non-null test statistics.
 
 \begin{figure}
 	\centering
@@ -1076,42 +1059,46 @@ A further example will be given here. A $200\times200$ sub-sample, containing a 
     \centerline{
     \begin{subfigure}[b]{0.49\textwidth}
         \includegraphics[width=\textwidth]{../figures/inference/alt_empirical_z_histo_null.eps}
-        \caption{Histogram}
+        \caption{Histogram and empirical null}
+        \label{fig:inference_alt_empirical_z_histogram}
     \end{subfigure}
     \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/alt_empirical_z_parzen.eps}
-        \caption{Kernel density estimate}
+        \includegraphics[width=\textwidth]{../figures/inference/alt_empirical_z_p_values.eps}
+        \caption{Ordered $p$-values}
+        \label{fig:inference_alt_empirical_z_p_values}
     \end{subfigure}
     }
-    \caption{Histogram and kernel density estimate of the $z$ statistics, taken from the sub-sample.}
-    \label{fig:inference_alt_empirical_z_histogram}
+    \caption{Histogram and $p$-values, corrected using the empirical null, of the test statistics taken from the sub-sample.}
 \end{figure}
 
-The BH procedure can be conducted, corrected for the empirical null. The $p$-values are shown in \ref{fig:inference_alt_empirical_z_p_values}, a number of them are significant. The significant pixels are shown in red in Figure \ref{fig:inference_alt_empirical_z_image}. The majority of the significant pixels are cluster together and highlighting the defect. Not all of the defects were tested positive, but a good number of them are. This should be enough to raise suspicion in that particular area.
-
-\begin{figure}
-	\centering
-	\includegraphics[width=0.8\textwidth]{../figures/inference/alt_empirical_z_p_values.eps}
-	\caption{Ordered $p$ values corrected for the empirical null.}
-	\label{fig:inference_alt_empirical_z_p_values}
-\end{figure}
+The BH procedure was conducted, corrected for the empirical null. The $p$-values are shown in Figure \ref{fig:inference_alt_empirical_z_p_values}. $\input{../tables/alt_empirical_n_sig.txt}$ pixels were significant. The significant pixels are shown in red in Figure \ref{fig:inference_alt_empirical_z_image}. The majority of the significant pixels are cluster together and highlighting the defect. Not all of the defects were tested positive, but a good number of them are. This should be enough to raise suspicion in that particular area.
 
 Only a few pixels were falsely tested as positive, however they are typically isolated single pixels. Isolated positive pixels should be discarded as they are more than likely to be tested positive by random chance. The technician should of improved the resolution of the x-ray apparatus if one is looking for defects, a or two pixel in size, for the given resolution.
 
 Clusters of significant pixels should raise suspicions. One could create a binary image, assigning a Boolean value whether that pixel is tested positive or not. A binary image filter, such as erode followed by a dilate, can be used to remove isolate significant pixels and emphasise the cluster of significant pixels.
 
-The empirical null is a good tool for defect detection under model misspecification. One possible implementation is to spilt the $z$ image into a grid and conduct inference in each section separately. There are problems with this though. The first problem is that how the grid is overlaid can be arbitrary, for example the grid can be translated to produce different sections. Secondly one could ask how the results from each section are combined \citep{efron2008simultaneous}? The empirical null filter is another implementation for the empirical null which only requires a window size to be specified.
+The empirical null is a good tool for defect detection under model misspecification. The empirical null could be used to solve the problem encountered at the start of the chapter. Recall that false positives were a problem due to model misspecification because the test statistics were not standard Normal distributed, as seen in Figure \ref{fig:inference_initial_artist_z_histo}. However the problem is that looking at the test statistics spatially in Figure \ref{fig:inference_initial_artist_logp_z}, the empirical null varied spatially. This is because it looked like the value of the test statistics depended on which surface it is on for example. 
 
+One possible solution is to spilt the $z$ image into a grid and conduct inference in each section separately. There are problems with this though. The first problem is that how the grid is overlaid can be arbitrary, for example the grid can be translated to produce different sections. Secondly it is not clear how to combine the results from each section \citep{efron2008simultaneous}.
 
 \section{Empirical Null Filter}
 
-The empirical null filter is an extension to the empirical null. In this setting, the parameters of the empirical null varies spatially. Let $Z_{x,y}$ be the test statistic at position $(x,y)$, then
+The empirical null filter is an extension to the empirical null. In this setting, the parameters of the empirical null varies spatially. Let $Z_{x,y}$ be the test statistic at position $(x,y)$ and
 \begin{equation}
-	Z_{x,y}\sim\normal\left(
-		\mu_{0,x,y},\sigma_{0,x,y}^2
+	Z_{x,y}|H_0\sim\normal\left(
+		\mu_{x,y},\sigma_{0,x,y}^2
 	\right)
+	\ .
 \end{equation}
-where $\mu_{0,x,y}$ and $\sigma_{0,x,y}$ are the empirical null mean and standard deviation at position $(x,y)$ respectively. The empirical null filter aims to estimate these parameters.
+Let the hypotheses
+\begin{equation}
+	H_0:\mu_{x,y}=\mu_{0,x,y}
+\end{equation}
+and
+\begin{equation}
+	H_1:\mu_{x,y}\neq\mu_{0,x,y}
+\end{equation}
+be tested for each pixel individually where $\mu_{0,x,y}$ and $\sigma_{0,x,y}$ are the empirical null mean and standard deviation at position $(x,y)$ respectively. The empirical null filter aims to estimate these parameters. 
 
 The method is the following. A window size needs to be specified, say $201\times201$. The window is placed over and centred at pixel $(x,y)$ capturing the pixels $z_{i,j}$ for $x-100\leqslant i \leqslant x+100$ and $y-100\leqslant j \leqslant y+100$. The estimators $\widehat{\mu}_{0,x,y}$ and $\widehat{\sigma}_{0,x,y}$ are the empirical null mean and standard deviation estimators, respectively, using the pixels captured in that window. This is then repeated for all $x$ and $y$. The $z$ statistics are then corrected using
 \begin{equation}
@@ -1129,7 +1116,7 @@ There are ways to speed up the implementation of the empirical null filter by sa
 
 The empirical null filter was used on the example at the start of the chapter. It was used on a grid of $20\times 20$ points, the remaining values were interpolated. It was also assumed the empirical null standard deviation was constant, the methodology discussed in the previous paragraph.
 
-The $z$ and $p$-value image, as shown in Figure \ref{fig:inference_filter_z_p_image}, now look more spatially uniform. The defects and some of the edges and corners are highlighted with their small $p$-values. In particular, Figure \ref{fig:inference_filter_z_ordered_p} shows that the test statistics look more Normal but with heavier tails. The heavier tails are contributed to non-null test statistics. Significant pixels are shown in Figure \ref{fig:inference_filter_sig_image}. It is encouraging to see less false positives and more defects being picked up. Because the BH procedure controls the FDR, some false positives are inevitable.
+The $z$ and $p$-value image, as shown in Figure \ref{fig:inference_filter_z_p_image}, now look more spatially uniform. The defects and some of the edges and corners are highlighted with their small $p$-values. In particular, Figure \ref{fig:inference_filter_z_ordered_p} shows that the test statistics look more Normal but with heavier tails. The heavier tails are contributed by non-null test statistics. Significant pixels are shown in Figure \ref{fig:inference_filter_sig_image}. It was encouraging to see less false positives and more defects being picked up. Because the BH procedure controls the FDR, some false positives are inevitable.
 
 \begin{figure}
 	\centering
@@ -1159,7 +1146,7 @@ The $z$ and $p$-value image, as shown in Figure \ref{fig:inference_filter_z_p_im
         \caption{Ordered $p$ values}
     \end{subfigure}
     }
-    \caption{Histogram of $z$ statistics and the corresponding ordered $p$-values}
+    \caption{Histogram of $z$ statistics and the corresponding ordered $p$-values when using the empirical null filter.}
     \label{fig:inference_filter_z_ordered_p}
 \end{figure}
 
@@ -1177,15 +1164,15 @@ The $z$ and $p$-value image, as shown in Figure \ref{fig:inference_filter_z_p_im
 	\label{fig:inference_filter_mean_null}
 \end{figure}
 
-In summary, the empirical null filter irons out each pixel in the $z$ image using the local mode. Figure \ref{fig:inference_filter_mean_null} shows the $\widehat{\mu}_{0,x,y}$ image, which varies a lot but smoothly. This demonstrated that by corrected the test statistics accordingly, sensible inference was achieved.
+In summary, the empirical null filter irons out each pixel in the $z$ image using the local mode. Figure \ref{fig:inference_filter_mean_null} shows the $\widehat{\mu}_{0,x,y}$ image, which varies a lot but smoothly. This demonstrated that by correcting the test statistics accordingly, sensible inference was achieved.
 
-In the remaining of the chapter, properties of the empirical null filter are investigated.
+In the remaining of the chapter, properties of the empirical null filter were investigated.
 
 \subsection{All Null Simulation}
 
 An experiment was conducted to investigate how well the empirical null filter performs with no defects. The dataset \texttt{July 30deg} was used in this experiment.
 
-The images in the dataset were spilt into two halves randomly. The mean over the first half of the images was taken and this was used as the ground truth, acting like an \texttt{aRTist} simulation. A smooth function was added to the ground truth to contaminate it and cause some systematic error. The idea was that the empirical null filter did inference without being effected too much by the smooth function.
+The images in the dataset were spilt into two halves randomly. The mean over the first half of the images was taken and this was used as the ground truth, acting like an \texttt{aRTist} simulation. A smooth function was added to the ground truth to contaminate it and cause some systematic error. The idea was that the empirical null filter should do inference without being affected too much by the smooth function.
 
 In the second half, all but one of the images were used in the training of the variance-mean model. The remaining image, the test image, was then used to compare with the simulated ground truth, producing a $z$ image. The $z$ image was then inferred using the empirical null filter and then the BH procedure.
 
@@ -1213,7 +1200,7 @@ where $\delta$ is the gradient, $A$ is the amplitude and $(x_0,y_0)$ is the cent
 
 Because no defects were implemented in this experiment, any positive results are false. The false positive rates were investigated for different harshness of the smooth functions. The experiment was repeated 20 times by randomly reallocating the images used for the ground truth, variance-mean training and testing.
 
-Figures \ref{fig:inference_NoDefect_Plane_sigma} and \ref{fig:inference_NoDefect_Sinusoid_sigma} shows the false positive rate for the plane and sinusoid contamination respectively. It can be seen that false positives can happen and in particular when the smooth function is quite harsh and varies a lot spatially. This showed that the empirical null filter was not completely perfect and false positives can happen.
+Figures \ref{fig:inference_NoDefect_Plane_sigma} and \ref{fig:inference_NoDefect_Sinusoid_sigma} shows the false positive rate for the plane and sinusoid contamination respectively. For sensible varying functions, the empirical null filter did a good job of not being detecting the contamination as significant. In extreme cases it can be seen that false positives can happen and in particular when the smooth function is quite harsh and varies a lot spatially. This showed that the empirical null filter was not completely perfect and false positives can happen.
 
 \begin{figure}
 	\centering
@@ -1291,7 +1278,7 @@ In practice, the amount of contamination won't be as harsh as the one demonstrat
         \caption{$z$ image with red significant pixels}
     \end{subfigure}
     }
-    \caption{The $p$-values and significant pixels, at the $z_\alpha=2$ level, when using the empirical null filter on an $z$ image where the ground truth was contaminated by a sinusoid with amplitude $10^4$.}
+    \caption{The $p$-values and significant pixels, at the $z_\alpha=2$ level, when using the empirical null filter on an $z$ image where the ground truth was contaminated by a sinusoid with amplitude $3\times10^3$.}
     \label{fig:inference_NoDefect_Sinusoid_p_sig}
 \end{figure}
 
@@ -1320,13 +1307,13 @@ These examples showed that the empirical null filter corrected the test statisti
 
 An experiment was conducted to see if the empirical null filter detect defects under contamination. Just like the previous experiment, the dataset \texttt{July 30deg} was used. The images in the dataset were spilt, the mean of the first half acted as the ground truth, the rest were used to train the variance-mean model, one held out for testing. A plane with gradient $\delta=3$ was added to the ground truth to contaminate it. The contamination from the plane is quite mild following from the previous experiment.
 
-Furthermore, defects were added to the ground truth by increasing selected pixels' grey-values. Shapes such as squares and lines were used to simulate voids and cracks.
+Furthermore, defects were added to the ground truth by increasing selected pixels' grey values. Shapes such as squares and lines were used to simulate voids and cracks.
 
-The receiver operating characteristic (ROC) curves \citep{green1966signal, metz1978basic, hanley1982meaning, friedman2001elements, cook2007use} were investigated. The ROC curve is a parametric plot, plotting the true positive rate against the false positive rate for varying thresholds. Other authors \citep{metz1978basic} use terminology such as sensitivity and specificity instead.
+The receiver operating characteristic (ROC) curves \citep{green1966signal, metz1978basic, hanley1982meaning, friedman2001elements, cook2007use} were investigated. The ROC curve is a parametric plot, plotting the true positive rate against the false positive rate for varying thresholds. Other authors \citep{metz1978basic} use terminology such as sensitivity and specificity.
 
-The area under the ROC curve is a commonly used statistic to quantify the performance of the test \citep{friedman2001elements}. Interpretations of the area do exist \citep{metz1978basic,hanley1982meaning} and discussed throughly in \citep{cook2007use}. The area under the ROC curve was recorded for different intensity values of the defect.
+The area under the ROC curve is a commonly used statistic to quantify the performance of the test \citep{friedman2001elements}. Interpretations of the area do exist \citep{metz1978basic,hanley1982meaning} and discussed throughly in \cite{cook2007use}. The area under the ROC curve was recorded for different intensity values of the defect.
 
-Figures \ref{fig:inference_SimulateRoc_Line_p_sig} and \ref{fig:inference_SimulateRoc_Squares_p_sig} shows the results of using the empirical null filter for inference. In this example an array of squares and a single vertical line were used to defect the ground truth by adding 298 to the grey value, a particular small number. The defects were picked up which is remarkable. The structure of the false positives is quite similar to Figure \ref{fig:inference_NoDefect_Plane_p_sig}, indicating that the plane was still quite harsh and responsible for the false positives.
+Figures \ref{fig:inference_SimulateRoc_Line_p_sig} and \ref{fig:inference_SimulateRoc_Squares_p_sig} shows the results of using the empirical null filter for inference. In this example an array of squares and a single vertical line were used to defect the ground truth by adding 298 to the grey value, a particularly small number. The defects were picked up which is remarkable. The structure of the false positives is quite similar to Figure \ref{fig:inference_NoDefect_Plane_p_sig}, indicating that the plane was still mildly harsh and responsible for the false positives.
 
 The empirical null filter can fail if it treats a defect as the null. This can be mildly seen in Figure \ref{fig:inference_SimulateRoc_Squares_p_sig}, the top rows of square defects were not detected but the area outside the defect were tested as positive.
 
@@ -1362,7 +1349,7 @@ The empirical null filter can fail if it treats a defect as the null. This can b
     \label{fig:inference_SimulateRoc_Squares_p_sig}
 \end{figure}
 
-The ROC curves for different defect intensities are shown in Figures \ref{fig:inference_SimulateRoc_Lines_roc} and \ref{fig:inference_SimulateRoc_Squares_roc}. The dotted diagonal line show the ROC curve if the test classify each pixel randomly. Perfect classification happens on the top left when the true positive rate is one and the false positive rate is zero. A sample of ROC curves were obtained by reallocating the images to the ground truth, variance-mean training and testing, this was done 5 times. 
+The ROC curves for different defect intensities are shown in Figures \ref{fig:inference_SimulateRoc_Lines_roc} and \ref{fig:inference_SimulateRoc_Squares_roc}. The dotted diagonal line show the ROC curve if the test classify each pixel randomly. Perfect classification happens on the top left of the graph when the true positive rate is one and the false positive rate is zero. A sample of ROC curves were obtained by reallocating the images to the ground truth, variance-mean training and testing, this was done 5 times. 
 
 \begin{figure}
 	\centering

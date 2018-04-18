@@ -28,7 +28,7 @@ classdef Experiment_NoDefect_Sinusoid < Experiment_NoDefect
         %OVERRIDE: SETUP
         function setup(this)
             %call superclass version of setup
-            this.setup@Experiment_NoDefect(RandStream('mt19937ar','Seed',uint32(707037501)), linspace(0,1E4,10));
+            this.setup@Experiment_NoDefect(RandStream('mt19937ar','Seed',uint32(707037501)), linspace(0,3E3,10));
         end
         
         %IMPLEMENTED: GET DEFECT SIMULATOR
