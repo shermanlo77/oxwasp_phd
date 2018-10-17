@@ -52,8 +52,12 @@ public class EmpiricalNull {
    * Estimate the parameters nullMean and nullStd
    */
   public void estimateNull() {
+    if (Float.isNaN(this.nullMean)) {
+      this.setNullToRandomData();
+    }
     //this.findMode returns a boolean, true if found a valid solution
-    while (this.findMode()) {
+    //while a solution is not found, find the mode 
+    while (!this.findMode()) {
       //if this.findMode failed to find a valid solution, change the initial value
       this.setNullToRandomData();
     }
@@ -100,18 +104,26 @@ public class EmpiricalNull {
       if (Math.abs(dxLnF[0])<EmpiricalNull.tolerance) {
         break;
       }
-      //if any of the variables are nan, break the loop as well
-      if (Float.isNaN(dxLnF[0])) {
+      //if any of the variables are not finite, output a fail
+      if (!Float.isFinite(dxLnF[0])) {
         return false;
-      } else if (Float.isNaN(dxLnF[1])) {
+      } else if (!Float.isFinite(dxLnF[1])) {
         return false;
-      } else if (Float.isNaN(this.nullMean)) {
+      } else if (!Float.isFinite(this.nullMean)) {
         return false;
       }
     }
     //check if the solution to the mode is a maxima by looking at the 2nd diff
     //return true is solution is valid and work out the null std
-    if (dxLnF[1] < 0) {
+    
+    //if any of the variables are not finite, output a fail
+    if (!Float.isFinite(dxLnF[0])) {
+      return false;
+    } else if (!Float.isFinite(dxLnF[1])) {
+      return false;
+    } else if (!Float.isFinite(this.nullMean)) {
+      return false;
+    } else if (dxLnF[1] < 0) {
       this.nullStd = (float) Math.pow((double) dxLnF[1], -0.5);
       return true;
     } else {

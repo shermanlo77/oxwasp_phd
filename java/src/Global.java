@@ -13,7 +13,7 @@ public class Global {
     
     ImagePlus image = new ImagePlus("float version" , imageOrginial.getProcessor().convertToFloat());
     
-    double radius = 30;
+    double radius = 150;
     
     ImagePlus org = image.duplicate();
     org.show();
@@ -27,7 +27,6 @@ public class Global {
     EmpiricalNullFilter filter = new EmpiricalNullFilter();
     filter.rank(image.getProcessor(), radius, RankFilters.MEDIAN, (FloatProcessor) stdImage.getProcessor());
     image.show();
-    
   }
   
 }
