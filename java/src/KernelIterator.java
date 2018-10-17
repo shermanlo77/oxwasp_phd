@@ -7,7 +7,7 @@ import java.util.Iterator;
       for (int p=kernel[kk++]+xCache0; p<=kernel[kk]+xCache0; p++) {
         double v = cache[p];
  */
-public class KernelIterator implements Iterator<Float> {
+public class KernelIterator implements Iterator<Float>, Cloneable{
   
   //See class RankFilters
   private float [] cache; //array of greyvalues
@@ -64,5 +64,14 @@ public class KernelIterator implements Iterator<Float> {
     }
     return toBeReturned;
   }
+  
+  /**CLONE
+   * Copies the variables cache, x and cachePointers
+   * @param that the object to copy
+   */
+  public Object clone(KernelIterator that) {
+    return (Object) new KernelIterator(that.cache, that.x, that.cachePointers);
+  }
+  
   
 }
