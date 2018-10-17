@@ -3,6 +3,8 @@ import org.apache.commons.math3.random.MersenneTwister;
 
 public class EmpiricalNull {
   
+  //number of times to repeat the newton-raphson using different initial values
+  protected static int nInitial = 4;
   protected static int nStep = 10; //number of steps in newton-raphson
   //stopping condition tolerance for newton-raphson
   protected static float tolerance = (float) Math.pow(10.0, -5.0);
@@ -18,6 +20,7 @@ public class EmpiricalNull {
   protected int n = 0; //number of non-NaN data in the kernel
   protected float dataStd; //the standard deviation of the pixels in the kernel
   
+  protected float initialValue; //the user requested initial value
   protected float nullMean; //empirical null mean
   protected float nullStd; //empirical null std
   protected float bandwidth; //bandwidth for the density estimate
@@ -38,7 +41,7 @@ public class EmpiricalNull {
     this.cache = cache;
     this.x = x;
     this.cachePointers = cachePointers;
-    this.nullMean = initialValue;
+    this.initialValue = initialValue;
     this.dataStd = dataStd;
     this.normalDistribution = normalDistribution;
     this.rng = rng;
@@ -52,83 +55,108 @@ public class EmpiricalNull {
    * Estimate the parameters nullMean and nullStd
    */
   public void estimateNull() {
-    if (Float.isNaN(this.nullMean)) {
-      this.setNullToRandomData();
+    //get the initial value, if it not finite, get a random one
+    float initialValue = this.initialValue;
+    if (!Float.isFinite(initialValue)) {
+      initialValue = this.getRandomInitial();
     }
-    //this.findMode returns a boolean, true if found a valid solution
-    //while a solution is not found, find the mode 
-    while (!this.findMode()) {
-      //if this.findMode failed to find a valid solution, change the initial value
-      this.setNullToRandomData();
+    
+    //declare arrays, storing the max density and empirical null parameters 
+    //for each new initial point
+    float [] densityArray = new float[EmpiricalNull.nInitial];
+    float [] nullMeanArray = new float[EmpiricalNull.nInitial];
+    float [] nullStdArray = new float[EmpiricalNull.nInitial];
+    
+    //for each initial point
+    for (int i=0; i<EmpiricalNull.nInitial; i++) {
+      //find the maximum density, get the empirical null parameters and save them
+      float[] densityAndNull = this.findMode(initialValue);
+      densityArray[i] = densityAndNull[0];
+      nullMeanArray[i] = densityAndNull[1];
+      nullStdArray[i] = densityAndNull[2];
+      //get a random value for the next initial point
+      initialValue = this.getRandomInitial();
+    }
+    
+    //find the maximum density
+    //the empirical null parameters chosen are the ones with the highest density
+    float maxDensity = Float.NEGATIVE_INFINITY;
+    for (int i=0; i<EmpiricalNull.nInitial; i++) {
+      if (densityArray[i] > maxDensity) {
+        maxDensity = densityArray[i];
+        this.nullMean = nullMeanArray[i];
+        this.nullStd = nullStdArray[i];
+      }
     }
   }
   
   /**METHOD: SET NULL TO RANDOM DATA
    * Set the initial value for the newton-raphson method to a random data point
+   * This is the orginal initial value plus Gaussian noise
    */
-  public void setNullToRandomData() {
-    //get a random pointer to a data
-    int dataPointer = this.rng.nextInt(this.n);
-    //count through the data and retrieve the random starting point
-    int nCounter = 0;
-    for (int kk=0; kk<this.cachePointers.length; kk++) {
-      for (int p=this.cachePointers[kk++]+x; p<=this.cachePointers[kk]+x; p++) {
-        if (!Float.isNaN(this.cache[p])) {
-          //if found the random data, set it to nullMean and break out of all loops
-          if (dataPointer == nCounter) {
-            this.nullMean = this.cache[p];
-            kk = this.cachePointers.length-1;
-            p = this.cachePointers[kk];
-          }
-          nCounter ++;
-        }
-      }
-    }
+  public float getRandomInitial() {
+    return this.initialValue + ((float) this.rng.nextGaussian()) * this.dataStd;
   }
   
   /**METHOD: FIND MODE
    * Find the mode of the log density using the newton-raphson method
-   * Solution is stored in this.nullMean
-   * @return true if the solution is valid
+   * @return 3-array, [0] contains the maximum density, [1] empirical null mean, [2] empirical null
+   * std
    */
-  public boolean findMode() {
-    //get the 1st and 2nd diff of the ln density at the initial value
-    float [] dxLnF = this.getDLnDensity(this.nullMean);
-    //for n_step
-    for (int i=0; i<EmpiricalNull.nStep; i++) {
-      //update the solution to the mode
-      this.nullMean -= dxLnF[0]/dxLnF[1];
-      //get the 1st and 2nd diff of the ln density at the new value
-      dxLnF = this.getDLnDensity(this.nullMean);
-      //if this gradient is within tolerance, break the i_step for loop
-      if (Math.abs(dxLnF[0])<EmpiricalNull.tolerance) {
-        break;
+  public float[] findMode(float greyvalue) {
+    //declare array for the output
+    float[] densityAndNull = new float[3];
+    //declare flag to indiciate if a solution has been found
+    boolean foundSolution = false;
+    //while no solution has been found
+    while (!foundSolution) {
+      
+      //get the density, 1st and 2nd diff of the ln density at the initial value
+      float [] dxLnF = this.getDLnDensity(greyvalue);
+      
+      //for n_step
+      for (int i=0; i<EmpiricalNull.nStep; i++) {
+        
+        //update the solution to the mode
+        greyvalue -= dxLnF[1]/dxLnF[2];
+        //get the 1st and 2nd diff of the ln density at the new value
+        dxLnF = this.getDLnDensity(greyvalue);
+        //if this gradient is within tolerance, break the i_step for loop
+        if (Math.abs(dxLnF[1])<EmpiricalNull.tolerance) {
+          break;
+        }
+        //if any of the variables are not finite, stop the algorithm
+        if (!Float.isFinite(dxLnF[0])) {
+          break;
+        } else if (!Float.isFinite(dxLnF[1])) {
+          break;
+        }  else if (!Float.isFinite(dxLnF[2])) {
+          break;
+        } else if (!Float.isFinite(greyvalue)) {
+          break;
+        }
       }
-      //if any of the variables are not finite, output a fail
-      if (!Float.isFinite(dxLnF[0])) {
-        return false;
-      } else if (!Float.isFinite(dxLnF[1])) {
-        return false;
-      } else if (!Float.isFinite(this.nullMean)) {
-        return false;
+      
+      //check if the solution to the mode is a maxima by looking at the 2nd diff
+      //if any of the variables are not finite, start again with a random initial value
+      if (Float.isFinite(dxLnF[0])) {
+        if (Float.isFinite(dxLnF[1])) {
+          if (Float.isFinite(dxLnF[2])) {
+            if (Float.isFinite(greyvalue)) {
+              if (dxLnF[1] < 0) {
+                foundSolution = true;
+                densityAndNull[0] = dxLnF[0];
+                densityAndNull[1] = greyvalue;
+                densityAndNull[2] = (float) Math.pow((double) -dxLnF[1], -0.5);
+              }
+            }
+          }
+        }
       }
+      greyvalue = this.getRandomInitial();
     }
-    //check if the solution to the mode is a maxima by looking at the 2nd diff
-    //return true is solution is valid and work out the null std
     
-    //if any of the variables are not finite, output a fail
-    if (!Float.isFinite(dxLnF[0])) {
-      return false;
-    } else if (!Float.isFinite(dxLnF[1])) {
-      return false;
-    } else if (!Float.isFinite(this.nullMean)) {
-      return false;
-    } else if (dxLnF[1] < 0) {
-      this.nullStd = (float) Math.pow((double) -dxLnF[1], -0.5);
-      return true;
-    } else {
-      return false;
-    }
+    return densityAndNull;
   }
   
   /**METHOD: COUNT DATA
@@ -146,11 +174,12 @@ public class EmpiricalNull {
   }
   
   /**METHOD: GET D LN DENSITY
-   * Return a 2 element array containing:
-   * 0. the first derivative of the log density
-   * 1. the second derivative of the log density
+   * Return a 3 element array containing:
+   * 0. the density (ignore any constant multiplied to it) (NOT THE LOG)
+   * 1. the first derivative of the log density
+   * 2. the second derivative of the log density
    * @param greyValue the value of the derivative to be evaluated at
-   * @return 2 element array containing derivatives
+   * @return 3 element array containing derivatives
    */
   public float [] getDLnDensity(float greyValue) {
     
@@ -181,12 +210,14 @@ public class EmpiricalNull {
       }
     }
     
-    //declare array for storing the 2 derivatives of the log density
-    //0. 1st derivative
-    //1. 2nd derivative
-    float [] dxLnF = new float[2];
-    dxLnF[0] = sumKernel[1]/(this.bandwidth*sumKernel[0]);
-    dxLnF[1] = (sumKernel[0]*(sumKernel[2] - sumKernel[0]) - sumKernel[1]*sumKernel[1]) 
+    //declare array for storing the 3 derivatives of the log density
+    //0. the density up to a constant
+    //1. 1st derivative
+    //2. 2nd derivative
+    float [] dxLnF = new float[3];
+    dxLnF[0] = sumKernel[0];
+    dxLnF[1] = sumKernel[1]/(this.bandwidth*sumKernel[0]);
+    dxLnF[2] = (sumKernel[0]*(sumKernel[2] - sumKernel[0]) - sumKernel[1]*sumKernel[1]) 
         / ((float)Math.pow((double)(this.bandwidth*sumKernel[0]),2.0));
     
     return dxLnF;

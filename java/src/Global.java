@@ -13,7 +13,7 @@ public class Global {
     
     ImagePlus image = new ImagePlus("float version" , imageOrginial.getProcessor().convertToFloat());
     
-    double radius = 150;
+    double radius = 20;
     
     ImagePlus org = image.duplicate();
     org.show();
