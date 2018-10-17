@@ -124,7 +124,7 @@ public class EmpiricalNull {
     } else if (!Float.isFinite(this.nullMean)) {
       return false;
     } else if (dxLnF[1] < 0) {
-      this.nullStd = (float) Math.pow((double) dxLnF[1], -0.5);
+      this.nullStd = (float) Math.pow((double) -dxLnF[1], -0.5);
       return true;
     } else {
       return false;
