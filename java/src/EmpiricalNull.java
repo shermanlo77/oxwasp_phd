@@ -4,7 +4,7 @@ import org.apache.commons.math3.random.MersenneTwister;
 public class EmpiricalNull {
   
   //number of times to repeat the newton-raphson using different initial values
-  protected static int nInitial = 4;
+  protected static int nInitial = 20;
   protected static int nStep = 10; //number of steps in newton-raphson
   //stopping condition tolerance for newton-raphson
   protected static float tolerance = (float) Math.pow(10.0, -5.0);

@@ -1,3 +1,5 @@
+import org.apache.commons.math3.random.MersenneTwister;
+
 import ij.IJ;
 import ij.ImageJ;
 import ij.ImagePlus;
@@ -10,11 +12,16 @@ public class Global {
     
     System.out.println("Hello");
     ImageJ.main(null);
-    ImagePlus imageOrginial = IJ.openImage("/home/sherman/Documents/oxwasp_phd/blobs.gif");
+    FloatProcessor processorOrginal = new FloatProcessor(255, 250);
+    MersenneTwister rng = new MersenneTwister(System.currentTimeMillis());
+    for (int i=0; i<processorOrginal.getPixelCount(); i++) {
+      processorOrginal.setf(i, (float) rng.nextGaussian());
+    }
+    //processorOrginal.noise(1.0);
     
-    ImagePlus image = new ImagePlus("float version" , imageOrginial.getProcessor().convertToFloat());
+    ImagePlus image = new ImagePlus("float version" , processorOrginal);
     
-    double radius = 20;
+    double radius = 50;
     
     ImagePlus org = image.duplicate();
     org.show();
