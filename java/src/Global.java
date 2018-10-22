@@ -7,6 +7,7 @@ import ij.process.FloatProcessor;
 public class Global {
   
   public static void main(String[] args) {
+    
     System.out.println("Hello");
     ImageJ.main(null);
     ImagePlus imageOrginial = IJ.openImage("/home/sherman/Documents/oxwasp_phd/blobs.gif");
@@ -27,6 +28,16 @@ public class Global {
     EmpiricalNullFilter filter = new EmpiricalNullFilter();
     filter.rank(image.getProcessor(), radius, RankFilters.MEDIAN, (FloatProcessor) stdImage.getProcessor());
     image.show();
+    
+    ImagePlus output;
+    output = new ImagePlus("null mean", new FloatProcessor(image.getWidth(), image.getHeight(),
+        filter.getOutputImage(EmpiricalNullFilter.NULL_MEAN)));
+    output.show();
+    
+    output = new ImagePlus("null std", new FloatProcessor(image.getWidth(), image.getHeight(),
+        filter.getOutputImage(EmpiricalNullFilter.NULL_STD)));
+    output.show();
+    
   }
   
 }

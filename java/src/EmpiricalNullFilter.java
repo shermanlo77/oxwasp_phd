@@ -24,11 +24,24 @@ import org.apache.commons.math3.random.MersenneTwister;
  // Version 2014-10-10 M. Schmid:   Fixes a bug that caused Threshold=0 when calling from API
 
 public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener {
-  public static final int  MEAN=0, MIN=1, MAX=2, VARIANCE=3, MEDIAN=4, OUTLIERS=5, DESPECKLE=6, REMOVE_NAN=7,
-      OPEN=8, CLOSE=9;
+  
+  //STATIC VARIABLES
+  public static final int  MEAN=0, MIN=1, MAX=2, VARIANCE=3, MEDIAN=4, OUTLIERS=5, DESPECKLE=6,
+      REMOVE_NAN=7, OPEN=8, CLOSE=9;
   public static final int BRIGHT_OUTLIERS = 0, DARK_OUTLIERS = 1;
   private static final String[] outlierStrings = {"Bright","Dark"};
   private static int HIGHEST_FILTER = CLOSE;
+  public static final int NULL_MEAN = 1, NULL_STD = 2;
+  public static final int N_IMAGE_OUTPUT = 2;
+  
+  //array of float processors which contains images (or statistics) which are obtained from the
+  //filter itself
+  //entry 0: empiricial null mean
+  //entry 1: empirical null std
+  protected int outputImagePointer = EmpiricalNullFilter.NULL_MEAN + EmpiricalNullFilter.NULL_STD;
+  protected FloatProcessor [] outputImageArray =
+      new FloatProcessor[EmpiricalNullFilter.N_IMAGE_OUTPUT];
+  
   // Filter parameters
   private double radius;
   private double threshold;
@@ -177,7 +190,23 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     if (IJ.escapePressed())                 // interrupted by user?
       ip.reset();
   }
-
+  
+  /**METHOD: GET OUTPUT IMAGE
+   * Returns an array of pixels from one of the requested output images
+   * @param outputImagePointer e.g. NULL_MEAN, NULL_STD
+   * @return float array containing the value of each pixel of a requested output image
+   */
+  public float [] getOutputImage(int outputImagePointer) {
+    //for each output image
+    for (int i=0; i<EmpiricalNullFilter.N_IMAGE_OUTPUT; i++) {
+      //if the user requested this output image, return it
+      if ( (outputImagePointer >> i) % 2 == 1) {
+        return (float [] ) this.outputImageArray[i].getPixels();
+      }
+    }
+    return null;
+  }
+  
   /** Filters an image by any method except 'despecle' or 'remove outliers'.
    *  @param ip    The ImageProcessor that should be filtered (all 4 types supported)
    *  @param radius  Determines the kernel size, see Process>Filters>Show Circular Masks.
@@ -202,11 +231,18 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     ImageProcessor mask = ip.getMask();
     Rectangle roi1 = null;
     int[] lineRadii = makeLineRadii(radius);
-
+    
+    //instantiate new images for each outout
+    for (int i=0; i<EmpiricalNullFilter.N_IMAGE_OUTPUT; i++) {
+      if ( (this.outputImagePointer >> i) % 2 == 1) {
+        this.outputImageArray[i] = new FloatProcessor(ip.getWidth(), ip.getHeight());
+      }
+    }
+    
     float minMaxOutliersSign = filterType==MIN ? -1f : 1f;
     if (filterType == OUTLIERS)   //sign is -1 for high outliers: compare number with minimum
       minMaxOutliersSign = (ip.isInvertedLut()==(whichOutliers==DARK_OUTLIERS)) ? -1f : 1f;
-
+    
     boolean isImagePart = (roi.width<ip.getWidth()) || (roi.height<ip.getHeight());
     boolean[] aborted = new boolean[1];           // returns whether interrupted during preview or ESC pressed
     for (int ch=0; ch<ip.getNChannels(); ch++) {
@@ -346,19 +382,32 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     double[] sums = sumFilter ? new double[2] : null;
     float[] medianBuf1 = (medianFilter||filterType==REMOVE_NAN) ? new float[kNPoints] : null;
     float[] medianBuf2 = (medianFilter||filterType==REMOVE_NAN) ? new float[kNPoints] : null;
-
+    
     boolean smallKernel = kRadius < 2;
-
+    
+    //values is a 2D array
+    //each dimension contain the pixel values for each image
+    //dim 1:
+      //0. filtered image
+      //1. 2. 3. ... are the output images
+    float[][] values = new float[EmpiricalNullFilter.N_IMAGE_OUTPUT+1][];
     Object pixels = ip.getPixels();
     boolean isFloat = pixels instanceof float[];
     float maxValue = isFloat ? Float.NaN : (float)ip.maxValue();
-    float[] values = isFloat ? (float[])pixels : new float[roi.width];
-
+    //get the pixels of the filtered image
+    values[0] = isFloat ? (float[])pixels : new float[roi.width];
+    //get the pixels of each of the output images (only if requested)
+    for (int i=0; i<EmpiricalNullFilter.N_IMAGE_OUTPUT; i++) {
+      if ( (this.outputImagePointer >> i) % 2 == 1) {
+        values[i+1] = (float[]) this.outputImageArray[i].getPixels();
+      }
+    }
+    
     int numThreads = yForThread.length;
     long lastTime = System.currentTimeMillis();
     int previousY = kHeight/2-cacheHeight;
     boolean rgb = ip instanceof ColorProcessor;
-
+    
     while (!aborted[0]) {
       int y = arrayMax(yForThread) + 1;   // y of the next line that needs processing
       yForThread[threadNumber] = y;
@@ -448,7 +497,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
           sums, medianBuf1, medianBuf2, minMaxOutliersSign, maxValue, isFloat, filterType,
           smallKernel, sumFilter, minOrMax, minOrMaxOrOutliers, threshold, std);
       if (!isFloat)   //Float images: data are written already during 'filterLine'
-        writeLineToPixels(values, pixels, roi.x+y*width, roi.width, colorChannel);  // W R I T E
+        writeLineToPixels(values[0], pixels, roi.x+y*width, roi.width, colorChannel);  // W R I T E
       //System.out.println("thread "+threadNumber+" @y="+y+" line done");
     } // while (!aborted[0]); loop over y (lines)
   }
@@ -468,7 +517,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     return min<0 ? 0 : min;
   }
 
-  private void filterLine(float[] values, int width, float[] cache, int[] cachePointers, int kNPoints, int cacheLineP, Rectangle roi, int y,
+  private void filterLine(float[][] values, int width, float[] cache, int[] cachePointers, int kNPoints, int cacheLineP, Rectangle roi, int y,
       double[] sums, float[] medianBuf1, float[] medianBuf2, float minMaxOutliersSign, float maxValue, boolean isFloat, int filterType,
       boolean smallKernel, boolean sumFilter, boolean minOrMax, boolean minOrMaxOrOutliers, float threshold, FloatProcessor std) {
       int valuesP = isFloat ? roi.x+y*width : 0;
@@ -478,7 +527,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
       boolean fullCalculation = true;
       
       //set the first value to be the median
-      initialValue = Float.isNaN(values[valuesP]) ? Float.NaN : values[valuesP]; // a first guess
+      initialValue = Float.isNaN(values[0][valuesP]) ? Float.NaN : values[0][valuesP]; // a first guess
       initialValue = getNaNAwareMedian(cache, 0, cachePointers, medianBuf1, medianBuf2, kNPoints,
           initialValue);
       //set required variables
@@ -489,7 +538,19 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
         EmpiricalNull empiricalNull = new EmpiricalNull(cache, x, cachePointers , initialValue,
             ((float[]) std.getPixels())[valuesP], normal, rng);
         empiricalNull.estimateNull();
-        values[valuesP] = empiricalNull.nullMean;
+        values[0][valuesP] = (cache[cacheLineP+x] - empiricalNull.nullMean) / empiricalNull.nullStd;
+        for (int i=0; i<EmpiricalNullFilter.N_IMAGE_OUTPUT; i++) {
+          if ( (this.outputImagePointer >> i) % 2 == 1) {
+            switch (i) {
+              case 0:
+                values[1][valuesP] = empiricalNull.nullMean;
+                break;
+              case 1:
+                values[2][valuesP] = empiricalNull.nullStd;
+                break;
+            }
+          }
+        }
         initialValue = empiricalNull.nullMean;
       }
     }
