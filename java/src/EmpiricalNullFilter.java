@@ -31,14 +31,15 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   public static final int BRIGHT_OUTLIERS = 0, DARK_OUTLIERS = 1;
   private static final String[] outlierStrings = {"Bright","Dark"};
   private static int HIGHEST_FILTER = CLOSE;
-  public static final int NULL_MEAN = 1, NULL_STD = 2;
-  public static final int N_IMAGE_OUTPUT = 2;
+  public static final int NULL_MEAN = 1, NULL_STD = 2, STD = 4;
+  public static final int N_IMAGE_OUTPUT = 3;
   
   //array of float processors which contains images (or statistics) which are obtained from the
   //filter itself
   //entry 0: empiricial null mean
   //entry 1: empirical null std
-  protected int outputImagePointer = EmpiricalNullFilter.NULL_MEAN + EmpiricalNullFilter.NULL_STD;
+  protected int outputImagePointer = EmpiricalNullFilter.NULL_MEAN + EmpiricalNullFilter.NULL_STD
+      + EmpiricalNullFilter.STD;
   protected FloatProcessor [] outputImageArray =
       new FloatProcessor[EmpiricalNullFilter.N_IMAGE_OUTPUT];
   
@@ -214,8 +215,8 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
    *           lead to excessive computing times.
    *  @param filterType May be MEAN, MIN, MAX, VARIANCE, or MEDIAN.
    */
-  public void rank(ImageProcessor ip, double radius, int filterType, FloatProcessor std) {
-    rank(ip, radius, filterType, 0, 50f, std);
+  public void rank(ImageProcessor ip, double radius, int filterType) {
+    rank(ip, radius, filterType, 0, 50f);
   }
 
   /** Filters an image by any method except 'despecle' (for 'despeckle', use 'median' and radius=1)
@@ -226,7 +227,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
    * @param whichOutliers BRIGHT_OUTLIERS or DARK_OUTLIERS for 'outliers' filter
    * @param threshold Threshold for 'outliers' filter
    */
-  public void rank(ImageProcessor ip, double radius, int filterType, int whichOutliers, float threshold, FloatProcessor std) {
+  public void rank(ImageProcessor ip, double radius, int filterType, int whichOutliers, float threshold) {
     Rectangle roi = ip.getRoi();
     ImageProcessor mask = ip.getMask();
     Rectangle roi1 = null;
@@ -258,13 +259,13 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
           ip.setRoi(roi1);
         }
       }
-      doFiltering(ip, lineRadii, filterType1, minMaxOutliersSign, threshold, ch, aborted, std);
+      doFiltering(ip, lineRadii, filterType1, minMaxOutliersSign, threshold, ch, aborted);
       if (aborted[0]) break;
       if (isMultiStepFilter(filterType)) {
         ip.setRoi(roi);
         ip.setMask(mask);
         int filterType2 = (filterType==OPEN) ? MAX : MIN;
-        doFiltering(ip, lineRadii, filterType2, minMaxOutliersSign, threshold, ch, aborted, std);
+        doFiltering(ip, lineRadii, filterType2, minMaxOutliersSign, threshold, ch, aborted);
         if (aborted[0]) break;
         if (isImagePart)
           resetRoiBoundary(ip, roi, roi1);
@@ -279,7 +280,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   // 'aborted' must not be a class variable because it signals the other threads to stop; and this may be caused
   // by an interrupted preview thread after the main calculation has been started.
   private void doFiltering(final ImageProcessor ip, final int[] lineRadii, final int filterType,
-      final float minMaxOutliersSign, final float threshold, final int colorChannel, final boolean[] aborted, FloatProcessor std) {
+      final float minMaxOutliersSign, final float threshold, final int colorChannel, final boolean[] aborted) {
     Rectangle roi = ip.getRoi();
     int width = ip.getWidth();
     Object pixels = ip.getPixels();
@@ -307,7 +308,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
             final public void run() {
               doFiltering(ip, lineRadii, cache, cacheWidth, cacheHeight,
                   filterType, minMaxOutliersSign, threshold, colorChannel,
-                  yForThread, ti, aborted, std);
+                  yForThread, ti, aborted);
             }
           },
       "RankFilters-"+t);
@@ -318,7 +319,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
 
     doFiltering(ip, lineRadii, cache, cacheWidth, cacheHeight,
         filterType, minMaxOutliersSign, threshold, colorChannel,
-        yForThread, 0, aborted, std);
+        yForThread, 0, aborted);
     for (final Thread thread : threads)
       try {
           if (thread != null) thread.join();
@@ -355,7 +356,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   // operation than the median.
   private void doFiltering(ImageProcessor ip, int[] lineRadii, float[] cache, int cacheWidth, int cacheHeight,
       int filterType, float minMaxOutliersSign, float threshold, int colorChannel,
-      int [] yForThread, int threadNumber, boolean[] aborted, FloatProcessor std) {
+      int [] yForThread, int threadNumber, boolean[] aborted) {
     if (aborted[0] || Thread.currentThread().isInterrupted()) return;
     int width = ip.getWidth();
     int height = ip.getHeight();
@@ -379,7 +380,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     boolean minOrMaxOrOutliers = minOrMax || filterType == OUTLIERS;
     boolean sumFilter = filterType == MEAN || filterType == VARIANCE;
     boolean medianFilter = filterType == MEDIAN || filterType == OUTLIERS;
-    double[] sums = sumFilter ? new double[2] : null;
+    double[] sums = new double[2];
     float[] medianBuf1 = (medianFilter||filterType==REMOVE_NAN) ? new float[kNPoints] : null;
     float[] medianBuf2 = (medianFilter||filterType==REMOVE_NAN) ? new float[kNPoints] : null;
     
@@ -495,7 +496,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
       int cacheLineP = cacheWidth * (y % cacheHeight) + kRadius;  //points to pixel (roi.x, y)
       filterLine(values, width, cache, cachePointers, kNPoints, cacheLineP, roi, y, // F I L T E R
           sums, medianBuf1, medianBuf2, minMaxOutliersSign, maxValue, isFloat, filterType,
-          smallKernel, sumFilter, minOrMax, minOrMaxOrOutliers, threshold, std);
+          smallKernel, sumFilter, minOrMax, minOrMaxOrOutliers, threshold);
       if (!isFloat)   //Float images: data are written already during 'filterLine'
         writeLineToPixels(values[0], pixels, roi.x+y*width, roi.width, colorChannel);  // W R I T E
       //System.out.println("thread "+threadNumber+" @y="+y+" line done");
@@ -519,12 +520,14 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
 
   private void filterLine(float[][] values, int width, float[] cache, int[] cachePointers, int kNPoints, int cacheLineP, Rectangle roi, int y,
       double[] sums, float[] medianBuf1, float[] medianBuf2, float minMaxOutliersSign, float maxValue, boolean isFloat, int filterType,
-      boolean smallKernel, boolean sumFilter, boolean minOrMax, boolean minOrMaxOrOutliers, float threshold, FloatProcessor std) {
+      boolean smallKernel, boolean sumFilter, boolean minOrMax, boolean minOrMaxOrOutliers, float threshold) {
       int valuesP = isFloat ? roi.x+y*width : 0;
       float max = 0f;
       //a first guess
       float initialValue = Float.isNaN(cache[cacheLineP]) ? 0 : cache[cacheLineP];
       boolean fullCalculation = true;
+      float std; //standard deviation
+      int nData = 0; //number of non-nan data
       
       //set the first value to be the median
       initialValue = Float.isNaN(values[0][valuesP]) ? Float.NaN : values[0][valuesP]; // a first guess
@@ -535,18 +538,40 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
       MersenneTwister rng = new MersenneTwister(System.currentTimeMillis());
       //then for each pixel in this line
       for (int x=0; x<roi.width; x++, valuesP++) { // x is with respect to roi.x
+        
+        if (fullCalculation) {
+          //for small kernel, always use the full area, not incremental algorithm
+          fullCalculation = smallKernel;
+          nData = getAreaSums(cache, x, cachePointers, sums);
+        } else {
+          nData = addSideSums(cache, x, cachePointers, sums, nData);
+          //avoid perpetuating NaNs into remaining line
+          if (Double.isNaN(sums[0])) {
+            fullCalculation = true;
+          }
+        }
+        
+        if (nData != 0) {
+          std = (float) Math.sqrt(((sums[1] - sums[0]*sums[0]/nData)/(nData-1)));
+        } else {
+          throw new RuntimeException("no non-NaN data at line "+y+" column "+x);
+        }
+        
         EmpiricalNull empiricalNull = new EmpiricalNull(cache, x, cachePointers , initialValue,
-            ((float[]) std.getPixels())[valuesP], normal, rng);
-        empiricalNull.estimateNull();
-        values[0][valuesP] = (cache[cacheLineP+x] - empiricalNull.nullMean) / empiricalNull.nullStd;
+            std, nData, normal, rng);
+        //empiricalNull.estimateNull();
+        //values[0][valuesP] = (cache[cacheLineP+x] - empiricalNull.nullMean) / empiricalNull.nullStd;
         for (int i=0; i<EmpiricalNullFilter.N_IMAGE_OUTPUT; i++) {
           if ( (this.outputImagePointer >> i) % 2 == 1) {
             switch (i) {
               case 0:
-                values[1][valuesP] = empiricalNull.nullMean;
+                //values[1][valuesP] = empiricalNull.nullMean;
                 break;
               case 1:
-                values[2][valuesP] = empiricalNull.nullStd;
+                //values[2][valuesP] = empiricalNull.nullStd;
+                break;
+              case 2:
+                values[3][valuesP] = std;
                 break;
             }
           }
@@ -657,36 +682,50 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   /** Get sum of values and values squared within the kernel area.
    *  x between 0 and cacheWidth-1
    *  Output is written to array sums[0] = sum; sums[1] = sum of squares */
-  private static void getAreaSums(float[] cache, int xCache0, int[] kernel, double[] sums) {
+  private static int getAreaSums(float[] cache, int xCache0, int[] kernel, double[] sums) {
     double sum=0, sum2=0;
+    int nData = 0;
     for (int kk=0; kk<kernel.length; kk++) {  // y within the cache stripe (we have 2 kernel pointers per cache line)
       for (int p=kernel[kk++]+xCache0; p<=kernel[kk]+xCache0; p++) {
         double v = cache[p];
-        sum += v;
-        sum2 += v*v;
+        if (!Double.isNaN(v)) {
+          sum += v;
+          sum2 += v*v;
+          nData++;
+        }
       }
     }
     sums[0] = sum;
     sums[1] = sum2;
-    return;
+    
+    return nData;
   }
 
   /** Add all values and values squared at the right border inside minus at the left border outside the kernal area.
    *  Output is added or subtracted to/from array sums[0] += sum; sums[1] += sum of squares  when at
    *  the right border, minus when at the left border */
-  private static void addSideSums(float[] cache, int xCache0, int[] kernel, double[] sums) {
+  private static int addSideSums(float[] cache, int xCache0, int[] kernel, double[] sums, int nData) {
     double sum=0, sum2=0;
     for (int kk=0; kk<kernel.length; /*k++;k++ below*/) {
+      
       double v = cache[kernel[kk++]+(xCache0-1)]; //this value is not in the kernel area any more
-      sum -= v;
-      sum2 -= v*v;
+      if (!Double.isNaN(v)) {
+        sum -= v;
+        sum2 -= v*v;
+        nData--;
+      }
+      
       v = cache[kernel[kk++]+xCache0];            //this value comes into the kernel area
-      sum += v;
-      sum2 += v*v;
+      if (!Double.isNaN(v)) {
+        sum += v;
+        sum2 += v*v;
+        nData++;
+      }
+      
     }
     sums[0] += sum;
     sums[1] += sum2;
-    return;
+    return nData;
   }
 
   /** Get median of values within kernel-sized neighborhood. Kernel size kNPoints should be odd.

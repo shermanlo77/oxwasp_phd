@@ -13,15 +13,14 @@ public class Global {
     System.out.println("Hello");
     ImageJ.main(null);
     FloatProcessor processorOrginal = new FloatProcessor(255, 250);
-    MersenneTwister rng = new MersenneTwister(System.currentTimeMillis());
+    MersenneTwister rng = new MersenneTwister(1018526);
     for (int i=0; i<processorOrginal.getPixelCount(); i++) {
       processorOrginal.setf(i, (float) rng.nextGaussian());
     }
-    //processorOrginal.noise(1.0);
     
     ImagePlus image = new ImagePlus("float version" , processorOrginal);
     
-    double radius = 50;
+    double radius = 1;
     
     ImagePlus org = image.duplicate();
     org.show();
@@ -33,16 +32,20 @@ public class Global {
     stdImage.show();
     
     EmpiricalNullFilter filter = new EmpiricalNullFilter();
-    filter.rank(image.getProcessor(), radius, RankFilters.MEDIAN, (FloatProcessor) stdImage.getProcessor());
-    image.show();
+    filter.rank(image.getProcessor(), radius, RankFilters.MEDIAN);
+    //image.show();
     
     ImagePlus output;
     output = new ImagePlus("null mean", new FloatProcessor(image.getWidth(), image.getHeight(),
         filter.getOutputImage(EmpiricalNullFilter.NULL_MEAN)));
-    output.show();
+    //output.show();
     
     output = new ImagePlus("null std", new FloatProcessor(image.getWidth(), image.getHeight(),
         filter.getOutputImage(EmpiricalNullFilter.NULL_STD)));
+    //output.show();
+    
+    output = new ImagePlus("std", new FloatProcessor(image.getWidth(), image.getHeight(),
+        filter.getOutputImage(EmpiricalNullFilter.STD)));
     output.show();
     
   }

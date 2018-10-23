@@ -37,12 +37,13 @@ public class EmpiricalNull {
    * @param rng random number generator when a random initial value is needed
    */
   public EmpiricalNull(float[] cache, int x, int[] cachePointers , float initialValue,
-      float dataStd, NormalDistribution normalDistribution, MersenneTwister rng) {
+      float dataStd, int n, NormalDistribution normalDistribution, MersenneTwister rng) {
     this.cache = cache;
     this.x = x;
     this.cachePointers = cachePointers;
     this.initialValue = initialValue;
     this.dataStd = dataStd;
+    this.n = n;
     this.normalDistribution = normalDistribution;
     this.rng = rng;
     this.countData();
