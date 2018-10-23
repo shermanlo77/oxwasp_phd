@@ -20,29 +20,23 @@ public class Global {
     
     ImagePlus image = new ImagePlus("float version" , processorOrginal);
     
-    double radius = 1;
+    double radius = 20;
     
     ImagePlus org = image.duplicate();
     org.show();
     
-    ImagePlus stdImage = image.duplicate();
-    RankFilters varianceFilter = new RankFilters();
-    varianceFilter.rank(stdImage.getProcessor(), radius, RankFilters.VARIANCE);
-    stdImage.getProcessor().sqrt();
-    stdImage.show();
-    
     EmpiricalNullFilter filter = new EmpiricalNullFilter();
     filter.rank(image.getProcessor(), radius, RankFilters.MEDIAN);
-    //image.show();
+    image.show();
     
     ImagePlus output;
     output = new ImagePlus("null mean", new FloatProcessor(image.getWidth(), image.getHeight(),
         filter.getOutputImage(EmpiricalNullFilter.NULL_MEAN)));
-    //output.show();
+    output.show();
     
     output = new ImagePlus("null std", new FloatProcessor(image.getWidth(), image.getHeight(),
         filter.getOutputImage(EmpiricalNullFilter.NULL_STD)));
-    //output.show();
+    output.show();
     
     output = new ImagePlus("std", new FloatProcessor(image.getWidth(), image.getHeight(),
         filter.getOutputImage(EmpiricalNullFilter.STD)));

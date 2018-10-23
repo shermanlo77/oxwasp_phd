@@ -559,16 +559,16 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
         
         EmpiricalNull empiricalNull = new EmpiricalNull(cache, x, cachePointers , initialValue,
             std, nData, normal, rng);
-        //empiricalNull.estimateNull();
-        //values[0][valuesP] = (cache[cacheLineP+x] - empiricalNull.nullMean) / empiricalNull.nullStd;
+        empiricalNull.estimateNull();
+        values[0][valuesP] = (cache[cacheLineP+x] - empiricalNull.nullMean) / empiricalNull.nullStd;
         for (int i=0; i<EmpiricalNullFilter.N_IMAGE_OUTPUT; i++) {
           if ( (this.outputImagePointer >> i) % 2 == 1) {
             switch (i) {
               case 0:
-                //values[1][valuesP] = empiricalNull.nullMean;
+                values[1][valuesP] = empiricalNull.nullMean;
                 break;
               case 1:
-                //values[2][valuesP] = empiricalNull.nullStd;
+                values[2][valuesP] = empiricalNull.nullStd;
                 break;
               case 2:
                 values[3][valuesP] = std;
