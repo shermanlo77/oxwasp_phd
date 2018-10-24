@@ -25,6 +25,8 @@ public class Global {
     ImagePlus org = image.duplicate();
     org.show();
     
+    long time = System.currentTimeMillis();
+    
     EmpiricalNullFilter filter = new EmpiricalNullFilter();
     filter.rank(image.getProcessor(), radius, RankFilters.MEDIAN);
     image.show();
@@ -53,6 +55,8 @@ public class Global {
     output = new ImagePlus("q3", new FloatProcessor(image.getWidth(), image.getHeight(),
         filter.getOutputImage(EmpiricalNullFilter.Q3)));
     output.show();
+    
+    System.out.println("time "+(System.currentTimeMillis() - time) + " ms");
     
   }
   
