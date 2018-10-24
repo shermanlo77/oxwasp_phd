@@ -7,6 +7,7 @@ import ij.process.*;
 import ij.plugin.ContrastEnhancer;
 import ij.plugin.filter.ExtendedPlugInFilter;
 import ij.plugin.filter.PlugInFilterRunner;
+import ij.plugin.filter.RankFilters;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -15,6 +16,7 @@ import java.util.Iterator;
 
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.random.MersenneTwister;
+import org.apache.commons.math3.stat.descriptive.rank.Percentile;
 
 /** This plugin implements the Mean, Minimum, Maximum, Variance, Median, Open Maxima, Close Maxima,
  *  Remove Outliers, Remove NaNs and Despeckle commands.
@@ -31,15 +33,14 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   public static final int BRIGHT_OUTLIERS = 0, DARK_OUTLIERS = 1;
   private static final String[] outlierStrings = {"Bright","Dark"};
   private static int HIGHEST_FILTER = CLOSE;
-  public static final int NULL_MEAN = 1, NULL_STD = 2, STD = 4;
-  public static final int N_IMAGE_OUTPUT = 3;
+  public static final int NULL_MEAN = 1, NULL_STD = 2, STD = 4, Q1 = 8, Q2 = 16, Q3 = 32;
+  public static final int N_IMAGE_OUTPUT = 6;
   
   //array of float processors which contains images (or statistics) which are obtained from the
   //filter itself
   //entry 0: empiricial null mean
   //entry 1: empirical null std
-  protected int outputImagePointer = EmpiricalNullFilter.NULL_MEAN + EmpiricalNullFilter.NULL_STD
-      + EmpiricalNullFilter.STD;
+  protected int outputImagePointer = NULL_MEAN + NULL_STD + STD + Q1 + Q2 + Q3;
   protected FloatProcessor [] outputImageArray =
       new FloatProcessor[EmpiricalNullFilter.N_IMAGE_OUTPUT];
   
@@ -381,8 +382,8 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     boolean sumFilter = filterType == MEAN || filterType == VARIANCE;
     boolean medianFilter = filterType == MEDIAN || filterType == OUTLIERS;
     double[] sums = new double[2];
-    float[] medianBuf1 = (medianFilter||filterType==REMOVE_NAN) ? new float[kNPoints] : null;
-    float[] medianBuf2 = (medianFilter||filterType==REMOVE_NAN) ? new float[kNPoints] : null;
+    double[] medianBuf = new double[kNPoints];
+    float [] quantiles = new float[3];
     
     boolean smallKernel = kRadius < 2;
     
@@ -495,8 +496,9 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
 
       int cacheLineP = cacheWidth * (y % cacheHeight) + kRadius;  //points to pixel (roi.x, y)
       filterLine(values, width, cache, cachePointers, kNPoints, cacheLineP, roi, y, // F I L T E R
-          sums, medianBuf1, medianBuf2, minMaxOutliersSign, maxValue, isFloat, filterType,
+          sums, medianBuf, quantiles, minMaxOutliersSign, maxValue, isFloat, filterType,
           smallKernel, sumFilter, minOrMax, minOrMaxOrOutliers, threshold);
+      
       if (!isFloat)   //Float images: data are written already during 'filterLine'
         writeLineToPixels(values[0], pixels, roi.x+y*width, roi.width, colorChannel);  // W R I T E
       //System.out.println("thread "+threadNumber+" @y="+y+" line done");
@@ -519,25 +521,27 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   }
 
   private void filterLine(float[][] values, int width, float[] cache, int[] cachePointers, int kNPoints, int cacheLineP, Rectangle roi, int y,
-      double[] sums, float[] medianBuf1, float[] medianBuf2, float minMaxOutliersSign, float maxValue, boolean isFloat, int filterType,
+      double[] sums, double[] medianBuf, float[] quantiles, float minMaxOutliersSign, float maxValue, boolean isFloat, int filterType,
       boolean smallKernel, boolean sumFilter, boolean minOrMax, boolean minOrMaxOrOutliers, float threshold) {
       int valuesP = isFloat ? roi.x+y*width : 0;
       float max = 0f;
-      //a first guess
-      float initialValue = Float.isNaN(cache[cacheLineP]) ? 0 : cache[cacheLineP];
       boolean fullCalculation = true;
       float std; //standard deviation
       int nData = 0; //number of non-nan data
+      Percentile percentile = new Percentile();
+      float initialValue = 0;
       
-      //set the first value to be the median
-      initialValue = Float.isNaN(values[0][valuesP]) ? Float.NaN : values[0][valuesP]; // a first guess
-      initialValue = getNaNAwareMedian(cache, 0, cachePointers, medianBuf1, medianBuf2, kNPoints,
-          initialValue);
       //set required variables
       NormalDistribution normal = new NormalDistribution();
       MersenneTwister rng = new MersenneTwister(System.currentTimeMillis());
       //then for each pixel in this line
       for (int x=0; x<roi.width; x++, valuesP++) { // x is with respect to roi.x
+        
+        //set the first value to be the median
+        getQuantiles(cache, x, cachePointers, medianBuf, kNPoints, quantiles, percentile);
+        if (x==0) {
+          initialValue = quantiles[1];
+        }
         
         if (fullCalculation) {
           //for small kernel, always use the full area, not incremental algorithm
@@ -557,10 +561,11 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
           throw new RuntimeException("no non-NaN data at line "+y+" column "+x);
         }
         
-        EmpiricalNull empiricalNull = new EmpiricalNull(cache, x, cachePointers , initialValue,
+        EmpiricalNull empiricalNull = new EmpiricalNull(cache, x, cachePointers , initialValue, quantiles,
             std, nData, normal, rng);
         empiricalNull.estimateNull();
         values[0][valuesP] = (cache[cacheLineP+x] - empiricalNull.nullMean) / empiricalNull.nullStd;
+        initialValue = empiricalNull.nullMean;
         for (int i=0; i<EmpiricalNullFilter.N_IMAGE_OUTPUT; i++) {
           if ( (this.outputImagePointer >> i) % 2 == 1) {
             switch (i) {
@@ -573,10 +578,18 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
               case 2:
                 values[3][valuesP] = std;
                 break;
+              case 3:
+                values[4][valuesP] = quantiles[0];
+                break;
+              case 4:
+                values[5][valuesP] = quantiles[1];
+                break;
+              case 5:
+                values[6][valuesP] = quantiles[2];
+                break;
             }
           }
         }
-        initialValue = empiricalNull.nullMean;
       }
     }
 
@@ -758,32 +771,23 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   /** Get median of values within kernel-sized neighborhood.
    *  NaN data values are ignored; the output is NaN only if there are only NaN values in the
    *  kernel-sized neighborhood */
-  private static float getNaNAwareMedian(float[] cache, int xCache0, int[] kernel,
-      float[] aboveBuf, float[]belowBuf, int kNPoints, float guess) {
-    int nAbove = 0, nBelow = 0;
+  private static void getQuantiles(float[] cache, int xCache0, int[] kernel,
+      double[] buf,  int kNPoints, float[] quantiles, Percentile percentile) {
+    int nFinite=0;
     for (int kk=0; kk<kernel.length; kk++) {
       for (int p=kernel[kk++]+xCache0; p<=kernel[kk]+xCache0; p++) {
         float v = cache[p];
-        if (Float.isNaN(v)) {
-          kNPoints--;
-        } else if (v > guess) {
-          aboveBuf[nAbove] = v;
-          nAbove++;
+        if (!Float.isNaN(v)) {
+          buf[nFinite] = (double) v;
+          nFinite++;
         }
-        else if (v < guess) {
-          belowBuf[nBelow] = v;
-          nBelow++;
-        }
+        
       }
     }
-    if (kNPoints == 0) return Float.NaN;  //only NaN data in the neighborhood?
-    int half = kNPoints/2;
-    if (nAbove>half)
-      return findNthLowestNumber(aboveBuf, nAbove, nAbove-half-1);
-    else if (nBelow>half)
-      return findNthLowestNumber(belowBuf, nBelow, half);
-    else
-      return guess;
+    percentile.setData(buf, 0, nFinite);
+    for (int i=0; i<3; i++) {
+      quantiles[i] = (float) percentile.evaluate((i+1) * 25.0);
+    }
   }
 
   /** Find the n-th lowest number in part of an array

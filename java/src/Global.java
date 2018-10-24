@@ -42,6 +42,18 @@ public class Global {
         filter.getOutputImage(EmpiricalNullFilter.STD)));
     output.show();
     
+    output = new ImagePlus("q1", new FloatProcessor(image.getWidth(), image.getHeight(),
+        filter.getOutputImage(EmpiricalNullFilter.Q1)));
+    output.show();
+    
+    output = new ImagePlus("q2", new FloatProcessor(image.getWidth(), image.getHeight(),
+        filter.getOutputImage(EmpiricalNullFilter.Q2)));
+    output.show();
+    
+    output = new ImagePlus("q3", new FloatProcessor(image.getWidth(), image.getHeight(),
+        filter.getOutputImage(EmpiricalNullFilter.Q3)));
+    output.show();
+    
   }
   
 }

@@ -19,6 +19,7 @@ public class EmpiricalNull {
   
   protected int n = 0; //number of non-NaN data in the kernel
   protected float dataStd; //the standard deviation of the pixels in the kernel
+  protected float iqr; //interquartile range
   
   protected float initialValue; //the user requested initial value
   protected float nullMean; //empirical null mean
@@ -36,18 +37,19 @@ public class EmpiricalNull {
    * @param normalDistribution standard normal distribution object
    * @param rng random number generator when a random initial value is needed
    */
-  public EmpiricalNull(float[] cache, int x, int[] cachePointers , float initialValue,
+  public EmpiricalNull(float[] cache, int x, int[] cachePointers , float initialValue, float[] quantiles,
       float dataStd, int n, NormalDistribution normalDistribution, MersenneTwister rng) {
     this.cache = cache;
     this.x = x;
     this.cachePointers = cachePointers;
     this.initialValue = initialValue;
     this.dataStd = dataStd;
+    this.iqr = quantiles[2] - quantiles[0];
     this.n = n;
     this.normalDistribution = normalDistribution;
     this.rng = rng;
     this.countData();
-    this.bandwidth = EmpiricalNull.bandwidthParameterB * dataStd
+    this.bandwidth = EmpiricalNull.bandwidthParameterB * Math.min(dataStd, iqr/1.34f)
         * ((float) Math.pow((double) this.n, -0.2))
         + EmpiricalNull.bandwidthParameterA;
   }
@@ -120,7 +122,7 @@ public class EmpiricalNull {
         
         //update the solution to the mode
         greyvalue -= dxLnF[1]/dxLnF[2];
-        //get the 1st and 2nd diff of the ln density at the new value
+        //get the density, 1st and 2nd diff of the ln density at the new value
         dxLnF = this.getDLnDensity(greyvalue);
         //if this gradient is within tolerance, break the i_step for loop
         if (Math.abs(dxLnF[1])<EmpiricalNull.tolerance) {
@@ -148,7 +150,7 @@ public class EmpiricalNull {
                 foundSolution = true;
                 densityAndNull[0] = dxLnF[0];
                 densityAndNull[1] = greyvalue;
-                densityAndNull[2] = (float) Math.pow((double) -dxLnF[1], -0.5);
+                densityAndNull[2] = (float) Math.pow((double) -dxLnF[2], -0.5);
               }
             }
           }
