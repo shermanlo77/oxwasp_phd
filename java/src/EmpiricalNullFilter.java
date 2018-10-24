@@ -382,7 +382,8 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     boolean sumFilter = filterType == MEAN || filterType == VARIANCE;
     boolean medianFilter = filterType == MEDIAN || filterType == OUTLIERS;
     double[] sums = new double[2];
-    double[] medianBuf = new double[kNPoints];
+    float[] medianBuf = new float[kNPoints];
+    float[] medianBuf1 = new float[kNPoints];
     float [] quantiles = new float[3];
     
     boolean smallKernel = kRadius < 2;
@@ -496,7 +497,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
 
       int cacheLineP = cacheWidth * (y % cacheHeight) + kRadius;  //points to pixel (roi.x, y)
       filterLine(values, width, cache, cachePointers, kNPoints, cacheLineP, roi, y, // F I L T E R
-          sums, medianBuf, quantiles, minMaxOutliersSign, maxValue, isFloat, filterType,
+          sums, medianBuf, medianBuf1, quantiles, minMaxOutliersSign, maxValue, isFloat, filterType,
           smallKernel, sumFilter, minOrMax, minOrMaxOrOutliers, threshold);
       
       if (!isFloat)   //Float images: data are written already during 'filterLine'
@@ -521,7 +522,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   }
 
   private void filterLine(float[][] values, int width, float[] cache, int[] cachePointers, int kNPoints, int cacheLineP, Rectangle roi, int y,
-      double[] sums, double[] medianBuf, float[] quantiles, float minMaxOutliersSign, float maxValue, boolean isFloat, int filterType,
+      double[] sums, float[] medianBuf, float[] medianBuf1, float[] quantiles, float minMaxOutliersSign, float maxValue, boolean isFloat, int filterType,
       boolean smallKernel, boolean sumFilter, boolean minOrMax, boolean minOrMaxOrOutliers, float threshold) {
       int valuesP = isFloat ? roi.x+y*width : 0;
       float max = 0f;
@@ -538,7 +539,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
       for (int x=0; x<roi.width; x++, valuesP++) { // x is with respect to roi.x
         
         //set the first value to be the median
-        getQuantiles(cache, x, cachePointers, medianBuf, kNPoints, quantiles, percentile);
+        getQuantiles(cache, x, cachePointers, medianBuf, medianBuf1, kNPoints, cache[cacheLineP], quantiles, percentile);
         if (x==0) {
           initialValue = quantiles[1];
         }
@@ -772,21 +773,35 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
    *  NaN data values are ignored; the output is NaN only if there are only NaN values in the
    *  kernel-sized neighborhood */
   private static void getQuantiles(float[] cache, int xCache0, int[] kernel,
-      double[] buf,  int kNPoints, float[] quantiles, Percentile percentile) {
-    int nFinite=0;
+      float[] belowBuf, float[] aboveBuf, int kNPoints, float guess, float[] quantiles, Percentile percentile) {
+    int nAbove = 0, nBelow = 0;
     for (int kk=0; kk<kernel.length; kk++) {
       for (int p=kernel[kk++]+xCache0; p<=kernel[kk]+xCache0; p++) {
         float v = cache[p];
-        if (!Float.isNaN(v)) {
-          buf[nFinite] = (double) v;
-          nFinite++;
+        if (Float.isNaN(v)) {
+          kNPoints--;
+        } else if (v > guess) {
+          aboveBuf[nAbove] = v;
+          nAbove++;
         }
-        
+        else if (v < guess) {
+          belowBuf[nBelow] = v;
+          nBelow++;
+        }
       }
     }
-    percentile.setData(buf, 0, nFinite);
+    
     for (int i=0; i<3; i++) {
-      quantiles[i] = (float) percentile.evaluate((i+1) * 25.0);
+      int index = (int) Math.floor( ((double)((i+1) * kNPoints)) / 4.0 );
+      if (kNPoints == 0) {
+        quantiles[i] = Float.NaN;  //only NaN data in the neighborhood?
+      } else if (index<nBelow) {
+        quantiles[i] =  findNthLowestNumber(belowBuf, nBelow, index);
+      } else if ((kNPoints-index)<nAbove) {
+        quantiles[i] =  findNthLowestNumber(aboveBuf, nAbove, index - nBelow  - 1);
+      } else {
+        quantiles[i] =  guess;
+      }
     }
   }
 
