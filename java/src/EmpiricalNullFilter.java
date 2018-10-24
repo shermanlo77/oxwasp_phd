@@ -16,6 +16,8 @@ import java.util.Iterator;
 
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.random.MersenneTwister;
+import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.math3.random.SynchronizedRandomGenerator;
 import org.apache.commons.math3.stat.descriptive.rank.Percentile;
 
 /** This plugin implements the Mean, Minimum, Maximum, Variance, Median, Open Maxima, Close Maxima,
@@ -69,6 +71,8 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   private boolean copyingToCache;   // whether a thread is currently copying data to the cache
   
   private boolean hasDoneDebug = false;
+  
+  private SynchronizedRandomGenerator rng;
 
   private boolean isMultiStepFilter(int filterType) {
     return filterType>=OPEN;
@@ -216,8 +220,8 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
    *           lead to excessive computing times.
    *  @param filterType May be MEAN, MIN, MAX, VARIANCE, or MEDIAN.
    */
-  public void rank(ImageProcessor ip, double radius, int filterType) {
-    rank(ip, radius, filterType, 0, 50f);
+  public void rank(ImageProcessor ip, double radius, RandomGenerator rng) {
+    rank(ip, radius, filterType, 0, 50f, rng);
   }
 
   /** Filters an image by any method except 'despecle' (for 'despeckle', use 'median' and radius=1)
@@ -228,7 +232,9 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
    * @param whichOutliers BRIGHT_OUTLIERS or DARK_OUTLIERS for 'outliers' filter
    * @param threshold Threshold for 'outliers' filter
    */
-  public void rank(ImageProcessor ip, double radius, int filterType, int whichOutliers, float threshold) {
+  public void rank(ImageProcessor ip, double radius, int filterType, int whichOutliers, float threshold, RandomGenerator rng) {
+    this.rng = new SynchronizedRandomGenerator(rng);
+    
     Rectangle roi = ip.getRoi();
     ImageProcessor mask = ip.getMask();
     Rectangle roi1 = null;
@@ -534,7 +540,6 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
       
       //set required variables
       NormalDistribution normal = new NormalDistribution();
-      MersenneTwister rng = new MersenneTwister(System.currentTimeMillis());
       //then for each pixel in this line
       for (int x=0; x<roi.width; x++, valuesP++) { // x is with respect to roi.x
         
@@ -563,7 +568,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
         }
         
         EmpiricalNull empiricalNull = new EmpiricalNull(cache, x, cachePointers , initialValue, quantiles,
-            std, nData, normal, rng);
+            std, nData, normal, this.rng);
         empiricalNull.estimateNull();
         values[0][valuesP] = (cache[cacheLineP+x] - empiricalNull.nullMean) / empiricalNull.nullStd;
         initialValue = empiricalNull.nullMean;
