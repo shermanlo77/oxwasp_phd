@@ -28,7 +28,8 @@ public class Global {
     long time = System.currentTimeMillis();
     
     EmpiricalNullFilter filter = new EmpiricalNullFilter();
-    filter.rank(image.getProcessor(), radius, RankFilters.MEDIAN);
+    filter.setRadius(radius);
+    filter.run(image.getProcessor());
     image.show();
     
     ImagePlus output;
