@@ -1,6 +1,5 @@
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.random.MersenneTwister;
-import org.apache.commons.math3.random.RandomGenerator;
 
 public class EmpiricalNull {
   
@@ -27,7 +26,7 @@ public class EmpiricalNull {
   protected float nullStd; //empirical null std
   protected float bandwidth; //bandwidth for the density estimate
   protected NormalDistribution normalDistribution; //standard normal distributionrng = rng;
-  protected RandomGenerator rng; //random number generator when a random initial value is needed
+  protected MersenneTwister rng; //random number generator when a random initial value is needed
   
   /**CONSTRUCTOR
    * @param cache array of greyvalues
@@ -39,7 +38,7 @@ public class EmpiricalNull {
    * @param rng random number generator when a random initial value is needed
    */
   public EmpiricalNull(float[] cache, int x, int[] cachePointers , float initialValue, float[] quantiles,
-      float dataStd, int n, NormalDistribution normalDistribution, RandomGenerator rng) {
+      float dataStd, int n, NormalDistribution normalDistribution, MersenneTwister rng) {
     this.cache = cache;
     this.x = x;
     this.cachePointers = cachePointers;
