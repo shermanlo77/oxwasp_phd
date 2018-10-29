@@ -30,19 +30,19 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   //STATIC VARIABLES
   public static final int NULL_MEAN = 1, NULL_STD = 2, STD = 4, Q1 = 8, Q2 = 16, Q3 = 32;
   public static final int N_IMAGE_OUTPUT = 6;
-  public static final String[] OUTPUT_NAME = {"Null mean", "Null std", "standard deviation",
+  public static final String[] OUTPUT_NAME = {"null mean", "null std", "standard deviation",
       "quantile 1", "median", "quantile 3"};
   
   //array of float processors which contains images (or statistics) which are obtained from the
   //filter itself
   //entry 0: empiricial null mean
   //entry 1: empirical null std
-  protected int outputImagePointer = NULL_MEAN + NULL_STD + STD + Q1 + Q2 + Q3;
+  protected int outputImagePointer = NULL_MEAN + NULL_STD;
   protected FloatProcessor [] outputImageArray =
       new FloatProcessor[EmpiricalNullFilter.N_IMAGE_OUTPUT];
   
   // Filter parameters
-  private double radius;
+  private double radius = 20;
   // Remember filter parameters for the next time
   private static double lastRadius; //separate for each filter type
   //
@@ -73,18 +73,56 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   }
 
   public int showDialog(ImagePlus imp, String command, PlugInFilterRunner pfr) {
+    
+    GenericDialog genericDialog = new GenericDialog(command+"...");
+    genericDialog.addNumericField("Radius", this.radius, 1, 6, "pixels");
+    
+    for (int i=0; i<N_IMAGE_OUTPUT; i++) {
+      boolean defaultBoolean = (this.outputImagePointer >> i) % 2 == 1;
+      genericDialog.addCheckbox("Show "+OUTPUT_NAME[i], defaultBoolean);
+    }
+    genericDialog.addDialogListener(this);
+    genericDialog.showDialog();
+    if (genericDialog.wasCanceled()) {
+      return DONE;
+    }
+    IJ.register(this.getClass());
+    
+    this.pfr = pfr;
+    
     return flags;
   }
 
   public boolean dialogItemChanged(GenericDialog gd, AWTEvent e) {
+    this.radius = gd.getNextNumber();
+    if (gd.invalidNumber() || this.radius < 0) {
+      return false;
+    }
+    this.outputImagePointer = 0;
+    for (int i=0; i<N_IMAGE_OUTPUT; i++) {
+      boolean value = gd.getNextBoolean();
+      if (value) {
+        int pointer = 1;
+        pointer  <<= i;
+        this.outputImagePointer += pointer;
+      }
+    }    
     return true;
   }
 
   public void run(ImageProcessor ip) {
     this.imageProcessor = ip;
     this.rank();
-    if (IJ.escapePressed())                 // interrupted by user?
+    if (IJ.escapePressed()) {                 // interrupted by user?
       ip.reset();
+    }
+    for (int i=0; i<N_IMAGE_OUTPUT; i++) {
+      if ( (outputImagePointer >> i) % 2 == 1) {
+        ImagePlus output;
+        output = new ImagePlus(OUTPUT_NAME[i], this.outputImageArray[i]);
+        output.show();
+      }
+    }
   }
   
   public double getRadius(double radius) {

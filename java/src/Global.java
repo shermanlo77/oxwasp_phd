@@ -3,6 +3,7 @@ import org.apache.commons.math3.random.MersenneTwister;
 import ij.IJ;
 import ij.ImageJ;
 import ij.ImagePlus;
+import ij.plugin.filter.PlugInFilterRunner;
 import ij.plugin.filter.RankFilters;
 import ij.process.FloatProcessor;
 
@@ -28,35 +29,8 @@ public class Global {
     long time = System.currentTimeMillis();
     
     EmpiricalNullFilter filter = new EmpiricalNullFilter();
-    filter.setup(null, image);
-    filter.setRadius(radius);
-    filter.run(image.getProcessor());
+    new PlugInFilterRunner(filter, "empirical null filter", null);
     image.show();
-    
-    ImagePlus output;
-    output = new ImagePlus("null mean", new FloatProcessor(image.getWidth(), image.getHeight(),
-        filter.getOutputImage(EmpiricalNullFilter.NULL_MEAN)));
-    output.show();
-    
-    output = new ImagePlus("null std", new FloatProcessor(image.getWidth(), image.getHeight(),
-        filter.getOutputImage(EmpiricalNullFilter.NULL_STD)));
-    output.show();
-    
-    output = new ImagePlus("std", new FloatProcessor(image.getWidth(), image.getHeight(),
-        filter.getOutputImage(EmpiricalNullFilter.STD)));
-    output.show();
-    
-    output = new ImagePlus("q1", new FloatProcessor(image.getWidth(), image.getHeight(),
-        filter.getOutputImage(EmpiricalNullFilter.Q1)));
-    output.show();
-    
-    output = new ImagePlus("q2", new FloatProcessor(image.getWidth(), image.getHeight(),
-        filter.getOutputImage(EmpiricalNullFilter.Q2)));
-    output.show();
-    
-    output = new ImagePlus("q3", new FloatProcessor(image.getWidth(), image.getHeight(),
-        filter.getOutputImage(EmpiricalNullFilter.Q3)));
-    output.show();
     
     System.out.println("time "+(System.currentTimeMillis() - time) + " ms");
     
