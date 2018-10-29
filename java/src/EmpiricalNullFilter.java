@@ -47,8 +47,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   private static double lastRadius; //separate for each filter type
   //
   // F u r t h e r   c l a s s   v a r i a b l e s
-  int flags = DOES_ALL|SUPPORTS_MASKING|KEEP_PREVIEW;
-  private ImagePlus ip;
+  private int flags = DOES_32;
   private ImageProcessor imageProcessor;
   private int nPasses = 1;      // The number of passes (color channels * stack slices)
   private PlugInFilterRunner pfr;
@@ -70,7 +69,6 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
    * @return    Flags specifying further action of the PlugInFilterRunner
    */
   public int setup(String arg, ImagePlus ip) {
-    this.ip = ip;
     return flags;
   }
 

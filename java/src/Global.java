@@ -28,6 +28,7 @@ public class Global {
     long time = System.currentTimeMillis();
     
     EmpiricalNullFilter filter = new EmpiricalNullFilter();
+    filter.setup(null, image);
     filter.setRadius(radius);
     filter.run(image.getProcessor());
     image.show();
