@@ -3,7 +3,6 @@ import org.apache.commons.math3.random.MersenneTwister;
 import ij.IJ;
 import ij.ImageJ;
 import ij.ImagePlus;
-import ij.plugin.filter.PlugInFilterRunner;
 import ij.plugin.filter.RankFilters;
 import ij.process.FloatProcessor;
 
@@ -29,7 +28,10 @@ public class Global {
     long time = System.currentTimeMillis();
     
     EmpiricalNullFilter filter = new EmpiricalNullFilter();
-    new PlugInFilterRunner(filter, "empirical null filter", null);
+    filter.setup(null, image);
+    filter.setRadius(radius);
+    filter.setOutputImage(63);
+    filter.run(image.getProcessor());
     image.show();
     
     System.out.println("time "+(System.currentTimeMillis() - time) + " ms");

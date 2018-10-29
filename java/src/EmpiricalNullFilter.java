@@ -94,7 +94,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   }
 
   public boolean dialogItemChanged(GenericDialog gd, AWTEvent e) {
-    this.radius = gd.getNextNumber();
+    this.setRadius(gd.getNextNumber());
     if (gd.invalidNumber() || this.radius < 0) {
       return false;
     }
@@ -108,6 +108,10 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
       }
     }    
     return true;
+  }
+  
+  public void setOutputImage(int pointer) {
+    this.outputImagePointer = pointer;
   }
 
   public void run(ImageProcessor ip) {
