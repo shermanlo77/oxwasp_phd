@@ -37,8 +37,9 @@ public class EmpiricalNull {
    * @param normalDistribution standard normal distribution object
    * @param rng random number generator when a random initial value is needed
    */
-  public EmpiricalNull(float[] cache, int x, int[] cachePointers , float initialValue, float[] quantiles,
-      float dataStd, int n, NormalDistribution normalDistribution, MersenneTwister rng) {
+  public EmpiricalNull(float[] cache, int x, int[] cachePointers , float initialValue,
+      float[] quantiles, float dataStd, int n, NormalDistribution normalDistribution,
+      MersenneTwister rng) {
     this.cache = cache;
     this.x = x;
     this.cachePointers = cachePointers;
@@ -142,19 +143,12 @@ public class EmpiricalNull {
       
       //check if the solution to the mode is a maxima by looking at the 2nd diff
       //if any of the variables are not finite, start again with a random initial value
-      if (Float.isFinite(dxLnF[0])) {
-        if (Float.isFinite(dxLnF[1])) {
-          if (Float.isFinite(dxLnF[2])) {
-            if (Float.isFinite(greyvalue)) {
-              if (dxLnF[1] < 0) {
-                foundSolution = true;
-                densityAndNull[0] = dxLnF[0];
-                densityAndNull[1] = greyvalue;
-                densityAndNull[2] = (float) Math.pow((double) -dxLnF[2], -0.5);
-              }
-            }
-          }
-        }
+      if (Float.isFinite(dxLnF[0]) && Float.isFinite(dxLnF[1]) && Float.isFinite(dxLnF[2])
+          && Float.isFinite(greyvalue) && (dxLnF[2] < 0)) {
+        foundSolution = true;
+        densityAndNull[0] = dxLnF[0];
+        densityAndNull[1] = greyvalue;
+        densityAndNull[2] = (float) Math.pow((double) -dxLnF[2], -0.5);
       }
       greyvalue = this.getRandomInitial();
     }
