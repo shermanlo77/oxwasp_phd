@@ -1,23 +1,6 @@
-
-import ij.*;
-import ij.gui.GenericDialog;
-import ij.gui.DialogListener;
-import ij.gui.Roi;
-import ij.process.*;
-import ij.plugin.ContrastEnhancer;
-import ij.plugin.filter.ExtendedPlugInFilter;
-import ij.plugin.filter.PlugInFilterRunner;
-import ij.plugin.filter.RankFilters;
-
-import java.awt.*;
-import java.awt.event.*;
-import java.util.Arrays;
-import java.util.Iterator;
-
-import org.apache.commons.math3.distribution.NormalDistribution;
-import org.apache.commons.math3.random.MersenneTwister;
-import org.apache.commons.math3.stat.descriptive.rank.Percentile;
-
+/**EDITED RankFilters.java
+ * See https://github.com/imagej/ImageJA/blob/master/src/main/java/ij/plugin/filter/RankFilters.java
+ */
 /** This plugin implements the Mean, Minimum, Maximum, Variance, Median, Open Maxima, Close Maxima,
  *  Remove Outliers, Remove NaNs and Despeckle commands.
  */
@@ -25,79 +8,148 @@ import org.apache.commons.math3.stat.descriptive.rank.Percentile;
  // Version 2012-12-23 M. Schmid: Test for inverted LUT only once (not in each slice)
  // Version 2014-10-10 M. Schmid:   Fixes a bug that caused Threshold=0 when calling from API
 
+import ij.gui.DialogListener;
+import ij.gui.GenericDialog;
+import ij.IJ;
+import ij.ImagePlus;
+import ij.ImageStack;
+import ij.plugin.filter.ExtendedPlugInFilter;
+import ij.plugin.filter.PlugInFilterRunner;
+import ij.Prefs;
+import ij.process.FloatProcessor;
+import ij.process.ImageProcessor;
+import java.awt.AWTEvent;
+import java.awt.Rectangle;
+import java.util.Arrays;
+import org.apache.commons.math3.distribution.NormalDistribution;
+import org.apache.commons.math3.random.MersenneTwister;
+import org.apache.commons.math3.random.RandomGenerator;
+
+/**CLASS: EMPIRICAL NULL FILTER
+ * Implementation of the empirical null filter
+ * @author Sherman Ip
+ */
 public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener {
   
-  //STATIC VARIABLES
+  //STATIC FINAL VARIABLES
+  
+  //the filter can output the std and quantiles filter
+  //the static int are options for what output images to show
+  //to combine the options, either add them together or use the OR operator
   public static final int NULL_MEAN = 1, NULL_STD = 2, STD = 4, Q1 = 8, Q2 = 16, Q3 = 32;
-  public static final int N_IMAGE_OUTPUT = 6;
+  public static final int N_IMAGE_OUTPUT = 6; //number of output images which can be shown
+  //name of each output image
   public static final String[] OUTPUT_NAME = {"null mean", "null std", "standard deviation",
       "quantile 1", "median", "quantile 3"};
+  //this filter only works on 32-bit images, this is indicated in FLAGS
+  private static final int FLAGS = DOES_32;
   
+  //MEMBER VARIABLES
+  
+  //which output images to show
+  private int outputImagePointer = NULL_MEAN + NULL_STD;
   //array of float processors which contains images (or statistics) which are obtained from the
-  //filter itself
-  //entry 0: empiricial null mean
-  //entry 1: empirical null std
-  protected int outputImagePointer = NULL_MEAN + NULL_STD;
-  protected FloatProcessor [] outputImageArray =
+  //filter itself, eg null mean, null std, std, q1, q2, q3
+  private FloatProcessor [] outputImageArray =
       new FloatProcessor[EmpiricalNullFilter.N_IMAGE_OUTPUT];
+  private double radius = 20; //radius of the kernel
   
-  // Filter parameters
-  private double radius = 20;
-  // Remember filter parameters for the next time
-  private static double lastRadius; //separate for each filter type
-  //
-  // F u r t h e r   c l a s s   v a r i a b l e s
-  private int flags = DOES_32;
-  private ImageProcessor imageProcessor;
-  private int nPasses = 1;      // The number of passes (color channels * stack slices)
+  private ImageProcessor imageProcessor; //the image to be filtered
+  //used by showDialog, unused but needed in case deleted by automatic garbage collection
   private PlugInFilterRunner pfr;
+  private int nPasses = 1; // The number of passes (color channels * stack slices)
   private int pass;
   
-  // M u l t i t h r e a d i n g - r e l a t e d
+  //MULTITHREADING RELATED
   private int numThreads = Prefs.getThreads();
   // Current state of processing is in class variables. Thus, stack parallelization must be done
   // ONLY with one thread for the image (not using these class variables):
-  private int highestYinCache;    // the highest line read into the cache so far
-  private boolean threadWaiting;    // a thread waits until it may read data
-  private boolean copyingToCache;   // whether a thread is currently copying data to the cache
+  private int highestYinCache; // the highest line read into the cache so far
+  private boolean threadWaiting; // a thread waits until it may read data
+  private boolean copyingToCache; // whether a thread is currently copying data to the cache
   
-  /** Setup of the PlugInFilter. Returns the flags specifying the capabilities and needs
+  /**IMPLEMENTED: SETUP
+   * Setup of the PlugInFilter. Returns the flags specifying the capabilities and needs
    * of the filter.
-   *
-   * @param arg Defines type of filter operation
-   * @param imp The ImagePlus to be processed
-   * @return    Flags specifying further action of the PlugInFilterRunner
+   * @param arg not used
+   * @param imp not used
+   * @return Flags specifying further action of the PlugInFilterRunner
    */
+  @Override
   public int setup(String arg, ImagePlus ip) {
-    return flags;
+    this.imageProcessor = ip.getProcessor();
+    return FLAGS;
   }
-
+  
+  /**IMPLEMENTED: RUN
+   * For the use of ExtendedPlugInFilter
+   * Do the filtering
+   * @param ip image to be filtered
+   */
+  @Override
+  public void run(ImageProcessor ip) {
+    //save the image
+    this.imageProcessor = ip;
+    //do the filtering
+    this.filter();
+    //interrupted by user?
+    if (IJ.escapePressed()) {
+      ip.reset();
+    }
+    //show each requested output image
+    for (int i=0; i<N_IMAGE_OUTPUT; i++) {
+      if ( (outputImagePointer >> i) % 2 == 1) {
+        ImagePlus output;
+        output = new ImagePlus(OUTPUT_NAME[i], this.outputImageArray[i]);
+        output.show();
+      }
+    }
+  }
+  
+  /**IMPLEMENTED: SHOW DIALOG
+   * Dialog box for setting the radius and which output images to show
+   * @param imp image to apply the filter on
+   * @param command name of this command
+   * @param pfr
+   */
+  @Override
   public int showDialog(ImagePlus imp, String command, PlugInFilterRunner pfr) {
     
     GenericDialog genericDialog = new GenericDialog(command+"...");
+    //set up radius field
     genericDialog.addNumericField("Radius", this.radius, 1, 6, "pixels");
-    
+    //set up checkbox for each output image
     for (int i=0; i<N_IMAGE_OUTPUT; i++) {
       boolean defaultBoolean = (this.outputImagePointer >> i) % 2 == 1;
       genericDialog.addCheckbox("Show "+OUTPUT_NAME[i], defaultBoolean);
     }
+    //the DialogItemChanged method will be called on user input
     genericDialog.addDialogListener(this);
-    genericDialog.showDialog();
+    genericDialog.showDialog(); //display the dialog
     if (genericDialog.wasCanceled()) {
       return DONE;
     }
+    //protected static class variables (filter parameters) from garbage collection
     IJ.register(this.getClass());
     
+    //save a copy of pfr
     this.pfr = pfr;
     
-    return flags;
+    return FLAGS;
   }
-
+  
+  /**IMPLEMENTED: DIALOG ITEM CHANGED
+   * Called on user input
+   * Update the radius and outputImagePointer
+   */
+  @Override
   public boolean dialogItemChanged(GenericDialog gd, AWTEvent e) {
+    //get the radius and set it
     this.setRadius(gd.getNextNumber());
     if (gd.invalidNumber() || this.radius < 0) {
       return false;
     }
+    //get the output image options and save it
     this.outputImagePointer = 0;
     for (int i=0; i<N_IMAGE_OUTPUT; i++) {
       boolean value = gd.getNextBoolean();
@@ -110,29 +162,16 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     return true;
   }
   
-  public void setOutputImage(int pointer) {
-    this.outputImagePointer = pointer;
-  }
-
-  public void run(ImageProcessor ip) {
-    this.imageProcessor = ip;
-    this.rank();
-    if (IJ.escapePressed()) {                 // interrupted by user?
-      ip.reset();
-    }
-    for (int i=0; i<N_IMAGE_OUTPUT; i++) {
-      if ( (outputImagePointer >> i) % 2 == 1) {
-        ImagePlus output;
-        output = new ImagePlus(OUTPUT_NAME[i], this.outputImageArray[i]);
-        output.show();
-      }
-    }
-  }
-  
-  public double getRadius(double radius) {
+  /**METHOD: GET RADIUS
+   * @return the radius of the kernel
+   */
+  public double getRadius() {
     return this.radius;
   }
   
+  /**METHOD: SET RADIUS
+   * @param radius The radius of the kernel
+   */
   public void setRadius(double radius) {
     this.radius = radius;
   }
@@ -153,23 +192,30 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     return null;
   }
   
-  /** Filters an image by any method except 'despecle' or 'remove outliers'.
-   *  @param ip    The ImageProcessor that should be filtered (all 4 types supported)
-   *  @param radius  Determines the kernel size, see Process>Filters>Show Circular Masks.
-   *           Must not be negative. No checking is done for large values that would
-   *           lead to excessive computing times.
-   *  @param filterType May be MEAN, MIN, MAX, VARIANCE, or MEDIAN.
+  /**METHOD: SET OUTPUT IMAGE
+   * Set outputImagePointer, this indicate which output images to show
+   * @param pointer which output images to show, use the static int variable, e.g. NULL_MEAN
    */
-  /** Filters an image by any method except 'despecle' (for 'despeckle', use 'median' and radius=1)
-   * @param ip The image subject to filtering
-   * @param radius The kernel radius
-   * @param filterType as defined above; DESPECKLE is not a valid type here; use median and
-   *      a radius of 1.0 instead
-   * @param whichOutliers BRIGHT_OUTLIERS or DARK_OUTLIERS for 'outliers' filter
-   * @param threshold Threshold for 'outliers' filter
+  public void setOutputImage(int pointer) {
+    this.outputImagePointer = pointer;
+  }
+  
+  /**METHOD: FILTER
+   * Do the empirical null filter using several threads
+   * Implementation: each thread uses the same input buffer (cache), always works on the next
+   * unfiltered line
+   * Usually, one thread reads reads several lines into the cache,
+   * while the others are processing the data.
+   * 'aborted[0]' is set if the main thread has been interrupted (during preview) or ESC pressed.
+   * 'aborted' must not be a class variable because it signals the other threads to stop;
+   * and this may be caused by an interrupted preview thread after the main calculation has been
+   * started.
    */
-  public void rank() {
+  public void filter() {
+    
+    //roi = region of interest
     Rectangle roi = this.imageProcessor.getRoi();
+    //pointers which indicate the shape of the kernel
     int[] lineRadii = this.makeLineRadii(this.radius);
     
     //instantiate new images for each outout
@@ -180,40 +226,43 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
       }
     }
     
-    boolean[] aborted = new boolean[1];           // returns whether interrupted during preview or ESC pressed
+    boolean[] aborted = new boolean[1]; // returns whether interrupted during preview or ESC pressed
     
-    // Filter a grayscale image or one channel of an RGB image with several threads
-    // Implementation: each thread uses the same input buffer (cache), always works on the next unfiltered line
-    // Usually, one thread reads reads several lines into the cache, while the others are processing the data.
-    // 'aborted[0]' is set if the main thread has been interrupted (during preview) or ESC pressed.
-    // 'aborted' must not be a class variable because it signals the other threads to stop; and this may be caused
-    // by an interrupted preview thread after the main calculation has been started.
-    
+    //get the number of threads
     int numThreads = Math.min(roi.height, this.numThreads);
-    if (numThreads==0)
+    if (numThreads==0) {
       return;
+    }
     
+    //get properties of the kernel and the cache
     int kHeight = kHeight(lineRadii);
     int kRadius  = kRadius(lineRadii);
     final int cacheWidth = roi.width+2*kRadius;
     final int cacheHeight = kHeight + (numThreads>1 ? 2*numThreads : 0);
-    // 'cache' is the input buffer. Each line y in the image is mapped onto cache line y%cacheHeight
+    //'cache' is the input buffer. Each line y in the image is mapped onto cache line y%cacheHeight
     final float[] cache = new float[cacheWidth*cacheHeight];
-    this.highestYinCache = Math.max(roi.y-kHeight/2, 0) - 1; //this line+1 will be read into the cache first
+    //this line+1 will be read into the cache first
+    this.highestYinCache = Math.max(roi.y-kHeight/2, 0) - 1;
     
+    //copy the pointer of the image processor
     ImageProcessor imageProcessor = this.imageProcessor;
     
-    final int[] yForThread = new int[numThreads];   //threads announce here which line they currently process
+    //threads announce here which line they currently process
+    final int[] yForThread = new int[numThreads];
     Arrays.fill(yForThread, -1);
-    yForThread[numThreads-1] = roi.y-1;         //first thread started should begin at roi.y
-    //IJ.log("going to filter lines "+roi.y+"-"+(roi.y+roi.height-1)+"; cacheHeight="+cacheHeight);
-    final Thread[] threads = new Thread[numThreads-1];  //thread number 0 is this one, not in the array
+    yForThread[numThreads-1] = roi.y-1; //first thread started should begin at roi.y
+    //thread number 0 is this one, not in the array
+    final Thread[] threads = new Thread[numThreads-1];
+    //instantiate threads and start them
     for (int t=numThreads-1; t>0; t--) {
       final int ti=t;
+      //SEE ANONYMOUS CLASS
+      //thread runs method doFiltering
       final Thread thread = new Thread(
           new Runnable() {
             final public void run() {
-              doFiltering(imageProcessor, lineRadii, cache, cacheWidth, cacheHeight, yForThread, ti, aborted);
+              threadFilter(imageProcessor, lineRadii, cache, cacheWidth, cacheHeight, yForThread,
+                  ti, aborted);
             }
           },
       "RankFilters-"+t);
@@ -221,69 +270,96 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
       thread.start();
       threads[ti-1] = thread;
     }
-
-    doFiltering(imageProcessor, lineRadii, cache, cacheWidth, cacheHeight, yForThread, 0, aborted);
-    for (final Thread thread : threads)
+    
+    //main thread start filtering
+    this.threadFilter(imageProcessor, lineRadii, cache, cacheWidth, cacheHeight, yForThread, 0,
+        aborted);
+    
+    //join each thread
+    for (final Thread thread : threads) {
       try {
           if (thread != null) thread.join();
       } catch (InterruptedException e) {
         aborted[0] = true;
-        Thread.currentThread().interrupt();   //keep interrupted status (PlugInFilterRunner needs it)
+        Thread.currentThread().interrupt(); //keep interrupted status (PlugInFilterRunner needs it)
       }
+    }
+    
     this.showProgress(1.0);
     pass++;
   }
-
-  // Filter a grayscale image or one channel of an RGB image using one thread
-  //
-  // Synchronization: unless a thread is waiting, we avoid the overhead of 'synchronized'
-  // statements. That's because a thread waiting for another one should be rare.
-  //
-  // Data handling: The area needed for processing a line is written into the array 'cache'.
-  // This is a stripe of sufficient width for all threads to have each thread processing one
-  // line, and some extra space if one thread is finished to start the next line.
-  // This array is padded at the edges of the image so that a surrounding with radius kRadius
-  // for each pixel processed is within 'cache'. Out-of-image
-  // pixels are set to the value of the nearest edge pixel. When adding a new line, the lines in
-  // 'cache' are not shifted but rather the smaller array with the start and end pointers of the
-  // kernel area is modified to point at the addresses for the next line.
-  //
-  // Algorithm: For mean and variance, except for very small radius, usually do not calculate the
-  // sum over all pixels. This sum is calculated for the first pixel of every line only. For the
-  // following pixels, add the new values and subtract those that are not in the sum any more.
-  // For min/max, also first look at the new values, use their maximum if larger than the old
-  // one. The look at the values not in the area any more; if it does not contain the old
-  // maximum, leave the maximum unchanged. Otherwise, determine the maximum inside the area.
-  // For outliers, calculate the median only if the pixel deviates by more than the threshold
-  // from any pixel in the area. Therfore min or max is calculated; this is a much faster
-  // operation than the median.
-  private void doFiltering(ImageProcessor ip, int[] lineRadii, float[] cache, int cacheWidth, int cacheHeight,
-      int [] yForThread, int threadNumber, boolean[] aborted) {
-    if (aborted[0] || Thread.currentThread().isInterrupted()) return;
+  
+  /**METHOD: THREAD FILTER
+   * Empirical null filter a grayscale image for a given thread
+   * Synchronization: unless a thread is waiting, we avoid the overhead of 'synchronized'
+   * statements. That's because a thread waiting for another one should be rare.
+   *
+   * Data handling: The area needed for processing a line is written into the array 'cache'.
+   * This is a stripe of sufficient width for all threads to have each thread processing one
+   * line, and some extra space if one thread is finished to start the next line.
+   * This array is padded at the edges of the image so that a surrounding with radius kRadius
+   * for each pixel processed is within 'cache'. Out-of-image
+   * pixels are set to the value of the nearest edge pixel. When adding a new line, the lines in
+   * 'cache' are not shifted but rather the smaller array with the start and end pointers of the
+   * kernel area is modified to point at the addresses for the next line.
+   *
+   * Notes: For mean and variance, except for very small radius, usually do not calculate the
+   * sum over all pixels. This sum is calculated for the first pixel of every line only. For the
+   * following pixels, add the new values and subtract those that are not in the sum any more.
+   * 
+   * @param ip the image to be filtered
+   * @param lineRadii pointer used by the kernel, see method makeLineRadii
+   * @param cache pointer to the cache
+   * @param cacheWidth
+   * @param cacheHeight
+   * @param yForThread array indicating which y a thread is filtering
+   * @param threadNumber
+   * @param aborted
+   */
+  private void threadFilter(ImageProcessor ip, int[] lineRadii, float[] cache, int cacheWidth,
+      int cacheHeight, int [] yForThread, int threadNumber, boolean[] aborted) {
+    
+    if (aborted[0] || Thread.currentThread().isInterrupted()) {
+      return;
+    }
+    
+    //get properties of this image
     int width = ip.getWidth();
     int height = ip.getHeight();
     Rectangle roi = ip.getRoi();
-
+    
+    //get properties of this kernel
     int kHeight = kHeight(lineRadii);
     int kRadius  = kRadius(lineRadii);
     int kNPoints = kNPoints(lineRadii);
-
+    
+    //get the boundary
     int xmin = roi.x - kRadius;
     int xmax = roi.x + roi.width + kRadius;
+    
+    //get the pointer of the kernel given the width of the cache
     int[]cachePointers = makeCachePointers(lineRadii, cacheWidth);
-
+    
+    //pad out the image, eg when the kernel is on the boundary of the image
     int padLeft = xmin<0 ? -xmin : 0;
     int padRight = xmax>width? xmax-width : 0;
     int xminInside = xmin>0 ? xmin : 0;
     int xmaxInside = xmax<width ? xmax : width;
     int widthInside = xmaxInside - xminInside;
     
-    double[] sums = new double[2];
-    float[] medianBuf = new float[kNPoints];
-    float[] medianBuf1 = new float[kNPoints];
+    //arrays to store calculations of pixels contained in a kernel
+    double[] sums = new double[2]; //[0] sum of greyvalues, [1] sum of greyvalues squared
+    float[] medianBuf1 = new float[kNPoints]; //stores greyvalues of pixels in a kernel
+    float[] medianBuf2 = new float[kNPoints]; //stores greyvalues of pixels in a kernel
+    //[0,1,2] 1st 2nd and 3rd quartiles greyvalues of pixels in a kernel
     float [] quantiles = new float[3];
     
-    boolean smallKernel = kRadius < 2;
+    //for calculation the normal pdf
+    NormalDistribution normal = new NormalDistribution();
+    //rng for trying out different initial values
+    RandomGenerator rng = new MersenneTwister(System.currentTimeMillis());
+    
+    boolean smallKernel = kRadius < 2; //indicate if this kernel is small
     
     //values is a 2D array
     //each dimension contain the pixel values for each image
@@ -291,9 +367,9 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
       //0. filtered image
       //1. 2. 3. ... are the output images
     float[][] values = new float[EmpiricalNullFilter.N_IMAGE_OUTPUT+1][];
-    Object pixels = ip.getPixels();
+    float [] pixels = (float[]) ip.getPixels();
     //get the pixels of the filtered image
-    values[0] = (float[]) pixels;
+    values[0] = pixels;
     //get the pixels of each of the output images (only if requested)
     for (int i=0; i<EmpiricalNullFilter.N_IMAGE_OUTPUT; i++) {
       if ( (this.outputImagePointer >> i) % 2 == 1) {
@@ -305,64 +381,75 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     long lastTime = System.currentTimeMillis();
     int previousY = kHeight/2-cacheHeight;
     
+    //while loop, loop over each y
     while (!aborted[0]) {
-      int y = arrayMax(yForThread) + 1;   // y of the next line that needs processing
-      yForThread[threadNumber] = y;
-      //IJ.log("thread "+threadNumber+" @y="+y+" needs"+(y-kHeight/2)+"-"+(y+kHeight/2)+" highestYinC="+highestYinCache);
+      
+      //=====THREAD CONTROL===== (untouched from original source code)
+      
+      int y = arrayMax(yForThread) + 1; // y of the next line that needs processing
+      yForThread[threadNumber] = y; //indicate that this thread is working on y
       boolean threadFinished = y >= roi.y+roi.height;
-      if (numThreads>1 && (threadWaiting || threadFinished))    // 'if' is not synchronized to avoid overhead
+      //'if' is not synchronized to avoid overhead
+      if (numThreads>1 && (threadWaiting || threadFinished))
         synchronized(this) {
           notifyAll();          // we may have blocked another thread
-          //IJ.log("thread "+threadNumber+" @y="+y+" notifying");
         }
-      if (threadFinished)
-        return;               // all done, break the loop
-
-      if (threadNumber==0) {          // main thread checks for abort and ProgressBar
+      if (threadFinished) {
+        return; // all done, break the loop
+      }
+      if (threadNumber==0) { // main thread checks for abort and ProgressBar
         long time = System.currentTimeMillis();
         if (time-lastTime>100) {
           lastTime = time;
           this.showProgress((y-roi.y)/(double)(roi.height));
-          if (Thread.currentThread().isInterrupted() || (this.imageProcessor!= null && IJ.escapePressed())) {
+          if (Thread.currentThread().isInterrupted()
+              || (this.imageProcessor!= null && IJ.escapePressed())) {
             aborted[0] = true;
             synchronized(this) {notifyAll();}
             return;
           }
         }
       }
-
-      for (int i=0; i<cachePointers.length; i++)  //shift kernel pointers to new line
+      
+      for (int i=0; i<cachePointers.length; i++) {  //shift kernel pointers to new line
         cachePointers[i] = (cachePointers[i] + cacheWidth*(y-previousY))%cache.length;
+      }
       previousY = y;
-
-      if (numThreads>1) {             // thread synchronization
-        int slowestThreadY = arrayMinNonNegative(yForThread); // non-synchronized check to avoid overhead
-        if (y - slowestThreadY + kHeight > cacheHeight) { // we would overwrite data needed by another thread
+      
+      if (numThreads>1) { // thread synchronization
+        //non-synchronized check to avoid overhead
+        int slowestThreadY = arrayMinNonNegative(yForThread);
+       //we would overwrite data needed by another thread
+        if (y - slowestThreadY + kHeight > cacheHeight) {
           synchronized(this) {
             slowestThreadY = arrayMinNonNegative(yForThread); //recheck whether we have to wait
             if (y - slowestThreadY + kHeight > cacheHeight) {
               do {
-                notifyAll();      // avoid deadlock: wake up others waiting
+                notifyAll(); //avoid deadlock: wake up others waiting
                 threadWaiting = true;
-                //IJ.log("Thread "+threadNumber+" waiting @y="+y+" slowest@y="+slowestThreadY);
                 try {
                   wait();
-                  if (aborted[0]) return;
+                  if (aborted[0]) {
+                    return;
+                  }
                 } catch (InterruptedException e) {
                   aborted[0] = true;
                   notifyAll();
-                  Thread.currentThread().interrupt(); //keep interrupted status (PlugInFilterRunner needs it)
+                  //keep interrupted status (PlugInFilterRunner needs it)
+                  Thread.currentThread().interrupt();
                   return;
                 }
                 slowestThreadY = arrayMinNonNegative(yForThread);
               } while (y - slowestThreadY + kHeight > cacheHeight);
-            } //if
+            } //end if
             threadWaiting = false;
           }
         }
       }
-
-      if (numThreads==1) {                              // R E A D
+      
+      //=====READ INTO CACHE===== (untouched from original source code)
+      
+      if (numThreads==1) {
         int yStartReading = y==roi.y ? Math.max(roi.y-kHeight/2, 0) : y+kHeight/2;
         for (int yNew = yStartReading; yNew<=y+kHeight/2; yNew++) { //only 1 line except at start
           readLineToCacheOrPad(pixels, width, height, roi.y, xminInside, widthInside,
@@ -370,7 +457,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
         }
       } else {
         if (!copyingToCache || highestYinCache < y+kHeight/2) synchronized(cache) {
-          copyingToCache = true;        // copy new line(s) into cache
+          copyingToCache = true; // copy new line(s) into cache
           while (highestYinCache < arrayMinNonNegative(yForThread) - kHeight/2 + cacheHeight - 1) {
             int yNew = highestYinCache + 1;
             readLineToCacheOrPad(pixels, width, height, roi.y, xminInside, widthInside,
@@ -381,140 +468,214 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
         }
       }
       
+      //=====FILTER A LINE=====
+      
       int cacheLineP = cacheWidth * (y % cacheHeight) + kRadius;  //points to pixel (roi.x, y)
-      this.filterLine(values, width, cache, cachePointers, kNPoints, cacheLineP, roi, y, // F I L T E R
-          sums, medianBuf, medianBuf1, quantiles, smallKernel);
-      //System.out.println("thread "+threadNumber+" @y="+y+" line done");
-    } // while (!aborted[0]); loop over y (lines)
+      this.filterLine(values, width, cache, cachePointers, kNPoints, cacheLineP, roi, y,
+          sums, medianBuf1, medianBuf2, quantiles, normal, rng, smallKernel);
+    }// end while (!aborted[0]); loops over y (lines)
   }
-
+  
+  /**METHOD: ARRAY MAX
+   * Used by thread control in threadFilter
+   * @param array
+   * @return maximum in array
+   */
   private int arrayMax(int[] array) {
     int max = Integer.MIN_VALUE;
-    for (int i=0; i<array.length; i++)
-      if (array[i] > max) max = array[i];
+    for (int i=0; i<array.length; i++) {
+      if (array[i] > max) {
+        max = array[i];
+      }
+    }
     return max;
   }
-
-  //returns the minimum of the array, but not less than 0
+  
+  /**METHOD: ARRAY MIN NON NEGATIVE
+   * Used by thread control in threadFilter
+   * @param array
+   * @return the minimum of the array, but not less than 0
+   */
   private int arrayMinNonNegative(int[] array) {
     int min = Integer.MAX_VALUE;
-    for (int i=0; i<array.length; i++)
-      if (array[i]<min) min = array[i];
+    for (int i=0; i<array.length; i++) {
+      if (array[i]<min) {
+        min = array[i];
+      }
+    }
     return min<0 ? 0 : min;
   }
-
-  private void filterLine(float[][] values, int width, float[] cache, int[] cachePointers, int kNPoints, int cacheLineP, Rectangle roi, int y,
-      double[] sums, float[] medianBuf, float[] medianBuf1, float[] quantiles, boolean smallKernel) {
-      int valuesP = roi.x+y*width;
-      boolean fullCalculation = true;
-      float std; //standard deviation
-      int nData = 0; //number of non-nan data
-      Percentile percentile = new Percentile();
-      float initialValue = 0;
+  
+  /**METHOD: FILTER LINE
+   * Empirical null filter a line
+   * @param values array of float [] for output values to be stored
+   * @param width width of the image
+   * @param cache contains pixels of the pre-filter image
+   * @param cachePointers pointers used by the kernel
+   * @param kNPoints number of points a kernel contains
+   * @param cacheLineP pointer for the current y line in the cache
+   * @param roi
+   * @param y current row
+   * @param sums stores sum calculations in a kernel (size 2)
+   * @param medianBuf1 stores greyvalues in a kernel (size kNPoints)
+   * @param medianBuf2 stores greyvalues in a kernel (size kNPoints)
+   * @param quartiles stores quartiles in a kernel (size 2)
+   * @param normal normal distribution to evaluate the normal pdf
+   * @param rng random number generator, used for trying out different initial values
+   * @param smallKernel indicate if this kernel is small or not
+   */
+  private void filterLine(float[][] values, int width, float[] cache, int[] cachePointers,
+      int kNPoints, int cacheLineP, Rectangle roi, int y, double[] sums, float[] medianBuf1,
+      float[] medianBuf2, float[] quartiles, NormalDistribution normal, RandomGenerator rng,
+      boolean smallKernel) {
+    
+    //declare the pointer for a pixel in values
+    int valuesP = roi.x+y*width;
+    //indicate if a full calculation is to be done
+    //that is to do a calculation without using results from the previous x
+    boolean fullCalculation = true;
+    float std; //standard deviation
+    int nData = 0; //number of non-nan data
+    float initialValue = 0; //initial value to be used for the newton-raphson method
+    
+    //then for each pixel in this line
+    for (int x=0; x<roi.width; x++, valuesP++) { // x is with respect to roi.x
       
-      //set required variables
-      NormalDistribution normal = new NormalDistribution();
-      MersenneTwister rng = new MersenneTwister(System.currentTimeMillis());
-      //then for each pixel in this line
-      for (int x=0; x<roi.width; x++, valuesP++) { // x is with respect to roi.x
-        
-        //set the first value to be the median
-        getQuantiles(cache, x, cachePointers, medianBuf, medianBuf1, kNPoints, cache[cacheLineP], quantiles, percentile);
-        if (x==0) {
-          initialValue = quantiles[1];
+      //set the first value to be the median
+      getQuartiles(cache, x, cachePointers, medianBuf1, medianBuf2, kNPoints, cache[cacheLineP],
+          quartiles);
+      if (x==0) {
+        initialValue = quartiles[1];
+      }
+      
+      if (fullCalculation) {
+        //for small kernel, always use the full area, not incremental algorithm
+        fullCalculation = smallKernel;
+        nData = getAreaSums(cache, x, cachePointers, sums);
+      } else {
+        nData = addSideSums(cache, x, cachePointers, sums, nData);
+        //avoid perpetuating NaNs into remaining line
+        if (Double.isNaN(sums[0])) {
+          fullCalculation = true;
         }
-        
-        if (fullCalculation) {
-          //for small kernel, always use the full area, not incremental algorithm
-          fullCalculation = smallKernel;
-          nData = getAreaSums(cache, x, cachePointers, sums);
-        } else {
-          nData = addSideSums(cache, x, cachePointers, sums, nData);
-          //avoid perpetuating NaNs into remaining line
-          if (Double.isNaN(sums[0])) {
-            fullCalculation = true;
-          }
-        }
-        
-        if (nData != 0) {
-          std = (float) Math.sqrt(((sums[1] - sums[0]*sums[0]/nData)/(nData-1)));
-        } else {
-          throw new RuntimeException("no non-NaN data at line "+y+" column "+x);
-        }
-        
-        EmpiricalNull empiricalNull = new EmpiricalNull(cache, x, cachePointers , initialValue, quantiles,
-            std, nData, normal, rng);
-        empiricalNull.estimateNull();
-        values[0][valuesP] = (cache[cacheLineP+x] - empiricalNull.nullMean) / empiricalNull.nullStd;
-        initialValue = empiricalNull.nullMean;
-        for (int i=0; i<EmpiricalNullFilter.N_IMAGE_OUTPUT; i++) {
-          if ( (this.outputImagePointer >> i) % 2 == 1) {
-            switch (i) {
-              case 0:
-                values[1][valuesP] = empiricalNull.nullMean;
-                break;
-              case 1:
-                values[2][valuesP] = empiricalNull.nullStd;
-                break;
-              case 2:
-                values[3][valuesP] = std;
-                break;
-              case 3:
-                values[4][valuesP] = quantiles[0];
-                break;
-              case 4:
-                values[5][valuesP] = quantiles[1];
-                break;
-              case 5:
-                values[6][valuesP] = quantiles[2];
-                break;
-            }
+      }
+      
+      //calculate the standard deviation
+      std = (float) Math.sqrt(((sums[1] - sums[0]*sums[0]/nData)/(nData-1)));
+      
+      //get the empirical null
+      EmpiricalNull empiricalNull = new EmpiricalNull(cache, x, cachePointers , initialValue,
+          quartiles, std, nData, normal, rng);
+      empiricalNull.estimateNull();
+      //normalise this pixel
+      values[0][valuesP] = (cache[cacheLineP+x] - empiricalNull.getNullMean())
+          / empiricalNull.getNullStd();
+      //for the next x, the initial value is this nullMean
+      initialValue = empiricalNull.getNullMean();
+      //for each requested output image, save that statistic
+      for (int i=0; i<EmpiricalNullFilter.N_IMAGE_OUTPUT; i++) {
+        if ( (this.outputImagePointer >> i) % 2 == 1) {
+          switch (i) {
+            case 0:
+              values[1][valuesP] = empiricalNull.getNullMean();
+              break;
+            case 1:
+              values[2][valuesP] = empiricalNull.getNullStd();
+              break;
+            case 2:
+              values[3][valuesP] = std;
+              break;
+            case 3:
+              values[4][valuesP] = quartiles[0];
+              break;
+            case 4:
+              values[5][valuesP] = quartiles[1];
+              break;
+            case 5:
+              values[6][valuesP] = quartiles[2];
+              break;
           }
         }
       }
     }
-
-  /** Read a line into the cache (including padding in x).
-   *  If y>=height, instead of reading new data, it duplicates the line y=height-1.
-   *  If y==0, it also creates the data for y<0, as far as necessary, thus filling the cache with
-   *  more than one line (padding by duplicating the y=0 row).
-   */
-  //EDIT: Padding contains NaN
-  private static void readLineToCacheOrPad(Object pixels, int width, int height, int roiY, int xminInside, int widthInside,
-      float[]cache, int cacheWidth, int cacheHeight, int padLeft, int padRight, int kHeight, int y) {
-    int lineInCache = y%cacheHeight;
-    if (y < height) {
-      readLineToCache(pixels, y*width, xminInside, widthInside, cache, lineInCache*cacheWidth, padLeft, padRight);
-      if (y==0) for (int prevY = roiY-kHeight/2; prevY<0; prevY++) {  //for y<0, pad with y=0 border pixels
-        int prevLineInCache = cacheHeight+prevY;
-        //EDIT: Padding contains NaN
-        Arrays.fill(cache, prevLineInCache*cacheWidth, prevLineInCache*cacheWidth + cacheWidth,
-            Float.NaN);
-      }
-    } else
-      //EDIT: Padding contains NaN
-      Arrays.fill(cache, lineInCache*cacheWidth, lineInCache*cacheWidth + cacheWidth, Float.NaN);
-  }
-
-  /** Read a line into the cache (includes conversion to flaot). Pad with edge pixels in x if necessary */
-  //EDIT: Padding contains NaN
-  private static void readLineToCache(Object pixels, int pixelLineP, int xminInside, int widthInside,
-                float[] cache, int cacheLineP, int padLeft, int padRight) {
-    System.arraycopy(pixels, pixelLineP+xminInside, cache, cacheLineP+padLeft, widthInside);
-    //EDIT: Padding contains NaN
-    for (int cp=cacheLineP; cp<cacheLineP+padLeft; cp++)
-      cache[cp] = Float.NaN;
-    for (int cp=cacheLineP+padLeft+widthInside; cp<cacheLineP+padLeft+widthInside+padRight; cp++)
-      cache[cp] = Float.NaN;
   }
   
-  /** Get sum of values and values squared within the kernel area.
-   *  x between 0 and cacheWidth-1
-   *  Output is written to array sums[0] = sum; sums[1] = sum of squares */
+  /**METHOD: READ LINE TO CACHE OR PAD
+   * Read a line into the cache (including padding in x), anything outside the boundary is nan
+   * @param pixels
+   * @param width
+   * @param height
+   * @param roiY
+   * @param xminInside
+   * @param widthInside
+   * @param cache modified
+   * @param cacheWidth
+   * @param cacheHeight
+   * @param padLeft
+   * @param padRight
+   * @param kHeight
+   * @param y
+   */
+  private static void readLineToCacheOrPad(Object pixels, int width, int height, int roiY,
+      int xminInside, int widthInside, float[]cache, int cacheWidth, int cacheHeight, int padLeft,
+      int padRight, int kHeight, int y) {
+    int lineInCache = y%cacheHeight;
+    if (y < height) {
+      readLineToCache(pixels, y*width, xminInside, widthInside, cache, lineInCache*cacheWidth,
+          padLeft, padRight);
+      if (y==0) {
+        for (int prevY = roiY-kHeight/2; prevY<0; prevY++) {  //for y<0, pad with nan
+          int prevLineInCache = cacheHeight+prevY;
+          Arrays.fill(cache, prevLineInCache*cacheWidth, prevLineInCache*cacheWidth + cacheWidth,
+              Float.NaN);
+        }
+      }
+    } else {
+      Arrays.fill(cache, lineInCache*cacheWidth, lineInCache*cacheWidth + cacheWidth, Float.NaN);
+    }
+  }
+  
+  /**METHOD: READ LINE TO CACHE
+   * Read a line into the cache (includes conversion to flaot)
+   * Pad with nan if necessary
+   * @param pixels
+   * @param pixelLineP
+   * @param xminInside
+   * @param widthInside
+   * @param cache modified
+   * @param cacheLineP
+   * @param padLeft
+   * @param padRight
+   */
+  private static void readLineToCache(Object pixels, int pixelLineP, int xminInside,
+      int widthInside, float[] cache, int cacheLineP, int padLeft, int padRight) {
+    System.arraycopy(pixels, pixelLineP+xminInside, cache, cacheLineP+padLeft, widthInside);
+    //Padding contains NaN
+    for (int cp=cacheLineP; cp<cacheLineP+padLeft; cp++) {
+      cache[cp] = Float.NaN;
+    }
+    for (int cp=cacheLineP+padLeft+widthInside; cp<cacheLineP+padLeft+widthInside+padRight; cp++) {
+      cache[cp] = Float.NaN;
+    }
+  }
+  
+  /**METHOD: GET AREA SUMS
+   * Get sum of values and values squared within the kernel area.
+   * x between 0 and cacheWidth-1
+   * Output is written to array sums[0] = sum; sums[1] = sum of squares
+   * Ignores nan
+   * Returns the number of non-nan numbers
+   * @param cache
+   * @param xCache0
+   * @param kernel
+   * @param sums modified
+   * @return  number of non-nan numbers
+   */
   private static int getAreaSums(float[] cache, int xCache0, int[] kernel, double[] sums) {
     double sum=0, sum2=0;
     int nData = 0;
-    for (int kk=0; kk<kernel.length; kk++) {  // y within the cache stripe (we have 2 kernel pointers per cache line)
+    //y within the cache stripe (we have 2 kernel pointers per cache line)
+    for (int kk=0; kk<kernel.length; kk++) {
       for (int p=kernel[kk++]+xCache0; p<=kernel[kk]+xCache0; p++) {
         double v = cache[p];
         if (!Double.isNaN(v)) {
@@ -526,42 +687,59 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     }
     sums[0] = sum;
     sums[1] = sum2;
-    
     return nData;
   }
-
-  /** Add all values and values squared at the right border inside minus at the left border outside the kernal area.
-   *  Output is added or subtracted to/from array sums[0] += sum; sums[1] += sum of squares  when at
-   *  the right border, minus when at the left border */
-  private static int addSideSums(float[] cache, int xCache0, int[] kernel, double[] sums, int nData) {
+  
+  /**METHOD: ADD SIDE SUMS
+   * Add all values and values squared at the right border inside minus at the left border outside
+   * the kernal area.
+   * Output is added or subtracted to/from array sums[0] += sum; sums[1] += sum of squares  when at
+   * the right border, minus when at the left border
+   * @param cache
+   * @param xCache0
+   * @param kernel
+   * @param sums modified
+   * @param nData
+   * @return number of non-nan numbers
+   */
+  private static int addSideSums(float[] cache, int xCache0, int[] kernel, double[] sums,
+      int nData) {
     double sum=0, sum2=0;
+    //for each row
     for (int kk=0; kk<kernel.length; /*k++;k++ below*/) {
-      
       double v = cache[kernel[kk++]+(xCache0-1)]; //this value is not in the kernel area any more
       if (!Double.isNaN(v)) {
         sum -= v;
         sum2 -= v*v;
         nData--;
       }
-      
-      v = cache[kernel[kk++]+xCache0];            //this value comes into the kernel area
+      v = cache[kernel[kk++]+xCache0]; //this value comes into the kernel area
       if (!Double.isNaN(v)) {
         sum += v;
         sum2 += v*v;
         nData++;
       }
-      
     }
     sums[0] += sum;
     sums[1] += sum2;
     return nData;
   }
   
-  /** Get median of values within kernel-sized neighborhood.
-   *  NaN data values are ignored; the output is NaN only if there are only NaN values in the
-   *  kernel-sized neighborhood */
-  private static void getQuantiles(float[] cache, int xCache0, int[] kernel,
-      float[] belowBuf, float[] aboveBuf, int kNPoints, float guess, float[] quantiles, Percentile percentile) {
+  /**METHOD: GET QUARTILES
+   * Get the quartiles of values within kernel-sized neighborhood.
+   * nan values are ignored
+   * @param cache
+   * @param xCache0
+   * @param kernel
+   * @param belowBuf modifed
+   * @param aboveBuf modified
+   * @param kNPoints
+   * @param guess
+   * @param quartiles modified
+   */
+  private static void getQuartiles(float[] cache, int xCache0, int[] kernel,
+      float[] belowBuf, float[] aboveBuf, int kNPoints, float guess, float[] quartiles) {
+    //count the number of values below or above guess
     int nAbove = 0, nBelow = 0;
     for (int kk=0; kk<kernel.length; kk++) {
       for (int p=kernel[kk++]+xCache0; p<=kernel[kk]+xCache0; p++) {
@@ -578,26 +756,31 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
         }
       }
     }
-    
+    //calculate the 3 quartiles
     for (int i=0; i<3; i++) {
       int index = (int) Math.floor( ((double)((i+1) * kNPoints)) / 4.0 );
       if (kNPoints == 0) {
-        quantiles[i] = Float.NaN;  //only NaN data in the neighborhood?
+        quartiles[i] = Float.NaN;  //only NaN data in the neighborhood?
       } else if (index<nBelow) {
-        quantiles[i] =  findNthLowestNumber(belowBuf, nBelow, index);
+        quartiles[i] =  findNthLowestNumber(belowBuf, nBelow, index);
       } else if ((kNPoints-index)<nAbove) {
-        quantiles[i] =  findNthLowestNumber(aboveBuf, nAbove, index - nBelow  - 1);
+        quartiles[i] =  findNthLowestNumber(aboveBuf, nAbove, index - nBelow  - 1);
       } else {
-        quantiles[i] =  guess;
+        quartiles[i] =  guess;
       }
     }
   }
 
-  /** Find the n-th lowest number in part of an array
-   *  @param buf The input array. Only values 0 ... bufLength are read. <code>buf</code> will be modified.
-   *  @param bufLength Number of values in <code>buf</code> that should be read
-   *  @param n which value should be found; n=0 for the lowest, n=bufLength-1 for the highest
-   *  @return the value */
+
+  /**METHOD: FIND NTH LOWEST NUMBER
+   * Find the n-th lowest number in part of an array
+   * Used by getQuartiles
+   * @param buf The input array. Only values 0 ... bufLength are read. <code>buf</code> will be
+   * modified.
+   * @param bufLength Number of values in <code>buf</code> that should be read
+   * @param n which value should be found; n=0 for the lowest, n=bufLength-1 for the highest
+   * @return the value
+   */
   public final static float findNthLowestNumber(float[] buf, int bufLength, int n) {
     // Hoare's find, algorithm, based on http://www.geocities.com/zabrodskyvlada/3alg.html
     // Contributed by Heinz Klar
@@ -606,48 +789,60 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     int m=bufLength-1;
     float med=buf[n];
     float dum ;
-
+    
     while (l<m) {
       i=l ;
       j=m ;
       do {
-        while (buf[i]<med) i++ ;
-        while (med<buf[j]) j-- ;
+        while (buf[i]<med) {
+          i++ ;
+        }
+        while (med<buf[j]) {
+          j-- ;
+        }
         dum=buf[j];
         buf[j]=buf[i];
         buf[i]=dum;
         i++ ; j-- ;
       } while ((j>=n) && (i<=n)) ;
-      if (j<n) l=i ;
-      if (n<i) m=j ;
+      if (j<n) {
+        l=i ;
+      }
+      if (n<i) {
+        m=j ;
+      }
       med=buf[n] ;
     }
   return med ;
   }
   
-  /** Create a circular kernel (structuring element) of a given radius.
-   *  @param radius
-   *  Radius = 0.5 includes the 4 neighbors of the pixel in the center,
+  /**METHOD: MAKE LINE RADII
+   * Create a circular kernel (structuring element) of a given radius.
+   * @param radius
+   * Radius = 0.5 includes the 4 neighbors of the pixel in the center,
    *  radius = 1 corresponds to a 3x3 kernel size.
-   *  @return the circular kernel
-   *  The output is an array that gives the length of each line of the structuring element
-   *  (kernel) to the left (negative) and to the right (positive):
-   *  [0] left in line 0, [1] right in line 0,
-   *  [2] left in line 2, ...
-   *  The maximum (absolute) value should be kernelRadius.
-   *  Array elements at the end:
-   *  length-2: nPoints, number of pixels in the kernel area
-   *  length-1: kernelRadius in x direction (kernel width is 2*kernelRadius+1)
-   *  Kernel height can be calculated as (array length - 1)/2 (odd number);
-   *  Kernel radius in y direction is kernel height/2 (truncating integer division).
-   *  Note that kernel width and height are the same for the circular kernels used here,
-   *  but treated separately for the case of future extensions with non-circular kernels.
+   * @return the circular kernel
+   * The output is an array that gives the length of each line of the structuring element
+   * (kernel) to the left (negative) and to the right (positive):
+   * [0] left in line 0, [1] right in line 0,
+   * [2] left in line 2, ...
+   * The maximum (absolute) value should be kernelRadius.
+   * Array elements at the end:
+   * length-2: nPoints, number of pixels in the kernel area
+   * length-1: kernelRadius in x direction (kernel width is 2*kernelRadius+1)
+   * Kernel height can be calculated as (array length - 1)/2 (odd number);
+   * Kernel radius in y direction is kernel height/2 (truncating integer division).
+   * Note that kernel width and height are the same for the circular kernels used here,
+   * but treated separately for the case of future extensions with non-circular kernels.
+   * e.g. r=0.5 will return [0,0,-1,1,0,0,nPoints, kernelRadius]
+   * e.g. r=3 will return [-1,1,-2,2,-3,3,-3,3,-3,3,-2,2,-1,1,nPoints, kernelRadius]
    */
-  protected int[] makeLineRadii(double radius) {
-    if (radius>=1.5 && radius<1.75) //this code creates the same sizes as the previous RankFilters
+  private int[] makeLineRadii(double radius) {
+    if (radius>=1.5 && radius<1.75) {//this code creates the same sizes as the previous RankFilters
       radius = 1.75;
-    else if (radius>=2.5 && radius<2.85)
+    } else if (radius>=2.5 && radius<2.85) {
       radius = 2.85;
+    }
     int r2 = (int) (radius*radius) + 1;
     int kRadius = (int)(Math.sqrt(r2+1e-10));
     int kHeight = 2*kRadius + 1;
@@ -655,37 +850,52 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     kernel[2*kRadius] = -kRadius;
     kernel[2*kRadius+1] =  kRadius;
     int nPoints = 2*kRadius+1;
-    for (int y=1; y<=kRadius; y++) {    //lines above and below center together
+    for (int y=1; y<=kRadius; y++) { //lines above and below center together
       int dx = (int)(Math.sqrt(r2-y*y+1e-10));
       kernel[2*(kRadius-y)] = -dx;
       kernel[2*(kRadius-y)+1] =  dx;
       kernel[2*(kRadius+y)] = -dx;
       kernel[2*(kRadius+y)+1] =  dx;
-      nPoints += 4*dx+2;  //2*dx+1 for each line, above&below
+      nPoints += 4*dx+2; //2*dx+1 for each line, above&below
     }
     kernel[kernel.length-2] = nPoints;
     kernel[kernel.length-1] = kRadius;
-    //for (int i=0; i<kHeight;i++)IJ.log(i+": "+kernel[2*i]+"-"+kernel[2*i+1]);
     return kernel;
   }
-
-  //kernel height
+  
+  /**METHOD: KERNEL HEIGHT
+   * @param lineRadii 
+   * @return kernel height
+   */
   private int kHeight(int[] lineRadii) {
     return (lineRadii.length-2)/2;
   }
-
-  //kernel radius in x direction. width is 2+kRadius+1
+  
+  //
+  /**METHOD: KERNEL RADIUS
+   * @param lineRadii see makeLineRadii
+   * @return kernel radius in x direction. width is 2+kRadius+1
+   */
   private int kRadius(int[] lineRadii) {
     return lineRadii[lineRadii.length-1];
   }
-
-  //number of points in kernal area
+  
+  /**METHOD: KERNEL N POINTS
+   * @param lineRadii see makeLineRadii
+   * @return number of points in kernal area
+   */
   private int kNPoints(int[] lineRadii) {
     return lineRadii[lineRadii.length-2];
   }
-
-  //cache pointers for a given kernel
-  protected int[] makeCachePointers(int[] lineRadii, int cacheWidth) {
+  
+  /**METHOD: MAKE CACHE POINTERS
+   * cache pointers for a given kernel and cache width
+   * @param lineRadii see makeLineRadii
+   * @param cacheWidth width of the cache
+   * @return cache pointers for a given kernel
+   * e.g. radius = 0.5, cache width = 10 returns [1,1,10,12,21,21];
+   */
+  private int[] makeCachePointers(int[] lineRadii, int cacheWidth) {
     int kRadius = kRadius(lineRadii);
     int kHeight = kHeight(lineRadii);
     int[] cachePointers = new int[2*kHeight];
@@ -695,11 +905,13 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     }
     return cachePointers;
   }
-
+  
+  /**METHOD: SHOW MASKS
+   * Show the kernel
+   */
   void showMasks() {
     int w=150, h=150;
     ImageStack stack = new ImageStack(w, h);
-    //for (double r=0.1; r<3; r+=0.01) {
     for (double r=0.5; r<50; r+=0.5) {
       ImageProcessor ip = new FloatProcessor(w,h,new int[w*h]);
       float[] pixels = (float[])ip.getPixels();
@@ -714,17 +926,24 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     }
     new ImagePlus("Masks", stack).show();
   }
-
-  /** This method is called by ImageJ to set the number of calls to run(ip)
-   *  corresponding to 100% of the progress bar */
+  
+  /**METHOD: SET N PASSES
+   * This method is called by ImageJ to set the number of calls to run(ip)
+   * corresponding to 100% of the progress bar
+   */
+  @Override
   public void setNPasses (int nPasses) {
     this.nPasses = nPasses;
     pass = 0;
   }
-
+  
+  /**METHOD: SHOW PROGRESS
+   * @param percent
+   */
   private void showProgress(double percent) {
     int nPasses2 = nPasses;
     percent = (double)pass/nPasses2 + percent/nPasses2;
     IJ.showProgress(percent);
   }
+  
 }

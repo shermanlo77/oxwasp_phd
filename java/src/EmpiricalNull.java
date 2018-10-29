@@ -1,32 +1,36 @@
 import org.apache.commons.math3.distribution.NormalDistribution;
-import org.apache.commons.math3.random.MersenneTwister;
+import org.apache.commons.math3.random.RandomGenerator;
 
 public class EmpiricalNull {
   
+  //STATIC VARIABLES
+  
   //number of times to repeat the newton-raphson using different initial values
-  protected static int nInitial = 20;
-  protected static int nStep = 10; //number of steps in newton-raphson
+  private static int nInitial = 20;
+  private static int nStep = 10; //number of steps in newton-raphson
   //stopping condition tolerance for newton-raphson
-  protected static float tolerance = (float) Math.pow(10.0, -5.0);
+  private static float tolerance = (float) Math.pow(10.0, -5.0);
   //the bandwidth for the density estimate is B x 0.9 x std x n^{-1/5} + A
   //A and B are set below
-  protected static float bandwidthParameterA = (float) 0.16; //intercept
-  protected static float bandwidthParameterB = (float) 0.9; //gradient
+  private static float bandwidthParameterA = (float) 0.16; //intercept
+  private static float bandwidthParameterB = (float) 0.9; //gradient
   
-  protected float [] cache; //array of greyvalues
-  protected int x; //x position
-  protected int [] cachePointers; //array of integer pairs, pointing to the boundary of the kernel
+  //MEMBER VARIABLES
   
-  protected int n = 0; //number of non-NaN data in the kernel
-  protected float dataStd; //the standard deviation of the pixels in the kernel
-  protected float iqr; //interquartile range
+  private float [] cache; //array of greyvalues
+  private int x; //x position
+  private int [] cachePointers; //array of integer pairs, pointing to the boundary of the kernel
   
-  protected float initialValue; //the user requested initial value
-  protected float nullMean; //empirical null mean
-  protected float nullStd; //empirical null std
-  protected float bandwidth; //bandwidth for the density estimate
-  protected NormalDistribution normalDistribution; //standard normal distributionrng = rng;
-  protected MersenneTwister rng; //random number generator when a random initial value is needed
+  private int n = 0; //number of non-NaN data in the kernel
+  private float dataStd; //the standard deviation of the pixels in the kernel
+  private float iqr; //interquartile range
+  
+  private float initialValue; //the user requested initial value
+  private float nullMean; //empirical null mean
+  private float nullStd; //empirical null std
+  private float bandwidth; //bandwidth for the density estimate
+  private NormalDistribution normalDistribution; //standard normal distributionrng = rng;
+  private RandomGenerator rng; //random number generator when a random initial value is needed
   
   /**CONSTRUCTOR
    * @param cache array of greyvalues
@@ -38,18 +42,17 @@ public class EmpiricalNull {
    * @param rng random number generator when a random initial value is needed
    */
   public EmpiricalNull(float[] cache, int x, int[] cachePointers , float initialValue,
-      float[] quantiles, float dataStd, int n, NormalDistribution normalDistribution,
-      MersenneTwister rng) {
+      float[] quartiles, float dataStd, int n, NormalDistribution normalDistribution,
+      RandomGenerator rng) {
     this.cache = cache;
     this.x = x;
     this.cachePointers = cachePointers;
     this.initialValue = initialValue;
     this.dataStd = dataStd;
-    this.iqr = quantiles[2] - quantiles[0];
+    this.iqr = quartiles[2] - quartiles[0];
     this.n = n;
     this.normalDistribution = normalDistribution;
     this.rng = rng;
-    this.countData();
     this.bandwidth = EmpiricalNull.bandwidthParameterB * Math.min(dataStd, iqr/1.34f)
         * ((float) Math.pow((double) this.n, -0.2))
         + EmpiricalNull.bandwidthParameterA;
@@ -98,7 +101,7 @@ public class EmpiricalNull {
    * Set the initial value for the newton-raphson method to a random data point
    * This is the orginal initial value plus Gaussian noise
    */
-  public float getRandomInitial() {
+  private float getRandomInitial() {
     return this.initialValue + ((float) this.rng.nextGaussian()) * this.dataStd;
   }
   
@@ -107,7 +110,7 @@ public class EmpiricalNull {
    * @return 3-array, [0] contains the maximum density, [1] empirical null mean, [2] empirical null
    * std
    */
-  public float[] findMode(float greyvalue) {
+  private float[] findMode(float greyvalue) {
     //declare array for the output
     float[] densityAndNull = new float[3];
     //declare flag to indiciate if a solution has been found
@@ -156,20 +159,6 @@ public class EmpiricalNull {
     return densityAndNull;
   }
   
-  /**METHOD: COUNT DATA
-   * Count the number of non-NaN greyvalues in the kernel
-   * @return  number of non-NaN greyvalues in the kernel
-   */
-  public void countData() {
-    for (int kk=0; kk<this.cachePointers.length; kk++) {
-      for (int p=this.cachePointers[kk++]+x; p<=this.cachePointers[kk]+x; p++) {
-        if (!Float.isNaN(this.cache[p])) {
-          this.n++;
-        }
-      }
-    }
-  }
-  
   /**METHOD: GET D LN DENSITY
    * Return a 3 element array containing:
    * 0. the density (ignore any constant multiplied to it) (NOT THE LOG)
@@ -178,7 +167,7 @@ public class EmpiricalNull {
    * @param greyValue the value of the derivative to be evaluated at
    * @return 3 element array containing derivatives
    */
-  public float [] getDLnDensity(float greyValue) {
+  private float [] getDLnDensity(float greyValue) {
     
     //declare array for storing 3 sums where
     //z = (x - x_i) / h where x is the point of evaluation, x_i is a data point, h is the bandwidth
@@ -218,6 +207,77 @@ public class EmpiricalNull {
         / ((float)Math.pow((double)(this.bandwidth*sumKernel[0]),2.0));
     
     return dxLnF;
+  }
+  
+  /**METHOD: GET NULL MEAN
+   * @return null mean after calling estimateNull()
+   */
+  public float getNullMean() {
+    return this.nullMean;
+  }
+  
+  /**METHOD: GET NULL STD
+   * @return null std after calling estimateNull()
+   */
+  public float getNullStd() {
+    return this.nullStd;
+  }
+  
+  /**METHOD: SET NUMBER OF INITIAL POINTS
+   * @param nInitial
+   */
+  public void setNInitial(int nInitial) {
+    if (n>0) {
+      EmpiricalNull.nInitial = nInitial;
+    } else {
+      throw new RuntimeException("number of initial points must be positive");
+    }
+  }
+  
+  /**METHOD: SET NUMBER OF STEPS
+   * @param nStep
+   */
+  public void setNStep(int nStep) {
+    if (n>0) {
+      EmpiricalNull.nStep = nStep;
+    } else {
+      throw new RuntimeException("number of steps must be positive");
+    }
+  }
+  
+  /**METHOD: SET TOLERANCE
+   * Stops the newton-raphson algorithm when (Math.abs(dxLnF[1])<tolerance)
+   * where dxLnF is the first diff of the log density
+   * @param tolerance
+   */
+  public void setTolerance(float tolerance) {
+    if (n>0) {
+      EmpiricalNull.tolerance = tolerance;
+    } else {
+      throw new RuntimeException("tolerance must be positive");
+    }
+  }
+  
+  /**METHOD: SET BANDWIDTH A
+   * The bandwidth for the density estimate is
+   * bandwidthParameterB * Math.min(dataStd, iqr/1.34f)
+        * ((float) Math.pow((double) this.n, -0.2))
+        + bandwidthParameterA;
+   * @param bandwidthParameterA
+   */
+  public void setBandwidthA(float bandwidthParameterA) {
+    EmpiricalNull.bandwidthParameterA = bandwidthParameterA;
+  }
+  
+  /**METHOD: SET BANDWIDTH B
+   * The bandwidth for the density estimate is
+   * bandwidthParameterB * Math.min(dataStd, iqr/1.34f)
+        * ((float) Math.pow((double) this.n, -0.2))
+        + bandwidthParameterA;
+   * @param bandwidthParameterB
+   */
+  public void setBandwidthB(float bandwidthParameterB) {
+    EmpiricalNull.bandwidthParameterB = bandwidthParameterB;
   }
   
 }

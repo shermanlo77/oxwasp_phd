@@ -1,10 +1,7 @@
-import org.apache.commons.math3.random.MersenneTwister;
-
-import ij.IJ;
 import ij.ImageJ;
 import ij.ImagePlus;
-import ij.plugin.filter.RankFilters;
 import ij.process.FloatProcessor;
+import org.apache.commons.math3.random.MersenneTwister;
 
 public class Global {
   
