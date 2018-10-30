@@ -1,5 +1,6 @@
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.random.RandomGenerator;
+import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
 
 public class EmpiricalNull {
   
@@ -9,7 +10,9 @@ public class EmpiricalNull {
   private static int nInitial = 20;
   private static int nStep = 10; //number of steps in newton-raphson
   //stopping condition tolerance for newton-raphson
-  private static float tolerance = (float) Math.pow(10.0, -5.0);
+  private static float log10Tolerance = -5.0f;
+  private static float tolerance = (float) Math.pow(10.0, log10Tolerance);
+  
   //the bandwidth for the density estimate is B x 0.9 x std x n^{-1/5} + A
   //A and B are set below
   private static float bandwidthParameterA = (float) 0.16; //intercept
@@ -223,50 +226,83 @@ public class EmpiricalNull {
     return this.nullStd;
   }
   
-  /**METHOD: SET NUMBER OF INITIAL POINTS
-   * @param nInitial
+  //=====STATIC FUNCTIONS AND PROCEDURES=====
+  
+  /**PROCEDURE: SET NUMBER OF INITIAL POINTS
+   * @param nInitial must be 1 or bigger
+   * @throws InvalidValue
    */
-  public void setNInitial(int nInitial) {
-    if (n>0) {
+  public static void setNInitial(int nInitial) throws InvalidValue {
+    if (nInitial>0) {
       EmpiricalNull.nInitial = nInitial;
     } else {
-      throw new RuntimeException("number of initial points must be positive");
+      throw new InvalidValue("number of initial points must be positive");
     }
   }
   
-  /**METHOD: SET NUMBER OF STEPS
-   * @param nStep
+  /**FUNCTION: GET N INITIAL
+   * @return number of initial points to try out in newton-raphson
    */
-  public void setNStep(int nStep) {
-    if (n>0) {
+  public static int getNInitial() {
+    return nInitial;
+  }
+  
+  /**PROCEDURE: SET NUMBER OF STEPS
+   * @param nStep
+   * @throws InvalidValue
+   */
+  public static void setNStep(int nStep) throws InvalidValue {
+    if (nStep>0) {
       EmpiricalNull.nStep = nStep;
     } else {
-      throw new RuntimeException("number of steps must be positive");
+      throw new InvalidValue("number of steps must be positive");
     }
   }
   
-  /**METHOD: SET TOLERANCE
+  /**FUNCTION: GET N STEP
+   * @return number of steps to do in newton-raphson
+   */
+  public static int getNStep() {
+    return nStep;
+  }
+  
+  /**PROCEDURE: SET LOG 10  TOLERANCE
    * Stops the newton-raphson algorithm when (Math.abs(dxLnF[1])<tolerance)
    * where dxLnF is the first diff of the log density
-   * @param tolerance
+   * @param log10Tolerance
    */
-  public void setTolerance(float tolerance) {
-    if (n>0) {
-      EmpiricalNull.tolerance = tolerance;
-    } else {
-      throw new RuntimeException("tolerance must be positive");
-    }
+  public static void setLog10Tolerance(float log10Tolerance){
+    EmpiricalNull.log10Tolerance = log10Tolerance;
+    tolerance = (float) Math.pow(10, (double)log10Tolerance);
   }
   
-  /**METHOD: SET BANDWIDTH A
+  /**METHOD: GET LOG 10 TOLERANCE
+   * @return log10 tolerance when doing newton-raphson
+   */
+  public static float getLog10Tolerance() {
+    return log10Tolerance;
+  }
+  
+  /**PROCEDURE: SET BANDWIDTH A
    * The bandwidth for the density estimate is
    * bandwidthParameterB * Math.min(dataStd, iqr/1.34f)
         * ((float) Math.pow((double) this.n, -0.2))
         + bandwidthParameterA;
    * @param bandwidthParameterA
    */
-  public void setBandwidthA(float bandwidthParameterA) {
+  public static void setBandwidthA(float bandwidthParameterA) {
     EmpiricalNull.bandwidthParameterA = bandwidthParameterA;
+  }
+  
+  /**FUNCTION: GET BANDWIDTH A
+   * The bandwidth for the density estimate is
+   * bandwidthParameterB * Math.min(dataStd, iqr/1.34f)
+        * ((float) Math.pow((double) this.n, -0.2))
+        + bandwidthParameterA;
+   * @return bandwidthParameterA
+   */
+  public static float getBandwidthA() {
+    return bandwidthParameterA;
   }
   
   /**METHOD: SET BANDWIDTH B
@@ -276,8 +312,19 @@ public class EmpiricalNull {
         + bandwidthParameterA;
    * @param bandwidthParameterB
    */
-  public void setBandwidthB(float bandwidthParameterB) {
+  public static void setBandwidthB(float bandwidthParameterB) {
     EmpiricalNull.bandwidthParameterB = bandwidthParameterB;
+  }
+  
+  /**FUNCTION: GET BANDWIDTH B
+   * The bandwidth for the density estimate is
+   * bandwidthParameterB * Math.min(dataStd, iqr/1.34f)
+        * ((float) Math.pow((double) this.n, -0.2))
+        + bandwidthParameterA;
+   * @return bandwidthParameterB
+   */
+  public static float getBandwidthB() {
+    return bandwidthParameterB;
   }
   
 }
