@@ -1,6 +1,10 @@
+package test;
+
 import ij.ImageJ;
 import ij.ImagePlus;
 import ij.process.FloatProcessor;
+import uk.ac.warwick.sip.empiricalNullFilter.EmpiricalNullFilter;
+
 import org.apache.commons.math3.random.MersenneTwister;
 
 public class Global {
@@ -25,7 +29,7 @@ public class Global {
     
     long time = System.currentTimeMillis();
     
-    Empirical_Null_Filter filter = new Empirical_Null_Filter();
+    EmpiricalNullFilter filter = new EmpiricalNullFilter();
     filter.setup(null, image);
     filter.setRadius(radius);
     filter.setOutputImage(63);

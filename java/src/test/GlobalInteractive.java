@@ -1,11 +1,12 @@
-import org.apache.commons.math3.random.MersenneTwister;
+package test;
 
-import ij.IJ;
 import ij.ImageJ;
 import ij.ImagePlus;
 import ij.plugin.filter.PlugInFilterRunner;
-import ij.plugin.filter.RankFilters;
 import ij.process.FloatProcessor;
+import uk.ac.warwick.sip.empiricalNullFilter.EmpiricalNullFilter;
+
+import org.apache.commons.math3.random.MersenneTwister;
 
 public class GlobalInteractive {
   
@@ -28,7 +29,7 @@ public class GlobalInteractive {
     
     long time = System.currentTimeMillis();
     
-    Empirical_Null_Filter filter = new Empirical_Null_Filter();
+    EmpiricalNullFilter filter = new EmpiricalNullFilter();
     PlugInFilterRunner pfr = new PlugInFilterRunner(filter, "empirical null filter", null);
     image.show();
     pfr = new PlugInFilterRunner(filter, "empirical null filter", null);

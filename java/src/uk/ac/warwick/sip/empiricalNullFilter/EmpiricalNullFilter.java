@@ -8,6 +8,8 @@
  // Version 2012-12-23 M. Schmid: Test for inverted LUT only once (not in each slice)
  // Version 2014-10-10 M. Schmid:   Fixes a bug that caused Threshold=0 when calling from API
 
+package uk.ac.warwick.sip.empiricalNullFilter;
+
 import ij.gui.DialogListener;
 import ij.gui.GenericDialog;
 import ij.IJ;
@@ -31,7 +33,7 @@ import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
  * Implementation of the empirical null filter
  * @author Sherman Ip
  */
-public class Empirical_Null_Filter implements ExtendedPlugInFilter, DialogListener {
+public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener {
   
   //STATIC FINAL VARIABLES
   
