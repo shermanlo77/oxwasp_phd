@@ -264,7 +264,7 @@ public class Empirical_Null_Filter implements ExtendedPlugInFilter, DialogListen
     //roi = region of interest
     Rectangle roi = this.imageProcessor.getRoi();
     //pointers which indicate the shape of the kernel
-    int[] lineRadii = this.makeLineRadii(this.radius);
+    final int[] lineRadii = this.makeLineRadii(this.radius);
     
     //instantiate new images for each outout
     for (int i=0; i<N_IMAGE_OUTPUT; i++) {
@@ -274,7 +274,8 @@ public class Empirical_Null_Filter implements ExtendedPlugInFilter, DialogListen
       }
     }
     
-    boolean[] aborted = new boolean[1]; // returns whether interrupted during preview or ESC pressed
+    //returns whether interrupted during preview or ESC pressed
+    final boolean[] aborted = new boolean[1];
     
     //get the number of threads
     int numThreads = Math.min(roi.height, this.numThreads);
@@ -293,7 +294,7 @@ public class Empirical_Null_Filter implements ExtendedPlugInFilter, DialogListen
     this.highestYinCache = Math.max(roi.y-kHeight/2, 0) - 1;
     
     //copy the pointer of the image processor
-    ImageProcessor imageProcessor = this.imageProcessor;
+    final ImageProcessor imageProcessor = this.imageProcessor;
     
     //threads announce here which line they currently process
     final int[] yForThread = new int[numThreads];
