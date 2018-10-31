@@ -89,14 +89,6 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   public EmpiricalNullFilter() {
   }
   
-  /**CONSTRUCTOR
-   * Pass the image through the constructor, then the method filter can be called
-   * @param image image to be filtered
-   */
-  public EmpiricalNullFilter(float [][] image) {
-    this.imageProcessor = new FloatProcessor(image);
-  }
-  
   /**IMPLEMENTED: SETUP
    * Setup of the PlugInFilter. Returns the flags specifying the capabilities and needs
    * of the filter.
@@ -276,6 +268,15 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
    */
   public void setOutputImage(int pointer) {
     this.outputImagePointer = pointer;
+  }
+  
+  /**METHOD: FILTER
+   * Call the method filter using the image passed in the parameter
+   * @param image image to be filtered
+   */
+  public void filter(float [][] image) {
+    this.imageProcessor = new FloatProcessor(image);
+    this.filter();
   }
   
   /**METHOD: FILTER
