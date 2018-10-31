@@ -58,7 +58,8 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   private int outputImagePointer = NULL_MEAN + NULL_STD;
   //array of float processors which contains images (or statistics) which are obtained from the
   //filter itself, eg null mean, null std, std, q1, q2, q3
-  private FloatProcessor [] outputImageArray = new FloatProcessor[N_IMAGE_OUTPUT];
+  private FloatProcessor [] outputImageArray =
+      new FloatProcessor[N_IMAGE_OUTPUT];
   private double radius = 20; //radius of the kernel
   
   private ImageProcessor imageProcessor; //the image to be filtered
@@ -66,6 +67,13 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   private PlugInFilterRunner pfr;
   protected int nPasses = 1; // The number of passes (color channels * stack slices)
   protected int pass;
+  
+  //EMPIRICAL NULL RELATED
+  private int nInitial = EmpiricalNull.N_INITIAL;
+  private int nStep = EmpiricalNull.N_STEP;
+  private float log10Tolerance = EmpiricalNull.LOG_10_TOLERANCE;
+  private float bandwidthParameterA = EmpiricalNull.BANDWIDTH_PARAMETER_A;
+  private float bandwidthParameterB = EmpiricalNull.BANDWIDTH_PARAMETER_B;
   
   //MULTITHREADING RELATED
   private int numThreads = Prefs.getThreads();
@@ -158,15 +166,15 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     //add fields for the empirical null tuning parameters
     //integers do not show decimal points
     genericDialog.addMessage("Advanced options");
-    genericDialog.addNumericField("number of initial values", EmpiricalNull.getNInitial(),
+    genericDialog.addNumericField("number of initial values", this.getNInitial(),
         0, 6, null);
-    genericDialog.addNumericField("number of steps", EmpiricalNull.getNStep(),
+    genericDialog.addNumericField("number of steps", this.getNStep(),
         0, 6, null);
-    genericDialog.addNumericField("log tolerance", EmpiricalNull.getLog10Tolerance(),
+    genericDialog.addNumericField("log tolerance", this.getLog10Tolerance(),
         1, 6, null);
-    genericDialog.addNumericField("bandwidth A", EmpiricalNull.getBandwidthA(),
+    genericDialog.addNumericField("bandwidth A", this.getBandwidthA(),
         1, 6, null);
-    genericDialog.addNumericField("bandwidth B", EmpiricalNull.getBandwidthB(),
+    genericDialog.addNumericField("bandwidth B", this.getBandwidthB(),
         1, 6, null);
     
     //the DialogItemChanged method will be called on user input
@@ -213,11 +221,11 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     //get the empirical null parameters and set it
     //if an exception is caught, return false to indicate an invalid item change
     try {
-      EmpiricalNull.setNInitial((int)gd.getNextNumber());
-      EmpiricalNull.setNStep((int)gd.getNextNumber());
-      EmpiricalNull.setLog10Tolerance((float)gd.getNextNumber());
-      EmpiricalNull.setBandwidthA((float)gd.getNextNumber());
-      EmpiricalNull.setBandwidthB((float)gd.getNextNumber());
+      this.setNInitial((int)gd.getNextNumber());
+      this.setNStep((int)gd.getNextNumber());
+      this.setLog10Tolerance((float)gd.getNextNumber());
+      this.setBandwidthA((float)gd.getNextNumber());
+      this.setBandwidthB((float)gd.getNextNumber());
     } catch (InvalidValue exception) {
       return false;
     }
@@ -635,8 +643,9 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
       std = (float) Math.sqrt(((sums[1] - sums[0]*sums[0]/nData)/(nData-1)));
       
       //get the empirical null
-      EmpiricalNull empiricalNull = new EmpiricalNull(cache, x, cachePointers , initialValue,
-          quartiles, std, nData, normal, rng);
+      EmpiricalNull empiricalNull = new EmpiricalNull(this.nInitial, this.nStep,
+          this.log10Tolerance, this.bandwidthParameterA, this.bandwidthParameterB, cache, x,
+          cachePointers , initialValue, quartiles, std, nData, normal, rng);
       empiricalNull.estimateNull();
       //normalise this pixel
       values[0][valuesP] = (cache[cacheLineP+x] - empiricalNull.getNullMean())
@@ -975,6 +984,106 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
       cachePointers[2*i+1] = i*cacheWidth+kRadius + lineRadii[2*i+1];
     }
     return cachePointers;
+  }
+  
+  //=====STATIC FUNCTIONS AND PROCEDURES=====
+  
+  /**PROCEDURE: SET NUMBER OF INITIAL POINTS
+   * @param nInitial must be 1 or bigger
+   * @throws InvalidValue
+   */
+  public void setNInitial(int nInitial) throws InvalidValue {
+    if (nInitial>0) {
+      this.nInitial = nInitial;
+    } else {
+      throw new InvalidValue("number of initial points must be positive");
+    }
+  }
+  
+  /**FUNCTION: GET N INITIAL
+   * @return number of initial points to try out in newton-raphson
+   */
+  public int getNInitial() {
+    return this.nInitial;
+  }
+  
+  /**PROCEDURE: SET NUMBER OF STEPS
+   * @param nStep
+   * @throws InvalidValue
+   */
+  public void setNStep(int nStep) throws InvalidValue {
+    if (nStep>0) {
+      this.nStep = nStep;
+    } else {
+      throw new InvalidValue("number of steps must be positive");
+    }
+  }
+  
+  /**FUNCTION: GET N STEP
+   * @return number of steps to do in newton-raphson
+   */
+  public int getNStep() {
+    return this.nStep;
+  }
+  
+  /**PROCEDURE: SET LOG 10  TOLERANCE
+   * Stops the newton-raphson algorithm when (Math.abs(dxLnF[1])<tolerance)
+   * where dxLnF is the first diff of the log density
+   * @param log10Tolerance
+   */
+  public void setLog10Tolerance(float log10Tolerance){
+    this.log10Tolerance = log10Tolerance;
+  }
+  
+  /**METHOD: GET LOG 10 TOLERANCE
+   * @return log10 tolerance when doing newton-raphson
+   */
+  public float getLog10Tolerance() {
+    return this.log10Tolerance;
+  }
+  
+  /**PROCEDURE: SET BANDWIDTH A
+   * The bandwidth for the density estimate is
+   * bandwidthParameterB * Math.min(dataStd, iqr/1.34f)
+        * ((float) Math.pow((double) this.n, -0.2))
+        + bandwidthParameterA;
+   * @param bandwidthParameterA
+   */
+  public void setBandwidthA(float bandwidthParameterA) {
+    this.bandwidthParameterA = bandwidthParameterA;
+  }
+  
+  /**FUNCTION: GET BANDWIDTH A
+   * The bandwidth for the density estimate is
+   * bandwidthParameterB * Math.min(dataStd, iqr/1.34f)
+        * ((float) Math.pow((double) this.n, -0.2))
+        + bandwidthParameterA;
+   * @return bandwidthParameterA
+   */
+  public float getBandwidthA() {
+    return this.bandwidthParameterA;
+  }
+  
+  /**METHOD: SET BANDWIDTH B
+   * The bandwidth for the density estimate is
+   * bandwidthParameterB * Math.min(dataStd, iqr/1.34f)
+        * ((float) Math.pow((double) this.n, -0.2))
+        + bandwidthParameterA;
+   * @param bandwidthParameterB
+   */
+  public void setBandwidthB(float bandwidthParameterB) {
+    this.bandwidthParameterB = bandwidthParameterB;
+  }
+  
+  /**FUNCTION: GET BANDWIDTH B
+   * The bandwidth for the density estimate is
+   * bandwidthParameterB * Math.min(dataStd, iqr/1.34f)
+        * ((float) Math.pow((double) this.n, -0.2))
+        + bandwidthParameterA;
+   * @return bandwidthParameterB
+   */
+  public float getBandwidthB() {
+    return this.bandwidthParameterB;
   }
   
   /**METHOD: SHOW MASKS

@@ -2,29 +2,26 @@ package uk.ac.warwick.sip.empiricalNullFilter;
 
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.random.RandomGenerator;
-import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
 
 public class EmpiricalNull {
   
   //STATIC FINAL VARIABLES (these are used for default values)
   //number of times to repeat the newton-raphson using different initial values
-  private static final int N_INITIAL = 20;
-  private static final int N_STEP = 10; //number of steps in newton-raphson
+  static final int N_INITIAL = 20;
+  static final int N_STEP = 10; //number of steps in newton-raphson
   //stopping condition tolerance for newton-raphson
-  private static final float LOG_10_TOLERANCE = -5.0f;
-  private static final float TOLERANCE = (float) Math.pow(10.0, LOG_10_TOLERANCE);
+  static final float LOG_10_TOLERANCE = -5.0f;
   //the bandwidth for the density estimate is B x 0.9 x std x n^{-1/5} + A
   //A and B are set below
-  private static final float BANDWIDTH_PARAMETER_A = (float) 0.16; //intercept
-  private static final float BANDWIDTH_PARAMETER_B = (float) 0.9; //gradient
+  static final float BANDWIDTH_PARAMETER_A = (float) 0.16; //intercept
+  static final float BANDWIDTH_PARAMETER_B = (float) 0.9; //gradient
   
   //STATIC VERSIONS OF STATIC FINAL VARIABLES
-  private static int nInitial = N_INITIAL;
-  private static int nStep = N_STEP;
-  private static float log10Tolerance = LOG_10_TOLERANCE;
-  private static float tolerance = TOLERANCE;
-  private static float bandwidthParameterA = BANDWIDTH_PARAMETER_A;
-  private static float bandwidthParameterB = BANDWIDTH_PARAMETER_B;
+  private int nInitial;
+  private int nStep;
+  private float tolerance;
+  private float bandwidthParameterA;
+  private float bandwidthParameterB;
   
   //MEMBER VARIABLES
   
@@ -44,6 +41,16 @@ public class EmpiricalNull {
   private RandomGenerator rng; //random number generator when a random initial value is needed
   
   /**CONSTRUCTOR
+   * 
+   * @param nInitial number of times to repeat the newton-raphson using different initial values
+   * @param nStep number of steps in newton-raphson
+   * @param log10Tolerance stopping condition tolerance for newton-raphson, stopping condition is
+   *     Math.abs(dxLnF[1])<this.tolerance where dxLnF[1] is the gradient of the log density and
+   *     this.tolerance is 10^log10Tolerance
+   * @param bandwidthParameterA the bandwidth for the density estimate is
+   *     B x 0.9 x std x n^{-1/5} + A
+   * @param bandwidthParameterB the bandwidth for the density estimate is
+   *     B x 0.9 x std x n^{-1/5} + A
    * @param cache array of greyvalues
    * @param x x position
    * @param cachePointers array of integer pairs, pointing to the boundary of the kernel
@@ -52,9 +59,15 @@ public class EmpiricalNull {
    * @param normalDistribution standard normal distribution object
    * @param rng random number generator when a random initial value is needed
    */
-  public EmpiricalNull(float[] cache, int x, int[] cachePointers , float initialValue,
+  public EmpiricalNull(int nInitial, int nStep, float log10Tolerance, float bandwidthParameterA,
+      float bandwidthParameterB, float[] cache, int x, int[] cachePointers , float initialValue,
       float[] quartiles, float dataStd, int n, NormalDistribution normalDistribution,
       RandomGenerator rng) {
+    this.nInitial = nInitial;
+    this.nStep = nStep;
+    this.tolerance = (float) Math.pow(10.0, log10Tolerance);
+    this.bandwidthParameterA = bandwidthParameterA;
+    this.bandwidthParameterB = bandwidthParameterB;
     this.cache = cache;
     this.x = x;
     this.cachePointers = cachePointers;
@@ -64,15 +77,16 @@ public class EmpiricalNull {
     this.n = n;
     this.normalDistribution = normalDistribution;
     this.rng = rng;
-    this.bandwidth = EmpiricalNull.bandwidthParameterB * Math.min(dataStd, this.iqr/1.34f)
-        * ((float) Math.pow((double) this.n, -0.2))
-        + EmpiricalNull.bandwidthParameterA;
   }
   
   /**METHOD: ESTIMATE NULL
    * Estimate the parameters nullMean and nullStd
    */
   public void estimateNull() {
+    //get the bandwidth for the density estimate
+    this.bandwidth = this.bandwidthParameterB * Math.min(dataStd, this.iqr/1.34f)
+        * ((float) Math.pow((double) this.n, -0.2))
+        + this.bandwidthParameterA;
     //get the initial value, if it not finite, get a random one
     float initialValue = this.initialValue;
     if (!isFinite(initialValue)) {
@@ -81,12 +95,12 @@ public class EmpiricalNull {
     
     //declare arrays, storing the max density and empirical null parameters 
     //for each new initial point
-    float [] densityArray = new float[EmpiricalNull.nInitial];
-    float [] nullMeanArray = new float[EmpiricalNull.nInitial];
-    float [] nullStdArray = new float[EmpiricalNull.nInitial];
+    float [] densityArray = new float[this.nInitial];
+    float [] nullMeanArray = new float[this.nInitial];
+    float [] nullStdArray = new float[this.nInitial];
     
     //for each initial point
-    for (int i=0; i<EmpiricalNull.nInitial; i++) {
+    for (int i=0; i<this.nInitial; i++) {
       //find the maximum density, get the empirical null parameters and save them
       float[] densityAndNull = this.findMode(initialValue);
       densityArray[i] = densityAndNull[0];
@@ -99,7 +113,7 @@ public class EmpiricalNull {
     //find the maximum density
     //the empirical null parameters chosen are the ones with the highest density
     float maxDensity = Float.NEGATIVE_INFINITY;
-    for (int i=0; i<EmpiricalNull.nInitial; i++) {
+    for (int i=0; i<this.nInitial; i++) {
       if (densityArray[i] > maxDensity) {
         maxDensity = densityArray[i];
         this.nullMean = nullMeanArray[i];
@@ -133,14 +147,14 @@ public class EmpiricalNull {
       float [] dxLnF = this.getDLnDensity(greyvalue);
       
       //for n_step
-      for (int i=0; i<EmpiricalNull.nStep; i++) {
+      for (int i=0; i<this.nStep; i++) {
         
         //update the solution to the mode
         greyvalue -= dxLnF[1]/dxLnF[2];
         //get the density, 1st and 2nd diff of the ln density at the new value
         dxLnF = this.getDLnDensity(greyvalue);
         //if this gradient is within tolerance, break the i_step for loop
-        if (Math.abs(dxLnF[1])<EmpiricalNull.tolerance) {
+        if (Math.abs(dxLnF[1])<this.tolerance) {
           break;
         }
         //if any of the variables are not finite, stop the algorithm
@@ -233,119 +247,6 @@ public class EmpiricalNull {
    */
   public float getNullStd() {
     return this.nullStd;
-  }
-  
-  //=====STATIC FUNCTIONS AND PROCEDURES=====
-  
-  /**PROCEDURE: SET NUMBER OF INITIAL POINTS
-   * @param nInitial must be 1 or bigger
-   * @throws InvalidValue
-   */
-  public static void setNInitial(int nInitial) throws InvalidValue {
-    if (nInitial>0) {
-      EmpiricalNull.nInitial = nInitial;
-    } else {
-      throw new InvalidValue("number of initial points must be positive");
-    }
-  }
-  
-  /**FUNCTION: GET N INITIAL
-   * @return number of initial points to try out in newton-raphson
-   */
-  public static int getNInitial() {
-    return EmpiricalNull.nInitial;
-  }
-  
-  /**PROCEDURE: SET NUMBER OF STEPS
-   * @param nStep
-   * @throws InvalidValue
-   */
-  public static void setNStep(int nStep) throws InvalidValue {
-    if (nStep>0) {
-      EmpiricalNull.nStep = nStep;
-    } else {
-      throw new InvalidValue("number of steps must be positive");
-    }
-  }
-  
-  /**FUNCTION: GET N STEP
-   * @return number of steps to do in newton-raphson
-   */
-  public static int getNStep() {
-    return EmpiricalNull.nStep;
-  }
-  
-  /**PROCEDURE: SET LOG 10  TOLERANCE
-   * Stops the newton-raphson algorithm when (Math.abs(dxLnF[1])<tolerance)
-   * where dxLnF is the first diff of the log density
-   * @param log10Tolerance
-   */
-  public static void setLog10Tolerance(float log10Tolerance){
-    EmpiricalNull.log10Tolerance = log10Tolerance;
-    EmpiricalNull.tolerance = (float) Math.pow(10, (double)log10Tolerance);
-  }
-  
-  /**METHOD: GET LOG 10 TOLERANCE
-   * @return log10 tolerance when doing newton-raphson
-   */
-  public static float getLog10Tolerance() {
-    return EmpiricalNull.log10Tolerance;
-  }
-  
-  /**PROCEDURE: SET BANDWIDTH A
-   * The bandwidth for the density estimate is
-   * bandwidthParameterB * Math.min(dataStd, iqr/1.34f)
-        * ((float) Math.pow((double) this.n, -0.2))
-        + bandwidthParameterA;
-   * @param bandwidthParameterA
-   */
-  public static void setBandwidthA(float bandwidthParameterA) {
-    EmpiricalNull.bandwidthParameterA = bandwidthParameterA;
-  }
-  
-  /**FUNCTION: GET BANDWIDTH A
-   * The bandwidth for the density estimate is
-   * bandwidthParameterB * Math.min(dataStd, iqr/1.34f)
-        * ((float) Math.pow((double) this.n, -0.2))
-        + bandwidthParameterA;
-   * @return bandwidthParameterA
-   */
-  public static float getBandwidthA() {
-    return EmpiricalNull.bandwidthParameterA;
-  }
-  
-  /**METHOD: SET BANDWIDTH B
-   * The bandwidth for the density estimate is
-   * bandwidthParameterB * Math.min(dataStd, iqr/1.34f)
-        * ((float) Math.pow((double) this.n, -0.2))
-        + bandwidthParameterA;
-   * @param bandwidthParameterB
-   */
-  public static void setBandwidthB(float bandwidthParameterB) {
-    EmpiricalNull.bandwidthParameterB = bandwidthParameterB;
-  }
-  
-  /**FUNCTION: GET BANDWIDTH B
-   * The bandwidth for the density estimate is
-   * bandwidthParameterB * Math.min(dataStd, iqr/1.34f)
-        * ((float) Math.pow((double) this.n, -0.2))
-        + bandwidthParameterA;
-   * @return bandwidthParameterB
-   */
-  public static float getBandwidthB() {
-    return EmpiricalNull.bandwidthParameterB;
-  }
-  
-  /**PROCEDURE: SET ADVANCED OPTIONS TO DEFAULT
-   * Set all static variables to the default values
-   */
-  public static void setAdvancedOptionsToDefault() {
-    EmpiricalNull.nInitial = EmpiricalNull.N_INITIAL;
-    EmpiricalNull.nStep = EmpiricalNull.N_STEP;
-    EmpiricalNull.log10Tolerance = EmpiricalNull.LOG_10_TOLERANCE;
-    EmpiricalNull.tolerance = EmpiricalNull.TOLERANCE;
-    EmpiricalNull.bandwidthParameterA = EmpiricalNull.BANDWIDTH_PARAMETER_A;
-    EmpiricalNull.bandwidthParameterB = EmpiricalNull.BANDWIDTH_PARAMETER_B;
   }
   
   /**FUNCTION: IS FINITE
