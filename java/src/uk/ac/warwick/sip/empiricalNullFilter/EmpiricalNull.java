@@ -69,7 +69,7 @@ public class EmpiricalNull {
   public void estimateNull() {
     //get the initial value, if it not finite, get a random one
     float initialValue = this.initialValue;
-    if (!Float.isFinite(initialValue)) {
+    if (!isFinite(initialValue)) {
       initialValue = this.getRandomInitial();
     }
     
@@ -138,21 +138,21 @@ public class EmpiricalNull {
           break;
         }
         //if any of the variables are not finite, stop the algorithm
-        if (!Float.isFinite(dxLnF[0])) {
+        if (!isFinite(dxLnF[0])) {
           break;
-        } else if (!Float.isFinite(dxLnF[1])) {
+        } else if (!isFinite(dxLnF[1])) {
           break;
-        }  else if (!Float.isFinite(dxLnF[2])) {
+        }  else if (!isFinite(dxLnF[2])) {
           break;
-        } else if (!Float.isFinite(greyvalue)) {
+        } else if (!isFinite(greyvalue)) {
           break;
         }
       }
       
       //check if the solution to the mode is a maxima by looking at the 2nd diff
       //if any of the variables are not finite, start again with a random initial value
-      if (Float.isFinite(dxLnF[0]) && Float.isFinite(dxLnF[1]) && Float.isFinite(dxLnF[2])
-          && Float.isFinite(greyvalue) && (dxLnF[2] < 0)) {
+      if (isFinite(dxLnF[0]) && isFinite(dxLnF[1]) && isFinite(dxLnF[2])
+          && isFinite(greyvalue) && (dxLnF[2] < 0)) {
         foundSolution = true;
         densityAndNull[0] = dxLnF[0];
         densityAndNull[1] = greyvalue;
@@ -329,4 +329,12 @@ public class EmpiricalNull {
     return bandwidthParameterB;
   }
   
+  /**FUNCTION: IS FINITE
+   * Indicate if the float is finite, ie not nan and not infinite
+   * @param f
+   * @return
+   */
+  public static boolean isFinite(float f) {
+    return !(Float.isNaN(f) || Float.isInfinite(f));
+  }
 }
