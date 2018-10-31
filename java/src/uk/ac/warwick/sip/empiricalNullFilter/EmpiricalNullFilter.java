@@ -58,15 +58,14 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   private int outputImagePointer = NULL_MEAN + NULL_STD;
   //array of float processors which contains images (or statistics) which are obtained from the
   //filter itself, eg null mean, null std, std, q1, q2, q3
-  private FloatProcessor [] outputImageArray =
-      new FloatProcessor[N_IMAGE_OUTPUT];
+  private FloatProcessor [] outputImageArray = new FloatProcessor[N_IMAGE_OUTPUT];
   private double radius = 20; //radius of the kernel
   
   private ImageProcessor imageProcessor; //the image to be filtered
   //used by showDialog, unused but needed in case deleted by automatic garbage collection
   private PlugInFilterRunner pfr;
-  private int nPasses = 1; // The number of passes (color channels * stack slices)
-  private int pass;
+  protected int nPasses = 1; // The number of passes (color channels * stack slices)
+  protected int pass;
   
   //MULTITHREADING RELATED
   private int numThreads = Prefs.getThreads();
@@ -75,6 +74,20 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   private int highestYinCache; // the highest line read into the cache so far
   private boolean threadWaiting; // a thread waits until it may read data
   private boolean copyingToCache; // whether a thread is currently copying data to the cache
+  
+  /**CONSTRUCTOR
+   * Empty constructor, used by ImageJ
+   */
+  public EmpiricalNullFilter() {
+  }
+  
+  /**CONSTRUCTOR
+   * Pass the image through the constructor, then the method filter can be called
+   * @param image image to be filtered
+   */
+  public EmpiricalNullFilter(float [][] image) {
+    this.imageProcessor = new FloatProcessor(image);
+  }
   
   /**IMPLEMENTED: SETUP
    * Setup of the PlugInFilter. Returns the flags specifying the capabilities and needs
@@ -991,10 +1004,21 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   /**METHOD: SHOW PROGRESS
    * @param percent
    */
-  private void showProgress(double percent) {
+  protected void showProgress(double percent) {
     int nPasses2 = nPasses;
     percent = (double)pass/nPasses2 + percent/nPasses2;
-    IJ.showProgress(percent);
+    //print progress bar
+    int length = 20;
+    int nArrow = (int) Math.round(percent * 20);
+    System.out.print("[");
+    for (int i=0; i<length; i++) {
+      if (i<=nArrow) {
+        System.out.print(">");
+      } else {
+        System.out.print(".");
+      }
+    }
+    System.out.println("]");
   }
   
 }
