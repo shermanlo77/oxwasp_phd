@@ -239,6 +239,13 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     this.radius = radius;
   }
   
+  /**METHOD: GET FILTERED IMAGE
+   * @return array of pixels of the filtered image
+   */
+  public float [] getFilteredImage() {
+    return (float []) this.imageProcessor.getPixels();
+  }
+  
   /**METHOD: GET OUTPUT IMAGE
    * Returns an array of pixels from one of the requested output images
    * @param outputImagePointer e.g. NULL_MEAN, NULL_STD
