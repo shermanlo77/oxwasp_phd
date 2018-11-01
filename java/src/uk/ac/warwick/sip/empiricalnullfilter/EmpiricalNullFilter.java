@@ -66,6 +66,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   private ImageProcessor imageProcessor; //the image to be filtered
   //used by showDialog, unused but needed in case deleted by automatic garbage collection
   private PlugInFilterRunner pfr;
+  private boolean isShowProgressBar = false;
   protected int nPasses = 1; // The number of passes (color channels * stack slices)
   protected int pass;
   
@@ -1069,20 +1070,30 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
    * @param percent
    */
   protected void showProgress(double percent) {
-    int nPasses2 = nPasses;
-    percent = (double)pass/nPasses2 + percent/nPasses2;
-    //print progress bar
-    int length = 20;
-    int nArrow = (int) Math.round(percent * 20);
-    System.out.print("[");
-    for (int i=0; i<length; i++) {
-      if (i<=nArrow) {
-        System.out.print(">");
-      } else {
-        System.out.print(".");
+    if (this.isShowProgressBar) {
+      int nPasses2 = nPasses;
+      percent = (double)pass/nPasses2 + percent/nPasses2;
+      //print progress bar
+      int length = 20;
+      int nArrow = (int) Math.round(percent * 20);
+      System.out.print("[");
+      for (int i=0; i<length; i++) {
+        if (i<=nArrow) {
+          System.out.print(">");
+        } else {
+          System.out.print(".");
+        }
       }
+      System.out.println("]");
     }
-    System.out.println("]");
+  }
+  
+  /**METHOD: SET PROGRESS BAR
+   * Turn the progress bar on or off
+   * @param isShowProgressBar true to show the progress bar
+   */
+  public void setProgress(boolean isShowProgressBar) {
+    this.isShowProgressBar = isShowProgressBar;
   }
   
 }

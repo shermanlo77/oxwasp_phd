@@ -1,10 +1,10 @@
 %CLASS: EMPIRICAL NULL FILTER
 %Does the empirical null filter, makes use of ImageJ and multiple threads
 %HOW TO USE:
-    %Instantiate this by passing a radius
-    %Set advanced options if desired using methods for example setNStep
-    %Call the method filter and pass the image you want to filter
-    %Call getter methods getFilteredImage, getNullMean and/or getNullStd to get the results
+  %Instantiate this by passing a radius
+  %Set advanced options if desired using methods for example setNStep
+  %Call the method filter and pass the image you want to filter
+  %Call getter methods getFilteredImage, getNullMean and/or getNullStd to get the results
 classdef EmpiricalNullFilter < handle
   
   properties (SetAccess = private)
@@ -83,7 +83,7 @@ classdef EmpiricalNullFilter < handle
     %METHOD: Set LOG 10 TOLERANCE
     %Set the tolerance used in the stopping condition in newton-raphson
     %The stopping condition is (Math.abs(dxLnF[1])<tolerance) where dxLnF is the first diff of the
-    %    log density
+      %log density
     function setLog10Tolerance(this, log10Tolerance)
       this.javaFilter.setLog10Tolerance(log10Tolerance);
     end
@@ -91,37 +91,45 @@ classdef EmpiricalNullFilter < handle
     %METHOD: GET LOG 10 TOLERANCE
     %Get the tolerance used in the stopping condition in newton-raphson
     %The stopping condition is (Math.abs(dxLnF[1])<tolerance) where dxLnF is the first diff of the
-    %    log density
+      %log density
     function log10Tolerance = getLog10Tolerance(this)
       log10Tolerance = this.javaFilter.getLog10Tolerance();
     end
     
     %METHOD: SET BANDWIDTH A
     %Set the parameter A where the bandwidth used for the density estimate is
-    %    bandwidthParameterB * min(dataStd, iqr/1.34)* (n^-0.2) + bandwidthParameterA
+      %bandwidthParameterB * min(dataStd, iqr/1.34)* (n^-0.2) + bandwidthParameterA
     function setBandwidthA(this, bandwidthParameterA)
       this.javaFilter.setBandwidthA(bandwidthParameterA);
     end
     
     %METHOD: GET BANDWIDTH A
     %Get the parameter A where the bandwidth used for the density estimate is
-    %    bandwidthParameterB * min(dataStd, iqr/1.34)* (n^-0.2) + bandwidthParameterA
+      %bandwidthParameterB * min(dataStd, iqr/1.34)* (n^-0.2) + bandwidthParameterA
     function bandwidthParameterA = getBandwidthA(this)
       bandwidthParameterA = this.javaFilter.getBandwidthA();
     end
     
     %METHOD: SET BANDWIDTH B
     %Set the parameter B where the bandwidth used for the density estimate is
-    %    bandwidthParameterB * min(dataStd, iqr/1.34)* (n^-0.2) + bandwidthParameterA
+      %bandwidthParameterB * min(dataStd, iqr/1.34)* (n^-0.2) + bandwidthParameterA
     function setBandwidthB(this, bandwidthParameterB)
       this.javaFilter.setBandwidthA(bandwidthParameterB);
     end
     
     %METHOD: GET BANDWIDTH B
     %Get the parameter B where the bandwidth used for the density estimate is
-    %    bandwidthParameterB * min(dataStd, iqr/1.34)* (n^-0.2) + bandwidthParameterA
+      %bandwidthParameterB * min(dataStd, iqr/1.34)* (n^-0.2) + bandwidthParameterA
     function bandwidthParameterB = getBandwidthB(this)
       bandwidthParameterB = this.javaFilter.getBandwidthB();
+    end
+    
+    %METHOD: SET PROGRESS BAR
+    %Turn the progress bar on or off, by default it is off
+    %PARAMETERS:
+      %showProgressBar: boolean, true for the progress bar to be on
+    function setProgress(this, showProgressBar)
+      this.javaFilter.setProgress(showProgressBar);
     end
   
   end
