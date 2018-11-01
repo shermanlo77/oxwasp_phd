@@ -1,5 +1,5 @@
 import ij.IJ;
-import uk.ac.warwick.sip.empiricalNullFilter.EmpiricalNullFilter;
+import uk.ac.warwick.sip.empiricalnullfilter.EmpiricalNullFilter;
 
 public class Empirical_Null_Filter extends EmpiricalNullFilter{
   

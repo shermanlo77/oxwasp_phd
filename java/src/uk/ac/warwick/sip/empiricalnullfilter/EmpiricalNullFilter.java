@@ -8,7 +8,7 @@
  // Version 2012-12-23 M. Schmid: Test for inverted LUT only once (not in each slice)
  // Version 2014-10-10 M. Schmid:   Fixes a bug that caused Threshold=0 when calling from API
 
-package uk.ac.warwick.sip.empiricalNullFilter;
+package uk.ac.warwick.sip.empiricalnullfilter;
 
 import ij.gui.DialogListener;
 import ij.gui.GenericDialog;

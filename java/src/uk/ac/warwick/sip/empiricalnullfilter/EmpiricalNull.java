@@ -1,4 +1,4 @@
-package uk.ac.warwick.sip.empiricalNullFilter;
+package uk.ac.warwick.sip.empiricalnullfilter;
 
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.random.RandomGenerator;

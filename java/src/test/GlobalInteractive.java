@@ -4,7 +4,7 @@ import ij.ImageJ;
 import ij.ImagePlus;
 import ij.plugin.filter.PlugInFilterRunner;
 import ij.process.FloatProcessor;
-import uk.ac.warwick.sip.empiricalNullFilter.EmpiricalNullFilter;
+import uk.ac.warwick.sip.empiricalnullfilter.EmpiricalNullFilter;
 
 import org.apache.commons.math3.random.MersenneTwister;
 
