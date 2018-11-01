@@ -334,16 +334,19 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     yForThread[numThreads-1] = roi.y-1; //first thread started should begin at roi.y
     //thread number 0 is this one, not in the array
     final Thread[] threads = new Thread[numThreads-1];
+    //this rng is for producing random seeds for each thread
+    RandomGenerator rng = new MersenneTwister(System.currentTimeMillis());
     //instantiate threads and start them
     for (int t=numThreads-1; t>0; t--) {
-      final int ti=t;
+      final int ti = t; //thread number
+      final long seed = rng.nextLong();
       //SEE ANONYMOUS CLASS
       //thread runs method doFiltering
       final Thread thread = new Thread(
           new Runnable() {
             final public void run() {
               threadFilter(imageProcessor, lineRadii, cache, cacheWidth, cacheHeight, yForThread,
-                  ti, aborted);
+                  ti, seed, aborted);
             }
           },
       "RankFilters-"+t);
@@ -354,7 +357,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     
     //main thread start filtering
     this.threadFilter(imageProcessor, lineRadii, cache, cacheWidth, cacheHeight, yForThread, 0,
-        aborted);
+        rng.nextLong(), aborted);
     
     //join each thread
     for (final Thread thread : threads) {
@@ -395,10 +398,11 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
    * @param cacheHeight
    * @param yForThread array indicating which y a thread is filtering
    * @param threadNumber
+   * @param seed seed for rng
    * @param aborted
    */
   private void threadFilter(ImageProcessor ip, int[] lineRadii, float[] cache, int cacheWidth,
-      int cacheHeight, int [] yForThread, int threadNumber, boolean[] aborted) {
+      int cacheHeight, int [] yForThread, int threadNumber, long seed, boolean[] aborted) {
     
     if (aborted[0] || Thread.currentThread().isInterrupted()) {
       return;
@@ -437,7 +441,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     //for calculation the normal pdf
     NormalDistribution normal = new NormalDistribution();
     //rng for trying out different initial values
-    RandomGenerator rng = new MersenneTwister(System.currentTimeMillis());
+    RandomGenerator rng = new MersenneTwister(seed);
     
     boolean smallKernel = kRadius < 2; //indicate if this kernel is small
     
