@@ -27,6 +27,7 @@ import java.util.Arrays;
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.random.MersenneTwister;
 import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.math3.stat.descriptive.rank.Percentile;
 import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
 
 /**CLASS: EMPIRICAL NULL FILTER
@@ -429,10 +430,9 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     
     //arrays to store calculations of pixels contained in a kernel
     double[] sums = new double[2]; //[0] sum of greyvalues, [1] sum of greyvalues squared
-    float[] medianBuf1 = new float[kNPoints]; //stores greyvalues of pixels in a kernel
-    float[] medianBuf2 = new float[kNPoints]; //stores greyvalues of pixels in a kernel
+    double[] quartileBuf = new double[kNPoints]; //stores greyvalues of pixels in a kernel
     //[0,1,2] 1st 2nd and 3rd quartiles greyvalues of pixels in a kernel
-    float [] quantiles = new float[3];
+    float [] quartiles = new float[3];
     
     //for calculation the normal pdf
     NormalDistribution normal = new NormalDistribution();
@@ -552,7 +552,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
       
       int cacheLineP = cacheWidth * (y % cacheHeight) + kRadius;  //points to pixel (roi.x, y)
       this.filterLine(values, width, cache, cachePointers, kNPoints, cacheLineP, roi, y,
-          sums, medianBuf1, medianBuf2, quantiles, normal, rng, smallKernel);
+          sums, quartileBuf, quartiles, normal, rng, smallKernel);
     }// end while (!aborted[0]); loops over y (lines)
   }
   
@@ -597,16 +597,15 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
    * @param roi
    * @param y current row
    * @param sums stores sum calculations in a kernel (size 2)
-   * @param medianBuf1 stores greyvalues in a kernel (size kNPoints)
-   * @param medianBuf2 stores greyvalues in a kernel (size kNPoints)
+   * @param quartileBuf stores greyvalues in a kernel (size kNPoints)
    * @param quartiles stores quartiles in a kernel (size 2)
    * @param normal normal distribution to evaluate the normal pdf
    * @param rng random number generator, used for trying out different initial values
    * @param smallKernel indicate if this kernel is small or not
    */
   private void filterLine(float[][] values, int width, float[] cache, int[] cachePointers,
-      int kNPoints, int cacheLineP, Rectangle roi, int y, double[] sums, float[] medianBuf1,
-      float[] medianBuf2, float[] quartiles, NormalDistribution normal, RandomGenerator rng,
+      int kNPoints, int cacheLineP, Rectangle roi, int y, double[] sums, double[] quartileBuf,
+      float[] quartiles, NormalDistribution normal, RandomGenerator rng,
       boolean smallKernel) {
     
     //declare the pointer for a pixel in values
@@ -622,7 +621,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     for (int x=0; x<roi.width; x++, valuesP++) { // x is with respect to roi.x
       
       //set the first value to be the median
-      getQuartiles(cache, x, cachePointers, medianBuf1, medianBuf2, kNPoints, cache[cacheLineP],
+      getQuartiles(cache, x, cachePointers, quartileBuf, kNPoints, cache[cacheLineP],
           quartiles);
       if (x==0) {
         initialValue = quartiles[1];
@@ -812,89 +811,33 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
    * @param cache
    * @param xCache0
    * @param kernel
-   * @param belowBuf modifed
-   * @param aboveBuf modified
+   * @param quartileBuf
    * @param kNPoints
    * @param guess
    * @param quartiles modified
    */
   private static void getQuartiles(float[] cache, int xCache0, int[] kernel,
-      float[] belowBuf, float[] aboveBuf, int kNPoints, float guess, float[] quartiles) {
-    //count the number of values below or above guess
-    int nAbove = 0, nBelow = 0;
+      double[] quartileBuf, int kNPoints, float guess, float[] quartiles) {
+    //copy the greyvalues in a pixel into quartileBuf
+    int nFinite=0;
     for (int kk=0; kk<kernel.length; kk++) {
       for (int p=kernel[kk++]+xCache0; p<=kernel[kk]+xCache0; p++) {
         float v = cache[p];
-        if (Float.isNaN(v)) {
-          kNPoints--;
-        } else if (v > guess) {
-          aboveBuf[nAbove] = v;
-          nAbove++;
+        if (!Float.isNaN(v)) {
+          quartileBuf[nFinite] = (double) v;
+          nFinite++;
         }
-        else if (v < guess) {
-          belowBuf[nBelow] = v;
-          nBelow++;
-        }
+        
       }
     }
-    //calculate the 3 quartiles
-    for (int i=0; i<3; i++) {
-      int index = (int) Math.floor( ((double)((i+1) * kNPoints)) / 4.0 );
-      if (kNPoints == 0) {
-        quartiles[i] = Float.NaN;  //only NaN data in the neighborhood?
-      } else if (index<nBelow) {
-        quartiles[i] =  findNthLowestNumber(belowBuf, nBelow, index);
-      } else if ((kNPoints-index)<nAbove) {
-        quartiles[i] =  findNthLowestNumber(aboveBuf, nAbove, index - nBelow  - 1);
-      } else {
-        quartiles[i] =  guess;
+    //percentile only works if there are 2 or more values
+    if (nFinite >= 2) {
+      Percentile percentile = new Percentile();
+      percentile.setData(quartileBuf, 0, nFinite);
+      for (int i=0; i<3; i++) {
+        quartiles[i] = (float) percentile.evaluate((i+1) * 25.0);
       }
     }
-  }
-
-
-  /**METHOD: FIND NTH LOWEST NUMBER
-   * Find the n-th lowest number in part of an array
-   * Used by getQuartiles
-   * @param buf The input array. Only values 0 ... bufLength are read. <code>buf</code> will be
-   * modified.
-   * @param bufLength Number of values in <code>buf</code> that should be read
-   * @param n which value should be found; n=0 for the lowest, n=bufLength-1 for the highest
-   * @return the value
-   */
-  public final static float findNthLowestNumber(float[] buf, int bufLength, int n) {
-    // Hoare's find, algorithm, based on http://www.geocities.com/zabrodskyvlada/3alg.html
-    // Contributed by Heinz Klar
-    int i,j;
-    int l=0;
-    int m=bufLength-1;
-    float med=buf[n];
-    float dum ;
-    
-    while (l<m) {
-      i=l ;
-      j=m ;
-      do {
-        while (buf[i]<med) {
-          i++ ;
-        }
-        while (med<buf[j]) {
-          j-- ;
-        }
-        dum=buf[j];
-        buf[j]=buf[i];
-        buf[i]=dum;
-        i++ ; j-- ;
-      } while ((j>=n) && (i<=n)) ;
-      if (j<n) {
-        l=i ;
-      }
-      if (n<i) {
-        m=j ;
-      }
-      med=buf[n] ;
-    }
-  return med ;
   }
   
   /**METHOD: MAKE LINE RADII
