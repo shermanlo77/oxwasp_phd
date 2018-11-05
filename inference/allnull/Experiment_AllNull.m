@@ -1,15 +1,19 @@
-%CLASS: EXPERIMENT ALL GAUSSIAN
+%ABSTRACT CLASS: EXPERIMENT ALL GAUSSIAN
 %See how the empirical null filter behaves for images of pure Gaussian noise
-%A Gaussian noise image is produced and then filtered using the empirical null filter. Various
-%  properties of the post-filtered image are recorded such as the mean, variance, p-value from the
-%  KS test and the time it took to filter the image.
+%A image is produced and then filtered using the empirical null filter. Various properties of the
+%  post-filtered image are recorded such as the mean, variance, p-value from the KS test and the
+%  time it took to filter the image.
 %This is repeated nRepeat times for various kernel radius
 %Plots the following:
 %  post-filter mean vs radius
 %  post-filter variance vs radius
 %  log ks p value vs radius
 %  time to filter vs radius
-classdef Experiment_AllGaussian < Experiment
+%
+%Methods to be implemeted:
+%  getImage returns an image to be filtered, this would be a Gaussian image with some bias added to
+%  or mutiplied to it
+classdef Experiment_AllNull < Experiment
   
   properties (SetAccess = private)
     
@@ -30,15 +34,15 @@ classdef Experiment_AllGaussian < Experiment
     
     imageSize = [256, 256]; %size of the gaussian image
     
-    randStream = RandStream('mt19937ar','Seed',uint32(3499211588)); %rng
+    randStream; %rng
     
   end
   
   methods (Access = public)
     
     %CONSTRUCTOR
-    function this = Experiment_AllGaussian()
-      this@Experiment("Experiment_AllGaussian");
+    function this = Experiment_AllNull(experimentName)
+      this@Experiment(experimentName);
     end
     
     %METHOD: PRINT RESULTS
@@ -105,12 +109,14 @@ classdef Experiment_AllGaussian < Experiment
     
     %METHOD: SETUP
     %Declare arrays for storing results
-    function setup(this)
+    function setup(this, seed)
       this.meanArray = zeros(this.nRepeat, numel(this.radiusArray)); %mean of all pixels
       this.varianceArray = zeros(this.nRepeat, numel(this.radiusArray)); %variance of all pixels
       this.ksArray = zeros(this.nRepeat, numel(this.radiusArray)); %kolmogorov-smirnov p value
       %time to filter the image in seconds
       this.timeArray = zeros(this.nRepeat, numel(this.radiusArray));
+      %set the rng
+      this.randStream = RandStream('mt19937ar','Seed', seed);
     end
     
     %METHOD: DO EXPERIMENT
@@ -130,7 +136,7 @@ classdef Experiment_AllGaussian < Experiment
         for iRepeat = 1:this.nRepeat
           
           %produce a gaussian image
-          image = this.randStream.randn(256,256);
+          image = this.getImage();
           
           %filter the image and time it
           tic;
@@ -153,6 +159,13 @@ classdef Experiment_AllGaussian < Experiment
       
     end
     
+  end
+  
+  methods (Abstract, Access = protected)
+    
+    %ABSTRACT METHOD:
+    %Return the method to filter using the rng
+    image = getImage(this)
   end
   
 end
