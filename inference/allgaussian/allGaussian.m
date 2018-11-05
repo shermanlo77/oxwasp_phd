@@ -17,7 +17,8 @@ filter = EmpiricalNullFilter(radius); %filter it
 filter.setNInitial(1);
 filter.filter(image);
 
-%get the empirical null
+%get the empirical null and the filtered image
+imageFiltered = filter.getFilteredImage();
 nullMean = filter.getNullMean();
 nullStd = filter.getNullStd();
 
