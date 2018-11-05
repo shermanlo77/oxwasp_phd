@@ -1,3 +1,14 @@
+%CLASS: EXPERIMENT ALL GAUSSIAN
+%See how the empirical null filter behaves for images of pure Gaussian noise
+%A Gaussian noise image is produced and then filtered using the empirical null filter. Various
+%  properties of the post-filtered image are recorded such as the mean, variance, p-value from the
+%  KS test and the time it took to filter the image.
+%This is repeated nRepeat times for various kernel radius
+%Plots the following:
+%  post-filter mean vs radius
+%  post-filter variance vs radius
+%  log ks p value vs radius
+%  time to filter vs radius
 classdef Experiment_AllGaussian < Experiment
   
   properties (SetAccess = private)
@@ -6,6 +17,8 @@ classdef Experiment_AllGaussian < Experiment
     radiusArray = 10:10:100;
     %number of times to repeat the experiment
     nRepeat = 100;
+    %number of initial points
+    nInitial = 3;
     
     %array to store results of the post filtered image
       %dim 1: for each n repeat
@@ -28,52 +41,61 @@ classdef Experiment_AllGaussian < Experiment
       this@Experiment("Experiment_AllGaussian");
     end
     
+    %METHOD: PRINT RESULTS
     function printResults(this)
       
-      sigma = 2;
-      alpha = 2*(1-normcdf(sigma));
-      n = this.imageSize(1) * this.imageSize(2);
+      sigma = 2; %get sigma level
+      alpha = 2*(1-normcdf(sigma)); %covert to significant level
+      n = this.imageSize(1) * this.imageSize(2); %get number of pixels in the image
       
+      %plot post filter mean vs radius
       figure;
-      meanPlot = Boxplots(this.meanArray(:,1:5), true);
-      meanPlot.setPosition(this.radiusArray(1:5));
+      meanPlot = Boxplots(this.meanArray, true);
+      meanPlot.setPosition(this.radiusArray);
       meanPlot.plot();
       hold on;
       meanCritical = sigma/sqrt(n);
-      plot([0,this.radiusArray(end)],[meanCritical,meanCritical], 'k--');
-      plot([0,this.radiusArray(end)],[-meanCritical,-meanCritical], 'k--');
+      plot([0,this.radiusArray(end)+10],[meanCritical,meanCritical], 'k--');
+      plot([0,this.radiusArray(end)+10],[-meanCritical,-meanCritical], 'k--');
+      xlim([0,this.radiusArray(end)+10]);
       ylabel('post filter image greyvalue mean');
       xlabel('radius (pixel)');
       
+      %plot post filter variance vs radius
       figure;
-      varPlot = Boxplots(this.varianceArray(:, 1:5), true);
-      varPlot.setPosition(this.radiusArray(1:5));
+      varPlot = Boxplots(this.varianceArray, true);
+      varPlot.setPosition(this.radiusArray);
       varPlot.plot();
       hold on;
       varCritical1 = chi2inv(alpha, n-1)/(n-1);
       varCritical2 = chi2inv(1-alpha, n-1)/(n-1);
-      plot([0,this.radiusArray(end)],[varCritical1,varCritical1], 'k--');
-      plot([0,this.radiusArray(end)],[varCritical2,varCritical2], 'k--');
+      plot([0,this.radiusArray(end)+10],[varCritical1,varCritical1], 'k--');
+      plot([0,this.radiusArray(end)+10],[varCritical2,varCritical2], 'k--');
+      xlim([0,this.radiusArray(end)+10]);
       ylabel('post filter image greyvalue variance');
       xlabel('radius (pixel)');
       
-      
-      fig = figure;
-      ksPlot = Boxplots(this.ksArray(:, 1:5), true);
-      ksPlot.setPosition(this.radiusArray(1:5));
+      %plot log ks p value vs radius
+      figure;
+      ksArrayCopy = this.ksArray();
+      ksArrayCopy(ksArrayCopy<0) = nan;
+      ksPlot = Boxplots(log10(ksArrayCopy), true);
+      ksPlot.setPosition(this.radiusArray);
       ksPlot.plot();
       hold on;
-      plot([0,this.radiusArray(end)],[alpha,alpha], 'k--');
-      fig.Children(1).YLim(1) = 0;
-      ylabel('KS p-value');
+      plot([0,this.radiusArray(end)+10],log10([alpha,alpha]), 'k--');
+      xlim([0,this.radiusArray(end)+10]);
+      ylabel('KS log p-value');
       xlabel('radius (pixel)');
       
+      %plot time vs radius
       figure;
-      timePlot = Boxplots(this.timeArray(:, 1:5), true);
-      timePlot.setPosition(this.radiusArray(1:5));
+      timePlot = Boxplots(this.timeArray, true);
+      timePlot.setPosition(this.radiusArray);
       timePlot.plot();
       ylabel('time (s)');
-      xlabel('radius (pixel)')
+      xlabel('radius (pixel)');
+      xlim([0,this.radiusArray(end)+10]);
       
     end
 
@@ -81,6 +103,8 @@ classdef Experiment_AllGaussian < Experiment
   
   methods (Access = protected)
     
+    %METHOD: SETUP
+    %Declare arrays for storing results
     function setup(this)
       this.meanArray = zeros(this.nRepeat, numel(this.radiusArray)); %mean of all pixels
       this.varianceArray = zeros(this.nRepeat, numel(this.radiusArray)); %variance of all pixels
@@ -89,6 +113,8 @@ classdef Experiment_AllGaussian < Experiment
       this.timeArray = zeros(this.nRepeat, numel(this.radiusArray));
     end
     
+    %METHOD: DO EXPERIMENT
+    %Filter Gaussian images for different radius multiple times
     function doExperiment(this)
       
       %for each radius
@@ -98,6 +124,7 @@ classdef Experiment_AllGaussian < Experiment
         radius = this.radiusArray(iRadius);
         %instantiate an empirical null filter with that radius
         filter = EmpiricalNullFilter(radius);
+        filter.setNInitial(this.nInitial);
         
         %for nRepeat times
         for iRepeat = 1:this.nRepeat

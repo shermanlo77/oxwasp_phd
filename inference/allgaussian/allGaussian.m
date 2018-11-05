@@ -1,3 +1,8 @@
+%SCRIPT: ALL GAUSSIAN
+%Filters a Gaussian image
+%Shows the empirical null mean and std image
+%Plots the qq plot of the post filter greyvalues
+
 clc;
 clearvars;
 close all;
@@ -5,36 +10,22 @@ close all;
 randStream = RandStream('mt19937ar','Seed',uint32(3499211588)); %instantise a rng
 
 imageSize = 256;
-radius = 100;
+radius = 20; %radius of kernel
 
-image = randn(256,256);
-filter = EmpiricalNullFilter(radius);
-filter.setNInitial(20);
-tic;
+image = randStream.randn(256,256); %create gaussian image
+filter = EmpiricalNullFilter(radius); %filter it
+filter.setNInitial(1);
 filter.filter(image);
-toc;
 
-imageFiltered = filter.getFilteredImage();
+%get the empirical null
 nullMean = filter.getNullMean();
 nullStd = filter.getNullStd();
 
-figure;
-qqplot(reshape(image,[],1));
+%qq plot
 figure;
 qqplot(reshape(imageFiltered,[],1));
 
-figure;
-histogram_custom(reshape(image,[],1));
-hold on;
-histogram_custom(reshape(imageFiltered,[],1));
-hold off;
-
-figure;
-imagesc(image);
-colorbar;
-figure;
-imagesc(imageFiltered);
-colorbar;
+%empirical null plot
 figure;
 imagesc(nullMean);
 colorbar;
