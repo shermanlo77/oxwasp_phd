@@ -12,9 +12,11 @@
 *.tex_table
 *.png
 *.xml
+!pom.xml
 *.tif
 *.toc
 *.txt
+!javaclasspath.txt
 
 # directories
 data/
