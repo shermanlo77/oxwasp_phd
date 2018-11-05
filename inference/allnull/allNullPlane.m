@@ -12,7 +12,7 @@ randStream = RandStream('mt19937ar','Seed',uint32(581365657)); %instantise a rng
 imageSize = 256;
 radius = 20; %radius of kernel
 trueNullStd = 2;
-trueNullMeanGrad = 0.005;
+trueNullMeanGrad = 0.01;
 defectSimulator = DefectSimulator([imageSize, imageSize]);
 
 image = randStream.randn(256,256); %create gaussian image
@@ -32,13 +32,20 @@ nullStd = filter.getNullStd();
 figure;
 qqplot(reshape(imageFiltered,[],1));
 
-%plot the image pre/post filter
+%plot the image pre/post filter with significant pixels highlighted
+zTester = ZTester(image);
+zTester.doTest();
 figure;
-imagesc(image);
-colorbar;
+imagePlot = ImagescSignificant(image);
+imagePlot.addSigPixels(zTester.sig_image);
+imagePlot.plot();
+
+zTester = ZTester(imageFiltered);
+zTester.doTest();
 figure;
-imagesc(imageFiltered);
-colorbar;
+imagePlot = ImagescSignificant(imageFiltered);
+imagePlot.addSigPixels(zTester.sig_image);
+imagePlot.plot();
 
 %empirical null plot
 figure;

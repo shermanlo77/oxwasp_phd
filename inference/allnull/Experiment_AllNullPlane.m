@@ -4,7 +4,7 @@
 classdef Experiment_AllNullPlane < Experiment_AllNull
   
   properties (SetAccess = private)
-    trueNullMeanGrad = 0.005; %gradient of the plane
+    trueNullMeanGrad = 0.01; %gradient of the plane
     trueNullStd = 2; %variance of the source
     defectSimulator; %object for adding the plane
   end
