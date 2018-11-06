@@ -7,7 +7,7 @@ classdef Experiment_AllNullGaussian < Experiment_AllNull
     
     %CONSTRUCTOR
     function this = Experiment_AllNullGaussian()
-      this@Experiment_AllNull("Experiment_AllNullGaussian");
+      this@Experiment_AllNull('Experiment_AllNullGaussian');
     end
     
   end

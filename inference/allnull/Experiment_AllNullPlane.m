@@ -13,7 +13,7 @@ classdef Experiment_AllNullPlane < Experiment_AllNull
     
     %CONSTRUCTOR
     function this = Experiment_AllNullPlane()
-      this@Experiment_AllNull("Experiment_AllNullPlane");
+      this@Experiment_AllNull('Experiment_AllNullPlane');
     end
     
   end
@@ -31,6 +31,7 @@ classdef Experiment_AllNullPlane < Experiment_AllNull
     function image = getImage(this)
       %create pure gaussian image and defect it
       image = this.randStream.randn(this.imageSize(1), this.imageSize(2));
+      image = image * this.trueNullStd;
       image = this.defectSimulator.defectImage(image);
     end
     
