@@ -14,7 +14,7 @@ classdef PlaneMult < DefectSimulator
     %PARAMETERS:
       %randStream: rng
       %grad: 2 row vector, gradient of the plane
-      %scale all pixels by this
+      %multiplier: scale all pixels by this
     function this = PlaneMult(randStream, grad, multiplier)
       this@DefectSimulator(randStream);
       this.grad = grad;
@@ -22,9 +22,7 @@ classdef PlaneMult < DefectSimulator
     end
     
     %METHOD: GET DEFECTED IMAGE
-    %Return an image with all N(0,1) pixels except for the alt pixels
-    %This is then followed by adding or multiplying by smooth functions
-    %In the superclass version, it returns a pure Gaussian image with no defects
+    %Return an image with all N(0,1) pixels except for the alt pixels x multiplier + plane
     %PARAMETER:
       %size: 2 row vector [height, width]
     %RETURN:

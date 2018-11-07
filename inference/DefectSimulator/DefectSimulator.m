@@ -5,6 +5,10 @@
   %Use the contructor to pass a rng
   %Implement the method getDefectedImage which returns N(0,1) image except for where there are
       %defects. Where there are defects, the pixels sample the alt distribution
+%NOTES:
+  %In this version, when defecting a pixel, the pixel is multiplied by altStd and added by altMean,
+      %thus caution should be used when adding multiple defects as overlapping defects will cause
+      %unexpected results
 %HOW THE USER SHOULD USE IT:
   %Pass a rng in the constructor
   %Call image = getDefectedImage(size)
@@ -63,8 +67,7 @@ classdef DefectSimulator < handle
       columnIndex = this.getRange(coOd(2), defectSize(2));
       [rowIndex, columnIndex] = this.checkBoundary(image, rowIndex, columnIndex);
       %set the square to have samples from the alt distribution
-      image(rowIndex, columnIndex) = ...
-          this.randStream.randn(numel(rowIndex), numel(columnIndex)) * std + mean;
+      image(rowIndex, columnIndex) = image(rowIndex, columnIndex) * std + mean;
       %set the square in this.altImage to be true
       isAltImage(rowIndex, columnIndex) = true;
     end
@@ -86,7 +89,7 @@ classdef DefectSimulator < handle
       defectColumn = this.getRange(image, x, thickness);
       defectColumn = this.checkColumnBoundary(image, defectColumn);
       %set the line to be samples from the alt distribution
-      image(:,defectColumn) = this.randStream.randn(numel(image(:,1)), 1) * std + mean;
+      image(:,defectColumn) = image(:,defectColumn) * std + mean;
       %set the line in this.altImage to true
       isAltImage(:, defectColumn) = true;
     end
@@ -107,7 +110,7 @@ classdef DefectSimulator < handle
       for iPixel = 1:numel(image)
         %if this pixel is to be alt, assign alt sample
         if(this.randStream.rand < p)
-          image(iPixel) = this.randStream.randn() * std + mean;
+          image(iPixel) = image(iPixel) * std + mean;
           isAltImage(iPixel) = true;
         end
       end
