@@ -12,13 +12,9 @@ randStream = RandStream('mt19937ar','Seed',uint32(581365657)); %instantise a rng
 imageSize = 256;
 radius = 20; %radius of kernel
 trueNullStd = 2;
-trueNullMeanGrad = 0.01;
-defectSimulator = DefectSimulator([imageSize, imageSize]);
-
-image = randStream.randn(256,256); %create gaussian image
-image = image * trueNullStd;
-defectSimulator.addPlane([trueNullMeanGrad,trueNullMeanGrad]);
-image = defectSimulator.defectImage(image);
+trueNullMeanGrad = [0.01, 0.01];
+defectSimulator = PlaneMult(randStream, trueNullMeanGrad, trueNullStd);
+image = defectSimulator.getDefectedImage([imageSize, imageSize]);
 filter = EmpiricalNullFilter(radius); %filter it
 filter.setNInitial(3);
 filter.filter(image);

@@ -1,204 +1,233 @@
-%CLASS: DEFECT SIMULATOR
-%Class for adding smooth function and defects to scan images
+%ABSTRACT CLASS: DEFECT SIMULATOR
+%Class for adding smooth function and defecting pixels with samples from the alt distribution
 %
-%HOW TO USE:
-%Use the contructor to define the size of the image
-%Use methods to define the smooth function and/or add defects
-%Use the method defectImage(image) to add the smooth function and defects to the image
+%HOW TO IMPLEMENT:
+  %Use the contructor to pass a rng
+  %Implement the method getDefectedImage which returns N(0,1) image except for where there are
+      %defects. Where there are defects, the pixels sample the alt distribution
+%HOW THE USER SHOULD USE IT:
+  %Pass a rng in the constructor
+  %Call image = getDefectedImage(size)
 classdef DefectSimulator < handle
-
-    %MEMBER VARIABLES
-    properties (SetAccess = private)
-        height; %height of the image
-        width; %width of the image
-        defect_image; %image of combination of smooth function and defects
-        sig_image; %boolean image, true for defect, false for no defect
-        n_sig; %number of significant pixels (calculated after the method setMask() is called)
-        n_null; %number of null pixels (calculated after the method setMask() is called)
+  
+  %MEMBER VARIABLES
+  properties (SetAccess = private)
+    randStream; %rng
+  end
+  
+  %METHODS
+  methods (Access = public)
+    
+    %CONSTRUCTOR
+    %PARAMETERS:
+      %randStream: rng
+    function this = DefectSimulator(randStream)
+      %assign member variables
+      this.randStream = randStream;
     end
     
-    %METHODS
-    methods (Access = public)
-        
-        %CONSTRUCTOR
-        %PARAMETERS:
-            %size: ROW vector defining the size of the image
-        function this = DefectSimulator(size)
-            %assign member variables
-            this.height = size(1);
-            this.width = size(2);
-            this.defect_image = zeros(size);
-            this.sig_image = zeros(size);
-        end
-        
-        %METHOD: ADD SQUARE DEFECT
-        %Add a square (defect) to the image
-        %PARAMETERS:
-            %co_od: coordinate of the middle of the square
-            %defect_size: column vector defining the size of the square defect
-            %intensity: greyvalue of the square
-        function addSquareDefect(this, co_od, defect_size, intensity)
-            %get the range of columns and rows to fill with a defect
-            row_index = this.getRange(co_od(1), defect_size(1));
-            column_index = this.getRange(co_od(2), defect_size(2));
-            [row_index, column_index] = this.checkBoundary(row_index, column_index);
-            
-            %add the square to this.defect_image
-            this.defect_image(row_index, column_index) = this.defect_image(row_index, column_index) + intensity;
-            %set the square in this.sig_image to be true
-            this.sig_image(row_index, column_index) = true;
-        end
-        
-        %METHOD: ADD SQUARE DEFECT GRID
-        %Add a grid of squares
-        %PARAMETERS:
-            %n_defect: column vector setting the number of [rows;columns] of defects
-            %defect_size: column vector defining the size of the square defect
-            %intensity: greyvalue of the square
-        function addSquareDefectGrid(this, n_defect, defect_size, intensity)
-            %get the x and y coordinates of the center of squares
-            y_cood = linspace(0,this.height,n_defect(1));
-            x_cood = linspace(0,this.width,n_defect(2));
-            %for each column
-            for i_x = 1:n_defect(2)
-                %for each row
-                for i_y = 1:n_defect(1)
-                    %add square defect
-                    this.addSquareDefect(round([y_cood(i_y);x_cood(i_x)]),defect_size,intensity);
-                end
-            end
-        end
-        
-        %METHOD: ADD LINE DEFECT
-        %Add a vertical line
-        %PARAMETERS:
-            %x_cood: x coordinate of the center of the line
-            %thickness: the thickness of the line
-            %intensity: greyvalue of the line
-        function addLineDefect(this, x_cood, thickness, intensity)
-            %get the column index which the defect is to be added
-            defect_column = this.getRange(x_cood, thickness);
-            defect_column = this.checkColumnBoundary(defect_column);
-            %add the line to this.defect_image
-            this.defect_image(:,defect_column) = this.defect_image(:,defect_column) + intensity;
-            %set the line in this.sig_image to true
-            this.sig_image(:, defect_column) = true;
-        end
-        
-        %METHOD: GET RANGE
-        %Get the list of index given the coordinates of the center and the length
-        %PARAMETERS:
-            %centre_cood: centre of the range
-            %length: length of the range
-        %RETURN:
-            %range: length number of integers, where centre_cood is in the middle
-        function range = getRange(this, centre_cood, length)
-            %if the length is odd
-            if mod(length,2)
-                %get the range of integers
-                %example: XXOXX where O is the centre
-                range = (centre_cood - (length-1)/2) : (centre_cood + (length-1)/2);
-            %else the length is even
-            else
-                %get the range of integers, including the middle and cutting the right hand side
-                %example: XXOX where I is the centre
-                range = (centre_cood - length/2) : (centre_cood + length/2 - 1);
-            end
-        end
-        
-        %METHOD: CHECK BOUNDARY
-        %Given indices for the rows and columns, remove the ones which are outside the boundary
-        %PARAMETERS:
-            %row_index: indices of rows
-            %column_index: indicies of columns
-        %RETURN:
-            %row_index: row_index with boundary check
-            %column_index: column_index with bounday check
-        function [row_index, column_index] = checkBoundary(this, row_index, column_index)
-            %check the boundary of the rows and columns and return it
-            row_index = this.checkRowBoundary(row_index);
-            column_index = this.checkColumnBoundary(column_index);
-        end
-        
-        %METHOD: CHECK ROW BOUNDARY
-        %Given indices for the rows, remove the ones which are outside the boundary
-        %PARAMETERS:
-            %row_index: indices of rows
-        %RETURN:
-            %row_index: row_index with boundary check
-        function row_index = checkRowBoundary(this, row_index)
-            %remove the rows where it is equal and below 0 and bigger than the height
-            index_remove = (row_index <= 0) | (row_index > this.height);
-            row_index(index_remove) = [];
-        end
-        
-        %METHOD: CHECK COLUMN BOUNDARY
-        %Given indices for the columns, remove the ones which are outside the boundary
-        %PARAMETERS:
-            %column_index: indicies of columns
-        %RETURN:
-            %column_index: column_index with bounday check
-        function column_index = checkColumnBoundary(this, column_index)
-            %remove the columns where it is equal and below 0 and bigger than the width
-            index_remove = (column_index <= 0) | (column_index > this.width);
-            column_index(index_remove) = [];
-        end
-        
-        %METHOD: ADD PLANE
-        %Add a gradient, value of 0 in the middle
-        %PARAMETERS:
-            %grad: the gradient of the plane
-        function addPlane(this, grad)
-            %mesh grid of the image
-            [x_grid, y_grid] = meshgrid(1:this.width, 1:this.height);
-            %calculate the value of the plane for each x and y
-            plane = grad(2) * (x_grid - this.width/2) + grad(1) * (y_grid - this.height/2);
-            %add the plane to this.defect_image
-            this.defect_image = this.defect_image + plane;
-        end
-        
-        %METHOD: ADD SINUSOID
-        %Add a sinusoid
-        %PARAMETERS:
-            %amplitude: amplitude of the sinusoid
-            %wavelength: 2 column vector defining the wavelength of [y,x] direction, can be negative
-            %angular_offset: offset the sinusoid in radians, for angular_offset = 0 the middle of the image = 0
-        function addSinusoid(this, amplitude, wavelength, angular_offset)
-            %meshgrid of the the image
-            [x_grid, y_grid] = meshgrid(1:this.width, 1:this.height);
-            %shift the grid so that the middle is the origin
-            x_grid = x_grid - this.width/2;
-            y_grid = y_grid - this.height/2;
-            %convert the wavelength to a frequency
-            f = 1./wavelength;
-            %work out the value of the sinusoid for each x and y
-            sinusoid = amplitude * sin( 2*pi*(f(1)*y_grid + f(2)*x_grid) + angular_offset);
-            %add the sinusoid to the image
-            this.defect_image = this.defect_image + sinusoid;
-        end
-        
-        %METHOD: DEFECT IMAGE
-        %Add this.defect_image to the image
-        %PARAMETER:
-            %image: image for the defect simulator to add to
-        %RETURN:
-            %image: image + this.defect_image
-        function image = defectImage(this, image)
-            image = image + this.defect_image;
-        end
-        
-        %METHOD: SET MASK
-        %Set the mask of the sig_image, pixels outside the mask are set to false
-        %Also calculates the number of sig and non-sig pixels
-        %PARMAETERS:
-            %mask: boolean image, true if that pixel is a mask
-        function setMask(this, mask)
-            this.sig_image(~mask) = false;
-            this.n_sig = sum(sum(this.sig_image));
-            this.n_null = sum(sum( (~this.sig_image) & mask));
-        end
-        
+    %METHOD: GET DEFECTED IMAGE
+    %Return an image with all N(0,1) pixels except for the alt pixels
+    %This is then followed by adding or multiplying by smooth functions
+    %In the superclass version, it returns a pure Gaussian image with no defects
+    %PARAMETER:
+      %size: 2 row vector [height, width]
+    %RETURN:
+      %image: a defected Gaussian image
+      %isAltImage: boolean map, true if that pixel is a defect
+    function [image, isAltImage] = getDefectedImage(this, size)
+      image = this.randStream.randn(size);
+      isAltImage = zeros(size);
     end
     
+  end
+  
+  methods (Access = protected)
+    
+    %METHOD: ADD SQUARE DEFECT
+    %Replace a square with samples from the alt distribution
+    %PARAMETERS:
+      %image: image to be defected
+      %isAltImage: boolean image, true for defect
+      %coOd: coordinate of the middle of the square
+      %defectSize: 2 vector defining the size of the square defect
+      %mean: mean parameter of the alt distribution
+      %std: std parameter of the alt distribution
+    %RETURN:
+      %image: the defected image
+      %isAltImage: boolean image, true for defect
+    function [image, isAltImage] = addSquareDefect(this, image, isAltImage, coOd, defectSize, ...
+        mean, std)
+      %get the range of columns and rows to fill with a defect
+      rowIndex = this.getRange(coOd(1), defectSize(1));
+      columnIndex = this.getRange(coOd(2), defectSize(2));
+      [rowIndex, columnIndex] = this.checkBoundary(image, rowIndex, columnIndex);
+      %set the square to have samples from the alt distribution
+      image(rowIndex, columnIndex) = ...
+          this.randStream.randn(numel(rowIndex), numel(columnIndex)) * std + mean;
+      %set the square in this.altImage to be true
+      isAltImage(rowIndex, columnIndex) = true;
+    end
+    
+    %METHOD: ADD LINE DEFECT
+    %Replace a verticle with samples from the alt distribution
+    %PARAMETERS:
+      %image: the image to be defected
+      %isAltImage: boolean image, true for defect
+      %x: x coordinate of the center of the line
+      %thickness: the thickness of the line
+      %mean: mean parameter of the alt distribution
+      %std: std parameter of the alt distribution
+    %RETURN:
+      %image: the defected image
+      %isAltImage: boolean image, true for defect
+    function [image, isAltImage] = addLineDefect(this, image, isAltImage, x, thickness, mean, std)
+      %get the column index which the defect is to be added
+      defectColumn = this.getRange(image, x, thickness);
+      defectColumn = this.checkColumnBoundary(image, defectColumn);
+      %set the line to be samples from the alt distribution
+      image(:,defectColumn) = this.randStream.randn(numel(image(:,1)), 1) * std + mean;
+      %set the line in this.altImage to true
+      isAltImage(:, defectColumn) = true;
+    end
+    
+    %METHOD: ADD DUST
+    %Random select pixel with probability p, these selected pixels are alt
+    %PARAMETERS:
+      %image: the image to be defected
+      %isAltImage: boolean image, true for defect
+      %p: probability pixel is alt
+      %mean: mean parameter of the alt distribution
+      %std: std parameter of the alt distribution
+    %RETURN:
+      %image: the defected image
+      %isAltImage: boolean image, true for defect
+    function [image, isAltImage] = addDust(this, image, isAltImage, p, mean, std)
+      %for all pixels
+      for iPixel = 1:numel(image)
+        %if this pixel is to be alt, assign alt sample
+        if(this.randStream.rand < p)
+          image(iPixel) = this.randStream.randn() * std + mean;
+          isAltImage(iPixel) = true;
+        end
+      end
+    end
+    
+    %METHOD: ADD PLANE
+    %Add a gradient, value of 0 in the middle
+    %PARAMETERS:
+      %image: image to be defected
+      %grad: 2 vector, the gradient of the plane
+    %RETURN:
+      %image: the defected image
+    function image = addPlane(this, image, grad)
+      %mesh grid of the image
+      [height, width] = size(image);
+      [xGrid, yGrid] = meshgrid(1:width, 1:height);
+      %calculate the value of the plane for each x and y
+      plane = grad(2) * (xGrid - width/2) + grad(1) * (yGrid - height/2);
+      %add the plane to this.defect_image
+      image = image + plane;
+    end
+    
+    %METHOD: MULTIPLY
+    %PARAMETERS:
+      %image: image to be defected
+      %multiplier: the image is multipled by this
+    %RETURN:
+      %image: the image multiplied by the multiplier
+    function image = multiply(this, image, multiplier)
+      image = image * multiplier;
+    end
+    
+    %METHOD: ADD SINUSOID
+    %Add a sinusoid
+    %PARAMETERS:
+      %image: image to be defected
+      %amplitude: amplitude of the sinusoid
+      %wavelength: 2 column vector defining the wavelength of [y,x] direction, can be negative
+      %angularOffset: offset the sinusoid in radians,
+          %for angularOffset = 0 the middle of the image = 0
+    %RETURN:
+      %image: the defected image
+    function image = addSinusoid(this, image, amplitude, wavelength, angularOffset)
+      %meshgrid of the the image
+      [height, width] = size(image);
+      [xGrid, yGrid] = meshgrid(1:width, 1:height);
+      %shift the grid so that the middle is the origin
+      xGrid = xGrid - width/2;
+      yGrid = yGrid - height/2;
+      %convert the wavelength to a frequency
+      f = 1./wavelength;
+      %work out the value of the sinusoid for each x and y
+      sinusoid = amplitude * sin( 2*pi*(f(1)*yGrid + f(2)*xGrid) + angularOffset);
+      %add the sinusoid to the image
+      image = image + sinusoid;
+    end
+    
+    %METHOD: GET RANGE
+    %Get the list of index given the coordinates of the center and the length
+    %PARAMETERS:
+      %centreCood: centre of the range
+      %length: length of the range
+    %RETURN:
+      %range: length number of integers, where centre_cood is in the middle
+    function range = getRange(this, centreCood, length)
+      %if the length is odd
+      if mod(length,2)
+        %get the range of integers
+        %example: XXOXX where O is the centre
+        range = (centreCood - (length-1)/2) : (centreCood + (length-1)/2);
+        %else the length is even
+      else
+        %get the range of integers, including the middle and cutting the right hand side
+        %example: XXOX where I is the centre
+        range = (centreCood - length/2) : (centreCood + length/2 - 1);
+      end
+    end
+    
+    %METHOD: CHECK BOUNDARY
+    %Given indices for the rows and columns, remove the ones which are outside the boundary
+    %PARAMETERS:
+      %image: image to check the boundary on
+      %rowIndex: indices of rows
+      %columnIndex: indicies of columns
+    %RETURN:
+      %rowIndex: row_index with boundary check
+      %columnIndex: column_index with bounday check
+    function [rowIndex, columnIndex] = checkBoundary(this, image, rowIndex, columnIndex)
+      %check the boundary of the rows and columns and return it
+      rowIndex = this.checkRowBoundary(image, rowIndex);
+      columnIndex = this.checkColumnBoundary(image, columnIndex);
+    end
+    
+    %METHOD: CHECK ROW BOUNDARY
+    %Given indices for the rows, remove the ones which are outside the boundary
+    %PARAMETERS:
+      %image: image to check the boundary on
+      %rowIndex: indices of rows
+    %RETURN:
+      %rowIndex: rowIndex with boundary check
+    function rowIndex = checkRowBoundary(this, image, rowIndex)
+      %remove the rows where it is equal and below 0 and bigger than the height
+      indexRemove = (rowIndex <= 0) | (rowIndex > numel(image(:,1)));
+      rowIndex(indexRemove) = [];
+    end
+    
+    %METHOD: CHECK COLUMN BOUNDARY
+    %Given indices for the columns, remove the ones which are outside the boundary
+    %PARAMETERS:
+      %image: image to check the boundary on
+      %columnIndex: indicies of columns
+    %RETURN:
+      %columnIndex: columnIndex with bounday check
+    function columnIndex = checkColumnBoundary(this, image, columnIndex)
+      %remove the columns where it is equal and below 0 and bigger than the width
+      index_remove = (columnIndex <= 0) | (columnIndex > numel(image(1,:)));
+      columnIndex(index_remove) = [];
+    end
+    
+  end
+  
 end
 
