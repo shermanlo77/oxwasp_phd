@@ -14,6 +14,8 @@ classdef ImagescSignificant < handle
         dilate_size; %scalar, how much to dilate the boolean significant image
         sig_image; %image of booleans, true if want that pixel to be coloured in
         sig_color; %3 row vector, contain numbers between 0 and 1, define the colour of the significant pixels
+        poster_enlarge;
+        is_poster;
     end
     
     %METHODS
@@ -30,6 +32,16 @@ classdef ImagescSignificant < handle
             this.clim(2) = max(max(image));
             this.dilate_size = 1;
             this.sig_color = [1,0,0];
+            this.poster_enlarge = 5;
+            this.is_poster = false;
+        end
+        
+        function turnOnPoster(this)
+            this.is_poster = true;
+        end
+        
+        function setCLim(this, clim)
+          this.clim = clim;
         end
         
         %METHOD: SET DILATE SIZE
@@ -49,7 +61,7 @@ classdef ImagescSignificant < handle
         %METHOD: PLOT
         %Plots this.image using imagesc
         %colours in significant pixels, indicated by this.sig_image
-        function plot(this)
+        function im = plot(this)
             %get the colour map
             colour_map = colormap;
             %get the number of steps in this colour map
@@ -83,11 +95,17 @@ classdef ImagescSignificant < handle
                 end
             end
             
+            if this.is_poster
+                image_plot = imresize(image_plot,this.poster_enlarge);
+            end
+                
             %plot the image
             im = imshow(image_plot,'InitialMagnification','fit');   
             %plot the colour bar and set it
             colorbar;
             im.Parent.CLim = this.clim;
+            
+
         end
         
     end
