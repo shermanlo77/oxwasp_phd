@@ -22,7 +22,7 @@ function [falsePositive, truePositive, areaRoc] = roc(zImage, altImage, nPoints)
   
   n = numel(altImage); %number of pixels
   nAlt = sum(sum(altImage)); %number of alt pixels
-  nNull = n - Alt; %number of null pixels
+  nNull = n - nAlt; %number of null pixels
   
   alphaArray = linspace(0, 1, nPoints); %array of significant levels to try out
   

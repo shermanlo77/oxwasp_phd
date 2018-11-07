@@ -41,7 +41,7 @@ classdef DefectSimulator < handle
       %isAltImage: boolean map, true if that pixel is a defect
     function [image, isAltImage] = getDefectedImage(this, size)
       image = this.randStream.randn(size);
-      isAltImage = zeros(size);
+      isAltImage = false(size);
     end
     
   end
