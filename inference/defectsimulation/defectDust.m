@@ -87,6 +87,8 @@ disp('type 1 error');
 disp(type1Error);
 disp('type 2 error');
 disp(type2Error);
+disp('roc area');
+disp(areaRocPreBias);
 
 disp('For post bias adding');
 type1Error = sum(sum(zTesterPostBias.sig_image(~isAltImage))) / sum(sum(~isAltImage));
@@ -95,3 +97,5 @@ disp('type 1 error');
 disp(type1Error);
 disp('type 2 error');
 disp(type2Error);
+disp('roc area');
+disp(areaRocPostBias);
