@@ -86,7 +86,7 @@ classdef DefectSimulator < handle
       %isAltImage: boolean image, true for defect
     function [image, isAltImage] = addLineDefect(this, image, isAltImage, x, thickness, mean, std)
       %get the column index which the defect is to be added
-      defectColumn = this.getRange(image, x, thickness);
+      defectColumn = this.getRange(x, thickness);
       defectColumn = this.checkColumnBoundary(image, defectColumn);
       %set the line to be samples from the alt distribution
       image(:,defectColumn) = image(:,defectColumn) * std + mean;

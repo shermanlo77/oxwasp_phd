@@ -36,19 +36,14 @@ qqplot(reshape(imageFiltered,[],1));
 zmin = min([min(min(imagePreBias)), min(min(imageFiltered))]);
 zmax = max([max(max(imagePreBias)), max(max(imageFiltered))]);
 
-%plot the image pre/post bias with significant pixels highlighted
+%get the image pre/post bias with significant pixels highlighted
 zTesterPreBias = ZTester(imagePreBias);
 zTesterPreBias.doTest();
-figure;
-imagePlot = ImagescSignificant(imagePreBias);
-imagePlot.addSigPixels(zTesterPreBias.sig_image);
-imagePlot.setCLim([zmin,zmax]);
-imagePlot.plot();
-
 zTesterPostBias = ZTester(imageFiltered);
 zTesterPostBias.doTest();
+%plot the contaminated z image with significant pixels
 figure;
-imagePlot = ImagescSignificant(imageFiltered);
+imagePlot = ImagescSignificant(image);
 imagePlot.addSigPixels(zTesterPostBias.sig_image);
 imagePlot.setCLim([zmin,zmax]);
 imagePlot.plot();
