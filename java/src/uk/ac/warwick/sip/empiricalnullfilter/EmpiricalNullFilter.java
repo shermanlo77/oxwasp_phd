@@ -66,7 +66,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   private ImageProcessor imageProcessor; //the image to be filtered
   //used by showDialog, unused but needed in case deleted by automatic garbage collection
   private PlugInFilterRunner pfr;
-  private boolean isShowProgressBar = true;
+  private boolean isShowProgressBar = false;
   protected int nPasses = 1; // The number of passes (color channels * stack slices)
   protected int pass;
   
