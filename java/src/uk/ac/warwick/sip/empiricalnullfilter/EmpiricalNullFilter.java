@@ -66,7 +66,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   private ImageProcessor imageProcessor; //the image to be filtered
   //used by showDialog, unused but needed in case deleted by automatic garbage collection
   private PlugInFilterRunner pfr;
-  private boolean isShowProgressBar = false;
+  private boolean isShowProgressBar = true;
   protected int nPasses = 1; // The number of passes (color channels * stack slices)
   protected int pass;
   
@@ -370,6 +370,59 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
       }
     }
     
+    //global empirical null section
+    float [] pixels = (float[]) imageProcessor.getPixels(); //get the array of pixels
+    int nData = pixels.length;
+    
+    //abuse the cache pointer system so that it target all the pixels (x=0)
+    int [] pointer = new int [2];
+    pointer[1] = nData - 1;
+    
+    //get the standard deviation of the data
+    double [] sums = new double[2];
+    getAreaSums(pixels, 0, pointer, sums);
+    float dataStd = (float) Math.sqrt(((sums[1] - sums[0]*sums[0]/nData)/(nData-1)));
+    
+    //get the quartiles of the data
+    double [] quartileBuf = new double[pixels.length];
+    float [] quartiles = new float[3];
+    getQuartiles(pixels, 0, pointer, quartileBuf, pixels.length, quartiles);
+    
+    //do the empirical null analysis
+    EmpiricalNull globalEmpiricalNull =  new EmpiricalNull(this.nInitial, this.nStep,
+        this.log10Tolerance, this.bandwidthParameterA, this.bandwidthParameterB, pixels, 0,
+        pointer, 0f, quartiles, dataStd, pixels.length, new NormalDistribution(), rng);
+    globalEmpiricalNull.estimateNull();
+    float nullMean = globalEmpiricalNull.getNullMean();
+    float nullStd = globalEmpiricalNull.getNullStd();
+    //correct all the corrected pixels again
+    for (int i=0; i<nData; i++) {
+      pixels[i] -= nullMean;
+      pixels[i] /= nullStd;
+    }
+    
+    //if the null mean image and null std image is requested, correct them all
+    for (int iOutput=0; iOutput<2; iOutput++) {
+      if ( (this.outputImagePointer >> iOutput) % 2 == 1) {
+        switch (iOutput) {
+          case 0: //null mean case
+            pixels = (float[]) this.outputImageArray[0].getPixels();
+            float [] nullStdLocal = (float[]) this.outputImageArray[1].getPixels();
+            for (int iPixel=0; iPixel<nData; iPixel++) {
+              pixels[iPixel] += nullMean * nullStdLocal[iPixel];
+            }
+            break;
+          case 1: //null std case
+            pixels = (float[]) this.outputImageArray[1].getPixels();
+            for (int j=0; j<nData; j++) {
+              pixels[j] *= nullStd;
+            }
+            break;
+        }
+      }
+    }
+    
+    
     this.showProgress(1.0);
     pass++;
   }
@@ -626,8 +679,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     for (int x=0; x<roi.width; x++, valuesP++) { // x is with respect to roi.x
       
       //set the first value to be the median
-      getQuartiles(cache, x, cachePointers, quartileBuf, kNPoints, cache[cacheLineP],
-          quartiles);
+      getQuartiles(cache, x, cachePointers, quartileBuf, kNPoints, quartiles);
       if (x==0) {
         initialValue = quartiles[1];
       }
@@ -818,11 +870,10 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
    * @param kernel
    * @param quartileBuf
    * @param kNPoints
-   * @param guess
    * @param quartiles modified
    */
   private static void getQuartiles(float[] cache, int xCache0, int[] kernel,
-      double[] quartileBuf, int kNPoints, float guess, float[] quartiles) {
+      double[] quartileBuf, int kNPoints, float[] quartiles) {
     //copy the greyvalues in a pixel into quartileBuf
     int nFinite=0;
     for (int kk=0; kk<kernel.length; kk++) {
