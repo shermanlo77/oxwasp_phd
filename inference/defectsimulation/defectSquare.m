@@ -1,5 +1,6 @@
-%SCRIPT: DEFECT DUST
-%Plot Gaussian image with dust defect with plane contimation
+%SCRIPT: DEFECT SQUARE
+%Using non-sensible kernel size
+%Plot Gaussian image with square defect with plane contimation
 %Plot empirical null mean
 %Plot empirical null std
 %Plot roc curve before and after contimation
@@ -12,16 +13,17 @@ clc;
 clearvars;
 close all;
 
-randStream = RandStream('mt19937ar','Seed',uint32(676943031)); %instantise a rng
+randStream = RandStream('mt19937ar','Seed',uint32(4120988592)); %instantise a rng
 
 imageSize = 256;
 radius = 20; %kernel radius
 trueNullStd = 2; %multiplier in the contimation
 trueNullMeanGrad = [0.01, 0.01]; %gradient of contimation
-altP = 0.1; %proportion of image defected
+defectSize = 30; %size of the square defect
 %distribution parameters of the alt distribution
 altMean = 2;
 altStd = 1;
 
-defectSimulator = PlaneMultDust(randStream, trueNullMeanGrad, trueNullStd, altP, altMean, altStd);
+defectSimulator = PlaneMultSquare(randStream, trueNullMeanGrad, trueNullStd, defectSize, ...
+    altMean, altStd);
 defectExample(defectSimulator, imageSize, radius);
