@@ -18,12 +18,12 @@ classdef Experiment_ZNull < Experiment
             %dim 3: for each n or each sample size
         mean_array;
         var_array;
-        
-        %array for number of fails when estimating the null
-            %dim 1: for each kernel width
-            %dim 2: for each n
-        fail_count_array;
-        
+        %the variance of the statistics corrected for the empirical null
+            %dim 1: for each repeat
+            %dim 2: for each kernel width
+            %dim 3: for each n or each sample size
+        correctionVarArray;
+
         i_iteration; %number of iterations done
         n_iteration; %number of iterations in the whole experiments
         
@@ -45,7 +45,7 @@ classdef Experiment_ZNull < Experiment
             factor_array = [0.9, 1.06, 1.144]; %array of fudge factors
             
             %for the mode estimation, then half width estimation
-            for i_array = 1:3
+            for i_array = 1:4
 
                 %get the corresponding array
                 if i_array == 1
@@ -54,6 +54,9 @@ classdef Experiment_ZNull < Experiment
                 elseif i_array == 2
                     array = squeeze( median( (sqrt(this.var_array)-1).^2 ) );
                     z_label = 'median squared error';
+                elseif i_array == 3
+                    array = log10(squeeze( median( (sqrt(this.correctionVarArray)-1).^2 ) ));
+                    z_label = 'log median squared error';
                 else
                     array = squeeze(median(sqrt(this.var_array)));
                     z_label = '\sigma_0 estimate';
@@ -71,7 +74,7 @@ classdef Experiment_ZNull < Experiment
                 %plot the path of the rule of thumb
                 %logn_path is array of logn to evaluate the rule of thumb
                 logn_path = interp1((1:numel(this.n_array))',log10(this.n_array),linspace(1,numel(this.n_array),1000*numel(this.n_array))');
-                if i_array ~= 3
+                if i_array ~= 4
                     %for each fudge factor
                     for i = 1:numel(factor_array)
                         %for each logn_path, work out the rule of thumb k
@@ -89,7 +92,7 @@ classdef Experiment_ZNull < Experiment
                 ylim(log10(this.n_array([1,numel(this.n_array)])));
 
                 %for the 3rd array
-                if i_array==3
+                if i_array==4
                     hold on;
                     %meshplot the true value of the null variance
                     ax = surf(k_plot,logn_plot,ones(size(array)));
@@ -108,7 +111,7 @@ classdef Experiment_ZNull < Experiment
 
                 %if this is a plot of the estimator itself, save the figure using a heatmap
                 linestyle_array = {'k--','k-.','k:'};
-                if i_array==3
+                if i_array==4
                     fig = LatexFigure.sub();
                     %heatmap the array
                     imagesc(log10(this.n_array),this.k_array,array);
@@ -156,10 +159,7 @@ classdef Experiment_ZNull < Experiment
                 %dim 3: for each n or each sample size
             this.mean_array = zeros(this.n_repeat, numel(this.k_array), numel(this.n_array) );
             this.var_array = zeros(this.n_repeat, numel(this.k_array), numel(this.n_array) );
-            %declare array for number of fails when estimating the null
-                %dim 1: for each kernel width
-                %dim 2: for each n
-            this.fail_count_array = zeros(numel(this.k_array), numel(this.n_array) );
+            this.correctionVarArray = zeros(this.n_repeat, numel(this.k_array), numel(this.n_array) );
             %assign other member variables
             this.i_iteration = 0;
             this.n_iteration = this.n_repeat * (numel(this.n_array)) * (numel(this.k_array));
@@ -183,33 +183,24 @@ classdef Experiment_ZNull < Experiment
                     %for n_repeat times
                     for i_repeat = 1:this.n_repeat
                         
-                        %set a boolean, becomes true when null estimation is successful
-                        got_null = false;
+                        %simulate n N(0,1)
+                        X = this.rng.randn(n,1);
 
-                        %while a null hasn't been found
-                        while ~got_null
-                            %simulate n N(0,1)
-                            X = this.rng.randn(n,1);
-
-                            %instantise z tester
-                            z_tester = ZTester(X);
-                            %set the kernel width
-                            z_tester.setDensityEstimationParameter(k);
-                            %get the mode and half width estimation
-                            z_tester.estimateNull();
-                            
-                            %if the null std is not nan, set the flag got_null to true
-                            if ~isnan(z_tester.var_null)
-                                got_null = true;
-                            %else, the null estimation failed, update fail_count_array
-                            else
-                                this.fail_count_array(i_k, i_n) = this.fail_count_array(i_k, i_n) + 1;
-                            end
-                        end
+                        %instantise z tester
+                        z_tester = ZTester(X);
+                        %set the kernel width
+                        z_tester.setDensityEstimationParameter(k);
+                        %get the mode and half width estimation
+                        z_tester.estimateNull();
 
                         %save the mode and half width estimation
                         this.mean_array(i_repeat, i_k, i_n) = z_tester.mean_null;
                         this.var_array(i_repeat, i_k, i_n) = z_tester.var_null;
+                        
+                        %correct the statistics
+                        X = (X-z_tester.mean_null)/z_tester.var_null;
+                        this.correctionVarArray(i_repeat, i_k, i_n) = var(X);
+                            
 
                         %update iteartion and progress bar
                         this.i_iteration = this.i_iteration + 1;

@@ -56,7 +56,7 @@ classdef Experiment_ZNull_mse < Experiment
             %for each n
             for i_n = 1:numel(previous.n_array)
                 %get the ln MSE
-                array = this.getObjective(previous.var_array(:,:,i_n));
+                array = this.getObjective(previous.correctionVarArray(:,:,i_n));
                 fig = LatexFigure.sub();
                 %boxplot the ln MSE for each kernel width
                 box_plot = Boxplots(array,true);
@@ -180,7 +180,7 @@ classdef Experiment_ZNull_mse < Experiment
                 %for each n
                 for i_n = 1:numel(previous.n_array)
                     %get the ln mse
-                    ln_mse = this.getObjective(previous.var_array(:,:,i_n));
+                    ln_mse = this.getObjective(previous.correctionVarArray(:,:,i_n));
                     %declare array of kernel widths, taking into account the n_repeat in the previous experiment
                     x = repmat(previous.k_array,previous.n_repeat,1);
                     %declare array of ln_mse
