@@ -114,7 +114,7 @@ classdef EmpiricalNullFilter < handle
     %Set the parameter B where the bandwidth used for the density estimate is
       %bandwidthParameterB * min(dataStd, iqr/1.34)* (n^-0.2) + bandwidthParameterA
     function setBandwidthB(this, bandwidthParameterB)
-      this.javaFilter.setBandwidthA(bandwidthParameterB);
+      this.javaFilter.setBandwidthB(bandwidthParameterB);
     end
     
     %METHOD: GET BANDWIDTH B
