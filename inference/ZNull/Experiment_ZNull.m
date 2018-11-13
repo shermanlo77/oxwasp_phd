@@ -149,8 +149,8 @@ classdef Experiment_ZNull < Experiment
             %set random seed
             this.rng = RandStream('mt19937ar','Seed',uint32(2055696007));
             %declare arrays to store values to be investigated
-            this.n_array = round(10.^linspace(1,6,20))';
-            this.k_array = linspace(0.09,1.5,20)';
+            this.n_array = round(10.^linspace(1,6,40))';
+            this.k_array = linspace(0.09,1.5,80)';
             %number of times to repeat the experiment
             this.n_repeat = 50;
             %declare array to store the mode and half width estimation using the Parzen density estimation

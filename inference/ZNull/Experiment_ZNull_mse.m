@@ -146,7 +146,7 @@ classdef Experiment_ZNull_mse < Experiment
             %assign member variables
             this.rng = RandStream('mt19937ar','Seed',uint32(3027942399));
             this.n_bootstrap = 100;
-            this.k_plot = interp1(1:numel(previous.k_array),previous.k_array,linspace(1,numel(previous.k_array),10*numel(previous.k_array)));
+            this.k_plot = interp1(1:numel(previous.k_array),previous.k_array,linspace(1,numel(previous.k_array),100*numel(previous.k_array)));
             this.k_optima = zeros(numel(previous.n_array),1);
             this.k_optima_bootstrap = zeros(this.n_bootstrap,numel(previous.n_array));
             this.error_regress = zeros(numel(this.k_plot),numel(previous.n_array));
