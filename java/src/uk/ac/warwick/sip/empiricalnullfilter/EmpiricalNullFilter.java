@@ -388,41 +388,6 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     float [] quartiles = new float[3];
     getQuartiles(pixels, 0, pointer, quartileBuf, pixels.length, quartiles);
     
-    //do the empirical null analysis
-    EmpiricalNull globalEmpiricalNull =  new EmpiricalNull(this.nInitial, this.nStep,
-        this.log10Tolerance, this.bandwidthParameterA, this.bandwidthParameterB, pixels, 0,
-        pointer, 0f, quartiles, dataStd, pixels.length, new NormalDistribution(), rng);
-    globalEmpiricalNull.estimateNull();
-    float nullMean = globalEmpiricalNull.getNullMean();
-    float nullStd = globalEmpiricalNull.getNullStd();
-    //correct all the corrected pixels again
-    for (int i=0; i<nData; i++) {
-      pixels[i] -= nullMean;
-      pixels[i] /= nullStd;
-    }
-    
-    //if the null mean image and null std image is requested, correct them all
-    for (int iOutput=0; iOutput<2; iOutput++) {
-      if ( (this.outputImagePointer >> iOutput) % 2 == 1) {
-        switch (iOutput) {
-          case 0: //null mean case
-            pixels = (float[]) this.outputImageArray[0].getPixels();
-            float [] nullStdLocal = (float[]) this.outputImageArray[1].getPixels();
-            for (int iPixel=0; iPixel<nData; iPixel++) {
-              pixels[iPixel] += nullMean * nullStdLocal[iPixel];
-            }
-            break;
-          case 1: //null std case
-            pixels = (float[]) this.outputImageArray[1].getPixels();
-            for (int j=0; j<nData; j++) {
-              pixels[j] *= nullStd;
-            }
-            break;
-        }
-      }
-    }
-    
-    
     this.showProgress(1.0);
     pass++;
   }
