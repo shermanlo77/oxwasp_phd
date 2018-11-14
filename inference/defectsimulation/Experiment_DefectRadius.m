@@ -1,31 +1,24 @@
-%CLASS: EXPERIMENT DEFECT SIMULATION DUST
-%Experiment on a 256 x 256 Gaussian which has been defected with dust and then contaminated by a
-    %multiplier and a plane.
-%Dust defect: all pixels have distribution nullP N(0,1) + altP N(\mu,1), all defects are randomly
-    %positioned.
-%Various \mu are investigated. For a given \mu, the image is produced with the defect and
-    %with/without the contamination. The empirical null filter is used to recover the image after
-    %contamination. The 2 images performance on hypothesis testing (picking up the alt pixels or
-    %dust) are investigated. For a given FDR level, the type 1, type 2 error and FDR are recorded.
-    %By varyin the FDR level, the area of the ROC is obtained. This is repeated multiple times by
-    %obtaining a different image
-%Plots the following: type 1, type 2, area of ROC and FDR vs alternative mean for images pre/post
-    %contamination
-classdef Experiment_DefectSimulationDust < Experiment
+%ABSTRACT CLASS: DEFECT RADIUS EXPERIMENT
+%Investigate the performance of the empirical null filter with different kernel radius on a defect
+    %image pre/post contamination with a plane and a multiplier
+%For a given radius, produce defected image pre/post contamination. Use the empirical null filter to
+    %recover the image from contamination. These 2 images are then used to do a hypothesis test to
+    %find the defects. The type 1 error, type 2 error, fdr and area of roc are recorded. The
+    %experiment is repeated by producing another image.
+classdef Experiment_DefectRadius < Experiment
 
-  properties (SetAccess = private)
+  properties (SetAccess = protected)
     
     nRepeat = 100; %number of times to repeat the experiment
     imageSize = 256; %dimension of the image
-    radius = 20; %radius of the empirical null filter kernel
-    randStream = RandStream('mt19937ar','Seed',uint32(153380491)); %rng
+    radiusArray = 10:100; %radius of the empirical null filter kernel
+    randStream; %rng
     nIntial = 3; %number of initial points used for the empirical null filter
     
-    altMeanArray = 0:5; %array of alt distribution means to investigate
+    altMean = 2; %mean of the alt distribution
     altStd = 1; %std of the alt distribution
     gradContamination = [0.01, 0.01]; %gradient of the contamination
     multContamination = 2; %multiplier of the contamination
-    altP = 0.1; %proportion of pixels which are alt
     
     %records results
       %dim 1: for each repeat
@@ -41,8 +34,8 @@ classdef Experiment_DefectSimulationDust < Experiment
   methods (Access = public)
     
     %CONSTRUCTOR
-    function this = Experiment_DefectSimulationDust()
-      this@Experiment('Experiment_DefectSimulationDust');
+    function this = Experiment_DefectRadius(experimentName)
+      this@Experiment(experimentName);
     end
     
     %METHOD: PRINT RESULTS
@@ -65,7 +58,7 @@ classdef Experiment_DefectSimulationDust < Experiment
       boxplotPostCont.setPosition(this.altMeanArray + offset);
       boxplotPostCont.setColour(ax.ColorOrder(2,:));
       boxplotPostCont.plot();
-      xlabel('alt distribution mean');
+      xlabel('kernel radius');
       ylabel('roc area');
       ax.XLim(1) = this.altMeanArray(1) - offset*2;
       ax.XLim(2) = this.altMeanArray(end) + offset*2;
@@ -84,7 +77,7 @@ classdef Experiment_DefectSimulationDust < Experiment
       boxplotPostCont.setPosition(this.altMeanArray + offset);
       boxplotPostCont.setColour(ax.ColorOrder(2,:));
       boxplotPostCont.plot();
-      xlabel('alt distribution mean');
+      xlabel('kernel radius');
       ylabel('type 1 error');
       ax.XLim(1) = this.altMeanArray(1) - offset*2;
       ax.XLim(2) = this.altMeanArray(end) + offset*2;
@@ -103,7 +96,7 @@ classdef Experiment_DefectSimulationDust < Experiment
       boxplotPostCont.setPosition(this.altMeanArray + offset);
       boxplotPostCont.setColour(ax.ColorOrder(2,:));
       boxplotPostCont.plot();
-      xlabel('alt distribution mean');
+      xlabel('kernel radius');
       ylabel('type 2 error');
       ax.XLim(1) = this.altMeanArray(1) - offset*2;
       ax.XLim(2) = this.altMeanArray(end) + offset*2;
@@ -122,7 +115,7 @@ classdef Experiment_DefectSimulationDust < Experiment
       boxplotPostCont.setPosition(this.altMeanArray + offset);
       boxplotPostCont.setColour(ax.ColorOrder(2,:));
       boxplotPostCont.plot();
-      xlabel('alt distribution mean');
+      xlabel('kernel radius');
       ylabel('type 2 error');
       ax.XLim(1) = this.altMeanArray(1) - offset*2;
       ax.XLim(2) = this.altMeanArray(end) + offset*2;
@@ -136,22 +129,22 @@ classdef Experiment_DefectSimulationDust < Experiment
   methods (Access = protected)
     
     %METHOD: SETUP
-    function setup(this)
+    function setup(this, seed)
       this.type1ErrorArray = zeros(this.nRepeat, numel(this.altMeanArray));
       this.type2ErrorArray = zeros(this.nRepeat, numel(this.altMeanArray));
       this.fdrArray = zeros(this.nRepeat, numel(this.altMeanArray));
       this.rocAreaArray = zeros(this.nRepeat, numel(this.altMeanArray));
+      this.randStream = RandStream('mt19937ar','Seed', seed);
     end
     
     %METHOD: DO EXPERIMENT
     function doExperiment(this)
       
       %for each alt mean
-      for iMu = 1:numel(this.altMeanArray)
+      for iRadius = 1:numel(this.radiusArray)
         
         %get up the contamination
-        defectSimulator = PlaneMultDust(this.randStream, this.gradContamination, ...
-            this.multContamination, this.altP, this.altMeanArray(iMu), this.altStd);
+        defectSimulator = this.getDefectSimulator();
         
         %repeat nRepeat times
         for iRepeat = 1:this.nRepeat
@@ -161,7 +154,7 @@ classdef Experiment_DefectSimulationDust < Experiment
               defectSimulator.getDefectedImage([this.imageSize, this.imageSize]);
 
           %filter it
-          filter = EmpiricalNullFilter(this.radius);
+          filter = EmpiricalNullFilter(this.radiusArray(iRadius));
           filter.setNInitial(this.nIntial);
           filter.filter(imagePostCont);
 
@@ -175,19 +168,19 @@ classdef Experiment_DefectSimulationDust < Experiment
           zTesterPostCont.doTest();
 
           %get the roc area
-          [~, ~, this.rocAreaArray(iRepeat, iMu, 1)] = roc(imagePreCont, isAltImage, 100);
-          [~, ~, this.rocAreaArray(iRepeat, iMu, 2)] = roc(imageFiltered, isAltImage, 100);
+          [~, ~, this.rocAreaArray(iRepeat, iRadius, 1)] = roc(imagePreCont, isAltImage, 100);
+          [~, ~, this.rocAreaArray(iRepeat, iRadius, 2)] = roc(imageFiltered, isAltImage, 100);
           
           %get the error rates fdrArray
           
-          this.type1ErrorArray(iRepeat, iMu, 1) = ...
+          this.type1ErrorArray(iRepeat, iRadius, 1) = ...
               sum(zTesterPreCont.sig_image(~isAltImage)) / sum(sum(~isAltImage));
-          this.type1ErrorArray(iRepeat, iMu, 2) = ...
+          this.type1ErrorArray(iRepeat, iRadius, 2) = ...
               sum(zTesterPostCont.sig_image(~isAltImage)) / sum(sum(~isAltImage));
             
-          this.type2ErrorArray(iRepeat, iMu, 1) = ...
+          this.type2ErrorArray(iRepeat, iRadius, 1) = ...
               sum(~(zTesterPreCont.sig_image(isAltImage))) / sum(sum(isAltImage));
-          this.type2ErrorArray(iRepeat, iMu, 2) = ...
+          this.type2ErrorArray(iRepeat, iRadius, 2) = ...
               sum(~(zTesterPostCont.sig_image(isAltImage))) / sum(sum(isAltImage));
             
           nSig = sum(sum(zTesterPreCont.sig_image));
@@ -196,7 +189,7 @@ classdef Experiment_DefectSimulationDust < Experiment
           else
             fdr = sum(sum(zTesterPreCont.sig_image(~isAltImage))) / nSig;
           end
-          this.fdrArray(iRepeat, iMu, 1) = fdr;
+          this.fdrArray(iRepeat, iRadius, 1) = fdr;
           
           nSig = sum(sum(zTesterPostCont.sig_image));
           if nSig == 0
@@ -204,9 +197,9 @@ classdef Experiment_DefectSimulationDust < Experiment
           else
             fdr = sum(sum(zTesterPostCont.sig_image(~isAltImage))) / nSig;
           end
-          this.fdrArray(iRepeat, iMu, 2) = fdr;
+          this.fdrArray(iRepeat, iRadius, 2) = fdr;
 
-          this.printProgress( ((iMu-1)*this.nRepeat + iRepeat) ... 
+          this.printProgress( ((iRadius-1)*this.nRepeat + iRepeat) ... 
               / (numel(this.altMeanArray) * this.nRepeat) );
           
         end
@@ -214,6 +207,14 @@ classdef Experiment_DefectSimulationDust < Experiment
       end
       
     end
+    
+  end
+  
+  methods (Abstract, Access = protected)
+    
+    %ABSTRACT: GET DEFECT SIMULATOR
+    %Returns a defect simulator to investigate
+    defectSimulator = getDefectSimulator(this);
     
   end
   
