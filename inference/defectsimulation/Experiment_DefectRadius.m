@@ -116,7 +116,7 @@ classdef Experiment_DefectRadius < Experiment
       boxplotPostCont.setColour(ax.ColorOrder(2,:));
       boxplotPostCont.plot();
       xlabel('kernel radius');
-      ylabel('type 2 error');
+      ylabel('fdr');
       ax.XLim(1) = this.altMeanArray(1) - offset*2;
       ax.XLim(2) = this.altMeanArray(end) + offset*2;
       boxplotLegend = [boxplotPreCont.getLegendAx(), boxplotPostCont.getLegendAx()];
