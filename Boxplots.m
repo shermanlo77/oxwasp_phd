@@ -110,6 +110,12 @@ classdef Boxplots < handle
                 this.boxplot_array{i_group}.setOutlierSize(outlier_size);
             end
         end
+        
+        %METHOD: GET LEGEND AXIS
+        %Return axis object for the purpose of legend plotting
+        function ax = getLegendAx(this)
+          ax = this.boxplot_array{1}.legendAx;
+        end
 
     end
     

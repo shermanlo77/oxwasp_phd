@@ -24,6 +24,8 @@ classdef Boxplot < handle
         outlier_colour; %colour of the outlier mark
         outlier_mark; %mark of outlier
         outlier_size; %size of the outlier mark
+        
+        legendAx; %what to show in the legend
     end
     
     %METHODS
@@ -120,6 +122,8 @@ classdef Boxplot < handle
             %draw the whisker
             whisker_line = line([this.position,this.position],this.whisker);
             whisker_line.Color = this.colour;
+            %the whisker is what to draw for the legend
+            this.legendAx = whisker_line;
             
             %if want whisker cap
             if this.want_whisker_cap
