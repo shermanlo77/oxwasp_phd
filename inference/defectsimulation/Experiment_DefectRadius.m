@@ -22,7 +22,7 @@ classdef Experiment_DefectRadius < Experiment
     
     %records results
       %dim 1: for each repeat
-      %dim 2: for each alt mean
+      %dim 2: for each radius
       %dim 3: size 2, pre/post contamination
     type1ErrorArray;
     type2ErrorArray;
@@ -130,10 +130,10 @@ classdef Experiment_DefectRadius < Experiment
     
     %METHOD: SETUP
     function setup(this, seed)
-      this.type1ErrorArray = zeros(this.nRepeat, numel(this.altMeanArray));
-      this.type2ErrorArray = zeros(this.nRepeat, numel(this.altMeanArray));
-      this.fdrArray = zeros(this.nRepeat, numel(this.altMeanArray));
-      this.rocAreaArray = zeros(this.nRepeat, numel(this.altMeanArray));
+      this.type1ErrorArray = zeros(this.nRepeat, numel(this.radiusArray));
+      this.type2ErrorArray = zeros(this.nRepeat, numel(this.radiusArray));
+      this.fdrArray = zeros(this.nRepeat, numel(this.radiusArray));
+      this.rocAreaArray = zeros(this.nRepeat, numel(this.radiusArray));
       this.randStream = RandStream('mt19937ar','Seed', seed);
     end
     

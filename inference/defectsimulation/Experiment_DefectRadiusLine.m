@@ -11,7 +11,7 @@ classdef Experiment_DefectRadiusLine < Experiment_DefectRadius
   methods (Access = protected)
     
     function setup(this)
-      this.setup@Experiment_DefectRadius(uint32(3826400333));
+      this.setup@Experiment_DefectRadius(uint32(4120125298));
     end
     
     function defectSimulator = getDefectSimulator(this)
