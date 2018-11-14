@@ -200,7 +200,7 @@ classdef Experiment_DefectRadius < Experiment
           this.fdrArray(iRepeat, iRadius, 2) = fdr;
 
           this.printProgress( ((iRadius-1)*this.nRepeat + iRepeat) ... 
-              / (numel(this.altMeanArray) * this.nRepeat) );
+              / (numel(this.radiusArray) * this.nRepeat) );
           
         end
         
