@@ -11,7 +11,7 @@ classdef Experiment_DefectRadius < Experiment
     
     nRepeat = 100; %number of times to repeat the experiment
     imageSize = 256; %dimension of the image
-    radiusArray = 10:100; %radius of the empirical null filter kernel
+    radiusArray = 10:10:100; %radius of the empirical null filter kernel
     randStream; %rng
     nIntial = 3; %number of initial points used for the empirical null filter
     
@@ -50,18 +50,18 @@ classdef Experiment_DefectRadius < Experiment
       figure;
       ax = gca;
       boxplotPreCont = Boxplots(this.rocAreaArray(:,:,1), true);
-      boxplotPreCont.setPosition(this.altMeanArray - offset);
+      boxplotPreCont.setPosition(this.radiusArray - offset);
       boxplotPreCont.setColour(ax.ColorOrder(1,:));
       boxplotPreCont.plot();
       hold on;
       boxplotPostCont = Boxplots(this.rocAreaArray(:,:,2), true);
-      boxplotPostCont.setPosition(this.altMeanArray + offset);
+      boxplotPostCont.setPosition(this.radiusArray + offset);
       boxplotPostCont.setColour(ax.ColorOrder(2,:));
       boxplotPostCont.plot();
       xlabel('kernel radius');
       ylabel('roc area');
-      ax.XLim(1) = this.altMeanArray(1) - offset*2;
-      ax.XLim(2) = this.altMeanArray(end) + offset*2;
+      ax.XLim(1) = this.radiusArray(1) - offset*2;
+      ax.XLim(2) = this.radiusArray(end) + offset*2;
       boxplotLegend = [boxplotPreCont.getLegendAx(), boxplotPostCont.getLegendAx()];
       legend(boxplotLegend, 'pre contamination', 'post contamination', 'Location', 'southeast');
       
@@ -69,18 +69,18 @@ classdef Experiment_DefectRadius < Experiment
       figure;
       ax = gca;
       boxplotPreCont = Boxplots(this.type1ErrorArray(:,:,1), true);
-      boxplotPreCont.setPosition(this.altMeanArray - offset);
+      boxplotPreCont.setPosition(this.radiusArray - offset);
       boxplotPreCont.setColour(ax.ColorOrder(1,:));
       boxplotPreCont.plot();
       hold on;
       boxplotPostCont = Boxplots(this.type1ErrorArray(:,:,2), true);
-      boxplotPostCont.setPosition(this.altMeanArray + offset);
+      boxplotPostCont.setPosition(this.radiusArray + offset);
       boxplotPostCont.setColour(ax.ColorOrder(2,:));
       boxplotPostCont.plot();
       xlabel('kernel radius');
       ylabel('type 1 error');
-      ax.XLim(1) = this.altMeanArray(1) - offset*2;
-      ax.XLim(2) = this.altMeanArray(end) + offset*2;
+      ax.XLim(1) = this.radiusArray(1) - offset*2;
+      ax.XLim(2) = this.radiusArray(end) + offset*2;
       boxplotLegend = [boxplotPreCont.getLegendAx(), boxplotPostCont.getLegendAx()];
       legend(boxplotLegend, 'pre contamination', 'post contamination', 'Location', 'northwest');
       
@@ -88,18 +88,18 @@ classdef Experiment_DefectRadius < Experiment
       figure;
       ax = gca;
       boxplotPreCont = Boxplots(this.type2ErrorArray(:,:,1), true);
-      boxplotPreCont.setPosition(this.altMeanArray - offset);
+      boxplotPreCont.setPosition(this.radiusArray - offset);
       boxplotPreCont.setColour(ax.ColorOrder(1,:));
       boxplotPreCont.plot();
       hold on;
       boxplotPostCont = Boxplots(this.type2ErrorArray(:,:,2), true);
-      boxplotPostCont.setPosition(this.altMeanArray + offset);
+      boxplotPostCont.setPosition(this.radiusArray + offset);
       boxplotPostCont.setColour(ax.ColorOrder(2,:));
       boxplotPostCont.plot();
       xlabel('kernel radius');
       ylabel('type 2 error');
-      ax.XLim(1) = this.altMeanArray(1) - offset*2;
-      ax.XLim(2) = this.altMeanArray(end) + offset*2;
+      ax.XLim(1) = this.radiusArray(1) - offset*2;
+      ax.XLim(2) = this.radiusArray(end) + offset*2;
       boxplotLegend = [boxplotPreCont.getLegendAx(), boxplotPostCont.getLegendAx()];
       legend(boxplotLegend, 'pre contamination', 'post contamination', 'Location', 'southwest');
       
@@ -107,18 +107,18 @@ classdef Experiment_DefectRadius < Experiment
       figure;
       ax = gca;
       boxplotPreCont = Boxplots(this.fdrArray(:,:,1), true);
-      boxplotPreCont.setPosition(this.altMeanArray - offset);
+      boxplotPreCont.setPosition(this.radiusArray - offset);
       boxplotPreCont.setColour(ax.ColorOrder(1,:));
       boxplotPreCont.plot();
       hold on;
       boxplotPostCont = Boxplots(this.fdrArray(:,:,2), true);
-      boxplotPostCont.setPosition(this.altMeanArray + offset);
+      boxplotPostCont.setPosition(this.radiusArray + offset);
       boxplotPostCont.setColour(ax.ColorOrder(2,:));
       boxplotPostCont.plot();
       xlabel('kernel radius');
       ylabel('fdr');
-      ax.XLim(1) = this.altMeanArray(1) - offset*2;
-      ax.XLim(2) = this.altMeanArray(end) + offset*2;
+      ax.XLim(1) = this.radiusArray(1) - offset*2;
+      ax.XLim(2) = this.radiusArray(end) + offset*2;
       boxplotLegend = [boxplotPreCont.getLegendAx(), boxplotPostCont.getLegendAx()];
       legend(boxplotLegend, 'pre contamination', 'post contamination', 'Location', 'southwest');
       
