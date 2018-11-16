@@ -43,84 +43,67 @@ classdef Experiment_DefectRadius < Experiment
     %Plots pre/post contamination results on the same graph
     function printResults(this)
       
-      %Plots pre/post contamination results on the same graph, so offset them
-      offset = 0.05;
+      offset = 1;
       
       %plot roc area vs alt mean
       figure;
       ax = gca;
-      boxplotPreCont = Boxplots(this.rocAreaArray(:,:,1), true);
-      boxplotPreCont.setPosition(this.radiusArray - offset);
-      boxplotPreCont.setColour(ax.ColorOrder(1,:));
-      boxplotPreCont.plot();
+      boxplot = Boxplots(this.rocAreaArray(:,:,2), true);
+      boxplot.setPosition(this.radiusArray);
+      boxplot.plot();
       hold on;
-      boxplotPostCont = Boxplots(this.rocAreaArray(:,:,2), true);
-      boxplotPostCont.setPosition(this.radiusArray + offset);
-      boxplotPostCont.setColour(ax.ColorOrder(2,:));
-      boxplotPostCont.plot();
+      ax.XLim(1) = this.radiusArray(1) - offset;
+      ax.XLim(2) = this.radiusArray(end) + offset;
+      oracleInterval = quantile(reshape(this.rocAreaArray(:,:,1),[],1), [0.025, 0.975]);
+      plot(ax.XLim, [oracleInterval(1), oracleInterval(1)], 'k--');
+      plot(ax.XLim, [oracleInterval(2), oracleInterval(2)], 'k--');
       xlabel('kernel radius');
       ylabel('roc area');
-      ax.XLim(1) = this.radiusArray(1) - offset*2;
-      ax.XLim(2) = this.radiusArray(end) + offset*2;
-      boxplotLegend = [boxplotPreCont.getLegendAx(), boxplotPostCont.getLegendAx()];
-      legend(boxplotLegend, 'pre contamination', 'post contamination', 'Location', 'southeast');
       
       %plot type 1 error vs alt mean
       figure;
       ax = gca;
-      boxplotPreCont = Boxplots(this.type1ErrorArray(:,:,1), true);
-      boxplotPreCont.setPosition(this.radiusArray - offset);
-      boxplotPreCont.setColour(ax.ColorOrder(1,:));
-      boxplotPreCont.plot();
+      boxplot = Boxplots(this.type1ErrorArray(:,:,2), true);
+      boxplot.setPosition(this.radiusArray);
+      boxplot.plot();
       hold on;
-      boxplotPostCont = Boxplots(this.type1ErrorArray(:,:,2), true);
-      boxplotPostCont.setPosition(this.radiusArray + offset);
-      boxplotPostCont.setColour(ax.ColorOrder(2,:));
-      boxplotPostCont.plot();
+      ax.XLim(1) = this.radiusArray(1) - offset;
+      ax.XLim(2) = this.radiusArray(end) + offset;
+      oracleInterval = quantile(reshape(this.type1ErrorArray(:,:,1),[],1), [0.025, 0.975]);
+      plot(ax.XLim, [oracleInterval(1), oracleInterval(1)], 'k--');
+      plot(ax.XLim, [oracleInterval(2), oracleInterval(2)], 'k--');
       xlabel('kernel radius');
       ylabel('type 1 error');
-      ax.XLim(1) = this.radiusArray(1) - offset*2;
-      ax.XLim(2) = this.radiusArray(end) + offset*2;
-      boxplotLegend = [boxplotPreCont.getLegendAx(), boxplotPostCont.getLegendAx()];
-      legend(boxplotLegend, 'pre contamination', 'post contamination', 'Location', 'northwest');
       
       %plot type 2 error vs alt mean
       figure;
       ax = gca;
-      boxplotPreCont = Boxplots(this.type2ErrorArray(:,:,1), true);
-      boxplotPreCont.setPosition(this.radiusArray - offset);
-      boxplotPreCont.setColour(ax.ColorOrder(1,:));
-      boxplotPreCont.plot();
+      boxplot = Boxplots(this.type2ErrorArray(:,:,2), true);
+      boxplot.setPosition(this.radiusArray);
+      boxplot.plot();
       hold on;
-      boxplotPostCont = Boxplots(this.type2ErrorArray(:,:,2), true);
-      boxplotPostCont.setPosition(this.radiusArray + offset);
-      boxplotPostCont.setColour(ax.ColorOrder(2,:));
-      boxplotPostCont.plot();
+      ax.XLim(1) = this.radiusArray(1) - offset;
+      ax.XLim(2) = this.radiusArray(end) + offset;
+      oracleInterval = quantile(reshape(this.type2ErrorArray(:,:,1),[],1), [0.025, 0.975]);
+      plot(ax.XLim, [oracleInterval(1), oracleInterval(1)], 'k--');
+      plot(ax.XLim, [oracleInterval(2), oracleInterval(2)], 'k--');
       xlabel('kernel radius');
       ylabel('type 2 error');
-      ax.XLim(1) = this.radiusArray(1) - offset*2;
-      ax.XLim(2) = this.radiusArray(end) + offset*2;
-      boxplotLegend = [boxplotPreCont.getLegendAx(), boxplotPostCont.getLegendAx()];
-      legend(boxplotLegend, 'pre contamination', 'post contamination', 'Location', 'southwest');
       
       %fdr vs alt mean
       figure;
       ax = gca;
-      boxplotPreCont = Boxplots(this.fdrArray(:,:,1), true);
-      boxplotPreCont.setPosition(this.radiusArray - offset);
-      boxplotPreCont.setColour(ax.ColorOrder(1,:));
-      boxplotPreCont.plot();
+      boxplot = Boxplots(this.fdrArray(:,:,2), true);
+      boxplot.setPosition(this.radiusArray);
+      boxplot.plot();
       hold on;
-      boxplotPostCont = Boxplots(this.fdrArray(:,:,2), true);
-      boxplotPostCont.setPosition(this.radiusArray + offset);
-      boxplotPostCont.setColour(ax.ColorOrder(2,:));
-      boxplotPostCont.plot();
+      ax.XLim(1) = this.radiusArray(1) - offset;
+      ax.XLim(2) = this.radiusArray(end) + offset;
+      oracleInterval = quantile(reshape(this.fdrArray(:,:,1),[],1), [0.025, 0.975]);
+      plot(ax.XLim, [oracleInterval(1), oracleInterval(1)], 'k--');
+      plot(ax.XLim, [oracleInterval(2), oracleInterval(2)], 'k--');
       xlabel('kernel radius');
       ylabel('fdr');
-      ax.XLim(1) = this.radiusArray(1) - offset*2;
-      ax.XLim(2) = this.radiusArray(end) + offset*2;
-      boxplotLegend = [boxplotPreCont.getLegendAx(), boxplotPostCont.getLegendAx()];
-      legend(boxplotLegend, 'pre contamination', 'post contamination', 'Location', 'southwest');
       
     end
     

@@ -127,7 +127,7 @@ classdef Experiment_DefectSimulationDust < Experiment
       ax.XLim(1) = this.altMeanArray(1) - offset*2;
       ax.XLim(2) = this.altMeanArray(end) + offset*2;
       boxplotLegend = [boxplotPreCont.getLegendAx(), boxplotPostCont.getLegendAx()];
-      legend(boxplotLegend, 'pre contamination', 'post contamination', 'Location', 'southwest');
+      legend(boxplotLegend, 'pre contamination', 'post contamination', 'Location', 'northeast');
       
     end
     
