@@ -256,6 +256,12 @@ classdef Scan < matlab.mixin.Heterogeneous & handle
             segmentation = imread(strcat(this.folder_location,'segmentation.tif')) ~= 0;
         end
         
+        %METHOD: GET ROI PATH
+        %Returns the path of the region of interst file 
+        function roiPath = getRoiPath(this)
+          roiPath = strcat(this.folder_location,'segmentation.roi');
+        end
+        
         %GET SHADING CORRECTED ARTIST IMAGE
         %Returns the aRTist image, shading corrected
         %Uses aRTist simulations of the references except for the black image

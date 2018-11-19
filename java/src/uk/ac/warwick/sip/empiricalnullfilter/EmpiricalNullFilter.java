@@ -12,6 +12,8 @@ package uk.ac.warwick.sip.empiricalnullfilter;
 
 import ij.gui.DialogListener;
 import ij.gui.GenericDialog;
+import ij.gui.Roi;
+import ij.io.Opener;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
@@ -23,6 +25,7 @@ import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
 import java.awt.AWTEvent;
 import java.awt.Rectangle;
+import java.io.IOException;
 import java.util.Arrays;
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.random.MersenneTwister;
@@ -278,6 +281,23 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
    */
   public void filter(float [][] image) {
     this.imageProcessor = new FloatProcessor(image);
+    this.filter();
+  }
+  
+  /**METHOD: FILTER
+   * Call the method filter using the image and ROI passed in the parameter
+   * @param image image to be filtered
+   * @param roiPath path to the roi file
+   * @throws IOException throws exception if opener.openRoi fails and returns a null
+   */
+  public void filter(float [][] image, String roiPath) throws IOException {
+    Opener opener = new Opener();
+    Roi roi = opener.openRoi(roiPath);
+    if (roi == null) {
+      throw new IOException("Failed to load roi in "+roiPath);
+    }
+    this.imageProcessor = new FloatProcessor(image);
+    this.imageProcessor.setRoi(roi);
     this.filter();
   }
   
