@@ -55,8 +55,8 @@ classdef Experiment_DefectRadius < Experiment
       ax.XLim(1) = this.radiusArray(1) - offset;
       ax.XLim(2) = this.radiusArray(end) + offset;
       oracleInterval = quantile(reshape(this.rocAreaArray(:,:,1),[],1), [0.025, 0.975]);
-      plot(ax.XLim, [oracleInterval(1), oracleInterval(1)], 'k--');
-      plot(ax.XLim, [oracleInterval(2), oracleInterval(2)], 'k--');
+      plot(ax.XLim, [oracleInterval(1), oracleInterval(1)], 'k--', 'LineWidth', 2);
+      plot(ax.XLim, [oracleInterval(2), oracleInterval(2)], 'k--', 'LineWidth', 2);
       xlabel('kernel radius');
       ylabel('roc area');
       
@@ -70,8 +70,8 @@ classdef Experiment_DefectRadius < Experiment
       ax.XLim(1) = this.radiusArray(1) - offset;
       ax.XLim(2) = this.radiusArray(end) + offset;
       oracleInterval = quantile(reshape(this.type1ErrorArray(:,:,1),[],1), [0.025, 0.975]);
-      plot(ax.XLim, [oracleInterval(1), oracleInterval(1)], 'k--');
-      plot(ax.XLim, [oracleInterval(2), oracleInterval(2)], 'k--');
+      plot(ax.XLim, [oracleInterval(1), oracleInterval(1)], 'k--', 'LineWidth', 2);
+      plot(ax.XLim, [oracleInterval(2), oracleInterval(2)], 'k--', 'LineWidth', 2);
       xlabel('kernel radius');
       ylabel('type 1 error');
       
@@ -85,8 +85,8 @@ classdef Experiment_DefectRadius < Experiment
       ax.XLim(1) = this.radiusArray(1) - offset;
       ax.XLim(2) = this.radiusArray(end) + offset;
       oracleInterval = quantile(reshape(this.type2ErrorArray(:,:,1),[],1), [0.025, 0.975]);
-      plot(ax.XLim, [oracleInterval(1), oracleInterval(1)], 'k--');
-      plot(ax.XLim, [oracleInterval(2), oracleInterval(2)], 'k--');
+      plot(ax.XLim, [oracleInterval(1), oracleInterval(1)], 'k--', 'LineWidth', 2);
+      plot(ax.XLim, [oracleInterval(2), oracleInterval(2)], 'k--', 'LineWidth', 2);
       xlabel('kernel radius');
       ylabel('type 2 error');
       
@@ -100,8 +100,8 @@ classdef Experiment_DefectRadius < Experiment
       ax.XLim(1) = this.radiusArray(1) - offset;
       ax.XLim(2) = this.radiusArray(end) + offset;
       oracleInterval = quantile(reshape(this.fdrArray(:,:,1),[],1), [0.025, 0.975]);
-      plot(ax.XLim, [oracleInterval(1), oracleInterval(1)], 'k--');
-      plot(ax.XLim, [oracleInterval(2), oracleInterval(2)], 'k--');
+      plot(ax.XLim, [oracleInterval(1), oracleInterval(1)], 'k--', 'LineWidth', 2);
+      plot(ax.XLim, [oracleInterval(2), oracleInterval(2)], 'k--', 'LineWidth', 2);
       xlabel('kernel radius');
       ylabel('fdr');
       

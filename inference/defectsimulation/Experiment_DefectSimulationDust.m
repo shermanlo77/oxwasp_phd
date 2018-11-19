@@ -21,7 +21,7 @@ classdef Experiment_DefectSimulationDust < Experiment
     randStream = RandStream('mt19937ar','Seed',uint32(153380491)); %rng
     nIntial = 3; %number of initial points used for the empirical null filter
     
-    altMeanArray = 0:5; %array of alt distribution means to investigate
+    altMeanArray = 1:5; %array of alt distribution means to investigate
     altStd = 1; %std of the alt distribution
     gradContamination = [0.01, 0.01]; %gradient of the contamination
     multContamination = 2; %multiplier of the contamination
