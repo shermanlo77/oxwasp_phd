@@ -7,14 +7,14 @@ public class EmpiricalNull {
   
   //STATIC FINAL VARIABLES (these are used for default values)
   //number of times to repeat the newton-raphson using different initial values
-  static final int N_INITIAL = 20;
+  static final int N_INITIAL = 3;
   static final int N_STEP = 10; //number of steps in newton-raphson
   //stopping condition tolerance for newton-raphson
   static final float LOG_10_TOLERANCE = -5.0f;
   //the bandwidth for the density estimate is B x 0.9 x std x n^{-1/5} + A
   //A and B are set below
-  static final float BANDWIDTH_PARAMETER_A = (float) 0.16; //intercept
-  static final float BANDWIDTH_PARAMETER_B = (float) 0.9; //gradient
+  static final float BANDWIDTH_PARAMETER_A = (float) 0.15; //intercept
+  static final float BANDWIDTH_PARAMETER_B = (float) 1.00; //gradient
   
   //STATIC VERSIONS OF STATIC FINAL VARIABLES
   private int nInitial;
