@@ -14,7 +14,7 @@ public class EmpiricalNull {
   //the bandwidth for the density estimate is B x 0.9 x std x n^{-1/5} + A
   //A and B are set below
   static final float BANDWIDTH_PARAMETER_A = (float) 0.15; //intercept
-  static final float BANDWIDTH_PARAMETER_B = (float) 1.00; //gradient
+  static final float BANDWIDTH_PARAMETER_B = (float) 0.90; //gradient
   
   //STATIC VERSIONS OF STATIC FINAL VARIABLES
   private int nInitial;
