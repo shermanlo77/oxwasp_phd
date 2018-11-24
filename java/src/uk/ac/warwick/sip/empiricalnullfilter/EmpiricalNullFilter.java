@@ -322,8 +322,10 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     //instantiate new images for each outout
     for (int i=0; i<N_IMAGE_OUTPUT; i++) {
       if ( (this.outputImagePointer >> i) % 2 == 1) {
-        this.outputImageArray[i] =
-            new FloatProcessor(this.imageProcessor.getWidth(), this.imageProcessor.getHeight());
+        FloatProcessor outputProcessor = (FloatProcessor) this.imageProcessor.duplicate();
+        float [] pixels = (float []) outputProcessor.getPixels();
+        Arrays.fill(pixels, Float.NaN);
+        this.outputImageArray[i] = outputProcessor;
       }
     }
     
@@ -389,24 +391,6 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
         Thread.currentThread().interrupt(); //keep interrupted status (PlugInFilterRunner needs it)
       }
     }
-    
-    //global empirical null section
-    float [] pixels = (float[]) imageProcessor.getPixels(); //get the array of pixels
-    int nData = pixels.length;
-    
-    //abuse the cache pointer system so that it target all the pixels (x=0)
-    int [] pointer = new int [2];
-    pointer[1] = nData - 1;
-    
-    //get the standard deviation of the data
-    double [] sums = new double[2];
-    getAreaSums(pixels, 0, pointer, sums);
-    float dataStd = (float) Math.sqrt(((sums[1] - sums[0]*sums[0]/nData)/(nData-1)));
-    
-    //get the quartiles of the data
-    double [] quartileBuf = new double[pixels.length];
-    float [] quartiles = new float[3];
-    getQuartiles(pixels, 0, pointer, quartileBuf, pixels.length, quartiles);
     
     this.showProgress(1.0);
     pass++;
@@ -663,13 +647,11 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     //then for each pixel in this line
     for (int x=0; x<roi.width; x++, valuesP++) { // x is with respect to roi.x
       
-      //set the first value to be the median
       getQuartiles(cache, x, cachePointers, quartileBuf, kNPoints, quartiles);
-      if (x==0) {
-        initialValue = quartiles[1];
-      }
       
       if (fullCalculation) {
+        //set the initial value to be the median
+        initialValue = quartiles[1];
         //for small kernel, always use the full area, not incremental algorithm
         fullCalculation = smallKernel;
         nData = getAreaSums(cache, x, cachePointers, sums);
@@ -681,41 +663,47 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
         }
       }
       
-      //calculate the standard deviation
-      std = (float) Math.sqrt(((sums[1] - sums[0]*sums[0]/nData)/(nData-1)));
-      
-      //get the empirical null
-      EmpiricalNull empiricalNull = new EmpiricalNull(this.nInitial, this.nStep,
-          this.log10Tolerance, this.bandwidthParameterA, this.bandwidthParameterB, cache, x,
-          cachePointers , initialValue, quartiles, std, nData, normal, rng);
-      empiricalNull.estimateNull();
-      //normalise this pixel
-      values[0][valuesP] = (cache[cacheLineP+x] - empiricalNull.getNullMean())
-          / empiricalNull.getNullStd();
-      //for the next x, the initial value is this nullMean
-      initialValue = empiricalNull.getNullMean();
-      //for each requested output image, save that statistic
-      for (int i=0; i<N_IMAGE_OUTPUT; i++) {
-        if ( (this.outputImagePointer >> i) % 2 == 1) {
-          switch (i) {
-            case 0:
-              values[1][valuesP] = empiricalNull.getNullMean();
-              break;
-            case 1:
-              values[2][valuesP] = empiricalNull.getNullStd();
-              break;
-            case 2:
-              values[3][valuesP] = std;
-              break;
-            case 3:
-              values[4][valuesP] = quartiles[0];
-              break;
-            case 4:
-              values[5][valuesP] = quartiles[1];
-              break;
-            case 5:
-              values[6][valuesP] = quartiles[2];
-              break;
+      if (nData < 2) {
+        fullCalculation = true;
+        values[0][valuesP] = Float.NaN;
+      } else {
+        
+        //calculate the standard deviation
+        std = (float) Math.sqrt(((sums[1] - sums[0]*sums[0]/nData)/(nData-1)));
+        
+        //get the empirical null
+        EmpiricalNull empiricalNull = new EmpiricalNull(this.nInitial, this.nStep,
+            this.log10Tolerance, this.bandwidthParameterA, this.bandwidthParameterB, cache, x,
+            cachePointers , initialValue, quartiles, std, nData, normal, rng);
+        empiricalNull.estimateNull();
+        //normalise this pixel
+        values[0][valuesP] = (cache[cacheLineP+x] - empiricalNull.getNullMean())
+            / empiricalNull.getNullStd();
+        //for the next x, the initial value is this nullMean
+        initialValue = empiricalNull.getNullMean();
+        //for each requested output image, save that statistic
+        for (int i=0; i<N_IMAGE_OUTPUT; i++) {
+          if ( (this.outputImagePointer >> i) % 2 == 1) {
+            switch (i) {
+              case 0:
+                values[1][valuesP] = empiricalNull.getNullMean();
+                break;
+              case 1:
+                values[2][valuesP] = empiricalNull.getNullStd();
+                break;
+              case 2:
+                values[3][valuesP] = std;
+                break;
+              case 3:
+                values[4][valuesP] = quartiles[0];
+                break;
+              case 4:
+                values[5][valuesP] = quartiles[1];
+                break;
+              case 5:
+                values[6][valuesP] = quartiles[2];
+                break;
+            }
           }
         }
       }

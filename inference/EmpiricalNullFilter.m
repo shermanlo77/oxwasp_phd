@@ -31,29 +31,41 @@ classdef EmpiricalNullFilter < handle
     %Also produces the empirical null mean and empirical null std image
     %These images are obtained using the getter methods
     function filter(this, image)
+      image = image';
       this.javaFilter.setNPasses(1);
       [height, width] = size(image);
       this.javaFilter.filter(single(image));
-      this.filteredImage = reshape(this.javaFilter.getFilteredImage(), height, width);
-      this.nullMean = reshape(this.javaFilter.getOutputImage( ...
-          uk.ac.warwick.sip.empiricalnullfilter.EmpiricalNullFilter.NULL_MEAN), height, width);
-      this.nullStd = reshape(this.javaFilter.getOutputImage( ...
-          uk.ac.warwick.sip.empiricalnullfilter.EmpiricalNullFilter.NULL_STD), height, width);      
+      this.setNullParameters(height, width);    
+    end
+    
+    %METHOD: FILTER ROI
+    %Empirical null filter on this image region of interst (ROI)
+    %Also produces the empirical null mean and empirical null std image
+    %These images are obtained using the getter methods
+    function filterRoi(this, image, roiPath)
+      image = image';
+      this.javaFilter.setNPasses(1);
+      [height, width] = size(image');
+      this.javaFilter.filter(single(image), roiPath);
+      this.setNullParameters(height, width);
     end
     
     %METHOD: GET FILTERED IMAGE
     function filteredImage = getFilteredImage(this)
       filteredImage = this.filteredImage;
+      filteredImage = filteredImage';
     end
     
     %METHOD: GET NULL MEAN IMAGE
     function nullMean = getNullMean(this)
       nullMean = this.nullMean;
+      nullMean = nullMean';
     end
     
     %METHOD: GET NULL STD IMAGE
     function nullStd = getNullStd(this)
       nullStd = this.nullStd;
+      nullStd = nullStd';
     end
     
     %METHOD: SET N INITIAL
@@ -132,6 +144,21 @@ classdef EmpiricalNullFilter < handle
       this.javaFilter.setProgress(showProgressBar);
     end
   
+  end
+  
+  methods (Access = private)
+    
+    %METHOD: SET NULL PARAMETERS
+    %Get and set the filtered image, empirical null mean and empirical null std from the filter
+        %object
+    function setNullParameters(this, height, width)
+      this.filteredImage = reshape(this.javaFilter.getFilteredImage(), height, width);
+      this.nullMean = reshape(this.javaFilter.getOutputImage( ...
+          uk.ac.warwick.sip.empiricalnullfilter.EmpiricalNullFilter.NULL_MEAN), height, width);
+      this.nullStd = reshape(this.javaFilter.getOutputImage( ...
+          uk.ac.warwick.sip.empiricalnullfilter.EmpiricalNullFilter.NULL_STD), height, width);
+    end
+    
   end
   
 end
