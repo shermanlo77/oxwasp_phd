@@ -62,11 +62,11 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   private int outputImagePointer = NULL_MEAN + NULL_STD;
   //array of float processors which contains images (or statistics) which are obtained from the
   //filter itself, eg null mean, null std, std, q1, q2, q3
-  private FloatProcessor [] outputImageArray =
-      new FloatProcessor[N_IMAGE_OUTPUT];
+  private FloatProcessor [] outputImageArray = new FloatProcessor[N_IMAGE_OUTPUT];
   private double radius = 20; //radius of the kernel
   
   private ImageProcessor imageProcessor; //the image to be filtered
+  private Roi roi; //region of interest
   //used by showDialog, unused but needed in case deleted by automatic garbage collection
   private PlugInFilterRunner pfr;
   private boolean isShowProgressBar = false;
@@ -104,6 +104,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   @Override
   public int setup(String arg, ImagePlus ip) {
     this.imageProcessor = ip.getProcessor();
+    this.roi = ip.getRoi();
     return FLAGS;
   }
   
@@ -298,6 +299,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     }
     this.imageProcessor = new FloatProcessor(image);
     this.imageProcessor.setRoi(roi);
+    this.roi = roi;
     this.filter();
   }
   
@@ -315,7 +317,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   public void filter() {
     
     //roi = region of interest
-    Rectangle roi = this.imageProcessor.getRoi();
+    Rectangle roiRectangle = this.imageProcessor.getRoi();
     //pointers which indicate the shape of the kernel
     final int[] lineRadii = this.makeLineRadii(this.radius);
     
@@ -333,7 +335,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     final boolean[] aborted = new boolean[1];
     
     //get the number of threads
-    int numThreads = Math.min(roi.height, this.numThreads);
+    int numThreads = Math.min(roiRectangle.height, this.numThreads);
     if (numThreads==0) {
       return;
     }
@@ -341,12 +343,12 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     //get properties of the kernel and the cache
     int kHeight = kHeight(lineRadii);
     int kRadius  = kRadius(lineRadii);
-    final int cacheWidth = roi.width+2*kRadius;
+    final int cacheWidth = roiRectangle.width+2*kRadius;
     final int cacheHeight = kHeight + (numThreads>1 ? 2*numThreads : 0);
     //'cache' is the input buffer. Each line y in the image is mapped onto cache line y%cacheHeight
     final float[] cache = new float[cacheWidth*cacheHeight];
     //this line+1 will be read into the cache first
-    this.highestYinCache = Math.max(roi.y-kHeight/2, 0) - 1;
+    this.highestYinCache = Math.max(roiRectangle.y-kHeight/2, 0) - 1;
     
     //copy the pointer of the image processor
     final ImageProcessor imageProcessor = this.imageProcessor;
@@ -354,7 +356,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     //threads announce here which line they currently process
     final int[] yForThread = new int[numThreads];
     Arrays.fill(yForThread, -1);
-    yForThread[numThreads-1] = roi.y-1; //first thread started should begin at roi.y
+    yForThread[numThreads-1] = roiRectangle.y-1; //first thread started should begin at roi.y
     //thread number 0 is this one, not in the array
     final Thread[] threads = new Thread[numThreads-1];
     //this rng is for producing random seeds for each thread
@@ -434,7 +436,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     //get properties of this image
     int width = ip.getWidth();
     int height = ip.getHeight();
-    Rectangle roi = ip.getRoi();
+    Rectangle roiRectangle = ip.getRoi();
     
     //get properties of this kernel
     int kHeight = kHeight(lineRadii);
@@ -442,8 +444,8 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     int kNPoints = kNPoints(lineRadii);
     
     //get the boundary
-    int xmin = roi.x - kRadius;
-    int xmax = roi.x + roi.width + kRadius;
+    int xmin = roiRectangle.x - kRadius;
+    int xmax = roiRectangle.x + roiRectangle.width + kRadius;
     
     //get the pointer of the kernel given the width of the cache
     int[]cachePointers = makeCachePointers(lineRadii, cacheWidth);
@@ -495,7 +497,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
       
       int y = arrayMax(yForThread) + 1; // y of the next line that needs processing
       yForThread[threadNumber] = y; //indicate that this thread is working on y
-      boolean threadFinished = y >= roi.y+roi.height;
+      boolean threadFinished = y >= roiRectangle.y+roiRectangle.height;
       //'if' is not synchronized to avoid overhead
       if (numThreads>1 && (threadWaiting || threadFinished))
         synchronized(this) {
@@ -508,7 +510,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
         long time = System.currentTimeMillis();
         if (time-lastTime>100) {
           lastTime = time;
-          this.showProgress((y-roi.y)/(double)(roi.height));
+          this.showProgress((y-roiRectangle.y)/(double)(roiRectangle.height));
           if (Thread.currentThread().isInterrupted()
               || (this.imageProcessor!= null && IJ.escapePressed())) {
             aborted[0] = true;
@@ -557,9 +559,9 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
       //=====READ INTO CACHE===== (untouched from original source code)
       
       if (numThreads==1) {
-        int yStartReading = y==roi.y ? Math.max(roi.y-kHeight/2, 0) : y+kHeight/2;
+        int yStartReading = y==roiRectangle.y ? Math.max(roiRectangle.y-kHeight/2, 0) : y+kHeight/2;
         for (int yNew = yStartReading; yNew<=y+kHeight/2; yNew++) { //only 1 line except at start
-          readLineToCacheOrPad(pixels, width, height, roi.y, xminInside, widthInside,
+          this.readLineToCacheOrPad(pixels, width, height, roiRectangle.y, xminInside, widthInside,
               cache, cacheWidth, cacheHeight, padLeft, padRight, kHeight, yNew);
         }
       } else {
@@ -567,7 +569,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
           copyingToCache = true; // copy new line(s) into cache
           while (highestYinCache < arrayMinNonNegative(yForThread) - kHeight/2 + cacheHeight - 1) {
             int yNew = highestYinCache + 1;
-            readLineToCacheOrPad(pixels, width, height, roi.y, xminInside, widthInside,
+            this.readLineToCacheOrPad(pixels, width, height, roiRectangle.y, xminInside, widthInside,
               cache, cacheWidth, cacheHeight, padLeft, padRight, kHeight, yNew);
             highestYinCache = yNew;
           }
@@ -577,8 +579,8 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
       
       //=====FILTER A LINE=====
       
-      int cacheLineP = cacheWidth * (y % cacheHeight) + kRadius;  //points to pixel (roi.x, y)
-      this.filterLine(values, width, cache, cachePointers, kNPoints, cacheLineP, roi, y,
+      int cacheLineP = cacheWidth * (y % cacheHeight) + kRadius;  //points to pixel (roiRectangle.x, y)
+      this.filterLine(values, width, cache, cachePointers, kNPoints, cacheLineP, roiRectangle, y,
           sums, quartileBuf, quartiles, normal, rng, smallKernel);
     }// end while (!aborted[0]); loops over y (lines)
   }
@@ -621,7 +623,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
    * @param cachePointers pointers used by the kernel
    * @param kNPoints number of points a kernel contains
    * @param cacheLineP pointer for the current y line in the cache
-   * @param roi
+   * @param roiRectangle
    * @param y current row
    * @param sums stores sum calculations in a kernel (size 2)
    * @param quartileBuf stores greyvalues in a kernel (size kNPoints)
@@ -631,12 +633,12 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
    * @param smallKernel indicate if this kernel is small or not
    */
   private void filterLine(float[][] values, int width, float[] cache, int[] cachePointers,
-      int kNPoints, int cacheLineP, Rectangle roi, int y, double[] sums, double[] quartileBuf,
+      int kNPoints, int cacheLineP, Rectangle roiRectangle, int y, double[] sums, double[] quartileBuf,
       float[] quartiles, NormalDistribution normal, RandomGenerator rng,
       boolean smallKernel) {
     
     //declare the pointer for a pixel in values
-    int valuesP = roi.x+y*width;
+    int valuesP = roiRectangle.x+y*width;
     //indicate if a full calculation is to be done
     //that is to do a calculation without using results from the previous x
     boolean fullCalculation = true;
@@ -645,64 +647,71 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     float initialValue = 0; //initial value to be used for the newton-raphson method
     
     //then for each pixel in this line
-    for (int x=0; x<roi.width; x++, valuesP++) { // x is with respect to roi.x
+    for (int x=0; x<roiRectangle.width; x++, valuesP++) { // x is with respect to roiRectangle.x
       
-      getQuartiles(cache, x, cachePointers, quartileBuf, kNPoints, quartiles);
-      
-      if (fullCalculation) {
-        //set the initial value to be the median
-        initialValue = quartiles[1];
-        //for small kernel, always use the full area, not incremental algorithm
-        fullCalculation = smallKernel;
-        nData = getAreaSums(cache, x, cachePointers, sums);
-      } else {
-        nData = addSideSums(cache, x, cachePointers, sums, nData);
-        //avoid perpetuating NaNs into remaining line
-        if (Double.isNaN(sums[0])) {
-          fullCalculation = true;
-        }
-      }
-      
-      if (nData < 2) {
+      //if this pixel is not in the roi, for the next pixel do a full calculation as the summation
+          //cannot be propagate
+      //else this pixel is in the roi and filter this pixel
+      if (!this.roi.contains(roiRectangle.x+x, y)) {
         fullCalculation = true;
-        values[0][valuesP] = Float.NaN;
       } else {
+        getQuartiles(cache, x, cachePointers, quartileBuf, kNPoints, quartiles);
         
-        //calculate the standard deviation
-        std = (float) Math.sqrt(((sums[1] - sums[0]*sums[0]/nData)/(nData-1)));
+        if (fullCalculation) {
+          //set the initial value to be the median
+          initialValue = quartiles[1];
+          //for small kernel, always use the full area, not incremental algorithm
+          fullCalculation = smallKernel;
+          nData = getAreaSums(cache, x, cachePointers, sums);
+        } else {
+          nData = addSideSums(cache, x, cachePointers, sums, nData);
+          //avoid perpetuating NaNs into remaining line
+          if (Double.isNaN(sums[0])) {
+            fullCalculation = true;
+          }
+        }
         
-        //get the empirical null
-        EmpiricalNull empiricalNull = new EmpiricalNull(this.nInitial, this.nStep,
-            this.log10Tolerance, this.bandwidthParameterA, this.bandwidthParameterB, cache, x,
-            cachePointers , initialValue, quartiles, std, nData, normal, rng);
-        empiricalNull.estimateNull();
-        //normalise this pixel
-        values[0][valuesP] = (cache[cacheLineP+x] - empiricalNull.getNullMean())
-            / empiricalNull.getNullStd();
-        //for the next x, the initial value is this nullMean
-        initialValue = empiricalNull.getNullMean();
-        //for each requested output image, save that statistic
-        for (int i=0; i<N_IMAGE_OUTPUT; i++) {
-          if ( (this.outputImagePointer >> i) % 2 == 1) {
-            switch (i) {
-              case 0:
-                values[1][valuesP] = empiricalNull.getNullMean();
-                break;
-              case 1:
-                values[2][valuesP] = empiricalNull.getNullStd();
-                break;
-              case 2:
-                values[3][valuesP] = std;
-                break;
-              case 3:
-                values[4][valuesP] = quartiles[0];
-                break;
-              case 4:
-                values[5][valuesP] = quartiles[1];
-                break;
-              case 5:
-                values[6][valuesP] = quartiles[2];
-                break;
+        if (nData < 2) {
+          fullCalculation = true;
+          values[0][valuesP] = Float.NaN;
+        } else {
+          
+          //calculate the standard deviation
+          std = (float) Math.sqrt(((sums[1] - sums[0]*sums[0]/nData)/(nData-1)));
+          
+          //get the empirical null
+          EmpiricalNull empiricalNull = new EmpiricalNull(this.nInitial, this.nStep,
+              this.log10Tolerance, this.bandwidthParameterA, this.bandwidthParameterB, cache, x,
+              cachePointers , initialValue, quartiles, std, nData, normal, rng);
+          empiricalNull.estimateNull();
+          //normalise this pixel
+          values[0][valuesP] = (cache[cacheLineP+x] - empiricalNull.getNullMean())
+              / empiricalNull.getNullStd();
+          //for the next x, the initial value is this nullMean
+          initialValue = empiricalNull.getNullMean();
+          //for each requested output image, save that statistic
+          for (int i=0; i<N_IMAGE_OUTPUT; i++) {
+            if ( (this.outputImagePointer >> i) % 2 == 1) {
+              switch (i) {
+                case 0:
+                  values[1][valuesP] = empiricalNull.getNullMean();
+                  break;
+                case 1:
+                  values[2][valuesP] = empiricalNull.getNullStd();
+                  break;
+                case 2:
+                  values[3][valuesP] = std;
+                  break;
+                case 3:
+                  values[4][valuesP] = quartiles[0];
+                  break;
+                case 4:
+                  values[5][valuesP] = quartiles[1];
+                  break;
+                case 5:
+                  values[6][valuesP] = quartiles[2];
+                  break;
+              }
             }
           }
         }
@@ -726,12 +735,12 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
    * @param kHeight
    * @param y
    */
-  private static void readLineToCacheOrPad(Object pixels, int width, int height, int roiY,
+  private void readLineToCacheOrPad(float [] pixels, int width, int height, int roiY,
       int xminInside, int widthInside, float[]cache, int cacheWidth, int cacheHeight, int padLeft,
       int padRight, int kHeight, int y) {
     int lineInCache = y%cacheHeight;
     if (y < height) {
-      readLineToCache(pixels, y*width, xminInside, widthInside, cache, lineInCache*cacheWidth,
+      readLineToCache(pixels, y*width, y, xminInside, widthInside, cache, lineInCache*cacheWidth,
           padLeft, padRight);
       if (y==0) {
         for (int prevY = roiY-kHeight/2; prevY<0; prevY++) {  //for y<0, pad with nan
@@ -750,6 +759,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
    * Pad with nan if necessary
    * @param pixels
    * @param pixelLineP
+   * @param y
    * @param xminInside
    * @param widthInside
    * @param cache modified
@@ -757,9 +767,20 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
    * @param padLeft
    * @param padRight
    */
-  private static void readLineToCache(Object pixels, int pixelLineP, int xminInside,
+  private void readLineToCache(float [] pixels, int pixelLineP, int y, int xminInside,
       int widthInside, float[] cache, int cacheLineP, int padLeft, int padRight) {
-    System.arraycopy(pixels, pixelLineP+xminInside, cache, cacheLineP+padLeft, widthInside);
+    
+    //for each pixel in the line
+    for (int x=0; x<widthInside; x++) {
+      //if this pixel is in the roi, copy it to the cache, else put nan in the cache
+      float toCopytoCache;
+      if (!this.roi.contains(xminInside + x, y)) {
+        toCopytoCache = Float.NaN;
+      } else {
+        toCopytoCache = pixels[pixelLineP+xminInside + x];
+      }
+      cache[cacheLineP+padLeft+x] = toCopytoCache;
+    }
     //Padding contains NaN
     for (int cp=cacheLineP; cp<cacheLineP+padLeft; cp++) {
       cache[cp] = Float.NaN;
