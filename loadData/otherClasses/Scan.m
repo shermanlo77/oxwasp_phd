@@ -253,7 +253,29 @@ classdef Scan < matlab.mixin.Heterogeneous & handle
         %GET SEGMENTATION
         %Returns a binary image, true values represent ROI
         function segmentation = getSegmentation(this)
-            segmentation = imread(strcat(this.folder_location,'segmentation.tif')) ~= 0;
+          
+          %get the roi
+          roiPath = this.getRoiPath;
+          opener = ij.io.Opener();
+          roi = opener.openRoi(roiPath);
+          
+          %get the coordinates of the roi
+          %note: matlab starts at 1, java starts at 0
+          roiRectangle = roi.getBounds();
+          x = roiRectangle.x + 1;
+          y = roiRectangle.y + 1;
+          
+          %get the mask of the roi, this returns an imageProcessor which represent the roi with a
+              %non-zero value, this image is also cropped
+          mask = roi.getMask();
+          %copy the values from java to matlab
+          roiMask = zeros(mask.getWidth(), mask.getHeight());
+          roiMask(1:end) = mask.getPixels();
+          roiMask = logical(-roiMask');
+          
+          %copy the pixels from the mask to the segmentation matrix at the roi coordinates
+          segmentation = false(this.height, this.width);
+          segmentation(y:(y+mask.getHeight()-1), x:(x+mask.getWidth()-1)) = roiMask;
         end
         
         %METHOD: GET ROI PATH
