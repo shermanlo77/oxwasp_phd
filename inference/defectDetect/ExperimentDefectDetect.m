@@ -133,6 +133,8 @@ classdef (Abstract) ExperimentDefectDetect < Experiment
         this.zFilterArray(:,:,iRadius) = filter.getFilteredImage();
         this.nullMeanArray(:,:,iRadius) = filter.getNullMean();
         this.nullStdArray(:,:,iRadius) = filter.getNullStd();
+        %print progress
+        this.printProgress(iRadius/numel(this.radiusArray));
       end
     end
     
