@@ -2,7 +2,7 @@
 classdef Scan < matlab.mixin.Heterogeneous & handle
 
     %MEMBER VARIABLES
-    properties
+    properties (SetAccess = protected)
         width; %width of the image
         height; %height of the image
         area; %area of the image
@@ -12,6 +12,7 @@ classdef Scan < matlab.mixin.Heterogeneous & handle
         aRTist_file; %location of the aRTist simulation
         reference_scan_array; %array of reference scan objects (in ascending powers)
         reference_white; %integer pointing to the reference for white in the phantom
+        nSubSegmentation; %number of sub segmentations
         
         voltage; %in units of kV
         power; %in units of W
@@ -253,9 +254,18 @@ classdef Scan < matlab.mixin.Heterogeneous & handle
         %GET SEGMENTATION
         %Returns a binary image, true values represent ROI
         function segmentation = getSegmentation(this)
-          
-          %get the roi
-          roiPath = this.getRoiPath;
+          segmentation = this.getRoi(this.getRoiPath());
+        end
+        
+        %GET SUB SEGMENTATION
+        %Returns a binary image for a sub segemtation, true values represent ROI
+        function segmentation = getSubSegmentation(this, index)
+          segmentation = this.getRoi(this.getSubRoiPath(index));
+        end
+        
+        %GET ROI
+        %Returns the mask of a roi in the .roi file specified in roiPath
+        function segmentation = getRoi(this, roiPath)
           opener = ij.io.Opener();
           roi = opener.openRoi(roiPath);
           
@@ -282,6 +292,12 @@ classdef Scan < matlab.mixin.Heterogeneous & handle
         %Returns the path of the region of interst file 
         function roiPath = getRoiPath(this)
           roiPath = strcat(this.folder_location,'segmentation.roi');
+        end
+        
+        %METHOD: GET SUB ROI PATH
+        %Returns the path of the sub region of interst file 
+        function roiPath = getSubRoiPath(this, index)
+          roiPath = strcat(this.folder_location,'segmentation',num2str(index),'.roi');
         end
         
         %GET SHADING CORRECTED ARTIST IMAGE
