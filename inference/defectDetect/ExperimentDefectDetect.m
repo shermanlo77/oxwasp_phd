@@ -44,6 +44,7 @@ classdef (Abstract) ExperimentDefectDetect < Experiment
         figure;
         sigPlot = ImagescSignificant(this.scan.loadImageStack(this.testIndex));
         sigPlot.addSigPixels(zTester.sig_image);
+        sigPlot.setDilateSize(2);
         sigPlot.plot();
         
         %plot the filtered image
