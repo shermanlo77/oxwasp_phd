@@ -103,8 +103,15 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
    */
   @Override
   public int setup(String arg, ImagePlus ip) {
+    //save the image processor
     this.imageProcessor = ip.getProcessor();
+    //save the roi
     this.roi = ip.getRoi();
+    //if there is no roi, then this.roi is null
+    //instantiate a new rectangle roi where the roi is the whole image
+    if (this.roi == null) {
+      this.roi = new Roi(ip.getProcessor().getRoi());
+    }
     return FLAGS;
   }
   
