@@ -1083,24 +1083,42 @@ One possible solution is to spilt the $z$ image into a grid and conduct inferenc
 
 \section{Empirical Null Filter}
 
-The empirical null filter is an extension to the empirical null. In this setting, the parameters of the empirical null varies spatially. Let $Z_{x,y}$ be the test statistic at position $(x,y)$ and
+The empirical null filter extends the empirical null to images. In this setting, the parameters of the null distribution varies spatially, slowly and smoothly in 2D space. Let $Z_{x,y}$ be the test statistic of the pixel at position $(x,y)$ for $x=1,2,\dotdotdot,W$ and $y=1,2,\dotdotdot,H$. Let each pixel have a test statistic distributed under the null such that
 \begin{equation}
 	Z_{x,y}|H_0\sim\normal\left(
 		\mu_{x,y},\sigma_{0,x,y}^2
 	\right)
 	\ .
 \end{equation}
-Let the hypotheses
+Let the hypothesis
 \begin{equation}
 	H_0:\mu_{x,y}=\mu_{0,x,y}
 \end{equation}
-and
 \begin{equation}
 	H_1:\mu_{x,y}\neq\mu_{0,x,y}
 \end{equation}
-be tested for each pixel individually where $\mu_{0,x,y}$ and $\sigma_{0,x,y}$ are the empirical null mean and standard deviation at position $(x,y)$ respectively. The empirical null filter aims to estimate these parameters. 
+be tested for each pixel individually where $\mu_{0,x,y}$ and $\sigma_{0,x,y}$ are the null mean and null standard deviation at position $(x,y)$ respectively. Suppose $Z_{x,y}=z_{x,y}$ were observed for all $x$ and $y$. The empirical null filter aims to estimate the parameters $\mu_{0,x,y}$ and $\sigma_{0,x,y}$ for all $x$ and $y$. This is so that inference can be done under the empirical null distribution. 
 
-The method is the following. A window size needs to be specified, say $201\times201$. The window is placed over and centred at pixel $(x,y)$ capturing the pixels $z_{i,j}$ for $x-100\leqslant i \leqslant x+100$ and $y-100\leqslant j \leqslant y+100$. The estimators $\widehat{\mu}_{0,x,y}$ and $\widehat{\sigma}_{0,x,y}$ are the empirical null mean and standard deviation estimators, respectively, using the pixels captured in that window. This is then repeated for all $x$ and $y$. The $z$ statistics are then corrected using
+The empirical null filter uses the empirical null on neighbouring pixels to estimate the null distribution parameters. For example to estimate $\mu_{0,x,y}$ and $\sigma_{0,x,y}$, a circular kernel of radius $r$ is centred at $(x,y)$. All the pixels captured in the circular kernel are then used for the empirical null to obtain $\widehat{\mu}_{0,x,y}$ and $\widehat{\sigma}_{0,x,y}$, in other words
+\begin{equation}
+	\widehat{\mu}_{0,x,y}
+	=
+	\widehat{\mu}_{0,x,y}
+		\left(
+			\text{all }z_{i,j}\text{ such that }(x-i)^2+(y-j)^2\leqslant r^2
+		\right)
+\end{equation}
+and
+\begin{equation}
+	\widehat{\sigma}_{0,x,y}
+	=
+	\widehat{\sigma}_{0,x,y}
+		\left(
+			\text{all }z_{i,j}\text{ such that }(x-i)^2+(y-j)^2\leqslant r^2
+		\right)
+	\ .
+\end{equation}
+Using these estimates, the test statistics are then corrected using
 \begin{equation}
 	\zeta_{x,y} = 
 	\dfrac{
@@ -1110,63 +1128,125 @@ The method is the following. A window size needs to be specified, say $201\times
 		\widehat{\sigma}_{0,x,y}
 	}
 \end{equation}
-and only the corrected test statistics are used in the BH procedure.
+and only the corrected test statistics are used in hypothesis testing.
 
-There are ways to speed up the implementation of the empirical null filter by sacrificing accuracy. For example, instead of estimating the empirical null parameters for every pixel, a number of them can be estimated and then the remaining values can be interpolated. However it was found that interpolating $\widehat{\sigma}_{0,x,y}$ can yield highly varying results. To avoid this problem, it can be assumed that $\sigma_{0,x,y}=\sigma_0$ for all $x$ and $y$. Then the estimator $\widehat{\sigma}_0$ is the empirical null standard deviation estimator using all location corrected $z$ test statistics.
+The critical parameter of choice is the kernel radius $r$. A $r$ too small will treat defects as the null and will not detect them. A $r$ too big can also cause problems as well. The empirical null filter does assume the null parameters vary smoothly and slowly so that the null test statistics captured by the kernel is somewhat Normal. If $r$ is too big, the kernel will capture far away test statistics with a very different null distribution. If all of these test statistics are pulled together into a histogram, the null distribution may not look Normal at all which can cause problems when fitting a Normal null distribution. Furthermore, if $r\rightarrow \infty$, then this is just using the empirical null on all pixels which is, as discussed before, not sensible.
 
-The empirical null filter was used on the example at the start of the chapter. It was used on a grid of $20\times 20$ points, the remaining values were interpolated. It was also assumed the empirical null standard deviation was constant, the methodology discussed in the previous paragraph.
+$r$ does control the proportion of pixels which are null captured by the kernel, denoted as $\pi_0$. If the size of the defects are known, then $r$ should be selected such that
+\begin{equation}
+\dfrac{
+	\text{area of defect}
+}
+{
+	\pi r^2
+}
+\approx
+5\% \text{ to } 10 \%
+\end{equation}
+so that $\pi_0$ is of a sensible value. In practice, the defects are unknown so various kernel radiuses should be tried out. But in general, the kernel radius should be much larger than the size of the defect.
 
-The $z$ and $p$-value image, as shown in Figure \ref{fig:inference_filter_z_p_image}, now look more spatially uniform. The defects and some of the edges and corners are highlighted with their small $p$-values. In particular, Figure \ref{fig:inference_filter_z_ordered_p} shows that the test statistics look more Normal but with heavier tails. The heavier tails are contributed by non-null test statistics. Significant pixels are shown in Figure \ref{fig:inference_filter_sig_image}. It was encouraging to see less false positives and more defects being picked up. Because the BH procedure controls the FDR, some false positives are inevitable.
+The empirical null filter was implemented in an open source software called \texttt{ImageJ} \citep{abramoff2004image, schneider2012nih, perez2013image} by modifying the existing class \texttt{RankFilters}, available on \texttt{GitHub} \citep{imagej2018rank}. This class implemented filters, such as the mean filter and median filter, using a circular kernel and multiple threads, making this a suitable framework for the empirical null filter. Figure \ref{fig:inference_fijiGui} shows the graphical user interface of the empirical null filter in \texttt{Fiji} \citep{schindelin2012fiji}, a distribution of \texttt{ImageJ}.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{../figures/inference/fiji/gui.png}
+    \caption{Graphical user interface of the empirical null filter in \texttt{Fiji}. The user can adjust the kernel radius as well as other advanced options relating to the Newton-Raphson method and the kernel density estimate. By products such as the empirical null parameters can be shown after the filtering as well.}
+    \label{fig:inference_fijiGui}
+\end{figure}
+
+As a test, the empirical null filter with $r=5$ was used on a \texttt{ImageJ} sample image \texttt{bridge.gif}, as shown in Figure \ref{fig:inference_fijiBridgeFilter}. It is meaningless to use the empirical null filter on an image not for the purpose of the filter, however it does verify the filter works on arbitrary images. The empirical null images $\widehat{\mu}_{0,x,y}$ and $\widehat{\sigma}_{0,x,y}$ for all ${x,y}$ could be of interest. In particular the empirical null mean image could be interpreted as the result of a mode filter \citep{griffin2000mean}. Figure \ref{fig:inference_fijiMean} compares the empirical null mean with other averaging filters. The empirical null mean creates an impasto look which is similar to the result in \cite{griffin2000mean}. Spread filters such as the standard deviation filter can be used to detect edges. Figure \ref{fig:inference_fijiStd} compares the standard deviation filter with the empirical null standard deviation. The resulting images are similar but it was notable that the edges in the empirical null standard deviation are sharper.
 
 \begin{figure}
 	\centering
     \centerline{
     \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/filter_z_image.eps}
-        \caption{$z$ image}
+        \includegraphics[width=\textwidth]{../figures/inference/fiji/bridge.png}
+        \caption{Before filtering}
     \end{subfigure}
     \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/filter_p_image.eps}
-        \caption{$-\log p$-values}
+        \includegraphics[width=\textwidth]{../figures/inference/fiji/bridgeFilter.png}
+        \caption{After filtering}
     \end{subfigure}
     }
-    \caption{The $z$ image and $p$-value image after using the empirical null filter.}
-    \label{fig:inference_filter_z_p_image}
+    \caption{Empirical null filter with $r=5$ on the sample image \texttt{bridge.gif}.}
+    \label{fig:inference_fijiBridgeFilter}
 \end{figure}
 
 \begin{figure}
 	\centering
     \centerline{
     \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/filter_histogram.eps}
-        \caption{Histogram of $z$ statistics}
+        \includegraphics[width=\textwidth]{../figures/inference/fiji/bridge.png}
+        \caption{No filter}
     \end{subfigure}
     \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/filter_p.eps}
-        \caption{Ordered $p$ values}
+        \includegraphics[width=\textwidth]{../figures/inference/fiji/mean.png}
+        \caption{Mean filter}
     \end{subfigure}
     }
-    \caption{Histogram of $z$ statistics and the corresponding ordered $p$-values when using the empirical null filter.}
-    \label{fig:inference_filter_z_ordered_p}
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/fiji/median.png}
+        \caption{Median filter}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/fiji/nullMean.png}
+        \caption{Empirical null mean}
+    \end{subfigure}
+    }
+    \caption{Various average filters with kernel radius $r=5$ on the sample image \texttt{bridge.gif}}
+    \label{fig:inference_fijiMean}
 \end{figure}
 
 \begin{figure}
 	\centering
-	\includegraphics[width=0.7\textwidth]{../figures/inference/filter_sig_image.eps}
-	\caption{Using the empirical null filter, significant pixels were highlighted in red.} 
-	\label{fig:inference_filter_sig_image}
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/fiji/std.png}
+        \caption{Standard deviation filter}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/fiji/nullStd.png}
+        \caption{Empirical null standard deviation}
+    \end{subfigure}
+    }
+    \caption{Various spread filters with kernel radius $r=5$ on the sample image \texttt{bridge.gif}.}
+    \label{fig:inference_fijiStd}
 \end{figure}
+
+\subsection{Design and Implementation}
+
+When using the the empirical null filter in \texttt{ImageJ}, the user is presented with a menu, as shown in Figure \ref{fig:inference_fijiGui}. Here the user can input the kernel radius, the filter then modifies the currently selected image $z_{x,y}$ to $\zeta_{x,y}$ for all $x$ and $y$ using a circular kernel with the specified radius. The menu also has options for by product images to be shown such as: the empirical null mean $\widehat{\mu}_{0,x,y}$, the empirical null standard deviation $\widehat{\sigma}_{0,x,y}$, the standard deviation filter, and quartile filters. Advanced options are available to the user. The number of initial values set the number of valid solutions required in the Newton-Raphson method on finding the mode of the density estimate. The user can also set the maximum number of steps and tolerance for the Newton-Raphson method. The bandwidth parameters for the kernel density estimate can also be adjusted here.
+
+Because the empirical null filter was implemented by modifying the existing code in the class \texttt{RankFilters}, most of the design has already been done. \texttt{RankFilters} contain implementations of filters such as the mean filter and median filter. The implementation makes use of multiple threads, each thread filters a row in parallel. This is done by the following, a thread copies the value of each pixels in its current and neighbouring rows into a cache. Then for each column, the thread does its calculations using the cache then replaces the pixel value of the image to be filtered. Once the row has been filtered, the thread then moves onto the next unfiltered row.
 
 \begin{figure}
 	\centering
-	\includegraphics[width=0.7\textwidth]{../figures/inference/filter_mean_null.eps}
-	\caption{The estimated empirical null mean} 
-	\label{fig:inference_filter_mean_null}
+	\begin{subfigure}[b]{0.49\textwidth}
+	    \begin{tabular}{lllllll}
+	       $\ddots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\udots$ \\
+	       $\cdots$ & $z_{1,1}$ & $z_{1,1}$ & $z_{1,1}$ & $z_{1,2}$ & $\cdots$ \\
+	       $\cdots$ & $z_{1,1}$ & $z_{1,1}$ & $z_{1,1}$ & $z_{1,2}$ & $\cdots$ \\ \cline{4-6}
+	       $\cdots$ & $z_{1,1}$ & \multicolumn{1}{l|}{$z_{1,1}$} & $z_{1,1}$ & $z_{1,2}$ & $\cdots$ \\
+	       $\cdots$ & $z_{2,1}$ & \multicolumn{1}{l|}{$z_{2,1}$}  & $z_{2,1}$ & $z_{2,2}$ & $\cdots$ \\
+	       $\udots$ & $\vdots$ & \multicolumn{1}{l|}{$\vdots$}  & $\vdots$ & $\vdots$ & $\ddots$
+		\end{tabular}
+		\caption{Nearest pixel padding}
+	\end{subfigure}
+	\begin{subfigure}[b]{0.49\textwidth}
+	    \begin{tabular}{lllllll}
+	       $\ddots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\udots$ \\
+	       $\cdots$ & \texttt{NaN} & \texttt{NaN} & \texttt{NaN} & \texttt{NaN} & $\cdots$ \\
+	       $\cdots$ & \texttt{NaN} & \texttt{NaN} & \texttt{NaN} & \texttt{NaN} & $\cdots$ \\ \cline{4-6}
+	       $\cdots$ & \texttt{NaN} & \multicolumn{1}{l|}{\texttt{NaN}} & $z_{1,1}$ & $z_{1,2}$ & $\cdots$ \\
+	       $\cdots$ & \texttt{NaN} & \multicolumn{1}{l|}{\texttt{NaN}}  & $z_{2,1}$ & $z_{2,2}$ & $\cdots$ \\
+	       $\udots$ & $\vdots$ & \multicolumn{1}{l|}{$\vdots$}  & $\vdots$ & $\vdots$ & $\ddots$
+		\end{tabular}
+		\caption{\texttt{NaN} padding}
+	\end{subfigure}
+	\caption{When a kernel contain pixels outside the region of interest as shown by the solid line, the missing pixels can either be interpolated using the nearest pixel or completely ignored by filling in the missing pixels with \texttt{NaN}.}
+	\label{fig:inference_padding}
 \end{figure}
-
-In summary, the empirical null filter irons out each pixel in the $z$ image using the local mode. Figure \ref{fig:inference_filter_mean_null} shows the $\widehat{\mu}_{0,x,y}$ image, which varies a lot but smoothly. This demonstrated that by correcting the test statistics accordingly, sensible inference was achieved.
-
-In the remaining of the chapter, properties of the empirical null filter were investigated.
 
 \subsection{All Null Simulation}
 
@@ -1424,3 +1504,61 @@ Figure \ref{fig:inference_SimulateRoc_roc_area} shows the area under the ROC cur
 The experiments shows that the empirical null filter can correct the null distribution locally, giving better inference. In extreme cases, for example if the defect intensity is very small or the amount of contamination is rather large, the empirical null filter can fail. Harsh contamination can produce false positives because spatially rapidly changing grey values could be detected as a defect. The worst case would be that this would make defects appear to be the null, giving completely the opposite inference.
 
 These extreme cases should not happen. As seen in the real life example at the start of the section, false positives are rare but they do have some spatial structure. If the defect intensity is too small to be detected, the contrast of the x-ray imaging apparatus should be adjusted to cater for it.
+
+\subsection{Real Data}
+
+There are ways to speed up the implementation of the empirical null filter by sacrificing accuracy. For example, instead of estimating the empirical null parameters for every pixel, a number of them can be estimated and then the remaining values can be interpolated. However it was found that interpolating $\widehat{\sigma}_{0,x,y}$ can yield highly varying results. To avoid this problem, it can be assumed that $\sigma_{0,x,y}=\sigma_0$ for all $x$ and $y$. Then the estimator $\widehat{\sigma}_0$ is the empirical null standard deviation estimator using all location corrected $z$ test statistics.
+
+The empirical null filter was used on the example at the start of the chapter. It was used on a grid of $20\times 20$ points, the remaining values were interpolated. It was also assumed the empirical null standard deviation was constant, the methodology discussed in the previous paragraph.
+
+The $z$ and $p$-value image, as shown in Figure \ref{fig:inference_filter_z_p_image}, now look more spatially uniform. The defects and some of the edges and corners are highlighted with their small $p$-values. In particular, Figure \ref{fig:inference_filter_z_ordered_p} shows that the test statistics look more Normal but with heavier tails. The heavier tails are contributed by non-null test statistics. Significant pixels are shown in Figure \ref{fig:inference_filter_sig_image}. It was encouraging to see less false positives and more defects being picked up. Because the BH procedure controls the FDR, some false positives are inevitable.
+
+\begin{figure}
+	\centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/filter_z_image.eps}
+        \caption{$z$ image}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/filter_p_image.eps}
+        \caption{$-\log p$-values}
+    \end{subfigure}
+    }
+    \caption{The $z$ image and $p$-value image after using the empirical null filter.}
+    \label{fig:inference_filter_z_p_image}
+\end{figure}
+
+\begin{figure}
+	\centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/filter_histogram.eps}
+        \caption{Histogram of $z$ statistics}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/filter_p.eps}
+        \caption{Ordered $p$ values}
+    \end{subfigure}
+    }
+    \caption{Histogram of $z$ statistics and the corresponding ordered $p$-values when using the empirical null filter.}
+    \label{fig:inference_filter_z_ordered_p}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.7\textwidth]{../figures/inference/filter_sig_image.eps}
+	\caption{Using the empirical null filter, significant pixels were highlighted in red.} 
+	\label{fig:inference_filter_sig_image}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.7\textwidth]{../figures/inference/filter_mean_null.eps}
+	\caption{The estimated empirical null mean} 
+	\label{fig:inference_filter_mean_null}
+\end{figure}
+
+In summary, the empirical null filter irons out each pixel in the $z$ image using the local mode. Figure \ref{fig:inference_filter_mean_null} shows the $\widehat{\mu}_{0,x,y}$ image, which varies a lot but smoothly. This demonstrated that by correcting the test statistics accordingly, sensible inference was achieved.
+
+In the remaining of the chapter, properties of the empirical null filter were investigated.

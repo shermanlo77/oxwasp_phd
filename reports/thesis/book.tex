@@ -14,6 +14,7 @@
 \usepackage{hyperref}
 \usepackage{hyphenat}
 \usepackage{pdfpages}
+\usepackage{MnSymbol} %udots
 
 \setcounter{tocdepth}{2}
 \setcounter{secnumdepth}{2}
@@ -61,7 +62,11 @@
 
 \frontmatter
 \section*{Abstract}
-X-ray CT can be used for defect detection and quality control of 3D printing. This report will outline statistical methods for comparing x-ray scans of a 3D printed sample with its computer model under the face of uncertainty. Shading correction methods and the mean and variance relationship were investigated. Lastly the compound Poisson was reviewed.
+X-ray computed tomography (CT) can be used for defect detection in 3D printing. The object is scanned at multiple angles to reconstruct the object in 3D space. The process can be time consuming. The aim of this project was to investigate if it is possible to conduct defect detection in projection space from a single scan to speed up the defect detection procedure. To do this, a 3D printed sample was manufactured with voids to see if they can be detected.
+
+X-ray photons behave randomly. Hence to do defect detection pixel by pixel, uncertainty must be taken into account. A compound Poisson model was used to model the grey valyes in a pixel. It assumed that photon arrivals are a Poisson process with Gamma distributed energy. This resulted in a linear relationship between the mean and variance of the grey value, which was used for variance prediction and to quantify the uncertainty.
+
+Software, called \texttt{aRTist}, was used to simulate the scan and it was compared with the x-ray acquisition under the face of uncertainty. However the software, and the information provided to it, was not perfect which led to model misspecification and incorrect inference. The empirical null filter was proposed. It adjust each pixel statistic so that inference was done by comparing each pixel with the majority of its local pixels.
 
 \newpage
 
