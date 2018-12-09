@@ -289,6 +289,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
    */
   public void filter(float [][] image) {
     this.imageProcessor = new FloatProcessor(image);
+    this.roi = new Roi(this.imageProcessor.getRoi());
     this.filter();
   }
   
