@@ -1154,7 +1154,7 @@ The empirical null filter was implemented in an open source software called \tex
     \label{fig:inference_fijiGui}
 \end{figure}
 
-As a test, the empirical null filter with $r=5$ was used on a \texttt{ImageJ} sample image \texttt{bridge.gif}, as shown in Figure \ref{fig:inference_fijiBridgeFilter}. It is meaningless to use the empirical null filter on an image not for the purpose of the filter, however it does verify the filter works on arbitrary images. The empirical null images $\widehat{\mu}_{0,x,y}$ and $\widehat{\sigma}_{0,x,y}$ for all ${x,y}$ could be of interest. In particular the empirical null mean image could be interpreted as the result of a mode filter \citep{griffin2000mean}. Figure \ref{fig:inference_fijiMean} compares the empirical null mean with other averaging filters. The empirical null mean creates an impasto look which is similar to the result in \cite{griffin2000mean}. Spread filters such as the standard deviation filter can be used to detect edges. Figure \ref{fig:inference_fijiStd} compares the standard deviation filter with the empirical null standard deviation. The resulting images are similar but it was notable that the edges in the empirical null standard deviation are sharper.
+As a test, the empirical null filter with $r=5$ was used on a \texttt{ImageJ} sample image \texttt{bridge.gif}, as shown in Figure \ref{fig:inference_fijiBridgeFilter}. It is meaningless to use the empirical null filter on an image not for the purpose of the filter, however it does verify the filter works on arbitrary images. The empirical null images $\widehat{\mu}_{0,x,y}$ and $\widehat{\sigma}_{0,x,y}$ for all ${x,y}$ could be of interest. In particular the empirical null mean image could be interpreted as the result of a mode filter \citep{griffin2000mean}. Figure \ref{fig:inference_fijiMean} compares the empirical null mean with other averaging filters. The empirical null mean creates an impasto look and preserve edges which is similar to the result in \cite{griffin2000mean}. Spread filters such as the standard deviation filter can be used to detect edges. Figure \ref{fig:inference_fijiStd} compares the standard deviation filter with the empirical null standard deviation. The resulting images are similar but it was notable that the edges in the empirical null standard deviation are sharper, suggesting that the empirical null standard deviation is a more robust measure of spread compared to the standard deviation.
 
 \begin{figure}
 	\centering
@@ -1216,9 +1216,11 @@ As a test, the empirical null filter with $r=5$ was used on a \texttt{ImageJ} sa
 
 \subsection{Design and Implementation}
 
-When using the the empirical null filter in \texttt{ImageJ}, the user is presented with a menu, as shown in Figure \ref{fig:inference_fijiGui}. Here the user can input the kernel radius, the filter then modifies the currently selected image $z_{x,y}$ to $\zeta_{x,y}$ for all $x$ and $y$ using a circular kernel with the specified radius. The menu also has options for by product images to be shown such as: the empirical null mean $\widehat{\mu}_{0,x,y}$, the empirical null standard deviation $\widehat{\sigma}_{0,x,y}$, the standard deviation filter, and quartile filters. Advanced options are available to the user. The number of initial values set the number of valid solutions required in the Newton-Raphson method on finding the mode of the density estimate. The user can also set the maximum number of steps and tolerance for the Newton-Raphson method. The bandwidth parameters for the kernel density estimate can also be adjusted here.
+When using the the empirical null filter in \texttt{ImageJ}, the user is presented with a menu, as shown in Figure \ref{fig:inference_fijiGui}. Here the user can input the kernel radius, the filter then modifies the currently selected image $z_{x,y}$ to $\zeta_{x,y}$ for all $x$ and $y$ using a circular kernel with the specified radius. The menu also has options for by product images to be shown such as: the empirical null mean $\widehat{\mu}_{0,x,y}$, the empirical null standard deviation $\widehat{\sigma}_{0,x,y}$, the standard deviation filter, and quartile filters. Advanced options are available to the user. The number of initial values set the number of valid solutions to be found in the Newton-Raphson method on finding the mode of the density estimate, the solution with the gradient closest to zero is then used in further calculations. The user can also set the maximum number of steps and tolerance for the Newton-Raphson method. The bandwidth parameters for the kernel density estimate can also be adjusted here.
 
-Because the empirical null filter was implemented by modifying the existing code in the class \texttt{RankFilters}, most of the design has already been done. \texttt{RankFilters} contain implementations of filters such as the mean filter and median filter. The implementation makes use of multiple threads, each thread filters a row in parallel. This is done by the following, a thread copies the value of each pixels in its current and neighbouring rows into a cache. Then for each column, the thread does its calculations using the cache then replaces the pixel value of the image to be filtered. Once the row has been filtered, the thread then moves onto the next unfiltered row.
+Because the empirical null filter was implemented by modifying the existing code in the class \texttt{RankFilters}, most of the design has already been done. \texttt{RankFilters} contain implementations of filters such as the mean filter and median filter. The implementation makes use of multiple threads, each thread filters a row in parallel. This is done by the following, a thread copies the value of each pixels in its current and neighbouring rows into a cache. Then for each column, the thread does calculations using the cache then replaces the pixel value of the image to be filtered. Once the row has been filtered, the thread then moves onto the next unfiltered row. Rows in the cache not needed are overwritten with more recent rows.
+
+When the kernel captures pixels outside the boundary of the image or region of interest (ROI), \texttt{RankFilters} uses nearest pixel padding which fills in pixels outside the ROI with values to the nearest pixels. Figure \ref{fig:inference_padding_nearest} shows an example of nearest pixel padding on the top left corner of a rectangle ROI. This is not suitable for the empirical null filter as this will cause bias in a lot of calculations, especially the density fitting. The empirical null filter uses \texttt{NaN} padding which fills pixels outside the ROI with \texttt{NaN}. This indicate that these pixels are outside the ROI and are ignored. The number of non-\texttt{NaN} captured by the kernel is kept track for calculations such as the bandwidth for the kernel density estimate.
 
 \begin{figure}
 	\centering
@@ -1232,6 +1234,7 @@ Because the empirical null filter was implemented by modifying the existing code
 	       $\udots$ & $\vdots$ & \multicolumn{1}{l|}{$\vdots$}  & $\vdots$ & $\vdots$ & $\ddots$
 		\end{tabular}
 		\caption{Nearest pixel padding}
+		\label{fig:inference_padding_nearest}
 	\end{subfigure}
 	\begin{subfigure}[b]{0.49\textwidth}
 	    \begin{tabular}{lllllll}
@@ -1243,10 +1246,15 @@ Because the empirical null filter was implemented by modifying the existing code
 	       $\udots$ & $\vdots$ & \multicolumn{1}{l|}{$\vdots$}  & $\vdots$ & $\vdots$ & $\ddots$
 		\end{tabular}
 		\caption{\texttt{NaN} padding}
+		\label{fig:inference_padding_nan}
 	\end{subfigure}
-	\caption{When a kernel contain pixels outside the region of interest as shown by the solid line, the missing pixels can either be interpolated using the nearest pixel or completely ignored by filling in the missing pixels with \texttt{NaN}.}
+	\caption{When a kernel contain pixels outside the region of interest as shown by the solid line, the missing pixels can either be extrapolated using the nearest pixel or completely ignored by filling in the missing pixels with \texttt{NaN}.}
 	\label{fig:inference_padding}
 \end{figure}
+
+Line filtering is done from left to right. At the start on the far left, an initial value of the median of all the pixels in the kernel is used. In addition, various initial values are randomly tried out until a requested number of valid solutions are found, the solution with the gradient closest to zero is used. For the following pixel to the right, the empirical null mean of the neighbouring left pixel is used as a initial point. This was chosen as it was assumed the empirical null mean would vary slowly and smoothly spatially.
+
+Trying out more initial values is an advantage because it eliminates the chances of obtaining a sub-optimal solution such as a local maxima. However this is traded for computational cost. Additional initial values were generated by sampling from the Normal distribution centred on the first initial value and with standard deviation the same as the standard deviation using all pixels in the kernel.
 
 \subsection{All Null Simulation}
 
