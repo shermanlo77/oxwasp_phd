@@ -12,6 +12,41 @@ classdef (Abstract) ExperimentSubRoiDefectDetect < ExperimentDefectDetect
       this@ExperimentDefectDetect(experimentName);
     end
     
+    %OVERRIDE: PRINT RESULTS
+    %Include the significant pixels when doing hypothesis testing on each segment separately
+    function printResults(this)
+      
+      this.printResults@ExperimentDefectDetect();
+      
+      %for each radius
+      for iRadius = 1:numel(this.radiusArray)
+        
+        %get the z image, declare image to store significant pixels
+        filteredImage = this.zFilterArray(:,:,iRadius);
+        sigImage = false(this.scan.height, this.scan.width);
+        
+        %for each segmentation
+        for iSegmentation = 1:this.scan.nSubSegmentation
+          %get the sub segment mask
+          subRoi = this.scan.getSubSegmentation(iSegmentation);
+          %do hypothesis testing only on that segment
+          zTester = ZTester(filteredImage(subRoi));
+          zTester.doTest();
+          %save the significant pixels only in that segment
+          sigImage(subRoi) = zTester.sig_image();
+        end
+        
+        %plot the test image with the significant pixels from each segment
+        figure;
+        sigPlot = ImagescSignificant(this.scan.loadImageStack(this.testIndex));
+        sigPlot.addSigPixels(sigImage);
+        sigPlot.setDilateSize(2);
+        sigPlot.plot();
+        
+      end
+
+    end
+    
   end
   
   methods (Access = protected)

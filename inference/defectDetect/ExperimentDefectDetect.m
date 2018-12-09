@@ -32,7 +32,7 @@ classdef (Abstract) ExperimentDefectDetect < Experiment
     %IMPLEMENTED: PRINT RESULTS
     function printResults(this)
       
-      %for eachr adius
+      %for each radius
       for iRadius = 1:numel(this.radiusArray)
         
         %do the hypothesis test on the filtered image
@@ -78,9 +78,9 @@ classdef (Abstract) ExperimentDefectDetect < Experiment
       this.scan = scan;
       this.scan.addDefaultShadingCorrector();
       this.radiusArray = radiusArray;
-      this.zFilterArray = zeros(scan.height, scan.width, numel(radiusArray));
-      this.nullMeanArray = zeros(scan.height, scan.width, numel(radiusArray));
-      this.nullStdArray = zeros(scan.height, scan.width, numel(radiusArray));
+      this.zFilterArray = nan(scan.height, scan.width, numel(radiusArray));
+      this.nullMeanArray = nan(scan.height, scan.width, numel(radiusArray));
+      this.nullStdArray = nan(scan.height, scan.width, numel(radiusArray));
       
       %assign random index for the training images (train the var-mean) and the test image
       %the test image is compared with aRTist
