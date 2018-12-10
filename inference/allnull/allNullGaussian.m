@@ -37,14 +37,14 @@ fig = LatexFigure.sub();
 imagePlot = ImagescSignificant(image);
 imagePlot.setCLim([-3,3]);
 imagePlot.plot();
-saveas(fig,fullfile(directory, 'unfiltered.eps'),'epsc');
+saveas(fig,fullfile(directory, 'allNullGaussianunfiltered.eps'),'epsc');
 
 %plot the image after filtering
 fig = LatexFigure.sub();
 imagePlot = ImagescSignificant(imageFiltered);
 imagePlot.setCLim([-3,3]);
 imagePlot.plot();
-saveas(fig,fullfile(directory, 'filtered.eps'),'epsc');
+saveas(fig,fullfile(directory, 'allNullGaussianfiltered.eps'),'epsc');
 
 %qq plot of the image after filtering
 fig = LatexFigure.sub();
@@ -52,15 +52,15 @@ qqplot(reshape(imageFiltered,[],1));
 title('');
 ylabel('quantiles of filtered pixels');
 xlabel('standard normal quantiles');
-saveas(fig,fullfile(directory, 'qq.eps'),'epsc');
+saveas(fig,fullfile(directory, 'allNullGaussianqq.eps'),'epsc');
 
 %empirical null plot
 fig = LatexFigure.sub();
 imagePlot = ImagescSignificant(nullMean);
 imagePlot.plot();
-saveas(fig,fullfile(directory, 'nullmean.eps'),'epsc');
+saveas(fig,fullfile(directory, 'allNullGaussiannullmean.eps'),'epsc');
 
 fig = LatexFigure.sub();
 imagePlot = ImagescSignificant(nullStd);
 imagePlot.plot();
-saveas(fig,fullfile(directory, 'nullstd.eps'),'epsc');
+saveas(fig,fullfile(directory, 'allNullGaussiannullstd.eps'),'epsc');

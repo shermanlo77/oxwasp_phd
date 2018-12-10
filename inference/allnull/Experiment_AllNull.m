@@ -48,12 +48,43 @@ classdef Experiment_AllNull < Experiment
     %METHOD: PRINT RESULTS
     function printResults(this)
       
+      %where to save the figures
+      directory = fullfile('reports','figures','inference','allnull');
+      
+      %save properties of this experiment to txt
+      
+      %radius range
+      fildId = fopen(fullfile(directory,strcat(this.experiment_name,'radius1.txt')),'w');
+      fprintf(fildId,'%d',this.radiusArray(1));
+      fclose(fildId);
+      
+      %radius range
+      fildId = fopen(fullfile(directory,strcat(this.experiment_name,'radiusend.txt')),'w');
+      fprintf(fildId,'%d',this.radiusArray(end));
+      fclose(fildId);
+      
+      %nrepeat
+      fildId = fopen(fullfile(directory,strcat(this.experiment_name,'nrepeat.txt')),'w');
+      fprintf(fildId,'%d',this.nRepeat);
+      fclose(fildId);
+      
+      %imagesize
+      fildId = fopen(fullfile(directory,strcat(this.experiment_name,'height.txt')),'w');
+      fprintf(fildId,'%d',this.imageSize(1));
+      fclose(fildId);
+      
+      %imagesize
+      fildId = fopen(fullfile(directory,strcat(this.experiment_name,'width.txt')),'w');
+      fprintf(fildId,'%d',this.imageSize(2));
+      fclose(fildId);
+      
+      %show critical region for mean and variance
       sigma = 2; %get sigma level
       alpha = 2*(1-normcdf(sigma)); %covert to significant level
       n = this.imageSize(1) * this.imageSize(2); %get number of pixels in the image
       
       %plot post filter mean vs radius
-      figure;
+      fig = LatexFigure.sub();
       meanPlot = Boxplots(this.meanArray, true);
       meanPlot.setPosition(this.radiusArray);
       meanPlot.plot();
@@ -64,9 +95,10 @@ classdef Experiment_AllNull < Experiment
       xlim([0,this.radiusArray(end)+10]);
       ylabel('post filter image greyvalue mean');
       xlabel('radius (pixel)');
+      saveas(fig,fullfile(directory, strcat(this.experiment_name,'mean.eps')),'epsc');
       
       %plot post filter variance vs radius
-      figure;
+      fig = LatexFigure.sub();
       varPlot = Boxplots(this.varianceArray, true);
       varPlot.setPosition(this.radiusArray);
       varPlot.plot();
@@ -78,28 +110,17 @@ classdef Experiment_AllNull < Experiment
       xlim([0,this.radiusArray(end)+10]);
       ylabel('post filter image greyvalue variance');
       xlabel('radius (pixel)');
-      
-      %plot log ks p value vs radius
-      figure;
-      ksArrayCopy = this.ksArray();
-      ksArrayCopy(ksArrayCopy<0) = nan;
-      ksPlot = Boxplots(log10(ksArrayCopy), true);
-      ksPlot.setPosition(this.radiusArray);
-      ksPlot.plot();
-      hold on;
-      plot([0,this.radiusArray(end)+10],log10([alpha,alpha]), 'k--');
-      xlim([0,this.radiusArray(end)+10]);
-      ylabel('KS log p-value');
-      xlabel('radius (pixel)');
+      saveas(fig,fullfile(directory, strcat(this.experiment_name,'variance.eps')),'epsc');
       
       %plot time vs radius
-      figure;
+      fig = LatexFigure.sub();
       timePlot = Boxplots(this.timeArray, true);
       timePlot.setPosition(this.radiusArray);
       timePlot.plot();
       ylabel('time (s)');
       xlabel('radius (pixel)');
       xlim([0,this.radiusArray(end)+10]);
+      saveas(fig,fullfile(directory, strcat(this.experiment_name,'time.eps')),'epsc');
       
     end
 
