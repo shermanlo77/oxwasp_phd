@@ -2,90 +2,96 @@
 %Produce an image with a defect and contamination, use the empirical null filter to recover the
     %image from the contamination. The hypothesis test (or defect detectiong) are compared before
     %and after contamination.
-%Plot the defected contaminated z image
+%Plot the z image before contamination
+%Plot the z image after contamination
+%Plot the z image after filtering
 %Plot the empirical null mean image
 %Plot the empirical null std image
-%Plot the ROC before and after contamination
-%For the z_alpha=2 level, print:
-  %type 1 error
-  %type 2 error
-  %area under ROC
+%Plot the ROC before contamination, after contamination, after filtering
 %PARAMETERS:
   %defectSimulator: simulate a defected and contaminated image
   %imageSize: size of the image
   %radius: radius of the kernel
-function defectExample(defectSimulator, imageSize, radius)
+  %nInitial: number of initial points for Newton-Raphson in empirical null filter
+  %directory: where to save the figures
+  %prefix: what to prepend the file names with
+  %(optional) climNullMean: clim for the plot of the empirical null mean
+function defectExample(defectSimulator, imageSize, radius, nInitial, directory, prefix, ...
+    climNullMean)
 
   %get the defected image
-  [image, isAltImage, imagePreBias] = defectSimulator.getDefectedImage([imageSize, imageSize]);
+  [imageContaminated, isAltImage, imagePreContaminated] = ...
+      defectSimulator.getDefectedImage([imageSize, imageSize]);
 
   filter = EmpiricalNullFilter(radius); %filter it
-  filter.setNInitial(3);
-  filter.filter(image);
+  filter.setNInitial(nInitial);
+  filter.filter(imageContaminated);
 
   %get the empirical null and the filtered image
   imageFiltered = filter.getFilteredImage();
   nullMean = filter.getNullMean();
   nullStd = filter.getNullStd();
 
-  %get the image pre/post bias with significant pixels highlighted
-  zTesterPreBias = ZTester(imagePreBias);
-  zTesterPreBias.doTest();
-  zTesterPostBias = ZTester(imageFiltered);
-  zTesterPostBias.doTest();
+  %get the image pre/post contamination and filtered with significant pixels highlighted
+  zTesterPreContaminated = ZTester(imagePreContaminated);
+  zTesterPreContaminated.doTest();
+  zTesterContaminated = ZTester(imageContaminated);
+  zTesterContaminated.doTest();
+  zTesterFiltered = ZTester(imageFiltered);
+  zTesterFiltered.doTest();
   
-  %plot the contaminated z image
-  figure;
-  zmin = min(min(image));
-  zmax = max(max(image));
-  imagePlot = ImagescSignificant(image);
-  imagePlot.setCLim([zmin,zmax]);
+  %plot the z images
+  fig = LatexFigure.sub();
+  imagePlot = ImagescSignificant(imagePreContaminated);
+  imagePlot.addSigPixels(zTesterPreContaminated.sig_image);
+  climOriginal = imagePlot.clim;
   imagePlot.plot();
+  saveas(fig,fullfile(directory, strcat(prefix,'_imagePreContaminated.eps')),'epsc');
+  
+  fig = LatexFigure.sub();
+  imagePlot = ImagescSignificant(imageContaminated);
+  imagePlot.addSigPixels(zTesterContaminated.sig_image);
+  imagePlot.plot();
+  saveas(fig,fullfile(directory, strcat(prefix,'_imageContaminated.eps')),'epsc');
+  
+  fig = LatexFigure.sub();
+  imagePlot = ImagescSignificant(imageFiltered);
+  imagePlot.addSigPixels(zTesterFiltered.sig_image);
+  imagePlot.setCLim(climOriginal);
+  imagePlot.plot();
+  saveas(fig,fullfile(directory, strcat(prefix,'_imageFiltered.eps')),'epsc');
   
   %empirical null plot
-  figure;
-  imagesc(nullMean);
-  colorbar;
-  figure;
-  imagesc(nullStd);
-  colorbar;
+  fig = LatexFigure.sub();
+  imagePlot = ImagescSignificant(nullMean);
+  if (nargin == 7)
+    imagePlot.setCLim(climNullMean);
+  end
+  imagePlot.plot();
+  saveas(fig,fullfile(directory, strcat(prefix,'_nullMean.eps')),'epsc');
+  fig = LatexFigure.sub();
+  imagePlot = ImagescSignificant(nullStd);
+  imagePlot.setCLim([0,5]);
+  imagePlot.plot();
+  saveas(fig,fullfile(directory, strcat(prefix,'_nullStd.eps')),'epsc');
 
-  %work out true and false positive before and after bias adding
-  %print out the area under the roc
-  [falsePositivePreBias, truePositivePreBias, areaRocPreBias] = roc(imagePreBias, isAltImage, 100);
-  [falsePositivePostBias, truePositivePostBias, areaRocPostBias] = ...
+  %work out true and false positive, plot ROC
+  [falsePositivePreContamination, truePositivePreContamination, ~] = ...
+      roc(imagePreContaminated, isAltImage, 100);
+  [falsePositiveContamination, truePositiveContamination, ~] = ...
+      roc(imageContaminated, isAltImage, 100);
+  [falsePositiveFiltered, truePositiveFiltered, ~] = ...
       roc(imageFiltered, isAltImage, 100);
-  figure;
-  plot(falsePositivePreBias, truePositivePreBias);
+  fig = LatexFigure.sub();
+  plot(falsePositivePreContamination, truePositivePreContamination);
   hold on;
-  plot(falsePositivePostBias, truePositivePostBias);
+  plot(falsePositiveContamination, truePositiveContamination);
+  plot(falsePositiveFiltered, truePositiveFiltered);
   plot([0,1],[0,1],'k--');
   xlabel('false positive rate');
   ylabel('true positive rate');
-  legend('pre bias adding','post bias adding','Location','southeast');
-
-  %for this particular significant level, print the type 1 and type 2 error
-  %type 1 = false positive
-  %type 2 = false negative
-  disp('Pre contamination');
-  type1Error = sum(sum(zTesterPreBias.sig_image(~isAltImage))) / sum(sum(~isAltImage));
-  type2Error = sum(sum(~(zTesterPreBias.sig_image(isAltImage)))) / sum(sum(isAltImage));
-  disp('type 1 error');
-  disp(type1Error);
-  disp('type 2 error');
-  disp(type2Error);
-  disp('roc area');
-  disp(areaRocPreBias);
-
-  disp('For post bias adding');
-  type1Error = sum(sum(zTesterPostBias.sig_image(~isAltImage))) / sum(sum(~isAltImage));
-  type2Error = sum(sum(~(zTesterPostBias.sig_image(isAltImage)))) / sum(sum(isAltImage));
-  disp('type 1 error');
-  disp(type1Error);
-  disp('type 2 error');
-  disp(type2Error);
-  disp('roc area');
-  disp(areaRocPostBias);
+  legend('pre-contamination','contaminated','filtered','Location','southeast');
+  saveas(fig,fullfile(directory, strcat(prefix,'_roc.eps')),'epsc');
 
 end
 

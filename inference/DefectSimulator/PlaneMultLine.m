@@ -8,6 +8,8 @@ classdef PlaneMultLine < PlaneMult
     %parameters of the alt distribution
     altMean;
     altStd;
+    %how thick the defect line is
+    lineThickness = 5;
   end
   
   methods (Access = public)
@@ -34,8 +36,8 @@ classdef PlaneMultLine < PlaneMult
       %imagePreBias: defected Gaussian image without the smooth function added
     function [image, isAltImage, imagePreBias] = getDefectedImage(this, size)
       [image, isAltImage] = this.getDefectedImage@DefectSimulator(size);
-      [image, isAltImage] = this.addLineDefect(image, isAltImage, round(size(2)/2), 1, ...
-          this.altMean, this.altStd);
+      [image, isAltImage] = this.addLineDefect(image, isAltImage, round(size(2)/2), ...
+          this.lineThickness, this.altMean, this.altStd);
       imagePreBias = image;
       image = this.multiply(image, this.multiplier);
       image = this.addPlane(image, this.grad);

@@ -13,6 +13,8 @@ clc;
 clearvars;
 close all;
 
+directory = fullfile('reports','figures','inference','defectsimulation');
+prefix = 'defectSquare2';
 randStream = RandStream('mt19937ar','Seed',uint32(4120988592)); %instantise a rng
 
 imageSize = 256;
@@ -21,9 +23,9 @@ trueNullStd = 2; %multiplier in the contimation
 trueNullMeanGrad = [0.01, 0.01]; %gradient of contimation
 defectSize = 30; %size of the square defect
 %distribution parameters of the alt distribution
-altMean = 2;
+altMean = 3;
 altStd = 1;
 
 defectSimulator = PlaneMultSquare(randStream, trueNullMeanGrad, trueNullStd, defectSize, ...
     altMean, altStd);
-defectExample(defectSimulator, imageSize, radius);
+defectExample(defectSimulator, imageSize, radius, 3, directory, prefix, [-2.5, 5]);

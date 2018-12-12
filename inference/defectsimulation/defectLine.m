@@ -12,6 +12,8 @@ clc;
 clearvars;
 close all;
 
+directory = fullfile('reports','figures','inference','defectsimulation');
+prefix = 'defectLine';
 randStream = RandStream('mt19937ar','Seed',uint32(2816384857)); %instantise a rng
 
 imageSize = 256;
@@ -19,8 +21,8 @@ radius = 20; %kernel radius
 trueNullStd = 2; %multiplier in the contimation
 trueNullMeanGrad = [0.01, 0.01]; %gradient of contimation
 %distribution parameters of the alt distribution
-altMean = 2;
+altMean = 3;
 altStd = 1;
 
 defectSimulator = PlaneMultLine(randStream, trueNullMeanGrad, trueNullStd, altMean, altStd);
-defectExample(defectSimulator, imageSize, radius);
+defectExample(defectSimulator, imageSize, radius, 3, directory, prefix);
