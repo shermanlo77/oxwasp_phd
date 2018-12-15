@@ -24,7 +24,14 @@ function [falsePositive, truePositive, areaRoc] = roc(zImage, altImage, nPoints)
   nAlt = sum(sum(altImage)); %number of alt pixels
   nNull = n - nAlt; %number of null pixels
   
-  alphaArray = linspace(0, 1, nPoints); %array of significant levels to try out
+  %array of significant levels to try out
+      %linspace 0% to 100%
+      %use the quantiles of the abs z statistics and 0, then convert them to p values
+      %flip to order the p values from smallest to highest
+      %prepend 0 is needed to start the roc curve at (0,0)
+      %append 1 so that the roc curve ends at (1,1)
+  alphaArray = flip(2*(1-normcdf(quantile(reshape(abs(zImage),[],1), linspace(0, 1, nPoints-2)'))));
+  alphaArray = [0;alphaArray;1];
   
   zTester = ZTester_Uncorrected(zImage); %instantiate z tester for testing using BH procedure
   
