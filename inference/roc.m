@@ -26,7 +26,7 @@ function [falsePositive, truePositive, areaRoc] = roc(zImage, altImage, nPoints)
   
   alphaArray = linspace(0, 1, nPoints); %array of significant levels to try out
   
-  zTester = ZTester(zImage); %instantiate z tester for testing using BH procedure
+  zTester = ZTester_Uncorrected(zImage); %instantiate z tester for testing using BH procedure
   
   %for each significant level
   for i = 1:nPoints

@@ -28,4 +28,9 @@ altStd = 1;
 
 defectSimulator = PlaneMultSquare(randStream, trueNullMeanGrad, trueNullStd, defectSize, ...
     altMean, altStd);
-defectExample(defectSimulator, imageSize, radius, 3, directory, prefix, [-2.5, 5]);
+%for a large altMean, the empirical null filter requires more initial values to jump to the other
+%mode
+defectExample = DefectExample();
+defectExample.setNInitial(10);
+defectExample.setCLimNullMean([-2.5, 5]);
+defectExample.plotExample(defectSimulator, imageSize, radius, directory, prefix);

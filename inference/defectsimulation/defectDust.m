@@ -26,4 +26,6 @@ altMean = 3;
 altStd = 1;
 
 defectSimulator = PlaneMultDust(randStream, trueNullMeanGrad, trueNullStd, altP, altMean, altStd);
-defectExample(defectSimulator, imageSize, radius, 3, directory, prefix);
+defectExample = DefectExample();
+defectExample.setPlotDefectNullStd(true);
+defectExample.plotExample(defectSimulator, imageSize, radius, directory, prefix);

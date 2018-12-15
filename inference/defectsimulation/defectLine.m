@@ -25,4 +25,5 @@ altMean = 3;
 altStd = 1;
 
 defectSimulator = PlaneMultLine(randStream, trueNullMeanGrad, trueNullStd, altMean, altStd);
-defectExample(defectSimulator, imageSize, radius, 3, directory, prefix);
+defectExample = DefectExample();
+defectExample.plotExample(defectSimulator, imageSize, radius, directory, prefix);
