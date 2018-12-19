@@ -20,11 +20,13 @@ imageSize = 256;
 radius = 20; %kernel radius
 trueNullStd = 2; %multiplier in the contimation
 trueNullMeanGrad = [0.01, 0.01]; %gradient of contimation
+lineThickness = 5;
 %distribution parameters of the alt distribution
 altMean = 3;
 altStd = 1;
 
-defectSimulator = PlaneMultLine(randStream, trueNullMeanGrad, trueNullStd, altMean, altStd);
+defectSimulator = PlaneMultLine(randStream, trueNullMeanGrad, trueNullStd, altMean, altStd, ...
+    lineThickness);
 defectExample = DefectExample();
 defectExample.setPlotDefectNullStd(true);
 defectExample.plotExample(defectSimulator, imageSize, radius, directory, prefix);

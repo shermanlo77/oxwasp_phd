@@ -15,7 +15,7 @@ classdef Experiment_DefectRadius < Experiment
     randStream; %rng
     nIntial = 3; %number of initial points used for the empirical null filter
     
-    altMean = 2; %mean of the alt distribution
+    altMean = 3; %mean of the alt distribution
     altStd = 1; %std of the alt distribution
     gradContamination = [0.01, 0.01]; %gradient of the contamination
     multContamination = 2; %multiplier of the contamination
@@ -23,7 +23,7 @@ classdef Experiment_DefectRadius < Experiment
     %records results
       %dim 1: for each repeat
       %dim 2: for each radius
-      %dim 3: size 2, pre/post contamination
+      %dim 3: size 2, pre contamination and filtered
     type1ErrorArray;
     type2ErrorArray;
     fdrArray;
@@ -43,10 +43,22 @@ classdef Experiment_DefectRadius < Experiment
     %Plots pre/post contamination results on the same graph
     function printResults(this)
       
+      directory = fullfile('reports','figures','inference','defectsimulation');
+      
+      %print alt mean
+      fildId = fopen(fullfile(directory,strcat(this.experiment_name,'_altMean.txt')),'w');
+      fprintf(fildId,'%d',this.altMean);
+      fclose(fildId);
+      
+      %print nRepeat
+      fildId = fopen(fullfile(directory,strcat(this.experiment_name,'_nRepeat.txt')),'w');
+      fprintf(fildId,'%d',this.nRepeat);
+      fclose(fildId);
+      
       offset = 1;
       
       %plot roc area vs alt mean
-      figure;
+      fig = LatexFigure.sub();
       ax = gca;
       boxplot = Boxplots(this.rocAreaArray(:,:,2), true);
       boxplot.setPosition(this.radiusArray);
@@ -59,9 +71,10 @@ classdef Experiment_DefectRadius < Experiment
       plot(ax.XLim, [oracleInterval(2), oracleInterval(2)], 'k--', 'LineWidth', 2);
       xlabel('kernel radius');
       ylabel('roc area');
+      saveas(fig,fullfile(directory, strcat(this.experiment_name,'_roc.eps')),'epsc');
       
       %plot type 1 error vs alt mean
-      figure;
+      fig = LatexFigure.sub();
       ax = gca;
       boxplot = Boxplots(this.type1ErrorArray(:,:,2), true);
       boxplot.setPosition(this.radiusArray);
@@ -74,9 +87,10 @@ classdef Experiment_DefectRadius < Experiment
       plot(ax.XLim, [oracleInterval(2), oracleInterval(2)], 'k--', 'LineWidth', 2);
       xlabel('kernel radius');
       ylabel('type 1 error');
+      saveas(fig,fullfile(directory, strcat(this.experiment_name,'_type1.eps')),'epsc');
       
       %plot type 2 error vs alt mean
-      figure;
+      fig = LatexFigure.sub();
       ax = gca;
       boxplot = Boxplots(this.type2ErrorArray(:,:,2), true);
       boxplot.setPosition(this.radiusArray);
@@ -89,9 +103,10 @@ classdef Experiment_DefectRadius < Experiment
       plot(ax.XLim, [oracleInterval(2), oracleInterval(2)], 'k--', 'LineWidth', 2);
       xlabel('kernel radius');
       ylabel('type 2 error');
+      saveas(fig,fullfile(directory, strcat(this.experiment_name,'_type2.eps')),'epsc');
       
       %fdr vs alt mean
-      figure;
+      fig = LatexFigure.sub();
       ax = gca;
       boxplot = Boxplots(this.fdrArray(:,:,2), true);
       boxplot.setPosition(this.radiusArray);
@@ -104,6 +119,7 @@ classdef Experiment_DefectRadius < Experiment
       plot(ax.XLim, [oracleInterval(2), oracleInterval(2)], 'k--', 'LineWidth', 2);
       xlabel('kernel radius');
       ylabel('fdr');
+      saveas(fig,fullfile(directory, strcat(this.experiment_name,'_fdr.eps')),'epsc');
       
     end
     

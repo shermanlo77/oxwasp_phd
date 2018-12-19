@@ -1532,4 +1532,111 @@ The receiver operating characteristic (ROC) curves \citep{green1966signal, metz1
 	\label{fig:inference_defectSimulationRoc}
 \end{figure}
 
-In terms of the area under the ROC curves, the empirical null filter improves the performance over using the unfiltered contaminated image. Not as good as the uncontaminated image but it is an improvement. For kernel radiuses too small, such as Figure \ref{fig:inference_defectSimulationRoc_square20}, the empirical null filter deteriorates the performance dramatically and it would be better off using the contaminated image.
+In terms of the area under the ROC curves, the empirical null filter improves the performance over using the unfiltered contaminated image. The performance before contamination cannot be recovered but it is an improvement. For kernel radiuses too small, such as Figure \ref{fig:inference_defectSimulationRoc_square20}, the empirical null filter deteriorates the performance dramatically and it would be better off using the contaminated image.
+
+The ROC is useful because it considers all thresholds or sensitivities used in the hypothesis testing. However in the previous experiment, it was found there was some variance mismatch before and after filtering with regards to the test statistics. As a result, for a given threshold, such as controlling the FDR, the sensitivity may change ever so slightly after filtering.
+
+An experiment was conducted to investigate the sensitivity before and after filtering. A $256\times 256$ Gaussian image with dust defect of density $\pi_1=0.1$ was investigated. A kernel radius of $r=20$ was used. The type 1 error, type 2 error and the FDR were investigated before contamination, after contamination and after filtering for various alternative distribution. The alternative distribution used is $Z_{x,y}|H_1\sim\normal(\mu_1,1)$ where $\mu_1$ is the alternative mean and was varied for this experiment.
+
+\begin{figure}[htp]
+	\centering
+		\centerline{
+			\begin{subfigure}{0.49\textwidth}
+				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/Experiment_DefectSimulationDust_roc.eps}
+				\caption{ROC area}
+			\end{subfigure}
+			\begin{subfigure}{0.49\textwidth}
+				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/Experiment_DefectSimulationDust_type1.eps}
+				\caption{Type 1 error}
+			\end{subfigure}
+		}
+		\centerline{
+			\begin{subfigure}{0.49\textwidth}
+				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/Experiment_DefectSimulationDust_type2.eps}
+				\caption{Type 2 error}
+			\end{subfigure}
+			\begin{subfigure}{0.49\textwidth}
+				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/Experiment_DefectSimulationDust_fdr.eps}
+				\caption{FDR}
+				\label{fig:inference_DefectSimulationDust_fdr}
+			\end{subfigure}
+		}
+	\caption{ROC area and various errors obtained when conducting hypothesis test on the uncontaminated image, contaminated image and the filtered contaminated image of a $256 \times 256$ salt defect, Gaussian image. The filter used a kernel radius \addNumber{../figures/inference/defectsimulation/Experiment_DefectSimulationDust_radius.txt}. Defected pixels have the distribution $\normal(\mu_1,1)$ where $\mu_1$ was varied in this experiment. The salt defect has density $\pi_1 = 0.1$. The contamination is such that the null distribution is $Z_{x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$. The FDR was controlled at the $2\sigma$ level. The box plot summarise the \addNumber{../figures/inference/defectsimulation/Experiment_DefectSimulationDust_nRepeat.txt} repeats of the experiment. Some contamination plots may have been omitted due to being off the scale.}
+	\label{fig:inference_DefectSimulationDust}
+\end{figure}
+
+The results are shown in Figure \ref{fig:inference_DefectSimulationDust}. The ROC areas were quantified here and shows that, in terms of the ROC area, using the filter improved the performance of the test from the contamination. Figure \ref{fig:inference_DefectSimulationDust_fdr} illustrate that in the uncontaminated image, the FDR is controlled below 5\%. However after contamination and then filtering, the FDR was not well controlled at this threshold. Ideally the error rates before contamination and after filtering should be similar so that sensitivity is preserved after filtering. This should highlight that while performance can be recovered from contamination in terms of the ROC area, the FDR threshold may not be preserved.
+
+There is also the question of what kernel size to choose for a given defect. Literature, such as \cite{efron2004large} and \cite{schwartzman2008empirical}, suggest that, as a rule of thumb, the proportion of non-null statistics should not be larger than $\pi_1=0.1$ to satisfy some assumptions made for the empirical null. Given the size of the defect, one could work out the minimum kernel radius by setting a threshold for the maximum proportion of the area of kernel which is a defect to 10\%. In other words for a kernel with radius $r$
+\begin{equation}
+0.1 > \dfrac{\text{maximum area of defect captured by the kernel}}{\text{area of kernel}} \ .
+\end{equation}
+For a $d \times d$ square defect this is
+\begin{equation}
+r > d \sqrt{\dfrac{10}{\pi}} \ .
+\end{equation}
+In the example of $d=30$, this is about $r>54$. For the line defect with thickness $d$, it can be involved because the maximum area of the line defect captured by the kernel is
+\begin{equation}
+2r^2
+\left[
+	\dfrac{d}{2r}\sqrt{1-\left(\dfrac{d}{2r}\right)^2}
+	+\text{arcsin}\left(\dfrac{d}{2r}\right)
+\right] \ .
+\end{equation}
+For $d=5$, the radius is about $r>32$. These are rules of thumb because the kernel won't be perfectly circular when used on a grid of pixels. It should be pointed out that the implementation can accept non-integer radiuses if desired.
+
+\begin{figure}[p]
+	\centering
+		\centerline{
+			\begin{subfigure}{0.49\textwidth}
+				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/Experiment_DefectRadiusLine_roc.eps}
+				\caption{ROC area}
+			\end{subfigure}
+			\begin{subfigure}{0.49\textwidth}
+				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/Experiment_DefectRadiusLine_type1.eps}
+				\caption{Type 1 error}
+			\end{subfigure}
+		}
+		\centerline{
+			\begin{subfigure}{0.49\textwidth}
+				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/Experiment_DefectRadiusLine_type2.eps}
+				\caption{Type 2 error}
+			\end{subfigure}
+			\begin{subfigure}{0.49\textwidth}
+				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/Experiment_DefectRadiusLine_fdr.eps}
+				\caption{FDR}
+			\end{subfigure}
+		}
+	\caption{ROC area and various errors obtained when conducting hypothesis test on the filtered contaminated image of a $256 \times 256$ line defected Gaussian image using various kernel radiuses. The dotted lines show the 95\% percentile when the hypothesis test was done on the uncontaminated image. Defected pixels have the distribution $\normal(\addNumber{../figures/inference/defectsimulation/Experiment_DefectRadiusLine_altMean.txt},1)$. The line defect is 5 pixels thick. The contamination is such that the null distribution is $Z_{x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$. The FDR was controlled at the $2\sigma$ level. The box plot summarise the \addNumber{../figures/inference/defectsimulation/Experiment_DefectRadiusLine_nRepeat.txt} repeats of the experiment.}
+	\label{fig:inference_Experiment_DefectRadiusLine}
+\end{figure}
+
+\begin{figure}[p]
+	\centering
+		\centerline{
+			\begin{subfigure}{0.49\textwidth}
+				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/Experiment_DefectRadiusSquare_roc.eps}
+				\caption{ROC area}
+			\end{subfigure}
+			\begin{subfigure}{0.49\textwidth}
+				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/Experiment_DefectRadiusSquare_type1.eps}
+				\caption{Type 1 error}
+			\end{subfigure}
+		}
+		\centerline{
+			\begin{subfigure}{0.49\textwidth}
+				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/Experiment_DefectRadiusSquare_type2.eps}
+				\caption{Type 2 error}
+			\end{subfigure}
+			\begin{subfigure}{0.49\textwidth}
+				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/Experiment_DefectRadiusSquare_fdr.eps}
+				\caption{FDR}
+			\end{subfigure}
+		}
+	\caption{ROC area and various errors obtained when conducting hypothesis test on the filtered contaminated image of a $256 \times 256$ square defected Gaussian image using various kernel radiuses. The dotted lines show the 95\% percentile when the hypothesis test was done on the uncontaminated image. Defected pixels have the distribution $\normal(\addNumber{../figures/inference/defectsimulation/Experiment_DefectRadiusSquare_altMean.txt},1)$. The square defect is $30\times 30$ pixels in size. The contamination is such that the null distribution is $Z_{x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$. The FDR was controlled at the $2\sigma$ level. The box plot summarise the \addNumber{../figures/inference/defectsimulation/Experiment_DefectRadiusSquare_nRepeat.txt} repeats of the experiment.}
+	\label{fig:inference_Experiment_DefectRadiusSquare}
+\end{figure}
+
+An experiment was conducted where the contaminated defected image were filtered for various kernel radiuses for a fixed alternative distribution $\normal(3,1)$. Hypothesis testing was done on the uncontaminated and filtered contaminated image. The area under the ROC curve and various errors were recorded. Results for the line and square defect are shown in Figures \ref{fig:inference_Experiment_DefectRadiusLine} and \ref{fig:inference_Experiment_DefectRadiusSquare} respectively.
+
+The results show that the ROC area increased with kernel radius. This does highlight that a kernel with a good radius can performance almost as though there was no contamination. For large kernel radius, the FDR becomes similar to the FDR obtained from the uncontaminated image. Thus it appears a large kernel radius helped preserve FDR control after filtering in these examples. However a large kernel radius does come at a computational cost. Choosing a kernel radius is a matter of trading computational cost with precise FDR control.

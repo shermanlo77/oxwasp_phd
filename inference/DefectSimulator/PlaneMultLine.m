@@ -8,8 +8,7 @@ classdef PlaneMultLine < PlaneMult
     %parameters of the alt distribution
     altMean;
     altStd;
-    %how thick the defect line is
-    lineThickness = 5;
+    lineThickness; %how thick the defect line is
   end
   
   methods (Access = public)
@@ -21,10 +20,12 @@ classdef PlaneMultLine < PlaneMult
       %multiplier: scale all pixels by this
       %altMean: alt distribution mean
       %altStd: alt distribution std
-    function this = PlaneMultLine(randStream, grad, multiplier, altMean, altStd)
+      %lineThickness: how thick the defect line is
+    function this = PlaneMultLine(randStream, grad, multiplier, altMean, altStd, lineThickness)
       this@PlaneMult(randStream, grad, multiplier);
       this.altMean = altMean;
       this.altStd = altStd;
+      this.lineThickness = lineThickness;
     end
     
     %METHOD: GET DEFECTED IMAGE
