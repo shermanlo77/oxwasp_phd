@@ -14,9 +14,11 @@ classdef (Abstract) ExperimentSubRoiDefectDetect < ExperimentDefectDetect
     
     %OVERRIDE: PRINT RESULTS
     %Include the significant pixels when doing hypothesis testing on each segment separately
-    function printResults(this)
+    %PARAMETERS:
+      %nullStdCLim: cLim for the null std plot, empty to use default min and max null std for cLim
+    function printResults(this, cLim)
       
-      this.printResults@ExperimentDefectDetect();
+      this.printResults@ExperimentDefectDetect(cLim);
       
       %for each radius
       for iRadius = 1:numel(this.radiusArray)
@@ -37,11 +39,13 @@ classdef (Abstract) ExperimentSubRoiDefectDetect < ExperimentDefectDetect
         end
         
         %plot the test image with the significant pixels from each segment
-        figure;
+        fig = LatexFigure.sub();
         sigPlot = ImagescSignificant(this.scan.loadImageStack(this.testIndex));
         sigPlot.addSigPixels(sigImage);
         sigPlot.setDilateSize(2);
         sigPlot.plot();
+        saveas(fig,fullfile(directory, strcat(this.experiment_name,'_radius',num2str(iRadius), ...
+            '_sigSeparate.eps')),'epsc');
         
       end
 

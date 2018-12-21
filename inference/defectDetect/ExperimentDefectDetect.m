@@ -30,39 +30,85 @@ classdef (Abstract) ExperimentDefectDetect < Experiment
     end
     
     %IMPLEMENTED: PRINT RESULTS
-    function printResults(this)
+    %PARAMETERS:
+      %nullStdCLim: cLim for the null std plot, empty to use default min and max null std for cLim
+    function printResults(this, nullStdCLim)
+      
+      directory = fullfile('reports','figures','inference','defectdetect');
+      
+      %array of p value images from the filtered z images
+      logPArray = zeros(this.scan.height, this.scan.width, numel(this.radiusArray));
+      
+      zCLim = [min(reshape(this.zFilterArray,[],1)), max(reshape(this.zFilterArray,[],1))];
+      nullMeanCLim = [min(reshape(this.nullMeanArray,[],1)), max(reshape(this.nullMeanArray,[],1))];
+      if (isempty(nullStdCLim))
+        nullStdCLim = ...
+            [min(reshape(this.nullStdArray,[],1)), max(reshape(this.nullStdArray,[],1))];
+      end
+      
+      %logpCLim;
       
       %for each radius
       for iRadius = 1:numel(this.radiusArray)
+        
+        %print radius
+        fildId = fopen(fullfile(directory,strcat(this.experiment_name,'_radius', ...
+            num2str(iRadius),'.txt')),'w');
+        fprintf(fildId,'%d',this.radiusArray(iRadius));
+        fclose(fildId);
         
         %do the hypothesis test on the filtered image
         filteredImage = this.zFilterArray(:,:,iRadius);
         zTester = ZTester(filteredImage);
         zTester.doTest();
+        %save the p value
+        logPArray(:,:,iRadius) = -log10(zTester.p_image);
         
         %plot the test image with the significant pixels
-        figure;
+        fig = LatexFigure.sub();
         sigPlot = ImagescSignificant(this.scan.loadImageStack(this.testIndex));
         sigPlot.addSigPixels(zTester.sig_image);
         sigPlot.setDilateSize(2);
         sigPlot.plot();
+        saveas(fig,fullfile(directory, strcat(this.experiment_name,'_radius',num2str(iRadius), ...
+            '_sig.eps')),'epsc');
         
         %plot the filtered image
-        figure;
+        fig = LatexFigure.sub();
         filteredImagePlot = ImagescSignificant(filteredImage);
+        filteredImagePlot.setCLim(zCLim);
         filteredImagePlot.plot();
+        saveas(fig,fullfile(directory, strcat(this.experiment_name,'_radius',num2str(iRadius), ...
+            '_z.eps')),'epsc');
         
         %plot the null mean
-        figure;
+        fig = LatexFigure.sub();
         nullMeanPlot = ImagescSignificant(this.nullMeanArray(:,:,iRadius));
+        nullMeanPlot.setCLim(nullMeanCLim);
         nullMeanPlot.plot();
+        saveas(fig,fullfile(directory, strcat(this.experiment_name,'_radius',num2str(iRadius), ...
+            '_nullMean.eps')),'epsc');
         
         %plot the null std
-        figure;
+        fig = LatexFigure.sub();
         nullStdPlot = ImagescSignificant(this.nullStdArray(:,:,iRadius));
-        nullStdPlot.setCLim([0,5]);
+        nullStdPlot.setCLim(nullStdCLim);
         nullStdPlot.plot();
+        saveas(fig,fullfile(directory, strcat(this.experiment_name,'_radius',num2str(iRadius), ...
+            '_nullStd.eps')),'epsc');
         
+      end
+      
+      logpCLim = [min(reshape(logPArray,[],1)), max(reshape(logPArray,[],1))];
+      %for each radius, plot -log p value
+      for iRadius = 1:numel(this.radiusArray)
+        %plot the -log p values
+        fig = LatexFigure.sub();
+        pPlot = ImagescSignificant(logPArray(:,:,iRadius));
+        pPlot.setCLim(logpCLim);
+        pPlot.plot();
+        saveas(fig,fullfile(directory, strcat(this.experiment_name,'_radius',num2str(iRadius), ...
+            '_logp.eps')),'epsc');
       end
       
     end

@@ -6,6 +6,10 @@ classdef ExperimentSubRoiDefectDetectSep16120deg < ExperimentSubRoiDefectDetect
       this@ExperimentSubRoiDefectDetect('ExperimentSubRoiDefectDetectSep16120deg');
     end
     
+    function printResults(this)
+      this.printResults@ExperimentDefectDetect([0,5]);
+    end
+    
   end
   
   methods (Access = protected)
