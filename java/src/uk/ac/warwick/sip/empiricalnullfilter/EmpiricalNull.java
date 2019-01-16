@@ -23,7 +23,7 @@ public class EmpiricalNull {
   //member variable copies of the static final variables
   private int nInitial;
   private int nStep;
-  private float tolerance;
+  private float log10Tolerance;
   private float bandwidthParameterA;
   private float bandwidthParameterB;
   
@@ -89,7 +89,7 @@ public class EmpiricalNull {
       RandomGenerator rng) {
     this.nInitial = nInitial;
     this.nStep = nStep;
-    this.tolerance = (float) Math.pow(10.0, log10Tolerance);
+    this.log10Tolerance = log10Tolerance;
     this.bandwidthParameterA = bandwidthParameterA;
     this.bandwidthParameterB = bandwidthParameterB;
     this.cache = cache;
@@ -178,7 +178,7 @@ public class EmpiricalNull {
         //get the density, 1st and 2nd diff of the ln density at the new value
         dxLnF = this.getDLnDensity(greyvalue);
         //if this gradient is within tolerance, break the i_step for loop
-        if (Math.abs(dxLnF[1])<this.tolerance) {
+        if ( Math.log10((double)Math.abs(dxLnF[1])) < this.log10Tolerance ) {
           break;
         }
         //if any of the variables are not finite, stop the algorithm
@@ -316,7 +316,7 @@ public class EmpiricalNull {
    *     log density and this.tolerance is 10^log10Tolerance
    */
   public float getLog10Tolerance() {
-    return (float) Math.log10((double)this.tolerance);
+    return this.log10Tolerance;
   }
   
   /**METHOD: SET LOG 10 TOLERANCE
@@ -325,7 +325,7 @@ public class EmpiricalNull {
    *     log density and this.tolerance is 10^log10Tolerance
    */
   public void setLog10Tolerance(float log10Tolerance) {
-    this.tolerance = (float) Math.pow(10, log10Tolerance);
+    this.log10Tolerance = log10Tolerance;
   }
   
   /**METHOD: GET BANDWIDTH PARAMETER A
