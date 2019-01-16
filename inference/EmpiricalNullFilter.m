@@ -12,6 +12,9 @@ classdef EmpiricalNullFilter < handle
     filteredImage; %resulting filtered image
     nullMean; %empirical null mean image
     nullStd; %empirical null std image
+  end
+  
+  properties (GetAccess = private)
     javaFilter; %the java object EmpiricalNullFilter
   end
   

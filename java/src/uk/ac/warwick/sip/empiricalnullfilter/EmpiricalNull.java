@@ -1,6 +1,7 @@
 package uk.ac.warwick.sip.empiricalnullfilter;
 
 import org.apache.commons.math3.distribution.NormalDistribution;
+import org.apache.commons.math3.random.MersenneTwister;
 import org.apache.commons.math3.random.RandomGenerator;
 
 public class EmpiricalNull {
@@ -16,14 +17,15 @@ public class EmpiricalNull {
   static final float BANDWIDTH_PARAMETER_A = (float) 0.15; //intercept
   static final float BANDWIDTH_PARAMETER_B = (float) 0.90; //gradient
   
-  //STATIC VERSIONS OF STATIC FINAL VARIABLES
+  
+  //MEMBER VARIABLES
+  
+  //member variable copies of the static final variables
   private int nInitial;
   private int nStep;
   private float tolerance;
   private float bandwidthParameterA;
   private float bandwidthParameterB;
-  
-  //MEMBER VARIABLES
   
   private float [] cache; //array of greyvalues
   private int x; //x position
@@ -40,8 +42,28 @@ public class EmpiricalNull {
   private NormalDistribution normalDistribution; //standard normal distributionrng = rng;
   private RandomGenerator rng; //random number generator when a random initial value is needed
   
+  
   /**CONSTRUCTOR
-   * 
+   * To be used by MATLAB, default values are provided for you
+   * @param zArray float array of z statistics to be corrected
+   * @param initialValue initial value for the newton-raphson
+   * @param quartiles array the 3 quartiles of the data in the kernel at this position
+   * @param dataStd standard deviation of the pixels in the kernel t this position
+   * @param n number of non-nan in the kernel at this position
+   * @param seed seed for the random number generator
+   */
+  public EmpiricalNull(float[] zArray, float initialValue, float[] quartiles, float dataStd,
+      int n, long seed) {
+    //the z array is treated as a cache at x = 0 position
+    //the cache pointer is exploited by setting the boundary of the kernel to be the entire z array
+    this(N_INITIAL, N_STEP, LOG_10_TOLERANCE, BANDWIDTH_PARAMETER_A,
+        BANDWIDTH_PARAMETER_B, zArray, 0, new int[] {0, zArray.length-1} , initialValue,
+        quartiles, dataStd, n, new NormalDistribution(), new MersenneTwister(seed));
+  }
+  
+  /**CONSTRUCTOR
+   * To be used by EmpiricalNullFilter
+   * All parameters must be provided
    * @param nInitial number of times to repeat the newton-raphson using different initial values
    * @param nStep number of steps in newton-raphson
    * @param log10Tolerance stopping condition tolerance for newton-raphson, stopping condition is
@@ -55,7 +77,9 @@ public class EmpiricalNull {
    * @param x x position
    * @param cachePointers array of integer pairs, pointing to the boundary of the kernel
    * @param initialValue initial value for the newton-raphson
-   * @param dataStd standard deviation of the pixels in the kernel
+   * @param quartiles array the 3 quartiles of the data in the kernel at this position
+   * @param dataStd standard deviation of the pixels in the kernel t this position
+   * @param n number of non-nan in the kernel at this position
    * @param normalDistribution standard normal distribution object
    * @param rng random number generator when a random initial value is needed
    */
@@ -257,4 +281,83 @@ public class EmpiricalNull {
   public static boolean isFinite(float f) {
     return !(Float.isNaN(f) || Float.isInfinite(f));
   }
+  
+  /**METHOD: GET N INITIAL
+   * @return number of initial points used in newton-raphson
+   */
+  public int getNInitial() {
+    return this.nInitial;
+  }
+  
+  /**METHOD: SET N INITIAL
+   * @param nInitial number of initial points used in newton-raphson
+   */
+  public void setNInitial(int nInitial) {
+    this.nInitial = nInitial;
+  }
+  
+  /**METHOD: GET N STEP
+   * @return number of steps used in newton-raphson
+   */
+  public int getNStep() {
+    return this.nStep;
+  }
+  
+  /**METHOD: SET N STEP
+   * @param nStep number of steps used in newton-raphson
+   */
+  public void setNStep(int nStep) {
+    this.nStep = nStep;
+  }
+  
+  /**METHOD: GET LOG 10 TOLERANCE
+   * @return stopping condition tolerance for newton-raphson
+   * stopping condition is Math.abs(dxLnF[1])<this.tolerance where dxLnF[1] is the gradient of the
+   *     log density and this.tolerance is 10^log10Tolerance
+   */
+  public float getLog10Tolerance() {
+    return (float) Math.log10((double)this.tolerance);
+  }
+  
+  /**METHOD: SET LOG 10 TOLERANCE
+   * @param tolerance stopping condition tolerance for newton-raphson
+   * stopping condition is Math.abs(dxLnF[1])<this.tolerance where dxLnF[1] is the gradient of the
+   *     log density and this.tolerance is 10^log10Tolerance
+   */
+  public void setLog10Tolerance(float log10Tolerance) {
+    this.tolerance = (float) Math.pow(10, log10Tolerance);
+  }
+  
+  /**METHOD: GET BANDWIDTH PARAMETER A
+   * @return the bandwidth parameter A where the bandwidth for the density estimate is
+   *     B x 0.9 x std x n^{-1/5} + A
+   */
+  public float getBandwidthParameterA() {
+    return this.bandwidthParameterA;
+  }
+  
+  /**METHOD: SET BANDWIDTH PARAMETER A
+   * @param bandwidthParameterA the bandwidth parameter A where the bandwidth for the density
+   *     estimate is B x 0.9 x std x n^{-1/5} + A
+   */
+  public void setBandwidthParameterA(float bandwidthParameterA) {
+    this.bandwidthParameterA = bandwidthParameterA;
+  }
+  
+  /**METHOD: GET BANDWIDTH PARAMETER B
+   * @return the bandwidth parameter B where the bandwidth for the density estimate is
+   *     B x 0.9 x std x n^{-1/5} + A
+   */
+  public float getBandwidthParameterB() {
+    return this.bandwidthParameterB;
+  }
+  
+  /**METHOD: SET BANDWIDTH PARAMETER B
+   * @param bandwidthParameterB the bandwidth parameter A where the bandwidth for the density
+   *     estimate is B x 0.9 x std x n^{-1/5} + A
+   */
+  public void setBandwidthParameterB(float bandwidthParameterB) {
+    this.bandwidthParameterB = bandwidthParameterB;
+  }
+  
 }
