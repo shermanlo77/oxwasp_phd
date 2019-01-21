@@ -47,6 +47,10 @@ classdef ExperimentEmpiricalNullOnIid < Experiment
       boxplot = Boxplots(this.nullMeanArray, true);
       boxplot.setPosition(this.nArray);
       boxplot.plot();
+      hold on;
+      zCritical = norminv(0.975);
+      plot(this.nArray, zCritical./sqrt(this.nArray), 'k--');
+      plot(this.nArray, -zCritical./sqrt(this.nArray), 'k--');
       ax = fig.Children(1);
       ax.XScale = 'log';
       ax.XLabel.String = 'n';
@@ -59,6 +63,9 @@ classdef ExperimentEmpiricalNullOnIid < Experiment
       boxplot = Boxplots(this.nullStdArray.^2, true);
       boxplot.setPosition(this.nArray);
       boxplot.plot();
+      hold on;
+      plot(this.nArray, chi2inv(0.975,this.nArray - 1)./(this.nArray-1), 'k--');
+      plot(this.nArray, chi2inv(0.025,this.nArray - 1)./(this.nArray-1), 'k--');
       ax = fig.Children(1);
       ax.XScale = 'log';
       ax.XLabel.String = 'n';
