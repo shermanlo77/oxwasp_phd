@@ -199,7 +199,7 @@ classdef Experiment_AllNull < Experiment
         %get the radius
         radius = this.radiusArray(iRadius);
         %instantiate an empirical null filter with that radius
-        filter = EmpiricalNullFilter(radius);
+        filter = this.getFilter(radius);
         filter.setNInitial(this.nInitial);
         
         %for nRepeat times
@@ -237,6 +237,12 @@ classdef Experiment_AllNull < Experiment
         
       end
       
+    end
+    
+    %METHOD: GET FILTER
+    %instantiate an empirical null filter with that radius
+    function filter = getFilter(this, radius)
+      filter = EmpiricalNullFilter(radius);
     end
     
   end

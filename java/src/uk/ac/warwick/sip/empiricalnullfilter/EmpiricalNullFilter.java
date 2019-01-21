@@ -635,7 +635,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
    * @param y current row
    * @param sums stores sum calculations in a kernel (size 2)
    * @param quartileBuf stores greyvalues in a kernel (size kNPoints)
-   * @param quartiles stores quartiles in a kernel (size 2)
+   * @param quartiles stores quartiles in a kernel (size 3)
    * @param normal normal distribution to evaluate the normal pdf
    * @param rng random number generator, used for trying out different initial values
    * @param smallKernel indicate if this kernel is small or not
@@ -650,7 +650,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     //indicate if a full calculation is to be done
     //that is to do a calculation without using results from the previous x
     boolean fullCalculation = true;
-    float std; //standard deviation
+    float mean, std; //mean and standard deviation
     int nData = 0; //number of non-nan data
     float initialValue = 0; //initial value to be used for the newton-raphson method
     
@@ -684,28 +684,26 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
           values[0][valuesP] = Float.NaN;
         } else {
           
-          //calculate the standard deviation
+          //calculate the mean and standard deviation
+          mean = (float) (sums[0]/nData);
           std = (float) Math.sqrt(((sums[1] - sums[0]*sums[0]/nData)/(nData-1)));
           
-          //get the empirical null
-          EmpiricalNull empiricalNull = new EmpiricalNull(this.nInitial, this.nStep,
-              this.log10Tolerance, this.bandwidthParameterA, this.bandwidthParameterB, cache, x,
-              cachePointers , initialValue, quartiles, std, nData, normal, rng);
-          empiricalNull.estimateNull();
+          //get the null mean and null std
+          float [] nullMeanStd = this.getNullMeanStd(values, cache, x, cachePointers, cacheLineP,
+              initialValue, quartiles, mean, std, nData, normal, rng);
           //normalise this pixel
-          values[0][valuesP] = (cache[cacheLineP+x] - empiricalNull.getNullMean())
-              / empiricalNull.getNullStd();
+          values[0][valuesP] = (cache[cacheLineP+x] - nullMeanStd[0]) / nullMeanStd[1];
           //for the next x, the initial value is this nullMean
-          initialValue = empiricalNull.getNullMean();
+          initialValue = nullMeanStd[0];
           //for each requested output image, save that statistic
           for (int i=0; i<N_IMAGE_OUTPUT; i++) {
             if ( (this.outputImagePointer >> i) % 2 == 1) {
               switch (i) {
                 case 0:
-                  values[1][valuesP] = empiricalNull.getNullMean();
+                  values[1][valuesP] = nullMeanStd[0];
                   break;
                 case 1:
-                  values[2][valuesP] = empiricalNull.getNullStd();
+                  values[2][valuesP] = nullMeanStd[1];
                   break;
                 case 2:
                   values[3][valuesP] = std;
@@ -725,6 +723,38 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
         }
       }
     }
+  }
+  
+  /**METHOD: GET NULL MEAN STD
+   * Returns the null mean and null std
+   * @param values array of float [] for output values to be stored
+   * @param cache contains pixels of the pre-filter image
+   * @param x position
+   * @param cachePointers pointers used by the kernel
+   * @param cacheLineP pointer for the current y line in the cache
+   * @param initialValue for the Newton-Raphson method
+   * @param quartiles 3-vector
+   * @param mean (not used)
+   * @param std
+   * @param nData number of non-nan data
+   * @param normal
+   * @param rng
+   * @return 2-vector, [null mean, null std]
+   */
+  protected float[] getNullMeanStd(float[][] values, float[] cache, int x, int[] cachePointers,
+      int cacheLineP, float initialValue, float[] quartiles, float mean, float std, int nData,
+      NormalDistribution normal, RandomGenerator rng) {
+    //declare 2 vector to store the null mean and null std
+    float[] nullMeanStd = new float[2];
+    //get the empirical null
+    EmpiricalNull empiricalNull = new EmpiricalNull(this.nInitial, this.nStep, this.log10Tolerance,
+        this.bandwidthParameterA, this.bandwidthParameterB, cache, x, cachePointers , initialValue,
+        quartiles, std, nData, normal, rng);
+    //estimate the null and get it
+    empiricalNull.estimateNull();
+    nullMeanStd[0] = empiricalNull.getNullMean();
+    nullMeanStd[1] = empiricalNull.getNullStd();
+    return nullMeanStd;
   }
   
   /**METHOD: READ LINE TO CACHE OR PAD

@@ -7,14 +7,14 @@
   %Call getter methods getFilteredImage, getNullMean and/or getNullStd to get the results
 classdef EmpiricalNullFilter < handle
   
-  properties (SetAccess = private)
+  properties (SetAccess = protected)
     radius; %radius of the kernel
     filteredImage; %resulting filtered image
     nullMean; %empirical null mean image
     nullStd; %empirical null std image
   end
   
-  properties (GetAccess = private)
+  properties (GetAccess = protected)
     javaFilter; %the java object EmpiricalNullFilter
   end
   
