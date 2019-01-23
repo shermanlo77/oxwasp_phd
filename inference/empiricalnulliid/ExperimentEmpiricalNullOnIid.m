@@ -10,7 +10,7 @@ classdef ExperimentEmpiricalNullOnIid < Experiment
   properties (SetAccess = protected)
     
     nArray = round(10.^linspace(2,5,10)); %array of n to investigate
-    nRepeat = 100; %number of times to repeat the experiment
+    nRepeat = 256*256; %number of times to repeat the experiment
     
     %array of results
       %dim 1: for each repeat
@@ -169,6 +169,8 @@ classdef ExperimentEmpiricalNullOnIid < Experiment
           this.meanZArray(iRepeat, iN) = mean(z);
           this.varZArray(iRepeat, iN) = var(z);
           this.kurtosisZArray(iRepeat, iN) = kurtosis(z);
+          
+          this.printProgress( ((iN-1)*this.nRepeat + iRepeat) / (numel(this.nArray)*this.nRepeat) );
           
         end
         
