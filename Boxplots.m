@@ -13,8 +13,7 @@ classdef Boxplots < handle
         %CONSTRUCTOR
         %PARAMETERS:
             %X: matrix, dim 1: for each obversation, dim 2: for each group or boxplot
-            %is_standard: boolean, true to use standard box plot, false to use generalised box plot
-        function this = Boxplots(X, is_standard)
+        function this = Boxplots(X, ~)
             %get the number of boxplots
             [~,this.n_boxplot] = size(X);
             %create an array of box plots
@@ -22,12 +21,7 @@ classdef Boxplots < handle
             %for each boxplot
             for i_group = 1:this.n_boxplot
                 %instantise a boxplot and save it in this.boxplot_array
-                %according to is_standard, instantise either a standard or a generalised boxplot
-                if is_standard
-                    this.boxplot_array{i_group} = Boxplot(X(:,i_group));
-                else
-                    this.boxplot_array{i_group} = BoxplotGeneralised(X(:,i_group));
-                end
+                this.boxplot_array{i_group} = this.getBoxplot(X(:,i_group));
                 %set the position of the current boxplot
                 this.boxplot_array{i_group}.setPosition(i_group - 1);
             end
@@ -117,6 +111,16 @@ classdef Boxplots < handle
           ax = this.boxplot_array{1}.legendAx;
         end
 
+    end
+    
+    methods (Access = protected)
+      
+      %METHOD: GET BOXPLOT
+      %Return a boxplot object given data X
+      function boxplot = getBoxplot(this, X)
+        boxplot = Boxplot(X);
+      end
+      
     end
     
 end
