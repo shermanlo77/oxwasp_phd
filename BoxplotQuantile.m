@@ -25,7 +25,8 @@ classdef BoxplotQuantile < Boxplot
     %METHOD: GET WHISKER
     %Get the whiskers, that is the min and max of non-outlier data
     function getWhisker(this)
-      this.whisker = quantile(this.X,[1-this.alpha,this.alpha]);
+      p = (1-this.alpha)/2;
+      this.whisker = quantile(this.X,[p,1-p]);
     end
     
     %METHOD: GET OUTLIER
