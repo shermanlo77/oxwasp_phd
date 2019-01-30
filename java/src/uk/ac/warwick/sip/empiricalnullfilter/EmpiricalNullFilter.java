@@ -588,7 +588,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
       //=====FILTER A LINE=====
       
       int cacheLineP = cacheWidth * (y % cacheHeight) + kRadius;  //points to pixel (roiRectangle.x, y)
-      this.filterLine(values, width, cache, cachePointers, kNPoints, cacheLineP, roiRectangle, y,
+      this.filterLine(values, width, cache, cachePointers, kNPoints, kRadius, cacheLineP, roiRectangle, y,
           sums, quartileBuf, quartiles, normal, rng, smallKernel);
     }// end while (!aborted[0]); loops over y (lines)
   }
@@ -641,88 +641,54 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
    * @param smallKernel indicate if this kernel is small or not
    */
   private void filterLine(float[][] values, int width, float[] cache, int[] cachePointers,
-      int kNPoints, int cacheLineP, Rectangle roiRectangle, int y, double[] sums, double[] quartileBuf,
+      int kNPoints, int kRadius, int cacheLineP, Rectangle roiRectangle, int y, double[] sums, double[] quartileBuf,
       float[] quartiles, NormalDistribution normal, RandomGenerator rng,
       boolean smallKernel) {
     
     //declare the pointer for a pixel in values
     int valuesP = roiRectangle.x+y*width;
-    //indicate if a full calculation is to be done
-    //that is to do a calculation without using results from the previous x
-    boolean fullCalculation = true;
-    float mean, std; //mean and standard deviation
-    int nData = 0; //number of non-nan data
     float initialValue = 0; //initial value to be used for the newton-raphson method
     
-    //then for each pixel in this line
-    for (int x=0; x<roiRectangle.width; x++, valuesP++) { // x is with respect to roiRectangle.x
-      
-      //if this pixel is not in the roi, for the next pixel do a full calculation as the summation
-          //cannot be propagate
-      //else this pixel is in the roi and filter this pixel
-      if (!this.roi.contains(roiRectangle.x+x, y)) {
-        fullCalculation = true;
-      } else {
-        getQuartiles(cache, x, cachePointers, quartileBuf, kNPoints, quartiles);
-        
-        if (fullCalculation) {
-          //set the initial value to be the median
-          initialValue = quartiles[1];
-          //for small kernel, always use the full area, not incremental algorithm
-          fullCalculation = smallKernel;
-          nData = getAreaSums(cache, x, cachePointers, sums);
-        } else {
-          nData = addSideSums(cache, x, cachePointers, sums, nData);
-          //avoid perpetuating NaNs into remaining line
-          if (Double.isNaN(sums[0])) {
-            fullCalculation = true;
-          }
-        }
-        
-        if (nData < 2) {
-          fullCalculation = true;
-          values[0][valuesP] = Float.NaN;
-        } else {
-          
-          //calculate the mean and standard deviation
-          mean = (float) (sums[0]/nData);
-          std = (float) Math.sqrt(((sums[1] - sums[0]*sums[0]/nData)/(nData-1)));
-          
-          //get the null mean and null std
-          float [] nullMeanStd = this.getNullMeanStd(values, cache, x, cachePointers, cacheLineP,
-              initialValue, quartiles, mean, std, nData, normal, rng);
-          //normalise this pixel
-          values[0][valuesP] = (cache[cacheLineP+x] - nullMeanStd[0]) / nullMeanStd[1];
-          //for the next x, the initial value is this nullMean
-          initialValue = nullMeanStd[0];
-          //for each requested output image, save that statistic
-          for (int i=0; i<N_IMAGE_OUTPUT; i++) {
-            if ( (this.outputImagePointer >> i) % 2 == 1) {
-              switch (i) {
-                case 0:
-                  values[1][valuesP] = nullMeanStd[0];
-                  break;
-                case 1:
-                  values[2][valuesP] = nullMeanStd[1];
-                  break;
-                case 2:
-                  values[3][valuesP] = std;
-                  break;
-                case 3:
-                  values[4][valuesP] = quartiles[0];
-                  break;
-                case 4:
-                  values[5][valuesP] = quartiles[1];
-                  break;
-                case 5:
-                  values[6][valuesP] = quartiles[2];
-                  break;
-              }
+    Kernel kernel = new Kernel(y, cache, cachePointers, kNPoints, kRadius, this.roi,
+        this.imageProcessor.getWidth(), true, true);
+    
+    do {
+      if (kernel.isFinite()) {
+        //get the null mean and null std
+        float [] nullMeanStd = this.getNullMeanStd(values, cache, kernel.getX(), cachePointers, cacheLineP,
+            initialValue, kernel.getQuartiles(), kernel.getMean(), kernel.getStd(), kernel.getNFinite(), normal, rng);
+        //normalise this pixel
+        values[0][valuesP] = (cache[cacheLineP+kernel.getX()] - nullMeanStd[0]) / nullMeanStd[1];
+        //for the next x, the initial value is this nullMean
+        initialValue = nullMeanStd[0];
+        //for each requested output image, save that statistic
+        for (int i=0; i<N_IMAGE_OUTPUT; i++) {
+          if ( (this.outputImagePointer >> i) % 2 == 1) {
+            switch (i) {
+              case 0:
+                values[1][valuesP] = nullMeanStd[0];
+                break;
+              case 1:
+                values[2][valuesP] = nullMeanStd[1];
+                break;
+              case 2:
+                values[3][valuesP] = kernel.getStd();
+                break;
+              case 3:
+                values[4][valuesP] = kernel.getQuartiles()[0];
+                break;
+              case 4:
+                values[5][valuesP] = kernel.getQuartiles()[1];
+                break;
+              case 5:
+                values[6][valuesP] = kernel.getQuartiles()[2];
+                break;
             }
           }
         }
       }
-    }
+      valuesP++;
+    } while(kernel.moveRight());
   }
   
   /**METHOD: GET NULL MEAN STD
