@@ -117,33 +117,48 @@ public class EmpiricalNull {
       initialValue = this.getRandomInitial();
     }
     
-    //declare arrays, storing the max density and empirical null parameters 
+    //declare arrays, storing the max density, mode and the 2nd div of the log density at mode
     //for each new initial point
     float [] densityArray = new float[this.nInitial];
     float [] nullMeanArray = new float[this.nInitial];
-    float [] nullStdArray = new float[this.nInitial];
+    float [] secondDivArray = new float[this.nInitial];
     
     //for each initial point
     for (int i=0; i<this.nInitial; i++) {
-      //find the maximum density, get the empirical null parameters and save them
-      float[] densityAndNull = this.findMode(initialValue);
-      densityArray[i] = densityAndNull[0];
-      nullMeanArray[i] = densityAndNull[1];
-      nullStdArray[i] = densityAndNull[2];
+      //find the maximum density
+      //density at mode contains the density at the mode, the position of the mode and the second
+          //derivative of the log density at the mode
+      float[] densityAtMode = this.findMode(initialValue);
+      densityArray[i] = densityAtMode[0];
+      nullMeanArray[i] = densityAtMode[1];
+      secondDivArray[i] = densityAtMode[2];
       //get a random value for the next initial point
       initialValue = this.getRandomInitial();
     }
     
-    //find the maximum density
     //the empirical null parameters chosen are the ones with the highest density
     float maxDensity = Float.NEGATIVE_INFINITY;
+    int maxPointer = -1; //pointer to the initial value with the highest density
+    //find the maximum density for each initial value
     for (int i=0; i<this.nInitial; i++) {
       if (densityArray[i] > maxDensity) {
         maxDensity = densityArray[i];
-        this.nullMean = nullMeanArray[i];
-        this.nullStd = nullStdArray[i];
+        maxPointer = i;
       }
     }
+    //save the empirical null mean and empirical null std
+    this.nullMean = nullMeanArray[maxPointer];
+    this.nullStd = this.estimateNullStd(nullMeanArray[maxPointer], secondDivArray[maxPointer]);
+  }
+  
+  /**METHOD: ESTIMATE NULL STD
+   * Return the null std given the mode and the second derivative of the log density
+   * @param mode location of the mode
+   * @param secondDiv second derivative of the log density at the mode
+   * @return empirical null std
+   */
+  protected float estimateNullStd(float mode, float secondDiv) {
+    return (float) Math.pow(-secondDiv, -0.5);
   }
   
   /**METHOD: SET NULL TO RANDOM DATA
@@ -156,12 +171,12 @@ public class EmpiricalNull {
   
   /**METHOD: FIND MODE
    * Find the mode of the log density using the newton-raphson method
-   * @return 3-array, [0] contains the maximum density, [1] empirical null mean, [2] empirical null
+   * @return 3-array, [0] contains the maximum density, [1] mode, [2] 2nd div of log density
    * std
    */
   private float[] findMode(float greyvalue) {
     //declare array for the output
-    float[] densityAndNull = new float[3];
+    float[] densityAtMode = new float[3];
     //declare flag to indiciate if a solution has been found
     boolean foundSolution = false;
     //while no solution has been found
@@ -199,14 +214,14 @@ public class EmpiricalNull {
           && EmpiricalNull.isFinite(dxLnF[2]) && EmpiricalNull.isFinite(greyvalue)
           && (dxLnF[2] < 0)) {
         foundSolution = true;
-        densityAndNull[0] = dxLnF[0];
-        densityAndNull[1] = greyvalue;
-        densityAndNull[2] = (float) Math.pow((double) -dxLnF[2], -0.5);
+        densityAtMode[0] = dxLnF[0];
+        densityAtMode[1] = greyvalue;
+        densityAtMode[2] = dxLnF[2];
       }
       greyvalue = this.getRandomInitial();
     }
     
-    return densityAndNull;
+    return densityAtMode;
   }
   
   /**METHOD: GET D LN DENSITY
