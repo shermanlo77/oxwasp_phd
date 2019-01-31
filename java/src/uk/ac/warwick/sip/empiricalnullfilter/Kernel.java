@@ -8,16 +8,22 @@ import ij.gui.Roi;
 
 public class Kernel {
   
+  //=====STATIC VARIABLES=====//
+  private static boolean isSmallKernel; //indicate if this kernel is small of not
+  private static int kNPoints;
+  private static int kRadius;
+  private static int kHeight;
+  private static int [] kernelPointer;
+  
+  //=====MEMBER VARIABLES=====//
   private double[] sums; //[0] sum of greyvalues, [1] sum of greyvalues squared
   private double[] pixels; //array of pixel greyvalues in the kernel
   private float mean;
   private float std;
   private float[] quartiles; //[0,1,2] 1st 2nd and 3rd quartiles greyvalues of pixels in the kernel
-  private boolean isSmallKernel; //indicate if this kernel is small of not
   private boolean isFullCalculation; //true to do full sum
   private int x; //x position of kernel, increments with the method moveKernel()
   private int y; //y position of kernel, fixed
-  private int width;
   private int nFinite;
   private boolean isFinite;
   
@@ -40,15 +46,12 @@ public class Kernel {
    * @param isMeanStd
    * @param isQuartile
    */
-  public Kernel(int y, float[] cache, int[] cachePointers, int kNPoints, float kRadius, Roi roi,
-      int width, boolean isMeanStd, boolean isQuartile) {
+  public Kernel(float[] cache, int[] cachePointers, Roi roi, boolean isMeanStd,
+      boolean isQuartile) {
     
-    this.x = 0;
-    this.y = y;
     this.cache = cache;
     this.cachePointers = cachePointers;
     this.roi = roi;
-    this.width  = width;
     
     this.isMeanStd = isMeanStd;
     this.isQuartile = isQuartile;
@@ -58,11 +61,15 @@ public class Kernel {
     this.pixels = new double[kNPoints]; //stores greyvalues of pixels in a kernel
     
     this.quartiles = new float[3];
-    this.isSmallKernel = kRadius < 2; //indicate if this kernel is small
     this.isFullCalculation = true;
     
+  }
+  
+  public void moveToNewLine(int y) {
+    this.y = y;
+    this.x = 0;
+    this.isFullCalculation = true;
     this.updateStatistics();
-    
   }
   
   public boolean moveRight() {
@@ -90,7 +97,7 @@ public class Kernel {
       if (this.isMeanStd) {
         if (this.isFullCalculation) {
           //for small kernel, always use the full area, not incremental algorithm
-          this.isFullCalculation = this.isSmallKernel;
+          this.isFullCalculation = isSmallKernel;
           this.sumArea();
         } else {
           this.sumSides();
@@ -235,6 +242,71 @@ public class Kernel {
   
   public int getX() {
     return this.x;
+  }
+  
+  /**METHOD: MAKE LINE RADII
+   * Create a circular kernel (structuring element) of a given radius.
+   * @param radius
+   * Radius = 0.5 includes the 4 neighbors of the pixel in the center,
+   *  radius = 1 corresponds to a 3x3 kernel size.
+   * @return the circular kernel
+   * The output is an array that gives the length of each line of the structuring element
+   * (kernel) to the left (negative) and to the right (positive):
+   * [0] left in line 0, [1] right in line 0,
+   * [2] left in line 2, ...
+   * The maximum (absolute) value should be kernelRadius.
+   * Array elements at the end:
+   * length-2: nPoints, number of pixels in the kernel area
+   * length-1: kernelRadius in x direction (kernel width is 2*kernelRadius+1)
+   * Kernel height can be calculated as (array length - 1)/2 (odd number);
+   * Kernel radius in y direction is kernel height/2 (truncating integer division).
+   * Note that kernel width and height are the same for the circular kernels used here,
+   * but treated separately for the case of future extensions with non-circular kernels.
+   * e.g. r=0.5 will return [0,0,-1,1,0,0,nPoints, kernelRadius]
+   * e.g. r=3 will return [-1,1,-2,2,-3,3,-3,3,-3,3,-2,2,-1,1,nPoints, kernelRadius]
+   */
+  public static void setKernel(double radius) {
+    if (radius>=1.5 && radius<1.75) {//this code creates the same sizes as the previous RankFilters
+      radius = 1.75;
+    } else if (radius>=2.5 && radius<2.85) {
+      radius = 2.85;
+    }
+    int r2 = (int) (radius*radius) + 1;
+    kRadius = (int)(Math.sqrt(r2+1e-10));
+    kHeight = 2*kRadius + 1;
+    kernelPointer = new int[2*kHeight];
+    kernelPointer[2*kRadius] = -kRadius;
+    kernelPointer[2*kRadius+1] =  kRadius;
+    kNPoints = 2*kRadius+1;
+    for (int y=1; y<=kRadius; y++) { //lines above and below center together
+      int dx = (int)(Math.sqrt(r2-y*y+1e-10));
+      kernelPointer[2*(kRadius-y)] = -dx;
+      kernelPointer[2*(kRadius-y)+1] =  dx;
+      kernelPointer[2*(kRadius+y)] = -dx;
+      kernelPointer[2*(kRadius+y)+1] =  dx;
+      kNPoints += 4*dx+2; //2*dx+1 for each line, above&below
+    }
+    isSmallKernel = kRadius < 2; //indicate if this kernel is small
+  }
+
+  public static boolean getIsSmallKernel() {
+    return isSmallKernel;
+  }
+
+  public static int getKNPoints() {
+    return kNPoints;
+  }
+
+  public static int getKRadius() {
+    return kRadius;
+  }
+
+  public static int getKHeight() {
+    return kHeight;
+  }
+
+  public static int[] getKernelPointer() {
+    return kernelPointer;
   }
   
 }

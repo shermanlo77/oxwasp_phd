@@ -326,8 +326,8 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     
     //roi = region of interest
     Rectangle roiRectangle = this.imageProcessor.getRoi();
-    //pointers which indicate the shape of the kernel
-    final int[] lineRadii = this.makeLineRadii(this.radius);
+    //setup the kernel
+    Kernel.setKernel(this.radius);
     
     //instantiate new images for each outout
     for (int i=0; i<N_IMAGE_OUTPUT; i++) {
@@ -349,14 +349,12 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     }
     
     //get properties of the kernel and the cache
-    int kHeight = kHeight(lineRadii);
-    int kRadius  = kRadius(lineRadii);
-    final int cacheWidth = roiRectangle.width+2*kRadius;
-    final int cacheHeight = kHeight + (numThreads>1 ? 2*numThreads : 0);
+    final int cacheWidth = roiRectangle.width+2*Kernel.getKRadius();
+    final int cacheHeight = Kernel.getKHeight() + (numThreads>1 ? 2*numThreads : 0);
     //'cache' is the input buffer. Each line y in the image is mapped onto cache line y%cacheHeight
     final float[] cache = new float[cacheWidth*cacheHeight];
     //this line+1 will be read into the cache first
-    this.highestYinCache = Math.max(roiRectangle.y-kHeight/2, 0) - 1;
+    this.highestYinCache = Math.max(roiRectangle.y-Kernel.getKHeight()/2, 0) - 1;
     
     //copy the pointer of the image processor
     final ImageProcessor imageProcessor = this.imageProcessor;
@@ -378,7 +376,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
       final Thread thread = new Thread(
           new Runnable() {
             final public void run() {
-              threadFilter(imageProcessor, lineRadii, cache, cacheWidth, cacheHeight, yForThread,
+              threadFilter(imageProcessor, cache, cacheWidth, cacheHeight, yForThread,
                   ti, seed, aborted);
             }
           },
@@ -389,7 +387,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     }
     
     //main thread start filtering
-    this.threadFilter(imageProcessor, lineRadii, cache, cacheWidth, cacheHeight, yForThread, 0,
+    this.threadFilter(imageProcessor, cache, cacheWidth, cacheHeight, yForThread, 0,
         rng.nextLong(), aborted);
     
     //join each thread
@@ -434,29 +432,24 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
    * @param seed seed for rng
    * @param aborted
    */
-  private void threadFilter(ImageProcessor ip, int[] lineRadii, float[] cache, int cacheWidth,
+  private void threadFilter(ImageProcessor ip, float[] cache, int cacheWidth,
       int cacheHeight, int [] yForThread, int threadNumber, long seed, boolean[] aborted) {
-    
-    if (aborted[0] || Thread.currentThread().isInterrupted()) {
-      return;
-    }
     
     //get properties of this image
     int width = ip.getWidth();
     int height = ip.getHeight();
     Rectangle roiRectangle = ip.getRoi();
     
-    //get properties of this kernel
-    int kHeight = kHeight(lineRadii);
-    int kRadius  = kRadius(lineRadii);
-    int kNPoints = kNPoints(lineRadii);
+    //get the pointer of the kernel given the width of the cache
+    int[]cachePointers = makeCachePointers(cacheWidth);
+    Kernel kernel = new Kernel(cache, cachePointers, roi, true, true);
+    if (aborted[0] || Thread.currentThread().isInterrupted()) {
+      return;
+    }
     
     //get the boundary
-    int xmin = roiRectangle.x - kRadius;
-    int xmax = roiRectangle.x + roiRectangle.width + kRadius;
-    
-    //get the pointer of the kernel given the width of the cache
-    int[]cachePointers = makeCachePointers(lineRadii, cacheWidth);
+    int xmin = roiRectangle.x - Kernel.getKRadius();
+    int xmax = roiRectangle.x + roiRectangle.width + Kernel.getKRadius();
     
     //pad out the image, eg when the kernel is on the boundary of the image
     int padLeft = xmin<0 ? -xmin : 0;
@@ -465,18 +458,10 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     int xmaxInside = xmax<width ? xmax : width;
     int widthInside = xmaxInside - xminInside;
     
-    //arrays to store calculations of pixels contained in a kernel
-    double[] sums = new double[2]; //[0] sum of greyvalues, [1] sum of greyvalues squared
-    double[] quartileBuf = new double[kNPoints]; //stores greyvalues of pixels in a kernel
-    //[0,1,2] 1st 2nd and 3rd quartiles greyvalues of pixels in a kernel
-    float [] quartiles = new float[3];
-    
     //for calculation the normal pdf
     NormalDistribution normal = new NormalDistribution();
     //rng for trying out different initial values
     RandomGenerator rng = new MersenneTwister(seed);
-    
-    boolean smallKernel = kRadius < 2; //indicate if this kernel is small
     
     //values is a 2D array
     //each dimension contain the pixel values for each image
@@ -496,7 +481,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     
     int numThreads = yForThread.length;
     long lastTime = System.currentTimeMillis();
-    int previousY = kHeight/2-cacheHeight;
+    int previousY = Kernel.getKHeight()/2-cacheHeight;
     
     //while loop, loop over each y
     while (!aborted[0]) {
@@ -537,10 +522,10 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
         //non-synchronized check to avoid overhead
         int slowestThreadY = arrayMinNonNegative(yForThread);
        //we would overwrite data needed by another thread
-        if (y - slowestThreadY + kHeight > cacheHeight) {
+        if (y - slowestThreadY + Kernel.getKHeight() > cacheHeight) {
           synchronized(this) {
             slowestThreadY = arrayMinNonNegative(yForThread); //recheck whether we have to wait
-            if (y - slowestThreadY + kHeight > cacheHeight) {
+            if (y - slowestThreadY + Kernel.getKHeight() > cacheHeight) {
               do {
                 notifyAll(); //avoid deadlock: wake up others waiting
                 threadWaiting = true;
@@ -557,7 +542,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
                   return;
                 }
                 slowestThreadY = arrayMinNonNegative(yForThread);
-              } while (y - slowestThreadY + kHeight > cacheHeight);
+              } while (y - slowestThreadY + Kernel.getKHeight() > cacheHeight);
             } //end if
             threadWaiting = false;
           }
@@ -567,18 +552,18 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
       //=====READ INTO CACHE===== (untouched from original source code)
       
       if (numThreads==1) {
-        int yStartReading = y==roiRectangle.y ? Math.max(roiRectangle.y-kHeight/2, 0) : y+kHeight/2;
-        for (int yNew = yStartReading; yNew<=y+kHeight/2; yNew++) { //only 1 line except at start
+        int yStartReading = y==roiRectangle.y ? Math.max(roiRectangle.y-Kernel.getKHeight()/2, 0) : y+Kernel.getKHeight()/2;
+        for (int yNew = yStartReading; yNew<=y+Kernel.getKHeight()/2; yNew++) { //only 1 line except at start
           this.readLineToCacheOrPad(pixels, width, height, roiRectangle.y, xminInside, widthInside,
-              cache, cacheWidth, cacheHeight, padLeft, padRight, kHeight, yNew);
+              cache, cacheWidth, cacheHeight, padLeft, padRight, Kernel.getKHeight(), yNew);
         }
       } else {
-        if (!copyingToCache || highestYinCache < y+kHeight/2) synchronized(cache) {
+        if (!copyingToCache || highestYinCache < y+Kernel.getKHeight()/2) synchronized(cache) {
           copyingToCache = true; // copy new line(s) into cache
-          while (highestYinCache < arrayMinNonNegative(yForThread) - kHeight/2 + cacheHeight - 1) {
+          while (highestYinCache < arrayMinNonNegative(yForThread) - Kernel.getKHeight()/2 + cacheHeight - 1) {
             int yNew = highestYinCache + 1;
             this.readLineToCacheOrPad(pixels, width, height, roiRectangle.y, xminInside,
-                widthInside, cache, cacheWidth, cacheHeight, padLeft, padRight, kHeight, yNew);
+                widthInside, cache, cacheWidth, cacheHeight, padLeft, padRight, Kernel.getKHeight(), yNew);
             highestYinCache = yNew;
           }
           copyingToCache = false;
@@ -588,9 +573,9 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
       //=====FILTER A LINE=====
       
       //points to pixel (roiRectangle.x, y)
-      int cacheLineP = cacheWidth * (y % cacheHeight) + kRadius;
-      this.filterLine(values, width, cache, cachePointers, kNPoints, kRadius, cacheLineP,
-          roiRectangle, y, sums, quartileBuf, quartiles, normal, rng, smallKernel);
+      int cacheLineP = cacheWidth * (y % cacheHeight) + Kernel.getKRadius();
+      this.filterLine(values, width, kernel, cache, cachePointers, cacheLineP,
+          roiRectangle, y, normal, rng);
     }// end while (!aborted[0]); loops over y (lines)
   }
   
@@ -641,18 +626,14 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
    * @param rng random number generator, used for trying out different initial values
    * @param smallKernel indicate if this kernel is small or not
    */
-  private void filterLine(float[][] values, int width, float[] cache, int[] cachePointers,
-      int kNPoints, int kRadius, int cacheLineP, Rectangle roiRectangle, int y, double[] sums,
-      double[] quartileBuf, float[] quartiles, NormalDistribution normal, RandomGenerator rng,
-      boolean smallKernel) {
+  private void filterLine(float[][] values, int width, Kernel kernel, float[] cache, int[] cachePointers,
+      int cacheLineP, Rectangle roiRectangle, int y, NormalDistribution normal,
+      RandomGenerator rng) {
     
     //declare the pointer for a pixel in values
     int valuesP = roiRectangle.x+y*width;
     float initialValue = 0; //initial value to be used for the newton-raphson method
-    
-    Kernel kernel = new Kernel(y, cache, cachePointers, kNPoints, kRadius, this.roi,
-        this.imageProcessor.getWidth(), true, true);
-    
+    kernel.moveToNewLine(y);
     do {
       if (kernel.isFinite()) {
         //get the null mean and null std
@@ -796,77 +777,6 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     }
   }
   
-  /**METHOD: MAKE LINE RADII
-   * Create a circular kernel (structuring element) of a given radius.
-   * @param radius
-   * Radius = 0.5 includes the 4 neighbors of the pixel in the center,
-   *  radius = 1 corresponds to a 3x3 kernel size.
-   * @return the circular kernel
-   * The output is an array that gives the length of each line of the structuring element
-   * (kernel) to the left (negative) and to the right (positive):
-   * [0] left in line 0, [1] right in line 0,
-   * [2] left in line 2, ...
-   * The maximum (absolute) value should be kernelRadius.
-   * Array elements at the end:
-   * length-2: nPoints, number of pixels in the kernel area
-   * length-1: kernelRadius in x direction (kernel width is 2*kernelRadius+1)
-   * Kernel height can be calculated as (array length - 1)/2 (odd number);
-   * Kernel radius in y direction is kernel height/2 (truncating integer division).
-   * Note that kernel width and height are the same for the circular kernels used here,
-   * but treated separately for the case of future extensions with non-circular kernels.
-   * e.g. r=0.5 will return [0,0,-1,1,0,0,nPoints, kernelRadius]
-   * e.g. r=3 will return [-1,1,-2,2,-3,3,-3,3,-3,3,-2,2,-1,1,nPoints, kernelRadius]
-   */
-  private int[] makeLineRadii(double radius) {
-    if (radius>=1.5 && radius<1.75) {//this code creates the same sizes as the previous RankFilters
-      radius = 1.75;
-    } else if (radius>=2.5 && radius<2.85) {
-      radius = 2.85;
-    }
-    int r2 = (int) (radius*radius) + 1;
-    int kRadius = (int)(Math.sqrt(r2+1e-10));
-    int kHeight = 2*kRadius + 1;
-    int[] kernel = new int[2*kHeight + 2];
-    kernel[2*kRadius] = -kRadius;
-    kernel[2*kRadius+1] =  kRadius;
-    int nPoints = 2*kRadius+1;
-    for (int y=1; y<=kRadius; y++) { //lines above and below center together
-      int dx = (int)(Math.sqrt(r2-y*y+1e-10));
-      kernel[2*(kRadius-y)] = -dx;
-      kernel[2*(kRadius-y)+1] =  dx;
-      kernel[2*(kRadius+y)] = -dx;
-      kernel[2*(kRadius+y)+1] =  dx;
-      nPoints += 4*dx+2; //2*dx+1 for each line, above&below
-    }
-    kernel[kernel.length-2] = nPoints;
-    kernel[kernel.length-1] = kRadius;
-    return kernel;
-  }
-  
-  /**METHOD: KERNEL HEIGHT
-   * @param lineRadii 
-   * @return kernel height
-   */
-  private int kHeight(int[] lineRadii) {
-    return (lineRadii.length-2)/2;
-  }
-  
-  //
-  /**METHOD: KERNEL RADIUS
-   * @param lineRadii see makeLineRadii
-   * @return kernel radius in x direction. width is 2+kRadius+1
-   */
-  private int kRadius(int[] lineRadii) {
-    return lineRadii[lineRadii.length-1];
-  }
-  
-  /**METHOD: KERNEL N POINTS
-   * @param lineRadii see makeLineRadii
-   * @return number of points in kernal area
-   */
-  private int kNPoints(int[] lineRadii) {
-    return lineRadii[lineRadii.length-2];
-  }
   
   /**METHOD: MAKE CACHE POINTERS
    * cache pointers for a given kernel and cache width
@@ -875,13 +785,11 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
    * @return cache pointers for a given kernel
    * e.g. radius = 0.5, cache width = 10 returns [1,1,10,12,21,21];
    */
-  private int[] makeCachePointers(int[] lineRadii, int cacheWidth) {
-    int kRadius = kRadius(lineRadii);
-    int kHeight = kHeight(lineRadii);
-    int[] cachePointers = new int[2*kHeight];
-    for (int i=0; i<kHeight; i++) {
-      cachePointers[2*i]   = i*cacheWidth+kRadius + lineRadii[2*i];
-      cachePointers[2*i+1] = i*cacheWidth+kRadius + lineRadii[2*i+1];
+  private int[] makeCachePointers(int cacheWidth) {
+    int[] cachePointers = new int[2*Kernel.getKHeight()];
+    for (int i=0; i<Kernel.getKHeight(); i++) {
+      cachePointers[2*i]   = i*cacheWidth+Kernel.getKRadius() + Kernel.getKernelPointer()[2*i];
+      cachePointers[2*i+1] = i*cacheWidth+Kernel.getKRadius() + Kernel.getKernelPointer()[2*i+1];
     }
     return cachePointers;
   }
@@ -995,14 +903,12 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     for (double r=0.5; r<50; r+=0.5) {
       ImageProcessor ip = new FloatProcessor(w,h,new int[w*h]);
       float[] pixels = (float[])ip.getPixels();
-      int[] lineRadii = makeLineRadii(r);
-      int kHeight = kHeight(lineRadii);
-      int kRadius = kRadius(lineRadii);
-      int y0 = h/2-kHeight/2;
-      for (int i = 0, y = y0; i<kHeight; i++, y++)
-        for (int x = w/2+lineRadii[2*i], p = x+y*w; x <= w/2+lineRadii[2*i+1]; x++, p++)
+      int y0 = h/2-Kernel.getKHeight()/2;
+      for (int i = 0, y = y0; i<Kernel.getKHeight(); i++, y++)
+        for (int x = w/2+Kernel.getKernelPointer()[2*i], p = x+y*w;
+            x <= w/2+Kernel.getKernelPointer()[2*i+1]; x++, p++)
           pixels[p] = 1f;
-      stack.addSlice("radius="+r+", size="+(2*kRadius+1), ip);
+      stack.addSlice("radius="+r+", size="+(2*Kernel.getKRadius()+1), ip);
     }
     new ImagePlus("Masks", stack).show();
   }
