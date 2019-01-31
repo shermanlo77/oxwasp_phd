@@ -577,8 +577,8 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
           copyingToCache = true; // copy new line(s) into cache
           while (highestYinCache < arrayMinNonNegative(yForThread) - kHeight/2 + cacheHeight - 1) {
             int yNew = highestYinCache + 1;
-            this.readLineToCacheOrPad(pixels, width, height, roiRectangle.y, xminInside, widthInside,
-              cache, cacheWidth, cacheHeight, padLeft, padRight, kHeight, yNew);
+            this.readLineToCacheOrPad(pixels, width, height, roiRectangle.y, xminInside,
+                widthInside, cache, cacheWidth, cacheHeight, padLeft, padRight, kHeight, yNew);
             highestYinCache = yNew;
           }
           copyingToCache = false;
@@ -587,9 +587,10 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
       
       //=====FILTER A LINE=====
       
-      int cacheLineP = cacheWidth * (y % cacheHeight) + kRadius;  //points to pixel (roiRectangle.x, y)
-      this.filterLine(values, width, cache, cachePointers, kNPoints, kRadius, cacheLineP, roiRectangle, y,
-          sums, quartileBuf, quartiles, normal, rng, smallKernel);
+      //points to pixel (roiRectangle.x, y)
+      int cacheLineP = cacheWidth * (y % cacheHeight) + kRadius;
+      this.filterLine(values, width, cache, cachePointers, kNPoints, kRadius, cacheLineP,
+          roiRectangle, y, sums, quartileBuf, quartiles, normal, rng, smallKernel);
     }// end while (!aborted[0]); loops over y (lines)
   }
   
@@ -641,8 +642,8 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
    * @param smallKernel indicate if this kernel is small or not
    */
   private void filterLine(float[][] values, int width, float[] cache, int[] cachePointers,
-      int kNPoints, int kRadius, int cacheLineP, Rectangle roiRectangle, int y, double[] sums, double[] quartileBuf,
-      float[] quartiles, NormalDistribution normal, RandomGenerator rng,
+      int kNPoints, int kRadius, int cacheLineP, Rectangle roiRectangle, int y, double[] sums,
+      double[] quartileBuf, float[] quartiles, NormalDistribution normal, RandomGenerator rng,
       boolean smallKernel) {
     
     //declare the pointer for a pixel in values
@@ -655,8 +656,9 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     do {
       if (kernel.isFinite()) {
         //get the null mean and null std
-        float [] nullMeanStd = this.getNullMeanStd(values, cache, kernel.getX(), cachePointers, cacheLineP,
-            initialValue, kernel.getQuartiles(), kernel.getMean(), kernel.getStd(), kernel.getNFinite(), normal, rng);
+        float [] nullMeanStd = this.getNullMeanStd(values, cache, kernel.getX(), cachePointers,
+            cacheLineP, initialValue, kernel.getQuartiles(), kernel.getMean(), kernel.getStd(),
+            kernel.getNFinite(), normal, rng);
         //normalise this pixel
         values[0][valuesP] = (cache[cacheLineP+kernel.getX()] - nullMeanStd[0]) / nullMeanStd[1];
         //for the next x, the initial value is this nullMean
@@ -791,106 +793,6 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     }
     for (int cp=cacheLineP+padLeft+widthInside; cp<cacheLineP+padLeft+widthInside+padRight; cp++) {
       cache[cp] = Float.NaN;
-    }
-  }
-  
-  /**METHOD: GET AREA SUMS
-   * Get sum of values and values squared within the kernel area.
-   * x between 0 and cacheWidth-1
-   * Output is written to array sums[0] = sum; sums[1] = sum of squares
-   * Ignores nan
-   * Returns the number of non-nan numbers
-   * @param cache
-   * @param xCache0
-   * @param kernel
-   * @param sums modified
-   * @return  number of non-nan numbers
-   */
-  private static int getAreaSums(float[] cache, int xCache0, int[] kernel, double[] sums) {
-    double sum=0, sum2=0;
-    int nData = 0;
-    //y within the cache stripe (we have 2 kernel pointers per cache line)
-    for (int kk=0; kk<kernel.length; kk++) {
-      for (int p=kernel[kk++]+xCache0; p<=kernel[kk]+xCache0; p++) {
-        double v = cache[p];
-        if (!Double.isNaN(v)) {
-          sum += v;
-          sum2 += v*v;
-          nData++;
-        }
-      }
-    }
-    sums[0] = sum;
-    sums[1] = sum2;
-    return nData;
-  }
-  
-  /**METHOD: ADD SIDE SUMS
-   * Add all values and values squared at the right border inside minus at the left border outside
-   * the kernal area.
-   * Output is added or subtracted to/from array sums[0] += sum; sums[1] += sum of squares  when at
-   * the right border, minus when at the left border
-   * @param cache
-   * @param xCache0
-   * @param kernel
-   * @param sums modified
-   * @param nData
-   * @return number of non-nan numbers
-   */
-  private static int addSideSums(float[] cache, int xCache0, int[] kernel, double[] sums,
-      int nData) {
-    double sum=0, sum2=0;
-    //for each row
-    for (int kk=0; kk<kernel.length; /*k++;k++ below*/) {
-      double v = cache[kernel[kk++]+(xCache0-1)]; //this value is not in the kernel area any more
-      if (!Double.isNaN(v)) {
-        sum -= v;
-        sum2 -= v*v;
-        nData--;
-      }
-      v = cache[kernel[kk++]+xCache0]; //this value comes into the kernel area
-      if (!Double.isNaN(v)) {
-        sum += v;
-        sum2 += v*v;
-        nData++;
-      }
-    }
-    sums[0] += sum;
-    sums[1] += sum2;
-    return nData;
-  }
-  
-  /**METHOD: GET QUARTILES
-   * Get the quartiles of values within kernel-sized neighborhood.
-   * nan values are ignored
-   * @param cache
-   * @param xCache0
-   * @param kernel
-   * @param quartileBuf
-   * @param kNPoints
-   * @param quartiles modified
-   */
-  private static void getQuartiles(float[] cache, int xCache0, int[] kernel,
-      double[] quartileBuf, int kNPoints, float[] quartiles) {
-    //copy the greyvalues in a pixel into quartileBuf
-    int nFinite=0;
-    for (int kk=0; kk<kernel.length; kk++) {
-      for (int p=kernel[kk++]+xCache0; p<=kernel[kk]+xCache0; p++) {
-        float v = cache[p];
-        if (!Float.isNaN(v)) {
-          quartileBuf[nFinite] = (double) v;
-          nFinite++;
-        }
-        
-      }
-    }
-    //percentile only works if there are 2 or more values
-    if (nFinite >= 2) {
-      Percentile percentile = new Percentile();
-      percentile.setData(quartileBuf, 0, nFinite);
-      for (int i=0; i<3; i++) {
-        quartiles[i] = (float) percentile.evaluate((i+1) * 25.0);
-      }
     }
   }
   
