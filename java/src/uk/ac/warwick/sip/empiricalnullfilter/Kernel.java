@@ -24,13 +24,14 @@ public class Kernel {
   private boolean isFullCalculation; //true to do full sum
   private int x; //x position of kernel, increments with the method moveKernel()
   private int y; //y position of kernel, fixed
+  private int previousY;
   private int nFinite;
   private boolean isFinite;
   
   private boolean isMeanStd; //indicate if to calculate sums
   private boolean isQuartile; //indicate if to do quartile calculations
   
-  private float[] cache; //contains copy of pixels of the orginial image
+  private Cache cache; //contains copy of pixels of the orginial image
   //pairs of integers which points to the cache according to the shape of the kernel
   private int[] cachePointers;
   Roi roi; //region of interest
@@ -46,11 +47,17 @@ public class Kernel {
    * @param isMeanStd
    * @param isQuartile
    */
-  public Kernel(float[] cache, int[] cachePointers, Roi roi, boolean isMeanStd,
+  public Kernel(Cache cache, Roi roi, boolean isMeanStd,
       boolean isQuartile) {
     
     this.cache = cache;
-    this.cachePointers = cachePointers;
+    this.cachePointers = new int[2*Kernel.getKHeight()];
+    for (int i=0; i<Kernel.getKHeight(); i++) {
+      cachePointers[2*i] =
+          i*cache.getCacheWidth()+Kernel.getKRadius() + Kernel.getKernelPointer()[2*i];
+      cachePointers[2*i+1] =
+          i*cache.getCacheWidth()+Kernel.getKRadius() + Kernel.getKernelPointer()[2*i+1];
+    }
     this.roi = roi;
     
     this.isMeanStd = isMeanStd;
@@ -63,12 +70,21 @@ public class Kernel {
     this.quartiles = new float[3];
     this.isFullCalculation = true;
     
+    this.previousY = Kernel.getKHeight()/2-cache.getCacheHeight();
+    
   }
   
   public void moveToNewLine(int y) {
     this.y = y;
     this.x = 0;
     this.isFullCalculation = true;
+    
+    for (int i=0; i<this.cachePointers.length; i++) {  //shift kernel pointers to new line
+      this.cachePointers[i] = (this.cachePointers[i] +
+          this.cache.getCacheWidth()*(y-this.previousY))%this.cache.getCache().length;
+    }
+    this.previousY = y;
+    
     this.updateStatistics();
   }
   
@@ -148,7 +164,7 @@ public class Kernel {
     //y within the cache stripe (we have 2 kernel pointers per cache line)
     for (int kk=0; kk<this.cachePointers.length; kk++) {
       for (int p=this.cachePointers[kk++]+this.x; p<=this.cachePointers[kk]+this.x; p++) {
-        double greyvalue = cache[p];
+        double greyvalue = this.cache.getCache()[p];
         if (!Double.isNaN(greyvalue)) {
           this.sums[0] += greyvalue;
           this.sums[1] += greyvalue*greyvalue;
@@ -173,13 +189,13 @@ public class Kernel {
   private void sumSides() {
     //for each row
     for (int kk=0; kk<this.cachePointers.length; /*k++;k++ below*/) {
-      double greyvalue = this.cache[this.cachePointers[kk++]+(this.x-1)]; //this value is not in the kernel area any more
+      double greyvalue = this.cache.getCache()[this.cachePointers[kk++]+(this.x-1)]; //this value is not in the kernel area any more
       if (!Double.isNaN(greyvalue)) {
         this.sums[0] -= greyvalue;
         this.sums[1] -= greyvalue*greyvalue;
         this.nFinite--;
       }
-      greyvalue = this.cache[this.cachePointers[kk++]+this.x]; //this value comes into the kernel area
+      greyvalue = this.cache.getCache()[this.cachePointers[kk++]+this.x]; //this value comes into the kernel area
       if (!Double.isNaN(greyvalue)) {
         this.sums[0] += greyvalue;
         this.sums[1] += greyvalue*greyvalue;
@@ -192,7 +208,7 @@ public class Kernel {
     this.nFinite = 0;
     for (int kk=0; kk<this.cachePointers.length; kk++) {
       for (int p=this.cachePointers[kk++]+this.x; p<=this.cachePointers[kk]+this.x; p++) {
-        float greyvalue = cache[p];
+        float greyvalue = this.cache.getCache()[p];
         if (!Float.isNaN(greyvalue)) {
           this.pixels[this.nFinite] = (double) greyvalue;
           this.nFinite++;
@@ -220,6 +236,10 @@ public class Kernel {
     }
   }
 
+  public int getY() {
+    return this.y;
+  }
+  
   public float getMean() {
     return this.mean;
   }
@@ -242,6 +262,10 @@ public class Kernel {
   
   public int getX() {
     return this.x;
+  }
+  
+  public int[] getCachePointers() {
+    return this.cachePointers;
   }
   
   /**METHOD: MAKE LINE RADII

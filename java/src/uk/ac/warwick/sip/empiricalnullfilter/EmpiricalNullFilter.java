@@ -84,9 +84,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   private int numThreads = Prefs.getThreads();
   // Current state of processing is in class variables. Thus, stack parallelization must be done
   // ONLY with one thread for the image (not using these class variables):
-  private int highestYinCache; // the highest line read into the cache so far
   private boolean threadWaiting; // a thread waits until it may read data
-  private boolean copyingToCache; // whether a thread is currently copying data to the cache
   
   /**CONSTRUCTOR
    * Empty constructor, used by ImageJ
@@ -348,16 +346,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
       return;
     }
     
-    //get properties of the kernel and the cache
-    final int cacheWidth = roiRectangle.width+2*Kernel.getKRadius();
-    final int cacheHeight = Kernel.getKHeight() + (numThreads>1 ? 2*numThreads : 0);
-    //'cache' is the input buffer. Each line y in the image is mapped onto cache line y%cacheHeight
-    final float[] cache = new float[cacheWidth*cacheHeight];
-    //this line+1 will be read into the cache first
-    this.highestYinCache = Math.max(roiRectangle.y-Kernel.getKHeight()/2, 0) - 1;
-    
-    //copy the pointer of the image processor
-    final ImageProcessor imageProcessor = this.imageProcessor;
+    final Cache cache = new Cache(numThreads, this.imageProcessor, this.roi);
     
     //threads announce here which line they currently process
     final int[] yForThread = new int[numThreads];
@@ -376,8 +365,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
       final Thread thread = new Thread(
           new Runnable() {
             final public void run() {
-              threadFilter(imageProcessor, cache, cacheWidth, cacheHeight, yForThread,
-                  ti, seed, aborted);
+              threadFilter(imageProcessor, cache, yForThread, ti, seed, aborted);
             }
           },
       "RankFilters-"+t);
@@ -387,8 +375,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     }
     
     //main thread start filtering
-    this.threadFilter(imageProcessor, cache, cacheWidth, cacheHeight, yForThread, 0,
-        rng.nextLong(), aborted);
+    this.threadFilter(imageProcessor, cache, yForThread, 0, rng.nextLong(), aborted);
     
     //join each thread
     for (final Thread thread : threads) {
@@ -432,8 +419,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
    * @param seed seed for rng
    * @param aborted
    */
-  private void threadFilter(ImageProcessor ip, float[] cache, int cacheWidth,
-      int cacheHeight, int [] yForThread, int threadNumber, long seed, boolean[] aborted) {
+  private void threadFilter(ImageProcessor ip, Cache cache, int [] yForThread, int threadNumber, long seed, boolean[] aborted) {
     
     //get properties of this image
     int width = ip.getWidth();
@@ -441,22 +427,10 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     Rectangle roiRectangle = ip.getRoi();
     
     //get the pointer of the kernel given the width of the cache
-    int[]cachePointers = makeCachePointers(cacheWidth);
-    Kernel kernel = new Kernel(cache, cachePointers, roi, true, true);
+    Kernel kernel = new Kernel(cache, roi, true, true);
     if (aborted[0] || Thread.currentThread().isInterrupted()) {
       return;
     }
-    
-    //get the boundary
-    int xmin = roiRectangle.x - Kernel.getKRadius();
-    int xmax = roiRectangle.x + roiRectangle.width + Kernel.getKRadius();
-    
-    //pad out the image, eg when the kernel is on the boundary of the image
-    int padLeft = xmin<0 ? -xmin : 0;
-    int padRight = xmax>width? xmax-width : 0;
-    int xminInside = xmin>0 ? xmin : 0;
-    int xmaxInside = xmax<width ? xmax : width;
-    int widthInside = xmaxInside - xminInside;
     
     //for calculation the normal pdf
     NormalDistribution normal = new NormalDistribution();
@@ -481,7 +455,6 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     
     int numThreads = yForThread.length;
     long lastTime = System.currentTimeMillis();
-    int previousY = Kernel.getKHeight()/2-cacheHeight;
     
     //while loop, loop over each y
     while (!aborted[0]) {
@@ -512,20 +485,15 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
           }
         }
       }
-      
-      for (int i=0; i<cachePointers.length; i++) {  //shift kernel pointers to new line
-        cachePointers[i] = (cachePointers[i] + cacheWidth*(y-previousY))%cache.length;
-      }
-      previousY = y;
-      
+
       if (numThreads>1) { // thread synchronization
         //non-synchronized check to avoid overhead
         int slowestThreadY = arrayMinNonNegative(yForThread);
        //we would overwrite data needed by another thread
-        if (y - slowestThreadY + Kernel.getKHeight() > cacheHeight) {
+        if (y - slowestThreadY + Kernel.getKHeight() > cache.getCacheHeight()) {
           synchronized(this) {
             slowestThreadY = arrayMinNonNegative(yForThread); //recheck whether we have to wait
-            if (y - slowestThreadY + Kernel.getKHeight() > cacheHeight) {
+            if (y - slowestThreadY + Kernel.getKHeight() > cache.getCacheHeight()) {
               do {
                 notifyAll(); //avoid deadlock: wake up others waiting
                 threadWaiting = true;
@@ -542,7 +510,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
                   return;
                 }
                 slowestThreadY = arrayMinNonNegative(yForThread);
-              } while (y - slowestThreadY + Kernel.getKHeight() > cacheHeight);
+              } while (y - slowestThreadY + Kernel.getKHeight() > cache.getCacheHeight());
             } //end if
             threadWaiting = false;
           }
@@ -551,30 +519,13 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
       
       //=====READ INTO CACHE===== (untouched from original source code)
       
-      if (numThreads==1) {
-        int yStartReading = y==roiRectangle.y ? Math.max(roiRectangle.y-Kernel.getKHeight()/2, 0) : y+Kernel.getKHeight()/2;
-        for (int yNew = yStartReading; yNew<=y+Kernel.getKHeight()/2; yNew++) { //only 1 line except at start
-          this.readLineToCacheOrPad(pixels, width, height, roiRectangle.y, xminInside, widthInside,
-              cache, cacheWidth, cacheHeight, padLeft, padRight, Kernel.getKHeight(), yNew);
-        }
-      } else {
-        if (!copyingToCache || highestYinCache < y+Kernel.getKHeight()/2) synchronized(cache) {
-          copyingToCache = true; // copy new line(s) into cache
-          while (highestYinCache < arrayMinNonNegative(yForThread) - Kernel.getKHeight()/2 + cacheHeight - 1) {
-            int yNew = highestYinCache + 1;
-            this.readLineToCacheOrPad(pixels, width, height, roiRectangle.y, xminInside,
-                widthInside, cache, cacheWidth, cacheHeight, padLeft, padRight, Kernel.getKHeight(), yNew);
-            highestYinCache = yNew;
-          }
-          copyingToCache = false;
-        }
-      }
+      cache.readIntoCache(this.imageProcessor, yForThread, kernel);
       
       //=====FILTER A LINE=====
       
       //points to pixel (roiRectangle.x, y)
-      int cacheLineP = cacheWidth * (y % cacheHeight) + Kernel.getKRadius();
-      this.filterLine(values, width, kernel, cache, cachePointers, cacheLineP,
+      int cacheLineP = cache.getCacheWidth() * (y % cache.getCacheHeight()) + Kernel.getKRadius();
+      this.filterLine(values, width, kernel, cache.getCache(), kernel.getCachePointers(), cacheLineP,
           roiRectangle, y, normal, rng);
     }// end while (!aborted[0]); loops over y (lines)
   }
