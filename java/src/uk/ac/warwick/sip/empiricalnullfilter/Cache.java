@@ -59,14 +59,18 @@ public class Cache {
     int y = kernel.getY();
     Rectangle roiRectangle = ip.getRoi();
     if (!this.isMultiThread) {
-      int yStartReading = y==roiRectangle.y ? Math.max(roiRectangle.y-Kernel.getKHeight()/2, 0) : y+Kernel.getKHeight()/2;
-      for (int yNew = yStartReading; yNew<=y+Kernel.getKHeight()/2; yNew++) { //only 1 line except at start
+      int yStartReading = y==roiRectangle.y ?
+          Math.max(roiRectangle.y-Kernel.getKHeight()/2, 0) : y+Kernel.getKHeight()/2;
+      for (int yNew = yStartReading; yNew<=y+Kernel.getKHeight()/2; yNew++) {
+        //only 1 line except at start
         this.readLineToCacheOrPad(yNew);
       }
     } else {
-      if (!this.copyingToCache || this.highestYInCache < y+Kernel.getKHeight()/2) synchronized(cache) {
+      if (!this.copyingToCache || this.highestYInCache < y+Kernel.getKHeight()/2)
+          synchronized(this.cache) {
         this.copyingToCache = true; // copy new line(s) into cache
-        while (this.highestYInCache < arrayMinNonNegative(yForThread) - Kernel.getKHeight()/2 + cacheHeight - 1) {
+        while (this.highestYInCache < arrayMinNonNegative(yForThread)
+            - Kernel.getKHeight()/2 + this.cacheHeight - 1) {
           int yNew = this.highestYInCache + 1;
           this.readLineToCacheOrPad(yNew);
           this.highestYInCache = yNew;
@@ -97,14 +101,16 @@ public class Cache {
     if (y < this.ip.getHeight()) {
       this.readLineToCache(y);
       if (y==0) {
-        for (int prevY = this.ip.getRoi().y-Kernel.getKHeight()/2; prevY<0; prevY++) {  //for y<0, pad with nan
+        //for y<0, pad with nan
+        for (int prevY = this.ip.getRoi().y-Kernel.getKHeight()/2; prevY<0; prevY++) {
           int prevLineInCache = this.cacheHeight+prevY;
-          Arrays.fill(cache, prevLineInCache*this.cacheWidth, prevLineInCache*this.cacheWidth + this.cacheWidth,
-              Float.NaN);
+          Arrays.fill(cache, prevLineInCache*this.cacheWidth,
+              prevLineInCache*this.cacheWidth + this.cacheWidth, Float.NaN);
         }
       }
     } else {
-      Arrays.fill(this.cache, lineInCache*this.cacheWidth, lineInCache*this.cacheWidth + this.cacheWidth, Float.NaN);
+      Arrays.fill(this.cache, lineInCache*this.cacheWidth,
+          lineInCache*this.cacheWidth + this.cacheWidth, Float.NaN);
     }
   }
   
@@ -143,7 +149,8 @@ public class Cache {
     for (int cp=cacheLineP; cp<cacheLineP+this.padLeft; cp++) {
       this.cache[cp] = Float.NaN;
     }
-    for (int cp=cacheLineP+padLeft+widthInside; cp<cacheLineP+this.padLeft+this.widthInside+this.padRight; cp++) {
+    for (int cp=cacheLineP+padLeft+widthInside;
+        cp<cacheLineP+this.padLeft+this.widthInside+this.padRight; cp++) {
       this.cache[cp] = Float.NaN;
     }
   }

@@ -1,9 +1,6 @@
 package uk.ac.warwick.sip.empiricalnullfilter;
 
-import java.awt.Rectangle;
-
 import org.apache.commons.math3.stat.descriptive.rank.Percentile;
-
 import ij.gui.Roi;
 
 public class Kernel {
@@ -17,7 +14,7 @@ public class Kernel {
   
   //=====MEMBER VARIABLES=====//
   private double[] sums; //[0] sum of greyvalues, [1] sum of greyvalues squared
-  private double[] pixels; //array of pixel greyvalues in the kernel
+  private float[] pixels; //array of pixel greyvalues in the kernel
   private float mean;
   private float std;
   private float[] quartiles; //[0,1,2] 1st 2nd and 3rd quartiles greyvalues of pixels in the kernel
@@ -65,7 +62,7 @@ public class Kernel {
     
     //arrays to store calculations of pixels contained in a kernel
     this.sums = new double[2];
-    this.pixels = new double[kNPoints]; //stores greyvalues of pixels in a kernel
+    this.pixels = new float[kNPoints]; //stores greyvalues of pixels in a kernel
     
     this.quartiles = new float[3];
     this.isFullCalculation = true;
@@ -189,13 +186,15 @@ public class Kernel {
   private void sumSides() {
     //for each row
     for (int kk=0; kk<this.cachePointers.length; /*k++;k++ below*/) {
-      double greyvalue = this.cache.getCache()[this.cachePointers[kk++]+(this.x-1)]; //this value is not in the kernel area any more
+      //this value is not in the kernel area any more
+      double greyvalue = this.cache.getCache()[this.cachePointers[kk++]+(this.x-1)];
       if (!Double.isNaN(greyvalue)) {
         this.sums[0] -= greyvalue;
         this.sums[1] -= greyvalue*greyvalue;
         this.nFinite--;
       }
-      greyvalue = this.cache.getCache()[this.cachePointers[kk++]+this.x]; //this value comes into the kernel area
+      //this value comes into the kernel area
+      greyvalue = this.cache.getCache()[this.cachePointers[kk++]+this.x];
       if (!Double.isNaN(greyvalue)) {
         this.sums[0] += greyvalue;
         this.sums[1] += greyvalue*greyvalue;
@@ -210,7 +209,7 @@ public class Kernel {
       for (int p=this.cachePointers[kk++]+this.x; p<=this.cachePointers[kk]+this.x; p++) {
         float greyvalue = this.cache.getCache()[p];
         if (!Float.isNaN(greyvalue)) {
-          this.pixels[this.nFinite] = (double) greyvalue;
+          this.pixels[this.nFinite] = greyvalue;
           this.nFinite++;
         }
         
@@ -230,7 +229,11 @@ public class Kernel {
    */
   private void calculateQuartiles() {
     Percentile percentile = new Percentile();
-    percentile.setData(this.pixels, 0, this.nFinite);
+    double[] pixels = new double[this.pixels.length];
+    for (int i=0; i<this.nFinite; i++) {
+      pixels[i] = (double) this.pixels[i];
+    }
+    percentile.setData(pixels, 0, this.nFinite);
     for (int i=0; i<3; i++) {
       this.quartiles[i] = (float) percentile.evaluate((i+1) * 25.0);
     }
@@ -260,8 +263,16 @@ public class Kernel {
     return this.quartiles;
   }
   
+  public float getIqr() {
+    return this.quartiles[2] - this.quartiles[0];
+  }
+  
   public int getX() {
     return this.x;
+  }
+  
+  public float[] getPixels() {
+    return this.pixels;
   }
   
   public int[] getCachePointers() {

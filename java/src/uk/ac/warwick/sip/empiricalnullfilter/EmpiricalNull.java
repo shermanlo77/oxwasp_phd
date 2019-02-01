@@ -27,13 +27,10 @@ public class EmpiricalNull {
   private float bandwidthParameterA;
   private float bandwidthParameterB;
   
-  private float [] cache; //array of greyvalues
-  private int x; //x position
-  private int [] cachePointers; //array of integer pairs, pointing to the boundary of the kernel
-  
-  private int n = 0; //number of non-NaN data in the kernel
-  private float dataStd; //the standard deviation of the pixels in the kernel
-  private float iqr; //interquartile range
+  private float[] zArray;
+  private int n;
+  private float dataStd;
+  private float iqr;
   
   private float initialValue; //the user requested initial value
   private float nullMean; //empirical null mean
@@ -54,11 +51,20 @@ public class EmpiricalNull {
    */
   public EmpiricalNull(float[] zArray, float initialValue, float[] quartiles, float dataStd,
       int n, long seed) {
-    //the z array is treated as a cache at x = 0 position
-    //the cache pointer is exploited by setting the boundary of the kernel to be the entire z array
-    this(N_INITIAL, N_STEP, LOG_10_TOLERANCE, BANDWIDTH_PARAMETER_A,
-        BANDWIDTH_PARAMETER_B, zArray, 0, new int[] {0, zArray.length-1} , initialValue,
-        quartiles, dataStd, n, new NormalDistribution(), new MersenneTwister(seed));
+    
+    this.nInitial = N_INITIAL;
+    this.nStep = N_STEP;
+    this.log10Tolerance = LOG_10_TOLERANCE;
+    this.bandwidthParameterA = BANDWIDTH_PARAMETER_A;
+    this.bandwidthParameterB = BANDWIDTH_PARAMETER_B;
+    
+    this.zArray = zArray;
+    this.n= n;
+    this.dataStd = dataStd;
+    this.iqr = quartiles[2] - quartiles[0];
+    
+    this.normalDistribution = new NormalDistribution();
+    this.rng = new MersenneTwister(seed);
   }
   
   /**CONSTRUCTOR
@@ -84,21 +90,19 @@ public class EmpiricalNull {
    * @param rng random number generator when a random initial value is needed
    */
   public EmpiricalNull(int nInitial, int nStep, float log10Tolerance, float bandwidthParameterA,
-      float bandwidthParameterB, float[] cache, int x, int[] cachePointers , float initialValue,
-      float[] quartiles, float dataStd, int n, NormalDistribution normalDistribution,
-      RandomGenerator rng) {
+      float bandwidthParameterB, float initialValue, Kernel kernel,
+      NormalDistribution normalDistribution, RandomGenerator rng) {
     this.nInitial = nInitial;
     this.nStep = nStep;
     this.log10Tolerance = log10Tolerance;
     this.bandwidthParameterA = bandwidthParameterA;
     this.bandwidthParameterB = bandwidthParameterB;
-    this.cache = cache;
-    this.x = x;
-    this.cachePointers = cachePointers;
-    this.initialValue = initialValue;
-    this.dataStd = dataStd;
-    this.iqr = quartiles[2] - quartiles[0];
-    this.n = n;
+    
+    this.zArray = kernel.getPixels();
+    this.n= kernel.getNFinite();
+    this.dataStd = kernel.getStd();
+    this.iqr = kernel.getQuartiles()[2] - kernel.getQuartiles()[0];
+    
     this.normalDistribution = normalDistribution;
     this.rng = rng;
   }
@@ -108,7 +112,8 @@ public class EmpiricalNull {
    */
   public void estimateNull() {
     //get the bandwidth for the density estimate
-    this.bandwidth = this.bandwidthParameterB * Math.min(dataStd, this.iqr/1.34f)
+    this.bandwidth = this.bandwidthParameterB * Math.min(this.dataStd,
+        this.iqr/1.34f)
         * ((float) Math.pow((double) this.n, -0.2))
         + this.bandwidthParameterA;
     //get the initial value, if it not finite, get a random one
@@ -245,19 +250,16 @@ public class EmpiricalNull {
     float phiZ;
     
     //for each non-NaN pixel in the kernel
-    for (int kk=0; kk<this.cachePointers.length; kk++) {
-      for (int p=this.cachePointers[kk++]+x; p<=this.cachePointers[kk]+x; p++) {
-        if (!Float.isNaN(this.cache[p])) {
-          
-          //get phi(z)
-          z = (cache[p] - greyValue) / this.bandwidth;
-          phiZ = (float) this.normalDistribution.density((double) z);
-          //update the sum of the kernels
-          sumKernel[0] += phiZ;
-          sumKernel[1] += phiZ * z;
-          sumKernel[2] += phiZ * z * z;
-          
-        }
+    for (int i=0; i<this.n; i++) {
+      z = this.zArray[i];
+      if (!Float.isNaN(z)) {
+        //get phi(z)
+        z = (z - greyValue) / this.bandwidth;
+        phiZ = (float) this.normalDistribution.density((double) z);
+        //update the sum of the kernels
+        sumKernel[0] += phiZ;
+        sumKernel[1] += phiZ * z;
+        sumKernel[2] += phiZ * z * z;
       }
     }
     

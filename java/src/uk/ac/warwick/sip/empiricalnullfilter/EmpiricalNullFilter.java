@@ -365,7 +365,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
       final Thread thread = new Thread(
           new Runnable() {
             final public void run() {
-              threadFilter(imageProcessor, cache, yForThread, ti, seed, aborted);
+              threadFilter(cache, yForThread, ti, seed, aborted);
             }
           },
       "RankFilters-"+t);
@@ -375,7 +375,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     }
     
     //main thread start filtering
-    this.threadFilter(imageProcessor, cache, yForThread, 0, rng.nextLong(), aborted);
+    this.threadFilter(cache, yForThread, 0, rng.nextLong(), aborted);
     
     //join each thread
     for (final Thread thread : threads) {
@@ -419,12 +419,12 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
    * @param seed seed for rng
    * @param aborted
    */
-  private void threadFilter(ImageProcessor ip, Cache cache, int [] yForThread, int threadNumber, long seed, boolean[] aborted) {
+  private void threadFilter(Cache cache, int [] yForThread, int threadNumber, long seed,
+      boolean[] aborted) {
     
     //get properties of this image
-    int width = ip.getWidth();
-    int height = ip.getHeight();
-    Rectangle roiRectangle = ip.getRoi();
+    int width = this.imageProcessor.getWidth();
+    Rectangle roiRectangle = this.imageProcessor.getRoi();
     
     //get the pointer of the kernel given the width of the cache
     Kernel kernel = new Kernel(cache, roi, true, true);
@@ -443,7 +443,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
       //0. filtered image
       //1. 2. 3. ... are the output images
     float[][] values = new float[N_IMAGE_OUTPUT+1][];
-    float [] pixels = (float[]) ip.getPixels();
+    float [] pixels = (float[]) this.imageProcessor.getPixels();
     //get the pixels of the filtered image
     values[0] = pixels;
     //get the pixels of each of the output images (only if requested)
@@ -524,9 +524,8 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
       //=====FILTER A LINE=====
       
       //points to pixel (roiRectangle.x, y)
-      int cacheLineP = cache.getCacheWidth() * (y % cache.getCacheHeight()) + Kernel.getKRadius();
-      this.filterLine(values, width, kernel, cache.getCache(), kernel.getCachePointers(), cacheLineP,
-          roiRectangle, y, normal, rng);
+      
+      this.filterLine(values, cache, kernel, y, normal, rng);
     }// end while (!aborted[0]); loops over y (lines)
   }
   
@@ -577,22 +576,21 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
    * @param rng random number generator, used for trying out different initial values
    * @param smallKernel indicate if this kernel is small or not
    */
-  private void filterLine(float[][] values, int width, Kernel kernel, float[] cache, int[] cachePointers,
-      int cacheLineP, Rectangle roiRectangle, int y, NormalDistribution normal,
-      RandomGenerator rng) {
+  private void filterLine(float[][] values, Cache cache, Kernel kernel, int y,
+      NormalDistribution normal, RandomGenerator rng) {
     
+    int cacheLineP = cache.getCacheWidth() * (y % cache.getCacheHeight()) + Kernel.getKRadius();
     //declare the pointer for a pixel in values
-    int valuesP = roiRectangle.x+y*width;
+    int valuesP = this.imageProcessor.getRoi().x+y*this.imageProcessor.getWidth();
     float initialValue = 0; //initial value to be used for the newton-raphson method
     kernel.moveToNewLine(y);
     do {
       if (kernel.isFinite()) {
         //get the null mean and null std
-        float [] nullMeanStd = this.getNullMeanStd(values, cache, kernel.getX(), cachePointers,
-            cacheLineP, initialValue, kernel.getQuartiles(), kernel.getMean(), kernel.getStd(),
-            kernel.getNFinite(), normal, rng);
+        float [] nullMeanStd = this.getNullMeanStd(initialValue, cache, kernel, normal, rng);
         //normalise this pixel
-        values[0][valuesP] = (cache[cacheLineP+kernel.getX()] - nullMeanStd[0]) / nullMeanStd[1];
+        values[0][valuesP] =
+            (cache.getCache()[cacheLineP+kernel.getX()] - nullMeanStd[0]) / nullMeanStd[1];
         //for the next x, the initial value is this nullMean
         initialValue = nullMeanStd[0];
         //for each requested output image, save that statistic
@@ -641,108 +639,19 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
    * @param rng
    * @return 2-vector, [null mean, null std]
    */
-  protected float[] getNullMeanStd(float[][] values, float[] cache, int x, int[] cachePointers,
-      int cacheLineP, float initialValue, float[] quartiles, float mean, float std, int nData,
+  protected float[] getNullMeanStd(float initialValue, Cache cache, Kernel kernel,
       NormalDistribution normal, RandomGenerator rng) {
     //declare 2 vector to store the null mean and null std
     float[] nullMeanStd = new float[2];
     //get the empirical null
     EmpiricalNull empiricalNull = new EmpiricalNull(this.nInitial, this.nStep, this.log10Tolerance,
-        this.bandwidthParameterA, this.bandwidthParameterB, cache, x, cachePointers , initialValue,
-        quartiles, std, nData, normal, rng);
+        this.bandwidthParameterA, this.bandwidthParameterB, initialValue, kernel, normal,
+        rng);
     //estimate the null and get it
     empiricalNull.estimateNull();
     nullMeanStd[0] = empiricalNull.getNullMean();
     nullMeanStd[1] = empiricalNull.getNullStd();
     return nullMeanStd;
-  }
-  
-  /**METHOD: READ LINE TO CACHE OR PAD
-   * Read a line into the cache (including padding in x), anything outside the boundary is nan
-   * @param pixels
-   * @param width
-   * @param height
-   * @param roiY
-   * @param xminInside
-   * @param widthInside
-   * @param cache modified
-   * @param cacheWidth
-   * @param cacheHeight
-   * @param padLeft
-   * @param padRight
-   * @param kHeight
-   * @param y
-   */
-  private void readLineToCacheOrPad(float [] pixels, int width, int height, int roiY,
-      int xminInside, int widthInside, float[]cache, int cacheWidth, int cacheHeight, int padLeft,
-      int padRight, int kHeight, int y) {
-    int lineInCache = y%cacheHeight;
-    if (y < height) {
-      readLineToCache(pixels, y*width, y, xminInside, widthInside, cache, lineInCache*cacheWidth,
-          padLeft, padRight);
-      if (y==0) {
-        for (int prevY = roiY-kHeight/2; prevY<0; prevY++) {  //for y<0, pad with nan
-          int prevLineInCache = cacheHeight+prevY;
-          Arrays.fill(cache, prevLineInCache*cacheWidth, prevLineInCache*cacheWidth + cacheWidth,
-              Float.NaN);
-        }
-      }
-    } else {
-      Arrays.fill(cache, lineInCache*cacheWidth, lineInCache*cacheWidth + cacheWidth, Float.NaN);
-    }
-  }
-  
-  /**METHOD: READ LINE TO CACHE
-   * Read a line into the cache (includes conversion to flaot)
-   * Pad with nan if necessary
-   * @param pixels
-   * @param pixelLineP
-   * @param y
-   * @param xminInside
-   * @param widthInside
-   * @param cache modified
-   * @param cacheLineP
-   * @param padLeft
-   * @param padRight
-   */
-  private void readLineToCache(float [] pixels, int pixelLineP, int y, int xminInside,
-      int widthInside, float[] cache, int cacheLineP, int padLeft, int padRight) {
-    
-    //for each pixel in the line
-    for (int x=0; x<widthInside; x++) {
-      //if this pixel is in the roi, copy it to the cache, else put nan in the cache
-      float toCopytoCache;
-      if (!this.roi.contains(xminInside + x, y)) {
-        toCopytoCache = Float.NaN;
-      } else {
-        toCopytoCache = pixels[pixelLineP+xminInside + x];
-      }
-      cache[cacheLineP+padLeft+x] = toCopytoCache;
-    }
-    //Padding contains NaN
-    for (int cp=cacheLineP; cp<cacheLineP+padLeft; cp++) {
-      cache[cp] = Float.NaN;
-    }
-    for (int cp=cacheLineP+padLeft+widthInside; cp<cacheLineP+padLeft+widthInside+padRight; cp++) {
-      cache[cp] = Float.NaN;
-    }
-  }
-  
-  
-  /**METHOD: MAKE CACHE POINTERS
-   * cache pointers for a given kernel and cache width
-   * @param lineRadii see makeLineRadii
-   * @param cacheWidth width of the cache
-   * @return cache pointers for a given kernel
-   * e.g. radius = 0.5, cache width = 10 returns [1,1,10,12,21,21];
-   */
-  private int[] makeCachePointers(int cacheWidth) {
-    int[] cachePointers = new int[2*Kernel.getKHeight()];
-    for (int i=0; i<Kernel.getKHeight(); i++) {
-      cachePointers[2*i]   = i*cacheWidth+Kernel.getKRadius() + Kernel.getKernelPointer()[2*i];
-      cachePointers[2*i+1] = i*cacheWidth+Kernel.getKRadius() + Kernel.getKernelPointer()[2*i+1];
-    }
-    return cachePointers;
   }
   
   //=====STATIC FUNCTIONS AND PROCEDURES=====
