@@ -8,8 +8,8 @@
 %Various setter methods to set the options for the empirical null
 classdef EmpiricalNull < handle
   
-  properties (GetAccess = private)
-    javaEmpiricalNull; %uk.ac.warwick.sip.empiricalnullfilter.EmpiricalNull object
+  properties (GetAccess = protected)
+    javaObj; %uk.ac.warwick.sip.empiricalnullfilter.EmpiricalNull object
   end
   
   methods (Access = public)
@@ -20,25 +20,23 @@ classdef EmpiricalNull < handle
       %initialValue: value to start the newton raphson from
       %seed: long for setting the random number generator, used for using different initial values
     function this = EmpiricalNull(zArray, initialValue, seed)
-      this.javaEmpiricalNull = uk.ac.warwick.sip.empiricalnullfilter.EmpiricalNull(zArray, ...
-          initialValue, quantile(zArray,[0.25,0.5,0.75]), nanstd(zArray), sum(~isnan(zArray)), ...
-          seed);
+      this.saveJavaObject(zArray, initialValue, seed);
     end
     
     %METHOD: ESTIMATE NULL
     %Get the empirical null parameters
     function estimateNull(this)
-      this.javaEmpiricalNull.estimateNull();
+      this.javaObj.estimateNull();
     end
     
     %METHOD: GET NULL MEAN
     function nullMean = getNullMean(this)
-      nullMean = this.javaEmpiricalNull.getNullMean();
+      nullMean = this.javaObj.getNullMean();
     end
     
     %METHOD: GET NULL STD
     function nullStd = getNullStd(this)
-      nullStd = this.javaEmpiricalNull.getNullStd();
+      nullStd = this.javaObj.getNullStd();
     end
     
     %=====GETTER AND SETTER METHODS HERE=====%
@@ -54,54 +52,67 @@ classdef EmpiricalNull < handle
     
     %METHOD: GET N INITIAL
     function nInitial = getNInitial(this)
-      nInitial = this.javaEmpiricalNull.getNInitial();
+      nInitial = this.javaObj.getNInitial();
     end
     
     %METHOD: SET N INITIAL
     function setNInitial(this, nInitial)
-      this.javaEmpiricalNull.setNInitial(nInitial);
+      this.javaObj.setNInitial(nInitial);
     end
     
     %METHOD: GET N STEP
     function nStep = getNStep(this)
-      nStep = this.javaEmpiricalNull.getNStep();
+      nStep = this.javaObj.getNStep();
     end
     
     %METHOD: SET N STEP
     function setNStep(this, nStep)
-      this.javaEmpiricalNull.setNStep(nStep);
+      this.javaObj.setNStep(nStep);
     end
     
     %METHOD: GET LOG 10 TOLERANCE
     function log10tolerance = getLog10Tolerance(this)
-      log10tolerance = this.javaEmpiricalNull.getLog10Tolerance();
+      log10tolerance = this.javaObj.getLog10Tolerance();
     end
     
     %METHOD: SET LOG 10 TOLERANCE
     function setLog10Tolerance(this, log10Tolerance)
-      this.javaEmpiricalNull.setLog10Tolerance(log10Tolerance);
+      this.javaObj.setLog10Tolerance(log10Tolerance);
     end
     
     %METHOD: GET BANDWIDTH PARAMETER A
     function bandwidthParameterA = getBandwidthParameterA(this)
-      bandwidthParameterA = this.javaEmpiricalNull.getBandwidthParameterA();
+      bandwidthParameterA = this.javaObj.getBandwidthParameterA();
     end
     
     %METHOD: SET BANDWIDTH PARAMETER A
     function setBandwidthParameterA(this, bandwidthParameterA)
-      this.javaEmpiricalNull.setBandwidthParameterA(bandwidthParameterA);
+      this.javaObj.setBandwidthParameterA(bandwidthParameterA);
     end
     
     %METHOD: GET BANDWIDTH PARAMETER B
     function bandwidthParameterB = getBandwidthParameterB(this)
-      bandwidthParameterB = this.javaEmpiricalNull.getBandwidthParameterB();
+      bandwidthParameterB = this.javaObj.getBandwidthParameterB();
     end
     
     %METHOD: SET BANDWIDTH PARAMETER B
     function setBandwidthParameterB(this, bandwidthParameterB)
-      this.javaEmpiricalNull.setBandwidthParameterB(bandwidthParameterB);
+      this.javaObj.setBandwidthParameterB(bandwidthParameterB);
     end
 
+  end
+  
+  methods (Access = protected)
+    
+    %METHOD: SAVE JAVA OBJECT
+    %Instantiate the java object to use
+    %Save it to the member variable javaObj
+    function saveJavaObject(this, zArray, initialValue, seed)
+      this.javaObj = uk.ac.warwick.sip.empiricalnullfilter.EmpiricalNull(zArray, ...
+          initialValue, quantile(zArray,[0.25,0.5,0.75]), nanstd(zArray), sum(~isnan(zArray)), ...
+          seed);
+    end
+    
   end
   
 end

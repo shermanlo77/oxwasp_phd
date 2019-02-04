@@ -27,8 +27,8 @@ public class EmpiricalNull {
   private float bandwidthParameterA;
   private float bandwidthParameterB;
   
-  private float[] zArray;
-  private int n;
+  protected float[] zArray;
+  protected int n;
   private float dataStd;
   private float iqr;
   
