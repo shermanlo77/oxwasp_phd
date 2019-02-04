@@ -31,6 +31,9 @@ classdef Experiment < handle
         %PARAMETERS:
             %experiment_name: name of the experiment and the file name for storing it in a .mat file
         function this = Experiment(experiment_name)
+            if nargin == 0
+              experiment_name = class(this);
+            end
             %try and load an existing .mat file, then either print and run the experiment
             try
                 %load the file
@@ -45,8 +48,6 @@ classdef Experiment < handle
                 this.setup();
                 %save a .mat file
                 this.save();
-                %print text that the experiment has been saved
-                disp(strcat('results/',this.experiment_name,'.mat saved'));
             end
         end %constructor
         
@@ -64,16 +65,27 @@ classdef Experiment < handle
             end
         end
         
-    end %methods
-    
-    %PROTECTED METHODS
-    methods (Access = protected)
+        function deleteResults(this)
+          if (strcmp(input('Are you sure? ','s'),'yes'))
+            delete(strcat('results/',this.experiment_name,'.mat'));
+            disp(strcat('results/',this.experiment_name,'.mat deleted'));
+          else
+            disp('not deleted');
+          end
+        end
         
         %METHOD: SAVE STATE
         function save(this)
             save(strcat('results/',this.experiment_name,'.mat'),'this');
+            %print text that the experiment has been saved
+            disp(strcat('results/',this.experiment_name,'.mat saved'));
         end
         
+    end %methods
+    
+    %PROTECTED METHODS
+    methods (Access = protected)
+
         %METHOD: PRINT PROGRESS
         %Displays a progress bar (with resoloution of 20)
         %PARAMETERS:

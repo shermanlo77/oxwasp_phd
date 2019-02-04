@@ -5,11 +5,11 @@
 %For a given n, n x N(0,1) are simulated, the empirical null is then conducted on these simulated
     %data. The empirical null parameters are recorded. The empirical null parameters are then used
     %to correct the simulated data, the mean, variance and kurtosis are recorded
-classdef ExperimentEmpiricalNullOnIid < Experiment
+classdef NullIidEmpiricalNull < Experiment
   
   properties (SetAccess = protected)
     
-    nArray = round(10.^linspace(2,5,10)); %array of n to investigate
+    nArray = round(pi*(10:10:100).^2); %array of n to investigate
     nRepeat = 256*256; %number of times to repeat the experiment
     
     %array of results
@@ -18,7 +18,7 @@ classdef ExperimentEmpiricalNullOnIid < Experiment
     nullMeanArray; %empirical null mean
     nullStdArray; %empirical null std
     meanZArray; %mean corrected z
-    varZArray; %variance corrected z
+    stdZArray; %std corrected z
     kurtosisZArray; %kurtosis corrected z
     
     %array of sample of corrected z (cell array)
@@ -33,8 +33,8 @@ classdef ExperimentEmpiricalNullOnIid < Experiment
   methods (Access = public)
     
     %CONSTRUCTOR
-    function this = ExperimentEmpiricalNullOnIid()
-      this@Experiment('ExperimentEmpiricalNullOnIid');
+    function this = NullIidEmpiricalNull()
+      this@Experiment();
     end
     
     %IMPLEMENTED: PRINT RESULTS
@@ -44,85 +44,70 @@ classdef ExperimentEmpiricalNullOnIid < Experiment
       
       %plot empirical null mean
       fig = figure;
-      boxplot = Boxplots(this.nullMeanArray, true);
+      boxplot = Boxplots(this.nullMeanArray);
       boxplot.setPosition(this.nArray);
+      boxplot.setWantOutlier(false);
       boxplot.plot();
       hold on;
       zCritical = norminv(0.975);
       plot(this.nArray, zCritical./sqrt(this.nArray), 'k--');
       plot(this.nArray, -zCritical./sqrt(this.nArray), 'k--');
       ax = fig.Children(1);
-      ax.XScale = 'log';
       ax.XLabel.String = 'n';
       ax.YLabel.String = 'empirical null mean';
-      ax.XLim(1) = ax.XLim(1)/10^(0.1);
-      ax.XLim(2) = ax.XLim(2)*10^(0.1);
       
-      %plot empirical null var
+      %plot empirical null std
       fig = figure;
-      boxplot = Boxplots(this.nullStdArray.^2, true);
+      boxplot = Boxplots(this.nullStdArray);
       boxplot.setPosition(this.nArray);
+      boxplot.setWantOutlier(false);
       boxplot.plot();
       hold on;
-      plot(this.nArray, chi2inv(0.975,this.nArray - 1)./(this.nArray-1), 'k--');
-      plot(this.nArray, chi2inv(0.025,this.nArray - 1)./(this.nArray-1), 'k--');
+      plot(this.nArray, sqrt(chi2inv(0.975,this.nArray - 1)./(this.nArray-1)), 'k--');
+      plot(this.nArray, sqrt(chi2inv(0.025,this.nArray - 1)./(this.nArray-1)), 'k--');
       ax = fig.Children(1);
-      ax.XScale = 'log';
       ax.XLabel.String = 'n';
-      ax.YLabel.String = 'empirical null variance';
-      ax.XLim(1) = ax.XLim(1)/10^(0.1);
-      ax.XLim(2) = ax.XLim(2)*10^(0.1);
+      ax.YLabel.String = 'empirical null std';
       
       %plot mean corrected z
       fig = figure;
-      boxplot = Boxplots(this.meanZArray, true);
+      boxplot = Boxplots(this.meanZArray);
       boxplot.setPosition(this.nArray);
+      boxplot.setWantOutlier(false);
       boxplot.plot();
       hold on;
       zCritical = norminv(0.975);
       plot(this.nArray, zCritical./sqrt(this.nArray), 'k--');
       plot(this.nArray, -zCritical./sqrt(this.nArray), 'k--');
       ax = fig.Children(1);
-      ax.XScale = 'log';
       ax.XLabel.String = 'n';
       ax.YLabel.String = 'mean corrected z';
-      ax.XLim(1) = ax.XLim(1)/10^(0.1);
-      ax.XLim(2) = ax.XLim(2)*10^(0.1);
       
-      %plot variance corrected z
+      %plot std corrected z
       fig = figure;
-      boxplot = Boxplots(this.varZArray, true);
+      boxplot = Boxplots(this.stdZArray);
       boxplot.setPosition(this.nArray);
+      boxplot.setWantOutlier(false);
       boxplot.plot();
       hold on;
-      plot(this.nArray, chi2inv(0.975,this.nArray - 1)./(this.nArray-1), 'k--');
-      plot(this.nArray, chi2inv(0.025,this.nArray - 1)./(this.nArray-1), 'k--');
+      plot(this.nArray, sqrt(chi2inv(0.975,this.nArray - 1)./(this.nArray-1)), 'k--');
+      plot(this.nArray, sqrt(chi2inv(0.025,this.nArray - 1)./(this.nArray-1)), 'k--');
       ax = fig.Children(1);
-      ax.XScale = 'log';
       ax.XLabel.String = 'n';
-      ax.YLabel.String = 'variance corrected z';
-      ax.XLim(1) = ax.XLim(1)/10^(0.1);
-      ax.XLim(2) = ax.XLim(2)*10^(0.1);
+      ax.YLabel.String = 'std corrected z';
       
       %plot kurtosis corrected z
       fig = figure;
-      boxplot = Boxplots(this.kurtosisZArray, true);
+      boxplot = Boxplots(this.kurtosisZArray);
       boxplot.setPosition(this.nArray);
+      boxplot.setWantOutlier(false);
       boxplot.plot();
       hold on;
       plot(this.nArray, 3+sqrt(24)*zCritical./sqrt(this.nArray), 'k--');
       plot(this.nArray, 3-sqrt(24)*zCritical./sqrt(this.nArray), 'k--');
       ax = fig.Children(1);
-      ax.XScale = 'log';
       ax.XLabel.String = 'n';
       ax.YLabel.String = 'kurtosis corrected z';
-      ax.XLim(1) = ax.XLim(1)/10^(0.1);
-      ax.XLim(2) = ax.XLim(2)*10^(0.1);
-      
-%       for i = 1:numel(this.nArray)
-%         figure;
-%         qqplot(this.correctedZArray{i});
-%       end
       
     end
     
@@ -136,7 +121,7 @@ classdef ExperimentEmpiricalNullOnIid < Experiment
       this.nullMeanArray = zeros(this.nRepeat, numel(this.nArray));
       this.nullStdArray = zeros(this.nRepeat, numel(this.nArray));
       this.meanZArray = zeros(this.nRepeat, numel(this.nArray));
-      this.varZArray = zeros(this.nRepeat, numel(this.nArray));
+      this.stdZArray = zeros(this.nRepeat, numel(this.nArray));
       this.kurtosisZArray = zeros(this.nRepeat, numel(this.nArray));
       this.correctedZArray = cell(1, numel(this.nArray));
     end
@@ -167,7 +152,7 @@ classdef ExperimentEmpiricalNullOnIid < Experiment
           end
           %save the mean, variance and kurtosis of the corrected z statistics
           this.meanZArray(iRepeat, iN) = mean(z);
-          this.varZArray(iRepeat, iN) = var(z);
+          this.stdZArray(iRepeat, iN) = std(z);
           this.kurtosisZArray(iRepeat, iN) = kurtosis(z);
           
           this.printProgress( ((iN-1)*this.nRepeat + iRepeat) / (numel(this.nArray)*this.nRepeat) );
