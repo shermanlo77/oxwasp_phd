@@ -66,9 +66,9 @@ public class MadModeNull extends EmpiricalNull{
     Arrays.sort(this.zArray, 0, this.n);
     if ((this.n%2) == 1) {
       return MAD_FACTOR * this.zArray[(this.n-1)/2];
-    } else
+    } else {
       return MAD_FACTOR * (this.zArray[this.n/2] + this.zArray[this.n/2 + 1]) / 2;
-    
+    }
   }
   
 }

@@ -74,11 +74,11 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   protected int pass;
   
   //EMPIRICAL NULL RELATED
-  private int nInitial = EmpiricalNull.N_INITIAL;
-  private int nStep = EmpiricalNull.N_STEP;
-  private float log10Tolerance = EmpiricalNull.LOG_10_TOLERANCE;
-  private float bandwidthParameterA = EmpiricalNull.BANDWIDTH_PARAMETER_A;
-  private float bandwidthParameterB = EmpiricalNull.BANDWIDTH_PARAMETER_B;
+  protected int nInitial = EmpiricalNull.N_INITIAL;
+  protected int nStep = EmpiricalNull.N_STEP;
+  protected float log10Tolerance = EmpiricalNull.LOG_10_TOLERANCE;
+  protected float bandwidthParameterA = EmpiricalNull.BANDWIDTH_PARAMETER_A;
+  protected float bandwidthParameterB = EmpiricalNull.BANDWIDTH_PARAMETER_B;
   
   //indicate if pixels in the kernel need to be copied to a float[]
   protected boolean isKernelCopy = true;
