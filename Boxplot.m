@@ -18,7 +18,9 @@ classdef Boxplot < handle
         position; %scalar, x position of the box plot
         colour; %colour of the box plot
         
-        want_whisker_cap; %boolean, true if want whisker cap
+        wantOutlier = true;
+        hasUpperOutlier;
+        hasLowerOutlier;
         whisker_cap_size; %size of the whisker cap
         
         outlier_colour; %colour of the outlier mark
@@ -38,7 +40,6 @@ classdef Boxplot < handle
             %assign default values to member variables
             this.position = 0;
             this.colour = [0,0,1];
-            this.want_whisker_cap = false;
             this.whisker_cap_size = 6;
             this.outlier_colour = [1,0,0];
             this.outlier_mark = 'x';
@@ -61,12 +62,10 @@ classdef Boxplot < handle
             this.colour = colour;
         end
         
-        %METHOD: SET WHISKER CAP
-        %Set the whisker cap to be on of off
-        %PARAMETERS:
-            %want_whisker_cap: true if want whisker cap on
-        function setWhiskerCap(this,want_whisker_cap)
-            this.want_whisker_cap = want_whisker_cap;
+        %METHOD: SET WANT OUTLIER
+        %Set if want to show outliers or not
+        function setWantOutlier(this, wantOutlier)
+          this.wantOutlier = wantOutlier;
         end
         
         %METHOD: SET WHISKER CAP SIZE
@@ -110,13 +109,30 @@ classdef Boxplot < handle
             this.getWhisker();
 
             %plot outliers
-            n_outlier = sum(this.outlier_index);
-            outlier = line(ones(1,n_outlier)*this.position, this.X(this.outlier_index)');
-            if n_outlier ~= 0
-                outlier.LineStyle = 'none';
-                outlier.Marker = this.outlier_mark;
-                outlier.Color = this.outlier_colour;
-                outlier.MarkerSize = this.outlier_size;
+            if (this.wantOutlier)
+              n_outlier = sum(this.outlier_index);
+              outlier = line(ones(1,n_outlier)*this.position, this.X(this.outlier_index)');
+              if n_outlier ~= 0
+                  outlier.LineStyle = 'none';
+                  outlier.Marker = this.outlier_mark;
+                  outlier.Color = this.outlier_colour;
+                  outlier.MarkerSize = this.outlier_size;
+              end
+            else
+              if (this.hasUpperOutlier)
+                  %draw an arrow at the end of the whiskers
+                  whisker_cap_upper = line(this.position,this.whisker(2));
+                  whisker_cap_upper.Marker = '^';
+                  whisker_cap_upper.Color = this.colour;
+                  whisker_cap_upper.MarkerFaceColor = this.colour;
+                  whisker_cap_upper.MarkerSize = this.whisker_cap_size;
+              elseif (this.hasLowerOutlier)
+                  whisker_cap_lower = line(this.position,this.whisker(1));
+                  whisker_cap_lower.Marker = 'v';
+                  whisker_cap_lower.Color = this.colour;
+                  whisker_cap_lower.MarkerFaceColor = this.colour;
+                  whisker_cap_lower.MarkerSize = this.whisker_cap_size;
+              end
             end
             
             %draw the whisker
@@ -124,22 +140,6 @@ classdef Boxplot < handle
             whisker_line.Color = this.colour;
             %the whisker is what to draw for the legend
             this.legendAx = whisker_line;
-            
-            %if want whisker cap
-            if this.want_whisker_cap
-                %draw an arrow at the end of the whiskers
-                whisker_cap_upper = line(this.position,this.whisker(2));
-                whisker_cap_upper.Marker = '^';
-                whisker_cap_upper.Color = this.colour;
-                whisker_cap_upper.MarkerFaceColor = this.colour;
-                whisker_cap_upper.MarkerSize = this.whisker_cap_size;
-                
-                whisker_cap_lower = line(this.position,this.whisker(1));
-                whisker_cap_lower.Marker = 'v';
-                whisker_cap_lower.Color = this.colour;
-                whisker_cap_lower.MarkerFaceColor = this.colour;
-                whisker_cap_lower.MarkerSize = this.whisker_cap_size;
-            end
             
             %draw the box
             box = line([this.position,this.position],this.quartiles);
@@ -187,7 +187,11 @@ classdef Boxplot < handle
         %Set which data are outliers or not, save the boolean in the member variable outlier_index
         function getOutlier(this)
             iqr = this.quartiles(2) - this.quartiles(1);
-            this.outlier_index = (this.X < this.quartiles(1) - 1.5 * iqr) | (this.X > this.quartiles(2) + 1.5 * iqr);
+            isUpperOutlier = (this.X > this.quartiles(2) + 1.5 * iqr);
+            isLowerOutlier = (this.X < this.quartiles(1) - 1.5 * iqr);
+            this.outlier_index = isLowerOutlier | isUpperOutlier;
+            this.hasUpperOutlier = any(isUpperOutlier);
+            this.hasLowerOutlier = any(isLowerOutlier);
         end
         
     end

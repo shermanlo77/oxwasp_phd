@@ -45,6 +45,13 @@ classdef Boxplots < handle
             end
         end
         
+        %METHOD: SET WANT OUTLIER
+        function setWantOutlier(this, wantOutlier)
+          for i_group = 1:this.n_boxplot
+                this.boxplot_array{i_group}.setWantOutlier(wantOutlier);
+            end
+        end
+        
         %METHOD: SET COLOUR
         %Set the colour of each boxplot
         %PARAMETERS:
