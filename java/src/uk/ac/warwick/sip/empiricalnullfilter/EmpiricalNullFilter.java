@@ -80,6 +80,13 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   private float bandwidthParameterA = EmpiricalNull.BANDWIDTH_PARAMETER_A;
   private float bandwidthParameterB = EmpiricalNull.BANDWIDTH_PARAMETER_B;
   
+  //indicate if pixels in the kernel need to be copied to a float[]
+  protected boolean isKernelCopy = true;
+  //indicate if the kernel mean and var is required
+  protected boolean isKernelMeanVar = true;
+  //indicate if the kernel quartiles is required
+  protected boolean isKernelQuartile = true;
+  
   //MULTITHREADING RELATED
   private int numThreads = Prefs.getThreads();
   // Current state of processing is in class variables. Thus, stack parallelization must be done
@@ -426,7 +433,8 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     Rectangle roiRectangle = this.imageProcessor.getRoi();
     
     //get the pointer of the kernel given the width of the cache
-    Kernel kernel = new Kernel(cache, roi, true, true);
+    Kernel kernel = new Kernel(cache, roi, this.isKernelCopy, this.isKernelMeanVar,
+        this.isKernelQuartile);
     if (aborted[0] || Thread.currentThread().isInterrupted()) {
       return;
     }

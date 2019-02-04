@@ -12,6 +12,9 @@ import org.apache.commons.math3.random.RandomGenerator;
 public class MedianIqrNullFilter extends EmpiricalNullFilter {
   
   public MedianIqrNullFilter() {
+    super();
+    //this filter does not need to work out the kernel mean and variance
+    this.isKernelMeanVar = false;
   }
   
   /**METHOD: GET NULL MEAN STD

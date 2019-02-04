@@ -25,6 +25,9 @@ public class Kernel {
   private int nFinite;
   private boolean isFinite;
   
+  //indicate if to copy pixels to the member variable pixels
+  //must be true if isQuartile is true
+  private boolean isCopy;
   private boolean isMeanStd; //indicate if to calculate sums
   private boolean isQuartile; //indicate if to do quartile calculations
   
@@ -44,8 +47,7 @@ public class Kernel {
    * @param isMeanStd
    * @param isQuartile
    */
-  public Kernel(Cache cache, Roi roi, boolean isMeanStd,
-      boolean isQuartile) {
+  public Kernel(Cache cache, Roi roi, boolean isCopy, boolean isMeanStd, boolean isQuartile) {
     
     this.cache = cache;
     this.cachePointers = new int[2*Kernel.getKHeight()];
@@ -57,8 +59,14 @@ public class Kernel {
     }
     this.roi = roi;
     
-    this.isMeanStd = isMeanStd;
     this.isQuartile = isQuartile;
+    this.isMeanStd = isMeanStd;
+    //pixels must be copied when working out quartiles
+    if (isQuartile) {
+      this.isCopy = true;
+    } else {
+      this.isCopy = isCopy;
+    }
     
     //arrays to store calculations of pixels contained in a kernel
     this.sums = new double[2];
@@ -107,6 +115,7 @@ public class Kernel {
     }
     
     if (this.isFinite) {
+      
       if (this.isMeanStd) {
         if (this.isFullCalculation) {
           //for small kernel, always use the full area, not incremental algorithm
@@ -131,8 +140,11 @@ public class Kernel {
         }
       }
       
-      if (this.isQuartile) {
+      if (this.isCopy) {
         this.copyPixels();
+      }
+      
+      if (this.isQuartile) {
         if (this.nFinite < 2) {
           this.isFinite = false;
         } else {
@@ -154,6 +166,7 @@ public class Kernel {
    * @param sums modified
    * @return  number of non-nan numbers
    */
+  //MODIFIES nFinite
   private void sumArea() {
     this.sums[0] = 0;
     this.sums[1] = 0;

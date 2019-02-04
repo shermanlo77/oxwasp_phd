@@ -12,6 +12,10 @@ import org.apache.commons.math3.random.RandomGenerator;
 public class MeanVarNullFilter extends EmpiricalNullFilter {
   
   public MeanVarNullFilter() {
+    super();
+    //this filter does not need to copy kernel pixels or work out quantiles
+    this.isKernelCopy = false;
+    this.isKernelQuartile = false;
   }
   
   /**METHOD: GET NULL MEAN STD
