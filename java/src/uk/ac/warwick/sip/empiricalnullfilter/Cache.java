@@ -10,19 +10,19 @@ public class Cache {
   
   private int highestYInCache;
   
-  final private ImageProcessor ip;
-  final private Roi roi;
-  final private float[] cache;
-  final private int cacheWidth;
-  final private int cacheHeight;
-  final private int xMin;
-  final private int xMax;
-  final private int padLeft;
-  final private int padRight;
-  final private int xMinInside;
-  final private int xMaxInside;
-  final private int widthInside;
-  final private boolean isMultiThread;
+  private final ImageProcessor ip;
+  private final Roi roi;
+  private final float[] cache;
+  private final int cacheWidth;
+  private final int cacheHeight;
+  private final int xMin;
+  private final int xMax;
+  private final int padLeft;
+  private final int padRight;
+  private final int xMinInside;
+  private final int xMaxInside;
+  private final int widthInside;
+  private final boolean isMultiThread;
   
   private boolean copyingToCache = false;
   
@@ -55,9 +55,9 @@ public class Cache {
     this.isMultiThread = numThreads > 1;
   }
   
-  public void readIntoCache(ImageProcessor ip, int[] yForThread, Kernel kernel) {
+  public void readIntoCache(int[] yForThread, Kernel kernel) {
     int y = kernel.getY();
-    Rectangle roiRectangle = ip.getRoi();
+    Rectangle roiRectangle = this.ip.getRoi();
     if (!this.isMultiThread) {
       int yStartReading = y==roiRectangle.y ?
           Math.max(roiRectangle.y-Kernel.getKHeight()/2, 0) : y+Kernel.getKHeight()/2;

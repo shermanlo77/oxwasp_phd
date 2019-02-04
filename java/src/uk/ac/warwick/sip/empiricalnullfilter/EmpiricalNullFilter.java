@@ -423,7 +423,6 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
       boolean[] aborted) {
     
     //get properties of this image
-    int width = this.imageProcessor.getWidth();
     Rectangle roiRectangle = this.imageProcessor.getRoi();
     
     //get the pointer of the kernel given the width of the cache
@@ -519,7 +518,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
       
       //=====READ INTO CACHE===== (untouched from original source code)
       
-      cache.readIntoCache(this.imageProcessor, yForThread, kernel);
+      cache.readIntoCache(yForThread, kernel);
       
       //=====FILTER A LINE=====
       
@@ -582,7 +581,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     int cacheLineP = cache.getCacheWidth() * (y % cache.getCacheHeight()) + Kernel.getKRadius();
     //declare the pointer for a pixel in values
     int valuesP = this.imageProcessor.getRoi().x+y*this.imageProcessor.getWidth();
-    float initialValue = 0; //initial value to be used for the newton-raphson method
+    float initialValue = values[0][valuesP]; //initial value to be used for the newton-raphson method
     kernel.moveToNewLine(y);
     do {
       if (kernel.isFinite()) {
