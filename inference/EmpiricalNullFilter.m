@@ -25,7 +25,7 @@ classdef EmpiricalNullFilter < handle
       %radius: the radius of the kernel
     function this = EmpiricalNullFilter(radius)
       this.radius = radius;
-      this.javaFilter = uk.ac.warwick.sip.empiricalnullfilter.EmpiricalNullFilter();
+      this.getFilter();
       this.javaFilter.setRadius(radius);
     end
     
@@ -150,6 +150,11 @@ classdef EmpiricalNullFilter < handle
   end
   
   methods (Access = private)
+    
+    %METHOD: GET FILTER
+    function getFilter(this)
+      this.javaFilter = uk.ac.warwick.sip.empiricalnullfilter.EmpiricalNullFilter();
+    end
     
     %METHOD: SET NULL PARAMETERS
     %Get and set the filtered image, empirical null mean and empirical null std from the filter
