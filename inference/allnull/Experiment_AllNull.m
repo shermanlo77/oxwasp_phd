@@ -28,7 +28,7 @@ classdef Experiment_AllNull < Experiment
       %dim 1: for each n repeat
       %dim 2: for each radius
     meanArray; %mean of all pixels
-    varianceArray; %variance of all pixels
+    stdArray; %variance of all pixels
     kurtosisArray; %kurtosis of all pixels
     timeArray; %time to filter the image in seconds
     
@@ -93,7 +93,7 @@ classdef Experiment_AllNull < Experiment
       
       %plot empirical null mean
       figure;
-      nullMeanPlot = Boxplots(reshape(this.nullMeanArray,[],numel(this.radiusArray)), true);
+      nullMeanPlot = Boxplots(reshape(this.nullMeanArray,[],numel(this.radiusArray)));
       nullMeanPlot.setPosition(this.radiusArray);
       nullMeanPlot.plot();
       hold on;
@@ -105,19 +105,19 @@ classdef Experiment_AllNull < Experiment
       
       %plot empirical null var
       figure;
-      nullVarPlot = Boxplots(reshape(this.nullStdArray.^2,[],numel(this.radiusArray)), true);
+      nullVarPlot = Boxplots(reshape(this.nullStdArray,[],numel(this.radiusArray)));
       nullVarPlot.setPosition(this.radiusArray);
       nullVarPlot.plot();
       hold on;
       A = pi*this.radiusArray.^2;
-      plot(this.radiusArray, chi2inv(alpha/2, A-1)./(A-1), 'k--');
-      plot(this.radiusArray, chi2inv(1-alpha/2, A-1)./(A-1), 'k--');
-      ylabel('empirical null variance');
+      plot(this.radiusArray, sqrt(chi2inv(alpha/2, A-1)./(A-1)), 'k--');
+      plot(this.radiusArray, sqrt(chi2inv(1-alpha/2, A-1)./(A-1)), 'k--');
+      ylabel('empirical null std');
       xlabel('radius (pixel)');
       
       %plot post filter mean vs radius
       fig = LatexFigure.sub();
-      meanPlot = Boxplots(this.meanArray, true);
+      meanPlot = Boxplots(this.meanArray);
       meanPlot.setPosition(this.radiusArray);
       meanPlot.plot();
       hold on;
@@ -131,24 +131,24 @@ classdef Experiment_AllNull < Experiment
       
       %plot post filter variance vs radius
       fig = LatexFigure.sub();
-      varPlot = Boxplots(this.varianceArray, true);
-      varPlot.setPosition(this.radiusArray);
-      varPlot.plot();
+      stdPlot = Boxplots(this.stdArray);
+      stdPlot.setPosition(this.radiusArray);
+      stdPlot.plot();
       hold on;
-      varCritical1 = chi2inv(alpha/2, n-1)/(n-1);
-      varCritical2 = chi2inv(1-alpha/2, n-1)/(n-1);
-      plot([0,this.radiusArray(end)+10],[varCritical1,varCritical1], 'k--');
-      plot([0,this.radiusArray(end)+10],[varCritical2,varCritical2], 'k--');
+      stdCritical1 = sqrt(chi2inv(alpha/2, n-1)/(n-1));
+      stdCritical2 = sqrt(chi2inv(1-alpha/2, n-1)/(n-1));
+      plot([0,this.radiusArray(end)+10],[stdCritical1,stdCritical1], 'k--');
+      plot([0,this.radiusArray(end)+10],[stdCritical2,stdCritical2], 'k--');
       xlim([0,this.radiusArray(end)+10]);
-      ylabel('post filter image greyvalue variance');
+      ylabel('post filter image greyvalue std');
       xlabel('radius (pixel)');
       saveas(fig,fullfile(directory, strcat(this.experiment_name,'variance.eps')),'epsc');
       
       %plot post filter kurtosisArray vs radius
       fig = LatexFigure.sub();
-      varPlot = Boxplots(this.kurtosisArray, true);
-      varPlot.setPosition(this.radiusArray);
-      varPlot.plot();
+      kurtPlot = Boxplots(this.kurtosisArray);
+      kurtPlot.setPosition(this.radiusArray);
+      kurtPlot.plot();
       hold on;
       meanCritical = norminv(1-alpha/2)/sqrt(n);
       plot([0,this.radiusArray(end)+10],3+sqrt(24)*[meanCritical,meanCritical], 'k--');
@@ -160,7 +160,7 @@ classdef Experiment_AllNull < Experiment
       
       %plot time vs radius
       fig = LatexFigure.sub();
-      timePlot = Boxplots(this.timeArray, true);
+      timePlot = Boxplots(this.timeArray);
       timePlot.setPosition(this.radiusArray);
       timePlot.plot();
       ylabel('time (s)');
@@ -178,7 +178,7 @@ classdef Experiment_AllNull < Experiment
     %Declare arrays for storing results
     function setup(this, seed)
       this.meanArray = zeros(this.nRepeat, numel(this.radiusArray)); %mean of all pixels
-      this.varianceArray = zeros(this.nRepeat, numel(this.radiusArray)); %variance of all pixels
+      this.stdArray = zeros(this.nRepeat, numel(this.radiusArray)); %variance of all pixels
       this.kurtosisArray = zeros(this.nRepeat, numel(this.radiusArray)); %kolmogorov-smirnov p value
       %time to filter the image in seconds
       this.timeArray = zeros(this.nRepeat, numel(this.radiusArray));
@@ -226,7 +226,7 @@ classdef Experiment_AllNull < Experiment
           %save the corrected statistics mean, var and kurtosis
           image = reshape(image,[],1);
           this.meanArray(iRepeat, iRadius) = mean(image);
-          this.varianceArray(iRepeat, iRadius) = var(image);
+          this.stdArray(iRepeat, iRadius) = std(image);
           this.kurtosisArray(iRepeat, iRadius) = kurtosis(image);
           
           %print the progressbar
