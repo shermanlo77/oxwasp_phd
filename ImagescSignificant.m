@@ -72,10 +72,17 @@ classdef ImagescSignificant < handle
             
             %declare a height x width x 3 RGB matrix
             image_plot = zeros(height,width,3);
+            
+            %make a copy of the image
+            %any pixels below and above clim, adjust them to equal the boundary
+            imageTruncate = this.image;
+            imageTruncate(imageTruncate>this.clim(2)) = this.clim(2);
+            imageTruncate(imageTruncate<this.clim(1)) = this.clim(1);
+            
             %for each colour
             for i = 1:3
                 %interpolate the colourmap
-                image_plot(:,:,i) = interp1(linspace(this.clim(1),this.clim(2),n_colour_step),colour_map(:,i),this.image);
+                image_plot(:,:,i) = interp1(linspace(this.clim(1),this.clim(2),n_colour_step),colour_map(:,i),imageTruncate);
             end
             
             %if sig_image is not empty, ie it has a value
@@ -104,7 +111,6 @@ classdef ImagescSignificant < handle
             %plot the colour bar and set it
             colorbar;
             im.Parent.CLim = this.clim;
-            
 
         end
         
