@@ -98,6 +98,7 @@ public class EmpiricalNull {
     this.bandwidthParameterA = bandwidthParameterA;
     this.bandwidthParameterB = bandwidthParameterB;
     
+    this.initialValue = initialValue;
     this.zArray = kernel.getPixels();
     this.n= kernel.getNFinite();
     this.dataStd = kernel.getStd();
