@@ -1828,3 +1828,178 @@ The false positives were tackled by manually segmenting the image further as sho
 	\label{fig:inference_subroisep16120deg_inference_radius4}
 \end{figure}
 
+
+\begin{figure}[p]
+	\centering
+		\centerline{
+			\begin{subfigure}[b]{0.49\textwidth}
+				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidEmpirical_nullMean.eps}
+				\caption{Empirical null}
+			\end{subfigure}
+			\begin{subfigure}[b]{0.49\textwidth}
+				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMadMode_nullMean.eps}
+				\caption{MAD mode null}
+			\end{subfigure}
+		}
+		\centerline{
+			\begin{subfigure}{0.49\textwidth}
+				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMeanVar_nullMean.eps}
+				\caption{Mean variance null}
+			\end{subfigure}
+			\begin{subfigure}{0.49\textwidth}
+				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMedianIqr_nullMean.eps}
+				\caption{Median IQR null}
+			\end{subfigure}
+		}
+	\caption{Different types of central tendency estimators were used on $\pi r^2$ $\normal(0,1)$ random variables. Shown are the sampling distributions from 100 repeats. The dotted lines show the 95\% confidence interval for the sample mean.}
+\end{figure}
+
+\begin{figure}[p]
+	\centering
+		\centerline{
+			\begin{subfigure}[b]{0.49\textwidth}
+				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidEmpirical_nullStd.eps}
+				\caption{Empirical null}
+			\end{subfigure}
+			\begin{subfigure}[b]{0.49\textwidth}
+				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMadMode_nullStd.eps}
+				\caption{MAD mode null}
+			\end{subfigure}
+		}
+		\centerline{
+			\begin{subfigure}{0.49\textwidth}
+				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMeanVar_nullStd.eps}
+				\caption{Mean variance null}
+			\end{subfigure}
+			\begin{subfigure}{0.49\textwidth}
+				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMedianIqr_nullStd.eps}
+				\caption{Median IQR null}
+			\end{subfigure}
+		}
+	\caption{Different types of statistical dispersion estimators were used on $\pi r^2$ $\normal(0,1)$ random variables. Shown are the sampling distributions from 100 repeats. The dotted lines show the 95\% confidence interval for the sample variance.}
+\end{figure}
+
+\begin{figure}[p]
+	\centering
+		\centerline{
+			\begin{subfigure}[b]{0.49\textwidth}
+				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidEmpirical_zMean.eps}
+				\caption{Empirical null}
+			\end{subfigure}
+			\begin{subfigure}[b]{0.49\textwidth}
+				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMadMode_zMean.eps}
+				\caption{MAD mode null}
+			\end{subfigure}
+		}
+		\centerline{
+			\begin{subfigure}{0.49\textwidth}
+				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMeanVar_zMean.eps}
+				\caption{Mean variance null}
+			\end{subfigure}
+			\begin{subfigure}{0.49\textwidth}
+				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMedianIqr_zMean.eps}
+				\caption{Median IQR null}
+			\end{subfigure}
+		}
+	\caption{$\pi r^2$ $\normal(0,1)$ random variables were simulated and then normalised using the different types of estimators. Shown are the mean of the normalised random variables. The dotted lines show the 95\% confidence interval for the sample mean. The box plots represent 100 repeats of the simulation.}
+\end{figure}
+
+\begin{figure}[p]
+	\centering
+		\centerline{
+			\begin{subfigure}[b]{0.49\textwidth}
+				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidEmpirical_zStd.eps}
+				\caption{Empirical null}
+			\end{subfigure}
+			\begin{subfigure}[b]{0.49\textwidth}
+				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMadMode_zStd.eps}
+				\caption{MAD mode null}
+			\end{subfigure}
+		}
+		\centerline{
+			\begin{subfigure}{0.49\textwidth}
+				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMeanVar_zStd.eps}
+				\caption{Mean variance null}
+			\end{subfigure}
+			\begin{subfigure}{0.49\textwidth}
+				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMedianIqr_zStd.eps}
+				\caption{Median IQR null}
+			\end{subfigure}
+		}
+	\caption{$\pi r^2$ $\normal(0,1)$ random variables were simulated and then normalised using the different types of estimators. Shown are the standard deviation of the normalised random variables. The dotted lines show the 95\% confidence interval for the sample variance. The box plots represent 100 repeats of the simulation.}
+\end{figure}
+
+\begin{figure}[p]
+	\centering
+		\centerline{
+			\begin{subfigure}[b]{0.49\textwidth}
+				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidEmpirical_zKurtosis.eps}
+				\caption{Empirical null}
+			\end{subfigure}
+			\begin{subfigure}[b]{0.49\textwidth}
+				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMadMode_zKurtosis.eps}
+				\caption{MAD mode null}
+			\end{subfigure}
+		}
+		\centerline{
+			\begin{subfigure}{0.49\textwidth}
+				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMeanVar_zKurtosis.eps}
+				\caption{Mean variance null}
+			\end{subfigure}
+			\begin{subfigure}{0.49\textwidth}
+				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMedianIqr_zKurtosis.eps}
+				\caption{Median IQR null}
+			\end{subfigure}
+		}
+	\caption{$\pi r^2$ $\normal(0,1)$ random variables were simulated and then normalised using the different types of estimators. Shown are the sample kurtosis of the normalised random variables. The dotted lines show the 95\% confidence interval for the sample kurtosis. The box plots represent 100 repeats of the simulation.}
+\end{figure}
+
+\begin{figure}[p]
+	\centering
+		\centerline{
+			\begin{subfigure}[b]{0.49\textwidth}
+				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMixtureEmpirical_nullMean.eps}
+				\caption{Empirical null}
+			\end{subfigure}
+			\begin{subfigure}[b]{0.49\textwidth}
+				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMixtureMadMode_nullMean.eps}
+				\caption{MAD mode null}
+			\end{subfigure}
+		}
+		\centerline{
+			\begin{subfigure}{0.49\textwidth}
+				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMixtureMeanVar_nullMean.eps}
+				\caption{Mean variance null}
+			\end{subfigure}
+			\begin{subfigure}{0.49\textwidth}
+				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMixtureMedianIqr_nullMean.eps}
+				\caption{Median IQR null}
+			\end{subfigure}
+		}
+	\caption{Different types of central tendency estimators were used on $\pi r^2$ mixture of Gaussian random variables. The random variable has distribution $\normal(0,1)$ with probability $0.9$ and $\normal(3,1)$ with probability $0.1$. Shown are the sampling distributions from 100 repeats. The dotted lines show the 95\% confidence interval for the sample mean.}
+\end{figure}
+
+\begin{figure}[p]
+	\centering
+		\centerline{
+			\begin{subfigure}[b]{0.49\textwidth}
+				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMixtureEmpirical_nullStd.eps}
+				\caption{Empirical null}
+			\end{subfigure}
+			\begin{subfigure}[b]{0.49\textwidth}
+				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMixtureMadMode_nullStd.eps}
+				\caption{MAD mode null}
+			\end{subfigure}
+		}
+		\centerline{
+			\begin{subfigure}{0.49\textwidth}
+				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMixtureMeanVar_nullStd.eps}
+				\caption{Mean variance null}
+			\end{subfigure}
+			\begin{subfigure}{0.49\textwidth}
+				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMixtureMedianIqr_nullStd.eps}
+				\caption{Median IQR null}
+			\end{subfigure}
+		}
+	\caption{Different types of statistical dispersion estimators were used on $\pi r^2$ mixture of Gaussian random variables. The random variable has distribution $\normal(0,1)$ with probability $0.9$ and $\normal(3,1)$ with probability $0.1$. Shown are the sampling distributions from 100 repeats. The dotted lines show the 95\% confidence interval for the sample variance.}
+\end{figure}

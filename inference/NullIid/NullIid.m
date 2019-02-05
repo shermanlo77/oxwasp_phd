@@ -37,10 +37,12 @@ classdef (Abstract) NullIid < Experiment
     %Plots the mean, variance and kurtosis of the corrected z statistics for different n 
     function printResults(this)
       
+      directory = fullfile('reports','figures','inference','NullIid');
+      
       radiusPlot = sqrt(this.nArray/pi);
       
       %plot empirical null mean
-      fig = figure;
+      fig = LatexFigure.sub();
       boxplot = Boxplots(this.nullMeanArray);
       boxplot.setPosition(radiusPlot);
       %boxplot.setWantOutlier(false);
@@ -52,9 +54,11 @@ classdef (Abstract) NullIid < Experiment
       ax = fig.Children(1);
       ax.XLabel.String = 'r';
       ax.YLabel.String = 'empirical null mean';
+      ax.YLim = this.getYLim(1);
+      saveas(fig, fullfile(directory,strcat(this.experiment_name,'_nullMean.eps')), 'epsc');
       
       %plot empirical null std
-      fig = figure;
+      fig = LatexFigure.sub();
       boxplot = Boxplots(this.nullStdArray);
       boxplot.setPosition(radiusPlot);
       %boxplot.setWantOutlier(false);
@@ -65,9 +69,11 @@ classdef (Abstract) NullIid < Experiment
       ax = fig.Children(1);
       ax.XLabel.String = 'r';
       ax.YLabel.String = 'empirical null std';
+      ax.YLim = this.getYLim(2);
+      saveas(fig, fullfile(directory,strcat(this.experiment_name,'_nullStd.eps')), 'epsc');
       
       %plot mean corrected z
-      fig = figure;
+      fig = LatexFigure.sub();
       boxplot = Boxplots(this.meanZArray);
       boxplot.setPosition(radiusPlot);
       %boxplot.setWantOutlier(false);
@@ -79,9 +85,11 @@ classdef (Abstract) NullIid < Experiment
       ax = fig.Children(1);
       ax.XLabel.String = 'r';
       ax.YLabel.String = 'mean corrected z';
+      ax.YLim = this.getYLim(3);
+      saveas(fig, fullfile(directory,strcat(this.experiment_name,'_zMean.eps')), 'epsc');
       
       %plot std corrected z
-      fig = figure;
+      fig = LatexFigure.sub();
       boxplot = Boxplots(this.stdZArray);
       boxplot.setPosition(radiusPlot);
       %boxplot.setWantOutlier(false);
@@ -92,9 +100,11 @@ classdef (Abstract) NullIid < Experiment
       ax = fig.Children(1);
       ax.XLabel.String = 'r';
       ax.YLabel.String = 'std corrected z';
+      ax.YLim = this.getYLim(4);
+      saveas(fig, fullfile(directory,strcat(this.experiment_name,'_zStd.eps')), 'epsc');
       
       %plot kurtosis corrected z
-      fig = figure;
+      fig = LatexFigure.sub();
       boxplot = Boxplots(this.kurtosisZArray);
       boxplot.setPosition(radiusPlot);
       %boxplot.setWantOutlier(false);
@@ -105,6 +115,8 @@ classdef (Abstract) NullIid < Experiment
       ax = fig.Children(1);
       ax.XLabel.String = 'r';
       ax.YLabel.String = 'kurtosis corrected z';
+      ax.YLim = this.getYLim(5);
+      saveas(fig, fullfile(directory,strcat(this.experiment_name,'_zKurtosis.eps')), 'epsc');
       
     end
     
@@ -158,6 +170,21 @@ classdef (Abstract) NullIid < Experiment
     
     function z = getSample(this, n)
       z = this.randStream.randn(n,1); %simulate N(0,1);
+    end
+    
+    function yLim = getYLim(this, index)
+      switch index
+        case 1
+          yLim = [-0.4, 0.4];
+        case 2
+          yLim = [0.7, 1.8];
+        case 3
+          yLim = [-0.4, 0.4];
+        case 4
+          yLim = [0.6, 1.3];
+        case 5
+          yLim = [2.4, 4.0];
+      end
     end
     
   end
