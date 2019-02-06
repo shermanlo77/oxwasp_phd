@@ -201,6 +201,7 @@ classdef Experiment_AllNull < Experiment
         %instantiate an empirical null filter with that radius
         filter = this.getFilter(radius);
         filter.setNInitial(this.nInitial);
+        filter.setSeed(this.randStream.randi([intmin('int32'),intmax('int32')],'int32'));
         
         %for nRepeat times
         for iRepeat = 1:this.nRepeat

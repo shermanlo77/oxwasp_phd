@@ -780,6 +780,14 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     return this.bandwidthParameterB;
   }
   
+  /**FUNCTION: SET SEED
+   * Set the seed for the rng used to give seeds for each row
+   * @param seed
+   */
+  public void setSeed(long seed) {
+    this.seed = seed;
+  }
+  
   /**METHOD: SHOW MASKS
    * Show the kernel
    */

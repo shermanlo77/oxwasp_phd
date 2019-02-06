@@ -200,6 +200,7 @@ classdef Experiment_DefectSimulationDust < Experiment
           %filter it
           filter = EmpiricalNullFilter(this.radius);
           filter.setNInitial(this.nIntial);
+          filter.setSeed(this.randStream.randi([intmin('int32'),intmax('int32')],'int32'));
           filter.filter(imageContaminated);
 
           %get the empirical null and the filtered image

@@ -155,6 +155,7 @@ classdef Experiment_DefectRadius < Experiment
           %filter it
           filter = EmpiricalNullFilter(this.radiusArray(iRadius));
           filter.setNInitial(this.nIntial);
+          filter.setSeed(this.randStream.randi([intmin('int32'),intmax('int32')],'int32'));
           filter.filter(imagePostCont);
 
           %get the empirical null and the filtered image
