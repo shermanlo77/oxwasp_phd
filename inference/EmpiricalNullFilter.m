@@ -149,7 +149,7 @@ classdef EmpiricalNullFilter < handle
     
     %METHOD: SET SEED
     %Set the seed of the filter
-    function seedSeed(this, seed)
+    function setSeed(this, seed)
       this.javaFilter.setSeed(seed);
     end
   
