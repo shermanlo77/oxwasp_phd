@@ -88,7 +88,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   protected boolean isKernelQuartile = true;
   
   //seed for the rng
-  private long seed = 4339992047966723930l;
+  private int seed = 1742863098;
   
   //MULTITHREADING RELATED
   private int numThreads = Prefs.getThreads();
@@ -368,9 +368,9 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     RandomGenerator rng = new MersenneTwister(this.seed);
     
     //produce a random seed for each row
-    final long seeds[] = new long[roiRectangle.height];
+    final int seeds[] = new int[roiRectangle.height];
     for (int i=0; i<this.imageProcessor.getHeight(); i++) {
-      seeds[i] = rng.nextLong();
+      seeds[i] = rng.nextInt();
     }
     
     //instantiate threads and start them
@@ -435,7 +435,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
    * @param seed seed for rng
    * @param aborted
    */
-  private void threadFilter(Cache cache, int [] yForThread, int threadNumber, long[] seeds,
+  private void threadFilter(Cache cache, int [] yForThread, int threadNumber, int[] seeds,
       boolean[] aborted) {
     
     //get properties of this image
@@ -784,7 +784,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
    * Set the seed for the rng used to give seeds for each row
    * @param seed
    */
-  public void setSeed(long seed) {
+  public void setSeed(int seed) {
     this.seed = seed;
   }
   
