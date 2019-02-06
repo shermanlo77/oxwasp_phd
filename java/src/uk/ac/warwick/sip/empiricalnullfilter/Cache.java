@@ -6,7 +6,7 @@ import java.util.Arrays;
 import ij.gui.Roi;
 import ij.process.ImageProcessor;
 
-public class Cache {
+class Cache {
   
   private int highestYInCache;
   

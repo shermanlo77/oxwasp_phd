@@ -3,7 +3,7 @@ package uk.ac.warwick.sip.empiricalnullfilter;
 import org.apache.commons.math3.stat.descriptive.rank.Percentile;
 import ij.gui.Roi;
 
-public class Kernel {
+class Kernel {
   
   //=====STATIC VARIABLES=====//
   private static boolean isSmallKernel; //indicate if this kernel is small of not
