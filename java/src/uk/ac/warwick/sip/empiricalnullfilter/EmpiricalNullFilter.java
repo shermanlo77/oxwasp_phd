@@ -87,6 +87,9 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   //indicate if the kernel quartiles is required
   protected boolean isKernelQuartile = true;
   
+  //seed for the rng
+  private long seed = 4339992047966723930l;
+  
   //MULTITHREADING RELATED
   private int numThreads = Prefs.getThreads();
   // Current state of processing is in class variables. Thus, stack parallelization must be done
@@ -362,17 +365,23 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     //thread number 0 is this one, not in the array
     final Thread[] threads = new Thread[numThreads-1];
     //this rng is for producing random seeds for each thread
-    RandomGenerator rng = new MersenneTwister(System.currentTimeMillis());
+    RandomGenerator rng = new MersenneTwister(this.seed);
+    
+    //produce a random seed for each row
+    final long seeds[] = new long[roiRectangle.height];
+    for (int i=0; i<this.imageProcessor.getHeight(); i++) {
+      seeds[i] = rng.nextLong();
+    }
+    
     //instantiate threads and start them
     for (int t=numThreads-1; t>0; t--) {
       final int ti = t; //thread number
-      final long seed = rng.nextLong();
       //SEE ANONYMOUS CLASS
       //thread runs method doFiltering
       final Thread thread = new Thread(
           new Runnable() {
             final public void run() {
-              threadFilter(cache, yForThread, ti, seed, aborted);
+              threadFilter(cache, yForThread, ti, seeds, aborted);
             }
           },
       "RankFilters-"+t);
@@ -382,7 +391,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     }
     
     //main thread start filtering
-    this.threadFilter(cache, yForThread, 0, rng.nextLong(), aborted);
+    this.threadFilter(cache, yForThread, 0, seeds, aborted);
     
     //join each thread
     for (final Thread thread : threads) {
@@ -426,11 +435,13 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
    * @param seed seed for rng
    * @param aborted
    */
-  private void threadFilter(Cache cache, int [] yForThread, int threadNumber, long seed,
+  private void threadFilter(Cache cache, int [] yForThread, int threadNumber, long[] seeds,
       boolean[] aborted) {
     
     //get properties of this image
     Rectangle roiRectangle = this.imageProcessor.getRoi();
+    //rng for trying out different initial values
+    RandomGenerator rng = new MersenneTwister();
     
     //get the pointer of the kernel given the width of the cache
     Kernel kernel = new Kernel(cache, roi, this.isKernelCopy, this.isKernelMeanVar,
@@ -441,8 +452,6 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     
     //for calculation the normal pdf
     NormalDistribution normal = new NormalDistribution();
-    //rng for trying out different initial values
-    RandomGenerator rng = new MersenneTwister(seed);
     
     //values is a 2D array
     //each dimension contain the pixel values for each image
@@ -531,7 +540,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
       //=====FILTER A LINE=====
       
       //points to pixel (roiRectangle.x, y)
-      
+      rng.setSeed(seeds[y]);
       this.filterLine(values, cache, kernel, y, normal, rng);
     }// end while (!aborted[0]); loops over y (lines)
   }
