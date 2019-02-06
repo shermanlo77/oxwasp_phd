@@ -146,6 +146,12 @@ classdef EmpiricalNullFilter < handle
     function setProgress(this, showProgressBar)
       this.javaFilter.setProgress(showProgressBar);
     end
+    
+    %METHOD: SET SEED
+    %Set the seed of the filter
+    function seedSeed(this, seed)
+      this.javaFilter.setSeed(seed);
+    end
   
   end
   
