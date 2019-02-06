@@ -1,10 +1,10 @@
-classdef Experiment_AllNullGaussianMeanVar < Experiment_AllNull
+classdef AllNullGaussianMedianIqr  < AllNull
   
   methods (Access = public)
     
     %CONSTRUCTOR
-    function this = Experiment_AllNullGaussianMeanVar()
-      this@Experiment_AllNull('Experiment_AllNullGaussianMeanVar');
+    function this = AllNullGaussianMedianIqr()
+      this@AllNull();
     end
     
   end
@@ -13,7 +13,7 @@ classdef Experiment_AllNullGaussianMeanVar < Experiment_AllNull
     
     %METHOD: SETUP
     function setup(this)
-      this.setup@Experiment_AllNull(uint32(3499211588));
+      this.setup@AllNull(uint32(3499211588));
     end
     
     %METHOD: GET IMAGE
@@ -23,9 +23,9 @@ classdef Experiment_AllNullGaussianMeanVar < Experiment_AllNull
     end
     
     %METHOD: GET FILTER
-    %instantiate an meanvar null filter with that radius
+    %instantiate an medianiqr null filter with that radius
     function filter = getFilter(this, radius)
-      filter = MeanVarNullFilter(radius);
+      filter = MedianIqrNullFilter(radius);
     end
     
   end

@@ -37,7 +37,7 @@ fclose(file_id);
 %contaminate the image
 defectSimulator = PlaneMult(randStream, trueNullMeanGrad, trueNullStd);
 image = defectSimulator.getDefectedImage([imageSize, imageSize]);
-filter = EmpiricalNullFilter(radius); %filter it
+filter = MadModeNullFilter(radius); %filter it
 filter.setNInitial(3);
 filter.filter(image);
 

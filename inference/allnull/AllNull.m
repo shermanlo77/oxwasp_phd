@@ -13,7 +13,7 @@
 %Methods to be implemeted:
 %  getImage returns an image to be filtered, this would be a Gaussian image with some bias added to
 %  or mutiplied to it
-classdef Experiment_AllNull < Experiment
+classdef AllNull < Experiment
   
   properties (SetAccess = private)
     
@@ -50,8 +50,8 @@ classdef Experiment_AllNull < Experiment
   methods (Access = public)
     
     %CONSTRUCTOR
-    function this = Experiment_AllNull(experimentName)
-      this@Experiment(experimentName);
+    function this = AllNull()
+      this@Experiment();
     end
     
     %METHOD: PRINT RESULTS
@@ -63,27 +63,27 @@ classdef Experiment_AllNull < Experiment
       %save properties of this experiment to txt
       
       %radius range
-      fildId = fopen(fullfile(directory,strcat(this.experiment_name,'radius1.txt')),'w');
+      fildId = fopen(fullfile(directory,strcat(this.experiment_name,'_radius1.txt')),'w');
       fprintf(fildId,'%d',this.radiusArray(1));
       fclose(fildId);
       
       %radius range
-      fildId = fopen(fullfile(directory,strcat(this.experiment_name,'radiusend.txt')),'w');
+      fildId = fopen(fullfile(directory,strcat(this.experiment_name,'_radiusend.txt')),'w');
       fprintf(fildId,'%d',this.radiusArray(end));
       fclose(fildId);
       
       %nrepeat
-      fildId = fopen(fullfile(directory,strcat(this.experiment_name,'nrepeat.txt')),'w');
+      fildId = fopen(fullfile(directory,strcat(this.experiment_name,'_nrepeat.txt')),'w');
       fprintf(fildId,'%d',this.nRepeat);
       fclose(fildId);
       
       %imagesize
-      fildId = fopen(fullfile(directory,strcat(this.experiment_name,'height.txt')),'w');
+      fildId = fopen(fullfile(directory,strcat(this.experiment_name,'_height.txt')),'w');
       fprintf(fildId,'%d',this.imageSize(1));
       fclose(fildId);
       
       %imagesize
-      fildId = fopen(fullfile(directory,strcat(this.experiment_name,'width.txt')),'w');
+      fildId = fopen(fullfile(directory,strcat(this.experiment_name,'_width.txt')),'w');
       fprintf(fildId,'%d',this.imageSize(2));
       fclose(fildId);
       
@@ -127,7 +127,7 @@ classdef Experiment_AllNull < Experiment
       xlim([0,this.radiusArray(end)+10]);
       ylabel('post filter image greyvalue mean');
       xlabel('radius (pixel)');
-      saveas(fig,fullfile(directory, strcat(this.experiment_name,'mean.eps')),'epsc');
+      saveas(fig,fullfile(directory, strcat(this.experiment_name,'_mean.eps')),'epsc');
       
       %plot post filter variance vs radius
       fig = LatexFigure.sub();
@@ -142,7 +142,7 @@ classdef Experiment_AllNull < Experiment
       xlim([0,this.radiusArray(end)+10]);
       ylabel('post filter image greyvalue std');
       xlabel('radius (pixel)');
-      saveas(fig,fullfile(directory, strcat(this.experiment_name,'variance.eps')),'epsc');
+      saveas(fig,fullfile(directory, strcat(this.experiment_name,'_variance.eps')),'epsc');
       
       %plot post filter kurtosisArray vs radius
       fig = LatexFigure.sub();
@@ -156,7 +156,7 @@ classdef Experiment_AllNull < Experiment
       xlim([0,this.radiusArray(end)+10]);
       ylabel('post filter image greyvalue kurtosis');
       xlabel('radius (pixel)');
-      saveas(fig,fullfile(directory, strcat(this.experiment_name,'kurtosis.eps')),'epsc');
+      saveas(fig,fullfile(directory, strcat(this.experiment_name,'_kurtosis.eps')),'epsc');
       
       %plot time vs radius
       fig = LatexFigure.sub();
@@ -166,7 +166,7 @@ classdef Experiment_AllNull < Experiment
       ylabel('time (s)');
       xlabel('radius (pixel)');
       xlim([0,this.radiusArray(end)+10]);
-      saveas(fig,fullfile(directory, strcat(this.experiment_name,'time.eps')),'epsc');
+      saveas(fig,fullfile(directory, strcat(this.experiment_name,'_time.eps')),'epsc');
       
     end
 
