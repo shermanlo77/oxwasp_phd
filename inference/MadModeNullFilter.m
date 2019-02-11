@@ -4,15 +4,8 @@ classdef MadModeNullFilter < EmpiricalNullFilter
     
     function this = MadModeNullFilter(radius)
       this@EmpiricalNullFilter(radius);
-    end
-    
-  end
-  
-  methods (Access = protected)
-    
-    %METHOD: GET FILTER
-    function getFilter(this)
       this.javaFilter = uk.ac.warwick.sip.empiricalnullfilter.MadModeNullFilter();
+      this.javaFilter.setRadius(radius);
     end
     
   end
