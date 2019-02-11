@@ -649,22 +649,6 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     } while(kernel.moveRight());
   }
   
-  /**METHOD: GET NULL MEAN STD
-   * Returns the null mean and null std
-   * @param values array of float [] for output values to be stored
-   * @param cache contains pixels of the pre-filter image
-   * @param x position
-   * @param cachePointers pointers used by the kernel
-   * @param cacheLineP pointer for the current y line in the cache
-   * @param initialValue for the Newton-Raphson method
-   * @param quartiles 3-vector
-   * @param mean (not used)
-   * @param std
-   * @param nData number of non-nan data
-   * @param normal
-   * @param rng
-   * @return 2-vector, [null mean, null std]
-   */
   protected float[] getNullMeanStd(float initialValue, Cache cache, Kernel kernel,
       NormalDistribution normal, RandomGenerator rng) {
     //declare 2 vector to store the null mean and null std

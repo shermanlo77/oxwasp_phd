@@ -271,6 +271,10 @@ class Kernel {
   public boolean isFinite() {
     return this.isFinite;
   }
+  
+  public float getMedian() {
+    return this.quartiles[1];
+  }
 
   public float[] getQuartiles() {
     return this.quartiles;

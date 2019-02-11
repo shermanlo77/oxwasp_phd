@@ -18,32 +18,13 @@ public class MeanVarNullFilter extends EmpiricalNullFilter {
     this.isKernelQuartile = false;
   }
   
-  /**METHOD: GET NULL MEAN STD
-   * Returns the mean and std
-   * @param values NOT USED
-   * @param cache NOT USED
-   * @param x NOT USED
-   * @param cachePointers NOT USED
-   * @param cacheLineP NOT USED
-   * @param initialValue NOT USED
-   * @param quartiles NOT USED
-   * @param mean 
-   * @param std
-   * @param nData number of non-nan data
-   * @param normal NOT USED
-   * @param rng NOT USED
-   * @return 2-vector, [null mean, null std]
-   */
-  protected float[] getNullMeanStd(float[][] values, float[] cache, int x, int[] cachePointers,
-      int cacheLineP, float initialValue, float[] quartiles, float mean, float std, int nData,
+  protected float[] getNullMeanStd(float initialValue, Cache cache, Kernel kernel,
       NormalDistribution normal, RandomGenerator rng) {
-    //declare 2 vector to store the null mean and null std
+  //declare 2 vector to store the null mean and null std
     float[] nullMeanStd = new float[2];
     //get the empirical null
-    nullMeanStd[0] = mean;
-    nullMeanStd[1] = std;
+    nullMeanStd[0] = kernel.getMean();
+    nullMeanStd[1] = kernel.getStd();
     return nullMeanStd;
   }
-  
-  
 }
