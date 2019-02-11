@@ -92,9 +92,10 @@ classdef AllNull < Experiment
       n = this.imageSize(1) * this.imageSize(2); %get number of pixels in the image
       
       %plot empirical null mean
-      figure;
+      fig = LatexFigure.sub();
       nullMeanPlot = Boxplots(reshape(this.nullMeanArray,[],numel(this.radiusArray)));
       nullMeanPlot.setPosition(this.radiusArray);
+      nullMeanPlot.setWantOutlier(false);
       nullMeanPlot.plot();
       hold on;
       A = pi*this.radiusArray.^2;
@@ -102,11 +103,13 @@ classdef AllNull < Experiment
       plot(this.radiusArray, -norminv(1-alpha/2)./sqrt(A), 'k--');
       ylabel('empirical null mean');
       xlabel('radius (pixel)');
+      saveas(fig,fullfile(directory, strcat(this.experiment_name,'_nullMean.eps')),'epsc');
       
       %plot empirical null var
-      figure;
+      fig = LatexFigure.sub();
       nullVarPlot = Boxplots(reshape(this.nullStdArray,[],numel(this.radiusArray)));
       nullVarPlot.setPosition(this.radiusArray);
+      nullVarPlot.setWantOutlier(false);
       nullVarPlot.plot();
       hold on;
       A = pi*this.radiusArray.^2;
@@ -114,6 +117,7 @@ classdef AllNull < Experiment
       plot(this.radiusArray, sqrt(chi2inv(1-alpha/2, A-1)./(A-1)), 'k--');
       ylabel('empirical null std');
       xlabel('radius (pixel)');
+      saveas(fig,fullfile(directory, strcat(this.experiment_name,'_nullStd.eps')),'epsc');
       
       %plot post filter mean vs radius
       fig = LatexFigure.sub();
