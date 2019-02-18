@@ -21,8 +21,8 @@ classdef AllNullPlane < AllNull
   methods (Access = protected)
     
     %METHOD: SETUP
-    function setup(this)
-      this.setup@AllNull(uint32(2084672537));
+    function setup(this, seed)
+      this.setup@AllNull(seed);
       this.defectSimulator = PlaneMult(this.randStream, this.trueNullMeanGrad, this.trueNullStd);
     end
     
