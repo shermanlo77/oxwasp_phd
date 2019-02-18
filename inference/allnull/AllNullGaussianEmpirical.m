@@ -25,6 +25,13 @@ classdef AllNullGaussianEmpirical < AllNull
       image = this.randStream.randn(this.imageSize(1), this.imageSize(2));
     end
     
+    %METHOD: GET FILTER
+    %instantiate an empirical null filter with that radius
+    function filter = getFilter(this, radius)
+      filter = EmpiricalNullFilter(radius);
+      filter.setSeed(this.randStream.randi([intmin('int32'),intmax('int32')],'int32'));
+    end
+    
   end
   
 end

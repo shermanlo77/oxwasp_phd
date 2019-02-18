@@ -208,7 +208,6 @@ classdef AllNull < Experiment
         %instantiate an empirical null filter with that radius
         filter = this.getFilter(radius);
         filter.setNInitial(this.nInitial);
-        filter.setSeed(this.randStream.randi([intmin('int32'),intmax('int32')],'int32'));
         
         %for nRepeat times
         for iRepeat = 1:this.nRepeat
@@ -247,15 +246,13 @@ classdef AllNull < Experiment
       
     end
     
-    %METHOD: GET FILTER
-    %instantiate an empirical null filter with that radius
-    function filter = getFilter(this, radius)
-      filter = EmpiricalNullFilter(radius);
-    end
-    
   end
   
   methods (Abstract, Access = protected)
+    
+    %METHOD: GET FILTER
+    %instantiate an empirical null filter with that radius
+    filter = getFilter(this, radius)
     
     %ABSTRACT METHOD:
     %Return the method to filter using the rng

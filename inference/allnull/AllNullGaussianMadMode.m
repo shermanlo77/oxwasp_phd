@@ -26,6 +26,7 @@ classdef AllNullGaussianMadMode < AllNull
     %instantiate an meanvar null filter with that radius
     function filter = getFilter(this, radius)
       filter = MadModeNullFilter(radius);
+      filter.setSeed(this.randStream.randi([intmin('int32'),intmax('int32')],'int32'));
     end
     
   end
