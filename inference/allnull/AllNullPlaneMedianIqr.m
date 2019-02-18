@@ -11,7 +11,7 @@ classdef AllNullPlaneMedianIqr < AllNullPlane
   methods (Access = protected)
     
     function setup(this)
-      this.setup@AllNull(uint32(4112460543));
+      this.setup@AllNullPlane(uint32(4112460543));
     end
     
     function filter = getFilter(this, radius)

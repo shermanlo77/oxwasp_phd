@@ -11,7 +11,7 @@ classdef AllNullPlaneMeanVar < AllNullPlane
   methods (Access = protected)
     
     function setup(this)
-      this.setup@AllNull(uint32(2348838239));
+      this.setup@AllNullPlane(uint32(2348838239));
     end
     
     function filter = getFilter(this, radius)

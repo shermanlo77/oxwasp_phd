@@ -11,7 +11,7 @@ classdef AllNullPlaneMadMode < AllNullPlane
   methods (Access = protected)
     
     function setup(this)
-      this.setup@AllNull(uint32(1196140742));
+      this.setup@AllNullPlane(uint32(1196140742));
     end
     
     function filter = getFilter(this, radius)
