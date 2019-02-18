@@ -53,8 +53,9 @@ classdef (Abstract) NullIid < Experiment
       plot(radiusPlot, -zCritical./sqrt(this.nArray), 'k--');
       ax = fig.Children(1);
       ax.XLabel.String = 'r';
-      ax.YLabel.String = 'empirical null mean';
+      ax.YLabel.String = 'null mean';
       ax.YLim = this.getYLim(1);
+      ax.XLim(2) = 110;
       saveas(fig, fullfile(directory,strcat(this.experiment_name,'_nullMean.eps')), 'epsc');
       
       %plot empirical null std
@@ -68,8 +69,9 @@ classdef (Abstract) NullIid < Experiment
       plot(radiusPlot, sqrt(chi2inv(0.025,this.nArray - 1)./(this.nArray-1)), 'k--');
       ax = fig.Children(1);
       ax.XLabel.String = 'r';
-      ax.YLabel.String = 'empirical null std';
+      ax.YLabel.String = 'null std';
       ax.YLim = this.getYLim(2);
+      ax.XLim(2) = 110;
       saveas(fig, fullfile(directory,strcat(this.experiment_name,'_nullStd.eps')), 'epsc');
       
       %plot mean corrected z
@@ -86,6 +88,7 @@ classdef (Abstract) NullIid < Experiment
       ax.XLabel.String = 'r';
       ax.YLabel.String = 'mean corrected z';
       ax.YLim = this.getYLim(3);
+      ax.XLim(2) = 110;
       saveas(fig, fullfile(directory,strcat(this.experiment_name,'_zMean.eps')), 'epsc');
       
       %plot std corrected z
@@ -101,6 +104,7 @@ classdef (Abstract) NullIid < Experiment
       ax.XLabel.String = 'r';
       ax.YLabel.String = 'std corrected z';
       ax.YLim = this.getYLim(4);
+      ax.XLim(2) = 110;
       saveas(fig, fullfile(directory,strcat(this.experiment_name,'_zStd.eps')), 'epsc');
       
       %plot kurtosis corrected z
@@ -116,6 +120,7 @@ classdef (Abstract) NullIid < Experiment
       ax.XLabel.String = 'r';
       ax.YLabel.String = 'kurtosis corrected z';
       ax.YLim = this.getYLim(5);
+      ax.XLim(2) = 110;
       saveas(fig, fullfile(directory,strcat(this.experiment_name,'_zKurtosis.eps')), 'epsc');
       
     end

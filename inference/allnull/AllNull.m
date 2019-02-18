@@ -101,7 +101,7 @@ classdef AllNull < Experiment
       A = pi*this.radiusArray.^2;
       plot(this.radiusArray, norminv(1-alpha/2)./sqrt(A), 'k--');
       plot(this.radiusArray, -norminv(1-alpha/2)./sqrt(A), 'k--');
-      ylabel('empirical null mean');
+      ylabel('null mean');
       xlabel('radius (pixel)');
       saveas(fig,fullfile(directory, strcat(this.experiment_name,'_nullMean.eps')),'epsc');
       
@@ -115,7 +115,7 @@ classdef AllNull < Experiment
       A = pi*this.radiusArray.^2;
       plot(this.radiusArray, sqrt(chi2inv(alpha/2, A-1)./(A-1)), 'k--');
       plot(this.radiusArray, sqrt(chi2inv(1-alpha/2, A-1)./(A-1)), 'k--');
-      ylabel('empirical null std');
+      ylabel('null std');
       xlabel('radius (pixel)');
       saveas(fig,fullfile(directory, strcat(this.experiment_name,'_nullStd.eps')),'epsc');
       
@@ -131,6 +131,7 @@ classdef AllNull < Experiment
       xlim([0,this.radiusArray(end)+10]);
       ylabel('post filter image greyvalue mean');
       xlabel('radius (pixel)');
+      ylim([-0.06,0.06]);
       saveas(fig,fullfile(directory, strcat(this.experiment_name,'_mean.eps')),'epsc');
       
       %plot post filter variance vs radius
@@ -146,6 +147,7 @@ classdef AllNull < Experiment
       xlim([0,this.radiusArray(end)+10]);
       ylabel('post filter image greyvalue std');
       xlabel('radius (pixel)');
+      ylim([0.85,1.1]);
       saveas(fig,fullfile(directory, strcat(this.experiment_name,'_variance.eps')),'epsc');
       
       %plot post filter kurtosisArray vs radius
@@ -160,6 +162,7 @@ classdef AllNull < Experiment
       xlim([0,this.radiusArray(end)+10]);
       ylabel('post filter image greyvalue kurtosis');
       xlabel('radius (pixel)');
+      ylim([2.95,3.4]);
       saveas(fig,fullfile(directory, strcat(this.experiment_name,'_kurtosis.eps')),'epsc');
       
       %plot time vs radius

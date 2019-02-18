@@ -97,23 +97,48 @@ classdef DefectExample < handle
       end
       imagePlot.plot();
       saveas(fig,fullfile(directory, strcat(prefix,'_nullStd.eps')),'epsc');
+      disp(mean(mean(nullStd)));
 
       %work out true and false positive, plot ROC
       [falsePositivePreContamination, truePositivePreContamination, ~] = ...
           roc(imagePreContaminated, isAltImage, this.nRoc);
       [falsePositiveContamination, truePositiveContamination, ~] = ...
           roc(imageContaminated, isAltImage, this.nRoc);
-      [falsePositiveFiltered, truePositiveFiltered, ~] = ...
-          roc(imageFiltered, isAltImage, this.nRoc);
+      %[falsePositiveFiltered, truePositiveFiltered, ~] = ...
+          %roc(imageFiltered, isAltImage, this.nRoc);
       fig = LatexFigure.sub();
-      plot(falsePositivePreContamination, truePositivePreContamination);
+      
+      for i=1:4
+        switch i
+          case 1
+            filter = EmpiricalNullFilter(radius); %filter it
+          case 2
+            filter = MadModeNullFilter(radius); %filter it
+          case 3
+            filter = MedianIqrNullFilter(radius);
+          case 4
+            filter = MeanVarNullFilter(radius);
+        end
+        
+        if (~isempty(this.nInitial))
+          filter.setNInitial(this.nInitial);
+        end
+        filter.filter(imageContaminated);
+        %get the empirical null and the filtered image
+        imageFiltered = filter.getFilteredImage();
+        [falsePositiveFiltered, truePositiveFiltered, ~] = ...
+            roc(imageFiltered, isAltImage, this.nRoc);
+        plot(falsePositiveFiltered, truePositiveFiltered);
+        hold on;
+      end
+      plot(falsePositivePreContamination, truePositivePreContamination, 'k--');
       hold on;
-      plot(falsePositiveContamination, truePositiveContamination);
-      plot(falsePositiveFiltered, truePositiveFiltered);
+      plot(falsePositiveContamination, truePositiveContamination, 'k--');
+      
       plot([0,1],[0,1],'k--');
       xlabel('false positive rate');
       ylabel('true positive rate');
-      legend('pre-contamination','contaminated','filtered','Location','southeast');
+      legend('empirical','mad mode','meadian iqr','mean var','Location','southeast');
       saveas(fig,fullfile(directory, strcat(prefix,'_roc.eps')),'epsc');
 
     end
