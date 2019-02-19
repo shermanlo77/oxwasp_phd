@@ -1,10 +1,13 @@
-%CLASS: EXPERIMENT EMPIRICAL NULL ON IID
-%Investigate the empirical null mean and empirical null std on iid N(0,1) data
-%Also investigates the moments of the corrected z statistics, that is let Z~N(0,1), the corrected z
-    %statistics is (z - empirical null mean) / empirical null std
-%For a given n, n x N(0,1) are simulated, the empirical null is then conducted on these simulated
-    %data. The empirical null parameters are recorded. The empirical null parameters are then used
-    %to correct the simulated data, the mean, variance and kurtosis are recorded
+%ABSTRCT CLASS: NULL ON IID DATA EXPERIMENT
+%Investigate the null mean and null std on iid N(0,1) data
+%Also investigates the (mean, std, kurtosis) moments of the normalised z statistics, that is let
+    %Z~N(0,1), the normalised z statistics is (z - null mean) / null std.
+%For a given n, n x N(0,1) are simulated, the null mean and null std are estimated using these
+    %simulated data. The null parameters are recorded. The null parameters are then used normalise
+    %the simulated data. The mean, variance and kurtosis of the normalised statistics are recorded
+%METHODS TO BE IMPLEMENTED;
+  %[nullMean, nullStd] = getNull(this, z)
+    %given an array of data z, return the nullMean and nullStd
 classdef (Abstract) NullIid < Experiment
   
   properties (SetAccess = protected)
@@ -15,11 +18,11 @@ classdef (Abstract) NullIid < Experiment
     %array of results
       %dim 1: for each repeat
       %dim 2: for each n
-    nullMeanArray; %empirical null mean
-    nullStdArray; %empirical null std
-    meanZArray; %mean corrected z
-    stdZArray; %std corrected z
-    kurtosisZArray; %kurtosis corrected z
+    nullMeanArray; %null mean
+    nullStdArray; %null std
+    meanZArray; %mean normalised z
+    stdZArray; %std normalised z
+    kurtosisZArray; %kurtosis normalised z
     
     randStream; %rng
     
@@ -33,19 +36,18 @@ classdef (Abstract) NullIid < Experiment
     end
     
     %IMPLEMENTED: PRINT RESULTS
-    %Plots the empirical null mean and empirical null variance for different n
-    %Plots the mean, variance and kurtosis of the corrected z statistics for different n 
+    %Plots the null mean and null variance for different n
+    %Plots the mean, variance and kurtosis of the normalised z statistics for different n 
     function printResults(this)
       
       directory = fullfile('reports','figures','inference','NullIid');
       
-      radiusPlot = sqrt(this.nArray/pi);
+      radiusPlot = sqrt(this.nArray/pi); %treat n as as circular kernel area
       
-      %plot empirical null mean
+      %plot null mean
       fig = LatexFigure.sub();
       boxplot = Boxplots(this.nullMeanArray);
       boxplot.setPosition(radiusPlot);
-      %boxplot.setWantOutlier(false);
       boxplot.plot();
       hold on;
       zCritical = norminv(0.975);
@@ -58,11 +60,10 @@ classdef (Abstract) NullIid < Experiment
       ax.XLim(2) = 110;
       saveas(fig, fullfile(directory,strcat(this.experiment_name,'_nullMean.eps')), 'epsc');
       
-      %plot empirical null std
+      %plot null std
       fig = LatexFigure.sub();
       boxplot = Boxplots(this.nullStdArray);
       boxplot.setPosition(radiusPlot);
-      %boxplot.setWantOutlier(false);
       boxplot.plot();
       hold on;
       plot(radiusPlot, sqrt(chi2inv(0.975,this.nArray - 1)./(this.nArray-1)), 'k--');
@@ -74,11 +75,10 @@ classdef (Abstract) NullIid < Experiment
       ax.XLim(2) = 110;
       saveas(fig, fullfile(directory,strcat(this.experiment_name,'_nullStd.eps')), 'epsc');
       
-      %plot mean corrected z
+      %plot mean normalised z
       fig = LatexFigure.sub();
       boxplot = Boxplots(this.meanZArray);
       boxplot.setPosition(radiusPlot);
-      %boxplot.setWantOutlier(false);
       boxplot.plot();
       hold on;
       zCritical = norminv(0.975);
@@ -91,11 +91,10 @@ classdef (Abstract) NullIid < Experiment
       ax.XLim(2) = 110;
       saveas(fig, fullfile(directory,strcat(this.experiment_name,'_zMean.eps')), 'epsc');
       
-      %plot std corrected z
+      %plot std normalised z
       fig = LatexFigure.sub();
       boxplot = Boxplots(this.stdZArray);
       boxplot.setPosition(radiusPlot);
-      %boxplot.setWantOutlier(false);
       boxplot.plot();
       hold on;
       plot(radiusPlot, sqrt(chi2inv(0.975,this.nArray - 1)./(this.nArray-1)), 'k--');
@@ -107,11 +106,10 @@ classdef (Abstract) NullIid < Experiment
       ax.XLim(2) = 110;
       saveas(fig, fullfile(directory,strcat(this.experiment_name,'_zStd.eps')), 'epsc');
       
-      %plot kurtosis corrected z
+      %plot kurtosis normalised z
       fig = LatexFigure.sub();
       boxplot = Boxplots(this.kurtosisZArray);
       boxplot.setPosition(radiusPlot);
-      %boxplot.setWantOutlier(false);
       boxplot.plot();
       hold on;
       plot(radiusPlot, 3+sqrt(24)*zCritical./sqrt(this.nArray), 'k--');
@@ -131,7 +129,7 @@ classdef (Abstract) NullIid < Experiment
     
     %IMPLEMENTED: SETUP
     function setup(this, seed)
-      this.randStream = RandStream('mt19937ar','Seed', uint32(seed));
+      this.randStream = RandStream('mt19937ar','Seed', seed);
       this.nullMeanArray = zeros(this.nRepeat, numel(this.nArray));
       this.nullStdArray = zeros(this.nRepeat, numel(this.nArray));
       this.meanZArray = zeros(this.nRepeat, numel(this.nArray));
@@ -151,12 +149,13 @@ classdef (Abstract) NullIid < Experiment
         for iRepeat = 1:this.nRepeat
           
           z = this.getSample(n);
-          %instantiate empirical null, get the empirical null
+          %estimate the null mean and null std
           [nullMean, nullStd] = this.getNull(z);
+          %save the null mean and null std
           this.nullMeanArray(iRepeat, iN) = nullMean;
           this.nullStdArray(iRepeat, iN) = nullStd;
           
-          %save the mean, variance and kurtosis of the corrected z statistics
+          %save the mean, variance and kurtosis of the normalised z statistics
           this.meanZArray(iRepeat, iN) = mean(z);
           this.stdZArray(iRepeat, iN) = std(z);
           this.kurtosisZArray(iRepeat, iN) = kurtosis(z);
@@ -173,10 +172,17 @@ classdef (Abstract) NullIid < Experiment
   
   methods (Access = protected)
     
+    %METHODS: GET SAMPLE
+    %Return n N(0,1) data
+    %May be overriden in subclasses
+    %PARAMETERS:
+      %n: number of data to simulate
     function z = getSample(this, n)
-      z = this.randStream.randn(n,1); %simulate N(0,1);
+      z = this.randStream.randn(n,1);
     end
     
+    %METHOD: GET YLIM
+    %Return the ylim for each of the graphs in printResults
     function yLim = getYLim(this, index)
       switch index
         case 1
@@ -195,9 +201,11 @@ classdef (Abstract) NullIid < Experiment
   end
   
   methods (Abstract, Access = protected)
-      
+    
+    %ABSTRACT METHOD: GET NULL
+    %given an array of data z, return the nullMean and nullStd
     [nullMean, nullStd] = getNull(this, z);
-      
+    
   end
   
 end
