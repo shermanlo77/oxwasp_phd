@@ -20,13 +20,13 @@ classdef AllNullPlane < AllNull
   
   methods (Access = protected)
     
-    %METHOD: SETUP
+    %OVERRIDE: SETUP
     function setup(this, seed)
       this.setup@AllNull(seed);
       this.defectSimulator = PlaneMult(this.randStream, this.trueNullMeanGrad, this.trueNullStd);
     end
     
-    %METHOD: GET IMAGE
+    %IMPLEMENTED: GET IMAGE
     function image = getImage(this)
       image = this.defectSimulator.getDefectedImage(this.imageSize);
     end

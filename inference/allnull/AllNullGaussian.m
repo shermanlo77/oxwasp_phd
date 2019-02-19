@@ -14,12 +14,12 @@ classdef AllNullGaussian < AllNull
   
   methods (Access = protected)
     
-    %METHOD: SETUP
+    %OVERRIDE: SETUP
     function setup(this, seed)
       this.setup@AllNull(seed);
     end
     
-    %METHOD: GET IMAGE
+    %IMPLEMENTED: GET IMAGE
     function image = getImage(this)
       %return pure gaussian image
       image = this.randStream.randn(this.imageSize(1), this.imageSize(2));

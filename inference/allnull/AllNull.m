@@ -1,13 +1,15 @@
-%ABSTRACT CLASS: EXPERIMENT ALL GAUSSIAN
-%See how the empirical null filter behaves for images of pure Gaussian noise
-%A image is produced and then filtered using the empirical null filter. Various properties of the
-%  post-filtered image are recorded such as the mean, variance, p-value from the KS test and the
-%  time it took to filter the image.
+%ABSTRACT CLASS: ALL NULL IMAGE EXPERIMENT
+%See how the null filters behaves for images of pure Gaussian noise
+%A image is produced and then filtered using a null filter. The null mean and null std are recorded
+    %for each kernel radius only for the first repeat. Various properties of the post-filtered image
+    %are recorded such as the mean, variance, kurtosis and the time it took to filter the image.
 %This is repeated nRepeat times for various kernel radius
 %Plots the following:
+%  null mean (for all pixels in one repeat) vs radius
+%  null std (for all pixels in one repeat) vs radius
 %  post-filter mean vs radius
 %  post-filter variance vs radius
-%  log ks p value vs radius
+%  post-filter kurtosis vs radius
 %  time to filter vs radius
 %
 %Methods to be implemeted:
@@ -27,12 +29,12 @@ classdef AllNull < Experiment
     %array to store results of the post filtered image
       %dim 1: for each n repeat
       %dim 2: for each radius
-    meanArray; %mean of all pixels
-    stdArray; %variance of all pixels
-    kurtosisArray; %kurtosis of all pixels
+    meanArray; %mean over all pixels
+    stdArray; %variance over all pixels
+    kurtosisArray; %kurtosis over all pixels
     timeArray; %time to filter the image in seconds
     
-    %array to store the corrected statistics, empirical null mean and empirical null std images,
+    %array to store the normalised statistics for one repeat: null mean and null std images,
         %one for each kernel radius
       %dim 1: y axis of image
       %dim 2: x axis of image
@@ -54,7 +56,7 @@ classdef AllNull < Experiment
       this@Experiment();
     end
     
-    %METHOD: PRINT RESULTS
+    %IMPLEMENTED: PRINT RESULTS
     function printResults(this)
       
       %where to save the figures
@@ -91,7 +93,7 @@ classdef AllNull < Experiment
       alpha = 0.05; %significant level
       n = this.imageSize(1) * this.imageSize(2); %get number of pixels in the image
       
-      %plot empirical null mean
+      %plot null mean
       fig = LatexFigure.sub();
       nullMeanPlot = Boxplots(reshape(this.nullMeanArray,[],numel(this.radiusArray)));
       nullMeanPlot.setPosition(this.radiusArray);
@@ -105,7 +107,7 @@ classdef AllNull < Experiment
       xlabel('radius (pixel)');
       saveas(fig,fullfile(directory, strcat(this.experiment_name,'_nullMean.eps')),'epsc');
       
-      %plot empirical null var
+      %plot null var
       fig = LatexFigure.sub();
       nullVarPlot = Boxplots(reshape(this.nullStdArray,[],numel(this.radiusArray)));
       nullVarPlot.setPosition(this.radiusArray);
@@ -181,14 +183,15 @@ classdef AllNull < Experiment
   
   methods (Access = protected)
     
-    %METHOD: SETUP
+    %IMPLEMENTED: SETUP
     %Declare arrays for storing results
     function setup(this, seed)
-      this.meanArray = zeros(this.nRepeat, numel(this.radiusArray)); %mean of all pixels
-      this.stdArray = zeros(this.nRepeat, numel(this.radiusArray)); %variance of all pixels
-      this.kurtosisArray = zeros(this.nRepeat, numel(this.radiusArray)); %kolmogorov-smirnov p value
+      this.meanArray = zeros(this.nRepeat, numel(this.radiusArray));
+      this.stdArray = zeros(this.nRepeat, numel(this.radiusArray));
+      this.kurtosisArray = zeros(this.nRepeat, numel(this.radiusArray));
       %time to filter the image in seconds
       this.timeArray = zeros(this.nRepeat, numel(this.radiusArray));
+      %array of normalised statistics and null statistics
       this.correctedZArray = zeros(this.imageSize(1), this.imageSize(2), numel(this.radiusArray));
       this.nullMeanArray = zeros(this.imageSize(1), this.imageSize(2), numel(this.radiusArray));
       this.nullStdArray = zeros(this.imageSize(1), this.imageSize(2), numel(this.radiusArray));
@@ -196,7 +199,7 @@ classdef AllNull < Experiment
       this.randStream = RandStream('mt19937ar','Seed', seed);
     end
     
-    %METHOD: DO EXPERIMENT
+    %IMPLEMENTED: DO EXPERIMENT
     %Filter Gaussian images for different radius multiple times
     function doExperiment(this)
       
@@ -205,7 +208,7 @@ classdef AllNull < Experiment
         
         %get the radius
         radius = this.radiusArray(iRadius);
-        %instantiate an empirical null filter with that radius
+        %instantiate a null filter with that radius
         filter = this.getFilter(radius);
         filter.setNInitial(this.nInitial);
         
@@ -223,14 +226,14 @@ classdef AllNull < Experiment
           %get the filtered image
           image = filter.getFilteredImage();
           
-          %for the first repeat, save the corrected image, null mean and null std
+          %for the first repeat, save the normalised image, null mean and null std
           if (iRepeat == 1)
             this.nullMeanArray(:,:,iRadius) = filter.getNullMean();
             this.nullStdArray(:,:,iRadius) = filter.getNullStd();
             this.correctedZArray(:,:,iRadius) = image;
           end
           
-          %save the corrected statistics mean, var and kurtosis
+          %save the normalised statistics mean, var and kurtosis
           image = reshape(image,[],1);
           this.meanArray(iRepeat, iRadius) = mean(image);
           this.stdArray(iRepeat, iRadius) = std(image);
@@ -250,12 +253,12 @@ classdef AllNull < Experiment
   
   methods (Abstract, Access = protected)
     
-    %METHOD: GET FILTER
-    %instantiate an empirical null filter with that radius
+    %ABSTRACT METHOD: GET FILTER
+    %Return an instantiated a null filter with that radius
     filter = getFilter(this, radius)
     
-    %ABSTRACT METHOD:
-    %Return the method to filter using the rng
+    %ABSTRACT METHOD: GET IMAGE
+    %Return an image to filter using its rng
     image = getImage(this)
   end
   
