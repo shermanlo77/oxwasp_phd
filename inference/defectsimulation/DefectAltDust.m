@@ -18,7 +18,7 @@ classdef DefectAltDust < Experiment
     nRepeat = 100; %number of times to repeat the experiment
     imageSize = 256; %dimension of the image
     radius = 20; %radius of the empirical null filter kernel
-    randStream = RandStream('mt19937ar','Seed',uint32(153380491)); %rng
+    randStream; %rng
     nIntial = 3; %number of initial points used for the empirical null filter
     nRoc = 1000; %number of points used for the roc curve
     
@@ -69,26 +69,27 @@ classdef DefectAltDust < Experiment
       %plot roc area vs alt mean
       fig = LatexFigure.sub();
       ax = gca;
+      boxplotFiltered = Boxplots(this.rocAreaArray(:,:,3), true);
+      boxplotFiltered.setPosition(this.altMeanArray + offset);
+      boxplotFiltered.setColour(ax.ColorOrder(1,:));
+      boxplotFiltered.plot();
+      hold on;
       boxplotPreCont = Boxplots(this.rocAreaArray(:,:,1), true);
       boxplotPreCont.setPosition(this.altMeanArray - offset);
-      boxplotPreCont.setColour(ax.ColorOrder(1,:));
+      boxplotPreCont.setColour(ax.ColorOrder(2,:));
       boxplotPreCont.plot();
       hold on;
       boxplotPostCont = Boxplots(this.rocAreaArray(:,:,2), true);
       boxplotPostCont.setPosition(this.altMeanArray);
-      boxplotPostCont.setColour(ax.ColorOrder(2,:));
+      boxplotPostCont.setColour(ax.ColorOrder(3,:));
       boxplotPostCont.plot();
-      boxplotFiltered = Boxplots(this.rocAreaArray(:,:,3), true);
-      boxplotFiltered.setPosition(this.altMeanArray + offset);
-      boxplotFiltered.setColour(ax.ColorOrder(3,:));
-      boxplotFiltered.plot();
       xlabel('alt distribution mean');
       ylabel('ROC area');
       ax.XLim(1) = this.altMeanArray(1) - offset*2;
       ax.XLim(2) = this.altMeanArray(end) + offset*2;
-      boxplotLegend = [boxplotPreCont.getLegendAx(), boxplotPostCont.getLegendAx(), ...
-          boxplotFiltered.getLegendAx()];
-      legend(boxplotLegend, 'pre contamination', 'contaminated', 'filtered', ...
+      boxplotLegend = [boxplotFiltered.getLegendAx(), boxplotPreCont.getLegendAx(), ...
+          boxplotPostCont.getLegendAx()];      
+      legend(boxplotLegend, 'filtered', 'pre contamination', 'contaminated', ...
           'Location', 'southeast');
       saveas(fig,fullfile(directory, strcat(this.experiment_name,'_roc.eps')),'epsc');
       
@@ -97,73 +98,61 @@ classdef DefectAltDust < Experiment
           %filtered
       fig = LatexFigure.sub();
       ax = gca;
-      boxplotPreCont = Boxplots(this.type1ErrorArray(:,:,1), true);
-      boxplotPreCont.setPosition(this.altMeanArray - offset);
-      boxplotPreCont.setColour(ax.ColorOrder(1,:));
-      boxplotPreCont.plot();
-      hold on;
       boxplotFiltered = Boxplots(this.type1ErrorArray(:,:,3), true);
       boxplotFiltered.setPosition(this.altMeanArray + offset);
-      boxplotFiltered.setColour(ax.ColorOrder(3,:));
+      boxplotFiltered.setColour(ax.ColorOrder(1,:));
       boxplotFiltered.plot();
+      hold on;
+      boxplotPreCont = Boxplots(this.type1ErrorArray(:,:,1), true);
+      boxplotPreCont.setPosition(this.altMeanArray - offset);
+      boxplotPreCont.setColour(ax.ColorOrder(2,:));
+      boxplotPreCont.plot();
       xlabel('alt distribution mean');
       ylabel('type 1 error');
       ax.XLim(1) = this.altMeanArray(1) - offset*2;
       ax.XLim(2) = this.altMeanArray(end) + offset*2;
-      boxplotLegend = [boxplotPreCont.getLegendAx(), boxplotFiltered.getLegendAx()];
-      legend(boxplotLegend, 'pre contamination', 'filtered', 'Location', 'northwest');
+      boxplotLegend = [boxplotFiltered.getLegendAx(), boxplotPreCont.getLegendAx()];
+      legend(boxplotLegend, 'filtered', 'pre contamination', 'Location', 'northwest');
       saveas(fig,fullfile(directory, strcat(this.experiment_name,'_type1.eps')),'epsc');
       
       %plot type 2 error vs alt mean
       fig = LatexFigure.sub();
       ax = gca;
-      boxplotPreCont = Boxplots(this.type2ErrorArray(:,:,1), true);
-      boxplotPreCont.setPosition(this.altMeanArray - offset);
-      boxplotPreCont.setColour(ax.ColorOrder(1,:));
-      boxplotPreCont.plot();
-      hold on;
-      boxplotPostCont = Boxplots(this.type2ErrorArray(:,:,2), true);
-      boxplotPostCont.setPosition(this.altMeanArray);
-      boxplotPostCont.setColour(ax.ColorOrder(2,:));
-      boxplotPostCont.plot();
       boxplotFiltered = Boxplots(this.type2ErrorArray(:,:,3), true);
       boxplotFiltered.setPosition(this.altMeanArray + offset);
-      boxplotFiltered.setColour(ax.ColorOrder(3,:));
+      boxplotFiltered.setColour(ax.ColorOrder(1,:));
       boxplotFiltered.plot();
+      hold on;
+      boxplotPreCont = Boxplots(this.type2ErrorArray(:,:,1), true);
+      boxplotPreCont.setPosition(this.altMeanArray - offset);
+      boxplotPreCont.setColour(ax.ColorOrder(2,:));
+      boxplotPreCont.plot();
       xlabel('alt distribution mean');
       ylabel('type 2 error');
       ax.XLim(1) = this.altMeanArray(1) - offset*2;
       ax.XLim(2) = this.altMeanArray(end) + offset*2;
-      boxplotLegend = [boxplotPreCont.getLegendAx(), boxplotPostCont.getLegendAx(), ...
-          boxplotFiltered.getLegendAx()];
-      legend(boxplotLegend, 'pre contamination', 'contaminated', 'filtered', ...
-          'Location', 'northeast');
+      boxplotLegend = [boxplotFiltered.getLegendAx(), boxplotPreCont.getLegendAx()];
+      legend(boxplotLegend, 'filtered', 'pre contamination', 'Location', 'northeast');
       saveas(fig,fullfile(directory, strcat(this.experiment_name,'_type2.eps')),'epsc');
       
       %fdr vs alt mean
       fig = LatexFigure.sub();
       ax = gca;
+      boxplotFiltered = Boxplots(this.fdrArray(:,:,3), true);
+      boxplotFiltered.setPosition(this.altMeanArray + offset);
+      boxplotFiltered.setColour(ax.ColorOrder(1,:));
+      boxplotFiltered.plot();
+      hold on;
       boxplotPreCont = Boxplots(this.fdrArray(:,:,1), true);
       boxplotPreCont.setPosition(this.altMeanArray - offset);
-      boxplotPreCont.setColour(ax.ColorOrder(1,:));
+      boxplotPreCont.setColour(ax.ColorOrder(2,:));
       boxplotPreCont.plot();
-      hold on;
-      boxplotPostCont = Boxplots(this.fdrArray(:,:,2), true);
-      boxplotPostCont.setPosition(this.altMeanArray);
-      boxplotPostCont.setColour(ax.ColorOrder(2,:));
-      boxplotPostCont.plot();
-      boxplotFiltered = Boxplots(this.type2ErrorArray(:,:,3), true);
-      boxplotFiltered.setPosition(this.altMeanArray + offset);
-      boxplotFiltered.setColour(ax.ColorOrder(3,:));
-      boxplotFiltered.plot();
       xlabel('alt distribution mean');
       ylabel('fdr');
       ax.XLim(1) = this.altMeanArray(1) - offset*2;
       ax.XLim(2) = this.altMeanArray(end) + offset*2;
-      boxplotLegend = [boxplotPreCont.getLegendAx(), boxplotPostCont.getLegendAx(), ...
-          boxplotFiltered.getLegendAx()];
-      legend(boxplotLegend, 'pre contamination', 'contaminated', 'filtered', ...
-          'Location', 'best');
+      boxplotLegend = [boxplotFiltered.getLegendAx(), boxplotPreCont.getLegendAx()];
+      legend(boxplotLegend, 'filtered', 'pre contamination', 'Location', 'best');
       saveas(fig,fullfile(directory, strcat(this.experiment_name,'_fdr.eps')),'epsc');
       
     end
@@ -173,11 +162,12 @@ classdef DefectAltDust < Experiment
   methods (Access = protected)
     
     %METHOD: SETUP
-    function setup(this)
+    function setup(this, seed)
       this.type1ErrorArray = zeros(this.nRepeat, numel(this.altMeanArray), 3);
       this.type2ErrorArray = zeros(this.nRepeat, numel(this.altMeanArray), 3);
       this.fdrArray = zeros(this.nRepeat, numel(this.altMeanArray), 3);
       this.rocAreaArray = zeros(this.nRepeat, numel(this.altMeanArray), 3);
+      this.randStream = RandStream('mt19937ar','Seed', seed);
     end
     
     %METHOD: DO EXPERIMENT
@@ -198,9 +188,8 @@ classdef DefectAltDust < Experiment
               defectSimulator.getDefectedImage([this.imageSize, this.imageSize]);
             
           %filter it
-          filter = EmpiricalNullFilter(this.radius);
+          filter = this.getFilter();
           filter.setNInitial(this.nIntial);
-          filter.setSeed(this.randStream.randi([intmin('int32'),intmax('int32')],'int32'));
           filter.filter(imageContaminated);
 
           %get the empirical null and the filtered image
@@ -270,6 +259,14 @@ classdef DefectAltDust < Experiment
       end
       
     end
+    
+  end
+  
+  methods (Abstract, Access = protected)
+    
+    %ABSTRACT METHOD: GET FILTER
+    %Return an instantiated a null filter
+    filter = getFilter(this)
     
   end
   
