@@ -31,6 +31,23 @@ classdef AllNullPlane < AllNull
       image = this.defectSimulator.getDefectedImage(this.imageSize);
     end
     
+    %IMPLEMENTED: GET Y LIM
+    function yLim = getYLim(this, graphIndex)
+      yLim = [];
+      switch graphIndex
+        case 1
+          yLim = [-4, 4];
+        case 2
+          yLim = [1, 3.5];
+        case 3
+          yLim = [-0.06, 0.06];
+        case 4
+          yLim = [0.9, 1.2];
+        case 5
+          yLim = [2.95, 3.8];
+      end
+    end
+    
   end
   
 end

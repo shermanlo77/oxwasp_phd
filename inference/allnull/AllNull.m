@@ -99,12 +99,11 @@ classdef AllNull < Experiment
       nullMeanPlot.setPosition(this.radiusArray);
       nullMeanPlot.setWantOutlier(false);
       nullMeanPlot.plot();
-      hold on;
-      A = pi*this.radiusArray.^2;
-      plot(this.radiusArray, norminv(1-alpha/2)./sqrt(A), 'k--');
-      plot(this.radiusArray, -norminv(1-alpha/2)./sqrt(A), 'k--');
       ylabel('null mean');
       xlabel('radius (pixel)');
+      if (~isempty(this.getYLim(1)))
+        ylim(this.getYLim(1));
+      end
       saveas(fig,fullfile(directory, strcat(this.experiment_name,'_nullMean.eps')),'epsc');
       
       %plot null var
@@ -113,12 +112,11 @@ classdef AllNull < Experiment
       nullVarPlot.setPosition(this.radiusArray);
       nullVarPlot.setWantOutlier(false);
       nullVarPlot.plot();
-      hold on;
-      A = pi*this.radiusArray.^2;
-      plot(this.radiusArray, sqrt(chi2inv(alpha/2, A-1)./(A-1)), 'k--');
-      plot(this.radiusArray, sqrt(chi2inv(1-alpha/2, A-1)./(A-1)), 'k--');
       ylabel('null std');
       xlabel('radius (pixel)');
+      if (~isempty(this.getYLim(2)))
+        ylim(this.getYLim(2));
+      end
       saveas(fig,fullfile(directory, strcat(this.experiment_name,'_nullStd.eps')),'epsc');
       
       %plot post filter mean vs radius
@@ -133,7 +131,9 @@ classdef AllNull < Experiment
       xlim([0,this.radiusArray(end)+10]);
       ylabel('post filter image greyvalue mean');
       xlabel('radius (pixel)');
-      ylim([-0.06,0.06]);
+      if (~isempty(this.getYLim(3)))
+        ylim(this.getYLim(3));
+      end
       saveas(fig,fullfile(directory, strcat(this.experiment_name,'_mean.eps')),'epsc');
       
       %plot post filter variance vs radius
@@ -149,7 +149,9 @@ classdef AllNull < Experiment
       xlim([0,this.radiusArray(end)+10]);
       ylabel('post filter image greyvalue std');
       xlabel('radius (pixel)');
-      ylim([0.85,1.1]);
+      if (~isempty(this.getYLim(4)))
+        ylim(this.getYLim(4));
+      end
       saveas(fig,fullfile(directory, strcat(this.experiment_name,'_variance.eps')),'epsc');
       
       %plot post filter kurtosisArray vs radius
@@ -164,7 +166,9 @@ classdef AllNull < Experiment
       xlim([0,this.radiusArray(end)+10]);
       ylabel('post filter image greyvalue kurtosis');
       xlabel('radius (pixel)');
-      ylim([2.95,3.4]);
+      if (~isempty(this.getYLim(5)))
+        ylim(this.getYLim(5));
+      end
       saveas(fig,fullfile(directory, strcat(this.experiment_name,'_kurtosis.eps')),'epsc');
       
       %plot time vs radius
@@ -175,6 +179,9 @@ classdef AllNull < Experiment
       ylabel('time (s)');
       xlabel('radius (pixel)');
       xlim([0,this.radiusArray(end)+10]);
+      if (~isempty(this.getYLim(6)))
+        ylim(this.getYLim(6));
+      end
       saveas(fig,fullfile(directory, strcat(this.experiment_name,'_time.eps')),'epsc');
       
     end
@@ -260,6 +267,10 @@ classdef AllNull < Experiment
     %ABSTRACT METHOD: GET IMAGE
     %Return an image to filter using its rng
     image = getImage(this)
+    
+    %ABSTRACT METHOD: GET YLIM
+    %Return the ylim for each graph in printResults
+    ylim = getYLim(this, graphIndex)
   end
   
 end

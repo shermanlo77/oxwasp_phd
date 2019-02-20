@@ -25,6 +25,19 @@ classdef AllNullGaussian < AllNull
       image = this.randStream.randn(this.imageSize(1), this.imageSize(2));
     end
     
+    %IMPLEMENTED: GET Y LIM
+    function yLim = getYLim(this, graphIndex)
+      yLim = [];
+      switch graphIndex
+        case 3
+          yLim = [-0.06, 0.06];
+        case 4
+          yLim = [0.85, 1.1];
+        case 5
+          yLim = [2.95, 3.4];
+      end
+    end
+    
   end
   
 end
