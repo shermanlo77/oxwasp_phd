@@ -6,6 +6,8 @@ classdef Boxplots < handle
     properties (SetAccess = private)
         boxplot_array; %cell array of boxplots
         n_boxplot; %number of boxplots
+        wantTrend = false; %boolean, show trend line
+        trendLine;
     end
     
     methods (Access = public)
@@ -33,6 +35,17 @@ classdef Boxplots < handle
             for i_group = 1:this.n_boxplot
                 this.boxplot_array{i_group}.plot();
             end
+            %if want the trend line, plot it
+            if this.wantTrend
+              x = zeros(this.n_boxplot, 1);
+              y = zeros(this.n_boxplot, 1);
+              for i = 1:this.n_boxplot
+                x(i) = this.boxplot_array{i}.position;
+                y(i) = this.boxplot_array{i}.median;
+              end
+              this.trendLine = line(x,y);
+              this.trendLine.Color = this.boxplot_array{1}.colour;
+            end
         end
         
         %METHOD: SET POSITION
@@ -48,8 +61,20 @@ classdef Boxplots < handle
         %METHOD: SET WANT OUTLIER
         function setWantOutlier(this, wantOutlier)
           for i_group = 1:this.n_boxplot
-                this.boxplot_array{i_group}.setWantOutlier(wantOutlier);
-            end
+            this.boxplot_array{i_group}.setWantOutlier(wantOutlier);
+          end
+        end
+        
+        %METHOD: SET WANT TREND
+        function setWantTrend(this, wantTrend)
+          this.wantTrend = wantTrend;
+        end
+        
+        %METHOD: SET WANT MEDIAN
+        function setWantMedian(this, wantMedian)
+          for i_group = 1:this.n_boxplot
+            this.boxplot_array{i_group}.setWantMedian(wantMedian);
+          end
         end
         
         %METHOD: SET COLOUR
@@ -79,16 +104,6 @@ classdef Boxplots < handle
         function setWhiskerCapSize(this,whisker_cap_size)
             for i_group = 1:this.n_boxplot
                 this.boxplot_array{i_group}.setWhiskerCapSize(whisker_cap_size);
-            end
-        end
-        
-        %METHOD: SET OUTLIER COLOUR
-        %Set the colour of the outlier
-        %PARAMETERS:
-            %colour: colour of the outlier
-        function setOutlierColour(this,colour)
-            for i_group = 1:this.n_boxplot
-                this.boxplot_array{i_group}.setOutlierColour(colour);
             end
         end
         

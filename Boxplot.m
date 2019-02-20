@@ -15,17 +15,17 @@ classdef Boxplot < handle
         whisker; %2 vector, contains the min and max of non-outlier data
         outlier_index; %boolean vector, true for outlier data
         
-        position; %scalar, x position of the box plot
-        colour; %colour of the box plot
+        position = 0; %scalar, x position of the box plot
+        colour = [0,0,1]; %colour of the box plot
         
         wantOutlier = true;
+        wantMedian = true;
         hasUpperOutlier;
         hasLowerOutlier;
-        whisker_cap_size; %size of the whisker cap
+        whisker_cap_size = 6; %size of the whisker cap
         
-        outlier_colour; %colour of the outlier mark
-        outlier_mark; %mark of outlier
-        outlier_size; %size of the outlier mark
+        outlier_mark = 'x'; %mark of outlier
+        outlier_size = 4; %size of the outlier mark
         
         legendAx; %what to show in the legend
     end
@@ -37,13 +37,6 @@ classdef Boxplot < handle
         function this = Boxplot(X)
             %assign member variables
             this.X = X;
-            %assign default values to member variables
-            this.position = 0;
-            this.colour = [0,0,1];
-            this.whisker_cap_size = 6;
-            this.outlier_colour = [1,0,0];
-            this.outlier_mark = 'x';
-            this.outlier_size = 3;
         end
         
         %METHOD: SET POSITION
@@ -68,20 +61,18 @@ classdef Boxplot < handle
           this.wantOutlier = wantOutlier;
         end
         
+        %METHOD: SET WANT MEDIAN
+        %Set if want to show the median
+        function setWantMedian(this, wantMedian)
+          this.wantMedian = wantMedian;
+        end
+        
         %METHOD: SET WHISKER CAP SIZE
         %Set the size of the whisker cap
         %PARAMETERS:
             %whisker_cap_size: size of the whisker cap
         function setWhiskerCapSize(this,whisker_cap_size)
             this.whisker_cap_size = whisker_cap_size;
-        end
-        
-        %METHOD: SET OUTLIER COLOUR
-        %Set the colour of the outlier
-        %PARAMETERS:
-            %colour: colour of the outlier
-        function setOutlierColour(this,colour)
-            this.outlier_colour = colour;
         end
         
         %METHOD: SET OUTLIER MARK
@@ -115,7 +106,7 @@ classdef Boxplot < handle
               if n_outlier ~= 0
                   outlier.LineStyle = 'none';
                   outlier.Marker = this.outlier_mark;
-                  outlier.Color = this.outlier_colour;
+                  outlier.Color = this.colour;
                   outlier.MarkerSize = this.outlier_size;
               end
             else
@@ -146,18 +137,23 @@ classdef Boxplot < handle
             box.LineWidth = 4;
             box.Color = this.colour;
             
-            %draw soild circle at median
-            median_outer = line(this.position,this.median);
-            median_outer.LineStyle = 'none';
-            median_outer.Marker = 'o';
-            median_outer.MarkerFaceColor = [1,1,1];
-            median_outer.Color = this.colour;
+            %draw the median if requested
+            if (this.wantMedian)
             
-            %draw point at median
-            median_inner = line(this.position,this.median);
-            median_inner.LineStyle = 'none';
-            median_inner.Marker = '.';
-            median_inner.Color = this.colour;
+              %draw soild circle at median
+              median_outer = line(this.position,this.median);
+              median_outer.LineStyle = 'none';
+              median_outer.Marker = 'o';
+              median_outer.MarkerFaceColor = [1,1,1];
+              median_outer.Color = this.colour;
+
+              %draw point at median
+              median_inner = line(this.position,this.median);
+              median_inner.LineStyle = 'none';
+              median_inner.Marker = '.';
+              median_inner.Color = this.colour;
+              
+            end
             
         end
         

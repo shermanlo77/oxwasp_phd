@@ -65,6 +65,8 @@ classdef DefectAltDust < Experiment
       
       %Plots pre/post contamination results on the same graph, so offset them
       offset = 0.06;
+      baseLineConfidence = 0.95;
+      baseLineQuantile = (1 - baseLineConfidence)/2;
       
       %plot roc area vs alt mean
       fig = LatexFigure.sub();
@@ -72,16 +74,22 @@ classdef DefectAltDust < Experiment
       boxplotFiltered = Boxplots(this.rocAreaArray(:,:,3), true);
       boxplotFiltered.setPosition(this.altMeanArray + offset);
       boxplotFiltered.setColour(ax.ColorOrder(1,:));
+      boxplotFiltered.setWantMedian(false);
+      boxplotFiltered.setWantTrend(true);
       boxplotFiltered.plot();
       hold on;
       boxplotPreCont = Boxplots(this.rocAreaArray(:,:,1), true);
       boxplotPreCont.setPosition(this.altMeanArray - offset);
       boxplotPreCont.setColour(ax.ColorOrder(2,:));
+      boxplotPreCont.setWantMedian(false);
+      boxplotPreCont.setWantTrend(true);
       boxplotPreCont.plot();
       hold on;
       boxplotPostCont = Boxplots(this.rocAreaArray(:,:,2), true);
       boxplotPostCont.setPosition(this.altMeanArray);
       boxplotPostCont.setColour(ax.ColorOrder(3,:));
+      boxplotPostCont.setWantMedian(false);
+      boxplotPostCont.setWantTrend(true);
       boxplotPostCont.plot();
       xlabel('alt distribution mean');
       ylabel('ROC area');
@@ -99,60 +107,51 @@ classdef DefectAltDust < Experiment
       fig = LatexFigure.sub();
       ax = gca;
       boxplotFiltered = Boxplots(this.type1ErrorArray(:,:,3), true);
-      boxplotFiltered.setPosition(this.altMeanArray + offset);
+      boxplotFiltered.setPosition(this.altMeanArray);
       boxplotFiltered.setColour(ax.ColorOrder(1,:));
       boxplotFiltered.plot();
       hold on;
-      boxplotPreCont = Boxplots(this.type1ErrorArray(:,:,1), true);
-      boxplotPreCont.setPosition(this.altMeanArray - offset);
-      boxplotPreCont.setColour(ax.ColorOrder(2,:));
-      boxplotPreCont.plot();
+      baseLine = quantile(this.type1ErrorArray(:,:,1), [baseLineQuantile, 1-baseLineQuantile]);
+      plot(this.altMeanArray, baseLine(1,:), 'k--');
+      plot(this.altMeanArray, baseLine(2,:), 'k--');
       xlabel('alt distribution mean');
       ylabel('type 1 error');
       ax.XLim(1) = this.altMeanArray(1) - offset*2;
       ax.XLim(2) = this.altMeanArray(end) + offset*2;
-      boxplotLegend = [boxplotFiltered.getLegendAx(), boxplotPreCont.getLegendAx()];
-      legend(boxplotLegend, 'filtered', 'pre contamination', 'Location', 'northwest');
       saveas(fig,fullfile(directory, strcat(this.experiment_name,'_type1.eps')),'epsc');
       
       %plot type 2 error vs alt mean
       fig = LatexFigure.sub();
       ax = gca;
       boxplotFiltered = Boxplots(this.type2ErrorArray(:,:,3), true);
-      boxplotFiltered.setPosition(this.altMeanArray + offset);
+      boxplotFiltered.setPosition(this.altMeanArray );
       boxplotFiltered.setColour(ax.ColorOrder(1,:));
       boxplotFiltered.plot();
       hold on;
-      boxplotPreCont = Boxplots(this.type2ErrorArray(:,:,1), true);
-      boxplotPreCont.setPosition(this.altMeanArray - offset);
-      boxplotPreCont.setColour(ax.ColorOrder(2,:));
-      boxplotPreCont.plot();
+      baseLine = quantile(this.type2ErrorArray(:,:,1), [baseLineQuantile, 1-baseLineQuantile]);
+      plot(this.altMeanArray, baseLine(1,:), 'k--');
+      plot(this.altMeanArray, baseLine(2,:), 'k--');
       xlabel('alt distribution mean');
       ylabel('type 2 error');
       ax.XLim(1) = this.altMeanArray(1) - offset*2;
       ax.XLim(2) = this.altMeanArray(end) + offset*2;
-      boxplotLegend = [boxplotFiltered.getLegendAx(), boxplotPreCont.getLegendAx()];
-      legend(boxplotLegend, 'filtered', 'pre contamination', 'Location', 'northeast');
       saveas(fig,fullfile(directory, strcat(this.experiment_name,'_type2.eps')),'epsc');
       
       %fdr vs alt mean
       fig = LatexFigure.sub();
       ax = gca;
       boxplotFiltered = Boxplots(this.fdrArray(:,:,3), true);
-      boxplotFiltered.setPosition(this.altMeanArray + offset);
+      boxplotFiltered.setPosition(this.altMeanArray);
       boxplotFiltered.setColour(ax.ColorOrder(1,:));
       boxplotFiltered.plot();
       hold on;
-      boxplotPreCont = Boxplots(this.fdrArray(:,:,1), true);
-      boxplotPreCont.setPosition(this.altMeanArray - offset);
-      boxplotPreCont.setColour(ax.ColorOrder(2,:));
-      boxplotPreCont.plot();
+      baseLine = quantile(this.fdrArray(:,:,1), [baseLineQuantile, 1-baseLineQuantile]);
+      plot(this.altMeanArray, baseLine(1,:), 'k--');
+      plot(this.altMeanArray, baseLine(2,:), 'k--');
       xlabel('alt distribution mean');
       ylabel('fdr');
       ax.XLim(1) = this.altMeanArray(1) - offset*2;
       ax.XLim(2) = this.altMeanArray(end) + offset*2;
-      boxplotLegend = [boxplotFiltered.getLegendAx(), boxplotPreCont.getLegendAx()];
-      legend(boxplotLegend, 'filtered', 'pre contamination', 'Location', 'best');
       saveas(fig,fullfile(directory, strcat(this.experiment_name,'_fdr.eps')),'epsc');
       
     end
