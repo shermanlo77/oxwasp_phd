@@ -11,7 +11,7 @@
     %obtaining a different image
 %Plots the following: type 1, type 2, area of ROC and FDR vs alternative mean for images pre/post
     %contamination
-classdef Experiment_DefectSimulationDust < Experiment
+classdef DefectAltDust < Experiment
 
   properties (SetAccess = private)
     
@@ -42,8 +42,8 @@ classdef Experiment_DefectSimulationDust < Experiment
   methods (Access = public)
     
     %CONSTRUCTOR
-    function this = Experiment_DefectSimulationDust()
-      this@Experiment('Experiment_DefectSimulationDust');
+    function this = DefectAltDust()
+      this@Experiment();
     end
     
     %METHOD: PRINT RESULTS
