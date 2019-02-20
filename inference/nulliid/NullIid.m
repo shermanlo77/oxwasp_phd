@@ -156,6 +156,7 @@ classdef (Abstract) NullIid < Experiment
           this.nullStdArray(iRepeat, iN) = nullStd;
           
           %save the mean, variance and kurtosis of the normalised z statistics
+          z = (z - nullMean) / nullStd;
           this.meanZArray(iRepeat, iN) = mean(z);
           this.stdZArray(iRepeat, iN) = std(z);
           this.kurtosisZArray(iRepeat, iN) = kurtosis(z);
