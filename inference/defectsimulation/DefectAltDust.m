@@ -72,14 +72,14 @@ classdef DefectAltDust < Experiment
       fig = LatexFigure.sub();
       ax = gca;
       boxplotFiltered = Boxplots(this.rocAreaArray(:,:,3), true);
-      boxplotFiltered.setPosition(this.altMeanArray + offset);
+      boxplotFiltered.setPosition(this.altMeanArray);
       boxplotFiltered.setColour(ax.ColorOrder(1,:));
       boxplotFiltered.setWantMedian(false);
       boxplotFiltered.setWantTrend(true);
       boxplotFiltered.plot();
       hold on;
       boxplotPreCont = Boxplots(this.rocAreaArray(:,:,1), true);
-      boxplotPreCont.setPosition(this.altMeanArray - offset);
+      boxplotPreCont.setPosition(this.altMeanArray);
       boxplotPreCont.setColour(ax.ColorOrder(2,:));
       boxplotPreCont.setWantMedian(false);
       boxplotPreCont.setWantTrend(true);
