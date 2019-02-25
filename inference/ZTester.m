@@ -394,6 +394,35 @@ classdef ZTester < handle
             legend('p values','critical','Location','northwest');
         end
         
+        %METHOD: PLOT P VALUES
+        %Plot the p values in order with the BH critical region
+        %The null and alt p values have different symbols
+        function plotPValues2(this, isNull)
+          %get array of x axis values : integers representing the order
+          order_index = 1:this.n_test;
+          %scatter plot the ordered p values
+          [p_vector, index] = sort(reshape(this.p_image,1,[]));
+          p_vector(isnan(p_vector)) = [];
+          index(isnan(p_vector)) = [];
+          
+          isNull = reshape(isNull,1,[]);
+          isNull = isNull(index);
+          scatter(order_index(~isNull), p_vector(~isNull),'rx');
+          hold on;
+          scatter(order_index(isNull), p_vector(isNull),'b.');
+          xlabel('order');
+          ylabel('p value');
+          %plot the BH critical line
+          ax = gca;
+          area_transparent(order_index, this.size/this.n_test*order_index, this.critical_colour);
+          %set the scale to log
+          ax.XScale = 'log';
+          ax.YScale = 'log';
+          %set other graph properties
+          ax.XLim = [1,this.n_test];
+          legend('alt','null','critical','Location','northwest');
+        end
+        
         %METHOD: SET CRITICAL COLOUR
         %Set the colour of the area to show the critical region
         function setCriticalColour(this, colour)
