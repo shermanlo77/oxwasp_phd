@@ -1,8 +1,8 @@
-classdef DefectAltDust < DefectAlt
+classdef DefectAltDust0 < DefectAlt
   
   methods (Access = public)
     
-    function this = DefectAltDust()
+    function this = DefectAltDust0()
       this@DefectAlt();
     end
     
@@ -15,9 +15,9 @@ classdef DefectAltDust < DefectAlt
     end
     
     function defectSimulator = getDefectSimulator(this, altMean)
-      %gradient [0.01, 0.01], multiplier 2
+      %gradient [0, 0], multiplier 1
       %dust intensity 0.1
-      defectSimulator = PlaneMultDust(this.randStream, [0.01, 0.01], 2, 0.1, altMean, 1);
+      defectSimulator = PlaneMultDust(this.randStream, [0, 0], 1, 0.1, altMean, 1);
     end
   
   end
