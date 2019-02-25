@@ -22,10 +22,10 @@ trueNullStd = 2; %multiplier in the contimation
 trueNullMeanGrad = [0.01, 0.01]; %gradient of contimation
 altP = 0.1; %proportion of image defected
 %distribution parameters of the alt distribution
-altMean = 3;
+altMean = 1;
 altStd = 1;
 
 defectSimulator = PlaneMultDust(randStream, trueNullMeanGrad, trueNullStd, altP, altMean, altStd);
-defectExample = DefectExample();
+defectExample = DefectExample(randStream);
 defectExample.setPlotDefectNullStd(true);
 defectExample.plotExample(defectSimulator, imageSize, radius, directory, prefix);

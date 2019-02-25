@@ -13,7 +13,7 @@ classdef DefectAltDustMadMode < DefectAltDust
     end
     
     function filter = getFilter(this)
-      filter = EmpiricalNullFilter(this.radius);
+      filter = MadModeNullFilter(this.radius);
       filter.setSeed(this.randStream.randi([intmin('int32'),intmax('int32')],'int32'));
     end
               

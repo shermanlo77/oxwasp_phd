@@ -25,13 +25,15 @@ classdef DefectExample < handle
     plotDefectNullStd = false; %boolean, plot significant pixels on null std plot if true
     nInitial; %number of initial points for Newton-Raphson in empirical null filter
     nRoc = 1000;
+    randStream;
     
   end
   
   methods
     
     %CONSTRUCTOR
-    function this = DefectExample()
+    function this = DefectExample(randStream)
+      this.randStream = randStream;
     end
     
     %METHOD: DEFECT EXAMPLE
@@ -42,6 +44,7 @@ classdef DefectExample < handle
           defectSimulator.getDefectedImage([imageSize, imageSize]);
 
       filter = EmpiricalNullFilter(radius); %filter it
+      filter.setSeed(this.randStream.randi([intmin('int32'),intmax('int32')],'int32'));
       if (~isempty(this.nInitial))
         filter.setNInitial(this.nInitial);
       end
@@ -53,12 +56,23 @@ classdef DefectExample < handle
       nullStd = filter.getNullStd();
 
       %get the image pre/post contamination and filtered with significant pixels highlighted
+      
       zTesterPreContaminated = ZTester(imagePreContaminated);
       zTesterPreContaminated.doTest();
+      fig = LatexFigure.sub();
+      zTesterPreContaminated.plotPValues2(~isAltImage);
+      fig.CurrentAxes.XTick = 10.^(0:4);
+      saveas(fig,fullfile(directory, strcat(prefix,'_pValuePreContaminated.eps')),'epsc');
+      
       zTesterContaminated = ZTester(imageContaminated);
       zTesterContaminated.doTest();
+      
       zTesterFiltered = ZTester(imageFiltered);
       zTesterFiltered.doTest();
+      fig = LatexFigure.sub();
+      zTesterFiltered.plotPValues2(~isAltImage);
+      fig.CurrentAxes.XTick = 10.^(0:4);
+      saveas(fig,fullfile(directory, strcat(prefix,'_pValueFiltered.eps')),'epsc');
 
       %plot the z images
       fig = LatexFigure.sub();
@@ -97,7 +111,6 @@ classdef DefectExample < handle
       end
       imagePlot.plot();
       saveas(fig,fullfile(directory, strcat(prefix,'_nullStd.eps')),'epsc');
-      disp(mean(mean(nullStd)));
 
       %work out true and false positive, plot ROC
       [falsePositivePreContamination, truePositivePreContamination, ~] = ...
