@@ -19,6 +19,10 @@ classdef DefectSimulator < handle
     randStream; %rng
   end
   
+  properties (SetAccess = protected)
+    isContaminated;
+  end
+  
   %METHODS
   methods (Access = public)
     

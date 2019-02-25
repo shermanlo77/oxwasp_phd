@@ -17,6 +17,7 @@ classdef PlaneMult < DefectSimulator
       %multiplier: scale all pixels by this
     function this = PlaneMult(randStream, grad, multiplier)
       this@DefectSimulator(randStream);
+      this.isContaminated = true;
       this.grad = grad;
       this.multiplier = multiplier;
     end

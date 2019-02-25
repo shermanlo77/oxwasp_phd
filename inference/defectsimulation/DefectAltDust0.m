@@ -15,9 +15,8 @@ classdef DefectAltDust0 < DefectAlt
     end
     
     function defectSimulator = getDefectSimulator(this, altMean)
-      %gradient [0, 0], multiplier 1
       %dust intensity 0.1
-      defectSimulator = PlaneMultDust(this.randStream, [0, 0], 1, 0.1, altMean, 1);
+      defectSimulator = Dust(this.randStream, 0.1, altMean, 1);
     end
   
   end
