@@ -16,7 +16,7 @@ classdef DefectAltDust0Empirical < DefectAltDust0
       filter = EmpiricalNullFilter(this.radius);
       filter.setSeed(this.randStream.randi([intmin('int32'),intmax('int32')],'int32'));
     end
-              
+    
   end
   
 end

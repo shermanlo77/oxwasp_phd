@@ -6,6 +6,10 @@ classdef DefectAltDust0 < DefectAlt
       this@DefectAlt();
     end
     
+    function printResults(this)
+      this.printResults@DefectAlt(DefectAltDust0Baseline(), []);
+    end
+    
   end
   
   methods (Access = protected)

@@ -15,7 +15,6 @@ classdef DefectAlt < Experiment
 
   properties (SetAccess = private)
     
-    nRepeat = 100; %number of times to repeat the experiment
     imageSize = 256; %dimension of the image
     radius = 20; %radius of the empirical null filter kernel
     randStream; %rng
@@ -26,12 +25,15 @@ classdef DefectAlt < Experiment
     %records results
       %dim 1: for each repeat
       %dim 2: for each alt mean
-      %dim 3: size 2, pre-contamination, contaminated, filtered contaminated
     type1ErrorArray;
     type2ErrorArray;
     fdrArray;
     rocAreaArray;
     
+  end
+  
+  properties (SetAccess = protected)
+    nRepeat = 100; %number of times to repeat the experiment
   end
   
   methods (Access = public)
@@ -41,10 +43,15 @@ classdef DefectAlt < Experiment
       this@Experiment();
     end
     
-    %METHOD: PRINT RESULTS
+    %IMPLEMENTED: PRINT RESULTS
     %Plots type 1, type 2, area of ROC vs alternative mean
-    %Plots pre/post contamination and filtered results on the same graph
-    function printResults(this)
+    %Plot in addition the no contamination and contamination ROC area, these are supplied by passing
+        %the respective DefectAlt experiments
+    %Plot in addition the no contamination quantiles for the errors, again, supplied by passing the
+        %respective DefectAlt experiment baseline0
+    %How to use:
+      %Override with a printResult with no parameters
+    function printResults(this, baseline0, baseline)
       
       directory = fullfile('reports','figures','inference','defectsimulation');
       
@@ -66,34 +73,42 @@ classdef DefectAlt < Experiment
       %plot roc area vs alt mean
       fig = LatexFigure.sub();
       ax = gca;
-      boxplotFiltered = Boxplots(this.rocAreaArray(:,:,3), true);
+      
+      boxplotFiltered = Boxplots(this.rocAreaArray, true);
       boxplotFiltered.setPosition(this.altMeanArray);
       boxplotFiltered.setColour(ax.ColorOrder(1,:));
       boxplotFiltered.setWantMedian(false);
       boxplotFiltered.setWantTrend(true);
       boxplotFiltered.plot();
-      hold on;
-      boxplotPreCont = Boxplots(this.rocAreaArray(:,:,1), true);
-      boxplotPreCont.setPosition(this.altMeanArray);
-      boxplotPreCont.setColour(ax.ColorOrder(2,:));
-      boxplotPreCont.setWantMedian(false);
-      boxplotPreCont.setWantTrend(true);
-      boxplotPreCont.plot();
-      hold on;
-      boxplotPostCont = Boxplots(this.rocAreaArray(:,:,2), true);
-      boxplotPostCont.setPosition(this.altMeanArray);
-      boxplotPostCont.setColour(ax.ColorOrder(3,:));
-      boxplotPostCont.setWantMedian(false);
-      boxplotPostCont.setWantTrend(true);
-      boxplotPostCont.plot();
+      boxplotLegend = boxplotFiltered.getLegendAx();
+      label = {'filtered'};
+      if (~isempty(baseline0))
+        hold on;
+        boxplotPreCont = Boxplots(baseline0.rocAreaArray, true);
+        boxplotPreCont.setPosition(baseline0.altMeanArray);
+        boxplotPreCont.setColour(ax.ColorOrder(2,:));
+        boxplotPreCont.setWantMedian(false);
+        boxplotPreCont.setWantTrend(true);
+        boxplotPreCont.plot();
+        boxplotLegend = [boxplotLegend, boxplotPreCont.getLegendAx()];
+        label{numel(boxplotLegend)} = 'no contamination';
+      end
+      if (~isempty(baseline))
+        hold on;
+        boxplotPostCont = Boxplots(baseline.rocAreaArray, true);
+        boxplotPostCont.setPosition(baseline.altMeanArray);
+        boxplotPostCont.setColour(ax.ColorOrder(3,:));
+        boxplotPostCont.setWantMedian(false);
+        boxplotPostCont.setWantTrend(true);
+        boxplotPostCont.plot();
+        boxplotLegend = [boxplotLegend, boxplotPostCont.getLegendAx()];
+        label{numel(boxplotLegend)} = 'contaminated';
+      end
       xlabel('alt distribution mean');
       ylabel('ROC area');
       ax.XLim(1) = this.altMeanArray(1) - offset*2;
-      ax.XLim(2) = this.altMeanArray(end) + offset*2;
-      boxplotLegend = [boxplotFiltered.getLegendAx(), boxplotPreCont.getLegendAx(), ...
-          boxplotPostCont.getLegendAx()];      
-      legend(boxplotLegend, 'filtered', 'pre contamination', 'contaminated', ...
-          'Location', 'southeast');
+      ax.XLim(2) = this.altMeanArray(end) + offset*2;    
+      legend(boxplotLegend, label, 'Location', 'southeast');
       saveas(fig,fullfile(directory, strcat(this.experiment_name,'_roc.eps')),'epsc');
       
       %plot type 1 error vs alt mean
@@ -101,14 +116,17 @@ classdef DefectAlt < Experiment
           %filtered
       fig = LatexFigure.sub();
       ax = gca;
-      boxplotFiltered = Boxplots(this.type1ErrorArray(:,:,3), true);
+      boxplotFiltered = Boxplots(this.type1ErrorArray, true);
       boxplotFiltered.setPosition(this.altMeanArray);
       boxplotFiltered.setColour(ax.ColorOrder(1,:));
       boxplotFiltered.plot();
-      hold on;
-      baseLine = quantile(this.type1ErrorArray(:,:,1), [baseLineQuantile, 1-baseLineQuantile]);
-      plot(this.altMeanArray, baseLine(1,:), 'k--');
-      plot(this.altMeanArray, baseLine(2,:), 'k--');
+      if (~isempty(baseline0))
+        hold on;
+        baseType1Error = ...
+            quantile(baseline0.type1ErrorArray, [baseLineQuantile, 1-baseLineQuantile]);
+        plot(baseline0.altMeanArray, baseType1Error(1,:), 'k--');
+        plot(baseline0.altMeanArray, baseType1Error(2,:), 'k--');
+      end
       xlabel('alt distribution mean');
       ylabel('type 1 error');
       ax.XLim(1) = this.altMeanArray(1) - offset*2;
@@ -118,14 +136,17 @@ classdef DefectAlt < Experiment
       %plot type 2 error vs alt mean
       fig = LatexFigure.sub();
       ax = gca;
-      boxplotFiltered = Boxplots(this.type2ErrorArray(:,:,3), true);
-      boxplotFiltered.setPosition(this.altMeanArray );
+      boxplotFiltered = Boxplots(this.type2ErrorArray, true);
+      boxplotFiltered.setPosition(this.altMeanArray);
       boxplotFiltered.setColour(ax.ColorOrder(1,:));
       boxplotFiltered.plot();
-      hold on;
-      baseLine = quantile(this.type2ErrorArray(:,:,1), [baseLineQuantile, 1-baseLineQuantile]);
-      plot(this.altMeanArray, baseLine(1,:), 'k--');
-      plot(this.altMeanArray, baseLine(2,:), 'k--');
+      if (~isempty(baseline0))
+        hold on;
+        baseType2Error = ...
+            quantile(baseline0.type2ErrorArray, [baseLineQuantile, 1-baseLineQuantile]);
+        plot(baseline0.altMeanArray, baseType2Error(1,:), 'k--');
+        plot(baseline0.altMeanArray, baseType2Error(2,:), 'k--');
+      end
       xlabel('alt distribution mean');
       ylabel('type 2 error');
       ax.XLim(1) = this.altMeanArray(1) - offset*2;
@@ -135,14 +156,17 @@ classdef DefectAlt < Experiment
       %fdr vs alt mean
       fig = LatexFigure.sub();
       ax = gca;
-      boxplotFiltered = Boxplots(this.fdrArray(:,:,3), true);
+      boxplotFiltered = Boxplots(this.fdrArray, true);
       boxplotFiltered.setPosition(this.altMeanArray);
       boxplotFiltered.setColour(ax.ColorOrder(1,:));
       boxplotFiltered.plot();
-      hold on;
-      baseLine = quantile(this.fdrArray(:,:,1), [baseLineQuantile, 1-baseLineQuantile]);
-      plot(this.altMeanArray, baseLine(1,:), 'k--');
-      plot(this.altMeanArray, baseLine(2,:), 'k--');
+      if (~isempty(baseline0))
+        hold on;
+        baseFdr = ...
+            quantile(baseline0.fdrArray, [baseLineQuantile, 1-baseLineQuantile]);
+        plot(baseline0.altMeanArray, baseFdr(1,:), 'k--');
+        plot(baseline0.altMeanArray, baseFdr(2,:), 'k--');
+      end
       xlabel('alt distribution mean');
       ylabel('fdr');
       ax.XLim(1) = this.altMeanArray(1) - offset*2;
@@ -157,10 +181,10 @@ classdef DefectAlt < Experiment
     
     %METHOD: SETUP
     function setup(this, seed)
-      this.type1ErrorArray = zeros(this.nRepeat, numel(this.altMeanArray), 3);
-      this.type2ErrorArray = zeros(this.nRepeat, numel(this.altMeanArray), 3);
-      this.fdrArray = zeros(this.nRepeat, numel(this.altMeanArray), 3);
-      this.rocAreaArray = zeros(this.nRepeat, numel(this.altMeanArray), 3);
+      this.type1ErrorArray = zeros(this.nRepeat, numel(this.altMeanArray));
+      this.type2ErrorArray = zeros(this.nRepeat, numel(this.altMeanArray));
+      this.fdrArray = zeros(this.nRepeat, numel(this.altMeanArray));
+      this.rocAreaArray = zeros(this.nRepeat, numel(this.altMeanArray));
       this.randStream = RandStream('mt19937ar','Seed', seed);
     end
     
@@ -177,72 +201,33 @@ classdef DefectAlt < Experiment
         for iRepeat = 1:this.nRepeat
           
           %get the defected image
-          [imageContaminated, isAltImage, imagePreContaminated] = ...
+          [imageContaminated, isAltImage] = ...
               defectSimulator.getDefectedImage([this.imageSize, this.imageSize]);
             
           %filter it
-          filter = this.getFilter();
-          filter.setNInitial(this.nIntial);
-          filter.filter(imageContaminated);
-
           %get the empirical null and the filtered image
-          imageFiltered = filter.getFilteredImage();
-
+          imageFiltered = this.filterImage(imageContaminated);
           %do the hypothesis testing for the 3 images
-          zTesterPreContaminated = ZTester(imagePreContaminated);
-          zTesterPreContaminated.doTest();
-          zTesterContaminated = ZTester(imageContaminated);
-          zTesterContaminated.doTest();
-          zTesterFiltered = ZTester(imageFiltered);
-          zTesterFiltered.doTest();
+          zTester = ZTester(imageFiltered);
+          zTester.doTest();
 
           %get the roc area
-          [~, ~, this.rocAreaArray(iRepeat, iMu, 1)] = ...
-              roc(imagePreContaminated, isAltImage, this.nRoc);
-          [~, ~, this.rocAreaArray(iRepeat, iMu, 2)] = ...
-              roc(imageContaminated, isAltImage, this.nRoc);
-          [~, ~, this.rocAreaArray(iRepeat, iMu, 3)] = ...
-              roc(imageFiltered, isAltImage, this.nRoc);
+          [~, ~, this.rocAreaArray(iRepeat, iMu)] = roc(imageFiltered, isAltImage, this.nRoc);
           
           %get the error rates fdrArray
+          this.type1ErrorArray(iRepeat, iMu) = ...
+            sum(zTester.sig_image(~isAltImage)) / sum(sum(~isAltImage));
           
-          this.type1ErrorArray(iRepeat, iMu, 1) = ...
-              sum(zTesterPreContaminated.sig_image(~isAltImage)) / sum(sum(~isAltImage));
-          this.type1ErrorArray(iRepeat, iMu, 2) = ...
-              sum(zTesterContaminated.sig_image(~isAltImage)) / sum(sum(~isAltImage));
-          this.type1ErrorArray(iRepeat, iMu, 3) = ...
-            sum(zTesterFiltered.sig_image(~isAltImage)) / sum(sum(~isAltImage));
-            
-          this.type2ErrorArray(iRepeat, iMu, 1) = ...
-              sum(~(zTesterPreContaminated.sig_image(isAltImage))) / sum(sum(isAltImage));
-          this.type2ErrorArray(iRepeat, iMu, 2) = ...
-              sum(~(zTesterContaminated.sig_image(isAltImage))) / sum(sum(isAltImage));
-          this.type2ErrorArray(iRepeat, iMu, 3) = ...
-              sum(~(zTesterFiltered.sig_image(isAltImage))) / sum(sum(isAltImage));
-            
-          nSig = sum(sum(zTesterPreContaminated.sig_image));
+          this.type2ErrorArray(iRepeat, iMu) = ...
+              sum(~(zTester.sig_image(isAltImage))) / sum(sum(isAltImage));
+          
+          nSig = sum(sum(zTester.sig_image));
           if nSig == 0
             fdr = 0;
           else
-            fdr = sum(sum(zTesterPreContaminated.sig_image(~isAltImage))) / nSig;
+            fdr = sum(sum(zTester.sig_image(~isAltImage))) / nSig;
           end
-          this.fdrArray(iRepeat, iMu, 1) = fdr;
-          
-          nSig = sum(sum(zTesterContaminated.sig_image));
-          if nSig == 0
-            fdr = 0;
-          else
-            fdr = sum(sum(zTesterContaminated.sig_image(~isAltImage))) / nSig;
-          end
-          this.fdrArray(iRepeat, iMu, 2) = fdr;
-          
-          nSig = sum(sum(zTesterFiltered.sig_image));
-          if nSig == 0
-            fdr = 0;
-          else
-            fdr = sum(sum(zTesterFiltered.sig_image(~isAltImage))) / nSig;
-          end
-          this.fdrArray(iRepeat, iMu, 3) = fdr;
+          this.fdrArray(iRepeat, iMu) = fdr;
 
           this.printProgress( ((iMu-1)*this.nRepeat + iRepeat) ... 
               / (numel(this.altMeanArray) * this.nRepeat) );
@@ -251,6 +236,15 @@ classdef DefectAlt < Experiment
         
       end
       
+    end
+    
+    %METHOD: GET FILETERED IMAGE
+    %Given an image, filter it
+    function imageFiltered = filterImage(this, imageContaminated)
+      filter = this.getFilter();
+      filter.setNInitial(this.nIntial);
+      filter.filter(imageContaminated);
+      imageFiltered = filter.getFilteredImage();
     end
     
   end

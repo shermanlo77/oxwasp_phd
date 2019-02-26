@@ -35,10 +35,9 @@ classdef Dust < DefectSimulator
       %image: a defected Gaussian image
       %isAltImage: boolean map, true if that pixel is a defect
       %imagePreBias: defected Gaussian image without the smooth function added
-    function [image, isAltImage, imagePreBias] = getDefectedImage(this, size)
+    function [image, isAltImage] = getDefectedImage(this, size)
       [image, isAltImage] = this.getDefectedImage@DefectSimulator(size);
       [image, isAltImage] = this.addDust(image, isAltImage, this.p, this.altMean, this.altStd);
-      imagePreBias = image;
     end
     
   end

@@ -35,11 +35,10 @@ classdef PlaneMultLine < PlaneMult
       %image: a defected image
       %isAltImage: boolean map, true if that pixel is a defect
       %imagePreBias: defected Gaussian image without the smooth function added
-    function [image, isAltImage, imagePreBias] = getDefectedImage(this, size)
+    function [image, isAltImage] = getDefectedImage(this, size)
       [image, isAltImage] = this.getDefectedImage@DefectSimulator(size);
       [image, isAltImage] = this.addLineDefect(image, isAltImage, round(size(2)/2), ...
           this.lineThickness, this.altMean, this.altStd);
-      imagePreBias = image;
       image = this.multiply(image, this.multiplier);
       image = this.addPlane(image, this.grad);
     end
