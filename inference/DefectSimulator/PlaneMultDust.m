@@ -36,11 +36,12 @@ classdef PlaneMultDust < PlaneMult
       %image: a defected Gaussian image
       %isAltImage: boolean map, true if that pixel is a defect
       %imagePreBias: defected Gaussian image without the smooth function added
-    function [image, isAltImage] = getDefectedImage(this, size)
-      [image, isAltImage] = this.getDefectedImage@DefectSimulator(size);
-      [image, isAltImage] = this.addDust(image, isAltImage, this.p, this.altMean, this.altStd);
-      image = this.multiply(image, this.multiplier);
-      image = this.addPlane(image, this.grad);
+    function [imageContaminated, isAltImage, imageNoContamination] = getDefectedImage(this, size)
+      [imageNoContamination, isAltImage] = this.getDefectedImage@DefectSimulator(size);
+      [imageNoContamination, isAltImage] = ...
+          this.addDust(imageNoContamination, isAltImage, this.p, this.altMean, this.altStd);
+      imageContaminated = this.multiply(imageNoContamination, this.multiplier);
+      imageContaminated = this.addPlane(imageContaminated, this.grad);
     end
     
   end

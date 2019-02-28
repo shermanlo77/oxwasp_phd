@@ -29,10 +29,10 @@ classdef PlaneMult < DefectSimulator
     %RETURN:
       %image: a defected Gaussian image
       %isAltImage: boolean map, true if that pixel is a defect
-    function [image, isAltImage] = getDefectedImage(this, size)
-      [image, isAltImage] = this.getDefectedImage@DefectSimulator(size);
-      image = this.multiply(image, this.multiplier);
-      image = this.addPlane(image, this.grad);
+    function [imageContaminated, isAltImage, imageNoContamination] = getDefectedImage(this, size)
+      [imageNoContamination, isAltImage] = this.getDefectedImage@DefectSimulator(size);
+      imageContaminated = this.multiply(imageNoContamination, this.multiplier);
+      imageContaminated = this.addPlane(imageContaminated, this.grad);
     end
     
   end

@@ -35,12 +35,13 @@ classdef PlaneMultSquare < PlaneMult
       %image: a defected image
       %isAltImage: boolean map, true if that pixel is a defect
       %imagePreBias: defected Gaussian image without the smooth function added
-    function [image, isAltImage] = getDefectedImage(this, size)
-      [image, isAltImage] = this.getDefectedImage@DefectSimulator(size);
-      [image, isAltImage] = this.addSquareDefect(image, isAltImage, size/2, ...
+    function [imageContaminated, isAltImage, imageNoContamination] = getDefectedImage(this, size)
+      [imageNoContamination, isAltImage] = this.getDefectedImage@DefectSimulator(size);
+      [imageNoContamination, isAltImage] = ...
+          this.addSquareDefect(imageNoContamination, isAltImage, size/2, ...
           [this.defectSize, this.defectSize], this.altMean, this.altStd);
-      image = this.multiply(image, this.multiplier);
-      image = this.addPlane(image, this.grad);
+      imageContaminated = this.multiply(imageNoContamination, this.multiplier);
+      imageContaminated = this.addPlane(imageContaminated, this.grad);
     end
     
   end
