@@ -10,12 +10,12 @@ close all;
 
 this = DefectAltDust0Empirical();
 this.run();
-%this.printResults();
+this.printResults();
 close all;
 
 this = DefectAltDust0MadMode();
 this.run();
-%this.printResults();
+this.printResults();
 close all;
 
 this = DefectAltDust0Baseline();

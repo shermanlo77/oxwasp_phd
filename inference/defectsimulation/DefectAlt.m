@@ -106,6 +106,7 @@ classdef DefectAlt < Experiment
       end
       xlabel('alt distribution mean');
       ylabel('ROC area');
+      ylim([0.5,1]);
       ax.XLim(1) = this.altMeanArray(1) - offset*2;
       ax.XLim(2) = this.altMeanArray(end) + offset*2;    
       legend(boxplotLegend, label, 'Location', 'southeast');
@@ -129,6 +130,7 @@ classdef DefectAlt < Experiment
       end
       xlabel('alt distribution mean');
       ylabel('type 1 error');
+      ylim([0,0.012]);
       ax.XLim(1) = this.altMeanArray(1) - offset*2;
       ax.XLim(2) = this.altMeanArray(end) + offset*2;
       saveas(fig,fullfile(directory, strcat(this.experiment_name,'_type1.eps')),'epsc');
