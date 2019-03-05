@@ -2,7 +2,7 @@
 %Experiment for simulating n N(0,1) and storing the emperical null mean and var
 %Different n and parzen kernel width are investigated
 %Plotted are log MSE vs kernel width vs log n, MSE for the null mean and null var
-classdef Experiment_ZNull < Experiment
+classdef BandwidthSelection < Experiment
     
     %MEMBER VARIABLES
     properties (SetAccess = private)
@@ -28,8 +28,8 @@ classdef Experiment_ZNull < Experiment
     methods (Access = public)
         
         %CONSTRUCTOR
-        function this = Experiment_ZNull()
-            this@Experiment('ZNull');
+        function this = BandwidthSelection()
+            this@Experiment();
         end
         
         %IMPLEMENTED: PRINT RESULTS

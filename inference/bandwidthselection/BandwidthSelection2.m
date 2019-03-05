@@ -9,7 +9,7 @@
 %ln mean squared error vs kernel width for all n
 %optimal kernel width vs n^(-1/5)
 %gradient and intercept vs smoothness of local quadratic regression
-classdef Experiment_ZNull_mse < Experiment
+classdef BandwidthSelection2 < Experiment
     
     %MEMBER VARIABLES
     properties (SetAccess = protected)
@@ -45,8 +45,8 @@ classdef Experiment_ZNull_mse < Experiment
     methods (Access = public)
         
         %CONSTRUCTOR
-        function this = Experiment_ZNull_mse()
-            this@Experiment('ZNull_mse');
+        function this = BandwidthSelection2()
+            this@Experiment();
         end
         
         %IMPLEMENTED: RESULTS
@@ -257,7 +257,7 @@ classdef Experiment_ZNull_mse < Experiment
         %RETURN:
             %previous: Experiment object from Z Null experiment
         function previous = getPreviousResult(this)
-            previous = Experiment_ZNull();
+            previous = BandwidthSelection();
         end
         
         %METHOD: GET OBJECTIVE
