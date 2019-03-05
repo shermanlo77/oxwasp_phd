@@ -99,6 +99,13 @@ classdef EmpiricalNull < handle
     function setBandwidthParameterB(this, bandwidthParameterB)
       this.javaObj.setBandwidthParameterB(bandwidthParameterB);
     end
+    
+    %METHOD: SET BANDWIDTH
+    %Set (directly) the bandwidth of the kernel density estimate
+    function setBandwidth(this, bandwidth)
+      this.setBandwidthParameterB(0);
+      this.setBandwidhtParameterA(bandwidth);
+    end
 
   end
   
