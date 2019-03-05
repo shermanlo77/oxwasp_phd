@@ -16,7 +16,7 @@ classdef Boxplot < handle
         outlier_index; %boolean vector, true for outlier data
         
         position = 0; %scalar, x position of the box plot
-        colour = [0,0,1]; %colour of the box plot
+        colour; %colour of the box plot
         
         wantOutlier = true;
         wantMedian = true;
@@ -37,6 +37,8 @@ classdef Boxplot < handle
         function this = Boxplot(X)
             %assign member variables
             this.X = X;
+            colorOrder = get(groot,'defaultAxesColorOrder');
+            this.colour = colorOrder(1,:);
         end
         
         %METHOD: SET POSITION
