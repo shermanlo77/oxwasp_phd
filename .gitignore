@@ -17,6 +17,9 @@
 *.toc
 *.txt
 !javaclasspath.txt
+*.svg
+*.lot
+*.lof
 
 # directories
 data/
