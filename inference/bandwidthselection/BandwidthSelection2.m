@@ -88,6 +88,8 @@ classdef BandwidthSelection2 < Experiment
       plot(x, gaminv(0.025, shapeParameter, gammaScale), 'Color', colour2, 'LineStyle',':');
       xlabel('n^{-1/5}');
       ylabel('optimal bandwidth');
+      ax = gca;
+      ax.YLim(1) = 0;
       saveas(fig,fullfile('reports','figures','inference', ...
           strcat(this.experiment_name,'_ruleOfThumb','.eps')),'epsc');
       
