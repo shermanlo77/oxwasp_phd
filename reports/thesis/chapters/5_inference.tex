@@ -1,95 +1,93 @@
-The aim of this project was to obtain an x-ray image of a 3D printed sample and compare it with a simulation of that scan using software called \texttt{aRTist} \citep{bellon2007artist, jaenisch2008artist, bellon2012radiographic}. \texttt{aRTist} can simulate x-ray scans of the 3D printed sample given the specifications of the scan, such as the x-ray source, the x-ray detector and the blueprint of the 3D printed sample \citep{bellon2011simulation, deresch2012simulating}. Users of \texttt{aRTist} can align the simulated x-ray image to the real x-ray image using numerical methods, however this is outside the scope of this thesis.
+The aim of this project was to obtain an x-ray image of a 3D printed sample and compare it with a simulation of that scan using software called \texttt{aRTist} \citep{bellon2007artist, jaenisch2008artist, bellon2012radiographic}. \texttt{aRTist} can simulate x-ray acquisitions of the 3D printed sample given the specifications of the scan, such as the x-ray source, the x-ray detector and the computer aided design (CAD) of the 3D printed sample \citep{bellon2011simulation, deresch2012simulating}. Users of \texttt{aRTist} can align the simulated x-ray image to the real x-ray image using numerical methods, however this is outside the scope of this thesis.
 
 Disagreement between the scan and \texttt{aRTist} can be found by simply subtracting one image from the other, any values too big in magnitude can be considered as a defect. However in the previous chapters, it was found that x-ray photons behave randomly and differences in the comparison can be due to chance. Thus the comparisons should be done under the face of uncertainty.
 
-A pixel by pixel inference was proposed to do defect detection. A statistic $z_{x,y}$ for the $(x,y)$ positioned pixel was calculated for all pixels. This statistic is
+A pixel by pixel inference was proposed to do defect detection. A statistic $Z_{x,y}$ for the $(x,y)$ positioned pixel was calculated for all pixels. This statistic is
 \begin{equation}
     Z_{x,y} = 
     \dfrac{
-        \text{scan}_{x,y} - \text{aRTist}_{x,y}
+        \text{scan}_{x,y} - \texttt{aRTist}_{x,y}
     }
     {
         \sqrt{\widehat{\variance}\left[\text{scan}_{x,y}\right]}
     }
 \end{equation}
-where $\widehat{\variance}\left[\text{scan}_{x,y}\right]$ is the estimated grey value variance of pixel $(x,y)$ in the scan. Under mild assumptions, it was shown in the previous chapters that the grey values in the scan were Normal. Thus by treating the simulated image from \texttt{aRTist} as known and the ground truth, then the randomness of the $z_{i,j}$ statistics can be quantified
+where $\widehat{\variance}\left[\text{scan}_{x,y}\right]$ is the estimated grey value variance of pixel $(x,y)$ in the scan. Under mild assumptions, it was shown in the previous chapters that the grey values in the scan were Normal. Thus by treating the simulated image from \texttt{aRTist} as known and the ground truth, then the randomness of the $Z_{i,j}$ statistics can be approximately quantified
 \begin{equation}
-Z_{i,j}\sim \normal(0,1) \ .
+Z_{x,y}\sim \normal(0,1) \ .
 \end{equation}
 As with usual statistical convention, upper case $Z$ denote a random variable. Whereas lower case $z$ denote a realisation or an observation of that random variable.
 
-The estimation of the grey value variance, that is $\widehat{\variance}\left[\text{scan}_{i,j}\right]$ is be explained here. The variance model can be calibrated, or trained, by holding out a number replicated x-ray scans of a 3D printed sample. These replicated x-ray scans provide variance-mean data which was used to train the variance model, such as a Gamma distributed GLM. The method on doing so was described in the previous chapter and it was found a linear relationship between the variance and the mean was a good model. The variance was then predicted using the grey value in the \texttt{aRTist} simulation.
+The variance model, $\widehat{\variance}\left[\text{scan}_{i,j}\right]$, can be calibrated, or trained, by holding out a number replicated x-ray images of a 3D printed sample. These replicated x-ray images were manually segmented. This provided variance-mean data and was used to train the variance model, such as a Gamma distributed GLM. The method on doing so was described in the previous chapter and it was found a linear relationship between the variance and the mean was a good model. The variance was then predicted using the grey value in the \texttt{aRTist} simulation as the predictor variable.
 
-This method for inference was applied to the dataset \texttt{Sep16 120deg}. Here a cuboid with voids were purposefully manufactured to see if they can be detected. The 20 x-ray images were spilt into 2. 19 images were used to train the variance-mean model. One image, called the test image, was used to compare with \texttt{aRTist}, as shown in Figure \ref{fig:inference_initial_artist_scan_aRTist}. In the \texttt{aRTist} simulation, the software did a simulation as if the voids were not there. 
+This method for inference was applied to the dataset \texttt{Sep16 120deg}. Here a cuboid with voids were purposefully manufactured to see if they can be detected, the CAD shown in Figure \ref{fig:inference_testObject}. The 20 x-ray images were spilt into 2. 19 images were used to train the variance-mean model. One image, called the test image, was used to compare with \texttt{aRTist}. In the \texttt{aRTist} simulation, the software did a simulation as if the voids were not there. The test image and the \texttt{aRTist} simulation is shown in Figures \ref{fig:inference_inferenceIntro_inference_scan} and \ref{fig:inference_inferenceIntro_inference_artist}.
 
 \begin{figure}
-	\centering
-    \centerline{
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/initial_artist_scan.eps}
-        \caption{X-ray image}
-    \end{subfigure}
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/initial_artist_aRTist.eps}
-        \caption{\texttt{aRTist} simulation}
-    \end{subfigure}
-    }
-    \caption{An x-ray scan of a 3D printed cuboid, from the \texttt{Sep16 120deg} dataset. This can be compared directly to the \texttt{aRTist} simulation for defects.}
-    \label{fig:inference_initial_artist_scan_aRTist}
+  \centering
+  \includegraphics[width=0.4\textwidth]{../figures/inference/TestObject.png}
+  \caption{CAD of a 3D cuboid with voids}
+  \label{fig:inference_testObject}
 \end{figure}
 
-For each pixel, a $z$ statistic was calculated. A $z$ statistic too large in magnitude can be considered to be evidence of a positive result. Another way to represent the $z$ statistic is the $p$-value which is given as
+\begin{figure}
+  \centering
+  \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+      \includegraphics[width=\textwidth]{../figures/inference/inferenceIntro_scan.eps}
+      \caption{X-ray image}
+      \label{fig:inference_inferenceIntro_inference_scan}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+      \includegraphics[width=\textwidth]{../figures/inference/inferenceIntro_artist.eps}
+      \caption{\texttt{aRTist} simulation}
+      \label{fig:inference_inferenceIntro_inference_artist}
+    \end{subfigure}
+  }
+  \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+      \includegraphics[width=\textwidth]{../figures/inference/inferenceIntro_logp.eps}
+      \caption{$-\log p\text{-values}$}
+      \label{fig:inference_inferenceIntro_inference_pvalue}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+      \includegraphics[width=\textwidth]{../figures/inference/inferenceIntro_positivePixels.eps}
+      \caption{Positive pixels}
+      \label{fig:inference_inferenceIntro_inference_positivePixels}
+    \end{subfigure}
+  }
+  \caption{An x-ray image of a 3D printed cuboid, from the \texttt{Sep16 120deg} dataset, was compared to the \texttt{aRTist} simulation to detect the purposefully manufactured voids. The $p$-values obtained were used for hypothesis testing using the \cite{benjamini1995controlling} procedure, controlling the FDR at the 5\% level. Pixels detected as positive are shown in red in d).}
+  \label{fig:inference_inferenceIntro_inference}
+\end{figure}
+
+For each pixel, a $z$ statistic was calculated. A $z$ statistic too large in magnitude will classify that pixel as a positive result. In the hypothesis testing framework \citep{pearson1900on, neyman1933on, fisher1970statistical}, the $p$-value can be used to represent $z$ statistic in a different way
 \begin{equation}
     p_{x,y} = 2(1-\Phi(\|z_{x,y}\|))
 \end{equation}
-which can takes values $0\leqslant p_{i,j} \leqslant 1$. A $p$-value too small is considered to be evidence of a defect. The resulting $z$ statistics and $p$-values are shown in Figure \ref{fig:inference_initial_artist_logp_z}.
+which can takes values $0\leqslant p_{x,y} \leqslant 1$. A $p$-value too small is considered a positive result. The $p$-values are shown in Figure \ref{fig:inference_inferenceIntro_inference_pvalue}.
 
-\begin{figure}
-	\centering
-    \centerline{
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/initial_artist_logp.eps}
-        \caption{$-\log p\text{-values}$}
-    \end{subfigure}
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/initial_artist_z_image.eps}
-        \caption{$z$ statistics}
-    \end{subfigure}
-    }
-    \caption{The resulting $z$ statistics and $p$ values comparing an x-ray scan with the \texttt{aRTist} simulation.}
-    \label{fig:inference_initial_artist_logp_z}
-\end{figure}
-
-The resulting $z$ statistics and $p$-values are concerning. This is because the $p$-values are not very smooth on the surfaces of the sample. It should be expected that small $p$-values are in areas of the defects. Pixels are significant, or considered to be evidence of a defect, when for $\|z_{x,y}\|>\input{../tables/initial_artist_z_critical.txt}$, this value was chosen by using the \cite{benjamini1995controlling} (BH) procedure at the $z_\alpha = 2$ significance level. The significant pixels are shown in Figure \ref{fig:inference_initial_artist_sig_pixels}.
+The resulting $p$-values are concerning. This is because the $p$-values are not very smooth on the surfaces of the sample. It should be expected that small $p$-values are in areas of the defects. Pixels are tested positive, or considered to be evidence of a defect, when $\|z_{x,y}\|>\inputNumber{../figures/inference/inferenceIntro_critical.txt}$. This value was chosen by controlling the false discovery rate at 5\% using the \cite{benjamini1995controlling} (BH) procedure. The positive pixels are shown in Figure \ref{fig:inference_inferenceIntro_inference_positivePixels}.
 
 This proposed method for defect detection failed because too many false positives were detected. These false positives appear to have some structure, for example clustering in the corners or on surfaces. In addition, false negatives were detected because not all of the defects were detected.
 
-Model misspecification appeared to be the main source of error. The $z$ statistics was inspected using a histogram and a QQ plot, as shown in Figure \ref{fig:inference_initial_artist_z_histo}. It can be seen that the $z$ statistics does not look Normal which seems to suggest that the assumption of $z_{i,j}\sim \normal(0,1)$ is incorrect. However this assumption can relaxed and can be done using the empirical null \citep{efron2004large}.
+Model misspecification appeared to be the main source of error. The $z$ statistics and $p$-values were inspected in Figure \ref{fig:inference_inferenceIntro_histogram}. It can be seen that the majority of the $z$ statistics does not look Normal. Also the majority of the $p$-values does not look uniformly distributed. This seems to suggest that the assumption of $Z_{x,y}\sim \normal(0,1)$ is incorrect.
 
 \begin{figure}
-    \centering
-    \includegraphics[width=0.7\textwidth]{../figures/inference/initial_artist_sig_pixels.eps}
-    \caption{Significant pixels highlighted using the BH procedure at the $z_\alpha = 2$ significance level.}
-    \label{fig:inference_initial_artist_sig_pixels}
+  \centering
+  \centerline{
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/inferenceIntro_histogram.eps}
+    \caption{Histogram of $z$}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/inferenceIntro_pValue.eps}
+    \caption{$p$-values}
+  \end{subfigure}
+}
+  \caption{a) The histogram of the $z$ statistics is compared with the standard Normal distribution. The standard Normal distribution is known as the null distribution in this scenario. b) The $p$-values are ordered and plotted. The critical region corresponds to controlling the false discovery rate at 5\% using the \cite{benjamini1995controlling} procedure.}
+  \label{fig:inference_inferenceIntro_histogram}
 \end{figure}
 
-\begin{figure}
-    \centering
-    \centerline{
-    \begin{subfigure}[b]{0.49\textwidth}
-    	\includegraphics[width=\textwidth]{../figures/inference/initial_artist_z_histo.eps}
-    	\caption{Histogram}
-    \end{subfigure}
-	\begin{subfigure}[b]{0.49\textwidth}
-    	\includegraphics[width=\textwidth]{../figures/inference/initial_artist_z_qq.eps}
-    	\caption{QQ plot}
-    \end{subfigure}
-	}
-    \caption{Distribution of the  $z$ statistics with the BH procedure critical region at the $z_\alpha=2$ level.}
-    \label{fig:inference_initial_artist_z_histo}
-\end{figure}
-
-This chapter covers hypothesis testing, for a single test and then for multiple tests, treating each pixel as a test. The empirical null is reviewed and then extended to an image filter, called the empirical null filter. This filter adjust each $z$ statistic according to its neighbours, ironing out false positive results. Simulations and actual results was shown at the end of the chapter.
+This chapter recaps hypothesis testing, for a single test and then for multiple tests, treating each pixel as a test. Assumptions used on the hypothesis testing can be relaxed using the empirical null \citep{efron2004large}, which is reviewed here. The empirical null is then extended to an image filter, called the empirical null filter. This filter adjust each $z$ statistic according to its neighbours, ironing out false positive results. Simulations and results are shown towards the end of the chapter.
 
 \section{Literature Review}
 
@@ -228,7 +226,7 @@ In summary, the uncorrected, Bonferroni and BH correction controls for different
 By treating each pixel as a hypothesis test, methods for multiple hypothesis can be deployed. At the start of the chapter, a scan from the \texttt{Sep16 120deg} dataset was compared to the \texttt{aRTist} simulation, obtaining a $z$ image.
 
 \begin{figure}
-	\centering
+  \centering
     \centerline{
     \begin{subfigure}[b]{0.49\textwidth}
         \includegraphics[width=\textwidth]{../figures/inference/empirical_null_sub_z_image.eps}
@@ -251,22 +249,22 @@ The empirical null \citep{efron2004large} adjusts the assumptions made on the $z
 
 The method is described here. Suppose the following test statistics were obtained $z_1,z_2,\dotdotdot,z_n$. First the histogram is smoothed. \cite{efron2004large} recommended using splines but a kernel density estimate \citep{parzen1962on, friedman2001elements} was used here because it has simpler mathematical properties. The kernel density estimate \citep{parzen1962on} is
 \begin{equation}
-	\widehat{p}_Z(z)=
-	\frac{1}{nh}
-	\sum_{i=1}^n\phi\left(
-		\dfrac{z_i-z}{h}
-	\right)
-	\label{eq:inference_kernel_density_estimate}
+  \widehat{p}_Z(z)=
+  \frac{1}{nh}
+  \sum_{i=1}^n\phi\left(
+    \dfrac{z_i-z}{h}
+  \right)
+  \label{eq:inference_kernel_density_estimate}
 \end{equation}
 where $h$ is the bandwidth. The bandwidth was chosen such that
 \begin{equation}
-	h = 0.9n^{-1/5}\times\text{min}\left(s_z,\text{iqr}_z/1.34\right) + 0.16
-	\label{eq:inference_ourruleofthumb}
+  h = 0.9n^{-1/5}\times\text{min}\left(s_z,\text{iqr}_z/1.34\right) + 0.16
+  \label{eq:inference_ourruleofthumb}
 \end{equation}
 where $s_z$ and $\text{iqr}_z$ are the standard deviation and interquartile range. The parameters of the empirical null are estimated using the kernel density estimate. The resulting estimated density is shown in Figure \ref{fig:inference_empirical_null_sub_density_estimate}.
 
 \begin{figure}
-	\centering
+  \centering
     \centerline{
     \begin{subfigure}[b]{0.49\textwidth}
         \includegraphics[width=\textwidth]{../figures/inference/empirical_null_sub_z_histo_nocritical.eps}
@@ -283,30 +281,30 @@ where $s_z$ and $\text{iqr}_z$ are the standard deviation and interquartile rang
 
 Next, the mode of the kernel density estimate, denoted as $\widehat{\mu}_0$, is found. This is used as the mean of the empirical null \citep{efron2004large}. The calculation of $\widehat{\mu}_0$ was numerically found using the Newton-Raphson method. Using the mode, the standard deviation of the empirical null was estimated using \citep{efron2004large}
 \begin{equation}
-	\widehat{\sigma}_0 = \left[
-		\left.
-			-\dfrac{\partial^2}{\partial z^2}\ln\widehat{p}_Z(z)
-		\right|_{z=\widehat{\mu}_0}
-	\right]^{-1/2}
-	\ .
+  \widehat{\sigma}_0 = \left[
+    \left.
+      -\dfrac{\partial^2}{\partial z^2}\ln\widehat{p}_Z(z)
+    \right|_{z=\widehat{\mu}_0}
+  \right]^{-1/2}
+  \ .
 \end{equation}
 In this particular example, it was found that $\widehat{\mu}_0=\input{../tables/empirical_null_sub_null_mu.txt}...$ and $\widehat{\sigma}_0=\input{../tables/empirical_null_sub_null_sigma.txt}...$. It was found that both of these estimators have negligible bootstrap \citep{efron1992bootstrap} variance or error.
 
 The empirical null was used to correct the test statistics $z_1,z_2,\dotdotdot,z_n$ to $\zeta_1,\zeta_2,\dotdotdot,\zeta_n$ by standardising the test statistics
 \begin{equation}
-	\zeta_i = \dfrac{
-		z_i - \widehat{\mu}_0
-	}
-	{
-		\widehat{\sigma}_0
-	}
-	\ .
-	\label{eq:inference_zeta}
+  \zeta_i = \dfrac{
+    z_i - \widehat{\mu}_0
+  }
+  {
+    \widehat{\sigma}_0
+  }
+  \ .
+  \label{eq:inference_zeta}
 \end{equation}
 The corrected test statistics $\zeta_1,\zeta_2,\dotdotdot,\zeta_n$ were used in any multiple hypothesis testing procedures. Using the BH procedure, the critical region was found to be $\|\zeta\|\geqslant\input{../tables/empirical_null_sub_null_critical_zeta.txt}...$ or in terms of the original units $Z \leqslant \input{../tables/empirical_null_sub_null_critical1.txt}...$ and $\input{../tables/empirical_null_sub_null_critical2.txt}...\leqslant Z$.
 
 \begin{figure}
-	\centering
+  \centering
     \centerline{
     \begin{subfigure}[b]{0.49\textwidth}
         \includegraphics[width=\textwidth]{../figures/inference/empirical_null_sub_z_histo_null.eps}
@@ -331,85 +329,85 @@ In this section, a more mathematical approach to the empirical null is taken to 
 
 For formality, the null and alternative hypotheses is described here. Assume that the $z$ statistics under the null hypothesis are such that
 \begin{equation}
-	Z_i|H_0\sim\normal(\mu,\sigma_0^2)
+  Z_i|H_0\sim\normal(\mu,\sigma_0^2)
 \end{equation}
 for $i=1,2,\dotdotdot,n$ and i.i.d. The hypotheses are then
 \begin{equation}
-	H_0:\mu = \mu_0
+  H_0:\mu = \mu_0
 \end{equation}
 and
 \begin{equation}
-	H_1:\mu\neq\mu_0
+  H_1:\mu\neq\mu_0
 \end{equation}
 where $\mu_0$ and $\sigma_0$ are the empirical null mean and standard deviation respectively. Essentially null $z$ statistics are assumed to be Normal distributed, with parameters using the empirical null. Statistics which deviates too much from $\mu_0$ are considered to be positive.
 
 The distribution of the $z$ statistics can be described using a mixture model. Let the random variable $Z$ have the probability density function
 \begin{equation}
-	p_Z(z) =
-	\pi_0 p_{Z|H_0}(z) + \pi_1 p_{Z|H_1}(z)
+  p_Z(z) =
+  \pi_0 p_{Z|H_0}(z) + \pi_1 p_{Z|H_1}(z)
 \end{equation}
 where $0\leqslant\pi_0\leqslant 1$ and  $\pi_1 = 1-\pi_0$. In addition, the null distribution is
 \begin{equation}
-	p_{Z|H_0}(z) = 
-	\dfrac{1}{\sqrt{2\pi}\widehat{\sigma}_0}
-	\exp\left[
-		-\dfrac{1}{2}
-		\left(
-			\dfrac{z-{\mu}_0}{{\sigma}_0}
-		\right)^2
-	\right]
+  p_{Z|H_0}(z) = 
+  \dfrac{1}{\sqrt{2\pi}\widehat{\sigma}_0}
+  \exp\left[
+    -\dfrac{1}{2}
+    \left(
+      \dfrac{z-{\mu}_0}{{\sigma}_0}
+    \right)^2
+  \right]
 \end{equation}
 as it was assumed to be Normal. The non-null distribution $p_{Z|H_1}(z)$ does not need to be specified.
 
 The empirical null parameters are to be estimated. Assuming that $\pi_0$ is large, say bigger than 0.9 \citep{efron2004large}, and at and around the mode the probability density function is dominated by the null distribution. This implies that
 \begin{equation}
-	p_{Z}(z) \approx \pi_0 p_{Z|H_0}(z)
+  p_{Z}(z) \approx \pi_0 p_{Z|H_0}(z)
 \end{equation}
 for values of $z$ around the mode. Finding the maximum for $p_{Z}(z)$ and $p_{Z|H_0}(z)$ should yield the same solution. This justifies the use of the mode for the empirical null mean \citep{efron2004large}
 \begin{equation}
-	\widehat{\mu}_0 = \argmax\widehat{p}_Z(z) \ .
+  \widehat{\mu}_0 = \argmax\widehat{p}_Z(z) \ .
 \end{equation} 
 The empirical null standard deviation was obtained from the log density. For values of $z$ at and around the mode
 \begin{equation}
-	\ln p_{Z}(z) = 
-	\ln\left[
-		\dfrac{\pi_0}{\sqrt{2\pi}{\sigma}_0}
-	\right]
-	-\dfrac{1}{2}
-	\left(
-		\dfrac{z-{\mu}_0}{{\sigma}_0}
-	\right)^2
-	\ .
+  \ln p_{Z}(z) = 
+  \ln\left[
+    \dfrac{\pi_0}{\sqrt{2\pi}{\sigma}_0}
+  \right]
+  -\dfrac{1}{2}
+  \left(
+    \dfrac{z-{\mu}_0}{{\sigma}_0}
+  \right)^2
+  \ .
 \end{equation}
 Taking derivatives
 \begin{equation}
-	\dfrac{\partial}{\partial z} \ln p_{Z}(z) =
-	-\left(
-		\dfrac{
-			z-{\mu}_0
-		}
-		{
-			{\sigma}_0^2
-		}
-	\right)
+  \dfrac{\partial}{\partial z} \ln p_{Z}(z) =
+  -\left(
+    \dfrac{
+      z-{\mu}_0
+    }
+    {
+      {\sigma}_0^2
+    }
+  \right)
 \end{equation}
 \begin{equation}
-	\dfrac{\partial^2}{\partial^2 z} \ln p_{Z}(z) =
-	-\dfrac{
-		1
-	}
-	{
-		{\sigma}_0^2
-	}
+  \dfrac{\partial^2}{\partial^2 z} \ln p_{Z}(z) =
+  -\dfrac{
+    1
+  }
+  {
+    {\sigma}_0^2
+  }
 \end{equation}
 which motivates the estimator \citep{efron2004large}
 \begin{equation}
-	\widehat{\sigma}_0 = \left[
-		\left.
-			-\dfrac{\partial^2}{\partial z^2}\ln\widehat{p}(z)
-		\right|_{z=\widehat{\mu}_0}
-	\right]^{-1/2}
-	\ .
+  \widehat{\sigma}_0 = \left[
+    \left.
+      -\dfrac{\partial^2}{\partial z^2}\ln\widehat{p}(z)
+    \right|_{z=\widehat{\mu}_0}
+  \right]^{-1/2}
+  \ .
 \end{equation}
 The evaluation of $z=\widehat{\mu}_0$ is used as in that region, one would hope that null test statistics would dominate and non-null test statistics would not contribute much to the density estimate.
 
@@ -419,461 +417,463 @@ This method does not need estimations of $\pi_0$ which makes it quite useful. Th
 
 The mode was found by solving for $\widehat{\mu}_0 = \argmax\widehat{p}_Z(z)$. This cannot be solved in closed form easily and should be done numerically. The  Newton-Raphson method can be used to solve $\hat{p}_Z'(z) = 0$ for $z$. Instead the log space was used, solving
 \begin{equation}
-	\dfrac{
-		\partial
-	}
-	{
-		\partial z
-	}
-	\ln\widehat{p}_Z(z)
-	= 0
+  \dfrac{
+    \partial
+  }
+  {
+    \partial z
+  }
+  \ln\widehat{p}_Z(z)
+  = 0
 \end{equation}
 for $z$. This at least find stationary points.
 
 The Newton-Raphson method is an iterative algorithm and requires an initial value $z^{(0)}$. The iterative step is
 \begin{equation}
-	z^{(r+1)} =
-	z^{(r)}
-	-\dfrac{
-		\left.
-			\dfrac{
-				\partial
-			}
-			{
-				\partial z
-			}
-			\ln\widehat{p}_Z(z)
-		\right|_{z = z^{(r)}}
-	}
-	{
-		\left.
-			\dfrac{
-				\partial^2
-			}
-			{
-				\partial z^2
-			}
-			\ln\widehat{p}_Z(z)
-		\right|_{z = z^{(r)}}
-	} 
+  z^{(r+1)} =
+  z^{(r)}
+  -\dfrac{
+    \left.
+      \dfrac{
+        \partial
+      }
+      {
+        \partial z
+      }
+      \ln\widehat{p}_Z(z)
+    \right|_{z = z^{(r)}}
+  }
+  {
+    \left.
+      \dfrac{
+        \partial^2
+      }
+      {
+        \partial z^2
+      }
+      \ln\widehat{p}_Z(z)
+    \right|_{z = z^{(r)}}
+  } 
 \end{equation}
 for $r=0,1,2,3,\dotdotdot$ until some convergence condition is met. The derivatives for the log density was obtained via the following. Recall that the kernel density estimate is
 \begin{equation}
-	\widehat{p}_Z(z)=
-	\frac{1}{nh}
-	\sum_{i=1}^n\phi\left(
-		\dfrac{z_i-z}{h}
-	\right)
-	\tag{\ref{eq:inference_kernel_density_estimate}}
+  \widehat{p}_Z(z)=
+  \frac{1}{nh}
+  \sum_{i=1}^n\phi\left(
+    \dfrac{z_i-z}{h}
+  \right)
+  \tag{\ref{eq:inference_kernel_density_estimate}}
 \end{equation}
 so that the log density is
 \begin{equation}
-	\ln\widehat{p}_Z(z)=
-	\ln\left(
-		\dfrac{1}{nh}
-	\right)
-	+
-	\ln\left[
-		\sum_{i=1}^n
-		\phi\left(
-			\dfrac{
-				z_i - z
-			}
-			{
-				h
-			}
-		\right)
-	\right]
-	\ .
+  \ln\widehat{p}_Z(z)=
+  \ln\left(
+    \dfrac{1}{nh}
+  \right)
+  +
+  \ln\left[
+    \sum_{i=1}^n
+    \phi\left(
+      \dfrac{
+        z_i - z
+      }
+      {
+        h
+      }
+    \right)
+  \right]
+  \ .
 \end{equation}
 Taking the first derivative
 \begin{equation}
-	\dfrac{
-		\partial
-	}
-	{
-		\partial z
-	}
-	\ln\widehat{p}_Z(z)
-	=
-	\dfrac{
-		1
-	}
-	{
-		\sum_{i=1}^n
-		\phi\left(
-			\dfrac{
-				z_i - z
-			}
-			{
-				h
-			}
-		\right)
-	}
-	\times
-	\sum_{i=1}^n
-	\phi'\left(
-		\dfrac{
-			z_i - z
-		}
-		{
-			h
-		}
-	\right)
-	\left(
-		-\dfrac{
-			1
-		}
-		{
-			h
-		}
-	\right)
-	\ .
+  \dfrac{
+    \partial
+  }
+  {
+    \partial z
+  }
+  \ln\widehat{p}_Z(z)
+  =
+  \dfrac{
+    1
+  }
+  {
+    \sum_{i=1}^n
+    \phi\left(
+      \dfrac{
+        z_i - z
+      }
+      {
+        h
+      }
+    \right)
+  }
+  \times
+  \sum_{i=1}^n
+  \phi'\left(
+    \dfrac{
+      z_i - z
+    }
+    {
+      h
+    }
+  \right)
+  \left(
+    -\dfrac{
+      1
+    }
+    {
+      h
+    }
+  \right)
+  \ .
 \end{equation}
 Using the fact that $\phi(z)=(2\pi)^{-1/2}\exp(-z^2/2)$, then $\phi'(z)=-z\phi(z)$. This is used to simplify the equation to be
 \begin{equation}
-	\dfrac{
-		\partial
-	}
-	{
-		\partial z
-	}
-	\ln\widehat{p}_Z(z)
-	=
-	\dfrac{
-		\sum_{i=1}^n
-		\phi\left(
-			\dfrac{
-				z_i - z
-			}
-			{
-				h
-			}
-		\right)
-		\left(
-			\dfrac{
-				z_i - z
-			}
-			{
-				h
-			}
-		\right)
-	}
-	{
-		h
-		\sum_{i=1}^n
-		\phi\left(
-			\dfrac{
-				z_i - z
-			}
-			{
-				h
-			}
-		\right)
-	}
-	\ .
+  \dfrac{
+    \partial
+  }
+  {
+    \partial z
+  }
+  \ln\widehat{p}_Z(z)
+  =
+  \dfrac{
+    \sum_{i=1}^n
+    \phi\left(
+      \dfrac{
+        z_i - z
+      }
+      {
+        h
+      }
+    \right)
+    \left(
+      \dfrac{
+        z_i - z
+      }
+      {
+        h
+      }
+    \right)
+  }
+  {
+    h
+    \sum_{i=1}^n
+    \phi\left(
+      \dfrac{
+        z_i - z
+      }
+      {
+        h
+      }
+    \right)
+  }
+  \ .
 \end{equation}
 Taking the derivative again
 \begin{multline}
-	\dfrac{
-		\partial^2
-	}
-	{
-		\partial z^2
-	}
-	\ln\widehat{p}_Z(z)
-	=
-	\left[
-		h\sum_{i=1}^n
-		\phi\left(
-			\dfrac{
-				z_i-z
-			}
-			{
-				h
-			}
-		\right)
-	\right]^{-2}
-	\times
-	\left\{
-		h\left[
-			\sum_{i=1}^n
-			\phi\left(
-				\dfrac{
-					z_i-z
-				}
-				{
-					h
-				}
-			\right)
-		\right]
-	\right.
-	\\
-	\left.
-		\times
-		\sum_{i=1}^n\left[
-			\phi'\left(
-				\dfrac{
-					z_i-z
-				}
-				{
-					h
-				}
-			\right)
-			\left(
-				-\dfrac{
-					1
-				}
-				{
-					h
-				}
-			\right)
-			\left(
-				\dfrac{
-					z_i-z
-				}
-				{
-					h
-				}
-			\right)
-			+\phi\left(
-				\dfrac{
-					z_i-z
-				}
-				{
-					h
-				}
-			\right)
-			\left(
-				-\dfrac{
-					1
-				}
-				{
-					h
-				}
-			\right)
-		\right]
-	\right.
-	\\
-	\left.
-		-
-		\left[
-			\sum_{i=1}^n
-			\phi\left(
-				\dfrac{
-					z_i-z
-				}
-				{
-					h
-				}
-			\right)
-			\left(
-				\dfrac{
-					z_i-z
-				}
-				{
-					h
-				}
-			\right)
-		\right]
-		\left[
-			h\sum_{i=1}^n
-			\phi'\left(
-				\dfrac{
-					z_i-z
-				}
-				{
-					h
-				}
-			\right)
-			\left(
-				-\dfrac{
-					1
-				}
-				{
-					h
-				}
-			\right)
-		\right]
-	\right\}
-	\ .
+  \dfrac{
+    \partial^2
+  }
+  {
+    \partial z^2
+  }
+  \ln\widehat{p}_Z(z)
+  =
+  \left[
+    h\sum_{i=1}^n
+    \phi\left(
+      \dfrac{
+        z_i-z
+      }
+      {
+        h
+      }
+    \right)
+  \right]^{-2}
+  \times
+  \left\{
+    h\left[
+      \sum_{i=1}^n
+      \phi\left(
+        \dfrac{
+          z_i-z
+        }
+        {
+          h
+        }
+      \right)
+    \right]
+  \right.
+  \\
+  \left.
+    \times
+    \sum_{i=1}^n\left[
+      \phi'\left(
+        \dfrac{
+          z_i-z
+        }
+        {
+          h
+        }
+      \right)
+      \left(
+        -\dfrac{
+          1
+        }
+        {
+          h
+        }
+      \right)
+      \left(
+        \dfrac{
+          z_i-z
+        }
+        {
+          h
+        }
+      \right)
+      +\phi\left(
+        \dfrac{
+          z_i-z
+        }
+        {
+          h
+        }
+      \right)
+      \left(
+        -\dfrac{
+          1
+        }
+        {
+          h
+        }
+      \right)
+    \right]
+  \right.
+  \\
+  \left.
+    -
+    \left[
+      \sum_{i=1}^n
+      \phi\left(
+        \dfrac{
+          z_i-z
+        }
+        {
+          h
+        }
+      \right)
+      \left(
+        \dfrac{
+          z_i-z
+        }
+        {
+          h
+        }
+      \right)
+    \right]
+    \left[
+      h\sum_{i=1}^n
+      \phi'\left(
+        \dfrac{
+          z_i-z
+        }
+        {
+          h
+        }
+      \right)
+      \left(
+        -\dfrac{
+          1
+        }
+        {
+          h
+        }
+      \right)
+    \right]
+  \right\}
+  \ .
 \end{multline}
 Using the fact that $\phi'(z)=-z\phi(z)$, then it is simplified to
 \begin{multline}
-	\dfrac{
-		\partial^2
-	}
-	{
-		\partial z^2
-	}
-	\ln\widehat{p}_Z(z)
-	=
-	\left[
-		h\sum_{i=1}^n
-		\phi\left(
-			\dfrac{
-				z_i-z
-			}
-			{
-				h
-			}
-		\right)
-	\right]^{-2}
-	\times
-	\left\{
-		\left[
-			\sum_{i=1}^n
-			\phi\left(
-				\dfrac{
-					z_i-z
-				}
-				{
-					h
-				}
-			\right)
-		\right]
-	\right.
-	\\
-	\left.
-		\times
-		\left[
-			\sum_{i=1}^n
-			\phi\left(
-				\dfrac{
-					z_i-z
-				}
-				{
-					h
-				}
-			\right)
-			\left(
-				\left(
-					\dfrac{
-						z_i-z
-					}
-					{
-						h
-					}
-				\right)^2
-				-1
-			\right)
-		\right]
-		-
-		\left[
-			\sum_{i=1}^n
-			\phi\left(
-				\dfrac{
-					z_i-z
-				}
-				{
-					h
-				}
-			\right)
-		\right.
-	\right.
-	\\
-	\left.
-		\left.
-			\left(
-				\dfrac{
-					z_i-z
-				}
-				{
-					h
-				}
-			\right)
-		\right]^2
-	\right\}
-	\ .
+  \dfrac{
+    \partial^2
+  }
+  {
+    \partial z^2
+  }
+  \ln\widehat{p}_Z(z)
+  =
+  \left[
+    h\sum_{i=1}^n
+    \phi\left(
+      \dfrac{
+        z_i-z
+      }
+      {
+        h
+      }
+    \right)
+  \right]^{-2}
+  \times
+  \left\{
+    \left[
+      \sum_{i=1}^n
+      \phi\left(
+        \dfrac{
+          z_i-z
+        }
+        {
+          h
+        }
+      \right)
+    \right]
+  \right.
+  \\
+  \left.
+    \times
+    \left[
+      \sum_{i=1}^n
+      \phi\left(
+        \dfrac{
+          z_i-z
+        }
+        {
+          h
+        }
+      \right)
+      \left(
+        \left(
+          \dfrac{
+            z_i-z
+          }
+          {
+            h
+          }
+        \right)^2
+        -1
+      \right)
+    \right]
+    -
+    \left[
+      \sum_{i=1}^n
+      \phi\left(
+        \dfrac{
+          z_i-z
+        }
+        {
+          h
+        }
+      \right)
+    \right.
+  \right.
+  \\
+  \left.
+    \left.
+      \left(
+        \dfrac{
+          z_i-z
+        }
+        {
+          h
+        }
+      \right)
+    \right]^2
+  \right\}
+  \ .
 \end{multline}
 
 It was chosen that convergence was met when either 10 update steps were taken or when
 \begin{equation}
-	\left\|
-		\dfrac{
-			\partial
-		}
-		{
-			\partial z
-		}
-	\ln\widehat{p}_Z(z)
-	\right\|
-	<10^{-5}
+  \left\|
+    \dfrac{
+      \partial
+    }
+    {
+      \partial z
+    }
+  \ln\widehat{p}_Z(z)
+  \right\|
+  <10^{-5}
 \end{equation}
 at the current step. This was chosen arbitrary to speed up the algorithm without losing too much accuracy. At the end of the algorithm, for a successful convergence it was required, in addition, that
 \begin{equation}
-	\left.
-		\dfrac{
-			\partial^2
-		}
-		{
-			\partial z^2
-		}
-		\ln\widehat{p}_Z(z)
-	\right|_{z=\widehat{\mu}_0}
-	< 0 \ .
+  \left.
+    \dfrac{
+      \partial^2
+    }
+    {
+      \partial z^2
+    }
+    \ln\widehat{p}_Z(z)
+  \right|_{z=\widehat{\mu}_0}
+  < 0 \ .
 \end{equation}
 Following a successful convergence, the estimator $\widehat{\sigma}_0$ was calculated straight away.
 
 The algorithm does depend on the initial value so using different initial values is recommended. It was chosen here to use the quartiles of the data as the initial values and then select the best solution, the one with the largest $\ln\widehat{p}_Z\left(\widehat{\mu}_0\right)$, out of all the different initial values. Should the algorithm still fail, a random data point is selected to be the initial value until a successful convergence is achieved. The Newton-Raphson method can fail if it converges to a stationary point other than a global maximum, for example a local maximum or a point of inflection. 
 
+\subsection{Approximate Properties of $\widehat{\sigma}_0$}
+
 \subsection{Bandwidth Selection}
 
 The choice of the bandwidth $h$ is important for the kernel density estimator. It controls how smooth the kernel density estimator is, with higher values of $h$ producing smoother curves \citep{friedman2001elements}. Cross validation methods do exist \citep{bowman1984alternative, sheather2004density} but they can be computationally expensive. Rules of thumb \citep{silverman1986density, sheather2004density} can be used instead and are typically of the form
 \begin{equation}
-	h = bn^{-1/5}\times\text{min}\left(s_z,\text{IQR}_z/1.34\right)
+  h = bn^{-1/5}\times\text{min}\left(s_z,\text{IQR}_z/1.34\right)
 \end{equation}
-where $b=0.9$ \citep{silverman1986density}. This rule of thumb was developed with consideration of bimodal Normal distributions \citep{silverman1986density}. Other options include $b=1.06$ and $b=1.144$ to produce smoother curves \citep{sheather2004density}.
+where $b=0.9$ \citep{silverman1986density}. This rule of thumb was developed with consideration of bimodal Normal distributions \citep{silverman1986density}. Other options include $b=1.06$ and $b=1.144$ to produce smoother curves \citep{silverman1986density, sheather2004density}.
 
-In the context of the empirical null, the kernel density estimator is only used to obtain values of $\widehat{\mu}_0$ and $\widehat{\sigma}_0$. Thus a good bandwidth is one which has good properties of $\widehat{\mu}_0$ and $\widehat{\sigma}_0$ rather than the density estimate. However exact properties of these estimators based on the kernel density estimators can be rather complicated. Empirical properties is studied here.
+The kernel density estimator is only used to obtain values of $\widehat{\mu}_0$ and $\widehat{\sigma}_0$. Thus a good bandwidth, in the context of the empirical null, is one which has good properties of $\widehat{\mu}_0$ and $\widehat{\sigma}_0$ rather than the density estimate. However exact properties of these estimators based on the kernel density estimators can be rather complicated. Empirical properties were studied here.
 
-An experiment was conducted to investigate the behaviour of the estimators, $\widehat{\mu}_0$ and $\widehat{\sigma}_0$, on a dataset of $n$ simulated all null $\normal(0,1)$. Various values of $h$ and $n$ were investigated. In reality non-null test statistics may appear in the dataset but they should not be too common and interfere with the density estimate too much. For a given $h$ and $n$, 50 values of $\widehat{\mu}_0$ and $\widehat{\sigma}_0$ were obtained by repeating the simulation. The median squared error, over the 50 repeats, for each of the estimators were plotted as shown in Figure \ref{fig:inference_ZNull1}.
+An experiment was conducted to investigate the behaviour of the estimators, $\widehat{\mu}_0$ and $\widehat{\sigma}_0$, on a dataset of $n$ simulated all null $\normal(0,1)$. Various values of $h$ and $n$ were investigated. For a given $h$ and $n$, 100 values of $\widehat{\mu}_0$ and $\widehat{\sigma}_0$ were obtained by repeating the simulation. The median squared error was obtained by taking the median over all squared errors from the 100 estimates. Figure \ref{fig:inference_BandwidthSelection_error} shows the resulting median squared errors.
 
 $\widehat{\mu}_0$ has low median squared error for large bandwidths. For low $n$, large bandwidths are particularly important because smoother curves prevents any false bimodal features appearing, making it easier to find the mode.
 
-A smooth valley can be seen for the median squared error for $\widehat{\sigma}_0$. It appears for a given $n$, there exist a bandwidth which minimise the median squared error. However the rules of thumb does not optimise for $\widehat{\sigma}_0$ and undershoots it. This can be particularly seen in Figure \ref{fig:inference_ZNull2} where the median values of $\widehat{\sigma}_0$ are plotted. In this simulation, the true value is $\sigma_0=1$ and all rules of thumb produced biased estimates, in particular underestimates it.
+A smooth valley can be seen for the median squared error for $\widehat{\sigma}_0$. It appears for a given $n$, there exist a bandwidth which minimise the median squared error. However the rules of thumb does not optimise for $\widehat{\sigma}_0$ and undershoots it. Figure \ref{fig:inference_BandwidthSelection_error3} shows the median of the estimates of $\sigma_0$. The true value in this simulation is $\sigma_0=1$ which is represented as a horizontal plane. Bandwidths too small underestimate $\sigma_0$, bandwidths too big over estimates $\sigma_0$.
 
 \begin{figure}
-	\centering
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/BandwidthSelection_error1.eps}
-        \caption{$\mu_0$}
-    \end{subfigure}
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/BandwidthSelection_error2.eps}
-        \caption{$\sigma_0$}
-    \end{subfigure}
-    \caption{Median squared error of the estimators of the empirical null parameters from 50 repeats of $n$ simulated $\normal(0,1)$ data. Lines represent the rule of thumb for various values of $b$.}
-    \label{fig:inference_ZNull1}
+  \centering
+  \begin{subfigure}[b]{0.49\textwidth}
+      \includegraphics[width=\textwidth]{../figures/inference/BandwidthSelection_error1.eps}
+      \caption{$\mu_0$}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.49\textwidth}
+      \includegraphics[width=\textwidth]{../figures/inference/BandwidthSelection_error2.eps}
+      \caption{$\sigma_0$}
+  \end{subfigure}
+  \caption{Median squared error of the estimators of the empirical null parameters from 100 repeats of $n$ simulated $\normal(0,1)$ data. Lines represent the rule of thumb for various values of $b$.}
+  \label{fig:inference_BandwidthSelection_error}
 \end{figure}
 
 \begin{figure}
-	\centering
+  \centering
     \begin{subfigure}[b]{0.49\textwidth}
         \includegraphics[width=\textwidth]{../figures/inference/BandwidthSelection_error3.eps}
         \caption{Heatmap}
     \end{subfigure}
-    \caption{Median value of $\widehat{\sigma}_0$ from 50 repeats of $n$ simulated $\normal(0,1)$ data. On the right, lines represent the rule of thumb for various values of $b$. On the left shows the true value of $\sigma_0=1$ as a plane, the empirical truth is where that plan intersects the surface.}
-    \label{fig:inference_ZNull2}
+    \caption{Median value of $\widehat{\sigma}_0$ from 100 repeats of $n$ simulated $\normal(0,1)$ data. The true value is $\sigma_0=1$ which is represented by a horizontal plane.}
+    \label{fig:inference_BandwidthSelection_error3}
 \end{figure}
 
-Overestimates and underestimates are both dangerous, but it depends on the importance of false positives and false negatives. This is because $\widehat{\sigma}_0$ was used to rescale the test statistics accordingly. Recall that the corrected test statistics are
+Overestimates and underestimates are both dangerous and it can affect the false positive and false negative rate. This is because $\widehat{\sigma}_0$ was used to rescale the test statistics accordingly. Recall that the corrected test statistics are
 \begin{equation}
-	\zeta_i = \dfrac{
-		z_i - \widehat{\mu}_0
-	}
-	{
-		\widehat{\sigma}_0
-	}
-	\ .
-	\tag{\ref{eq:inference_zeta}}
+  t_i = \dfrac{
+    z_i - \widehat{\mu}_0
+  }
+  {
+    \widehat{\sigma}_0
+  }
+  \ .
+  \tag{\ref{eq:inference_zeta}}
 \end{equation}
-Low values of $\widehat{\sigma}_0$ produce large values in magnitude of $\zeta_i$, potentially testing more of these test statistics as significant. High values of $\widehat{\sigma}_0$ does the opposite. Large number of positive results can led to more false positive results and vice versa.
+Low values of $\widehat{\sigma}_0$ produce large values in magnitude of $t_i$, potentially testing more of these test statistics as positive. High values of $\widehat{\sigma}_0$ does the opposite. Large number of positives can led to more false positives and vice versa.
 
-The optimal bandwidth for a given $n$ was found numerically. Such a relationship can be seen in Figure \ref{fig:inference_ZNull_mse_plot} which plots the log squared error against the bandwidth for various $n$. A local quadratic regression \citep{friedman2001elements} was fitted and this was used to find the bandwidth which minimises the log squared error for a given $n$.
+The optimal bandwidth for a given $n$ was found numerically. Figure \ref{fig:inference_BandwidthSelection2_plot} shows the log squared error against the bandwidth for various $n$. A smoothing spline \citep{friedman2001elements} was fitted and this was optimised to find the bandwidth which minimises the log squared error for a given $n$.
 
 \begin{figure}
-	\centering
+  \centering
     \centerline{
     \begin{subfigure}[b]{0.49\textwidth}
         \includegraphics[width=\textwidth]{../figures/inference/BandwidthSelection2_plot1.eps}
@@ -898,37 +898,37 @@ The optimal bandwidth for a given $n$ was found numerically. Such a relationship
         \includegraphics[width=\textwidth]{../figures/inference/BandwidthSelection2_plot249.eps}
     \end{subfigure}
     }
-    \caption{A local quadratic regression was fitted on the log mean squared error for estimating $\sigma_0$ against the bandwidth. The estimator $\widehat{\sigma}_0$ uses the kernel density estimator fitted onto $n$ simulated standard Normal data. Boxplots were used to represent the variation of the error from 50 repeats.}
-    \label{fig:inference_ZNull_mse_plot}
+    \caption{A smoothing spline was fitted on the log squared error for estimating $\sigma_0$ against the bandwidth. The estimator $\widehat{\sigma}_0$ uses the kernel density estimator fitted onto $n$ simulated standard Normal data. Boxplots represent the variation of the error from 100 repeats. The red dashed line shows the bandwidth which minimise the fitted spline.}
+    \label{fig:inference_BandwidthSelection2_plot}
 \end{figure}
 
 A relationship between the optimal bandwidth and $n$ was attempted to be found. It was assumed such a relationship has the linear from
 \begin{equation}
-	h_{\text{optimal}} = b n^{-1/5} + a
+  h_{\text{optimal}} = b n^{-1/5} + a
 \end{equation}
-where $b$ and $a$ are parameters to be fitted. Figure \ref{fig:inference_ZNull_mserule_of_thumb} show the fitting of an identity link Gamma GLM in order to estimate $b$ and $a$. The estimated parameters are shown in Table \ref{table:inference_ZNull_mse_glm_estimate}.
+where $b$ and $a$ are parameters to be fitted. Figure \ref{fig:inference_BandwidthSelection2_ruleOfThumb} show the fitting of an identity link gamma GLM in order to estimate $b$ and $a$. The estimated parameters are shown in Table \ref{table:inference_BandwidthSelection2_ruleOfThumb}.
 
 \begin{figure}
-	\centering
-	\includegraphics[width=0.7\textwidth]{../figures/inference/BandwidthSelection2_ruleOfThumb.eps}
-	\caption{An identity link Gamma GLM was fitted onto the relationship between the optimal bandwidth and $n^{-1/5}$. The boxplot show the bootstrap error in finding the optimal bandwidth, which is only there for illustration purposes.}
-	\label{fig:inference_ZNull_mserule_of_thumb}
+  \centering
+  \includegraphics[width=0.7\textwidth]{../figures/inference/BandwidthSelection2_ruleOfThumb.eps}
+  \caption{An identity link gamma GLM was fitted onto the relationship between the optimal bandwidth and $n^{-1/5}$ from the experimental data. The dotted lines shows the 95\% prediction interval.}
+  \label{fig:inference_BandwidthSelection2_ruleOfThumb}
 \end{figure}
 
 \begin{table}
-	\centering
-	\input{../figures/inference/BandwidthSelection2_bandwidthEstimate.txt}
-	\caption{Estimated and standard error gradient and intercept from the linear relationship in Figure \ref{fig:inference_ZNull_mserule_of_thumb}.}
-	\label{table:inference_ZNull_mse_glm_estimate}
+  \centering
+  \input{../figures/inference/BandwidthSelection2_bandwidthEstimate.txt}
+  \caption{Estimated and standard error of the gradient and intercept from the linear relationship in Figure \ref{fig:inference_BandwidthSelection2_ruleOfThumb}.}
+  \label{table:inference_BandwidthSelection2_ruleOfThumb}
 \end{table}
 
 The results showed that the rules of thumb can be improved if a small bias is added to it. This is because an intercept was found when fitting a linear relationship between the optimal bandwidth and $n^{-1/5}$. Adding this bias should improve the performance of the estimator $\widehat{\sigma}_0$. The gradient is similar to the rules of thumb in the literature \citep{sheather2004density}.
 
 In conclusion, a small bias added to the rule of thumb improved the performance of the estimator $\widehat{\sigma}_0$. \cite{silverman1986density} pointed out that a smaller bandwidth should be used when in particular the distribution is bimodal, this is why \cite{silverman1986density} suggest the use of $b=0.9$ rather than $b=1.06$. Following from this, it was chosen that the intercept was added to Silverman's rule of thumb for the use in the empirical null
 \begin{equation}
-	h = 0.9n^{-1/5}\times\text{min}\left(s_z,\text{IQR}_z/1.34\right) + 0.16
-	\ .
-	\tag{\ref{eq:inference_ourruleofthumb}}
+  h = 0.9n^{-1/5}\times\text{min}\left(s_z,\text{IQR}_z/1.34\right) + 0.16
+  \ .
+  \tag{\ref{eq:inference_ourruleofthumb}}
 \end{equation}
 
 \section{Empirical Null Filter}
@@ -936,7 +936,7 @@ In conclusion, a small bias added to the rule of thumb improved the performance 
 A further example is given here. A $200\times200$ sub-sample, containing a defect, was taken as shown in Figure \ref{fig:inference_alt_empirical_z_image}. The histogram of the test statistics, along with the empirical null, is shown in Figure \ref{fig:inference_alt_empirical_z_histogram}. It can be seen that the null distribution is not centred at zero, however the empirical null takes that into account. The estimation of the empirical null parameters are robust as it only depends on the density estimate at the mode only, it should not be affected by non-null test statistics.
 
 \begin{figure}
-	\centering
+  \centering
     \centerline{
     \begin{subfigure}[b]{0.49\textwidth}
         \includegraphics[width=\textwidth]{../figures/inference/alt_empirical_z_image.eps}
@@ -952,7 +952,7 @@ A further example is given here. A $200\times200$ sub-sample, containing a defec
 \end{figure}
 
 \begin{figure}
-	\centering
+  \centering
     \centerline{
     \begin{subfigure}[b]{0.49\textwidth}
         \includegraphics[width=\textwidth]{../figures/inference/alt_empirical_z_histo_null.eps}
@@ -980,48 +980,48 @@ One possible solution is to spilt the $z$ image into a grid and conduct inferenc
 
 The empirical null filter extends the empirical null to images. In this setting, the parameters of the null distribution varies spatially, slowly and smoothly in 2D space. Let $Z_{x,y}$ be the test statistic of the pixel at position $(x,y)$ for $x=1,2,\dotdotdot,W$ and $y=1,2,\dotdotdot,H$. Let each pixel have a test statistic distributed under the null such that
 \begin{equation}
-	Z_{x,y}|H_0\sim\normal\left(
-		\mu_{x,y},\sigma_{0,x,y}^2
-	\right)
-	\ .
+  Z_{x,y}|H_0\sim\normal\left(
+    \mu_{x,y},\sigma_{0,x,y}^2
+  \right)
+  \ .
 \end{equation}
 Let the hypothesis
 \begin{equation}
-	H_0:\mu_{x,y}=\mu_{0,x,y}
+  H_0:\mu_{x,y}=\mu_{0,x,y}
 \end{equation}
 \begin{equation}
-	H_1:\mu_{x,y}\neq\mu_{0,x,y}
+  H_1:\mu_{x,y}\neq\mu_{0,x,y}
 \end{equation}
 be tested for each pixel individually where $\mu_{0,x,y}$ and $\sigma_{0,x,y}$ are the null mean and null standard deviation at position $(x,y)$ respectively. Suppose $Z_{x,y}=z_{x,y}$ were observed for all $x$ and $y$. The empirical null filter aims to estimate the parameters $\mu_{0,x,y}$ and $\sigma_{0,x,y}$ for all $x$ and $y$. This is so that inference can be done under the empirical null distribution. 
 
 The empirical null filter uses the empirical null on neighbouring pixels to estimate the null distribution parameters. For example to estimate $\mu_{0,x,y}$ and $\sigma_{0,x,y}$, a circular kernel of radius $r$ is centred at $(x,y)$. All the pixels captured in the circular kernel are then used for the empirical null to obtain $\widehat{\mu}_{0,x,y}$ and $\widehat{\sigma}_{0,x,y}$, in other words
 \begin{equation}
-	\widehat{\mu}_{0,x,y}
-	=
-	\widehat{\mu}_{0,x,y}
-		\left(
-			\text{all }z_{i,j}\text{ such that }(x-i)^2+(y-j)^2\leqslant r^2
-		\right)
+  \widehat{\mu}_{0,x,y}
+  =
+  \widehat{\mu}_{0,x,y}
+    \left(
+      \text{all }z_{i,j}\text{ such that }(x-i)^2+(y-j)^2\leqslant r^2
+    \right)
 \end{equation}
 and
 \begin{equation}
-	\widehat{\sigma}_{0,x,y}
-	=
-	\widehat{\sigma}_{0,x,y}
-		\left(
-			\text{all }z_{i,j}\text{ such that }(x-i)^2+(y-j)^2\leqslant r^2
-		\right)
-	\ .
+  \widehat{\sigma}_{0,x,y}
+  =
+  \widehat{\sigma}_{0,x,y}
+    \left(
+      \text{all }z_{i,j}\text{ such that }(x-i)^2+(y-j)^2\leqslant r^2
+    \right)
+  \ .
 \end{equation}
 Using these estimates, the test statistics are then corrected using
 \begin{equation}
-	\zeta_{x,y} = 
-	\dfrac{
-		z_{x,y}-\widehat{\mu}_{0,x,y}
-	}
-	{
-		\widehat{\sigma}_{0,x,y}
-	}
+  \zeta_{x,y} = 
+  \dfrac{
+    z_{x,y}-\widehat{\mu}_{0,x,y}
+  }
+  {
+    \widehat{\sigma}_{0,x,y}
+  }
 \end{equation}
 and only the corrected test statistics are used in hypothesis testing.
 
@@ -1030,10 +1030,10 @@ The critical parameter of choice is the kernel radius $r$. A $r$ too small will 
 $r$ does control the proportion of pixels which are null captured by the kernel, denoted as $\pi_0$. If the size of the defects are known, then $r$ should be selected such that
 \begin{equation}
 \dfrac{
-	\text{area of defect}
+  \text{area of defect}
 }
 {
-	\pi r^2
+  \pi r^2
 }
 \approx
 5\% \text{ to } 10 \%
@@ -1052,7 +1052,7 @@ The empirical null filter was implemented in an open source software called \tex
 As a test, the empirical null filter with $r=5$ was used on a \texttt{ImageJ} sample image \texttt{bridge.gif}, as shown in Figure \ref{fig:inference_fijiBridgeFilter}. It is meaningless to use the empirical null filter on an image not for the purpose of the filter, however it does verify the filter works on arbitrary images. The empirical null images $\widehat{\mu}_{0,x,y}$ and $\widehat{\sigma}_{0,x,y}$ for all ${x,y}$ could be of interest. In particular the empirical null mean image could be interpreted as the result of a mode filter \citep{griffin2000mean}. Figure \ref{fig:inference_fijiMean} compares the empirical null mean with other averaging filters. The empirical null mean creates an impasto look and preserve edges which is similar to the result in \cite{griffin2000mean}. Spread filters such as the standard deviation filter can be used to detect edges. Figure \ref{fig:inference_fijiStd} compares the standard deviation filter with the empirical null standard deviation. The resulting images are similar but it was notable that the edges in the empirical null standard deviation are sharper, suggesting that the empirical null standard deviation is a more robust measure of spread compared to the standard deviation.
 
 \begin{figure}
-	\centering
+  \centering
     \centerline{
     \begin{subfigure}[b]{0.49\textwidth}
         \includegraphics[width=\textwidth]{../figures/inference/fiji/bridge.png}
@@ -1068,7 +1068,7 @@ As a test, the empirical null filter with $r=5$ was used on a \texttt{ImageJ} sa
 \end{figure}
 
 \begin{figure}
-	\centering
+  \centering
     \centerline{
     \begin{subfigure}[b]{0.49\textwidth}
         \includegraphics[width=\textwidth]{../figures/inference/fiji/bridge.png}
@@ -1094,7 +1094,7 @@ As a test, the empirical null filter with $r=5$ was used on a \texttt{ImageJ} sa
 \end{figure}
 
 \begin{figure}
-	\centering
+  \centering
     \centerline{
     \begin{subfigure}[b]{0.49\textwidth}
         \includegraphics[width=\textwidth]{../figures/inference/fiji/std.png}
@@ -1118,33 +1118,33 @@ Because the empirical null filter was implemented by modifying the existing code
 When the kernel captures pixels outside the boundary of the image or region of interest (ROI), \texttt{RankFilters} uses nearest pixel padding which fills in pixels outside the ROI with values to the nearest pixels. Figure \ref{fig:inference_padding_nearest} shows an example of nearest pixel padding on the top left corner of a rectangle ROI. This is not suitable for the empirical null filter as this will cause bias in a lot of calculations, especially the density fitting. The empirical null filter uses \texttt{NaN} padding which fills pixels outside the ROI with \texttt{NaN}. This indicate that these pixels are outside the ROI and are ignored. The number of non-\texttt{NaN} captured by the kernel is kept track for calculations such as the bandwidth for the kernel density estimate.
 
 \begin{figure}
-	\centering
-	\begin{subfigure}[b]{0.49\textwidth}
-	    \begin{tabular}{lllllll}
-	       $\ddots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\udots$ \\
-	       $\cdots$ & $z_{1,1}$ & $z_{1,1}$ & $z_{1,1}$ & $z_{1,2}$ & $\cdots$ \\
-	       $\cdots$ & $z_{1,1}$ & $z_{1,1}$ & $z_{1,1}$ & $z_{1,2}$ & $\cdots$ \\ \cline{4-6}
-	       $\cdots$ & $z_{1,1}$ & \multicolumn{1}{l|}{$z_{1,1}$} & $z_{1,1}$ & $z_{1,2}$ & $\cdots$ \\
-	       $\cdots$ & $z_{2,1}$ & \multicolumn{1}{l|}{$z_{2,1}$}  & $z_{2,1}$ & $z_{2,2}$ & $\cdots$ \\
-	       $\udots$ & $\vdots$ & \multicolumn{1}{l|}{$\vdots$}  & $\vdots$ & $\vdots$ & $\ddots$
-		\end{tabular}
-		\caption{Nearest pixel padding}
-		\label{fig:inference_padding_nearest}
-	\end{subfigure}
-	\begin{subfigure}[b]{0.49\textwidth}
-	    \begin{tabular}{lllllll}
-	       $\ddots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\udots$ \\
-	       $\cdots$ & \texttt{NaN} & \texttt{NaN} & \texttt{NaN} & \texttt{NaN} & $\cdots$ \\
-	       $\cdots$ & \texttt{NaN} & \texttt{NaN} & \texttt{NaN} & \texttt{NaN} & $\cdots$ \\ \cline{4-6}
-	       $\cdots$ & \texttt{NaN} & \multicolumn{1}{l|}{\texttt{NaN}} & $z_{1,1}$ & $z_{1,2}$ & $\cdots$ \\
-	       $\cdots$ & \texttt{NaN} & \multicolumn{1}{l|}{\texttt{NaN}}  & $z_{2,1}$ & $z_{2,2}$ & $\cdots$ \\
-	       $\udots$ & $\vdots$ & \multicolumn{1}{l|}{$\vdots$}  & $\vdots$ & $\vdots$ & $\ddots$
-		\end{tabular}
-		\caption{\texttt{NaN} padding}
-		\label{fig:inference_padding_nan}
-	\end{subfigure}
-	\caption{When a kernel contain pixels outside the region of interest as shown by the solid line, the missing pixels can either be extrapolated using the nearest pixel or completely ignored by filling in the missing pixels with \texttt{NaN}.}
-	\label{fig:inference_padding}
+  \centering
+  \begin{subfigure}[b]{0.49\textwidth}
+      \begin{tabular}{lllllll}
+         $\ddots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\udots$ \\
+         $\cdots$ & $z_{1,1}$ & $z_{1,1}$ & $z_{1,1}$ & $z_{1,2}$ & $\cdots$ \\
+         $\cdots$ & $z_{1,1}$ & $z_{1,1}$ & $z_{1,1}$ & $z_{1,2}$ & $\cdots$ \\ \cline{4-6}
+         $\cdots$ & $z_{1,1}$ & \multicolumn{1}{l|}{$z_{1,1}$} & $z_{1,1}$ & $z_{1,2}$ & $\cdots$ \\
+         $\cdots$ & $z_{2,1}$ & \multicolumn{1}{l|}{$z_{2,1}$}  & $z_{2,1}$ & $z_{2,2}$ & $\cdots$ \\
+         $\udots$ & $\vdots$ & \multicolumn{1}{l|}{$\vdots$}  & $\vdots$ & $\vdots$ & $\ddots$
+    \end{tabular}
+    \caption{Nearest pixel padding}
+    \label{fig:inference_padding_nearest}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.49\textwidth}
+      \begin{tabular}{lllllll}
+         $\ddots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\udots$ \\
+         $\cdots$ & \texttt{NaN} & \texttt{NaN} & \texttt{NaN} & \texttt{NaN} & $\cdots$ \\
+         $\cdots$ & \texttt{NaN} & \texttt{NaN} & \texttt{NaN} & \texttt{NaN} & $\cdots$ \\ \cline{4-6}
+         $\cdots$ & \texttt{NaN} & \multicolumn{1}{l|}{\texttt{NaN}} & $z_{1,1}$ & $z_{1,2}$ & $\cdots$ \\
+         $\cdots$ & \texttt{NaN} & \multicolumn{1}{l|}{\texttt{NaN}}  & $z_{2,1}$ & $z_{2,2}$ & $\cdots$ \\
+         $\udots$ & $\vdots$ & \multicolumn{1}{l|}{$\vdots$}  & $\vdots$ & $\vdots$ & $\ddots$
+    \end{tabular}
+    \caption{\texttt{NaN} padding}
+    \label{fig:inference_padding_nan}
+  \end{subfigure}
+  \caption{When a kernel contain pixels outside the region of interest as shown by the solid line, the missing pixels can either be extrapolated using the nearest pixel or completely ignored by filling in the missing pixels with \texttt{NaN}.}
+  \label{fig:inference_padding}
 \end{figure}
 
 Line filtering is done from left to right. At the start on the far left, an initial value of the median of all the pixels in the kernel is used. In addition, various initial values are randomly tried out until a requested number of valid solutions are found, the solution with the gradient closest to zero is used. For the following pixel to the right, the empirical null mean of the neighbouring left pixel is used as a initial point. This was chosen as it was assumed the empirical null mean would vary slowly and smoothly spatially.
@@ -1158,52 +1158,52 @@ The empirical null filter was demonstrated on an image where each pixel has i.i.
 An example of a  $\addNumber{../figures/inference/noContamination/imageSize.txt}\times \addNumber{../figures/inference/noContamination/imageSize.txt}$ Gaussian image before and after filtering, with a kernel radius of \addNumber{../figures/inference/noContamination/radius.txt}, is shown in Figure \ref{fig:inference_noContamination_images}. A quick glance shows little difference, in particular the QQ plot in Figure \ref{fig:inference_noContamination_qq} shows that the post filter test statistics looked reasonably Normal. Because the empirical null mean and empirical null standard deviation are random variables with some distribution, the post filtered test statistics will never be Normal and any Normality tests would be too strict for the purpose of this experiment.
 
 \begin{figure}[htp]
-	\centering
-	\includegraphics[width=0.49\textwidth]{../figures/inference/noContamination/allNullGaussianqq.eps}
-	\caption{QQ plot of the test statistics of a filtered $\addNumber{../figures/inference/noContamination/imageSize.txt} \times \addNumber{../figures/inference/noContamination/imageSize.txt}$ Gaussian image after filtering with kernel radius \addNumber{../figures/inference/noContamination/radius.txt}.}
-	\label{fig:inference_noContamination_qq}
+  \centering
+  \includegraphics[width=0.49\textwidth]{../figures/inference/noContamination/allNullGaussianqq.eps}
+  \caption{QQ plot of the test statistics of a filtered $\addNumber{../figures/inference/noContamination/imageSize.txt} \times \addNumber{../figures/inference/noContamination/imageSize.txt}$ Gaussian image after filtering with kernel radius \addNumber{../figures/inference/noContamination/radius.txt}.}
+  \label{fig:inference_noContamination_qq}
 \end{figure}
 
 \begin{figure}[pht]
-	\centering
-	\centerline{
-	\begin{subfigure}[b]{0.49\textwidth}
-		\includegraphics[width=\textwidth]{../figures/inference/noContamination/allNullGaussianunfiltered.eps}
-		\caption{Unfiltered}
-	\end{subfigure}
-	\begin{subfigure}[b]{0.49\textwidth}
-		\includegraphics[width=\textwidth]{../figures/inference/noContamination/allNullGaussianfiltered.eps}
-		\caption{Filtered}
-	\end{subfigure}
-	}
-	\centerline{
-	\begin{subfigure}[b]{0.49\textwidth}
-		\includegraphics[width=\textwidth]{../figures/inference/noContamination/allNullGaussiannullmean.eps}
-		\caption{Empirical null mean}
-	\end{subfigure}
-	\begin{subfigure}[b]{0.49\textwidth}
-		\includegraphics[width=\textwidth]{../figures/inference/noContamination/allNullGaussiannullstd.eps}
-		\caption{Empirical null std}
-	\end{subfigure}
-	}
-	\caption{A $\addNumber{../figures/inference/noContamination/imageSize.txt} \times \addNumber{../figures/inference/noContamination/imageSize.txt}$ Gaussian image before and after filtering with kernel radius \addNumber{../figures/inference/noContamination/radius.txt}. Also shown are the empirical null mean and empirical null std.}
-	\label{fig:inference_noContamination_images}
+  \centering
+  \centerline{
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/noContamination/allNullGaussianunfiltered.eps}
+    \caption{Unfiltered}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/noContamination/allNullGaussianfiltered.eps}
+    \caption{Filtered}
+  \end{subfigure}
+  }
+  \centerline{
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/noContamination/allNullGaussiannullmean.eps}
+    \caption{Empirical null mean}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/noContamination/allNullGaussiannullstd.eps}
+    \caption{Empirical null std}
+  \end{subfigure}
+  }
+  \caption{A $\addNumber{../figures/inference/noContamination/imageSize.txt} \times \addNumber{../figures/inference/noContamination/imageSize.txt}$ Gaussian image before and after filtering with kernel radius \addNumber{../figures/inference/noContamination/radius.txt}. Also shown are the empirical null mean and empirical null std.}
+  \label{fig:inference_noContamination_images}
 \end{figure}
 
 In this experiment, a Gaussian image of size $\addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_width.txt} \times \addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_height.txt}$ was simulated. The sample mean and sample variance of the post filtered test statistics were recorded. This was repeated \addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_nrepeat.txt} times by simulating another Gaussian image. Various kernel radiuses from $r = \addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_radius1.txt}$ to $r = \addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_radiusend.txt}$ were investigated.
 
 \begin{figure}[htp]
-	\centering
-	\begin{subfigure}[b]{0.49\textwidth}
-		\includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianEmpirical_mean.eps}
-		\caption{Post filter sample mean}
-	\end{subfigure}
-	\begin{subfigure}[b]{0.49\textwidth}
-		\includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianEmpirical_variance.eps}
-		\caption{Post filter sample variance}
-	\end{subfigure}
-	\caption{The sample mean and sample variance of the test statistics in a filtered Gaussian image of size $\addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_width.txt} \times \addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_height.txt}$. The box plots summarise the \addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_nrepeat.txt} repeats of the experiment. The dotted lines show the critical region at the 2$\sigma$ level using standard tests for the sample mean and sample variance, assuming independence.}
-	\label{fig:inference_allnullgaussian}
+  \centering
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianEmpirical_mean.eps}
+    \caption{Post filter sample mean}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianEmpirical_variance.eps}
+    \caption{Post filter sample variance}
+  \end{subfigure}
+  \caption{The sample mean and sample variance of the test statistics in a filtered Gaussian image of size $\addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_width.txt} \times \addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_height.txt}$. The box plots summarise the \addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_nrepeat.txt} repeats of the experiment. The dotted lines show the critical region at the 2$\sigma$ level using standard tests for the sample mean and sample variance, assuming independence.}
+  \label{fig:inference_allnullgaussian}
 \end{figure}
 
 The results are shown in Figure \ref{fig:inference_allnullgaussian}. The post filter sample test statistic means do agree with zero as expected. There is some bias with the post filter sample test statistics variances, it was found that this was sensitive to the bandwidth parameters for the kernel density estimate. The large sampling error can come from a number of sources. The empirical null parameters are random variables, thus correction using these can increase the variance. Also pixel to pixel correlation can be introduced as the empirical null parameters are functions of neighbouring pixels, this can contribute to the sample error.
@@ -1224,36 +1224,36 @@ Figure \ref{fig:inference_contamination_images} shows an example of a contaminat
 The QQ plot of the filtered test statistics, as shown in Figure \ref{fig:inference_contamination_qq}, shows that there may be a variance mismatch. A mismatch in the variance will increase or decrease the sensitivity of the test, a larger variance would increase the sensitivity.
 
 \begin{figure}[htp]
-	\centering
-	\includegraphics[width=0.49\textwidth]{../figures/inference/contamination/allNullPlaneqq.eps}
-	\caption{QQ plot of the test statistics of a filtered $\addNumber{../figures/inference/noContamination/imageSize.txt} \times \addNumber{../figures/inference/noContamination/imageSize.txt}$ contaminated Gaussian image after filtering with kernel radius \addNumber{../figures/inference/noContamination/radius.txt}.}
-	\label{fig:inference_contamination_qq}
+  \centering
+  \includegraphics[width=0.49\textwidth]{../figures/inference/contamination/allNullPlaneqq.eps}
+  \caption{QQ plot of the test statistics of a filtered $\addNumber{../figures/inference/noContamination/imageSize.txt} \times \addNumber{../figures/inference/noContamination/imageSize.txt}$ contaminated Gaussian image after filtering with kernel radius \addNumber{../figures/inference/noContamination/radius.txt}.}
+  \label{fig:inference_contamination_qq}
 \end{figure}
 
 \begin{figure}[pht]
-	\centering
-		\centerline{
-			\begin{subfigure}[b]{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/contamination/allNullPlaneunfiltered.eps}
-				\caption{Unfiltered}
-			\end{subfigure}
-			\begin{subfigure}[b]{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/contamination/allNullPlanefiltered.eps}
-				\caption{Filtered}
-			\end{subfigure}
-		}
-		\centerline{
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/contamination/allNullPlanenullmean.eps}
-				\caption{Empirical null mean}
-			\end{subfigure}
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/contamination/allNullPlanenullstd.eps}
-				\caption{Empirical null std}
-			\end{subfigure}
-		}
-	\caption{A $\addNumber{../figures/inference/contamination/imageSize.txt} \times \addNumber{../figures/inference/contamination/imageSize.txt}$ contaminated Gaussian image before and after filtering with kernel radius \addNumber{../figures/inference/contamination/radius.txt}. The contamination is such that the null distribution is $Z_{x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = \addNumber{../figures/inference/contamination/gradx.txt} (x-x_0) + \addNumber{../figures/inference/contamination/grady.txt} (y-y_0)$ and $\sigma_0=\addNumber{../figures/inference/contamination/nullstd.txt}$. Highlighted in red are significant pixels when controlling the FDR at the $2\sigma$ level. Also shown are the empirical null mean and empirical null std.}
-	\label{fig:inference_contamination_images}
+  \centering
+    \centerline{
+      \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/contamination/allNullPlaneunfiltered.eps}
+        \caption{Unfiltered}
+      \end{subfigure}
+      \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/contamination/allNullPlanefiltered.eps}
+        \caption{Filtered}
+      \end{subfigure}
+    }
+    \centerline{
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/contamination/allNullPlanenullmean.eps}
+        \caption{Empirical null mean}
+      \end{subfigure}
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/contamination/allNullPlanenullstd.eps}
+        \caption{Empirical null std}
+      \end{subfigure}
+    }
+  \caption{A $\addNumber{../figures/inference/contamination/imageSize.txt} \times \addNumber{../figures/inference/contamination/imageSize.txt}$ contaminated Gaussian image before and after filtering with kernel radius \addNumber{../figures/inference/contamination/radius.txt}. The contamination is such that the null distribution is $Z_{x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = \addNumber{../figures/inference/contamination/gradx.txt} (x-x_0) + \addNumber{../figures/inference/contamination/grady.txt} (y-y_0)$ and $\sigma_0=\addNumber{../figures/inference/contamination/nullstd.txt}$. Highlighted in red are significant pixels when controlling the FDR at the $2\sigma$ level. Also shown are the empirical null mean and empirical null std.}
+  \label{fig:inference_contamination_images}
 \end{figure}
 
 An experiment was conducted to investigate the sample mean and sample variance of the filtered contaminated image. Ideally the sample mean and sample variance should be 0 and 1 respectively. Different radiuses were investigated from ??? to ??? and repeated ??? times.
@@ -1261,30 +1261,30 @@ An experiment was conducted to investigate the sample mean and sample variance o
 The results are shown in Figure \ref{fig:inference_allnullplane}. The filter correctly centred the test statistics at zero. However there was some variance mismatch and this depended on the kernel radius. A kernel radius of about 80 scaled the test statistics correctly. This suggest there may be an optimal kernel radius for this particular null distribution. Another caveat is that the sensitivity may not be exactly preserved after filtering.
 
 \begin{figure}[htp]
-	\centering
-	\begin{subfigure}[b]{0.49\textwidth}
-		\includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneEmpirical_mean.eps}
-		\caption{Post filter sample mean}
-	\end{subfigure}
-	\begin{subfigure}[b]{0.49\textwidth}
-		\includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneEmpirical_variance.eps}
-		\caption{Post filter sample variance}
-	\end{subfigure}
-	\caption{The sample mean and sample variance of the test statistics in a filtered contaminated Gaussian image of size $\addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_width.txt} \times \addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_height.txt}$. The contamination is such that the null distribution is $Z_{x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = \addNumber{../figures/inference/contamination/gradx.txt} (x-x_0) + \addNumber{../figures/inference/contamination/grady.txt} (y-y_0)$ and $\sigma_0=\addNumber{../figures/inference/contamination/nullstd.txt}$. The box plots summarise the \addNumber{../figures/inference/allnull/AllNullPlaneEmpirical_nrepeat.txt} repeats of the experiment. The dotted lines show the critical region at the 2$\sigma$ level using standard tests for the sample mean and sample variance, assuming independence.}
-	\label{fig:inference_allnullplane}
+  \centering
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneEmpirical_mean.eps}
+    \caption{Post filter sample mean}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneEmpirical_variance.eps}
+    \caption{Post filter sample variance}
+  \end{subfigure}
+  \caption{The sample mean and sample variance of the test statistics in a filtered contaminated Gaussian image of size $\addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_width.txt} \times \addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_height.txt}$. The contamination is such that the null distribution is $Z_{x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = \addNumber{../figures/inference/contamination/gradx.txt} (x-x_0) + \addNumber{../figures/inference/contamination/grady.txt} (y-y_0)$ and $\sigma_0=\addNumber{../figures/inference/contamination/nullstd.txt}$. The box plots summarise the \addNumber{../figures/inference/allnull/AllNullPlaneEmpirical_nrepeat.txt} repeats of the experiment. The dotted lines show the critical region at the 2$\sigma$ level using standard tests for the sample mean and sample variance, assuming independence.}
+  \label{fig:inference_allnullplane}
 \end{figure}
 
 \subsection{Contaminated Defect Experiment}
 
 The study will now turn to contaminated defected images. Let $Z_{x,y}$ be the test statistics of pixel $(x,y)$ and under the null, it is distributed such that $Z_{x,y}|H_0\sim\normal(0,1)$. Defects refer to statistics which do not follow the null distribution, but instead an alternative distribution. For example it can be $Z_{x,y}|H_1\sim\normal(\mu_{1,x,y},1)$ and this example was used in this experiment. Contamination is a linear transform of the test statistics $Z_{x,y}$ such that
 \begin{equation}
-	C_{x,y} = Z_{x,y}\sigma_{0,x,y} + \mu_{0,x,y} \ .
+  C_{x,y} = Z_{x,y}\sigma_{0,x,y} + \mu_{0,x,y} \ .
 \end{equation}
 The empirical null filter recovers $Z_{x,y}$ from $C_{x,y}$. The values of the filtered test statistics are denoted as $\zeta_{x,y}$.
 
 Various simulated defects were investigated. Salt defect (named after salt and pepper noise) with density $\pi_1$ assign all test statistics to be distributed such that
 \begin{equation}
-	p_{Z_{x,y}}(z)=(1-\pi_1)p_{Z_{x,y}|H_0}(z) + \pi_1 p_{Z_{x,y}|H_1}(z) \ .
+  p_{Z_{x,y}}(z)=(1-\pi_1)p_{Z_{x,y}|H_0}(z) + \pi_1 p_{Z_{x,y}|H_1}(z) \ .
 \end{equation}
 In other words, test statistics will have the alternative distribution with probability $\pi_1$, and have the null distribution otherwise. This was chosen because the proportion of null statistics captured by a kernel should be independent of the radius of the kernel.
 
@@ -1295,136 +1295,136 @@ An example of a salt defected image is shown in Figure \ref{fig:inference_saltDe
 The square defected images, including the contaminated ones, are shown in Figures \ref{fig:inference_squareDefect} and \ref{fig:inference_square2Defect}. Figure \ref{fig:inference_squareDefect} filtered the contaminated image using a kernel radius of $r=20$, while Figure \ref{fig:inference_square2Defect} used a kernel radius of $r=40$. With $r=20$, the kernel is smaller than the square defect, therefore the defect was treated as the null and this shows in the empirical null mean. This resulted in difficulty detecting the defect. With $r=40$, the kernel is much bigger than the defect and treated the defect as non-null. The empirical null filter recovers the gradient in the empirical null which was then used for inference.
 
 \begin{figure}[p]
-	\centering
-		\centerline{
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectDust_imagePreContaminated.eps}
-				\caption{Uncontaminated}
-			\end{subfigure}
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectDust_imageContaminated.eps}
-				\caption{Contaminated}
-			\end{subfigure}
-		}
-		\centerline{
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectDust_imageFiltered.eps}
-				\caption{Filtered}
-			\end{subfigure}
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectDust_nullStd.eps}
-				\caption{Empirical null std}
-			\end{subfigure}
-		}
-	\caption{A $256 \times 256$ dust defect Gaussian image with/without contamination and after filtering with kernel radius 20. Defected pixels have the distribution $\normal(3,1)$. The salt defect has density $\pi_1 = 0.1$. The contamination is such that the null distribution is $Z_{x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$. Highlighted in red are significant pixels when controlling the FDR at the $2\sigma$ level.}
-	\label{fig:inference_saltDefect}
+  \centering
+    \centerline{
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectDust_imagePreContaminated.eps}
+        \caption{Uncontaminated}
+      \end{subfigure}
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectDust_imageContaminated.eps}
+        \caption{Contaminated}
+      \end{subfigure}
+    }
+    \centerline{
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectDust_imageFiltered.eps}
+        \caption{Filtered}
+      \end{subfigure}
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectDust_nullStd.eps}
+        \caption{Empirical null std}
+      \end{subfigure}
+    }
+  \caption{A $256 \times 256$ dust defect Gaussian image with/without contamination and after filtering with kernel radius 20. Defected pixels have the distribution $\normal(3,1)$. The salt defect has density $\pi_1 = 0.1$. The contamination is such that the null distribution is $Z_{x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$. Highlighted in red are significant pixels when controlling the FDR at the $2\sigma$ level.}
+  \label{fig:inference_saltDefect}
 \end{figure}
 
 \begin{figure}[p]
-	\centering
-		\centerline{
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectLine_imagePreContaminated.eps}
-				\caption{Uncontaminated}
-			\end{subfigure}
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectLine_imageContaminated.eps}
-				\caption{Contaminated}
-			\end{subfigure}
-		}
-		\centerline{
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectLine_imageFiltered.eps}
-				\caption{Filtered}
-			\end{subfigure}
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectLine_nullStd.eps}
-				\caption{Empirical null std}
-			\end{subfigure}
-		}
-	\caption{A $256 \times 256$ line defect Gaussian image with/without contamination and after filtering with kernel radius 20. Defected pixels have the distribution $\normal(3,1)$. The line is 5 pixels thick. The contamination is such that the null distribution is $Z_{x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$. Highlighted in red are significant pixels when controlling the FDR at the $2\sigma$ level.}
-	\label{fig:inference_lineDefect}
+  \centering
+    \centerline{
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectLine_imagePreContaminated.eps}
+        \caption{Uncontaminated}
+      \end{subfigure}
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectLine_imageContaminated.eps}
+        \caption{Contaminated}
+      \end{subfigure}
+    }
+    \centerline{
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectLine_imageFiltered.eps}
+        \caption{Filtered}
+      \end{subfigure}
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectLine_nullStd.eps}
+        \caption{Empirical null std}
+      \end{subfigure}
+    }
+  \caption{A $256 \times 256$ line defect Gaussian image with/without contamination and after filtering with kernel radius 20. Defected pixels have the distribution $\normal(3,1)$. The line is 5 pixels thick. The contamination is such that the null distribution is $Z_{x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$. Highlighted in red are significant pixels when controlling the FDR at the $2\sigma$ level.}
+  \label{fig:inference_lineDefect}
 \end{figure}
 
 \begin{figure}[p]
-	\centering
-		\centerline{
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectSquare_imagePreContaminated.eps}
-				\caption{Uncontaminated}
-			\end{subfigure}
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectSquare_imageContaminated.eps}
-				\caption{Contaminated}
-			\end{subfigure}
-		}
-		\centerline{
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectSquare_imageFiltered.eps}
-				\caption{Filtered}
-			\end{subfigure}
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectSquare_nullMean.eps}
-				\caption{Empirical null mean}
-			\end{subfigure}
-		}
-	\caption{A $256 \times 256$ square defect Gaussian image with/without contamination and after filtering with kernel radius 20. Defected pixels have the distribution $\normal(3,1)$. The square is $30\times 30$ pixels in size. The contamination is such that the null distribution is $Z_{x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$. Highlighted in red are significant pixels when controlling the FDR at the $2\sigma$ level.}
-	\label{fig:inference_squareDefect}
+  \centering
+    \centerline{
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectSquare_imagePreContaminated.eps}
+        \caption{Uncontaminated}
+      \end{subfigure}
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectSquare_imageContaminated.eps}
+        \caption{Contaminated}
+      \end{subfigure}
+    }
+    \centerline{
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectSquare_imageFiltered.eps}
+        \caption{Filtered}
+      \end{subfigure}
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectSquare_nullMean.eps}
+        \caption{Empirical null mean}
+      \end{subfigure}
+    }
+  \caption{A $256 \times 256$ square defect Gaussian image with/without contamination and after filtering with kernel radius 20. Defected pixels have the distribution $\normal(3,1)$. The square is $30\times 30$ pixels in size. The contamination is such that the null distribution is $Z_{x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$. Highlighted in red are significant pixels when controlling the FDR at the $2\sigma$ level.}
+  \label{fig:inference_squareDefect}
 \end{figure}
 
 \begin{figure}[p]
-	\centering
-		\centerline{
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectSquare2_imagePreContaminated.eps}
-				\caption{Uncontaminated}
-			\end{subfigure}
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectSquare2_imageContaminated.eps}
-				\caption{Contaminated}
-			\end{subfigure}
-		}
-		\centerline{
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectSquare2_imageFiltered.eps}
-				\caption{Filtered}
-			\end{subfigure}
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectSquare2_nullStd.eps}
-				\caption{Empirical null std}
-			\end{subfigure}
-		}
-	\caption{A $256 \times 256$ square defect Gaussian image with/without contamination and after filtering with kernel radius 40. Defected pixels have the distribution $\normal(3,1)$. The square is $30\times 30$ pixels in size. The contamination is such that the null distribution is $Z_{x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$. Highlighted in red are significant pixels when controlling the FDR at the $2\sigma$ level.}
-	\label{fig:inference_square2Defect}
+  \centering
+    \centerline{
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectSquare2_imagePreContaminated.eps}
+        \caption{Uncontaminated}
+      \end{subfigure}
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectSquare2_imageContaminated.eps}
+        \caption{Contaminated}
+      \end{subfigure}
+    }
+    \centerline{
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectSquare2_imageFiltered.eps}
+        \caption{Filtered}
+      \end{subfigure}
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectSquare2_nullStd.eps}
+        \caption{Empirical null std}
+      \end{subfigure}
+    }
+  \caption{A $256 \times 256$ square defect Gaussian image with/without contamination and after filtering with kernel radius 40. Defected pixels have the distribution $\normal(3,1)$. The square is $30\times 30$ pixels in size. The contamination is such that the null distribution is $Z_{x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$. Highlighted in red are significant pixels when controlling the FDR at the $2\sigma$ level.}
+  \label{fig:inference_square2Defect}
 \end{figure}
 
 The receiver operating characteristic (ROC) curves \citep{green1966signal, metz1978basic, hanley1982meaning, friedman2001elements, cook2007use} are shown in Figure \ref{fig:inference_defectSimulationRoc} for the various defects. The ROC curve is a parametric plot, plotting the true positive rate against the false positive rate for varying thresholds. Other authors \citep{metz1978basic} use terminology such as sensitivity and specificity. The area under the ROC curve is a commonly used statistic to quantify the performance of the test \citep{friedman2001elements}. Interpretations of the area do exist \citep{metz1978basic,hanley1982meaning} and discussed thoroughly in \cite{cook2007use}. The area under the ROC curve was recorded for different intensity values of the defect.
 
 \begin{figure}[htp]
-	\centering
-		\centerline{
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectDust_roc.eps}
-				\caption{Dust defect $\pi_1=0.1$, $r=20$}
-			\end{subfigure}
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectLine_roc.eps}
-				\caption{5 pixels thick line defect, $r=20$}
-			\end{subfigure}
-		}
-		\centerline{
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectSquare_roc.eps}
-				\caption{$30\times 30$ square defect, $r=20$}
-				\label{fig:inference_defectSimulationRoc_square20}
-			\end{subfigure}
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectSquare2_roc.eps}
-				\caption{$30\times 30$ square defect, $r=40$}
-			\end{subfigure}
-		}
-	\caption{ROC curves for various defected $256\times 256$ Gaussian images. The difference curves show the results for the non-contaminated image, contaminated image, and filtered contaminated image. Defected pixels have the distribution $\normal(3,1)$. The contamination is such that the null distribution is $Z_{x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$.}
-	\label{fig:inference_defectSimulationRoc}
+  \centering
+    \centerline{
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectDust_roc.eps}
+        \caption{Dust defect $\pi_1=0.1$, $r=20$}
+      \end{subfigure}
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectLine_roc.eps}
+        \caption{5 pixels thick line defect, $r=20$}
+      \end{subfigure}
+    }
+    \centerline{
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectSquare_roc.eps}
+        \caption{$30\times 30$ square defect, $r=20$}
+        \label{fig:inference_defectSimulationRoc_square20}
+      \end{subfigure}
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectSquare2_roc.eps}
+        \caption{$30\times 30$ square defect, $r=40$}
+      \end{subfigure}
+    }
+  \caption{ROC curves for various defected $256\times 256$ Gaussian images. The difference curves show the results for the non-contaminated image, contaminated image, and filtered contaminated image. Defected pixels have the distribution $\normal(3,1)$. The contamination is such that the null distribution is $Z_{x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$.}
+  \label{fig:inference_defectSimulationRoc}
 \end{figure}
 
 In terms of the area under the ROC curves, the empirical null filter improves the performance over using the unfiltered contaminated image. The performance before contamination cannot be recovered but it is an improvement. For kernel radiuses too small, such as Figure \ref{fig:inference_defectSimulationRoc_square20}, the empirical null filter deteriorates the performance dramatically and it would be better off using the contaminated image.
@@ -1434,106 +1434,106 @@ The ROC is useful because it considers all thresholds or sensitivities used in t
 An experiment was conducted to investigate the sensitivity before and after filtering. A $256\times 256$ Gaussian image with dust defect of density $\pi_1=0.1$ was investigated. A kernel radius of $r=20$ was used. The type 1 error, type 2 error and the FDR were investigated before contamination, after contamination and after filtering for various alternative distribution. The alternative distribution used is $Z_{x,y}|H_1\sim\normal(\mu_1,1)$ where $\mu_1$ is the alternative mean and was varied for this experiment.
 
 \begin{figure}[htp]
-	\centering
-		\centerline{
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/DefectAltDust0Empirical_roc.eps}
-				\caption{ROC area}
-			\end{subfigure}
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/DefectAltDust0Empirical_type1.eps}
-				\caption{Type 1 error}
-			\end{subfigure}
-		}
-		\centerline{
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/DefectAltDust0Empirical_type2.eps}
-				\caption{Type 2 error}
-			\end{subfigure}
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/DefectAltDust0Empirical_fdr.eps}
-				\caption{FDR}
-			\end{subfigure}
-		}
-	\caption{ROC area and various errors obtained when conducting hypothesis test on a \emph{empirical null} filtered image of a $256 \times 256$ salt defected Gaussian image. a) shows the ROC area when testing the image before and after filtering. In b) c) d) the dotted line shows the 95\% empirical confidence interval of the resulting error when testing the image before filtering. The filter used a kernel radius \addNumber{../figures/inference/defectsimulation/DefectAltDustEmpirical_radius.txt}. Defected pixels have the distribution $\normal(\mu_1,1)$ where $\mu_1$ was varied in this experiment. The salt defect has density $\pi_1 = 0.1$. The FDR was controlled at the 5\% level. The box plot summarise the \addNumber{../figures/inference/defectsimulation/DefectAltDustEmpirical_nRepeat.txt} repeats of the experiment.}
+  \centering
+    \centerline{
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/DefectAltDust0Empirical_roc.eps}
+        \caption{ROC area}
+      \end{subfigure}
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/DefectAltDust0Empirical_type1.eps}
+        \caption{Type 1 error}
+      \end{subfigure}
+    }
+    \centerline{
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/DefectAltDust0Empirical_type2.eps}
+        \caption{Type 2 error}
+      \end{subfigure}
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/DefectAltDust0Empirical_fdr.eps}
+        \caption{FDR}
+      \end{subfigure}
+    }
+  \caption{ROC area and various errors obtained when conducting hypothesis test on a \emph{empirical null} filtered image of a $256 \times 256$ salt defected Gaussian image. a) shows the ROC area when testing the image before and after filtering. In b) c) d) the dotted line shows the 95\% empirical confidence interval of the resulting error when testing the image before filtering. The filter used a kernel radius \addNumber{../figures/inference/defectsimulation/DefectAltDustEmpirical_radius.txt}. Defected pixels have the distribution $\normal(\mu_1,1)$ where $\mu_1$ was varied in this experiment. The salt defect has density $\pi_1 = 0.1$. The FDR was controlled at the 5\% level. The box plot summarise the \addNumber{../figures/inference/defectsimulation/DefectAltDustEmpirical_nRepeat.txt} repeats of the experiment.}
 \end{figure}
 
 \begin{figure}[htp]
-	\centering
-		\centerline{
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/DefectAltDust0MadMode_roc.eps}
-				\caption{ROC area}
-			\end{subfigure}
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/DefectAltDust0MadMode_type1.eps}
-				\caption{Type 1 error}
-			\end{subfigure}
-		}
-		\centerline{
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/DefectAltDust0MadMode_type2.eps}
-				\caption{Type 2 error}
-			\end{subfigure}
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/DefectAltDust0MadMode_fdr.eps}
-				\caption{FDR}
-			\end{subfigure}
-		}
-	\caption{ROC area and various errors obtained when conducting hypothesis test on a \emph{MAD mode null} filtered image of a $256 \times 256$ salt defected Gaussian image. a) shows the ROC area when testing the image before and after filtering. In b) c) d) the dotted line shows the 95\% empirical confidence interval of the resulting error when testing the image before filtering. The filter used a kernel radius \addNumber{../figures/inference/defectsimulation/DefectAltDustEmpirical_radius.txt}. Defected pixels have the distribution $\normal(\mu_1,1)$ where $\mu_1$ was varied in this experiment. The salt defect has density $\pi_1 = 0.1$. The FDR was controlled at the 5\% level. The box plot summarise the \addNumber{../figures/inference/defectsimulation/DefectAltDustEmpirical_nRepeat.txt} repeats of the experiment.}
+  \centering
+    \centerline{
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/DefectAltDust0MadMode_roc.eps}
+        \caption{ROC area}
+      \end{subfigure}
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/DefectAltDust0MadMode_type1.eps}
+        \caption{Type 1 error}
+      \end{subfigure}
+    }
+    \centerline{
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/DefectAltDust0MadMode_type2.eps}
+        \caption{Type 2 error}
+      \end{subfigure}
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/DefectAltDust0MadMode_fdr.eps}
+        \caption{FDR}
+      \end{subfigure}
+    }
+  \caption{ROC area and various errors obtained when conducting hypothesis test on a \emph{MAD mode null} filtered image of a $256 \times 256$ salt defected Gaussian image. a) shows the ROC area when testing the image before and after filtering. In b) c) d) the dotted line shows the 95\% empirical confidence interval of the resulting error when testing the image before filtering. The filter used a kernel radius \addNumber{../figures/inference/defectsimulation/DefectAltDustEmpirical_radius.txt}. Defected pixels have the distribution $\normal(\mu_1,1)$ where $\mu_1$ was varied in this experiment. The salt defect has density $\pi_1 = 0.1$. The FDR was controlled at the 5\% level. The box plot summarise the \addNumber{../figures/inference/defectsimulation/DefectAltDustEmpirical_nRepeat.txt} repeats of the experiment.}
 \end{figure}
 
 \begin{figure}[htp]
-	\centering
-		\centerline{
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/DefectAltDustEmpirical_roc.eps}
-				\caption{ROC area}
-			\end{subfigure}
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/DefectAltDustEmpirical_type1.eps}
-				\caption{Type 1 error}
-			\end{subfigure}
-		}
-		\centerline{
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/DefectAltDustEmpirical_type2.eps}
-				\caption{Type 2 error}
-			\end{subfigure}
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/DefectAltDustEmpirical_fdr.eps}
-				\caption{FDR}
-				\label{fig:inference_DefectSimulationDust_fdr}
-			\end{subfigure}
-		}
-	\caption{ROC area and various errors obtained when conducting hypothesis test on a \emph{empirical null} filtered contaminated image of a $256 \times 256$ salt defected Gaussian image. a) shows the ROC area when testing the image before/after contamination and after filtering. In b) c) the dotted line shows the 95\% empirical confidence interval of the resulting error when testing the image before contamination. The filter used a kernel radius \addNumber{../figures/inference/defectsimulation/DefectAltDustEmpirical_radius.txt}. Defected pixels have the distribution $\normal(\mu_1,1)$ where $\mu_1$ was varied in this experiment. The salt defect has density $\pi_1 = 0.1$. The contamination is such that the null distribution is $Z_{x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$. The FDR was controlled at the 5\% level. The box plot summarise the \addNumber{../figures/inference/defectsimulation/DefectAltDustEmpirical_nRepeat.txt} repeats of the experiment.}
-	\label{fig:inference_DefectSimulationDust}
+  \centering
+    \centerline{
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/DefectAltDustEmpirical_roc.eps}
+        \caption{ROC area}
+      \end{subfigure}
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/DefectAltDustEmpirical_type1.eps}
+        \caption{Type 1 error}
+      \end{subfigure}
+    }
+    \centerline{
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/DefectAltDustEmpirical_type2.eps}
+        \caption{Type 2 error}
+      \end{subfigure}
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/DefectAltDustEmpirical_fdr.eps}
+        \caption{FDR}
+        \label{fig:inference_DefectSimulationDust_fdr}
+      \end{subfigure}
+    }
+  \caption{ROC area and various errors obtained when conducting hypothesis test on a \emph{empirical null} filtered contaminated image of a $256 \times 256$ salt defected Gaussian image. a) shows the ROC area when testing the image before/after contamination and after filtering. In b) c) the dotted line shows the 95\% empirical confidence interval of the resulting error when testing the image before contamination. The filter used a kernel radius \addNumber{../figures/inference/defectsimulation/DefectAltDustEmpirical_radius.txt}. Defected pixels have the distribution $\normal(\mu_1,1)$ where $\mu_1$ was varied in this experiment. The salt defect has density $\pi_1 = 0.1$. The contamination is such that the null distribution is $Z_{x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$. The FDR was controlled at the 5\% level. The box plot summarise the \addNumber{../figures/inference/defectsimulation/DefectAltDustEmpirical_nRepeat.txt} repeats of the experiment.}
+  \label{fig:inference_DefectSimulationDust}
 \end{figure}
 
 \begin{figure}[htp]
-	\centering
-		\centerline{
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/DefectAltDustMadMode_roc.eps}
-				\caption{ROC area}
-			\end{subfigure}
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/DefectAltDustMadMode_type1.eps}
-				\caption{Type 1 error}
-			\end{subfigure}
-		}
-		\centerline{
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/DefectAltDustMadMode_type2.eps}
-				\caption{Type 2 error}
-			\end{subfigure}
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/DefectAltDustMadMode_fdr.eps}
-				\caption{FDR}
-				\label{fig:inference_DefectSimulationDust_fdr}
-			\end{subfigure}
-		}
-	\caption{ROC area and various errors obtained when conducting hypothesis test on a \emph{MAD mode null} filtered contaminated image of a $256 \times 256$ salt defected Gaussian image. a) shows the ROC area when testing the image before/after contamination and after filtering. In b) c) the dotted line shows the 95\% empirical confidence interval of the resulting error when testing the image before contamination. The filter used a kernel radius \addNumber{../figures/inference/defectsimulation/DefectAltDustEmpirical_radius.txt}. Defected pixels have the distribution $\normal(\mu_1,1)$ where $\mu_1$ was varied in this experiment. The salt defect has density $\pi_1 = 0.1$. The contamination is such that the null distribution is $Z_{x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$. The FDR was controlled at the 5\% level. The box plot summarise the \addNumber{../figures/inference/defectsimulation/DefectAltDustEmpirical_nRepeat.txt} repeats of the experiment.}
+  \centering
+    \centerline{
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/DefectAltDustMadMode_roc.eps}
+        \caption{ROC area}
+      \end{subfigure}
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/DefectAltDustMadMode_type1.eps}
+        \caption{Type 1 error}
+      \end{subfigure}
+    }
+    \centerline{
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/DefectAltDustMadMode_type2.eps}
+        \caption{Type 2 error}
+      \end{subfigure}
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/DefectAltDustMadMode_fdr.eps}
+        \caption{FDR}
+        \label{fig:inference_DefectSimulationDust_fdr}
+      \end{subfigure}
+    }
+  \caption{ROC area and various errors obtained when conducting hypothesis test on a \emph{MAD mode null} filtered contaminated image of a $256 \times 256$ salt defected Gaussian image. a) shows the ROC area when testing the image before/after contamination and after filtering. In b) c) the dotted line shows the 95\% empirical confidence interval of the resulting error when testing the image before contamination. The filter used a kernel radius \addNumber{../figures/inference/defectsimulation/DefectAltDustEmpirical_radius.txt}. Defected pixels have the distribution $\normal(\mu_1,1)$ where $\mu_1$ was varied in this experiment. The salt defect has density $\pi_1 = 0.1$. The contamination is such that the null distribution is $Z_{x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$. The FDR was controlled at the 5\% level. The box plot summarise the \addNumber{../figures/inference/defectsimulation/DefectAltDustEmpirical_nRepeat.txt} repeats of the experiment.}
 \end{figure}
 
 The results are shown in Figure \ref{fig:inference_DefectSimulationDust}. The ROC areas were quantified here and shows that, in terms of the ROC area, using the filter improved the performance of the test from the contamination. Figure \ref{fig:inference_DefectSimulationDust_fdr} illustrate that in the uncontaminated image, the FDR is controlled below 5\%. However after contamination and then filtering, the FDR was not well controlled at this threshold. Ideally the error rates before contamination and after filtering should be similar so that sensitivity is preserved after filtering. This should highlight that while performance can be recovered from contamination in terms of the ROC area, the FDR threshold may not be preserved.
@@ -1550,62 +1550,62 @@ In the example of $d=30$, this is about $r>54$. For the line defect with thickne
 \begin{equation}
 2r^2
 \left[
-	\dfrac{d}{2r}\sqrt{1-\left(\dfrac{d}{2r}\right)^2}
-	+\text{arcsin}\left(\dfrac{d}{2r}\right)
+  \dfrac{d}{2r}\sqrt{1-\left(\dfrac{d}{2r}\right)^2}
+  +\text{arcsin}\left(\dfrac{d}{2r}\right)
 \right] \ .
 \end{equation}
 For $d=5$, the radius is about $r>32$. These are rules of thumb because the kernel won't be perfectly circular when used on a grid of pixels. It should be pointed out that the implementation can accept non-integer radiuses if desired.
 
 \begin{figure}[p]
-	\centering
-		\centerline{
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/Experiment_DefectRadiusLine_roc.eps}
-				\caption{ROC area}
-			\end{subfigure}
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/Experiment_DefectRadiusLine_type1.eps}
-				\caption{Type 1 error}
-			\end{subfigure}
-		}
-		\centerline{
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/Experiment_DefectRadiusLine_type2.eps}
-				\caption{Type 2 error}
-			\end{subfigure}
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/Experiment_DefectRadiusLine_fdr.eps}
-				\caption{FDR}
-			\end{subfigure}
-		}
-	\caption{ROC area and various errors obtained when conducting hypothesis test on the filtered contaminated image of a $256 \times 256$ line defected Gaussian image using various kernel radiuses. The dotted lines show the 95\% percentile when the hypothesis test was done on the uncontaminated image. Defected pixels have the distribution $\normal(\addNumber{../figures/inference/defectsimulation/Experiment_DefectRadiusLine_altMean.txt},1)$. The line defect is 5 pixels thick. The contamination is such that the null distribution is $Z_{x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$. The FDR was controlled at the $2\sigma$ level. The box plot summarise the \addNumber{../figures/inference/defectsimulation/Experiment_DefectRadiusLine_nRepeat.txt} repeats of the experiment.}
-	\label{fig:inference_Experiment_DefectRadiusLine}
+  \centering
+    \centerline{
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/Experiment_DefectRadiusLine_roc.eps}
+        \caption{ROC area}
+      \end{subfigure}
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/Experiment_DefectRadiusLine_type1.eps}
+        \caption{Type 1 error}
+      \end{subfigure}
+    }
+    \centerline{
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/Experiment_DefectRadiusLine_type2.eps}
+        \caption{Type 2 error}
+      \end{subfigure}
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/Experiment_DefectRadiusLine_fdr.eps}
+        \caption{FDR}
+      \end{subfigure}
+    }
+  \caption{ROC area and various errors obtained when conducting hypothesis test on the filtered contaminated image of a $256 \times 256$ line defected Gaussian image using various kernel radiuses. The dotted lines show the 95\% percentile when the hypothesis test was done on the uncontaminated image. Defected pixels have the distribution $\normal(\addNumber{../figures/inference/defectsimulation/Experiment_DefectRadiusLine_altMean.txt},1)$. The line defect is 5 pixels thick. The contamination is such that the null distribution is $Z_{x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$. The FDR was controlled at the $2\sigma$ level. The box plot summarise the \addNumber{../figures/inference/defectsimulation/Experiment_DefectRadiusLine_nRepeat.txt} repeats of the experiment.}
+  \label{fig:inference_Experiment_DefectRadiusLine}
 \end{figure}
 
 \begin{figure}[p]
-	\centering
-		\centerline{
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/Experiment_DefectRadiusSquare_roc.eps}
-				\caption{ROC area}
-			\end{subfigure}
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/Experiment_DefectRadiusSquare_type1.eps}
-				\caption{Type 1 error}
-			\end{subfigure}
-		}
-		\centerline{
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/Experiment_DefectRadiusSquare_type2.eps}
-				\caption{Type 2 error}
-			\end{subfigure}
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/Experiment_DefectRadiusSquare_fdr.eps}
-				\caption{FDR}
-			\end{subfigure}
-		}
-	\caption{ROC area and various errors obtained when conducting hypothesis test on the filtered contaminated image of a $256 \times 256$ square defected Gaussian image using various kernel radiuses. The dotted lines show the 95\% percentile when the hypothesis test was done on the uncontaminated image. Defected pixels have the distribution $\normal(\addNumber{../figures/inference/defectsimulation/Experiment_DefectRadiusSquare_altMean.txt},1)$. The square defect is $30\times 30$ pixels in size. The contamination is such that the null distribution is $Z_{x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$. The FDR was controlled at the $2\sigma$ level. The box plot summarise the \addNumber{../figures/inference/defectsimulation/Experiment_DefectRadiusSquare_nRepeat.txt} repeats of the experiment.}
-	\label{fig:inference_Experiment_DefectRadiusSquare}
+  \centering
+    \centerline{
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/Experiment_DefectRadiusSquare_roc.eps}
+        \caption{ROC area}
+      \end{subfigure}
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/Experiment_DefectRadiusSquare_type1.eps}
+        \caption{Type 1 error}
+      \end{subfigure}
+    }
+    \centerline{
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/Experiment_DefectRadiusSquare_type2.eps}
+        \caption{Type 2 error}
+      \end{subfigure}
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/Experiment_DefectRadiusSquare_fdr.eps}
+        \caption{FDR}
+      \end{subfigure}
+    }
+  \caption{ROC area and various errors obtained when conducting hypothesis test on the filtered contaminated image of a $256 \times 256$ square defected Gaussian image using various kernel radiuses. The dotted lines show the 95\% percentile when the hypothesis test was done on the uncontaminated image. Defected pixels have the distribution $\normal(\addNumber{../figures/inference/defectsimulation/Experiment_DefectRadiusSquare_altMean.txt},1)$. The square defect is $30\times 30$ pixels in size. The contamination is such that the null distribution is $Z_{x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$. The FDR was controlled at the $2\sigma$ level. The box plot summarise the \addNumber{../figures/inference/defectsimulation/Experiment_DefectRadiusSquare_nRepeat.txt} repeats of the experiment.}
+  \label{fig:inference_Experiment_DefectRadiusSquare}
 \end{figure}
 
 An experiment was conducted where the contaminated defected image were filtered for various kernel radiuses for a fixed alternative distribution $\normal(3,1)$. Hypothesis testing was done on the uncontaminated and filtered contaminated image. The area under the ROC curve and various errors were recorded. Results for the line and square defect are shown in Figures \ref{fig:inference_Experiment_DefectRadiusLine} and \ref{fig:inference_Experiment_DefectRadiusSquare} respectively.
@@ -1615,133 +1615,133 @@ The results show that the ROC area increased with kernel radius. This does highl
 \section{Results}
 
 \begin{figure}[htp]
-	\centering
-		\centerline{
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius1_z.eps}
-				\caption{$r=\addNumber{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius1.txt}$}
-			\end{subfigure}
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius2_z.eps}
-				\caption{$r=\addNumber{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius2.txt}$}
-			\end{subfigure}
-		}
-		\centerline{
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius3_z.eps}
-				\caption{$r=\addNumber{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius3.txt}$}
-			\end{subfigure}
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius4_z.eps}
-				\caption{$r=\addNumber{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius4.txt}$}
-			\end{subfigure}
-		}
-	\caption{Filtered $z$ image from the \texttt{Sep16 120deg} dataset. Various kernel radiuses were used.}
-	\label{fig:inference_sep16120deg_zfiltered}
+  \centering
+    \centerline{
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius1_z.eps}
+        \caption{$r=\addNumber{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius1.txt}$}
+      \end{subfigure}
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius2_z.eps}
+        \caption{$r=\addNumber{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius2.txt}$}
+      \end{subfigure}
+    }
+    \centerline{
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius3_z.eps}
+        \caption{$r=\addNumber{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius3.txt}$}
+      \end{subfigure}
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius4_z.eps}
+        \caption{$r=\addNumber{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius4.txt}$}
+      \end{subfigure}
+    }
+  \caption{Filtered $z$ image from the \texttt{Sep16 120deg} dataset. Various kernel radiuses were used.}
+  \label{fig:inference_sep16120deg_zfiltered}
 \end{figure}
 
 \begin{figure}[p]
-	\centering
-		\centerline{
-			\begin{subfigure}[b]{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius1_sig.eps}
-				\caption{Image with sig.~pixels}
-			\end{subfigure}
-			\begin{subfigure}[b]{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius1_logp.eps}
-				\caption{$-\log p$}
-			\end{subfigure}
-		}
-		\centerline{
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius1_nullMean.eps}
-				\caption{Empirical null mean}
-			\end{subfigure}
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius1_nullStd.eps}
-				\caption{Empirical null std}
-			\end{subfigure}
-		}
-	\caption{Resulting inference when using the empirical null filter with radius $r=\addNumber{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius1.txt}$. a) Highlighted in red are significant pixels when controlling the FDR at the $2\sigma$ level. b) $p$-values on the log scale. c) and d) Empirical null mean and std.}
-	\label{fig:inference_sep16120deg_inference_radius1}
+  \centering
+    \centerline{
+      \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius1_sig.eps}
+        \caption{Image with sig.~pixels}
+      \end{subfigure}
+      \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius1_logp.eps}
+        \caption{$-\log p$}
+      \end{subfigure}
+    }
+    \centerline{
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius1_nullMean.eps}
+        \caption{Empirical null mean}
+      \end{subfigure}
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius1_nullStd.eps}
+        \caption{Empirical null std}
+      \end{subfigure}
+    }
+  \caption{Resulting inference when using the empirical null filter with radius $r=\addNumber{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius1.txt}$. a) Highlighted in red are significant pixels when controlling the FDR at the $2\sigma$ level. b) $p$-values on the log scale. c) and d) Empirical null mean and std.}
+  \label{fig:inference_sep16120deg_inference_radius1}
 \end{figure}
 
 \begin{figure}[p]
-	\centering
-		\centerline{
-			\begin{subfigure}[b]{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius2_sig.eps}
-				\caption{Image with sig.~pixels}
-			\end{subfigure}
-			\begin{subfigure}[b]{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius2_logp.eps}
-				\caption{$-\log p$}
-			\end{subfigure}
-		}
-		\centerline{
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius2_nullMean.eps}
-				\caption{Empirical null mean}
-			\end{subfigure}
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius2_nullStd.eps}
-				\caption{Empirical null std}
-			\end{subfigure}
-		}
-	\caption{Resulting inference when using the empirical null filter with radius $r=\addNumber{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius2.txt}$. a) Highlighted in red are significant pixels when controlling the FDR at the $2\sigma$ level. b) $p$-values on the log scale. c) and d) Empirical null mean and std.}
-	\label{fig:inference_sep16120deg_inference_radius2}
+  \centering
+    \centerline{
+      \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius2_sig.eps}
+        \caption{Image with sig.~pixels}
+      \end{subfigure}
+      \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius2_logp.eps}
+        \caption{$-\log p$}
+      \end{subfigure}
+    }
+    \centerline{
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius2_nullMean.eps}
+        \caption{Empirical null mean}
+      \end{subfigure}
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius2_nullStd.eps}
+        \caption{Empirical null std}
+      \end{subfigure}
+    }
+  \caption{Resulting inference when using the empirical null filter with radius $r=\addNumber{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius2.txt}$. a) Highlighted in red are significant pixels when controlling the FDR at the $2\sigma$ level. b) $p$-values on the log scale. c) and d) Empirical null mean and std.}
+  \label{fig:inference_sep16120deg_inference_radius2}
 \end{figure}
 
 \begin{figure}[p]
-	\centering
-		\centerline{
-			\begin{subfigure}[b]{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius3_sig.eps}
-				\caption{Image with sig.~pixels}
-			\end{subfigure}
-			\begin{subfigure}[b]{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius3_logp.eps}
-				\caption{$-\log p$}
-			\end{subfigure}
-		}
-		\centerline{
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius3_nullMean.eps}
-				\caption{Empirical null mean}
-			\end{subfigure}
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius3_nullStd.eps}
-				\caption{Empirical null std}
-			\end{subfigure}
-		}
-	\caption{Resulting inference when using the empirical null filter with radius $r=\addNumber{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius3.txt}$. a) Highlighted in red are significant pixels when controlling the FDR at the $2\sigma$ level. b) $p$-values on the log scale. c) and d) Empirical null mean and std.}
-	\label{fig:inference_sep16120deg_inference_radius3}
+  \centering
+    \centerline{
+      \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius3_sig.eps}
+        \caption{Image with sig.~pixels}
+      \end{subfigure}
+      \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius3_logp.eps}
+        \caption{$-\log p$}
+      \end{subfigure}
+    }
+    \centerline{
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius3_nullMean.eps}
+        \caption{Empirical null mean}
+      \end{subfigure}
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius3_nullStd.eps}
+        \caption{Empirical null std}
+      \end{subfigure}
+    }
+  \caption{Resulting inference when using the empirical null filter with radius $r=\addNumber{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius3.txt}$. a) Highlighted in red are significant pixels when controlling the FDR at the $2\sigma$ level. b) $p$-values on the log scale. c) and d) Empirical null mean and std.}
+  \label{fig:inference_sep16120deg_inference_radius3}
 \end{figure}
 
 \begin{figure}[p]
-	\centering
-		\centerline{
-			\begin{subfigure}[b]{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius4_sig.eps}
-				\caption{Image with sig.~pixels}
-			\end{subfigure}
-			\begin{subfigure}[b]{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius4_logp.eps}
-				\caption{$-\log p$}
-			\end{subfigure}
-		}
-		\centerline{
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius4_nullMean.eps}
-				\caption{Empirical null mean}
-			\end{subfigure}
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius4_nullStd.eps}
-				\caption{Empirical null std}
-			\end{subfigure}
-		}
-	\caption{Resulting inference when using the empirical null filter with radius $r=\addNumber{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius4.txt}$. a) Highlighted in red are significant pixels when controlling the FDR at the $2\sigma$ level. b) $p$-values on the log scale. c) and d) Empirical null mean and std.}
-	\label{fig:inference_sep16120deg_inference_radius4}
+  \centering
+    \centerline{
+      \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius4_sig.eps}
+        \caption{Image with sig.~pixels}
+      \end{subfigure}
+      \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius4_logp.eps}
+        \caption{$-\log p$}
+      \end{subfigure}
+    }
+    \centerline{
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius4_nullMean.eps}
+        \caption{Empirical null mean}
+      \end{subfigure}
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius4_nullStd.eps}
+        \caption{Empirical null std}
+      \end{subfigure}
+    }
+  \caption{Resulting inference when using the empirical null filter with radius $r=\addNumber{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius4.txt}$. a) Highlighted in red are significant pixels when controlling the FDR at the $2\sigma$ level. b) $p$-values on the log scale. c) and d) Empirical null mean and std.}
+  \label{fig:inference_sep16120deg_inference_radius4}
 \end{figure}
 
 The empirical null filter was applied to the \texttt{Sep16 120deg} image as shown at the start of the chapter. Figure \ref{fig:inference_sep16120deg_zfiltered} shows the filtered $z$ images for various kernel radiuses. For $r=\addNumber{../figures/inference/defectdetect/ExperimentDefectDetectSep16120deg_radius1.txt}$, the resulting $z$ image is smooth and treated everything as the null. When a large enough radius was used, the defects are highlighted by the higher $z$ statistics and everything else remain unchanged. Figures \ref{fig:inference_sep16120deg_inference_radius1} to \ref{fig:inference_sep16120deg_inference_radius4} shows the resulting inference along with the empirical null parameters. The figures shows that for large enough kernel radius, the filter irons out the false positives observed at the start of this chapter. All of the defects were successfully highlighted by the hypothesis test.
@@ -1749,406 +1749,406 @@ The empirical null filter was applied to the \texttt{Sep16 120deg} image as show
 False positives were detected on the bottom right of the 3D printed sample. This is the result of the null distribution being bimodal where each face has a different distribution. Figure \ref{fig:inference_cornerSelect} illustrates this. The geometry of the faces and the kernel is such it results in one of the faces to be treated as non-null and then tested positive, falsely so.
 
 \begin{figure}[htp]
-	\centering
-		\centerline{
-			\begin{subfigure}[b]{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectdetect/cornerSelect.png}
-				\caption{$z$ image with kernel of radius $r=120$}
-			\end{subfigure}
-			\begin{subfigure}[b]{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectdetect/cornerSelectHisto.png}
-				\caption{Histogram of $z$ in the kernel}
-			\end{subfigure}
-		}
-	\caption{A kernel of radius $r=120$ is placed over the bottom right of a unfiltered $z$ image. The histogram of the $z$ statistics captured by the kernel shows a bimodal distribution.}
-	\label{fig:inference_cornerSelect}
+  \centering
+    \centerline{
+      \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectdetect/cornerSelect.png}
+        \caption{$z$ image with kernel of radius $r=120$}
+      \end{subfigure}
+      \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectdetect/cornerSelectHisto.png}
+        \caption{Histogram of $z$ in the kernel}
+      \end{subfigure}
+    }
+  \caption{A kernel of radius $r=120$ is placed over the bottom right of a unfiltered $z$ image. The histogram of the $z$ statistics captured by the kernel shows a bimodal distribution.}
+  \label{fig:inference_cornerSelect}
 \end{figure}
 
 The false positives were tackled by manually segmenting the image further as shown in Figure \ref{fig:inference_segmentFurther}. It was segmented using the edges of the projection of the 3D printed object. The empirical null filter was then used on each segment independently, ignoring pixels outside the segment the filter is working on. The resulting filtered segments were stitched together to form the resulting filtered image. By using this method, the resulting inference is shown in Figure \ref{fig:inference_subroisep16120deg_inference_radius4}. It can be seen that the empirical null mean does change face to face, resulting in a clear boundary set by the edges. Most of false positives around the corners and edges have been eliminated.
 
 \begin{figure}[htp]
-	\centering
-	\includegraphics[width=0.49\textwidth]{../figures/inference/defectdetect/segment.JPG}
-	\caption{The $z$ was segmented further into 7 segments.}
-	\label{fig:inference_segmentFurther}
+  \centering
+  \includegraphics[width=0.49\textwidth]{../figures/inference/defectdetect/segment.JPG}
+  \caption{The $z$ was segmented further into 7 segments.}
+  \label{fig:inference_segmentFurther}
 \end{figure}
 
 \begin{figure}[p]
-	\centering
-		\centerline{
-			\begin{subfigure}[b]{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectdetect/ExperimentSubRoiDefectDetectSep16120deg_radius4_sig.eps}
-				\caption{Image with sig.~pixels}
-			\end{subfigure}
-			\begin{subfigure}[b]{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectdetect/ExperimentSubRoiDefectDetectSep16120deg_radius4_logp.eps}
-				\caption{$-\log p$}
-			\end{subfigure}
-		}
-		\centerline{
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectdetect/ExperimentSubRoiDefectDetectSep16120deg_radius4_nullMean.eps}
-				\caption{Empirical null mean}
-			\end{subfigure}
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/defectdetect/ExperimentSubRoiDefectDetectSep16120deg_radius4_nullStd.eps}
-				\caption{Empirical null std}
-			\end{subfigure}
-		}
-	\caption{Resulting inference when using the empirical null filter, on each segment independently, with radius $r=\addNumber{../figures/inference/defectdetect/ExperimentSubRoiDefectDetectSep16120deg_radius4.txt}$. a) Highlighted in red are significant pixels when controlling the FDR at the $2\sigma$ level. The $z$ statistics from all segments were combined in the BH procedure. b) $p$-values on the log scale. c) and d) Empirical null mean and std.}
-	\label{fig:inference_subroisep16120deg_inference_radius4}
+  \centering
+    \centerline{
+      \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectdetect/ExperimentSubRoiDefectDetectSep16120deg_radius4_sig.eps}
+        \caption{Image with sig.~pixels}
+      \end{subfigure}
+      \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectdetect/ExperimentSubRoiDefectDetectSep16120deg_radius4_logp.eps}
+        \caption{$-\log p$}
+      \end{subfigure}
+    }
+    \centerline{
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectdetect/ExperimentSubRoiDefectDetectSep16120deg_radius4_nullMean.eps}
+        \caption{Empirical null mean}
+      \end{subfigure}
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/defectdetect/ExperimentSubRoiDefectDetectSep16120deg_radius4_nullStd.eps}
+        \caption{Empirical null std}
+      \end{subfigure}
+    }
+  \caption{Resulting inference when using the empirical null filter, on each segment independently, with radius $r=\addNumber{../figures/inference/defectdetect/ExperimentSubRoiDefectDetectSep16120deg_radius4.txt}$. a) Highlighted in red are significant pixels when controlling the FDR at the $2\sigma$ level. The $z$ statistics from all segments were combined in the BH procedure. b) $p$-values on the log scale. c) and d) Empirical null mean and std.}
+  \label{fig:inference_subroisep16120deg_inference_radius4}
 \end{figure}
 
 
 \begin{figure}[p]
-	\centering
-		\centerline{
-			\begin{subfigure}[b]{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidEmpirical_nullMean.eps}
-				\caption{Empirical null}
-			\end{subfigure}
-			\begin{subfigure}[b]{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMadMode_nullMean.eps}
-				\caption{MAD mode null}
-			\end{subfigure}
-		}
-		\centerline{
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMeanVar_nullMean.eps}
-				\caption{Mean variance null}
-			\end{subfigure}
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMedianIqr_nullMean.eps}
-				\caption{Median IQR null}
-			\end{subfigure}
-		}
-	\caption{Different types of central tendency estimators were used on $\pi r^2$ $\normal(0,1)$ random variables. Shown are the sampling distributions from 100 repeats. The dotted lines show the 95\% confidence interval for the sample mean.}
+  \centering
+    \centerline{
+      \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidEmpirical_nullMean.eps}
+        \caption{Empirical null}
+      \end{subfigure}
+      \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMadMode_nullMean.eps}
+        \caption{MAD mode null}
+      \end{subfigure}
+    }
+    \centerline{
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMeanVar_nullMean.eps}
+        \caption{Mean variance null}
+      \end{subfigure}
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMedianIqr_nullMean.eps}
+        \caption{Median IQR null}
+      \end{subfigure}
+    }
+  \caption{Different types of central tendency estimators were used on $\pi r^2$ $\normal(0,1)$ random variables. Shown are the sampling distributions from 100 repeats. The dotted lines show the 95\% confidence interval for the sample mean.}
 \end{figure}
 
 \begin{figure}[p]
-	\centering
-		\centerline{
-			\begin{subfigure}[b]{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidEmpirical_nullStd.eps}
-				\caption{Empirical null}
-			\end{subfigure}
-			\begin{subfigure}[b]{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMadMode_nullStd.eps}
-				\caption{MAD mode null}
-			\end{subfigure}
-		}
-		\centerline{
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMeanVar_nullStd.eps}
-				\caption{Mean variance null}
-			\end{subfigure}
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMedianIqr_nullStd.eps}
-				\caption{Median IQR null}
-			\end{subfigure}
-		}
-	\caption{Different types of statistical dispersion estimators were used on $\pi r^2$ $\normal(0,1)$ random variables. Shown are the sampling distributions from 100 repeats. The dotted lines show the 95\% confidence interval for the sample variance.}
+  \centering
+    \centerline{
+      \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidEmpirical_nullStd.eps}
+        \caption{Empirical null}
+      \end{subfigure}
+      \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMadMode_nullStd.eps}
+        \caption{MAD mode null}
+      \end{subfigure}
+    }
+    \centerline{
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMeanVar_nullStd.eps}
+        \caption{Mean variance null}
+      \end{subfigure}
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMedianIqr_nullStd.eps}
+        \caption{Median IQR null}
+      \end{subfigure}
+    }
+  \caption{Different types of statistical dispersion estimators were used on $\pi r^2$ $\normal(0,1)$ random variables. Shown are the sampling distributions from 100 repeats. The dotted lines show the 95\% confidence interval for the sample variance.}
 \end{figure}
 
 \begin{figure}[p]
-	\centering
-		\centerline{
-			\begin{subfigure}[b]{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidEmpirical_zMean.eps}
-				\caption{Empirical null}
-			\end{subfigure}
-			\begin{subfigure}[b]{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMadMode_zMean.eps}
-				\caption{MAD mode null}
-			\end{subfigure}
-		}
-		\centerline{
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMeanVar_zMean.eps}
-				\caption{Mean variance null}
-			\end{subfigure}
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMedianIqr_zMean.eps}
-				\caption{Median IQR null}
-			\end{subfigure}
-		}
-	\caption{$\pi r^2$ $\normal(0,1)$ random variables were simulated and then normalised using the different types of estimators. Shown are the mean of the normalised random variables. The dotted lines show the 95\% confidence interval for the sample mean. The box plots represent 100 repeats of the simulation.}
+  \centering
+    \centerline{
+      \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidEmpirical_zMean.eps}
+        \caption{Empirical null}
+      \end{subfigure}
+      \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMadMode_zMean.eps}
+        \caption{MAD mode null}
+      \end{subfigure}
+    }
+    \centerline{
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMeanVar_zMean.eps}
+        \caption{Mean variance null}
+      \end{subfigure}
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMedianIqr_zMean.eps}
+        \caption{Median IQR null}
+      \end{subfigure}
+    }
+  \caption{$\pi r^2$ $\normal(0,1)$ random variables were simulated and then normalised using the different types of estimators. Shown are the mean of the normalised random variables. The dotted lines show the 95\% confidence interval for the sample mean. The box plots represent 100 repeats of the simulation.}
 \end{figure}
 
 \begin{figure}[p]
-	\centering
-		\centerline{
-			\begin{subfigure}[b]{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidEmpirical_zStd.eps}
-				\caption{Empirical null}
-			\end{subfigure}
-			\begin{subfigure}[b]{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMadMode_zStd.eps}
-				\caption{MAD mode null}
-			\end{subfigure}
-		}
-		\centerline{
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMeanVar_zStd.eps}
-				\caption{Mean variance null}
-			\end{subfigure}
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMedianIqr_zStd.eps}
-				\caption{Median IQR null}
-			\end{subfigure}
-		}
-	\caption{$\pi r^2$ $\normal(0,1)$ random variables were simulated and then normalised using the different types of estimators. Shown are the standard deviation of the normalised random variables. The dotted lines show the 95\% confidence interval for the sample variance. The box plots represent 100 repeats of the simulation.}
+  \centering
+    \centerline{
+      \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidEmpirical_zStd.eps}
+        \caption{Empirical null}
+      \end{subfigure}
+      \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMadMode_zStd.eps}
+        \caption{MAD mode null}
+      \end{subfigure}
+    }
+    \centerline{
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMeanVar_zStd.eps}
+        \caption{Mean variance null}
+      \end{subfigure}
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMedianIqr_zStd.eps}
+        \caption{Median IQR null}
+      \end{subfigure}
+    }
+  \caption{$\pi r^2$ $\normal(0,1)$ random variables were simulated and then normalised using the different types of estimators. Shown are the standard deviation of the normalised random variables. The dotted lines show the 95\% confidence interval for the sample variance. The box plots represent 100 repeats of the simulation.}
 \end{figure}
 
 \begin{figure}[p]
-	\centering
-		\centerline{
-			\begin{subfigure}[b]{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidEmpirical_zKurtosis.eps}
-				\caption{Empirical null}
-			\end{subfigure}
-			\begin{subfigure}[b]{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMadMode_zKurtosis.eps}
-				\caption{MAD mode null}
-			\end{subfigure}
-		}
-		\centerline{
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMeanVar_zKurtosis.eps}
-				\caption{Mean variance null}
-			\end{subfigure}
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMedianIqr_zKurtosis.eps}
-				\caption{Median IQR null}
-			\end{subfigure}
-		}
-	\caption{$\pi r^2$ $\normal(0,1)$ random variables were simulated and then normalised using the different types of estimators. Shown are the sample kurtosis of the normalised random variables. The dotted lines show the 95\% confidence interval for the sample kurtosis. The box plots represent 100 repeats of the simulation.}
+  \centering
+    \centerline{
+      \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidEmpirical_zKurtosis.eps}
+        \caption{Empirical null}
+      \end{subfigure}
+      \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMadMode_zKurtosis.eps}
+        \caption{MAD mode null}
+      \end{subfigure}
+    }
+    \centerline{
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMeanVar_zKurtosis.eps}
+        \caption{Mean variance null}
+      \end{subfigure}
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMedianIqr_zKurtosis.eps}
+        \caption{Median IQR null}
+      \end{subfigure}
+    }
+  \caption{$\pi r^2$ $\normal(0,1)$ random variables were simulated and then normalised using the different types of estimators. Shown are the sample kurtosis of the normalised random variables. The dotted lines show the 95\% confidence interval for the sample kurtosis. The box plots represent 100 repeats of the simulation.}
 \end{figure}
 
 \begin{figure}[p]
-	\centering
-		\centerline{
-			\begin{subfigure}[b]{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMixtureEmpirical_nullMean.eps}
-				\caption{Empirical null}
-			\end{subfigure}
-			\begin{subfigure}[b]{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMixtureMadMode_nullMean.eps}
-				\caption{MAD mode null}
-			\end{subfigure}
-		}
-		\centerline{
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMixtureMeanVar_nullMean.eps}
-				\caption{Mean variance null}
-			\end{subfigure}
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMixtureMedianIqr_nullMean.eps}
-				\caption{Median IQR null}
-			\end{subfigure}
-		}
-	\caption{Different types of central tendency estimators were used on $\pi r^2$ mixture of Gaussian random variables. The random variable has distribution $\normal(0,1)$ with probability $0.9$ and $\normal(3,1)$ with probability $0.1$. Shown are the sampling distributions from 100 repeats. The dotted lines show the 95\% confidence interval for the sample mean.}
+  \centering
+    \centerline{
+      \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMixtureEmpirical_nullMean.eps}
+        \caption{Empirical null}
+      \end{subfigure}
+      \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMixtureMadMode_nullMean.eps}
+        \caption{MAD mode null}
+      \end{subfigure}
+    }
+    \centerline{
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMixtureMeanVar_nullMean.eps}
+        \caption{Mean variance null}
+      \end{subfigure}
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMixtureMedianIqr_nullMean.eps}
+        \caption{Median IQR null}
+      \end{subfigure}
+    }
+  \caption{Different types of central tendency estimators were used on $\pi r^2$ mixture of Gaussian random variables. The random variable has distribution $\normal(0,1)$ with probability $0.9$ and $\normal(3,1)$ with probability $0.1$. Shown are the sampling distributions from 100 repeats. The dotted lines show the 95\% confidence interval for the sample mean.}
 \end{figure}
 
 \begin{figure}[p]
-	\centering
-		\centerline{
-			\begin{subfigure}[b]{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMixtureEmpirical_nullStd.eps}
-				\caption{Empirical null}
-			\end{subfigure}
-			\begin{subfigure}[b]{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMixtureMadMode_nullStd.eps}
-				\caption{MAD mode null}
-			\end{subfigure}
-		}
-		\centerline{
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMixtureMeanVar_nullStd.eps}
-				\caption{Mean variance null}
-			\end{subfigure}
-			\begin{subfigure}{0.49\textwidth}
-				\includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMixtureMedianIqr_nullStd.eps}
-				\caption{Median IQR null}
-			\end{subfigure}
-		}
-	\caption{Different types of statistical dispersion estimators were used on $\pi r^2$ mixture of Gaussian random variables. The random variable has distribution $\normal(0,1)$ with probability $0.9$ and $\normal(3,1)$ with probability $0.1$. Shown are the sampling distributions from 100 repeats. The dotted lines show the 95\% confidence interval for the sample variance.}
+  \centering
+    \centerline{
+      \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMixtureEmpirical_nullStd.eps}
+        \caption{Empirical null}
+      \end{subfigure}
+      \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMixtureMadMode_nullStd.eps}
+        \caption{MAD mode null}
+      \end{subfigure}
+    }
+    \centerline{
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMixtureMeanVar_nullStd.eps}
+        \caption{Mean variance null}
+      \end{subfigure}
+      \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/NullIid/NullIidMixtureMedianIqr_nullStd.eps}
+        \caption{Median IQR null}
+      \end{subfigure}
+    }
+  \caption{Different types of statistical dispersion estimators were used on $\pi r^2$ mixture of Gaussian random variables. The random variable has distribution $\normal(0,1)$ with probability $0.9$ and $\normal(3,1)$ with probability $0.1$. Shown are the sampling distributions from 100 repeats. The dotted lines show the 95\% confidence interval for the sample variance.}
 \end{figure}
 
 \begin{figure}[htp]
-	\centering
-	\centerline{
-	\begin{subfigure}[b]{0.49\textwidth}
-		\includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianEmpirical_mean.eps}
-		\caption{Empirical Null}
-	\end{subfigure}
-	\begin{subfigure}[b]{0.49\textwidth}
-		\includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianMadMode_mean.eps}
-		\caption{MAD Mode Null}
-	\end{subfigure}
-	}
-	\centerline{
-		\begin{subfigure}[b]{0.49\textwidth}
-		\includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianMedianIqr_mean.eps}
-		\caption{Median IQR Null}
-	\end{subfigure}
-	\begin{subfigure}[b]{0.49\textwidth}
-		\includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianMeanVar_mean.eps}
-		\caption{Mean Var Null}
-	\end{subfigure}
-	}
-	\caption{The sample mean of the test statistics in a filtered Gaussian image of size $\addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_width.txt} \times \addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_height.txt}$. The box plots summarise the \addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_nrepeat.txt} repeats of the experiment. The dotted lines show the critical region at the 2$\sigma$ level using standard tests for the sample mean and sample variance, assuming independence.}
+  \centering
+  \centerline{
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianEmpirical_mean.eps}
+    \caption{Empirical Null}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianMadMode_mean.eps}
+    \caption{MAD Mode Null}
+  \end{subfigure}
+  }
+  \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianMedianIqr_mean.eps}
+    \caption{Median IQR Null}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianMeanVar_mean.eps}
+    \caption{Mean Var Null}
+  \end{subfigure}
+  }
+  \caption{The sample mean of the test statistics in a filtered Gaussian image of size $\addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_width.txt} \times \addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_height.txt}$. The box plots summarise the \addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_nrepeat.txt} repeats of the experiment. The dotted lines show the critical region at the 2$\sigma$ level using standard tests for the sample mean and sample variance, assuming independence.}
 \end{figure}
 
 \begin{figure}[htp]
-	\centering
-	\centerline{
-	\begin{subfigure}[b]{0.49\textwidth}
-		\includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianEmpirical_variance.eps}
-		\caption{Empirical Null}
-	\end{subfigure}
-	\begin{subfigure}[b]{0.49\textwidth}
-		\includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianMadMode_variance.eps}
-		\caption{MAD Mode Null}
-	\end{subfigure}
-	}
-	\centerline{
-		\begin{subfigure}[b]{0.49\textwidth}
-		\includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianMedianIqr_variance.eps}
-		\caption{Median IQR Null}
-	\end{subfigure}
-	\begin{subfigure}[b]{0.49\textwidth}
-		\includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianMeanVar_variance.eps}
-		\caption{Mean Var Null}
-	\end{subfigure}
-	}
-	\caption{The sample std of the test statistics in a filtered Gaussian image of size $\addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_width.txt} \times \addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_height.txt}$. The box plots summarise the \addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_nrepeat.txt} repeats of the experiment. The dotted lines show the critical region at the 2$\sigma$ level using standard tests for the sample mean and sample variance, assuming independence.}
+  \centering
+  \centerline{
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianEmpirical_variance.eps}
+    \caption{Empirical Null}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianMadMode_variance.eps}
+    \caption{MAD Mode Null}
+  \end{subfigure}
+  }
+  \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianMedianIqr_variance.eps}
+    \caption{Median IQR Null}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianMeanVar_variance.eps}
+    \caption{Mean Var Null}
+  \end{subfigure}
+  }
+  \caption{The sample std of the test statistics in a filtered Gaussian image of size $\addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_width.txt} \times \addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_height.txt}$. The box plots summarise the \addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_nrepeat.txt} repeats of the experiment. The dotted lines show the critical region at the 2$\sigma$ level using standard tests for the sample mean and sample variance, assuming independence.}
 \end{figure}
 
 \begin{figure}[htp]
-	\centering
-	\centerline{
-	\begin{subfigure}[b]{0.49\textwidth}
-		\includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianEmpirical_kurtosis.eps}
-		\caption{Empirical Null}
-	\end{subfigure}
-	\begin{subfigure}[b]{0.49\textwidth}
-		\includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianMadMode_kurtosis.eps}
-		\caption{MAD Mode Null}
-	\end{subfigure}
-	}
-	\centerline{
-		\begin{subfigure}[b]{0.49\textwidth}
-		\includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianMedianIqr_kurtosis.eps}
-		\caption{Median IQR Null}
-	\end{subfigure}
-	\begin{subfigure}[b]{0.49\textwidth}
-		\includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianMeanVar_kurtosis.eps}
-		\caption{Mean Var Null}
-	\end{subfigure}
-	}
-	\caption{The sample kurtosis of the test statistics in a filtered Gaussian image of size $\addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_width.txt} \times \addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_height.txt}$. The box plots summarise the \addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_nrepeat.txt} repeats of the experiment. The dotted lines show the critical region at the 2$\sigma$ level using standard tests for the sample mean and sample variance, assuming independence.}
+  \centering
+  \centerline{
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianEmpirical_kurtosis.eps}
+    \caption{Empirical Null}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianMadMode_kurtosis.eps}
+    \caption{MAD Mode Null}
+  \end{subfigure}
+  }
+  \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianMedianIqr_kurtosis.eps}
+    \caption{Median IQR Null}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianMeanVar_kurtosis.eps}
+    \caption{Mean Var Null}
+  \end{subfigure}
+  }
+  \caption{The sample kurtosis of the test statistics in a filtered Gaussian image of size $\addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_width.txt} \times \addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_height.txt}$. The box plots summarise the \addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_nrepeat.txt} repeats of the experiment. The dotted lines show the critical region at the 2$\sigma$ level using standard tests for the sample mean and sample variance, assuming independence.}
 \end{figure}
 
 \begin{figure}[htp]
-	\centering
-	\centerline{
-	\begin{subfigure}[b]{0.49\textwidth}
-		\includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneEmpirical_mean.eps}
-		\caption{Empirical Null}
-	\end{subfigure}
-	\begin{subfigure}[b]{0.49\textwidth}
-		\includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneMadMode_mean.eps}
-		\caption{MAD Mode Null}
-	\end{subfigure}
-	}
-	\centerline{
-		\begin{subfigure}[b]{0.49\textwidth}
-		\includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneMedianIqr_mean.eps}
-		\caption{Median IQR Null}
-	\end{subfigure}
-	\begin{subfigure}[b]{0.49\textwidth}
-		\includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneMeanVar_mean.eps}
-		\caption{Mean Var Null}
-	\end{subfigure}
-	}
-	\caption{The sample mean test statistics in a filtered contaminated Gaussian image of size $\addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_width.txt} \times \addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_height.txt}$. The contamination is such that the null distribution is $Z_{x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = \addNumber{../figures/inference/contamination/gradx.txt} (x-x_0) + \addNumber{../figures/inference/contamination/grady.txt} (y-y_0)$ and $\sigma_0=\addNumber{../figures/inference/contamination/nullstd.txt}$. The box plots summarise the 100 repeats of the experiment. The dotted lines show the critical region at the 5\% level using standard tests for the sample mean and sample variance, assuming independence.}
+  \centering
+  \centerline{
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneEmpirical_mean.eps}
+    \caption{Empirical Null}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneMadMode_mean.eps}
+    \caption{MAD Mode Null}
+  \end{subfigure}
+  }
+  \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneMedianIqr_mean.eps}
+    \caption{Median IQR Null}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneMeanVar_mean.eps}
+    \caption{Mean Var Null}
+  \end{subfigure}
+  }
+  \caption{The sample mean test statistics in a filtered contaminated Gaussian image of size $\addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_width.txt} \times \addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_height.txt}$. The contamination is such that the null distribution is $Z_{x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = \addNumber{../figures/inference/contamination/gradx.txt} (x-x_0) + \addNumber{../figures/inference/contamination/grady.txt} (y-y_0)$ and $\sigma_0=\addNumber{../figures/inference/contamination/nullstd.txt}$. The box plots summarise the 100 repeats of the experiment. The dotted lines show the critical region at the 5\% level using standard tests for the sample mean and sample variance, assuming independence.}
 \end{figure}
 
 \begin{figure}[htp]
-	\centering
-	\centerline{
-	\begin{subfigure}[b]{0.49\textwidth}
-		\includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneEmpirical_variance.eps}
-		\caption{Empirical Null}
-	\end{subfigure}
-	\begin{subfigure}[b]{0.49\textwidth}
-		\includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneMadMode_variance.eps}
-		\caption{MAD Mode Null}
-	\end{subfigure}
-	}
-	\centerline{
-		\begin{subfigure}[b]{0.49\textwidth}
-		\includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneMedianIqr_variance.eps}
-		\caption{Median IQR Null}
-	\end{subfigure}
-	\begin{subfigure}[b]{0.49\textwidth}
-		\includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneMeanVar_variance.eps}
-		\caption{Mean Var Null}
-	\end{subfigure}
-	}
-	\caption{The sample standard deviation test statistics in a filtered contaminated Gaussian image of size $\addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_width.txt} \times \addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_height.txt}$. The contamination is such that the null distribution is $Z_{x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = \addNumber{../figures/inference/contamination/gradx.txt} (x-x_0) + \addNumber{../figures/inference/contamination/grady.txt} (y-y_0)$ and $\sigma_0=\addNumber{../figures/inference/contamination/nullstd.txt}$. The box plots summarise the 100 repeats of the experiment. The dotted lines show the critical region at the 5\% level using standard tests for the sample mean and sample variance, assuming independence.}
+  \centering
+  \centerline{
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneEmpirical_variance.eps}
+    \caption{Empirical Null}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneMadMode_variance.eps}
+    \caption{MAD Mode Null}
+  \end{subfigure}
+  }
+  \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneMedianIqr_variance.eps}
+    \caption{Median IQR Null}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneMeanVar_variance.eps}
+    \caption{Mean Var Null}
+  \end{subfigure}
+  }
+  \caption{The sample standard deviation test statistics in a filtered contaminated Gaussian image of size $\addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_width.txt} \times \addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_height.txt}$. The contamination is such that the null distribution is $Z_{x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = \addNumber{../figures/inference/contamination/gradx.txt} (x-x_0) + \addNumber{../figures/inference/contamination/grady.txt} (y-y_0)$ and $\sigma_0=\addNumber{../figures/inference/contamination/nullstd.txt}$. The box plots summarise the 100 repeats of the experiment. The dotted lines show the critical region at the 5\% level using standard tests for the sample mean and sample variance, assuming independence.}
 \end{figure}
 
 \begin{figure}[htp]
-	\centering
-	\centerline{
-	\begin{subfigure}[b]{0.49\textwidth}
-		\includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneEmpirical_kurtosis.eps}
-		\caption{Empirical Null}
-	\end{subfigure}
-	\begin{subfigure}[b]{0.49\textwidth}
-		\includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneMadMode_kurtosis.eps}
-		\caption{MAD Mode Null}
-	\end{subfigure}
-	}
-	\centerline{
-		\begin{subfigure}[b]{0.49\textwidth}
-		\includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneMedianIqr_kurtosis.eps}
-		\caption{Median IQR Null}
-	\end{subfigure}
-	\begin{subfigure}[b]{0.49\textwidth}
-		\includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneMeanVar_kurtosis.eps}
-		\caption{Mean Var Null}
-	\end{subfigure}
-	}
-	\caption{The sample kurtosis test statistics in a filtered contaminated Gaussian image of size $\addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_width.txt} \times \addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_height.txt}$. The contamination is such that the null distribution is $Z_{x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = \addNumber{../figures/inference/contamination/gradx.txt} (x-x_0) + \addNumber{../figures/inference/contamination/grady.txt} (y-y_0)$ and $\sigma_0=\addNumber{../figures/inference/contamination/nullstd.txt}$. The box plots summarise the 100 repeats of the experiment. The dotted lines show the critical region at the 5\% level using standard tests for the sample mean and sample variance, assuming independence.}
+  \centering
+  \centerline{
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneEmpirical_kurtosis.eps}
+    \caption{Empirical Null}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneMadMode_kurtosis.eps}
+    \caption{MAD Mode Null}
+  \end{subfigure}
+  }
+  \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneMedianIqr_kurtosis.eps}
+    \caption{Median IQR Null}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneMeanVar_kurtosis.eps}
+    \caption{Mean Var Null}
+  \end{subfigure}
+  }
+  \caption{The sample kurtosis test statistics in a filtered contaminated Gaussian image of size $\addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_width.txt} \times \addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_height.txt}$. The contamination is such that the null distribution is $Z_{x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = \addNumber{../figures/inference/contamination/gradx.txt} (x-x_0) + \addNumber{../figures/inference/contamination/grady.txt} (y-y_0)$ and $\sigma_0=\addNumber{../figures/inference/contamination/nullstd.txt}$. The box plots summarise the 100 repeats of the experiment. The dotted lines show the critical region at the 5\% level using standard tests for the sample mean and sample variance, assuming independence.}
 \end{figure}
 
 \begin{figure}[htp]
-	\centering
-	\begin{subfigure}[b]{0.49\textwidth}
-		\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectDust_pValuePreContaminated.eps}
-		\caption{Before contamination}
-	\end{subfigure}
-	\begin{subfigure}[b]{0.49\textwidth}
-		\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectDust_pValueFiltered.eps}
-		\caption{After filtering}
-	\end{subfigure}
-	\caption{$p$ values when doing hypothesis testing on a $256 \times 256$ dust defect Gaussian image. In b), the image was contaminated and then filtered using the \emph{empirical} null filter kernel radius 20. Defected pixels have the distribution $\normal(1,1)$. The salt defect has density $\pi_1 = 0.1$. The contamination is such that the null distribution is $Z_{x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$. The critical region was chosen to control the FDR at 5\%.}
+  \centering
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectDust_pValuePreContaminated.eps}
+    \caption{Before contamination}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectDust_pValueFiltered.eps}
+    \caption{After filtering}
+  \end{subfigure}
+  \caption{$p$ values when doing hypothesis testing on a $256 \times 256$ dust defect Gaussian image. In b), the image was contaminated and then filtered using the \emph{empirical} null filter kernel radius 20. Defected pixels have the distribution $\normal(1,1)$. The salt defect has density $\pi_1 = 0.1$. The contamination is such that the null distribution is $Z_{x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$. The critical region was chosen to control the FDR at 5\%.}
 \end{figure}
 
 \begin{figure}[htp]
-	\centering
-	\begin{subfigure}[b]{0.49\textwidth}
-		\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectDust_pValuePreContaminated2.eps}
-		\caption{Before contamination}
-	\end{subfigure}
-	\begin{subfigure}[b]{0.49\textwidth}
-		\includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectDust_pValueFiltered2.eps}
-		\caption{After filtering}
-	\end{subfigure}
-	\caption{$p$ values when doing hypothesis testing on a $256 \times 256$ dust defect Gaussian image. In b), the image was contaminated and then filtered using the \emph{MAD mode} null filter kernel radius 20. Defected pixels have the distribution $\normal(1,1)$. The salt defect has density $\pi_1 = 0.1$. The contamination is such that the null distribution is $Z_{x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$. The critical region was chosen to control the FDR at 5\%.}
+  \centering
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectDust_pValuePreContaminated2.eps}
+    \caption{Before contamination}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectDust_pValueFiltered2.eps}
+    \caption{After filtering}
+  \end{subfigure}
+  \caption{$p$ values when doing hypothesis testing on a $256 \times 256$ dust defect Gaussian image. In b), the image was contaminated and then filtered using the \emph{MAD mode} null filter kernel radius 20. Defected pixels have the distribution $\normal(1,1)$. The salt defect has density $\pi_1 = 0.1$. The contamination is such that the null distribution is $Z_{x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$. The critical region was chosen to control the FDR at 5\%.}
 \end{figure}
 
 \section{Conclusion}
