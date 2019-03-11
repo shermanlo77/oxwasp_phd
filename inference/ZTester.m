@@ -1,630 +1,234 @@
-%CLASS Z TESTER
+%CLASS: Z TESTER
 %Does hypothesis test on an image of z statistics
 %Multiple testing corrected using FDR, see:
-    %Benjamini, Y. and Hochberg, Y., 1995.
-    %Controlling the false discovery rate: a practical and powerful approach to multiple testing.
-    %Journal of the royal statistical society. Series B (Methodological), pp.289-300.
-%The null hypothesis can be corrected using the empirical null using a density estimate
-    %The density was estimated using Gaussian kernels (see Parzen class)
-    %Also see:
-    %Efron, B., 2004.
-    %Large-scale simultaneous hypothesis testing: the choice of a null hypothesis.
-    %Journal of the American Statistical Association, 99(465), pp.96-104.
+  %Benjamini, Y. and Hochberg, Y., 1995.
+  %Controlling the false discovery rate: a practical and powerful approach to multiple testing.
+  %Journal of the royal statistical society. Series B (Methodological), pp.289-300.
+%The null hypothesis can be corrected using the empirical null
+%How to use:
+  %pass z statistics into the constructor (can be 2d array)
+  %optional: estimate the null hypothesis, call the method estimateNull(initialValue, seed)
+  %call the method doTest();
+  %p values are in the member variable pImage
+  %positive pixels are in the member variable positiveImage
 classdef ZTester < handle
 
-    %MEMBER VARIABLES
-    properties (SetAccess = protected)
-        z_image; %2d array of z statistics
-        mean_null; %mean of the null hypothesis
-        var_null; %variance of the null hypothesis
-        size; %size of the test, default is 2 sigma OR 2*normcdf(-2)
-        size_corrected; %corrected size of the test due to multiple testing
-        p0; %estimation of propotion of H0 data, default is 1 for the sake of scaling without emperical null correction
-        
-        p_image; %2d array of p_values
-        sig_image; %boolean 2d array, true if that pixel is significant
-        n_test; %number of tests
-        density_estimator; %density estimator object
-        
-        median; %median of the data
-        std; %std of the data
-        
-        nInitial = 3; %number of initial points
-        n_step; %maximum number of steps in the newton raphson method
-        tol; %the smallest change of the grad density to declare convergence in the newton raphson method
-        rng; %random number generator for when newton raphson method fails
-        
-        critical_colour; %colour of the critical boundary
+  %MEMBER VARIABLES
+  properties (SetAccess = protected)
+    zImage; %2d array of z statistics
+    nullMean = 0; %mean of the null hypothesis
+    nullStd = 1; %std of the null hypothesis
+    threshold = 0.05; %fdr of the test
+    sizeCorrected; %corrected size of the test due to multiple testing
+
+    pImage; %2d array of p_values
+    positiveImage; %boolean 2d array, true if that pixel is significant
+    nTest; %number of tests
+  end
+
+  %METHODS
+  methods (Access = public)
+
+    %CONSTRUCTOR
+    %PARAMETERS:
+      %zImage: 2d array of z statistics
+    function this = ZTester(zImage)
+      %assign member variables
+      this.zImage = zImage;
+      %get the number of non_nan values in zImage
+      this.nTest = sum(sum(~isnan(zImage)));
+    end
+
+    %METHOD: SET THRESHOLD
+    %Set the fdr of the hypothesis test
+    %PARAMETERS:
+      %threshold: the fdr threshold
+    function setThreshold(this, threshold)
+      this.threshold = threshold;
+    end
+
+    %METHOD: ESTIMATE NULL
+    %Estimates the nullMean and nullStd
+    %PARAMETERS:
+      %initialValue: value to start the newton raphson from
+      %seed: int32 for setting the random number generator, used for using different initial values
+    function estimateNull(this, initialValue, seed)
+      empiricalNull = EmpiricalNull(reshape(this.zImage,[],1), initialValue, seed);
+      empiricalNull.estimateNull();
+      this.nullMean = empiricalNull.getNullMean();
+      this.nullStd = empiricalNull.getNullStd();
+    end
+
+    %METHOD: GET Z CORRECTED
+    %Returns the z image, corrected under the empirical null hypothesis
+    %RETURNS:
+      %zCorrected: 2d array of z statistics, corrected under the empirical null hypothesis
+    function zCorrected = getZCorrected(this)
+      zCorrected = (this.zImage - this.nullMean) ./ (this.nullStd);
+    end
+
+    %METHOD: DO TEST
+    %Does hypothesis using the p values, corrected using FDR
+    %Saves positive pixels in the member variable positiveImage
+    function doTest(this)
+      %calculate the p values
+      this.pImage = 2*(normcdf(-abs(this.getZCorrected())));
+      %instantise p tester and do test
+      pTester = PTester(this.pImage, this.threshold);
+      pTester.doTest();
+      %save the results, positiveImage and sizeCorrected
+      this.positiveImage = pTester.positiveImage; %2d boolean of significant pixels
+      this.sizeCorrected = pTester.size; %size of test, corrected for multiple testing
+    end
+
+    %METHOD: GET Z CRITICAL
+    %Return the critical values of z, corrected using the emperical null
+    function zCritical = getZCritical(this)
+      zCritical = norminv(this.sizeCorrected/2);
+      zCritical(2) = -zCritical;
+      zCritical = zCritical*this.nullStd + this.nullMean;
     end
     
-    %METHODS
-    methods (Access = public)
-        
-        %CONSTRUCTOR
-        %PARAMETERS:
-            %z_image: 2d array of z statistics
-        function this = ZTester(z_image)
-            %assign member variables
-            this.z_image = z_image;
-            %assign default values to the member variables
-            this.mean_null = 0;
-            this.var_null = 1;
-            this.p0 = 1;
-            this.setSigma(2);
-            
-            %get the number of non_nan values in z_image
-            nan_index = isnan(reshape(z_image,[],1));
-            this.n_test = sum(~nan_index);
-            
-            this.density_estimator = Parzen(reshape(this.z_image(~isnan(this.z_image)),[],1));
-            
-            this.median = median(reshape(z_image,[],1));
-            this.std = std(reshape(z_image,[],1));
-            
-            this.n_step = 10;
-            this.tol = 1E-5;
-            this.rng = RandStream('mt19937ar','Seed','shuffle');
-            
-            this.critical_colour = [0.8500, 0.3250, 0.0980];
-        end
-        
-        %METHOD: SET SIZE
-        %Set the size of the hypothesis test
-        %PARAMETERS:
-            %size: the size of the hypothesis test
-        function setSize(this, size)
-            this.size = size;
-        end
-        
-        %METHOD: SET SIGMA
-        %Set the size of the hypothesis test to be 2*normcdf(-sigma)
-        %PARAMETERS:
-            %sigma: threshold of the test
-        function setSigma(this, sigma)
-            this.setSize(2*normcdf(-sigma));
-        end
-        
-        %METHOD: SET DENSITY ESTIMATION PARAMETER
-        %Set the std of the gaussian kernel used in density estimation
-        %PARAMETERS:
-            %density_estimation_parameter: std of the gaussian kernel used in density estimation
-        function setDensityEstimationParameter(this,density_estimation_parameter)
-            this.density_estimator.setParameter(density_estimation_parameter);
-        end
-        
-        %METHOD: SET DENSITY ESTIMATION FUDGE FACTOR
-        %Set the std of the gaussian kernel used in density estimation by using a fudge factor
-        %parzen std = gradient x std x n^(-1/5) + intercept
-        %PARAMETERS:
-            %gradient
-            %intercept
-        function setDensityEstimationFudgeFactor(this,gradient,intercept)
-            this.density_estimator.setFudgeFactor(gradient,intercept);
-        end
-        
-        %METHOD: GET RANDOM INITIAL
-        %Return median + random Gaussian
-        function initial = getRandomInitial(this)
-          initial = this.median + this.rng.randn() * this.std; 
-        end
-        
-        %METHOD: ESTIMATE NULL
-        %Estimates the mean and var null hypothesis using a fitted density
-        %The mean is found using the Newton-Raphson method, starting point at the mean
-        %The std is found using the second derivate of the log density at the mode
-        %Updates the parameters of the null hypothesis, stored in the member variables
-        function estimateNull(this, ~)
-            %if the density estimator has no data, return nan
-            if this.density_estimator.n_data == 0
-                this.mean_null = nan;
-                this.var_null = nan;
-            %else get the emperical null parameters
-            else
-                
-                %declare array of starting initial values
-                zInitial = this.median;
-                %declare array to store the empirical null parameters and the density at the mode
-                lnfArray = zeros(this.nInitial,1);
-                nullMeanArray = zeros(this.nInitial,1);
-                d2xLnfArray = zeros(this.nInitial,1);
-                
-                %for each starting point
-                for i = 1:this.nInitial
-                    %get the mode, log density and d2x log density
-                    [nullMeanArray(i), lnfArray(i), d2xLnfArray(i)] = this.findMode(zInitial);
-                    zInitial = this.getRandomInitial();
-                end
-                
-                %estimate the null var
-                %get the z with the maximum log density
-                [~, z_index] = max(lnfArray);
-                
-                this.mean_null = nullMeanArray(z_index);
-                this.var_null = -1/d2xLnfArray(z_index);
-                %check if the std_null is real
-                if ~isreal(this.var_null)
-                    this.var_null = nan;
-                end
+    %METHOD: PLOT HISTOGRAM
+    %Plot histogram of z statistics
+    function plotHistogram(this)
+      histogramCustom(reshape(this.getZCorrected(),[],1));
+    end
 
-                %estimate p0, propotion of H0 data
-                this.p0 =  this.density_estimator.getDensityEstimate(this.mean_null)/normpdf(0,0,sqrt(this.var_null));
-                this.p0 = min([this.p0,1]);
-                
-            end
-            
-        end
-        
-        %METHOD: FIND MODE
-        %Find the mode of the density estimator using the Newton Raphson algorithm
-        %PARAMETER:
-            %z_null: initial value
-        %RETURN:
-            %z_null: mode
-            %lnf: log density at the mode
-            %d2x_lnf: 2nd derivate of the log density at the mode
-        function [z_null, lnf, d2x_lnf] = findMode(this, z_null)
-          
-            hasConverge = false;
-            while (~hasConverge)
-              %get the 1st and 2nd diff of the ln density at the initial value
-              [dx_lnf, d2x_lnf] = this.density_estimator.getDLnDensity(z_null);
-              %for n_step
-              for i_step = 1:this.n_step
-                  %update the solution to the mode
-                  z_null = z_null - dx_lnf/d2x_lnf;
-                  %get the 1st and 2nd diff of the ln density at the new value
-                  [dx_lnf, d2x_lnf] = this.density_estimator.getDLnDensity(z_null);
-                  %if this gradient is within tolerance, break the i_step for loop
-                  if (abs(dx_lnf)<this.tol)
-                      break;
-                  end
-                  %if any of the variables are nan, break the loop as well
-                  if any(isnan([dx_lnf, d2x_lnf, z_null]))
-                      break;
-                  end
-              end
-              %check if the solution to the mode is a maxima by looking at the 2nd diff
-              %return the log density
-              if d2x_lnf < 0
-                  lnf = log(this.density_estimator.getDensityEstimate(z_null));
-                  hasConverge = true;
-              else
-                  z_null = this.getRandomInitial();
-              end
-            end
-        end
-        
-        %METHOD: GET Z CORRECTED
-        %Returns the z image, corrected under the emperical null hypothesis
-        %RETURNS:
-            %z_corrected: 2d array of z statistics, corrected under the emperical null hypothesis
-        function z_corrected = getZCorrected(this)
-            z_corrected = (this.z_image - this.mean_null) / sqrt(this.var_null);
-        end
-        
-        %METHOD: GET P VALUES
-        %Calculate the p values (corrected using the emperical null hypothesisis)
-        function getPValues(this)
-            %work out the p values
-            this.p_image = 2*(normcdf(-abs(this.getZCorrected())));
-        end
-        
-        %METHOD: DO TEST
-        %Does hypothesis using the p values, corrected using FDR
-        %Saves significant pixels in the member variable sig_image
-        function doTest(this)
-            %calculate the p values
-            this.getPValues();
-            %instantise p tester and do test
-            p_tester = PTester(this.p_image, this.size);
-            p_tester.doTest();
-            %save the results, sig_image and size_corrected
-            this.sig_image = p_tester.sig_image; %2d boolean of significant pixels
-            this.size_corrected = p_tester.size_corrected; %size of test, corrected for multiple testing
-        end
-        
-        %METHOD: GET Z CIRITCAL
-        %Return the critical values of z, corrected using the emperical null
-        function z_critical = getZCritical(this)
-            z_critical = norminv(this.size_corrected/2);
-            z_critical(2) = -z_critical;
-            z_critical = z_critical*sqrt(this.var_null) + this.mean_null;
-        end
+    %METHOD: PLOT HISTOGRAM WITH NULL DISTRIBUTION AND CRITICAL BOUNDARY
+    %Produce a figure plots:
+      %histogram of z statistics
+      %empirical null
+      %critical boundary
+    function plotHistogram2(this)
+      %plot histogram
+      this.plotHistogram();
+      hold on;
+      ax = gca;
+      %get values from min to max
+      zPlot = linspace(ax.XLim(1), ax.XLim(2), 500);
+      %plot null
+      this.plotNull(zPlot);
+      %plot critical boundary
+      this.plotCritical();
+      
+      %swap the order of the critical and histogram
+      ax.Children = flip(ax.Children);
+      
+      %label axis and legend
+      xlabel('z statistic');
+      ylabel('frequency density');
+      legend(ax.Children(1:(end-1)), 'z statistic', 'null', 'critical');
+    end
 
-        %METHOD: ESTIMATE H1 DENSITY
-        %Estimates the alternate densisty
-        %PARAMETERS:
-            %x: points to be evaluated by the alternative density
-        %RETURN:
-            %f1: alternate density evaluated at x
-        function f1 = estimateH1Density(this, x)
-            %estimate the alternative density
-            f1 = (this.density_estimator.getDensityEstimate(x) - this.p0*normpdf(x,this.mean_null,sqrt(this.var_null))) / (1-this.p0);
-            %ensure all values of the density at non-negative
-            f1(f1<0) = 0;
-        end
-        
-        %METHOD: ESTIMATE H1 CDF
-        %Estimates the alternative cdf
-        %PARAMETERS:
-            %x: points to be evaluated by the alternative cdf
-            %is_upper: boolean, true if to evaluate the right hand side of the cdf
-        %RETURN:
-            %F1: alternative cdf evaluated at x
-        function F1 = estimateH1Cdf(this, x, is_upper)
-            %evaluate the cdf using the corresponding tail
-            if is_upper
-                F0 = normcdf(x,this.mean_null,sqrt(this.var_null),'upper');
-            else
-                F0 = normcdf(x,this.mean_null,sqrt(this.var_null));
-            end
-            %estimate the H1 cdf
-            F1 = (this.density_estimator.getCdfEstimate(x, is_upper) - this.p0*F0) / (1-this.p0);
-        end
-        
-        %METHOD: ESTIMATE POWER
-        %Estimate the power using the estimated H1 and the critical boundary
-        function power = estimatePower(this)
-            %get the critical boundaries
-            z_critical = this.getZCritical();
-            %estimate the power
-            power = this.estimateH1Cdf(z_critical(1), false) + this.estimateH1Cdf(z_critical(2), true);
-        end
-        
-        %METHOD: ESTIMATE ALTERNATIVE
-        %Assume the alternative distribution is Gaussian
-        %Estimate the parameters of the alternative distribution using the mode and curvature at the mode
-        %PARAMETERS:
-            %linspace: number of points between the min and max used for mode seeking
-        %RETURN:
-            %mean_h1: mean of H1
-            %std_h1: std of H1
-        function [mean_h1, std_h1] = estimateAlternative(this, n_linspace)
-            %declare n_linspace equally spaced points between min and max of z_array
-            z_array = linspace(min(min(this.z_image)), max(max(this.z_image)), n_linspace);
-            %get the alternative density evaluated at each point in z_array
-            f1 = this.estimateH1Density(z_array);
-            
-            %find the index with the biggest density
-            [~,z_index] = max(f1);
-            %get the mode, the value of z with the biggest density
-            mean_h1 = z_array(z_index);
-            
-            %get the null density and its derivate
-            f0 = this.density_estimator.getDensityEstimate(mean_h1);
-            f0_d1 = f0 * (mean_h1 - this.mean_null)/sqrt(this.var_null);
-            f0_d2 = f0 * ( (mean_h1 - this.mean_null)^2/this.var_null + 1) / this.var_null;
-            
-            %get the non-null density and its derivate
-            f1 = this.estimateH1Density(mean_h1) * this.p0;
-            f1_d1 = this.density_estimator.getDensity_d1(mean_h1) - this.p0*f0_d1;
-            f1_d2 = this.density_estimator.getDensity_d2(mean_h1) - this.p0*f0_d2;
-            
-            %work out std_h1 using the curvature at the mode
-            d2 = (f1*f1_d2 - (f1_d1)^2)/(f1^2);
-            std_h1 = (-d2)^(-1/2);
-            
-        end
-        
-        %METHOD: FIGURE HISTOGRAM CRITICAL BOUNDARY
-        %Produce a figure plots:
-            %histogram of z statistics
-            %emperical null
-            %critical boundary
-        function plotHistCritical(this)
-            %plot histogram
-            this.plotHistogram();
-            hold on;
-            ax = gca;
-            %get 500 values from min to max
-            z_plot = linspace(ax.XLim(1),ax.XLim(2),500);
-            %plot null
-            this.plotNull(z_plot);
-            %plot critical boundary
-            this.plotCritical();
-            %label axis and legend
-            xlabel('z statistic');
-            ylabel('frequency density');
-            legend('z stats','null','critical');
-        end
-        
-        %METHOD: PLOT HISTOGRAM
-        %Plot histogram of z statistics
-        function plotHistogram(this)
-            z_vector = reshape(this.z_image,[],1);
-            z_vector(isnan(z_vector)) = [];
-            histogram_custom(z_vector);
-        end
-        
-        %METHOD: PLOT CRITICAL BOUNDARY
-        function plotCritical(this)
-            ax = gca;
-            critical = this.getZCritical();
-            
-            %LEFT HAND SIDE
-            %check if the boundary can be plotted
-            if ax.XLim(1) < critical(1)
-                %plot the critical boundary
-                area_transparent([ax.XLim(1),critical(1)],[ax.YLim(2),ax.YLim(2)],this.critical_colour);
-            end
-            
-            hold on;
-            
-            %RIGHT HAND SIDE
-            %check if the boundary can be plotted
-            if critical(2) < ax.XLim(2)
-                area_transparent([critical(2),ax.XLim(2)],[ax.YLim(2),ax.YLim(2)],this.critical_colour);
-            end
-        end
-        
-        %METHOD: PLOT DENSITY ESTIMATE
-        %PARAMETERS:
-            %z_plot: values to evaluate the density estimate at
-        function plotDensityEstimate(this, z_plot)
-            plot(z_plot,this.density_estimator.getDensityEstimate(z_plot)*this.n_test);
-        end
-        
-        %METHOD: PLOT NULL DENSITY
-        %PARAMETERS:
-            %z_plot: values to evalute the null density at
-        function plotNull(this, z_plot)
-            plot(z_plot,normpdf(z_plot,this.mean_null,sqrt(this.var_null))*this.n_test);
-        end
-        
-        %METHOD: PLOT P VALUES
-        %Plot the p values in order with the BH critical region
-        function plotPValues(this)
-            %get array of x axis values : integers representing the order
-            order_index = 1:this.n_test;
-            %scatter plot the ordered p values
-            p_vector = sort(reshape(this.p_image,1,[]));
-            p_vector(isnan(p_vector)) = [];
-            scatter(1:this.n_test, sort(p_vector),'.');
-            xlabel('order');
-            ylabel('p value');
-            hold on;
-            %plot the BH critical line
-            ax = gca;
-            area_transparent(order_index, this.size/this.n_test*order_index, this.critical_colour);
-            %set the scale to log
-            ax.XScale = 'log';
-            ax.YScale = 'log';
-            %set other graph properties
-            ax.XLim = [1,this.n_test];
-            legend('p values','critical','Location','northwest');
-        end
-        
-        %METHOD: PLOT P VALUES
-        %Plot the p values in order with the BH critical region
-        %The null and alt p values have different symbols
-        function plotPValues2(this, isNull)
-          %get array of x axis values : integers representing the order
-          order_index = 1:this.n_test;
-          %scatter plot the ordered p values
-          [p_vector, index] = sort(reshape(this.p_image,1,[]));
-          p_vector(isnan(p_vector)) = [];
-          index(isnan(p_vector)) = [];
-          
-          isNull = reshape(isNull,1,[]);
-          isNull = isNull(index);
-          scatter(order_index(~isNull), p_vector(~isNull),'rx');
-          hold on;
-          scatter(order_index(isNull), p_vector(isNull),'b.');
-          xlabel('order');
-          ylabel('p value');
-          %plot the BH critical line
-          ax = gca;
-          area_transparent(order_index, this.size/this.n_test*order_index, this.critical_colour);
-          %set the scale to log
-          ax.XScale = 'log';
-          ax.YScale = 'log';
-          %set other graph properties
-          ax.XLim = [1,this.n_test];
-          legend('alt','null','critical','Location','northwest');
-        end
-        
-        %METHOD: SET CRITICAL COLOUR
-        %Set the colour of the area to show the critical region
-        function setCriticalColour(this, colour)
-            this.critical_colour = colour;
-        end
-        
-        %METHOD: PLOT QQ PLOT
-        %Plot quantile-quantile plot, x-axis theortical quantile, y-axis observed quantile
-        function plotQQ(this)
-            %sort the data, this will be the observed quantiles
-            y = sort(reshape(this.z_image,[],1));
-            y(isnan(y))=[];
-            %get the theortical quantiles
-            x = norminv( ((1:this.n_test)-0.5) / this.n_test ) * sqrt(this.var_null) + this.mean_null;
-            %for legend purposes
-            area_transparent(0,0,this.critical_colour);
-            hold on;
-            %plot the quantiles
-            scatter(x,y,'.');
-            %plot the straight line
-            plot(y,y,'k-.');
-            %get the critical value
-            z_critical = this.getZCritical();
-            %get graph data
-            ax = gca;
-            ylim = ax.YLim;
-            xlim = ax.XLim;
-            %if the critical boundary can be plotted, plot the upper critical boundary
-            if z_critical(2) < ylim(2)
-                rectangle_transparent([xlim(1), z_critical(2), xlim(2)-xlim(1), ylim(2)-z_critical(2)],this.critical_colour);
-            end
-            %if the critical boundary can be plotted, plot the lower critical boundary
-            if ylim(1) < z_critical(1)
-                rectangle_transparent([xlim(1), ylim(1), xlim(2)-xlim(1), z_critical(1)-ylim(1)],this.critical_colour);
-            end
-            %label axis
-            ylabel('observed quantile');
-            xlabel('theortical quantile');
-        end
-        
+    %METHOD: PLOT P VALUES
+    %Plot the p values in order with the BH critical region
+    function plotPValues(this)
+      this.plotPValues2(true(size(this.zImage)));
+      ax = gca;
+      legend(ax.Children([1,3]), 'p value', 'critical', 'Location','northwest');
+    end
+
+    %METHOD: PLOT P VALUES (highlight null and non-null)
+    %Plot the p values in order with the BH critical region
+    %The null and non-null p values have different symbols
+    %PARAMETERS:
+      %isNull: boolean image, true if this statistic is null
+    function plotPValues2(this, isNull)
+      this.plotOrderedPValues(isNull);
+      ax = gca;
+      legend(ax.Children, 'null','alt','critical','Location','northwest');
     end
     
+  end
+  
+  methods (Access = private)
+    
+    %METHOD: PLOT NULL DENSITY
+    %PARAMETERS:
+      %zPlot: values to evalute the null density at
+    function plotNull(this, zPlot)
+      plot(zPlot, this.nTest * normpdf(zPlot, this.nullMean, this.nullStd));
+    end
+    
+    %METHOD: PLOT CRITICAL BOUNDARY
+    %Plot a vertical area to show critical boundary on a histogram
+    function plotCritical(this)
+      ax = gca;
+      critical = this.getZCritical();
+      %left hand side
+      %check if the boundary can be plotted
+      if (ax.XLim(1) < critical(1))
+        %plot the critical boundary
+        this.plotArea([ax.XLim(1),critical(1)], [ax.YLim(2),ax.YLim(2)]);
+      end
+      hold on;
+      %right hand size
+      %check if the boundary can be plotted
+      if (critical(2) < ax.XLim(2))
+        this.plotArea([critical(2),ax.XLim(2)], [ax.YLim(2),ax.YLim(2)]);
+      end
+    end
+    
+    %METHOD: PLOT BH CRITICAL
+    %Plot the BH critical region on a p value plot
+    function plotBhCritical(this)
+      %plot the BH critical line
+      ax = gca;
+      this.plotArea(orderIndex, this.sizeCorrected/this.nTest*1:this.nTest);
+      %set the scale to log
+      ax.XScale = 'log';
+      ax.YScale = 'log';
+      %set other graph properties
+      ax.XLim = [1,this.nTest];
+    end
+    
+    %METHOD: PLOT ORDERED P VALUES
+    %Scatter plot the p values vs order
+    %Use different symbol for null and non-null
+    %PARAMETERS:
+      %isNull: boolean image, true if this statistic is null
+    function plotOrderedPValues(this, isNull)
+      
+      %remove any nan and convert to vector
+      isNull(isnan(this.pImage)) = [];
+      pVector = this.pImage(~isnan(this.pImage));
+      
+      %get array of x axis values : integers representing the order
+      orderIndex = 1:this.nTest;
+      %scatter plot the ordered p values
+      [pVector, index] = sort(pVector);
+      %reorder the boolean vector isNull because of sort
+      isNull = isNull(index);
+      
+      %plot the BH critical line
+      this.plotArea(orderIndex, this.sizeCorrected/this.nTest*orderIndex);
+      hold on;
+      %plot the p values
+      scatter(orderIndex(~isNull), pVector(~isNull),'rx');
+      scatter(orderIndex(isNull), pVector(isNull),'b.');
+      xlabel('order');
+      ylabel('p value');
+      
+      %set the scale to log and other graph properties
+      ax = gca;
+      ax.XScale = 'log';
+      ax.YScale = 'log';
+      ax.XLim = [1,this.nTest];
+      
+    end
+
+    %METHOD: PLOT AREA
+    %Plot area to show critical region
+    function plotArea(this, x, y)
+      axArea = area(x,y);
+      axArea.LineStyle = 'none';
+      axArea.FaceColor = [0.9686, 0.8666, 0.8196];
+      ax = gca;
+      ax.Layer = 'top'; %make the minor tick show up
+    end
+    
+  end
+
 end
-
-%         %METHOD: ESTIMATE LOCAL FDR
-%         %Estimates the fdr using the densities
-%         %RETURN:
-%             %fdr: local false discovery rate
-%         function fdr = estimateLocalFdr(this, x)
-%             fdr = this.p0 * normpdf(x,this.mean_null,sqrt(this.var_null)) ./ this.density_estimator.getDensityEstimate(x);
-%         end
-%         
-%         %METHOD: ESTIMATE TAIL FDR (two tailed)
-%         %Estimates the fdr using cdf
-%         %RETURN:
-%             %fdr: tail false discovery rate
-%         function fdr = estimateTailFdr(this, x)
-%             %indicate z values which are less than the mean
-%             is_left = x < this.mean_null;
-%             
-%             %declare an array left tail and right tail, all with initial value 0
-%             %left tail contain values at the left tail to be evaluated using the cdf
-%             %right tail contain values at the right tail to be evaluated using the cdf
-%             left_tail = x;
-%             right_tail = x;
-%             left_tail(:) = 0;
-%             right_tail(:) = 0;
-%             
-%             %for values less than the mean, copy it over to the left tail array
-%             left_tail(is_left) = x(is_left);
-%             %for values more than the mean, copy it over to the right tail array
-%             right_tail(~is_left) = x(~is_left);
-%             
-%             %for values more than the mean, reflect it to the left tail and save it to the left tail array
-%             left_tail(~is_left) = 2*this.mean_null - x(~is_left);
-%             %for values less than the mean, reflect it to the right tail and save it to the right tail array
-%             right_tail(is_left) = 2*this.mean_null - x(is_left);
-%             
-%             %get the evaluation of the null cdf at the left tail and the right tail, add them together
-%             F0 = normcdf(left_tail,this.mean_null,sqrt(this.var_null)) + normcdf(right_tail,this.mean_null,sqrt(this.var_null),'upper');
-%             %get the evaluation of the non-null cdf at the left tail and the right tail, add them together
-%             F = this.density_estimator.getCdfEstimate(left_tail,false) + this.density_estimator.getCdfEstimate(right_tail,true);
-%             
-%             %estimate the tail fdr
-%             fdr = this.p0 * F0 ./ F;
-%             
-%         end
-%         
-%         %METHOD: GET Q IMAGE
-%         %Return the q image, this is the tail fdr evaluated for each point in z image
-%         %RETURN
-%             %q_image: image of q values
-%         function q_image = getQImage(this)
-%             %reshape the z values into a column vector
-%             q_image = reshape(this.z_image,[],1);
-%             %estimate the tail fdr, evaluated for each z value
-%             q_image = this.estimateTailFdr(q_image);
-%             %reshape the z values into an image
-%             q_image = reshape(q_image,size(this.z_image));
-%         end
-%         
-%         %METHOD: GET Q CRITICAL
-%         %Return the critical q values, this is the tail fdr evaluated at z critical
-%         function q_critical = getQCritical(this)
-%             %evaluate the tail fdr at the z critical
-%             q_critical = this.estimateTailFdr(this.getZCritical());
-%             %both the left and right critical boundary should produce the same q value
-%             %take the 1st one
-%             q_critical = q_critical(1);
-%         end
-%         
-%         %METHOD: ESTIMATE POWER (USING EXP TAIL FDR)
-%         %Estimate the power using the average tail fdr under the non-null density
-%         %PARAMETERS:
-%             %a: starting point for the trapezium rule
-%             %b: end point for the trapezium rule
-%             %n: number of trapeziums
-%         %RETURN:
-%             %power: statistical power
-%         function power = estimateTailPower(this, a, b, n)
-%             power = this.estimateFdrPower(true, a, b, n);
-%         end
-%         
-%         %METHOD: ESTIMATE POWER (USING EXP LOCAL FDR)
-%         %Estimate the power using the average local fdr under the non-null density
-%         %PARAMETERS:
-%             %a: starting point for the trapezium rule
-%             %b: end point for the trapezium rule
-%             %n: number of trapeziums
-%         %RETURN:
-%             %power: statistical power
-%         function power = estimateLocalPower(this, a, b, n)
-%             power = this.estimateFdrPower(false, a, b, n);
-%         end
-%         
-%         %METHOD: ESTIMATE POWER (USING EXP FDR)
-%         %Estimate the power using the average fdr under the non-null density
-%         %PARAMETERS:
-%             %is_tail: boolea, true if to use the tail fdr, else use local fdr
-%             %a: starting point for the trapezium rule
-%             %b: end point for the trapezium rule
-%             %n: number of trapeziums
-%         %RETURN:
-%             %power: statistical power
-%         function power = estimateFdrPower(this, is_tail, a, b, n)
-%             %get n equally spaced points, from a to b
-%             x = linspace(a,b,n);
-%             %get the height of the trapeziums
-%             h = (b-a)/n;
-%             %get the density estimate of the non-null density
-%             f1 = this.estimateH1Density(x);
-%             %get the estimated fdr
-%             if is_tail
-%                 fdr = this.estimateTailFdr(x);
-%             else
-%                 fdr = this.estimateLocalFdr(x);
-%             end
-%             %get the integrand
-%             I = f1.*fdr;
-%             
-%             %integrate I, divide by the normalisation constand
-%             power = (0.5*h*(I(1)+I(end)+2*sum(I(2:(end-1))))) / (0.5*h*(f1(1)+f1(end)+2*sum(f1(2:(end-1)))));
-%             %get the power
-%             power = 1 - power;
-%         end
-
-% %METHOD: FIGURE HISTOGRAM DENSITY CRITICAL BOUNDARY
-%         %Produce a figure plots:
-%             %histogram of z statistics
-%             %density estimate
-%             %emperical null
-%             %emperical alt
-%             %critical boundary
-%         function fig = figureHistDensityCritical(this)
-%             %produce a figure
-%             fig = figure;
-%             %plot histogram
-%             this.plotHistogram();
-%             hold on;
-%             %plot critical boundary
-%             this.plotCritical();
-%             
-%             ax = gca;
-%             %get 500 values from min to max
-%             z_plot = linspace(ax.XLim(1),ax.XLim(2),500);
-%             %plot density estimate
-%             this.plotDensityEstimate(z_plot);
-%             %plot null density
-%             this.plotNull(z_plot);
-%             %plot alt density
-%             this.plotAlt(z_plot);
-%             
-%             %label axis and legend
-%             xlabel('z statistic');
-%             ylabel('frequency density');
-%             legend(ax.Children([6,3,2,1,5]),'histogram','estimated density','null','alt','critical boundary');
-%         end
-% 
-%         METHOD: PLOT ALT DENSITY
-%         PARAMETERS:
-%             z_plot: values to evalute the alt density at
-%         function plotAlt(this, z_plot)
-%             plot(z_plot,(1-this.p0)*this.n_test*this.estimateH1Density(z_plot));
-%         end
 

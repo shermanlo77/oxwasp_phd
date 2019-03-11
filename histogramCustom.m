@@ -1,4 +1,4 @@
-function histogram_custom(X, edges)
+function histogramCustom(X, edges)
 
     if nargin == 1
         [N, edges] = histcounts(X);

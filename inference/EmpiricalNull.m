@@ -18,7 +18,7 @@ classdef EmpiricalNull < handle
     %PARAMETERS:
       %zArray: 1d array of z statistics
       %initialValue: value to start the newton raphson from
-      %seed: long for setting the random number generator, used for using different initial values
+      %seed: int32 for setting the random number generator, used for using different initial values
     function this = EmpiricalNull(zArray, initialValue, seed)
       this.saveJavaObject(zArray, initialValue, seed);
     end

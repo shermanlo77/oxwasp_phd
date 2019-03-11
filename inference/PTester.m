@@ -2,79 +2,81 @@
 %Does multiple hypothesis tests on a given image of p values
 %Multiple testing corrected by controlling the FDR
 %See:
-    %Benjamini, Y. and Hochberg, Y. 1995
-    %Controlling the false discovery rate: a practical and powerful approach to multiple testing
-    %Journal of the royal statistical society
+  %Benjamini, Y. and Hochberg, Y. 1995
+  %Controlling the false discovery rate: a practical and powerful approach to multiple testing
+  %Journal of the royal statistical society
+%How to use:
+  %pass p values (can be 2D array) into the constructor along with the fdr threshold
+  %call method doTest
+  %get the positive results in the member variable positiveImage
 classdef PTester < handle
+  
+  properties (SetAccess = private)
+    pImage; %2d array of p values
+    positiveImage; %2d boolean array, true of positive pixel
+    fdr; %user threshold for fdr of test
+    size; %significant level of the test, obtained from BH procedure
+    nTest; %number of tests in the image (non-nan)
+  end
+  
+  methods (Access = public)
     
-    %MEMBER VARIABLES
-    properties (SetAccess = private)
-        p_image; %2d array of p values
-        sig_image; %2d boolean array, true of significant pixel
-        size; %size of test
-        size_corrected; %size of test corrected for multiple testing
-        n_test; %number of tests in the image
+    %CONSTRUCTOR
+    %PARAMETERS:
+      %pImage: 2d array of p values
+      %fdr: fdr of the test
+    function this = PTester(pImage, fdr)
+      %assign member variables
+      this.pImage = pImage;
+      this.positiveImage = false(size(pImage));
+      this.fdr = fdr;
+      %get the number of non_nan values in z_image
+      this.nTest = sum(sum(~isnan(pImage)));
     end
     
-    %METHODS
-    methods (Access = public)
-       
-        %CONSTRUCTOR
-        %PARAMETERS:
-            %p_image: 2d array of p values
-            %size: size of the test
-        function this = PTester(p_image, size)
-            %assign member variables
-            this.p_image = p_image;
-            this.sig_image = p_image;
-            this.sig_image(:) = false;
-            this.size = size;
-            
-            %get the number of non_nan values in z_image
-            nan_index = isnan(reshape(p_image,[],1));
-            this.n_test = sum(~nan_index);
-        end
+    %METHOD: DO TEST
+      %Do hypothesis test using the given p values, controlling the FDR
+      %Assign the member variables positiveImage and size
+    function doTest(this)
+      
+      %put the p values in a column vector
+      pArray = reshape(this.pImage,[],1);
+      %remove nan
+      pArray(isnan(pArray)) = [];
+      %sort the p_array in accending order
+        %pOrdered is pArray sorted
+        %pOrderedIndex contains indices of the values in pOrdered in relation to pArray
+      [pOrdered, pOrderedIndex] = sort(pArray);
+      
+      %find the index of pOrdered which is most significant using the FDR algorithm
+      pCriticalIndex = find( pOrdered <= this.fdr*(1:this.nTest)'/this.nTest, true, 'last');
+      
+      %if there are p values which are significant
+      if ~isempty(pCriticalIndex)
         
-        %METHOD: DO TEST
-        %Do hypothesis test using the given p values, controlling the FDR
-        %Assign the member variables sig_image and size_corrected
-        function doTest(this)
-
-            %put the p values in a column vector
-            p_array = reshape(this.p_image,[],1);
-            %sort the p_array in accending order
-            %p_ordered is p_array sorted
-            %p_ordered_index contains indices of the values in p_ordered in relation to p_array
-            [p_ordered, p_ordered_index] = sort(p_array);
-
-            %find the index of p_ordered which is most significant using the FDR algorithm
-            p_critical_index = find( p_ordered(~isnan(p_ordered)) <= this.size*(1:this.n_test)'/this.n_test, 1, 'last');
-
-            %if there are p values which are significant
-            if ~isempty(p_critical_index)
-
-                %correct the size of the test using that p value
-                this.size_corrected = p_ordered(p_critical_index);
-
-                %set everything in p_array to be false
-                %they will be set to true for significant p values
-                p_array = zeros(numel(p_array),1);
-
-                %using the entries indiciated by p_ordered_index from element 1 to p_critical_index
-                %set these elements in sig_array to be true
-                p_array(p_ordered_index(1:p_critical_index)) = true;
-
-                %put p_array in non nan entries of sig_array
-                this.sig_image(:) = p_array;
-            else
-                %correct the size of the test is the Bonferroni correction
-                this.size_corrected = this.size / this.n_test;
-            end
-            
-        end
+        %set the size of the test using that p value
+        this.size = pOrdered(pCriticalIndex);
         
+        %set everything in pArray to be false
+        %they will be set to true for significant p values
+        pArray = false(numel(pArray),1);
+        
+        %using the entries indiciated by pOrderedIndex from element 1 to pCriticalIndex
+        %set these elements in positiveImage to be true
+        pArray(pOrderedIndex(1:pCriticalIndex)) = true;
+        
+        %put pArray in non nan entries of positiveImage
+        this.positiveImage(~isnan(this.pImage)) = pArray;
+        
+      else
+        %correct the fdr of the test is the Bonferroni correction
+        this.size = this.fdr / this.nTest;
+        
+      end
+      
     end
     
-    
+  end
+  
 end
 
