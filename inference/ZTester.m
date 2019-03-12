@@ -92,23 +92,27 @@ classdef ZTester < handle
     %METHOD: PLOT HISTOGRAM
     %Plot histogram of z statistics
     function plotHistogram(this)
-      histogramCustom(reshape(this.getZCorrected(),[],1));
+      histogramCustom(reshape(this.zImage(),[],1));
     end
 
     %METHOD: PLOT HISTOGRAM WITH NULL DISTRIBUTION AND CRITICAL BOUNDARY
     %Produce a figure plots:
       %histogram of z statistics
-      %empirical null
+      %empirical null (optional)
       %critical boundary
-    function plotHistogram2(this)
+    %PARAMETERS:
+      %wantNull: plot the empirical null as well?
+    function plotHistogram2(this, wantNull)
       %plot histogram
       this.plotHistogram();
       hold on;
       ax = gca;
-      %get values from min to max
-      zPlot = linspace(ax.XLim(1), ax.XLim(2), 500);
-      %plot null
-      this.plotNull(zPlot);
+      if (wantNull)
+        %get values from min to max
+        zPlot = linspace(ax.XLim(1), ax.XLim(2), 500);
+        %plot null
+        this.plotNull(zPlot);
+      end
       %plot critical boundary
       this.plotCritical();
       
@@ -118,7 +122,11 @@ classdef ZTester < handle
       %label axis and legend
       xlabel('z statistic');
       ylabel('frequency density');
-      legend(ax.Children(1:(end-1)), 'z statistic', 'null', 'critical');
+      if (wantNull)
+        legend(ax.Children(1:(end-1)), 'z statistic', 'null', 'critical');
+      else
+        legend(ax.Children(1:(end-1)), 'z statistic', 'critical');
+      end
     end
 
     %METHOD: PLOT P VALUES
@@ -156,18 +164,13 @@ classdef ZTester < handle
     function plotCritical(this)
       ax = gca;
       critical = this.getZCritical();
+      xlimBefore = ax.XLim;
       %left hand side
-      %check if the boundary can be plotted
-      if (ax.XLim(1) < critical(1))
-        %plot the critical boundary
-        this.plotArea([ax.XLim(1),critical(1)], [ax.YLim(2),ax.YLim(2)]);
-      end
+      this.plotArea([xlimBefore(1),critical(1)], [ax.YLim(2),ax.YLim(2)]);
       hold on;
       %right hand size
-      %check if the boundary can be plotted
-      if (critical(2) < ax.XLim(2))
-        this.plotArea([critical(2),ax.XLim(2)], [ax.YLim(2),ax.YLim(2)]);
-      end
+      this.plotArea([critical(2),xlimBefore(2)], [ax.YLim(2),ax.YLim(2)]);
+      ax.XLim = xlimBefore;
     end
     
     %METHOD: PLOT BH CRITICAL
@@ -175,7 +178,7 @@ classdef ZTester < handle
     function plotBhCritical(this)
       %plot the BH critical line
       ax = gca;
-      this.plotArea(orderIndex, this.sizeCorrected/this.nTest*1:this.nTest);
+      this.plotArea(orderIndex, this.sizeCorrected/this.nTest * 1:this.nTest);
       %set the scale to log
       ax.XScale = 'log';
       ax.YScale = 'log';
@@ -202,7 +205,7 @@ classdef ZTester < handle
       isNull = isNull(index);
       
       %plot the BH critical line
-      this.plotArea(orderIndex, this.sizeCorrected/this.nTest*orderIndex);
+      this.plotArea(orderIndex, this.threshold/this.nTest*orderIndex);
       hold on;
       %plot the p values
       scatter(orderIndex(~isNull), pVector(~isNull),'rx');

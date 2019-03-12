@@ -41,7 +41,7 @@ saveas(fig,fullfile('reports','figures','inference', ...
 
 %histogram
 fig = LatexFigure.sub();
-zTester.plotHistogram2();
+zTester.plotHistogram2(true);
 saveas(fig,fullfile('reports','figures','inference',strcat(mfilename,'_histogram.eps')),'epsc');
 
 %qq plot

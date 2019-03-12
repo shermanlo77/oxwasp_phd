@@ -7,7 +7,7 @@ clc;
 close all;
 clearvars;
 
-set_up_inference_example;
+inferenceExample;
 
 %define the coordinates of the subsample
 row_subsample = 1100:1299; %array of row indicies
@@ -38,51 +38,38 @@ fclose(file_id);
 %Plot the histogram of the z statistics
 %Plot the histogram of the z statistics with the BH critical boundary
 fig = LatexFigure.sub();
-z_tester.plotHistogram();
-ylabel('frequency density');
-xlabel('z stat');
-hold on;
-saveas(fig,fullfile('reports','figures','inference','empirical_null_sub_z_histo_nocritical.eps'),'epsc');
-z_tester.plotCritical();
-legend('z histogram','critical','Location','southeast');
+z_tester.plotHistogram2(false);
 saveas(fig,fullfile('reports','figures','inference','empirical_null_sub_z_histo.eps'),'epsc');
 
 %estimate the empirical null
-z_tester.estimateNull();
-mu_0 = z_tester.mean_null; %get the empirical null mean
-sigma_0 = sqrt(z_tester.var_null); %get the empirical null std
-density_estimate = z_tester.density_estimator; %get the density estimator
-x_plot = linspace(min(z_sample),max(z_sample),500); %define what values of x to plot the density estimate
-f_hat = numel(z_sample)*density_estimate.getDensityEstimate(x_plot); %get the freqency density estimate
+z_tester.estimateNull(0, int32(1351727940));
+mu_0 = z_tester.nullMean; %get the empirical null mean
+sigma_0 = z_tester.nullStd; %get the empirical null std
+%define what values of x to plot the density estimate
+x_plot = linspace(min(z_sample),max(z_sample),500);
+parzen = Parzen(reshape(z_sample,[],1));
+f_hat = parzen.getDensityEstimate(x_plot); %get the freqency density estimate
 
 %FIGURE
 %Plot the frequency density estimate along with the empirical null mean and std
 fig = LatexFigure.sub(); 
-plot(x_plot,f_hat); %plot density estimate
+plot(x_plot,numel(z_sample)*f_hat); %plot density estimate
 hold on;
-plot([mu_0,mu_0],[0,numel(z_sample)*density_estimate.getDensityEstimate(mu_0)],'k--'); %plot mode
+densityAtMode = parzen.getDensityEstimate(mu_0);
+plot([mu_0,mu_0],[0,numel(z_sample)*densityAtMode],'k--'); %plot mode
+x_plotNull = x_plot((x_plot <  mu_0+sigma_0) & (x_plot >  mu_0-sigma_0));
+nullPdfPlot = numel(z_sample) * densityAtMode* normpdf(x_plotNull, mu_0, sigma_0) * sqrt(2*pi) * sigma_0;
+plot(x_plotNull,  nullPdfPlot, 'r-.');
 %get the value of the density estimate at mu +/- sigma
-f_at_sigma_1 = mean(density_estimate.getDensityEstimate([mu_0-sigma_0,mu_0+sigma_0]));
+f_at_sigma_1 = mean(nullPdfPlot([1,end]));
 %plot line and arrows to represent 2 std
-plot([mu_0-sigma_0,mu_0+sigma_0],numel(z_sample)*[f_at_sigma_1,f_at_sigma_1],'k--');
-scatter(mu_0-sigma_0,numel(z_sample)*f_at_sigma_1,'k<','filled');
-scatter(mu_0+sigma_0,numel(z_sample)*f_at_sigma_1,'k>','filled');
+offset = 0.1;
+plot([mu_0-sigma_0,mu_0+sigma_0],f_at_sigma_1*ones(1,2),'k--');
+scatter(mu_0-sigma_0+offset,f_at_sigma_1,'k<','filled');
+scatter(mu_0+sigma_0-offset,f_at_sigma_1,'k>','filled');
 ylabel('frequency density');
 xlabel('z stat');
 saveas(fig,fullfile('reports','figures','inference','empirical_null_sub_z_parzen.eps'),'epsc');
-
-%%%%SECTION FOR BOOTSTRAP
-%It was found the std of the estimators are pretty much negliable
-% n_bootstrap = 1000;
-% mu_array = zeros(n_bootstrap,1);
-% sigma_array = zeros(n_bootstrap,1);
-% for i = 1:n_bootstrap
-%     z_bootstrap = z_sample( rand_stream.randi(numel(z_sample),numel(z_sample),1) );
-%     z_tester_bootstrap = ZTester(z_bootstrap);
-%     z_tester.estimateNull();
-%     mu_array(i) = z_tester.mean_null;
-%     sigma_array(i) = sqrt(z_tester.var_null);
-% end
 
 %SAVE VALUE
 %save the empirical null mean
@@ -115,7 +102,7 @@ fclose(file_id);
 
 %SAVE VALUE
 %Save the standarised critical boundary for the empirical null BH procedure
-z_critical = norminv(1-z_tester.size_corrected/2);
+z_critical = norminv(1-z_tester.sizeCorrected/2);
 file_id = fopen(fullfile('reports','tables','empirical_null_sub_null_critical_zeta.txt'),'w');
 fprintf(file_id,'%.2f',z_critical);
 fclose(file_id);
@@ -125,12 +112,7 @@ fclose(file_id);
 %Also plot the empirical null BH critical boundary
 fig = LatexFigure.sub();
 ax = gca;
-z_tester.plotHistogram();
-ylabel('frequency density');
-xlabel('z stat');
-hold on;
-z_tester.plotCritical();
-legend('z histogram','critical','Location','southeast');
+z_tester.plotHistogram2(false);
 saveas(fig,fullfile('reports','figures','inference','empirical_null_sub_z_histo_null.eps'),'epsc');
 
 %FIGURE
