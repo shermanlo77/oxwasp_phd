@@ -28,7 +28,7 @@ classdef ShadingCorrector < handle
         
         set_extreme_to_nan; %boolean, set extreme shading corrected values to nan, default false
         
-        min_greyvalue; %the minimum possible greyvalue, used to determine if a greyvalue is small enough to be NaN
+        minGreyvalue; %the minimum possible greyvalue, used to determine if a greyvalue is small enough to be NaN
         
     end
     
@@ -40,7 +40,7 @@ classdef ShadingCorrector < handle
             %assign member variables
             this.can_smooth = false;
             this.set_extreme_to_nan = false;
-            this.min_greyvalue = 0;
+            this.minGreyvalue = 0;
         end
         
         %INITALISE
@@ -135,7 +135,7 @@ classdef ShadingCorrector < handle
             if this.set_extreme_to_nan
             
                 %any negative grey values to be set to nan
-                scan_image(scan_image < this.min_greyvalue) = nan;
+                scan_image(scan_image < this.minGreyvalue) = nan;
 
                 %set any overflow grey values to be nan
                 scan_image(scan_image > intmax('uint16')) = nan;

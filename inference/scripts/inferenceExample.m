@@ -12,14 +12,14 @@ function [test, artist, zImage] = inferenceExample()
   blockData.addDefaultShadingCorrector();
 
   %get random permutation for each image
-  index = randStream.randperm(blockData.n_sample);
+  index = randStream.randperm(blockData.nSample);
   nTest = 1;
-  nTrain = blockData.n_sample - nTest;
+  nTrain = blockData.nSample - nTest;
   trainingIndex = index(1:nTrain);
   testIndex = index((nTrain+1):(nTrain+nTest));
 
   %get a phanton image and aRTist image
-  artist = blockData.getShadingCorrectedARTistImage(ShadingCorrector(),1:blockData.reference_white);
+  artist = blockData.getShadingCorrectedArtistImage(ShadingCorrector(),1:blockData.referenceWhite);
 
   %get the segmentation image
   segmentation = blockData.getSegmentation();
