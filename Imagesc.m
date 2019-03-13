@@ -5,7 +5,7 @@
     %pass the image through the constructor
     %pass a boolean image through the method addSigPixels
     %use the method plot() to plot the image with coloured in significant pixels
-classdef ImagescSignificant < handle
+classdef Imagesc < handle
     
     %MEMBER VARIABLES
     properties (SetAccess = private)
@@ -24,7 +24,7 @@ classdef ImagescSignificant < handle
         %CONSTRUCTOR
         %PARAMETERS:
             %image: image to be plotted
-        function this = ImagescSignificant(image)
+        function this = Imagesc(image)
             %assign member variables default values
             this.image = image;
             this.clim = [0,0];
