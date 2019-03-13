@@ -1,35 +1,47 @@
+%SCRIPT: INFERENCE INTRO
+%The z statistics were tested using BH procedure, no empirical null was used
+%Plots the following:
+  %x ray scan and the aRTist simulation
+  %-log10 p values as an image
+  %x ray scan with positive pixels
+  %histogram with critical boundary
+  %p values with critical boundary
+
 clc;
 clearvars;
 close all;
 
-inferenceExample;
-
-zTester = ZTester(z_image);
+%get the x-ray scan, artist and the z image
+[test, artist, zImage] = inferenceExample();
+%do hypothesis testing on the zimage
+zTester = ZTester(zImage);
 zTester.doTest();
 
-clim = [2.2E4,5.5E4];
+clim = [2.2E4,5.5E4]; %set the clim of the imagesc plots of the x-ray and artist
     
-%plot the phantom and aRTist image
+%plot the x ray scan
 fig = LatexFigure.sub();
-phantom_plot = Imagesc(test);
-phantom_plot.plot();
+testPlot = Imagesc(test);
+testPlot.plot();
 ax = gca;
 ax.CLim = clim;
 saveas(fig,fullfile('reports','figures','inference',strcat(mfilename,'_scan.eps')),'epsc');
 
+%plot the artist simulation
 fig = LatexFigure.sub();
-phantom_plot = Imagesc(aRTist);
-phantom_plot.plot();
+artistPlot = Imagesc(artist);
+artistPlot.plot();
 ax = gca;
 ax.CLim = clim;
 saveas(fig,fullfile('reports','figures','inference',strcat(mfilename,'_artist.eps')),'epsc');
 
+%plot the p value image
 fig = LatexFigure.sub();
 image_plot = Imagesc(-log10(zTester.pImage));
 image_plot.plot();
 saveas(fig,fullfile('reports','figures','inference',strcat(mfilename,'_logp.eps')),'epsc');
 
-%plot the phantom scan with critical pixels highlighted
+%plot the x-ray scan with critical pixels highlighted
 fig = LatexFigure.sub();
 image_plot = Imagesc(test);
 image_plot.addPositivePixels(zTester.positiveImage);
@@ -39,12 +51,12 @@ ax.CLim = clim;
 saveas(fig,fullfile('reports','figures','inference', ...
     strcat(mfilename,'_positivePixels.eps')),'epsc');
 
-%histogram
+%plot the histogram with critical boundary
 fig = LatexFigure.sub();
 zTester.plotHistogram2(true);
 saveas(fig,fullfile('reports','figures','inference',strcat(mfilename,'_histogram.eps')),'epsc');
 
-%qq plot
+%plot p values with critical boundary
 fig = LatexFigure.sub();
 zTester.plotPValues();
 saveas(fig,fullfile('reports','figures','inference',strcat(mfilename,'_pValue.eps')),'epsc');
@@ -52,6 +64,6 @@ saveas(fig,fullfile('reports','figures','inference',strcat(mfilename,'_pValue.ep
 %save the critical value
 zCritical = zTester.getZCritical();
 zCritical = zCritical(2);
-file_id = fopen(fullfile('reports','figures','inference',strcat(mfilename,'_critical.txt')),'w');
-fprintf(file_id,'%.2f',zCritical);
-fclose(file_id);
+fileId = fopen(fullfile('reports','figures','inference',strcat(mfilename,'_critical.txt')),'w');
+fprintf(fileId,'%.2f',zCritical);
+fclose(fileId);

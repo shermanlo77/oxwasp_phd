@@ -1,14 +1,33 @@
-subsampleExample(1100:1299, 400:599, 'inferenceSubsample1');
-subsampleExample(500:699, 500:699, 'inferenceSubsample2');
+%SCRIPT: INFERENCE SUB SAMPLE
+%A subimage from the z image is taken, tested using the BH procedure corrected for the empirical
+    %null
+%Plots the following:
+  %z image with a rectangle to highlight the subimage
+  %histogram with critical boundary, not corrected for empirical null
+  %plot density estimate with null mean and null std estimate
+  %subsample image with positive pixels
+  %histogram with critical boundary, corrected for empirical null
+  %p values with critical boundary
 
+clc;
+clearvars;
+close all;
+
+subsampleExample(1100:1299, 400:599, 'inferenceSubsample1'); %subimage with no defect
+subsampleExample(500:699, 500:699, 'inferenceSubsample2'); %subimage with defect
+
+%PARAMETERS:
+  %rowSubsample: vector of indicies of rows which indiciate the position of the subimage
+  %colSubsample: vector of indicies of columns which indiciate the position of the subimage
+  %name: prefix used when saving results
 function subsampleExample(rowSubsample, colSubsample, name)
 
-  inferenceExample;
+  [~, ~, zImage] = inferenceExample();
 
   %FIGURE
   %Plot the z image with a rectangle highlighting the subsample
   fig = LatexFigure.sub();
-  image_plot = Imagesc(z_image);
+  image_plot = Imagesc(zImage);
   image_plot.plot();
   hold on;
   rectangle('Position', [colSubsample(1), rowSubsample(1), ...
@@ -18,7 +37,7 @@ function subsampleExample(rowSubsample, colSubsample, name)
 
   %get the subsample of z statistics and do BH multiple hypothesis testing without any empirical
       %null correction
-  zSampleImage = z_image(rowSubsample, colSubsample);
+  zSampleImage = zImage(rowSubsample, colSubsample);
   zSampleVector = reshape(zSampleImage,[],1);
   zTester = ZTester(zSampleImage);
   zTester.doTest();
