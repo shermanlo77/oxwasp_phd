@@ -4,15 +4,15 @@ Disagreement between the scan and \texttt{aRTist} can be found by simply subtrac
 
 A pixel by pixel inference was proposed to do defect detection. A statistic $Z_{x,y}$ for the $(x,y)$ positioned pixel was calculated for all pixels. This statistic is
 \begin{equation}
-    Z_{x,y} = 
-    \dfrac{
-        \text{scan}_{x,y} - \texttt{aRTist}_{x,y}
-    }
-    {
-        \sqrt{\widehat{\variance}\left[\text{scan}_{x,y}\right]}
-    }
+  Z_{x,y} = 
+  \dfrac{
+    \text{scan}_{x,y} - \texttt{aRTist}_{x,y}
+  }
+  {
+    \sqrt{\widehat{\variance}\left[\text{scan}_{x,y}\right]}
+  }
 \end{equation}
-where $\widehat{\variance}\left[\text{scan}_{x,y}\right]$ is the estimated grey value variance of pixel $(x,y)$ in the scan. Under mild assumptions, it was shown in the previous chapters that the grey values in the scan were Normal. Thus by treating the simulated image from \texttt{aRTist} as known and the ground truth, then the randomness of the $Z_{i,j}$ statistics can be approximately quantified
+where $\widehat{\variance}\left[\text{scan}_{x,y}\right]$ is the estimated grey value variance of pixel $(x,y)$ in the scan. Under mild assumptions, it was shown in the previous chapters that the grey values in the scan were Normal. Thus by treating the simulated image from \texttt{aRTist} as known and the ground truth, then the randomness of the $Z_{x,y}$ statistics, assuming there are no defects, can be approximately quantified
 \begin{equation}
 Z_{x,y}\sim \normal(0,1) \ .
 \end{equation}
@@ -61,11 +61,11 @@ This method for inference was applied to the dataset \texttt{Sep16 120deg}. Here
 
 For each pixel, a $z$ statistic was calculated. A $z$ statistic too large in magnitude will classify that pixel as a positive result. In the hypothesis testing framework \citep{pearson1900on, neyman1933on, fisher1970statistical}, the $p$-value can be used to represent $z$ statistic in a different way
 \begin{equation}
-    p_{x,y} = 2(1-\Phi(\|z_{x,y}\|))
+  p_{x,y} = 2(1-\Phi(|z_{x,y}|))
 \end{equation}
 which can takes values $0\leqslant p_{x,y} \leqslant 1$. A $p$-value too small is considered a positive result. The $p$-values are shown in Figure \ref{fig:inference_inferenceIntro_inference_pvalue}.
 
-The resulting $p$-values are concerning. This is because the $p$-values are not very smooth on the surfaces of the sample. It should be expected that small $p$-values are in areas of the defects. Pixels are tested positive, or considered to be evidence of a defect, when $\|z_{x,y}\|>\inputNumber{../figures/inference/inferenceIntro_critical.txt}$. This value was chosen by controlling the false discovery rate at 5\% using the \cite{benjamini1995controlling} (BH) procedure. The positive pixels are shown in Figure \ref{fig:inference_inferenceIntro_inference_positivePixels}.
+The resulting $p$-values are concerning. This is because the $p$-values are not very smooth on the surfaces of the sample. It should be expected that small $p$-values are in areas of the defects. Pixels are tested positive, or considered to be evidence of a defect, when $|z_{x,y}|>\inputNumber{../figures/inference/inferenceIntro_critical.txt}$. This value was chosen by controlling the false discovery rate at 5\% using the \cite{benjamini1995controlling} (BH) procedure. The positive pixels are shown in Figure \ref{fig:inference_inferenceIntro_inference_positivePixels}.
 
 This proposed method for defect detection failed because too many false positives were detected. These false positives appear to have some structure, for example clustering in the corners or on surfaces. In addition, false negatives were detected because not all of the defects were detected.
 
@@ -91,123 +91,68 @@ This chapter recaps hypothesis testing, for a single test and then for multiple 
 
 \section{Literature Review}
 
-Hypothesis testing dates back to \cite{pearson1900on}, \cite{neyman1933on} and \cite{fisher1970statistical}. It is one of the most fundamental methods in science.
+Consider a $z$ statistic from a pixel. If there are no defects, then the statistic is null and has the null distribution $Z|H_0\sim\normal(0,1)$. This can be described in another way by specifying the random variable as $Z\sim\normal(\mu,1)$ and the null hypothesis as $H_0:\mu=0$. A hypothesis test can judge how much $Z$ deviates from 0 by defining the alternative hypothesis $H_1:\mu\neq 0$. A statistic which does not have the null distribution is known as non-null.
 
-The focus on this section is on the single hypothesis test. A Normal random variable is studied as this is of interest in this project. It also appears in other tests such as the difference in sample means.
+In hypothesis testing \cite{pearson1900on, neyman1933on, fisher1970statistical}, the $p$-value can be compared with the user defined significance level $\alpha$, also known as the size of the test in this specific example. A positive result is declared when $p<\alpha$, else it is a negative result. Correct and incorrect testing of the statistics can occur. For example testing a null statistic as positive is known as a false positive. It can be shown that $\alpha$ controls the false positive rate. $\alpha=5.0\%$ is a typical choice. Other fields use the $\sigma$ notation, for example $2\sigma$ correspond to about the $\alpha = 4.6\%$ significance level; this notation will not be used here.
 
-In the context of this project, an example of hypothesis testing is given here. Here, it was assumed that the test statistic $Z\sim\normal(0,1)$. A null hypothesis is written down to describe this. This is done by specifying the random variable as $Z\sim\normal(\mu,1)$ and the null hypothesis
+Multiple hypothesis testing occurs when there are more than one hypothesis to test. For example $n$ pixels can be tested where the $z$ statistics are $Z_1, Z_2, \cdots, Z_n$ and $Z_i\sim\normal(\mu_i,1)$ for $i=1,2,\cdots,n$. The null hypothesis is $H_{0,i}:\mu_i=0$ and is tested against the alternative $H_{1,i}:\mu_i\neq 0$ for $i=1,2,\cdots,n$. Let the corresponding $p$-values be $p_1, p_2, \cdots, p_n$.
+
+The uncorrected test classify any $p_i<\alpha$ as positive. This is flawed because the possibility of obtaining at least one false positive increases as the number of tests increase \citep{shaffer1995multiple}. This method does control the per comparison error rate (PCER) \citep{benjamini1995controlling}. PCER is the proportion of false positives out of all tests. The number of true/false positive/negatives obtained are defined in Table \ref{table:inference_randomvariables}. Using the notation, PCER is defined as
 \begin{equation}
-    H_0:\mu=0 \ .
-\end{equation}
-This specifies the assumptions made on the random variable $Z$, here the mean is zero. Any data behaving as assumed is treated as a negative result or not significant.
-
-A positive, or significant, result is obtained when unlikely data is obtained and this happens if $Z$ deviates too much from 0. This can be described as testing $H_0$ against an alternative hypothesis $H_1$ where
-\begin{equation}
-    H_1:\mu\neq0 \ .
-\end{equation}
-How much $Z$ deviates from 0 to be considered a positive is up to the user but typically $\|Z\|>z_\alpha$ where $z_\alpha =2$ is a typical choice for the threshold.
-
-A way to quantify the threshold for a positive result is to use something called the size of the test, otherwise known as the significance level, denoted as $\alpha$. This is the probability of a false positive result, which can be denoted as
-\begin{equation}
-    \prob(\|Z\|>z_\alpha|H_0) = \alpha \ .
-\end{equation}
-Using the fact the Normal distribution is symmetric then
-\begin{equation}
-    2(1 - \Phi(z_\alpha)) = \alpha \ .
-    \label{eq:inference_single_alpha}
-\end{equation}
-The choice of $z_\alpha=2$ set the size of the test to be $\alpha\approx 4.55\%$. The $z_\alpha=2$ level is used throughout this project.
-
-The $p$-value is a way to represent an observation of the data $Z=z$. Similar to the size, the $p$-value is
-\begin{equation}
-    p=2(1-\Phi(\|z\|)) \ .
-\end{equation}
-As a result, the $p$-value can be compared directly to the size of the test. That is there is a positive result if $p<\alpha$, otherwise it is a negative result.
-
-The power of the test is defined as the probability of a true positive result. For unknown $\mu$, it is useful to investigate the power for a range of $\mu$.
-
-In this section, the single hypothesis test is extended and the multiple hypothesis testing \citep{shaffer1995multiple, dudoit2003multiple} is reviewed.
-
-Suppose $n$ test statistics were obtained $Z_1,Z_2,\dotdotdot,Z_n$ where $Z_i\sim\normal(\mu,1)$ for $i=1,2,\dotdotdot,n$ and i.i.d. Suppose each individual statistic were used to test the following hypotheses $H_0:\mu=0$ and $H_1:\mu\neq 0$. Using the method from the single hypothesis test at the $z_\alpha=2$ level, any statistic where $\|Z_i\|>2$ for $i=1,2,\dotdotdot,n$ would be considered significant.
-
-Bringing in methods from single hypothesis testing to the multiple version has drawbacks. Assuming that the null hypothesis is true for all $Z_i$ for $i=1,2,\dotdotdot,n$, then by definition $\alpha\approx 4.55\%$ of the data will be tested positive, and falsely positive. Still under the same assumption, the probability of at least one false positive result, known as the family-wise error rate (FWER) \citep{shaffer1995multiple}, is
-\begin{align}
-    \text{FWER}&=1-\prob(\text{no false positives}) \nonumber\\
-    \text{FWER}&=1-\prob(\text{no positive results}|H_0) \nonumber\\
-    \text{FWER}&=1-\left[(1-\alpha)^n\right] \label{eq:inference_fwer}\ .
-\end{align}
-To put into context, for $\alpha\approx 4.55\%$ and $n=20$ then remarkably $\text{FWER}\approx60.6\%$. This method for multiple hypothesis testing will have too many false positive results.
-
-While the uncorrected method for multiple hypothesis testing has it flaws, it does control the per comparison error rate (PCER) \citep{benjamini1995controlling}. PCER is the proportion of false positives out of all tests. There are corrections for multiple hypothesis testing which controls different things. Conventionally they are expressed in terms of the number true/false positives/negatives, these are defined in Table \ref{table:inference_randomvariables}. Using the notation, formally PCER is defined as
-\begin{equation}
-    \text{PCER}=
-    \dfrac{
-        1
-    }
-    {
-        n
-    }
-    \expectation[V]
-    \ .
+  \text{PCER}=
+  \dfrac{1}{n}
+  \expectation[V]
+  \ .
 \end{equation}
 It can be seen that if the uncorrected test controls the false positive rate such that $\expectation[V]/n_0 = \alpha$, then it controls the PCER such that
 \begin{equation}
-    \text{PCER}\leqslant\alpha \ .
+  \text{PCER}\leqslant\alpha \ .
 \end{equation}
 
 \begin{table}
-    \centering
-    \begin{tabular}{c|c|c|c}
-        &Negative&Positive&Total\\\hline
-        True null & $U$ & $V$ & $n_0$\\
-        Non-true null & $T$ & $S$ & $n-n_0$\\\hline
-        &$n-R$&$R$&$n$
-    \end{tabular}
-    \caption{Random variable definitions for true/false positives/negatives made in multiple hypothesis testing}
-    \label{table:inference_randomvariables}
-\end{table}
+  \centering
+  \begin{tabular}{c|c|c|c}
+    &Negative&Positive&Total\\\hline
+    Null & $U$ & $V$ & $n_0$\\
+    Non-null & $T$ & $S$ & $n-n_0$\\\hline
+    &$n-R$&$R$&$n$
+  \end{tabular}
+  \caption{Random variable definitions for true/false positives/negatives made in multiple hypothesis testing}
+  \label{table:inference_randomvariables}
+\end{table} 
 
-The Bonferroni correction \citep{shaffer1995multiple, bland1995multiple, perneger1998what} controls the FWER. This is done by adjusting the size of the test to be $\alpha/n$. By using the adjusted size, Equation \eqref{eq:inference_fwer} becomes
+The Bonferroni correction \citep{shaffer1995multiple, bland1995multiple, perneger1998what} controls the family-wise error rate (FWER) \citep{shaffer1995multiple} where
 \begin{equation}
-    \text{FWER}=1-\left[(1-\alpha/n)^n\right]\ .
+  \text{FWER} = 1-\prob(V=0) \ .
+  \label{eq:inference_fwer}
 \end{equation}
-Using the approximation $(1-\alpha/n)^n\approx = 1-\alpha$ then
+This is done by adjusting the size of the test to be $\alpha/n$. By using the adjusted size, then $\text{FWER}=1-\left[(1-\alpha/n)^n\right]$. Using the approximation $(1-\alpha/n)^n\approx 1-\alpha$ then $\text{FWER}\approx \alpha$. This shows that the Bonferroni correction controls the family-wise error rate such that
 \begin{equation}
-    \text{FWER}\approx \alpha \ .
-\end{equation}
-This shows that the Bonferroni correction controls the family-wise error rate such that
-\begin{equation}
-    \text{FWER} \leqslant \alpha \ .
+  \text{FWER} \leqslant \alpha \ .
 \end{equation}
 However in practice the Bonferroni correction is not very powerful \citep{perneger1998what}, meaning it does give too many false negatives. This is because the correction traded too many false positives for false negatives.
 
 The \cite{benjamini1995controlling} (BH) procedure controls the false discovery rate (FDR) \citep{benjamini2010discovering} rather than the PCER or FWER. The FDR is the proportion of false positives out of all positive results, that is
 \begin{equation}
-    \text{FDR} = \expectation\left[
-        \dfrac{V}{R}
-    \right]
-    \ .
+  \text{FDR} = \expectation\left[\dfrac{V}{R}\right]
+  \ .
 \end{equation}
 It is defined that $V/R=0$ when $R=0$.
 
-In practice the BH procedure adjusts the size of the test between the Bonferroni correction and the uncorrected test. The BH procedure also adapts to the data, meaning the procedure chooses different sizes for different data.
-
-The procedure is as follows. Suppose $n$ test statistics were obtained $Z_1,Z_2,\dotdotdot,Z_n$. They are converted to $p$-values and ordered such that $p_{(1)}\leqslant p_{(2)}\leqslant \dotdotdot \leqslant p_{(n)}$. Suppose a size $\alpha$ is provided beforehand. The size is then adjusted to
+The BH procedure adjust the size of the test between the Bonferroni correction and the uncorrected test. It adapts to the data and choose different sizes for different data. The procedure is as follows, the $p$-values and ordered such that $p_{(1)}\leqslant p_{(2)}\leqslant \cdots \leqslant p_{(n)}$. Suppose a size $\alpha$ is provided beforehand. The size is then adjusted to
 \begin{equation}
-    \alpha_{\text{BH}} = \frac{\alpha k}{n}
+  \alpha_{\text{BH}} = \frac{\alpha k}{n}
 \end{equation}
 where
 \begin{equation}
-    k\text{ is the largest }i\text{ for which }p_{(i)}\leqslant\frac{i}{n}\alpha
-    \ .
+  k\text{ is the largest }i\text{ for which }p_{(i)}\leqslant\frac{i}{n}\alpha
+  \ .
 \end{equation}
-This essentially declare $p_{(1)},p_{(2)},\dotdotdot,p_{(k)}$ as significant. For the case where $p_{(1)}>\alpha/n$, then $k=1$ was chosen so that the Bonferroni correction is used instead. The BH procedure comes from the fact that assuming the null hypothesis is true for all $Z_i$ and all tests are independent, then the $p$-values are uniformly distributed \citep{simes1986improved}. However it can be shown that the BH procedure works for many scenarios of dependencies \citep{benjamini2001control}. 
-
-It can be shown that the BH procedure controls the FDR such that
+This test the statistics with $p$-values $p_{(1)},p_{(2)},\cdots,p_{(k)}$ as positive. For the case where $p_{(1)}>\alpha/n$ then $k=1$ so that Bonferroni correction is used when there are no positive results, this is only for illustration purposes. The BH procedure comes from the fact that if all the statistics are null and independent, then the $p$-values are uniformly distributed \citep{simes1986improved}. However it can be shown that the BH procedure works for many scenarios of dependencies \citep{benjamini2001control}. It can be shown that the BH procedure controls the FDR such that
 \begin{equation}
-    \text{FDR}\leqslant\pi_0\alpha\leqslant\alpha
+  \text{FDR}\leqslant\alpha
 \end{equation}
-where $\pi_0=n_0/n$ \citep{benjamini1995controlling}, which is usually unknown in practice.
+\citep{benjamini1995controlling}.
 
 In summary, the uncorrected, Bonferroni and BH correction controls for different error rates according to the threshold $\alpha$, summarised in Table \ref{table:inference_corrections}.
 
@@ -223,125 +168,29 @@ In summary, the uncorrected, Bonferroni and BH correction controls for different
     \label{table:inference_corrections}
 \end{table}
 
-By treating each pixel as a hypothesis test, methods for multiple hypothesis can be deployed. At the start of the chapter, a scan from the \texttt{Sep16 120deg} dataset was compared to the \texttt{aRTist} simulation, obtaining a $z$ image.
-
 \begin{figure}
   \centering
     \centerline{
     \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/empirical_null_sub_z_image.eps}
-        \caption{$z$ image with section highlighted}
+      \includegraphics[width=\textwidth]{../figures/inference/inferenceSubsample1_zImage.eps}
+      \caption{$z$ image with section highlighted}
     \end{subfigure}
     \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/empirical_null_sub_z_histo.eps}
-        \caption{Histogram of section}
+      \includegraphics[width=\textwidth]{../figures/inference/inferenceSubsample1_histogram.eps}
+      \caption{Histogram of section}
     \end{subfigure}
     }
     \caption{The resulting $z$ image. A histogram of a section of the $z$ image is shown. The critical region was obtained using the BH procedure.}
-    \label{fig:inference_empirical_null_sub_z}
+    \label{fig:inference_inferenceSubsample1_histogram}
 \end{figure}
 
-A $200\times200$ section of the $z$ image was investigated by plotting the histogram as shown in Figure \ref{fig:inference_empirical_null_sub_z}. The BH procedure was used at the $z_\alpha=2$ level to get the critical region of $\|Z\|>\input{../tables/empirical_null_sub_boundary.txt}...$. However a quick look at the histogram showed that almost half of the pixels were significant. It is questionable whether such number of positive results is sensible, in particular in an area where defects were not expected.
+Consider a small example where a $200\times200$ section of the $z$ image was investigated, as shown Figure \ref{fig:inference_inferenceSubsample1_histogram}. The distribution of the $z$ statistics looked Normal but not centred at zero, as a result using the BH procedure obtained a critical region of $|Z|>\input{../figures/inference/inferenceSubsample1_criticalBoundary.txt}$. Almost half of the pixels were were tested positive. It is questionable whether such number of positive results is sensible, in particular in an area where defects were not expected.
 
-The histogram showed that the majority of the $z$ statistics are centred around 2 and has a bell shaped curve, a characteristic of the Normal distribution. If the data showed that the majority is centred elsewhere then expected, is it right to then to test the majority of the data as positive? This is an example of model misspecification because it was assumed that the $z$ statistics are distributed as $\normal(0,1)$ when in reality they are distributed as $\normal(\mu_0,\sigma_0^2)$.
+This problem commonly occur in large scale multiple hypothesis testing \citep{efron2004large} such as in microarrays \citep{hedenfalk2001gene, efron2002empirical, efron2003robbins}. It appears that the null distribution was misspecified as $Z_i|H_{0,i}\sim\normal(0,1)$ when in reality they are distributed as $Z_i|H_{0,i}\sim\normal(\mu_0,\sigma_0^2)$, where $\mu_0$ and $\sigma_0$ are the null mean and null standard deviation respectively.
 
-The empirical null \citep{efron2004large} adjusts the assumptions made on the $z$ statistics according to the majority of the data and treating it as the norm, relaxing the assumptions needed. It requires the following assumptions: the majority of the data are truly null, non-null test statistics are rare and the null test statistics are Normal distributed.
+In practice $\mu_0$ and $\sigma_0$ are unknown. The empirical null \citep{efron2004large} replaces the parameters of the null distribution with its estimate. Suppose $\widehat{\mu}_0$ and $\widehat{\sigma}_0$ are the estimated null mean and null standard deviation respectively. The statistics are specified by $Z_i\sim\normal(\mu_i, \widehat{\sigma}_0^2)$ so that the following null hypotheses $H_{0,i}:\mu_i=\widehat{\mu}_0$ are tested against $H_{1,i}:\mu_i\neq\widehat{\mu}_0$ for $i=1,2,\cdots,n$.
 
-The method is described here. Suppose the following test statistics were obtained $z_1,z_2,\dotdotdot,z_n$. First the histogram is smoothed. \cite{efron2004large} recommended using splines but a kernel density estimate \citep{parzen1962on, friedman2001elements} was used here because it has simpler mathematical properties. The kernel density estimate \citep{parzen1962on} is
-\begin{equation}
-  \widehat{p}_Z(z)=
-  \frac{1}{nh}
-  \sum_{i=1}^n\phi\left(
-    \dfrac{z_i-z}{h}
-  \right)
-  \label{eq:inference_kernel_density_estimate}
-\end{equation}
-where $h$ is the bandwidth. The bandwidth was chosen such that
-\begin{equation}
-  h = 0.9n^{-1/5}\times\text{min}\left(s_z,\text{iqr}_z/1.34\right) + 0.16
-  \label{eq:inference_ourruleofthumb}
-\end{equation}
-where $s_z$ and $\text{iqr}_z$ are the standard deviation and interquartile range. The parameters of the empirical null are estimated using the kernel density estimate. The resulting estimated density is shown in Figure \ref{fig:inference_empirical_null_sub_density_estimate}.
-
-\begin{figure}
-  \centering
-    \centerline{
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/empirical_null_sub_z_histo_nocritical.eps}
-        \caption{Histogram}
-    \end{subfigure}
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/empirical_null_sub_z_parzen.eps}
-        \caption{Kernel density estimate}
-    \end{subfigure}
-    }
-    \caption{The density of the test statistics was estimated using a histogram or a kernel density estimate. The dotted lines in the kernel density estimate shows the empirical null mean and standard deviation estimation.}
-    \label{fig:inference_empirical_null_sub_density_estimate}
-\end{figure}
-
-Next, the mode of the kernel density estimate, denoted as $\widehat{\mu}_0$, is found. This is used as the mean of the empirical null \citep{efron2004large}. The calculation of $\widehat{\mu}_0$ was numerically found using the Newton-Raphson method. Using the mode, the standard deviation of the empirical null was estimated using \citep{efron2004large}
-\begin{equation}
-  \widehat{\sigma}_0 = \left[
-    \left.
-      -\dfrac{\partial^2}{\partial z^2}\ln\widehat{p}_Z(z)
-    \right|_{z=\widehat{\mu}_0}
-  \right]^{-1/2}
-  \ .
-\end{equation}
-In this particular example, it was found that $\widehat{\mu}_0=\input{../tables/empirical_null_sub_null_mu.txt}...$ and $\widehat{\sigma}_0=\input{../tables/empirical_null_sub_null_sigma.txt}...$. It was found that both of these estimators have negligible bootstrap \citep{efron1992bootstrap} variance or error.
-
-The empirical null was used to correct the test statistics $z_1,z_2,\dotdotdot,z_n$ to $\zeta_1,\zeta_2,\dotdotdot,\zeta_n$ by standardising the test statistics
-\begin{equation}
-  \zeta_i = \dfrac{
-    z_i - \widehat{\mu}_0
-  }
-  {
-    \widehat{\sigma}_0
-  }
-  \ .
-  \label{eq:inference_zeta}
-\end{equation}
-The corrected test statistics $\zeta_1,\zeta_2,\dotdotdot,\zeta_n$ were used in any multiple hypothesis testing procedures. Using the BH procedure, the critical region was found to be $\|\zeta\|\geqslant\input{../tables/empirical_null_sub_null_critical_zeta.txt}...$ or in terms of the original units $Z \leqslant \input{../tables/empirical_null_sub_null_critical1.txt}...$ and $\input{../tables/empirical_null_sub_null_critical2.txt}...\leqslant Z$.
-
-\begin{figure}
-  \centering
-    \centerline{
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/empirical_null_sub_z_histo_null.eps}
-        \caption{Histogram of $z$}
-    \end{subfigure}
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/empirical_null_sub_z_p_values.eps}
-        \caption{Ordered $p$ values}
-    \end{subfigure}
-    }
-    \caption{The critical regions were adjusted using the empirical null. The empirical null were also used to adjust the $z$ statistics, producing sensible $p$-values}
-    \label{fig:inference_empirical_null_sub_z_critical_regions}
-\end{figure}
-
-These new critical regions are shown in Figure \ref{fig:inference_empirical_null_sub_z_critical_regions}. No positive results were found and the $p$-values are sensible as they look uniformly distributed. This demonstrated that the empirical null adjust the parameters of the null distribution to fit the majority of the data in order to make sensible inference.
-
-In this section, a more mathematical approach to the empirical null is taken to examine why and when this method works. Next computational concepts is discussed such as on how the mode of the kernel density estimator is found and what makes a good bandwidth in the kernel density estimator. This section is finished with a further discussion.
-
-\section{Empirical Null}
-
-\cite{efron2004large} was motivated to tackle problems observed in large scale multiple hypothesis testing, for example in microarrays \citep{hedenfalk2001gene, efron2002empirical, efron2003robbins}. These problems are similar to the one observed at the start of this chapter. The empirical null is used widely, including in neuroimaging \citep{schwartzman2008false, schwartzman2009empirical} and has been extended to include non-Normal null distributions \citep{schwartzman2008false, schwartzman2008empirical}.
-
-For formality, the null and alternative hypotheses is described here. Assume that the $z$ statistics under the null hypothesis are such that
-\begin{equation}
-  Z_i|H_0\sim\normal(\mu,\sigma_0^2)
-\end{equation}
-for $i=1,2,\dotdotdot,n$ and i.i.d. The hypotheses are then
-\begin{equation}
-  H_0:\mu = \mu_0
-\end{equation}
-and
-\begin{equation}
-  H_1:\mu\neq\mu_0
-\end{equation}
-where $\mu_0$ and $\sigma_0$ are the empirical null mean and standard deviation respectively. Essentially null $z$ statistics are assumed to be Normal distributed, with parameters using the empirical null. Statistics which deviates too much from $\mu_0$ are considered to be positive.
-
-The distribution of the $z$ statistics can be described using a mixture model. Let the random variable $Z$ have the probability density function
+In \citep{efron2004large}, a few assumptions were made in order to obtain the estimators $\widehat{\mu}_0$ and $\widehat{\sigma}_0$. Let the test statistic $Z$ have the p.d.f.
 \begin{equation}
   p_Z(z) =
   \pi_0 p_{Z|H_0}(z) + \pi_1 p_{Z|H_1}(z)
@@ -357,17 +206,17 @@ where $0\leqslant\pi_0\leqslant 1$ and  $\pi_1 = 1-\pi_0$. In addition, the null
     \right)^2
   \right]
 \end{equation}
-as it was assumed to be Normal. The non-null distribution $p_{Z|H_1}(z)$ does not need to be specified.
-
-The empirical null parameters are to be estimated. Assuming that $\pi_0$ is large, say bigger than 0.9 \citep{efron2004large}, and at and around the mode the probability density function is dominated by the null distribution. This implies that
+as it was assumed to be Normal. The non-null distribution $p_{Z|H_1}(z)$ does not need to be specified. Assume that the majority of the data are null and non-null test statistics are rare, say $\pi_0>0.9$ \citep{efron2004large}. Then around the mode, the probability density function would be dominated by the null distribution. This implies that
 \begin{equation}
   p_{Z}(z) \approx \pi_0 p_{Z|H_0}(z)
 \end{equation}
 for values of $z$ around the mode. Finding the maximum for $p_{Z}(z)$ and $p_{Z|H_0}(z)$ should yield the same solution. This justifies the use of the mode for the empirical null mean \citep{efron2004large}
 \begin{equation}
-  \widehat{\mu}_0 = \argmax\widehat{p}_Z(z) \ .
-\end{equation} 
-The empirical null standard deviation was obtained from the log density. For values of $z$ at and around the mode
+  \widehat{\mu}_0 = \argmax\widehat{p}_Z(z)
+\end{equation}
+where $\widehat{p}_Z(z)$ is the density estimation of $p_Z(z)$, for example it could be a smoothing spline fitted onto the histogram \citep{efron2004large}.
+
+The null standard deviation was estimated from the log density \citep{efron2004large}. For values of $z$ at and around the mode
 \begin{equation}
   \ln p_{Z}(z) = 
   \ln\left[
@@ -409,9 +258,80 @@ which motivates the estimator \citep{efron2004large}
   \right]^{-1/2}
   \ .
 \end{equation}
-The evaluation of $z=\widehat{\mu}_0$ is used as in that region, one would hope that null test statistics would dominate and non-null test statistics would not contribute much to the density estimate.
+The evaluation of $z=\widehat{\mu}_0$ is used because at the mode, it was assumed that the null test statistics would dominate and non-null test statistics would not contribute much to the density estimate.
 
 This method does not need estimations of $\pi_0$ which makes it quite useful. The estimations of $\pi_0$ is discussed in literature such as \cite{benjamini2000adaptive, pounds2003estimating, storey2003statistical, pounds2004improving, langaas2005estimating, durnez2014posthoc}. \cite{efron2004large} motives the use of the empirical null by investigating various types of false discovery rates \citep{storey2002direct, storey2003positive, efron2002empirical, efron2007size} which will not be discussed here.
+
+The empirical null is used widely, including in neuroimaging \citep{schwartzman2008false, schwartzman2009empirical} and has been extended to include non-Normal null distributions \citep{schwartzman2008false, schwartzman2008empirical}. There exist various methods for the empicial null. \citep{schwartzman2008empirical} uses Poisson regression on the histogram counts in regions where the null statistics dominate. The empirical characteristic function was used in \citep{jin2007estimating}.
+
+\section{Empirical Null}
+
+The method is described here. Suppose the following test statistics were obtained $z_1,z_2,\cdots,z_n$. First the histogram is smoothed. \cite{efron2004large} recommended using splines but a kernel density estimate \citep{parzen1962on, friedman2001elements} was used here because it has simpler mathematical properties. The kernel density estimate \citep{parzen1962on} is
+\begin{equation}
+  \widehat{p}_Z(z)=
+  \frac{1}{nh}
+  \sum_{i=1}^n\phi\left(
+    \dfrac{z_i-z}{h}
+  \right)
+  \label{eq:inference_kernel_density_estimate}
+\end{equation}
+where $h$ is the bandwidth. The bandwidth was chosen such that
+\begin{equation}
+  h = 0.9n^{-1/5}\times\text{min}\left(s_z,\text{iqr}_z/1.34\right) + 0.16
+  \label{eq:inference_ourruleofthumb}
+\end{equation}
+where $s_z$ and $\text{iqr}_z$ are the standard deviation and interquartile range. The parameters of the empirical null are estimated using the kernel density estimate. The resulting estimated density is shown in Figure \ref{fig:inference_empirical_null_sub_density_estimate}.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.49\textwidth]{../figures/inference/inferenceSubsample1_densityEstimate.eps}
+  \caption{The density of the test statistics was estimated using a histogram or a kernel density estimate. The dotted lines in the kernel density estimate shows the empirical null mean and standard deviation estimation.}
+  \label{fig:inference_empirical_null_sub_density_estimate}
+\end{figure}
+
+Next, the mode of the kernel density estimate, denoted as $\widehat{\mu}_0$, is found. This is used as the mean of the empirical null \citep{efron2004large}. The calculation of $\widehat{\mu}_0$ was numerically found using the Newton-Raphson method. Using the mode, the standard deviation of the empirical null was estimated using \citep{efron2004large}
+\begin{equation}
+  \widehat{\sigma}_0 = \left[
+    \left.
+      -\dfrac{\partial^2}{\partial z^2}\ln\widehat{p}_Z(z)
+    \right|_{z=\widehat{\mu}_0}
+  \right]^{-1/2}
+  \ .
+\end{equation}
+In this particular example, it was found that $\widehat{\mu}_0=\input{../tables/empirical_null_sub_null_mu.txt}...$ and $\widehat{\sigma}_0=\input{../tables/empirical_null_sub_null_sigma.txt}...$. It was found that both of these estimators have negligible bootstrap \citep{efron1992bootstrap} variance or error.
+
+The empirical null was used to correct the test statistics $z_1,z_2,\cdots,z_n$ to $\zeta_1,\zeta_2,\cdots,\zeta_n$ by standardising the test statistics
+\begin{equation}
+  \zeta_i = \dfrac{
+    z_i - \widehat{\mu}_0
+  }
+  {
+    \widehat{\sigma}_0
+  }
+  \ .
+  \label{eq:inference_zeta}
+\end{equation}
+The corrected test statistics $\zeta_1,\zeta_2,\cdots,\zeta_n$ were used in any multiple hypothesis testing procedures. Using the BH procedure, the critical region was found to be $|\zeta|\geqslant\input{../tables/empirical_null_sub_null_critical_zeta.txt}...$ or in terms of the original units $Z \leqslant \input{../tables/empirical_null_sub_null_critical1.txt}...$ and $\input{../tables/empirical_null_sub_null_critical2.txt}...\leqslant Z$.
+
+\begin{figure}
+  \centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/empirical_null_sub_z_histo_null.eps}
+        \caption{Histogram of $z$}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/empirical_null_sub_z_p_values.eps}
+        \caption{Ordered $p$ values}
+    \end{subfigure}
+    }
+    \caption{The critical regions were adjusted using the empirical null. The empirical null were also used to adjust the $z$ statistics, producing sensible $p$-values}
+    \label{fig:inference_empirical_null_sub_z_critical_regions}
+\end{figure}
+
+These new critical regions are shown in Figure \ref{fig:inference_empirical_null_sub_z_critical_regions}. No positive results were found and the $p$-values are sensible as they look uniformly distributed. This demonstrated that the empirical null adjust the parameters of the null distribution to fit the majority of the data in order to make sensible inference.
+
+In this section, a more mathematical approach to the empirical null is taken to examine why and when this method works. Next computational concepts is discussed such as on how the mode of the kernel density estimator is found and what makes a good bandwidth in the kernel density estimator. This section is finished with a further discussion.
 
 \subsection{Mode Finding}
 
@@ -455,7 +375,7 @@ The Newton-Raphson method is an iterative algorithm and requires an initial valu
     \right|_{z = z^{(r)}}
   } 
 \end{equation}
-for $r=0,1,2,3,\dotdotdot$ until some convergence condition is met. The derivatives for the log density was obtained via the following. Recall that the kernel density estimate is
+for $r=0,1,2,3,\cdots$ until some convergence condition is met. The derivatives for the log density was obtained via the following. Recall that the kernel density estimate is
 \begin{equation}
   \widehat{p}_Z(z)=
   \frac{1}{nh}
@@ -787,7 +707,7 @@ Using the fact that $\phi'(z)=-z\phi(z)$, then it is simplified to
 
 It was chosen that convergence was met when either 10 update steps were taken or when
 \begin{equation}
-  \left\|
+  \left|
     \dfrac{
       \partial
     }
@@ -795,7 +715,7 @@ It was chosen that convergence was met when either 10 update steps were taken or
       \partial z
     }
   \ln\widehat{p}_Z(z)
-  \right\|
+  \right|
   <10^{-5}
 \end{equation}
 at the current step. This was chosen arbitrary to speed up the algorithm without losing too much accuracy. At the end of the algorithm, for a successful convergence it was required, in addition, that
@@ -978,7 +898,7 @@ The empirical null is a good tool for defect detection under model misspecificat
 
 One possible solution is to spilt the $z$ image into a grid and conduct inference in each section separately. There are problems with this though. The first problem is that how the grid is overlaid can be arbitrary, for example the grid can be translated to produce different sections. Secondly it is not clear how to combine the results from each section \citep{efron2008simultaneous}.
 
-The empirical null filter extends the empirical null to images. In this setting, the parameters of the null distribution varies spatially, slowly and smoothly in 2D space. Let $Z_{x,y}$ be the test statistic of the pixel at position $(x,y)$ for $x=1,2,\dotdotdot,W$ and $y=1,2,\dotdotdot,H$. Let each pixel have a test statistic distributed under the null such that
+The empirical null filter extends the empirical null to images. In this setting, the parameters of the null distribution varies spatially, slowly and smoothly in 2D space. Let $Z_{x,y}$ be the test statistic of the pixel at position $(x,y)$ for $x=1,2,\cdots,W$ and $y=1,2,\cdots,H$. Let each pixel have a test statistic distributed under the null such that
 \begin{equation}
   Z_{x,y}|H_0\sim\normal\left(
     \mu_{x,y},\sigma_{0,x,y}^2
