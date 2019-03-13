@@ -16,15 +16,16 @@ col_subsample = 400:599; %array of column indicies
 %FIGURE
 %Plot the z image with a rectangle highlighting the subsample
 fig = LatexFigure.sub();
-image_plot = ImagescSignificant(z_image);
+image_plot = Imagesc(z_image);
 image_plot.plot();
 hold on;
 rectangle('Position',[col_subsample(1), row_subsample(1), col_subsample(end)-col_subsample(1)+1, row_subsample(end)-row_subsample(1)+1],'EdgeColor','r','LineStyle','--');
 saveas(fig,fullfile('reports','figures','inference','empirical_null_sub_z_image.eps'),'epsc');
 
 %get the subsample of z statistics and do BH multiple hypothesis testing
-z_sample = reshape(z_image(row_subsample, col_subsample),[],1);
-z_tester = ZTester(z_sample);
+zSampleImage = z_image(row_subsample, col_subsample);
+z_sample = reshape(zSampleImage,[],1);
+z_tester = ZTester(zSampleImage);
 z_tester.doTest();
 z_bh = z_tester.getZCritical();
 
@@ -87,6 +88,11 @@ fclose(file_id);
 z_tester.doTest();
 %get the critical boundary
 z_bh_empirical = z_tester.getZCritical();
+
+fig = LatexFigure.sub();
+image_plot = Imagesc(zSampleImage);
+image_plot.addPositivePixels(z_tester.positiveImage);
+image_plot.plot();
 
 %SAVE VALUE
 %Save the lower critical boundary for the empirical null BH procedure

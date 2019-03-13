@@ -11,28 +11,28 @@ clim = [2.2E4,5.5E4];
     
 %plot the phantom and aRTist image
 fig = LatexFigure.sub();
-phantom_plot = ImagescSignificant(test);
+phantom_plot = Imagesc(test);
 phantom_plot.plot();
 ax = gca;
 ax.CLim = clim;
 saveas(fig,fullfile('reports','figures','inference',strcat(mfilename,'_scan.eps')),'epsc');
 
 fig = LatexFigure.sub();
-phantom_plot = ImagescSignificant(aRTist);
+phantom_plot = Imagesc(aRTist);
 phantom_plot.plot();
 ax = gca;
 ax.CLim = clim;
 saveas(fig,fullfile('reports','figures','inference',strcat(mfilename,'_artist.eps')),'epsc');
 
 fig = LatexFigure.sub();
-image_plot = ImagescSignificant(-log10(zTester.pImage));
+image_plot = Imagesc(-log10(zTester.pImage));
 image_plot.plot();
 saveas(fig,fullfile('reports','figures','inference',strcat(mfilename,'_logp.eps')),'epsc');
 
 %plot the phantom scan with critical pixels highlighted
 fig = LatexFigure.sub();
-image_plot = ImagescSignificant(test);
-image_plot.addSigPixels(zTester.positiveImage);
+image_plot = Imagesc(test);
+image_plot.addPositivePixels(zTester.positiveImage);
 image_plot.plot();
 ax = gca;
 ax.CLim = clim;
