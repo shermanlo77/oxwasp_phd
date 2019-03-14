@@ -93,7 +93,7 @@ This chapter recaps hypothesis testing, for a single test and then for multiple 
 
 Consider a $z$ statistic from a pixel. If there are no defects, then the statistic is null and has the null distribution $Z|H_0\sim\normal(0,1)$. This can be described in another way by specifying the random variable as $Z\sim\normal(\mu,1)$ and the null hypothesis as $H_0:\mu=0$. A hypothesis test can judge how much $Z$ deviates from 0 by defining the alternative hypothesis $H_1:\mu\neq 0$. A statistic which does not have the null distribution is known as non-null.
 
-In hypothesis testing \cite{pearson1900on, neyman1933on, fisher1970statistical}, the $p$-value can be compared with the user defined significance level $\alpha$, also known as the size of the test in this specific example. A positive result is declared when $p<\alpha$, else it is a negative result. Correct and incorrect testing of the statistics can occur. For example testing a null statistic as positive is known as a false positive. It can be shown that $\alpha$ controls the false positive rate. $\alpha=5.0\%$ is a typical choice. Other fields use the $\sigma$ notation, for example $2\sigma$ correspond to about the $\alpha = 4.6\%$ significance level; this notation will not be used here.
+In hypothesis testing \cite{pearson1900on, neyman1933on, fisher1970statistical}, the $p$-value can be compared with the user defined significance level $\alpha$, also known as the size of the test in this specific example. A positive result is declared when $p<\alpha$, else it is a negative result. Correct and incorrect testing of the statistics can occur. For example testing a null statistic as positive is known as a false positive. It can be shown that $\alpha$ controls the false positive rate. $\alpha=5.0\%$ is a typical choice and was used throughout this thesis. Other fields use the $\sigma$ notation, for example $2\sigma$ correspond to about the $\alpha = 4.6\%$ significance level; this notation will not be used here.
 
 Multiple hypothesis testing occurs when there are more than one hypothesis to test. For example $n$ pixels can be tested where the $z$ statistics are $Z_1, Z_2, \cdots, Z_n$ and $Z_i\sim\normal(\mu_i,1)$ for $i=1,2,\cdots,n$. The null hypothesis is $H_{0,i}:\mu_i=0$ and is tested against the alternative $H_{1,i}:\mu_i\neq 0$ for $i=1,2,\cdots,n$. Let the corresponding $p$-values be $p_1, p_2, \cdots, p_n$.
 
@@ -173,14 +173,14 @@ In summary, the uncorrected, Bonferroni and BH correction controls for different
     \centerline{
     \begin{subfigure}[b]{0.49\textwidth}
       \includegraphics[width=\textwidth]{../figures/inference/inferenceSubsample1_zImage.eps}
-      \caption{$z$ image with section highlighted}
+      \caption{$z$ statistics}
     \end{subfigure}
     \begin{subfigure}[b]{0.49\textwidth}
       \includegraphics[width=\textwidth]{../figures/inference/inferenceSubsample1_histogram.eps}
-      \caption{Histogram of section}
+      \caption{Histogram of $z$ in sub-image}
     \end{subfigure}
     }
-    \caption{The resulting $z$ image. A histogram of a section of the $z$ image is shown. The critical region was obtained using the BH procedure.}
+    \caption{The resulting $z$ image is shown in a). A $200\times 200$ sub-image was taken shown by the dashed lines. A histogram of the $z$ statistics in the sub-image is shown in b). The critical region was obtained by using the BH procedure at the 5\% FDR level.}
     \label{fig:inference_inferenceSubsample1_histogram}
 \end{figure}
 
@@ -266,7 +266,7 @@ The empirical null is used widely, including in neuroimaging \citep{schwartzman2
 
 \section{Empirical Null}
 
-The method is described here. Suppose the following test statistics were obtained $z_1,z_2,\cdots,z_n$. First the histogram is smoothed. \cite{efron2004large} recommended using splines but a kernel density estimate \citep{parzen1962on, friedman2001elements} was used here because it has simpler mathematical properties. The kernel density estimate \citep{parzen1962on} is
+Return back to the sub-image example in Figure \ref{fig:inference_inferenceSubsample1_histogram}. The histogram was smoothed using a kernel density estimate \citep{parzen1962on, friedman2001elements} as shown in Figure \ref{fig:inference_inferenceSubsample1_densityEstimate}. The kernel density estimate \citep{parzen1962on} is
 \begin{equation}
   \widehat{p}_Z(z)=
   \frac{1}{nh}
@@ -280,58 +280,84 @@ where $h$ is the bandwidth. The bandwidth was chosen such that
   h = 0.9n^{-1/5}\times\text{min}\left(s_z,\text{iqr}_z/1.34\right) + 0.16
   \label{eq:inference_ourruleofthumb}
 \end{equation}
-where $s_z$ and $\text{iqr}_z$ are the standard deviation and interquartile range. The parameters of the empirical null are estimated using the kernel density estimate. The resulting estimated density is shown in Figure \ref{fig:inference_empirical_null_sub_density_estimate}.
+where $s_z$ and $\text{iqr}_z$ are the standard deviation and interquartile range.
 
 \begin{figure}
   \centering
   \includegraphics[width=0.49\textwidth]{../figures/inference/inferenceSubsample1_densityEstimate.eps}
-  \caption{The density of the test statistics was estimated using a histogram or a kernel density estimate. The dotted lines in the kernel density estimate shows the empirical null mean and standard deviation estimation.}
-  \label{fig:inference_empirical_null_sub_density_estimate}
+  \caption{The density of the $z$ statistics was estimated using a kernel density estimate. The dot dash lines shows the empirical null distribution.}
+  \label{fig:inference_inferenceSubsample1_densityEstimate}
 \end{figure}
 
-Next, the mode of the kernel density estimate, denoted as $\widehat{\mu}_0$, is found. This is used as the mean of the empirical null \citep{efron2004large}. The calculation of $\widehat{\mu}_0$ was numerically found using the Newton-Raphson method. Using the mode, the standard deviation of the empirical null was estimated using \citep{efron2004large}
-\begin{equation}
-  \widehat{\sigma}_0 = \left[
-    \left.
-      -\dfrac{\partial^2}{\partial z^2}\ln\widehat{p}_Z(z)
-    \right|_{z=\widehat{\mu}_0}
-  \right]^{-1/2}
-  \ .
-\end{equation}
-In this particular example, it was found that $\widehat{\mu}_0=\input{../tables/empirical_null_sub_null_mu.txt}...$ and $\widehat{\sigma}_0=\input{../tables/empirical_null_sub_null_sigma.txt}...$. It was found that both of these estimators have negligible bootstrap \citep{efron1992bootstrap} variance or error.
+The null parameters were estimated. The null mean was estimated by numerically finding the mode of the density estimate. The null standard deviation was estimated using the curvature of the density estimate at the mode. This resulted in the empirical null density to have the same curvature as the density estimate at the mode, this is illustrated in Figure \ref{fig:inference_inferenceSubsample1_densityEstimate}. In this particular example, it was found that $\widehat{\mu}_0=\input{../figures/inference/inferenceSubsample1_nullMean.txt}$ and $\widehat{\sigma}_0=\input{../figures/inference/inferenceSubsample1_nullStd.txt}$ to 2 decimal places.
 
-The empirical null was used to correct the test statistics $z_1,z_2,\cdots,z_n$ to $\zeta_1,\zeta_2,\cdots,\zeta_n$ by standardising the test statistics
+The use of the kernel density estimate has its advantages. The only tuning parameter is the bandwidth $h$ and the density estimate is simple enough to do calculus on it. Speed may be an issue as an evaluation of the density estimate requires the sum over the $n$ $z$ statistics.
+
+The $z$ statistics were normalised to $T_1,T_2,\cdots,T_n$ by using
 \begin{equation}
-  \zeta_i = \dfrac{
-    z_i - \widehat{\mu}_0
+  T_i = \dfrac{
+    Z_i - \widehat{\mu}_0
   }
   {
     \widehat{\sigma}_0
   }
-  \ .
-  \label{eq:inference_zeta}
+  \label{eq:inference_empiricalNullNormalise}
 \end{equation}
-The corrected test statistics $\zeta_1,\zeta_2,\cdots,\zeta_n$ were used in any multiple hypothesis testing procedures. Using the BH procedure, the critical region was found to be $|\zeta|\geqslant\input{../tables/empirical_null_sub_null_critical_zeta.txt}...$ or in terms of the original units $Z \leqslant \input{../tables/empirical_null_sub_null_critical1.txt}...$ and $\input{../tables/empirical_null_sub_null_critical2.txt}...\leqslant Z$.
+for $i=1,2,\cdots,n$. The normalised $p$-values were obtained by using
+\begin{equation}
+  p_i = 2(1-\Phi(|t_i|))
+\end{equation}
+and then were used in the BH procedure. The critical region was found to be $|t|\geqslant\inputNumber{../figures/inference/inferenceSubsample1_nullNormalisedCritical.txt}$. In terms of the original units, the critical region was $z \leqslant \inputNumber{../figures/inference/inferenceSubsample1_nullCritical1.txt}$ and $\inputNumber{../figures/inference/inferenceSubsample1_nullCritical2.txt}\leqslant z$, all to 2 decimal places. The critical region and the normalised $p$-values are shown in Figure \ref{fig:inference_inferenceSubsample1_nullResults}.
 
 \begin{figure}
   \centering
     \centerline{
     \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/empirical_null_sub_z_histo_null.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/inferenceSubsample1_nullHistogram.eps}
         \caption{Histogram of $z$}
     \end{subfigure}
     \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/empirical_null_sub_z_p_values.eps}
-        \caption{Ordered $p$ values}
+        \includegraphics[width=\textwidth]{../figures/inference/inferenceSubsample1_nullPValues.eps}
+        \caption{$p$ values}
     \end{subfigure}
     }
-    \caption{The critical regions were adjusted using the empirical null. The empirical null were also used to adjust the $z$ statistics, producing sensible $p$-values}
-    \label{fig:inference_empirical_null_sub_z_critical_regions}
+    \caption{The critical regions and $p$-values were adjusted using the empirical null.}
+    \label{fig:inference_inferenceSubsample1_nullResults}
 \end{figure}
 
-These new critical regions are shown in Figure \ref{fig:inference_empirical_null_sub_z_critical_regions}. No positive results were found and the $p$-values are sensible as they look uniformly distributed. This demonstrated that the empirical null adjust the parameters of the null distribution to fit the majority of the data in order to make sensible inference.
+No positive results were found and the $p$-values were sensible as they looked uniformly distributed. This demonstrated that the empirical null adjusted the parameters of the null distribution to fit the majority of the data in order to make sensible inference.
 
-In this section, a more mathematical approach to the empirical null is taken to examine why and when this method works. Next computational concepts is discussed such as on how the mode of the kernel density estimator is found and what makes a good bandwidth in the kernel density estimator. This section is finished with a further discussion.
+\begin{figure}
+  \centering
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/inferenceSubsample2_zImage.eps}
+        \caption{$z$ statistics}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/inferenceSubsample2_subimagePositive.eps}
+        \caption{$z$ from the sub-image}
+    \end{subfigure}
+    }
+    \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/inferenceSubsample2_nullHistogram.eps}
+        \caption{Histogram of $z$}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/inferenceSubsample2_nullPValues.eps}
+        \caption{$p$ values}
+    \end{subfigure}
+    }
+    \caption{A $200\times 200$ sub-image containing a defect is shown in a). The empirical null was used to test pixels, positive pixels are shown in red in b). The histogram of the $z$ statistics are shown in c) along with the critical region. The normalised $p$-values are shown in d). The critical regions were adjusted using the empirical null and obtained using the BH procedure, controlling the FDR at 5\%.}
+    \label{fig:inference_inferenceSubsample2}
+\end{figure}
+
+Another example is shown in Figure \ref{fig:inference_inferenceSubsample2} where a $200\times 200$ sub-image containing a defect was used. It can be seen that the null distribution was not centred at zero, however the empirical null took it into account. The estimation of the empirical null parameters were robust as it only depended on the density estimate at the mode only, it should not be affected by non-null test statistics.
+
+The BH procedure was conducted using the normalised $p$-values. $\inputNumber{../figures/inference/inferenceSubsample2_nPositive.txt}$ pixels were tested positive. The majority of the positive pixels were found to be clustered together, which highlighted the defect. Not all of the defects were tested positive, but a good number of them are. This should be enough to raise suspicion in that particular area. Only a few pixels were falsely tested as positive, however they are typically isolated single pixels. Isolated positive pixels should be discarded as they are more than likely to be tested positive by random chance.
+
+This section describes the empirical null implementation in detail, in particular the numerical and computational aspects. The empirical properties of the sampling distribution of the null parameter estimators were studied.
 
 \subsection{Mode Finding}
 
@@ -2072,3 +2098,5 @@ The false positives were tackled by manually segmenting the image further as sho
 \end{figure}
 
 \section{Conclusion}
+
+Clusters of significant pixels should raise suspicions. One could create a binary image, assigning a Boolean value whether that pixel is tested positive or not. A binary image filter, such as erode followed by a dilate, can be used to remove isolate significant pixels and emphasise the cluster of significant pixels.
