@@ -12,7 +12,7 @@ public class EmpiricalNull {
   static final int N_STEP = 10; //number of steps in newton-raphson
   //stopping condition tolerance for newton-raphson
   static final float LOG_10_TOLERANCE = -5.0f;
-  //the bandwidth for the density estimate is B x 0.9 x std x n^{-1/5} + A
+  //the bandwidth for the density estimate is (B x n^{-1/5} + A) * std
   //A and B are set below
   static final float BANDWIDTH_PARAMETER_A = (float) 0.15; //intercept
   static final float BANDWIDTH_PARAMETER_B = (float) 0.90; //gradient
@@ -76,9 +76,9 @@ public class EmpiricalNull {
    *     Math.abs(dxLnF[1])<this.tolerance where dxLnF[1] is the gradient of the log density and
    *     this.tolerance is 10^log10Tolerance
    * @param bandwidthParameterA the bandwidth for the density estimate is
-   *     B x 0.9 x std x n^{-1/5} + A
+   *     (B x n^{-1/5} + A) * std
    * @param bandwidthParameterB the bandwidth for the density estimate is
-   *     B x 0.9 x std x n^{-1/5} + A
+   *     (B x n^{-1/5} + A) * std
    * @param cache array of greyvalues
    * @param x x position
    * @param cachePointers array of integer pairs, pointing to the boundary of the kernel
@@ -113,10 +113,10 @@ public class EmpiricalNull {
    */
   public void estimateNull() {
     //get the bandwidth for the density estimate
-    this.bandwidth = this.bandwidthParameterB * Math.min(this.dataStd,
-        this.iqr/1.34f)
+    this.bandwidth = (this.bandwidthParameterB
         * ((float) Math.pow((double) this.n, -0.2))
-        + this.bandwidthParameterA;
+        + this.bandwidthParameterA)
+        * Math.min(this.dataStd, this.iqr/1.34f);
     //get the initial value, if it not finite, get a random one
     float initialValue = this.initialValue;
     if (!isFinite(initialValue)) {
@@ -348,7 +348,7 @@ public class EmpiricalNull {
   
   /**METHOD: GET BANDWIDTH PARAMETER A
    * @return the bandwidth parameter A where the bandwidth for the density estimate is
-   *     B x 0.9 x std x n^{-1/5} + A
+   *     (B x n^{-1/5} + A) * std
    */
   public float getBandwidthParameterA() {
     return this.bandwidthParameterA;
@@ -356,7 +356,7 @@ public class EmpiricalNull {
   
   /**METHOD: SET BANDWIDTH PARAMETER A
    * @param bandwidthParameterA the bandwidth parameter A where the bandwidth for the density
-   *     estimate is B x 0.9 x std x n^{-1/5} + A
+   *     estimate is (B x n^{-1/5} + A) * std
    */
   public void setBandwidthParameterA(float bandwidthParameterA) {
     this.bandwidthParameterA = bandwidthParameterA;
@@ -364,7 +364,7 @@ public class EmpiricalNull {
   
   /**METHOD: GET BANDWIDTH PARAMETER B
    * @return the bandwidth parameter B where the bandwidth for the density estimate is
-   *     B x 0.9 x std x n^{-1/5} + A
+   *     (B x n^{-1/5} + A) * std
    */
   public float getBandwidthParameterB() {
     return this.bandwidthParameterB;
@@ -372,7 +372,7 @@ public class EmpiricalNull {
   
   /**METHOD: SET BANDWIDTH PARAMETER B
    * @param bandwidthParameterB the bandwidth parameter A where the bandwidth for the density
-   *     estimate is B x 0.9 x std x n^{-1/5} + A
+   *     estimate is (B x n^{-1/5} + A) * std
    */
   public void setBandwidthParameterB(float bandwidthParameterB) {
     this.bandwidthParameterB = bandwidthParameterB;
