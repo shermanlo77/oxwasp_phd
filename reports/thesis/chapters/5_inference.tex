@@ -277,7 +277,7 @@ Return back to the sub-image example in Figure \ref{fig:inference_inferenceSubsa
 \end{equation}
 where $h$ is the bandwidth. The bandwidth was chosen such that
 \begin{equation}
-  h = 0.9n^{-1/5}\times\text{min}\left(s_z,\text{iqr}_z/1.34\right) + 0.16
+  h = 0.9n^{-1/5}\times\text{min}\left(s_z,\text{IQR}_z/1.34\right) + 0.16
   \label{eq:inference_ourruleofthumb}
 \end{equation}
 where $s_z$ and $\text{iqr}_z$ are the standard deviation and interquartile range.
@@ -401,15 +401,11 @@ The Newton-Raphson method is an iterative algorithm and requires an initial valu
     \right|_{z = z^{(r)}}
   } 
 \end{equation}
-for $r=0,1,2,3,\cdots$ until some convergence condition is met. The derivatives for the log density was obtained via the following. Recall that the kernel density estimate is
-\begin{equation}
-  \widehat{p}_Z(z)=
+for $r=0,1,2,3,\cdots$ until some convergence condition is met. The derivatives for the log density was obtained via the following. Recall that the kernel density estimate is $\widehat{p}_Z(z)=
   \frac{1}{nh}
   \sum_{i=1}^n\phi\left(
-    \dfrac{z_i-z}{h}
-  \right)
-  \tag{\ref{eq:inference_kernel_density_estimate}}
-\end{equation}
+    \frac{z_i-z}{h}
+  \right) $
 so that the log density is
 \begin{equation}
   \ln\widehat{p}_Z(z)=
@@ -771,7 +767,7 @@ The bandwidth $h$ controls how smooth the kernel density estimator is, higher va
 \end{equation}
 where $b=0.9$ \citep{silverman1986density}. This rule of thumb was developed with consideration of bimodal Normal distributions \citep{silverman1986density}. Other options include $b=1.06$ and $b=1.144$ to produce smoother curves \citep{silverman1986density, sheather2004density}.
 
-The kernel density estimator was only used to obtain values of $\widehat{\mu}_0$ and $\widehat{\sigma}_0$. Thus a good bandwidth, in the context of the empirical null, is one which has good properties of $\widehat{\mu}_0$ and $\widehat{\sigma}_0$ rather than the density estimate. Exact properties of these estimators based on the kernel density estimators can be rather complicated. For example numerous approximations were needed to show that $\widehat{\sigma}_0$ is an unbiased estimator of $\sigma_0$ to the first order, where higher order terms are functions of $\widehat{\mu}_0 - \mu_0$ and $h$. This is shown in Appendix ?.
+The kernel density estimator was only used to obtain values of $\widehat{\mu}_0$ and $\widehat{\sigma}_0$. Thus a good bandwidth, in the context of the empirical null, is one which has good properties of $\widehat{\mu}_0$ and $\widehat{\sigma}_0$ rather than the density estimate. Exact properties of these estimators based on the kernel density estimators can be rather complicated. For example numerous approximations were needed to show that $\widehat{\sigma}_0^2$ is an unbiased estimator of $\sigma_0^2$ to the first order, where higher order terms are functions of $(\widehat{\mu}_0 - \mu_0)^2$ and $h$. This is shown in Appendix \ref{chapter:appendix_expectationNullStdEstimator}.
 
 An experiment was conducted to investigate how the estimators, $\widehat{\mu}_0$ and $\widehat{\sigma}_0$, varied with $h$ and $n$. This was done on a simulated dataset of $n$ standard Normal random variables. For a given $h$ and $n$, 100 values of $\widehat{\mu}_0$ and $\widehat{\sigma}_0$ were obtained by repeating the simulation of the datasets. The median squared error was obtained by taking the median over all squared errors from the 100 estimates. Figure \ref{fig:inference_BandwidthSelection_error} shows the resulting median squared errors.
 

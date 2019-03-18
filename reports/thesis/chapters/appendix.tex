@@ -1,0 +1,373 @@
+\chapter{Expectation of $\widehat{\sigma}^2_0$}
+\label{chapter:appendix_expectationNullStdEstimator}
+
+It can be shown that the null standard deviation estimator $\widehat{\sigma}_0$ is approximately unbiased when estimating on $n$ $\normal(\mu_0, \sigma_0^2)$ random variables. Suppose the random variables are $Z_1, Z_2, \cdots, Z_n$ and are i.i.d.~with probability density function $f(z)$. Recall that
+\begin{equation}
+  \widehat{\sigma}_0 = \left[
+    \left.
+      -\dfrac{\partial^2}{\partial z^2}\ln\widehat{p}(z)
+    \right|_{z=\widehat{\mu}_0}
+  \right]^{-1/2}
+\end{equation}
+where
+\begin{multline}
+  \dfrac{
+    \partial^2
+  }
+  {
+    \partial z^2
+  }
+  \ln\widehat{p}_Z(z)
+  =
+  \left[
+    h\sum_{i=1}^n
+    \phi\left(
+      \dfrac{
+        Z_i-z
+      }
+      {
+        h
+      }
+    \right)
+  \right]^{-2}
+  \times
+  \left\{
+    \left[
+      \sum_{i=1}^n
+      \phi\left(
+        \dfrac{
+          Z_i-z
+        }
+        {
+          h
+        }
+      \right)
+    \right]
+  \right.
+  \\
+  \left.
+    \times
+    \left[
+      \sum_{i=1}^n
+      \phi\left(
+        \dfrac{
+          Z_i-z
+        }
+        {
+          h
+        }
+      \right)
+      \left(
+        \left(
+          \dfrac{
+            Z_i-z
+          }
+          {
+            h
+          }
+        \right)^2
+        -1
+      \right)
+    \right]
+    -
+    \left[
+      \sum_{i=1}^n
+      \phi\left(
+        \dfrac{
+          Z_i-z
+        }
+        {
+          h
+        }
+      \right)
+    \right.
+  \right.
+  \\
+  \left.
+    \left.
+      \left(
+        \dfrac{
+          Z_i-z
+        }
+        {
+          h
+        }
+      \right)
+    \right]^2
+  \right\}
+  \ .
+\end{multline}
+Apply an approximation such that
+\begin{multline}
+  \expectation\left[-\widehat{\sigma}_0^{-2}\right]
+  \approx
+  \left[
+    h\sum_{i=1}^n
+    \expectation\left[\phi\left(
+      \dfrac{
+        Z_i-z
+      }
+      {
+        h
+      }
+    \right)\right]
+  \right]^{-2}
+  \times
+  \left\{
+    \left[
+      \sum_{i=1}^n
+      \expectation\left[
+      \phi\left(
+        \dfrac{
+          Z_i-z
+        }
+        {
+          h
+        }
+      \right)\right]
+    \right]
+  \right.
+  \\
+  \left.
+    \times
+    \left[
+      \sum_{i=1}^n
+      \expectation\left[
+      \phi\left(
+        \dfrac{
+          Z_i-z
+        }
+        {
+          h
+        }
+      \right)
+      \left(
+        \left(
+          \dfrac{
+            Z_i-z
+          }
+          {
+            h
+          }
+        \right)^2
+        -1
+      \right)
+    \right]\right]
+    -
+    \left[
+      \sum_{i=1}^n
+      \expectation\left[\phi\left(
+        \dfrac{
+          Z_i-z
+        }
+        {
+          h
+        }
+      \right)
+    \right.\right.
+  \right.
+  \\
+  \left.
+    \left.\left.
+      \left(
+        \dfrac{
+          Z_i-z
+        }
+        {
+          h
+        }
+      \right)\right]
+    \right]^2
+  \right\}
+  \ .
+  \label{eq:appendix_expectationNullStd}
+\end{multline}
+
+The following function of $Z$ was studied
+\begin{equation}
+g_t(Z) = \phi\left(
+  \dfrac{Z - z_0}{h}
+\right)
+\left(
+  \dfrac{Z - z_0}{h}
+\right)^t
+\ .
+\end{equation}
+The expectation is
+\begin{equation}
+\expectation\left[g_t(Z)\right] = 
+\int_{-\infty}^{\infty}
+\phi\left(
+  \dfrac{z - z_0}{h}
+\right)
+\left(
+  \dfrac{z - z_0}{h}
+\right)^t
+f(z) \diff z \ .
+\end{equation}
+By substituting $u=(z-z_0)/h$ then
+\begin{equation}
+\expectation\left[g_t(Z)\right] = 
+\int_{-\infty}^{\infty}
+h\phi(u)u^tf(z_0+uh)\diff u
+\end{equation}
+which a Taylor series can be used to expand $f(z_0+uh)$
+\begin{equation}
+\expectation\left[g_t(Z)\right] = 
+\int_{-\infty}^{\infty}
+h\phi(u)u^t
+\sum_{r=0}^\infty \dfrac{
+  f^{(r)}(z_0)
+  }
+  {
+  r!
+  }
+(uh)^r
+\diff u
+\end{equation}
+to get
+\begin{equation}
+\expectation\left[g_t(Z)\right] = 
+\sum_{i=0}^\infty
+\dfrac{
+  f^{(r)}(z_0)h^{r+1}
+}
+{
+  r!
+}
+M^{(t+r)}(0)
+\end{equation}
+where $M(\theta)=\int_{-\infty}^{\infty}\euler^{\theta u}\phi(u)\diff u$ is the moment generating function of a standard Normal random variable. It is left as an exercise to show that
+\begin{align}
+M(0) &= 1
+\\
+M^{(1)}(0) & = 0
+\\
+M^{(2)}(0) & = 1
+\\
+M^{(3)}(0) & = 0
+\\
+M^{(4)}(0) & = 3
+\\
+M^{(5)}(0) & = 0
+\\
+M^{(6)}(0) & = 15 \ .
+\end{align}
+Then for $t=0,1,2$
+\begin{align}
+\expectation\left[g_0(Z)\right]
+&=
+f(z_0)h
++\dfrac{f^{(2)}(z_0)h^3}{2}
++\dfrac{3f^{(4)}(z_0)h^5}{4!}
++O(h^7)
+\label{eq:appendix_expectation1}\\
+\expectation\left[g_1(Z)\right]
+&=
+f^{(1)}(z_0)h^2
++\dfrac{3f^{(3)}(z_0)h^4}{3!}
++O(h^6)
+\label{eq:appendix_expectation2}\\
+\expectation\left[g_2(Z)\right]
+&=
+f(z_0)h
++\dfrac{3f^{(2)}(z_0)h^3}{2}
++\dfrac{15f^{(4)}(z_0)h^5}{4!}
++O(h^7)
+\label{eq:appendix_expectation3}\ .
+\end{align}
+Let $f(z)=\dfrac{1}{\sigma_0}\phi\left(\dfrac{z-\mu_0}{\sigma_0}\right)$ then
+\begin{align}
+f^{(1)}(z) &= \dfrac{f(z)}{\sigma_0^2}\left[-(z-\mu_0)\right]
+\\
+f^{(2)}(z)&=\dfrac{f(z)}{\sigma_0^2}\left[
+  \dfrac{(z-\mu_0)^2}{\sigma_0^2}-1
+\right]
+\\
+f^{(3)}(z) &= \dfrac{f(z)}{\sigma_0^4}
+\left[
+3(z-\mu_0)-\dfrac{(z-\mu_0)^3}{\sigma_0^2}
+\right]
+\\
+f^{(4)}(z) &= \dfrac{f(z)}{\sigma_0^4}
+\left[
+  3 - \dfrac{6(z-\mu_0)^2}{\sigma_0^2} + \dfrac{(z-\mu_0)^4}{\sigma_0^4}
+\right] \ .
+\end{align}
+Then substituting these into Equations \ref{eq:appendix_expectation1}, \ref{eq:appendix_expectation2} and \ref{eq:appendix_expectation3} obtains
+\begin{multline}
+\expectation\left[g_0(Z)\right]
+=
+f(z_0)h
++
+\dfrac{h^3}{2} \dfrac{f(z_0)}{\sigma_0^2}\left[
+  \dfrac{(z_0-\mu_0)^2}{\sigma_0^2}-1
+\right]
+\\ +
+\dfrac{3h^5}{4!} \dfrac{f(z_0)}{\sigma_0^4}
+\left[
+  3 - \dfrac{6(z_0-\mu_0)^2}{\sigma_0^2} + \dfrac{(z_0-\mu_0)^4}{\sigma_0^4}
+\right]
++O(h^7)
+\label{eq:appendix_expectationExpand1}
+\end{multline}
+\begin{multline}
+\expectation\left[g_1(Z)\right]
+=
+-h^2\dfrac{f(z_0)}{\sigma_0^2}(z_0-\mu_0)
++
+\dfrac{h^4}{2} \dfrac{f(z_0)}{\sigma_0^4}
+\left[
+3(z_0-\mu_0)-\dfrac{(z_0-\mu_0)^3}{\sigma_0^2}
+\right]
+\\
++O(h^6)
+\label{eq:appendix_expectationExpand2}
+\end{multline}
+\begin{multline}
+\expectation\left[g_2(Z)\right]
+=
+f(z_0)h
++
+\dfrac{3h^3}{2} \dfrac{f(z_0)}{\sigma_0^2}\left[
+  \dfrac{(z_0-\mu_0)^2}{\sigma_0^2}-1
+\right]
+\\ +
+\dfrac{15h^5}{4!} \dfrac{f(z_0)}{\sigma_0^4}
+\left[
+  3 - \dfrac{6(z_0-\mu_0)^2}{\sigma_0^2} + \dfrac{(z_0-\mu_0)^4}{\sigma_0^4}
+\right]
++O(h^7) \ .
+\label{eq:appendix_expectationExpand3}
+\end{multline}
+
+The definition for $\expectation\left[g_t(Z)\right]$ can be used to simplify Equation \ref{eq:appendix_expectationNullStd} to
+\begin{equation}
+  \expectation\left[\widehat{\sigma}_0^{2}\right]
+  =
+  \dfrac{
+    -\left(h\expectation\left[g_0(Z)\right]\right)^2
+  }
+  {
+    \expectation\left[g_0(Z)\right]\left[
+      \expectation\left[g_2(Z)\right] - \expectation\left[g_0(Z)\right]
+    \right]
+    - \left(\expectation\left[g_1(Z)\right]\right)^2
+  }
+  \ .
+\end{equation}
+Substituting in Equations \ref{eq:appendix_expectationExpand1}, \ref{eq:appendix_expectationExpand2} and \ref{eq:appendix_expectationExpand3}  and setting $z_0 = \widehat{\mu}_0$ obtains
+\begin{equation}
+\expectation\left[\widehat{\sigma}_0^{2}\right]
+=
+\dfrac{
+  \sigma_0^2+h^2\left[\dfrac{(\widehat{\mu}_0-\mu_0)^2}{\sigma_0^2}-1\right]
+  +O(h^4)
+}
+{
+  1 + h^2\left[\dfrac{(\widehat{\mu}_0-\mu_0)^2}{\sigma_0^4}-\dfrac{2}{\sigma_0^2}\right]
+  +O(h^4)
+}
+\ .
+\end{equation}
+This implies that $\widehat{\sigma}_0^{2}$ is an unbiased estimator of $\sigma_0^{2}$ up to the first order approximation. Higher order terms consist of at least even polynomials of $(\widehat{\mu}_0-\mu_0)$ and $h$. As a result, any bias in $\widehat{\mu}_0$ would contribute to the bias of $\widehat{\sigma}_0^{2}$. It is not clear if $\widehat{\sigma}_0^{2}$ is a consistent estimator because $h$ depends on $n$ and the result for $\variance\left[\widehat{\sigma}_0^{2}\right]$ is difficult to obtain.
