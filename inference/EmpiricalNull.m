@@ -102,9 +102,8 @@ classdef EmpiricalNull < handle
     
     %METHOD: SET BANDWIDTH
     %Set (directly) the bandwidth of the kernel density estimate
-    function setBandwidth(this, bandwidth)
-      this.setBandwidthParameterB(0);
-      this.setBandwidthParameterA(bandwidth);
+    function setBandwidth(this, bandwidth);
+      this.setBandwidth(bandwidth);
     end
 
   end

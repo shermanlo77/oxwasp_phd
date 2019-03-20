@@ -14,8 +14,8 @@ public class EmpiricalNull {
   static final float LOG_10_TOLERANCE = -5.0f;
   //the bandwidth for the density estimate is (B x n^{-1/5} + A) * std
   //A and B are set below
-  static final float BANDWIDTH_PARAMETER_A = (float) 0.15; //intercept
-  static final float BANDWIDTH_PARAMETER_B = (float) 0.90; //gradient
+  static final float BANDWIDTH_PARAMETER_A = (float) 0.16; //intercept
+  static final float BANDWIDTH_PARAMETER_B = (float) 0.9; //gradient
   
   
   //MEMBER VARIABLES
@@ -36,7 +36,7 @@ public class EmpiricalNull {
   private float nullMean; //empirical null mean
   private float nullStd; //empirical null std
   private float bandwidth; //bandwidth for the density estimate
-  private NormalDistribution normalDistribution; //standard normal distributionrng = rng;
+  private NormalDistribution normalDistribution; //standard normal distribution
   private RandomGenerator rng; //random number generator when a random initial value is needed
   
   
@@ -65,6 +65,8 @@ public class EmpiricalNull {
     
     this.normalDistribution = new NormalDistribution();
     this.rng = new MersenneTwister(seed);
+    
+    this.setBandwidth();
   }
   
   /**CONSTRUCTOR
@@ -106,17 +108,15 @@ public class EmpiricalNull {
     
     this.normalDistribution = normalDistribution;
     this.rng = rng;
+    
+    this.setBandwidth();
   }
   
   /**METHOD: ESTIMATE NULL
    * Estimate the parameters nullMean and nullStd
    */
   public void estimateNull() {
-    //get the bandwidth for the density estimate
-    this.bandwidth = (this.bandwidthParameterB
-        * ((float) Math.pow((double) this.n, -0.2))
-        + this.bandwidthParameterA)
-        * Math.min(this.dataStd, this.iqr/1.34f);
+    
     //get the initial value, if it not finite, get a random one
     float initialValue = this.initialValue;
     if (!isFinite(initialValue)) {
@@ -346,6 +346,25 @@ public class EmpiricalNull {
     this.log10Tolerance = log10Tolerance;
   }
   
+  /**METHOD: SET BANDWIDTH
+   * Set the bandwidth for the kernel density using the bandwidth parameters
+   */
+  private void setBandwidth() {
+  //get the bandwidth for the density estimate
+    this.bandwidth = (this.bandwidthParameterB
+        * ((float) Math.pow((double) this.n, -0.2))
+        + this.bandwidthParameterA)
+        * Math.min(this.dataStd, this.iqr/1.34f);
+  }
+  
+  /**METHOD: SET BANDIWDTH
+   * Set the bandwidth for the kernel density directly
+   * @param bandwidth
+   */
+  public void setBandwidth(float bandwidth) {
+    this.bandwidth = bandwidth;
+  }
+  
   /**METHOD: GET BANDWIDTH PARAMETER A
    * @return the bandwidth parameter A where the bandwidth for the density estimate is
    *     (B x n^{-1/5} + A) * std
@@ -355,11 +374,13 @@ public class EmpiricalNull {
   }
   
   /**METHOD: SET BANDWIDTH PARAMETER A
+   * Recalculate the bandwidth by changing the bandwidth parameter A
    * @param bandwidthParameterA the bandwidth parameter A where the bandwidth for the density
    *     estimate is (B x n^{-1/5} + A) * std
    */
   public void setBandwidthParameterA(float bandwidthParameterA) {
     this.bandwidthParameterA = bandwidthParameterA;
+    this.setBandwidth();
   }
   
   /**METHOD: GET BANDWIDTH PARAMETER B
@@ -371,11 +392,13 @@ public class EmpiricalNull {
   }
   
   /**METHOD: SET BANDWIDTH PARAMETER B
+   * Recalculate the bandwidth by changing the bandwidth parameter B
    * @param bandwidthParameterB the bandwidth parameter A where the bandwidth for the density
    *     estimate is (B x n^{-1/5} + A) * std
    */
   public void setBandwidthParameterB(float bandwidthParameterB) {
     this.bandwidthParameterB = bandwidthParameterB;
+    this.setBandwidth();
   }
   
 }
