@@ -203,7 +203,7 @@ classdef DefectAlt < Experiment
         for iRepeat = 1:this.nRepeat
           
           %get the defected image
-          [imageContaminated, isAltImage] = ...
+          [imageContaminated, isNonNullImage] = ...
               defectSimulator.getDefectedImage([this.imageSize, this.imageSize]);
             
           %filter it
@@ -214,20 +214,20 @@ classdef DefectAlt < Experiment
           zTester.doTest();
 
           %get the roc area
-          [~, ~, this.rocAreaArray(iRepeat, iMu)] = roc(imageFiltered, isAltImage, this.nRoc);
+          [~, ~, this.rocAreaArray(iRepeat, iMu)] = roc(imageFiltered, isNonNullImage, this.nRoc);
           
           %get the error rates fdrArray
           this.type1ErrorArray(iRepeat, iMu) = ...
-            sum(zTester.sig_image(~isAltImage)) / sum(sum(~isAltImage));
+            sum(zTester.positiveImage(~isNonNullImage)) / sum(sum(~isNonNullImage));
           
           this.type2ErrorArray(iRepeat, iMu) = ...
-              sum(~(zTester.sig_image(isAltImage))) / sum(sum(isAltImage));
+              sum(~(zTester.positiveImage(isNonNullImage))) / sum(sum(isNonNullImage));
           
-          nSig = sum(sum(zTester.sig_image));
+          nSig = sum(sum(zTester.positiveImage));
           if nSig == 0
             fdr = 0;
           else
-            fdr = sum(sum(zTester.sig_image(~isAltImage))) / nSig;
+            fdr = sum(sum(zTester.positiveImage(~isNonNullImage))) / nSig;
           end
           this.fdrArray(iRepeat, iMu) = fdr;
 

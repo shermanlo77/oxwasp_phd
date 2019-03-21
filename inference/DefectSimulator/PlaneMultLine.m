@@ -33,12 +33,13 @@ classdef PlaneMultLine < PlaneMult
       %size: 2 row vector [height, width]
     %RETURN:
       %image: a defected image
-      %isAltImage: boolean map, true if that pixel is a defect
+      %isNonNullImage: boolean map, true if that pixel is a defect
       %imagePreBias: defected Gaussian image without the smooth function added
-    function [imageContaminated, isAltImage, imageNoContamination] = getDefectedImage(this, size)
-      [imageNoContamination, isAltImage] = this.getDefectedImage@DefectSimulator(size);
-      [imageNoContamination, isAltImage] = ...
-          this.addLineDefect(imageNoContamination, isAltImage, round(size(2)/2), ...
+    function [imageContaminated, isNonNullImage, imageNoContamination] = ...
+          getDefectedImage(this, size)
+      [imageNoContamination, isNonNullImage] = this.getDefectedImage@DefectSimulator(size);
+      [imageNoContamination, isNonNullImage] = ...
+          this.addLineDefect(imageNoContamination, isNonNullImage, round(size(2)/2), ...
           this.lineThickness, this.altMean, this.altStd);
       imageContaminated = this.multiply(imageNoContamination, this.multiplier);
       imageContaminated = this.addPlane(imageContaminated, this.grad);

@@ -28,9 +28,10 @@ classdef PlaneMult < DefectSimulator
       %size: 2 row vector [height, width]
     %RETURN:
       %image: a defected Gaussian image
-      %isAltImage: boolean map, true if that pixel is a defect
-    function [imageContaminated, isAltImage, imageNoContamination] = getDefectedImage(this, size)
-      [imageNoContamination, isAltImage] = this.getDefectedImage@DefectSimulator(size);
+      %isNonNullImage: boolean map, true if that pixel is a defect
+    function [imageContaminated, isNonNullImage, imageNoContamination] = ...
+          getDefectedImage(this, size)
+      [imageNoContamination, isNonNullImage] = this.getDefectedImage@DefectSimulator(size);
       imageContaminated = this.multiply(imageNoContamination, this.multiplier);
       imageContaminated = this.addPlane(imageContaminated, this.grad);
     end

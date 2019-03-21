@@ -33,16 +33,16 @@ function [falsePositive, truePositive, areaRoc] = roc(zImage, altImage, nPoints)
   alphaArray = flip(2*(1-normcdf(quantile(reshape(abs(zImage),[],1), linspace(0, 1, nPoints-2)'))));
   alphaArray = [0;alphaArray;1];
   
-  zTester = ZTester_Uncorrected(zImage); %instantiate z tester for testing using BH procedure
+  zTester = ZTesterUncorrected(zImage); %instantiate z tester for testing using BH procedure
   
   %for each significant level
   for i = 1:nPoints
     %set the significant level and do the hypothesis test
-    zTester.setSize(alphaArray(i));
+    zTester.setThreshold(alphaArray(i));
     zTester.doTest();
     %get the false and ture positive rate
-    falsePositive(i) = sum(sum(zTester.sig_image & (~altImage))) / nNull;
-    truePositive(i) = sum(sum(zTester.sig_image & (altImage))) / nAlt;
+    falsePositive(i) = sum(sum(zTester.positiveImage & (~altImage))) / nNull;
+    truePositive(i) = sum(sum(zTester.positiveImage & (altImage))) / nAlt;
   end
   
   %get area of roc curve using trapeziums

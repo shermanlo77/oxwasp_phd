@@ -42,10 +42,10 @@ classdef DefectSimulator < handle
       %size: 2 row vector [height, width]
     %RETURN:
       %image: a defected Gaussian image
-      %isAltImage: boolean map, true if that pixel is a defect
-    function [image, isAltImage] = getDefectedImage(this, size)
+      %isNonNullImage: boolean map, true if that pixel is a defect
+    function [image, isNonNullImage] = getDefectedImage(this, size)
       image = this.randStream.randn(size);
-      isAltImage = false(size);
+      isNonNullImage = false(size);
     end
     
   end
@@ -56,16 +56,16 @@ classdef DefectSimulator < handle
     %Replace a square with samples from the alt distribution
     %PARAMETERS:
       %image: image to be defected
-      %isAltImage: boolean image, true for defect
+      %isNonNullImage: boolean image, true for defect
       %coOd: coordinate of the middle of the square
       %defectSize: 2 vector defining the size of the square defect
       %mean: mean parameter of the alt distribution
       %std: std parameter of the alt distribution
     %RETURN:
       %image: the defected image
-      %isAltImage: boolean image, true for defect
-    function [image, isAltImage] = addSquareDefect(this, image, isAltImage, coOd, defectSize, ...
-        mean, std)
+      %isNonNullImage: boolean image, true for defect
+    function [image, isNonNullImage] = addSquareDefect(this, image, isNonNullImage, coOd, ...
+        defectSize, mean, std)
       %get the range of columns and rows to fill with a defect
       rowIndex = this.getRange(coOd(1), defectSize(1));
       columnIndex = this.getRange(coOd(2), defectSize(2));
@@ -73,49 +73,50 @@ classdef DefectSimulator < handle
       %set the square to have samples from the alt distribution
       image(rowIndex, columnIndex) = image(rowIndex, columnIndex) * std + mean;
       %set the square in this.altImage to be true
-      isAltImage(rowIndex, columnIndex) = true;
+      isNonNullImage(rowIndex, columnIndex) = true;
     end
     
     %METHOD: ADD LINE DEFECT
     %Replace a verticle with samples from the alt distribution
     %PARAMETERS:
       %image: the image to be defected
-      %isAltImage: boolean image, true for defect
+      %isNonNullImage: boolean image, true for defect
       %x: x coordinate of the center of the line
       %thickness: the thickness of the line
       %mean: mean parameter of the alt distribution
       %std: std parameter of the alt distribution
     %RETURN:
       %image: the defected image
-      %isAltImage: boolean image, true for defect
-    function [image, isAltImage] = addLineDefect(this, image, isAltImage, x, thickness, mean, std)
+      %isNonNullImage: boolean image, true for defect
+    function [image, isNonNullImage] = addLineDefect(this, image, isNonNullImage, x, thickness, ...
+          mean, std)
       %get the column index which the defect is to be added
       defectColumn = this.getRange(x, thickness);
       defectColumn = this.checkColumnBoundary(image, defectColumn);
       %set the line to be samples from the alt distribution
       image(:,defectColumn) = image(:,defectColumn) * std + mean;
       %set the line in this.altImage to true
-      isAltImage(:, defectColumn) = true;
+      isNonNullImage(:, defectColumn) = true;
     end
     
     %METHOD: ADD DUST
     %Random select pixel with probability p, these selected pixels are alt
     %PARAMETERS:
       %image: the image to be defected
-      %isAltImage: boolean image, true for defect
+      %isNonNullImage: boolean image, true for defect
       %p: probability pixel is alt
       %mean: mean parameter of the alt distribution
       %std: std parameter of the alt distribution
     %RETURN:
       %image: the defected image
-      %isAltImage: boolean image, true for defect
-    function [image, isAltImage] = addDust(this, image, isAltImage, p, mean, std)
+      %isNonNullImage: boolean image, true for defect
+    function [image, isNonNullImage] = addDust(this, image, isNonNullImage, p, mean, std)
       %for all pixels
       for iPixel = 1:numel(image)
         %if this pixel is to be alt, assign alt sample
         if(this.randStream.rand < p)
           image(iPixel) = image(iPixel) * std + mean;
-          isAltImage(iPixel) = true;
+          isNonNullImage(iPixel) = true;
         end
       end
     end
