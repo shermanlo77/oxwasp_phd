@@ -22,7 +22,7 @@ classdef Parzen < handle
       this.data = data(~isnan(data));
       this.nData = numel(this.data);
       %set default value for parzen std
-      this.setParameter(0.9 * min([std(this.data),iqr(this.data)/1.34]) * this.nData^(-1/5) + 0.16);
+      this.setParameter( (0.9*this.nData^(-1/5)+0.16) * min([std(this.data),iqr(this.data)/1.34]));
     end
     
     %METHOD: SET PARAMETER
