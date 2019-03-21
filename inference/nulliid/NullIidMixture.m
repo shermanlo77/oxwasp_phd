@@ -9,9 +9,9 @@ classdef (Abstract) NullIidMixture < NullIid
     function yLim = getYLim(this, index)
       switch index
         case 1
-          yLim = [-0.3, 0.5];
+          yLim = [-0.3, 0.6];
         case 2
-          yLim = [0.8, 2.2];
+          yLim = [0.8, 1.8];
         otherwise
           yLim = this.getYLim@NullIid(index);
       end

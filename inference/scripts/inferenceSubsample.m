@@ -13,8 +13,10 @@ clc;
 clearvars;
 close all;
 
+subsampleExample(1:2000, 1:2000, 'inferenceSubsampleAll'); %whole image
 subsampleExample(1100:1299, 400:599, 'inferenceSubsample1'); %subimage with no defect
 subsampleExample(500:699, 500:699, 'inferenceSubsample2'); %subimage with defect
+
 
 %PARAMETERS:
   %rowSubsample: vector of indicies of rows which indiciate the position of the subimage
@@ -39,6 +41,7 @@ function subsampleExample(rowSubsample, colSubsample, name)
       %null correction
   zSampleImage = zImage(rowSubsample, colSubsample);
   zSampleVector = reshape(zSampleImage,[],1);
+  zSampleVector(isnan(zSampleVector)) = [];
   zTester = ZTester(zSampleImage);
   zTester.doTest();
   zCritical = zTester.getZCritical();
@@ -57,8 +60,9 @@ function subsampleExample(rowSubsample, colSubsample, name)
   saveas(fig, fullfile('reports','figures','inference',strcat(name,'_histogram.eps')),'epsc');
 
   %estimate the empirical null and do the test
-  zTester.estimateNull(0, int32(1351727940));
+  zTester.estimateNull(0, int32(-854868324));
   zTester.doTest();
+  
   zCritical = zTester.getZCritical(); %get the critical boundary
   mu0 = zTester.nullMean; %get the empirical null mean
   sigma0 = zTester.nullStd; %get the empirical null std
@@ -78,9 +82,10 @@ function subsampleExample(rowSubsample, colSubsample, name)
   nullPdfPlot = numel(zSampleVector) * parzen.getDensityEstimate(mu0) * sqrt(2*pi) * sigma0 * ...
       normpdf(xPlot, mu0, sigma0) ;
   plot(xPlot,  nullPdfPlot, 'r-.');
-  legend('density estimate', 'empirical null');
+  legend('density estimate', 'empirical null', 'Location', 'best');
   ylabel('frequency density');
   xlabel('z stat');
+  xlim([min(zSampleVector), max(zSampleVector)]);
   saveas(fig,fullfile('reports','figures','inference',strcat(name,'_densityEstimate.eps')),'epsc');
 
   %SAVE VALUE

@@ -189,7 +189,7 @@ classdef (Abstract) NullIid < Experiment
         case 1
           yLim = [-0.4, 0.4];
         case 2
-          yLim = [0.7, 1.8];
+          yLim = [0.7, 1.6];
         case 3
           yLim = [-0.4, 0.4];
         case 4
