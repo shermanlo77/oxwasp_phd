@@ -184,11 +184,11 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     genericDialog.addNumericField("number of steps", this.getNStep(),
         0, 6, null);
     genericDialog.addNumericField("log tolerance", this.getLog10Tolerance(),
-        1, 6, null);
+        2, 6, null);
     genericDialog.addNumericField("bandwidth A", this.getBandwidthA(),
-        1, 6, null);
+        2, 6, null);
     genericDialog.addNumericField("bandwidth B", this.getBandwidthB(),
-        1, 6, null);
+        2, 6, null);
     
     //the DialogItemChanged method will be called on user input
     genericDialog.addDialogListener(this);
@@ -501,7 +501,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
           }
         }
       }
-
+      
       if (numThreads>1) { // thread synchronization
         //non-synchronized check to avoid overhead
         int slowestThreadY = arrayMinNonNegative(yForThread);
@@ -611,36 +611,40 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
         isPreviousFinite = true;
         
         //get the null mean and null std
-        float [] nullMeanStd = this.getNullMeanStd(initialValue, cache, kernel, normal, rng);
-        //normalise this pixel
-        values[0][valuesP] =
-            (cache.getCache()[cacheLineP+kernel.getX()] - nullMeanStd[0]) / nullMeanStd[1];
-        //for the next x, the initial value is this nullMean
-        initialValue = nullMeanStd[0];
-        //for each requested output image, save that statistic
-        for (int i=0; i<N_IMAGE_OUTPUT; i++) {
-          if ( (this.outputImagePointer >> i) % 2 == 1) {
-            switch (i) {
-              case 0:
-                values[1][valuesP] = nullMeanStd[0];
-                break;
-              case 1:
-                values[2][valuesP] = nullMeanStd[1];
-                break;
-              case 2:
-                values[3][valuesP] = kernel.getStd();
-                break;
-              case 3:
-                values[4][valuesP] = kernel.getQuartiles()[0];
-                break;
-              case 4:
-                values[5][valuesP] = kernel.getQuartiles()[1];
-                break;
-              case 5:
-                values[6][valuesP] = kernel.getQuartiles()[2];
-                break;
+        try {
+          float [] nullMeanStd = this.getNullMeanStd(initialValue, cache, kernel, normal, rng);
+          //normalise this pixel
+          values[0][valuesP] =
+              (cache.getCache()[cacheLineP+kernel.getX()] - nullMeanStd[0]) / nullMeanStd[1];
+          //for the next x, the initial value is this nullMean
+          initialValue = nullMeanStd[0];
+          //for each requested output image, save that statistic
+          for (int i=0; i<N_IMAGE_OUTPUT; i++) {
+            if ( (this.outputImagePointer >> i) % 2 == 1) {
+              switch (i) {
+                case 0:
+                  values[1][valuesP] = nullMeanStd[0];
+                  break;
+                case 1:
+                  values[2][valuesP] = nullMeanStd[1];
+                  break;
+                case 2:
+                  values[3][valuesP] = kernel.getStd();
+                  break;
+                case 3:
+                  values[4][valuesP] = kernel.getQuartiles()[0];
+                  break;
+                case 4:
+                  values[5][valuesP] = kernel.getQuartiles()[1];
+                  break;
+                case 5:
+                  values[6][valuesP] = kernel.getQuartiles()[2];
+                  break;
+              }
             }
           }
+        } catch (Exception exception) {
+          isPreviousFinite = false;
         }
       } else { //else this pixel is not finite
         isPreviousFinite = false;
@@ -650,15 +654,31 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   }
   
   protected float[] getNullMeanStd(float initialValue, Cache cache, Kernel kernel,
-      NormalDistribution normal, RandomGenerator rng) {
+      NormalDistribution normal, RandomGenerator rng) throws Exception{
     //declare 2 vector to store the null mean and null std
     float[] nullMeanStd = new float[2];
     //get the empirical null
-    EmpiricalNull empiricalNull = new EmpiricalNull(this.nInitial, this.nStep, this.log10Tolerance,
-        this.bandwidthParameterA, this.bandwidthParameterB, initialValue, kernel, normal,
-        rng);
+    EmpiricalNull empiricalNull;
+    
     //estimate the null and get it
-    empiricalNull.estimateNull();
+    //try using the empirical null,if an exception is caught, then use the median as the initial 
+        //value and try again, if another exception is caught, then throw exception
+    try {
+      empiricalNull = new EmpiricalNull(this.nInitial, this.nStep, this.log10Tolerance,
+          this.bandwidthParameterA, this.bandwidthParameterB, initialValue, kernel, normal,
+          rng);
+      empiricalNull.estimateNull();
+    } catch (Exception exception1) { //exception is caught, use median as initial value this time
+      try {
+        empiricalNull = new EmpiricalNull(this.nInitial, this.nStep, this.log10Tolerance,
+            this.bandwidthParameterA, this.bandwidthParameterB, kernel.getMedian(), kernel, normal,
+            rng);
+        empiricalNull.estimateNull();
+      } catch (Exception exceptionAfterMedian) { //median as initial value didn't work
+        throw exceptionAfterMedian;
+      }
+    }
+    //assign null mean and null std
     nullMeanStd[0] = empiricalNull.getNullMean();
     nullMeanStd[1] = empiricalNull.getNullStd();
     return nullMeanStd;

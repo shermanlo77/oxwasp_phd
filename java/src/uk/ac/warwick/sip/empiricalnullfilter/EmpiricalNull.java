@@ -39,7 +39,6 @@ public class EmpiricalNull {
   private NormalDistribution normalDistribution; //standard normal distribution
   private RandomGenerator rng; //random number generator when a random initial value is needed
   
-  
   /**CONSTRUCTOR
    * To be used by MATLAB, default values are provided for you
    * @param zArray float array of z statistics to be corrected
@@ -114,8 +113,9 @@ public class EmpiricalNull {
   
   /**METHOD: ESTIMATE NULL
    * Estimate the parameters nullMean and nullStd
+   * @throws Exception if Newton-Raphson failed to converge
    */
-  public void estimateNull() {
+  public void estimateNull() throws Exception{
     
     //get the initial value, if it not finite, get a random one
     float initialValue = this.initialValue;
@@ -134,12 +134,17 @@ public class EmpiricalNull {
       //find the maximum density
       //density at mode contains the density at the mode, the position of the mode and the second
           //derivative of the log density at the mode
-      float[] densityAtMode = this.findMode(initialValue);
-      densityArray[i] = densityAtMode[0];
-      nullMeanArray[i] = densityAtMode[1];
-      secondDivArray[i] = densityAtMode[2];
-      //get a random value for the next initial point
-      initialValue = this.getRandomInitial();
+      try {
+        float[] densityAtMode = this.findMode(initialValue);
+        densityArray[i] = densityAtMode[0];
+        nullMeanArray[i] = densityAtMode[1];
+        secondDivArray[i] = densityAtMode[2];
+        //get a random value for the next initial point
+        initialValue = this.getRandomInitial();
+      } catch (Exception exception) {
+        throw exception;
+      }
+      
     }
     
     //the empirical null parameters chosen are the ones with the highest density
@@ -179,12 +184,15 @@ public class EmpiricalNull {
    * Find the mode of the log density using the newton-raphson method
    * @return 3-array, [0] contains the maximum density, [1] mode, [2] 2nd div of log density
    * std
+   * @throws Exception when the algorithm fails to converge
    */
-  private float[] findMode(float greyvalue) {
+  private float[] findMode(float greyvalue) throws Exception{
     //declare array for the output
     float[] densityAtMode = new float[3];
     //declare flag to indiciate if a solution has been found
     boolean foundSolution = false;
+    
+    int counter = 0; //count the number of times a new initial value has been generated
     //while no solution has been found
     while (!foundSolution) {
       
@@ -224,9 +232,14 @@ public class EmpiricalNull {
         densityAtMode[1] = greyvalue;
         densityAtMode[2] = dxLnF[2];
       }
+      //generate a new initial value and start from there
       greyvalue = this.getRandomInitial();
+      counter++; //count the number of times a initial value has been generated
+      //if too many initial values has been generated, throw an exception
+      if (counter > 10*this.nInitial) {
+        throw new Exception("convergence problem in EmpiricalNull");
+      }
     }
-    
     return densityAtMode;
   }
   
@@ -297,7 +310,7 @@ public class EmpiricalNull {
    * @return
    */
   public static boolean isFinite(float f) {
-    return !(Float.isNaN(f) || Float.isInfinite(f));
+    return !(Float.isNaN(f) || Float.isInfinite(f) || Float.isInfinite(-f));
   }
   
   /**METHOD: GET N INITIAL
@@ -348,13 +361,21 @@ public class EmpiricalNull {
   
   /**METHOD: SET BANDWIDTH
    * Set the bandwidth for the kernel density using the bandwidth parameters
+   * Change datastd and the iqr if needed, for example if they are zero
    */
   private void setBandwidth() {
-  //get the bandwidth for the density estimate
-    this.bandwidth = (this.bandwidthParameterB
-        * ((float) Math.pow((double) this.n, -0.2))
-        + this.bandwidthParameterA)
-        * Math.min(this.dataStd, this.iqr/1.34f);
+    //if the std is zero, then all the numbers are the same, probably an integer
+    //use std of uniform
+    if (Float.compare(this.dataStd, 0.0f) == 0)  {
+      this.dataStd = 0.289f;
+    }
+    //if iqr is zero, then use std instead
+    if (Float.compare(this.iqr, 0.0f) == 0) {
+      this.iqr = this.dataStd * 1.34f;
+    }
+    //get the bandwidth for the density estimate
+    this.bandwidth = (this.bandwidthParameterB * ( (float) Math.pow((double) this.n, -0.2))
+        + this.bandwidthParameterA) * Math.min(this.dataStd, this.iqr/1.34f);
   }
   
   /**METHOD: SET BANDIWDTH
