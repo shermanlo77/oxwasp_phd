@@ -5,7 +5,7 @@
     %recover the image from contamination. These 2 images are then used to do a hypothesis test to
     %find the defects. The type 1 error, type 2 error, fdr and area of roc are recorded. The
     %experiment is repeated by producing another image.
-classdef Experiment_DefectRadius < Experiment
+classdef DefectRadius < Experiment
 
   properties (SetAccess = protected)
     
@@ -34,8 +34,8 @@ classdef Experiment_DefectRadius < Experiment
   methods (Access = public)
     
     %CONSTRUCTOR
-    function this = Experiment_DefectRadius(experimentName)
-      this@Experiment(experimentName);
+    function this = DefectRadius()
+      this@Experiment();
     end
     
     %METHOD: PRINT RESULTS
@@ -149,7 +149,7 @@ classdef Experiment_DefectRadius < Experiment
         for iRepeat = 1:this.nRepeat
           
           %get the defected image pre/post contamination
-          [imagePostCont, isAltImage, imagePreCont] = ...
+          [imagePostCont, isNonNullImage, imagePreCont] = ...
               defectSimulator.getDefectedImage([this.imageSize, this.imageSize]);
 
           %filter it
@@ -168,34 +168,34 @@ classdef Experiment_DefectRadius < Experiment
           zTesterPostCont.doTest();
 
           %get the roc area
-          [~, ~, this.rocAreaArray(iRepeat, iRadius, 1)] = roc(imagePreCont, isAltImage, 100);
-          [~, ~, this.rocAreaArray(iRepeat, iRadius, 2)] = roc(imageFiltered, isAltImage, 100);
+          [~, ~, this.rocAreaArray(iRepeat, iRadius, 1)] = roc(imagePreCont, isNonNullImage, 100);
+          [~, ~, this.rocAreaArray(iRepeat, iRadius, 2)] = roc(imageFiltered, isNonNullImage, 100);
           
           %get the error rates fdrArray
           
           this.type1ErrorArray(iRepeat, iRadius, 1) = ...
-              sum(zTesterPreCont.sig_image(~isAltImage)) / sum(sum(~isAltImage));
+              sum(zTesterPreCont.positiveImage(~isNonNullImage)) / sum(sum(~isNonNullImage));
           this.type1ErrorArray(iRepeat, iRadius, 2) = ...
-              sum(zTesterPostCont.sig_image(~isAltImage)) / sum(sum(~isAltImage));
+              sum(zTesterPostCont.positiveImage(~isNonNullImage)) / sum(sum(~isNonNullImage));
             
           this.type2ErrorArray(iRepeat, iRadius, 1) = ...
-              sum(~(zTesterPreCont.sig_image(isAltImage))) / sum(sum(isAltImage));
+              sum(~(zTesterPreCont.positiveImage(isNonNullImage))) / sum(sum(isNonNullImage));
           this.type2ErrorArray(iRepeat, iRadius, 2) = ...
-              sum(~(zTesterPostCont.sig_image(isAltImage))) / sum(sum(isAltImage));
+              sum(~(zTesterPostCont.positiveImage(isNonNullImage))) / sum(sum(isNonNullImage));
             
-          nSig = sum(sum(zTesterPreCont.sig_image));
+          nSig = sum(sum(zTesterPreCont.positiveImage));
           if nSig == 0
             fdr = 0;
           else
-            fdr = sum(sum(zTesterPreCont.sig_image(~isAltImage))) / nSig;
+            fdr = sum(sum(zTesterPreCont.positiveImage(~isNonNullImage))) / nSig;
           end
           this.fdrArray(iRepeat, iRadius, 1) = fdr;
           
-          nSig = sum(sum(zTesterPostCont.sig_image));
+          nSig = sum(sum(zTesterPostCont.positiveImage));
           if nSig == 0
             fdr = 0;
           else
-            fdr = sum(sum(zTesterPostCont.sig_image(~isAltImage))) / nSig;
+            fdr = sum(sum(zTesterPostCont.positiveImage(~isNonNullImage))) / nSig;
           end
           this.fdrArray(iRepeat, iRadius, 2) = fdr;
 

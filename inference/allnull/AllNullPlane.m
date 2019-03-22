@@ -42,9 +42,9 @@ classdef AllNullPlane < AllNull
         case 3
           yLim = [-0.06, 0.06];
         case 4
-          yLim = [0.9, 1.2];
+          yLim = [0.88, 1.03];
         case 5
-          yLim = [2.95, 3.8];
+          yLim = [2.95, 3.5];
       end
     end
     

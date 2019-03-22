@@ -134,7 +134,7 @@ classdef ZTester < handle
     function plotPValues(this)
       this.plotPValues2(true(size(this.zImage)));
       ax = gca;
-      legend(ax.Children([1,3]), 'p value', 'critical', 'Location','northwest');
+      legend(ax.Children([1,4]), 'p value', 'critical', 'Location','northwest');
     end
 
     %METHOD: PLOT P VALUES (highlight null and non-null)
@@ -145,7 +145,7 @@ classdef ZTester < handle
     function plotPValues2(this, isNull)
       this.plotOrderedPValues(isNull);
       ax = gca;
-      legend(ax.Children, 'null','alt','critical','Location','northwest');
+      legend(ax.Children([1,2,4]), 'null','alt','critical','Location','northwest');
     end
     
   end
@@ -207,6 +207,7 @@ classdef ZTester < handle
       %plot the BH critical line
       this.plotArea(orderIndex, this.threshold/this.nTest*orderIndex);
       hold on;
+      plot([1, this.nTest],[0.5/this.nTest, (this.nTest-0.5)/this.nTest],'k:');
       %plot the p values
       scatter(orderIndex(~isNull), pVector(~isNull),'rx');
       scatter(orderIndex(isNull), pVector(isNull),'b.');

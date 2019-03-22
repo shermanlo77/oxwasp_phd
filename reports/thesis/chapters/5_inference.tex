@@ -1174,129 +1174,286 @@ When filtering arbitrary images such as \texttt{bridge.gif}, a few computational
 
 When the number of initial values is too few, poor solutions to $\widehat{\mu}_0$ are uncommon which then propagate to the pixel to the right and used as its initial value. Poor initial values could cause the Newton-Raphson method to never converge. If the Newton-Raphson method failed to converge too many times, the median is used as the new initial value. Should it fail too, the program gives up and puts a $\texttt{NaN}$ in that pixel.
 
-\subsection{Uncontaminated Experiment}
+\subsection{All-null Experiment}
 
-The empirical null filter was demonstrated on an image where each pixel has i.i.d.~$\normal(0,1)$ test statistics. The test statistics after filtering should preserve its original distribution, or at least close to it. An experiment was conducted to investigate the empirical properties when filtering such as an image.
+An experiment was conducted to demonstrate the effects of the empirical null filter on a simulated $256\times 256$ Gaussian image, where all the pixels have value distributed as standard Normal. The purpose is to simulate test statistics which are null and ideally no positive results should be detected. The test statistics after filtering should preserve its original distribution, or at least close to it. The statistical moments before and after filtering should be the same and were investigated. Because the empirical null mean and empirical null standard deviation are random variables with some distribution, the filtered pixels will never be Normal and any Normality tests would be too strict for the purpose of this experiment.
 
-An example of a  $\addNumber{../figures/inference/noContamination/imageSize.txt}\times \addNumber{../figures/inference/noContamination/imageSize.txt}$ Gaussian image before and after filtering, with a kernel radius of \addNumber{../figures/inference/noContamination/radius.txt}, is shown in Figure \ref{fig:inference_noContamination_images}. A quick glance shows little difference, in particular the QQ plot in Figure \ref{fig:inference_noContamination_qq} shows that the post filter test statistics looked reasonably Normal. Because the empirical null mean and empirical null standard deviation are random variables with some distribution, the post filtered test statistics will never be Normal and any Normality tests would be too strict for the purpose of this experiment.
+\emph{Contamination} is defined as some smooth and slowly varying function added and/or multiplied to an image. When contaminating a Gaussian image, it may cause errors in hypothesis testing if the null distribution was incorrectly specified as standard Normal. In this experiment, the contamination was a gradient such that the pixel at position $(x,y)$ have a value distributed as $Z_{x,y}\sim\normal(\mu_{0,x,y},\sigma_{0,x,y}^2)$ where
+\begin{equation}
+  \mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0) \ ,
+\end{equation}
+$(x_0,y_0)$ is the centre of the image and $\sigma_{0,x,y}=2$ for all $(x,y)$.
 
-\begin{figure}[htp]
-  \centering
-  \includegraphics[width=0.49\textwidth]{../figures/inference/noContamination/allNullGaussianqq.eps}
-  \caption{QQ plot of the test statistics of a filtered $\addNumber{../figures/inference/noContamination/imageSize.txt} \times \addNumber{../figures/inference/noContamination/imageSize.txt}$ Gaussian image after filtering with kernel radius \addNumber{../figures/inference/noContamination/radius.txt}.}
-  \label{fig:inference_noContamination_qq}
-\end{figure}
+A caveat is that some bias to the null variance estimation would be introduced because of the contamination. This is because sources of variance captured by the kernel are from $\sigma_{0,x,y}$ and also from the variability of $\mu_{0,x,y}$. This can be shown. Let $Z_{x,y}$ be the value of the pixels captured by the circular kernel for integer values of $(x,y)$ such that $x^2+y^2\leqslant r$. Suppose that $Z_{x,y}\sim\normal(ax+by,c^2\sigma^2)$. The calculations of the expectation and variance of $Z_{x,y}$ can be approximated by treating $x$ and $y$ as uniformly distributed within a circle centred at the origin with radius $r$. The expectation is $\expectation[Z_{X,Y}] = \expectation\expectation[Z_{X,Y}|X,Y]=0$. The variance is given as $\variance[Z_{X,Y}] = \expectation\variance[Z_{X,Y}|X,Y] + \variance\expectation[Z_{X,Y}|X,Y]$. From the distribution of $Z_{X,Y}$, $\expectation\variance[Z_{X,Y}|X,Y] = c^2\sigma^2$ and $\variance\expectation[Z_{X,Y}|X,Y]=\variance[aX+bY]$. This is worked out to be
+\begin{align}
+\variance[aX+bY] &= \dfrac{1}{\pi r^2}\int_{\rho=0}^{\rho=r}\int_{\theta=0}^{\theta=2\pi}
+\rho^3(a\cos\theta + b\sin\theta)^2 \diff \theta \diff \rho
+\nonumber\\
+& = \dfrac{1}{4}(a^2+b^2)r^2
+\end{align}
+thus
+\begin{equation}
+\variance[Z_{X,Y}] = \dfrac{1}{4}(a^2+b^2)r^2 + c^2\sigma^2 \ .
+\end{equation}
+This shows that when estimating the null variance on a contaminated Gaussian image, there may be a $(a^2+b^2)r^2/4$ bias. If the contamination is slowly varying, that is $a$ and $b$ are small, then the bias should be small.
 
-\begin{figure}[pht]
+\begin{figure}[p]
   \centering
   \centerline{
   \begin{subfigure}[b]{0.49\textwidth}
-    \includegraphics[width=\textwidth]{../figures/inference/noContamination/allNullGaussianunfiltered.eps}
+    \includegraphics[width=\textwidth]{../figures/inference/allNullGaussianScript_beforeFilter.eps}
     \caption{Unfiltered}
   \end{subfigure}
   \begin{subfigure}[b]{0.49\textwidth}
-    \includegraphics[width=\textwidth]{../figures/inference/noContamination/allNullGaussianfiltered.eps}
+    \includegraphics[width=\textwidth]{../figures/inference/allNullGaussianScript_afterFilter.eps}
     \caption{Filtered}
+    \label{fig:inference_allNullGaussianScript_afterFilter}
   \end{subfigure}
   }
   \centerline{
   \begin{subfigure}[b]{0.49\textwidth}
-    \includegraphics[width=\textwidth]{../figures/inference/noContamination/allNullGaussiannullmean.eps}
+    \includegraphics[width=\textwidth]{../figures/inference/allNullGaussianScript_nullMean.eps}
     \caption{Empirical null mean}
   \end{subfigure}
   \begin{subfigure}[b]{0.49\textwidth}
-    \includegraphics[width=\textwidth]{../figures/inference/noContamination/allNullGaussiannullstd.eps}
+    \includegraphics[width=\textwidth]{../figures/inference/allNullGaussianScript_nullStd.eps}
     \caption{Empirical null std}
   \end{subfigure}
   }
-  \caption{A $\addNumber{../figures/inference/noContamination/imageSize.txt} \times \addNumber{../figures/inference/noContamination/imageSize.txt}$ Gaussian image before and after filtering with kernel radius \addNumber{../figures/inference/noContamination/radius.txt}. Also shown are the empirical null mean and empirical null std.}
-  \label{fig:inference_noContamination_images}
+  \caption{A $256\times 256$ Gaussian image before and after filtering with kernel radius 20. Also shown are the empirical null mean and empirical null std.}
+  \label{fig:inference_allNullGaussianScript}
 \end{figure}
 
-In this experiment, a Gaussian image of size $\addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_width.txt} \times \addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_height.txt}$ was simulated. The sample mean and sample variance of the post filtered test statistics were recorded. This was repeated \addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_nrepeat.txt} times by simulating another Gaussian image. Various kernel radiuses from $r = \addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_radius1.txt}$ to $r = \addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_radiusend.txt}$ were investigated.
+\begin{figure}[p]
+  \centering
+  \centerline{
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allNullPlaneScript_beforeFilter.eps}
+    \caption{Unfiltered}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allNullPlaneScript_afterFilter.eps}
+    \caption{Filtered}
+    \label{fig:inference_allNullPlaneScript_afterFilter}
+  \end{subfigure}
+  }
+  \centerline{
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allNullPlaneScript_nullMean.eps}
+    \caption{Empirical null mean}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allNullPlaneScript_nullStd.eps}
+    \caption{Empirical null std}
+  \end{subfigure}
+  }
+  \caption{A $256\times 256$ contaminated Gaussian image before and after filtering with kernel radius 20. Also shown are the empirical null mean and empirical null std.}
+  \label{fig:inference_allNullPlaneScript}
+\end{figure}
 
 \begin{figure}[htp]
   \centering
   \begin{subfigure}[b]{0.49\textwidth}
-    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianEmpirical_mean.eps}
-    \caption{Post filter sample mean}
+    \includegraphics[width=\textwidth]{../figures/inference/allNullGaussianScript_pValue.eps}
+    \caption{No contamination}
   \end{subfigure}
   \begin{subfigure}[b]{0.49\textwidth}
-    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianEmpirical_variance.eps}
-    \caption{Post filter sample variance}
+    \includegraphics[width=\textwidth]{../figures/inference/allNullPlaneScript_pValue.eps}
+    \caption{With contamination}
   \end{subfigure}
-  \caption{The sample mean and sample variance of the test statistics in a filtered Gaussian image of size $\addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_width.txt} \times \addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_height.txt}$. The box plots summarise the \addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_nrepeat.txt} repeats of the experiment. The dotted lines show the critical region at the 2$\sigma$ level using standard tests for the sample mean and sample variance, assuming independence.}
-  \label{fig:inference_allnullgaussian}
+  \caption{$p$-values of values from a filtered $256\times 256$ Gaussian image with kernel radius 20. In b), the Gaussian image was contaminated before filtering. The $p$-values were obtained from the images in Figures \ref{fig:inference_allNullGaussianScript_afterFilter} and \ref{fig:inference_allNullPlaneScript_afterFilter}. The dotted lines shows the $p$-values if they were uniformly distributed.}
+  \label{fig:inference_allNull_pValues}
 \end{figure}
 
-The results are shown in Figure \ref{fig:inference_allnullgaussian}. The post filter sample test statistic means do agree with zero as expected. There is some bias with the post filter sample test statistics variances, it was found that this was sensitive to the bandwidth parameters for the kernel density estimate. The large sampling error can come from a number of sources. The empirical null parameters are random variables, thus correction using these can increase the variance. Also pixel to pixel correlation can be introduced as the empirical null parameters are functions of neighbouring pixels, this can contribute to the sample error.
+An example of a Gaussian image with/without contamination before/after filtering are shown in Figures \ref{fig:inference_allNullGaussianScript} and \ref{fig:inference_allNullPlaneScript}. In the contaminated example. the filter managed to estimate the null mean, picking up the gradient. This enabled the normalised image to look flat to remove the contamination. The $p$-values after filtering are shown in Figure \ref{fig:inference_allNull_pValues}. A quick inspection suggest that the filtered pixels looked reasonably Normal for this particular example.
 
-It should be noted that the slight decrease of the post filter test statistic will decrease the sensitivity of the hypothesis test ever so slightly.
+For a given kernel radius $r$, 100 different Gaussian images were filtered to investigate the within image mean, standard deviation and kurtosis of the filtered statistics. Various other filters were used as well such as the MAD mode null filter, median IQR null filter and the mean variance null filter. They use different estimators to estimate the null parameters as their name suggest, Table \ref{table:inference_nullFilters} clarifies them.
+
+\begin{table}[ht]
+  \centering
+  \begin{tabular}{c|c|c}
+    Filters&Null mean&Null Standard deviation\\\hline
+    MAD mode null&Mode&MAD around the mode $\times1.4826$\\
+    Median IQR null&Median&IQR $\div1.349$\\
+    Mean variance null&Mean&Standard deviation
+  \end{tabular}
+  \caption{Various filters using different estimators to estimate the null parameters are described here.}
+  \label{table:inference_nullFilters}
+\end{table} 
+
+\begin{figure}[htp]
+  \centering
+  \centerline{
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianEmpirical_mean.eps}
+    \caption{Empirical Null}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianMadMode_mean.eps}
+    \caption{MAD Mode Null}
+  \end{subfigure}
+  }
+  \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianMedianIqr_mean.eps}
+    \caption{Median IQR Null}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianMeanVar_mean.eps}
+    \caption{Mean Var Null}
+  \end{subfigure}
+  }
+  \caption{The within image sample \emph{mean} of the test statistics in a filtered Gaussian image of size $256\times256$. The box plots summarise the 100 repeats of the experiment. The dashed lines show the 95\% confidence interval using standard tests, assuming independence.}
+  \label{fig:inference_AllNullGaussian_mean}
+\end{figure}
+
+\begin{figure}[htp]
+  \centering
+  \centerline{
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianEmpirical_variance.eps}
+    \caption{Empirical Null}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianMadMode_variance.eps}
+    \caption{MAD Mode Null}
+  \end{subfigure}
+  }
+  \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianMedianIqr_variance.eps}
+    \caption{Median IQR Null}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianMeanVar_variance.eps}
+    \caption{Mean Var Null}
+  \end{subfigure}
+  }
+  \caption{The within image sample \emph{standard deviation} of the test statistics in a filtered Gaussian image of size $256\times256$. The box plots summarise the 100 repeats of the experiment. The dashed lines show the 95\% confidence interval using standard tests, assuming independence.}
+  \label{fig:inference_AllNullGaussian_var}
+\end{figure}
+
+\begin{figure}[htp]
+  \centering
+  \centerline{
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianEmpirical_kurtosis.eps}
+    \caption{Empirical Null}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianMadMode_kurtosis.eps}
+    \caption{MAD Mode Null}
+  \end{subfigure}
+  }
+  \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianMedianIqr_kurtosis.eps}
+    \caption{Median IQR Null}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianMeanVar_kurtosis.eps}
+    \caption{Mean Var Null}
+  \end{subfigure}
+  }
+  \caption{The within image sample \emph{kurtosis} of the test statistics in a filtered Gaussian image of size $256\times256$. The box plots summarise the 100 repeats of the experiment. The dashed lines show the 95\% confidence interval using standard tests, assuming independence.}
+  \label{fig:inference_AllNullGaussian_kurtosis}
+\end{figure}
+
+\begin{figure}[htp]
+  \centering
+  \centerline{
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneEmpirical_mean.eps}
+    \caption{Empirical Null}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneMadMode_mean.eps}
+    \caption{MAD Mode Null}
+  \end{subfigure}
+  }
+  \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneMedianIqr_mean.eps}
+    \caption{Median IQR Null}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneMeanVar_mean.eps}
+    \caption{Mean Var Null}
+  \end{subfigure}
+  }
+  \caption{The within image sample \emph{mean} of the test statistics in a filtered \emph{contaminated} Gaussian image of size $256\times256$. The box plots summarise the 100 repeats of the experiment. The dashed lines show the 95\% confidence interval using standard tests, assuming independence.}
+  \label{fig:inference_AllNullPlane_mean}
+\end{figure}
+
+\begin{figure}[htp]
+  \centering
+  \centerline{
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneEmpirical_variance.eps}
+    \caption{Empirical Null}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneMadMode_variance.eps}
+    \caption{MAD Mode Null}
+  \end{subfigure}
+  }
+  \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneMedianIqr_variance.eps}
+    \caption{Median IQR Null}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneMeanVar_variance.eps}
+    \caption{Mean Var Null}
+  \end{subfigure}
+  }
+  \caption{The within image sample \emph{standard deviation} of the test statistics in a filtered \emph{contaminated} Gaussian image of size $256\times256$. The box plots summarise the 100 repeats of the experiment. The dashed lines show the 95\% confidence interval using standard tests, assuming independence.}
+  \label{fig:inference_AllNullPlane_var}
+\end{figure}
+
+\begin{figure}[htp]
+  \centering
+  \centerline{
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneEmpirical_kurtosis.eps}
+    \caption{Empirical Null}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneMadMode_kurtosis.eps}
+    \caption{MAD Mode Null}
+  \end{subfigure}
+  }
+  \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneMedianIqr_kurtosis.eps}
+    \caption{Median IQR Null}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneMeanVar_kurtosis.eps}
+    \caption{Mean Var Null}
+  \end{subfigure}
+  }
+  \caption{The within image sample \emph{kurtosis} of the test statistics in a filtered \emph{contaminated} Gaussian image of size $256\times256$. The box plots summarise the 100 repeats of the experiment. The dashed lines show the 95\% confidence interval using standard tests, assuming independence.}
+  \label{fig:inference_AllNullPlane_kurtosis}
+\end{figure}
+
+The results for the filtered images are shown in Figures \ref{fig:inference_AllNullGaussian_mean}, \ref{fig:inference_AllNullGaussian_var} and \ref{fig:inference_AllNullGaussian_kurtosis}. For the filtered \emph{contaminated} images, they are in Figures \ref{fig:inference_AllNullPlane_mean}, \ref{fig:inference_AllNullPlane_var} and \ref{fig:inference_AllNullPlane_kurtosis}. The filtered test statistic means did agree with zero as expected, showing that the filters centred the statistics when normalising. When using the empirical null filter, there was some negative bias with the standard deviation of the filtered test statistics. The negative bias comes from the positive bias when estimating the null standard deviation.
+
+When filtering the contaminated image, all estimators suffered from negative bias in the standard deviation of the filtered statistics, in particular when the kernel radius increases. This is shown in Figure \ref{fig:inference_AllNullPlane_var}. As discussed before, the kernel captures the variation due to the contamination and this adds intrinsic bias to the null variance. As a result, this adds bias when estimating the null variance.
+
+The kurtosis in Figures \ref{fig:inference_AllNullGaussian_kurtosis} and \ref{fig:inference_AllNullPlane_kurtosis} shows that the empirical null filter can cause the filtered statistics to have heavy tails, in particular for small kernel radiuses. This could cause problems in hypothesis testing because heavy tails could be misinterpreted as contribution from non-null statistics. The source of the kurtosis inflation is from the estimation of the null standard deviation. This can be seen by comparing the empirical null filter with the MAD mode null filter because the only difference between the two filters is in the estimation of the null standard deviation.
 
 \afterpage{\clearpage}
 \subsection{Contaminated Experiment}
 
 
-Consider a $\addNumber{../figures/inference/contamination/imageSize.txt}\times \addNumber{../figures/inference/contamination/imageSize.txt}$ Gaussian image with some contamination. For example let the pixels be $Z_{x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where the null mean is a linear function
-\begin{equation}
-\mu_{0,x,y} = \addNumber{../figures/inference/contamination/gradx.txt} (x-x_0) + \addNumber{../figures/inference/contamination/grady.txt} (y-y_0)
-\end{equation}
-where $(x_0,y_0)$ is the centre of the image and $\sigma_0=\addNumber{../figures/inference/contamination/nullstd.txt}$. There are no defects or non-null pixels defined here, therefore any positive detections are false.
-
 Figure \ref{fig:inference_contamination_images} shows an example of a contaminated image before and after filtering. When doing a hypothesis test, the contamination caused systematic error such that there are false positives on the two corners of the unfiltered image. The empirical null filter can recover the original image by extracting the systematic errors such as the plane, as shown by the empirical null mean, and the increase of variance, as shown by the empirical null std.
 
 The QQ plot of the filtered test statistics, as shown in Figure \ref{fig:inference_contamination_qq}, shows that there may be a variance mismatch. A mismatch in the variance will increase or decrease the sensitivity of the test, a larger variance would increase the sensitivity.
 
-\begin{figure}[htp]
-  \centering
-  \includegraphics[width=0.49\textwidth]{../figures/inference/contamination/allNullPlaneqq.eps}
-  \caption{QQ plot of the test statistics of a filtered $\addNumber{../figures/inference/noContamination/imageSize.txt} \times \addNumber{../figures/inference/noContamination/imageSize.txt}$ contaminated Gaussian image after filtering with kernel radius \addNumber{../figures/inference/noContamination/radius.txt}.}
-  \label{fig:inference_contamination_qq}
-\end{figure}
-
-\begin{figure}[pht]
-  \centering
-    \centerline{
-      \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/contamination/allNullPlaneunfiltered.eps}
-        \caption{Unfiltered}
-      \end{subfigure}
-      \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/contamination/allNullPlanefiltered.eps}
-        \caption{Filtered}
-      \end{subfigure}
-    }
-    \centerline{
-      \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/contamination/allNullPlanenullmean.eps}
-        \caption{Empirical null mean}
-      \end{subfigure}
-      \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/contamination/allNullPlanenullstd.eps}
-        \caption{Empirical null std}
-      \end{subfigure}
-    }
-  \caption{A $\addNumber{../figures/inference/contamination/imageSize.txt} \times \addNumber{../figures/inference/contamination/imageSize.txt}$ contaminated Gaussian image before and after filtering with kernel radius \addNumber{../figures/inference/contamination/radius.txt}. The contamination is such that the null distribution is $Z_{x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = \addNumber{../figures/inference/contamination/gradx.txt} (x-x_0) + \addNumber{../figures/inference/contamination/grady.txt} (y-y_0)$ and $\sigma_0=\addNumber{../figures/inference/contamination/nullstd.txt}$. Highlighted in red are significant pixels when controlling the FDR at the $2\sigma$ level. Also shown are the empirical null mean and empirical null std.}
-  \label{fig:inference_contamination_images}
-\end{figure}
-
 An experiment was conducted to investigate the sample mean and sample variance of the filtered contaminated image. Ideally the sample mean and sample variance should be 0 and 1 respectively. Different radiuses were investigated from ??? to ??? and repeated ??? times.
 
 The results are shown in Figure \ref{fig:inference_allnullplane}. The filter correctly centred the test statistics at zero. However there was some variance mismatch and this depended on the kernel radius. A kernel radius of about 80 scaled the test statistics correctly. This suggest there may be an optimal kernel radius for this particular null distribution. Another caveat is that the sensitivity may not be exactly preserved after filtering.
-
-\begin{figure}[htp]
-  \centering
-  \begin{subfigure}[b]{0.49\textwidth}
-    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneEmpirical_mean.eps}
-    \caption{Post filter sample mean}
-  \end{subfigure}
-  \begin{subfigure}[b]{0.49\textwidth}
-    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneEmpirical_variance.eps}
-    \caption{Post filter sample variance}
-  \end{subfigure}
-  \caption{The sample mean and sample variance of the test statistics in a filtered contaminated Gaussian image of size $\addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_width.txt} \times \addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_height.txt}$. The contamination is such that the null distribution is $Z_{x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = \addNumber{../figures/inference/contamination/gradx.txt} (x-x_0) + \addNumber{../figures/inference/contamination/grady.txt} (y-y_0)$ and $\sigma_0=\addNumber{../figures/inference/contamination/nullstd.txt}$. The box plots summarise the \addNumber{../figures/inference/allnull/AllNullPlaneEmpirical_nrepeat.txt} repeats of the experiment. The dotted lines show the critical region at the 2$\sigma$ level using standard tests for the sample mean and sample variance, assuming independence.}
-  \label{fig:inference_allnullplane}
-\end{figure}
 
 \subsection{Contaminated Defect Experiment}
 
@@ -1479,7 +1636,7 @@ An experiment was conducted to investigate the sensitivity before and after filt
         \caption{FDR}
       \end{subfigure}
     }
-  \caption{ROC area and various errors obtained when conducting hypothesis test on a \emph{empirical null} filtered image of a $256 \times 256$ salt defected Gaussian image. a) shows the ROC area when testing the image before and after filtering. In b) c) d) the dotted line shows the 95\% empirical confidence interval of the resulting error when testing the image before filtering. The filter used a kernel radius \addNumber{../figures/inference/defectsimulation/DefectAltDustEmpirical_radius.txt}. Defected pixels have the distribution $\normal(\mu_1,1)$ where $\mu_1$ was varied in this experiment. The salt defect has density $\pi_1 = 0.1$. The FDR was controlled at the 5\% level. The box plot summarise the \addNumber{../figures/inference/defectsimulation/DefectAltDustEmpirical_nRepeat.txt} repeats of the experiment.}
+  \caption{ROC area and various errors obtained when conducting hypothesis test on a \emph{empirical null} filtered image of a $256 \times 256$ salt defected Gaussian image. a) shows the ROC area when testing the image before and after filtering. In b) c) d) the dotted line shows the 95\% empirical confidence interval of the resulting error when testing the image before filtering. The filter used a kernel radius Defected pixels have the distribution $\normal(\mu_1,1)$ where $\mu_1$ was varied in this experiment. The salt defect has density $\pi_1 = 0.1$. The FDR was controlled at the 5\% level. The box plot summarise the \addNumber{../figures/inference/defectsimulation/DefectAltDustEmpirical_nRepeat.txt} repeats of the experiment.}
 \end{figure}
 
 \begin{figure}[htp]
@@ -1504,7 +1661,7 @@ An experiment was conducted to investigate the sensitivity before and after filt
         \caption{FDR}
       \end{subfigure}
     }
-  \caption{ROC area and various errors obtained when conducting hypothesis test on a \emph{MAD mode null} filtered image of a $256 \times 256$ salt defected Gaussian image. a) shows the ROC area when testing the image before and after filtering. In b) c) d) the dotted line shows the 95\% empirical confidence interval of the resulting error when testing the image before filtering. The filter used a kernel radius \addNumber{../figures/inference/defectsimulation/DefectAltDustEmpirical_radius.txt}. Defected pixels have the distribution $\normal(\mu_1,1)$ where $\mu_1$ was varied in this experiment. The salt defect has density $\pi_1 = 0.1$. The FDR was controlled at the 5\% level. The box plot summarise the \addNumber{../figures/inference/defectsimulation/DefectAltDustEmpirical_nRepeat.txt} repeats of the experiment.}
+  \caption{ROC area and various errors obtained when conducting hypothesis test on a \emph{MAD mode null} filtered image of a $256 \times 256$ salt defected Gaussian image. a) shows the ROC area when testing the image before and after filtering. In b) c) d) the dotted line shows the 95\% empirical confidence interval of the resulting error when testing the image before filtering. The filter used a kernel radius  Defected pixels have the distribution $\normal(\mu_1,1)$ where $\mu_1$ was varied in this experiment. The salt defect has density $\pi_1 = 0.1$. The FDR was controlled at the 5\% level. The box plot summarise the \addNumber{../figures/inference/defectsimulation/DefectAltDustEmpirical_nRepeat.txt} repeats of the experiment.}
 \end{figure}
 
 \begin{figure}[htp]
@@ -1530,7 +1687,7 @@ An experiment was conducted to investigate the sensitivity before and after filt
         \label{fig:inference_DefectSimulationDust_fdr}
       \end{subfigure}
     }
-  \caption{ROC area and various errors obtained when conducting hypothesis test on a \emph{empirical null} filtered contaminated image of a $256 \times 256$ salt defected Gaussian image. a) shows the ROC area when testing the image before/after contamination and after filtering. In b) c) the dotted line shows the 95\% empirical confidence interval of the resulting error when testing the image before contamination. The filter used a kernel radius \addNumber{../figures/inference/defectsimulation/DefectAltDustEmpirical_radius.txt}. Defected pixels have the distribution $\normal(\mu_1,1)$ where $\mu_1$ was varied in this experiment. The salt defect has density $\pi_1 = 0.1$. The contamination is such that the null distribution is $Z_{x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$. The FDR was controlled at the 5\% level. The box plot summarise the \addNumber{../figures/inference/defectsimulation/DefectAltDustEmpirical_nRepeat.txt} repeats of the experiment.}
+  \caption{ROC area and various errors obtained when conducting hypothesis test on a \emph{empirical null} filtered contaminated image of a $256 \times 256$ salt defected Gaussian image. a) shows the ROC area when testing the image before/after contamination and after filtering. In b) c) the dotted line shows the 95\% empirical confidence interval of the resulting error when testing the image before contamination. The filter used a kernel radius . Defected pixels have the distribution $\normal(\mu_1,1)$ where $\mu_1$ was varied in this experiment. The salt defect has density $\pi_1 = 0.1$. The contamination is such that the null distribution is $Z_{x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$. The FDR was controlled at the 5\% level. The box plot summarise the \addNumber{../figures/inference/defectsimulation/DefectAltDustEmpirical_nRepeat.txt} repeats of the experiment.}
   \label{fig:inference_DefectSimulationDust}
 \end{figure}
 
@@ -1557,7 +1714,7 @@ An experiment was conducted to investigate the sensitivity before and after filt
         \label{fig:inference_DefectSimulationDust_fdr}
       \end{subfigure}
     }
-  \caption{ROC area and various errors obtained when conducting hypothesis test on a \emph{MAD mode null} filtered contaminated image of a $256 \times 256$ salt defected Gaussian image. a) shows the ROC area when testing the image before/after contamination and after filtering. In b) c) the dotted line shows the 95\% empirical confidence interval of the resulting error when testing the image before contamination. The filter used a kernel radius \addNumber{../figures/inference/defectsimulation/DefectAltDustEmpirical_radius.txt}. Defected pixels have the distribution $\normal(\mu_1,1)$ where $\mu_1$ was varied in this experiment. The salt defect has density $\pi_1 = 0.1$. The contamination is such that the null distribution is $Z_{x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$. The FDR was controlled at the 5\% level. The box plot summarise the \addNumber{../figures/inference/defectsimulation/DefectAltDustEmpirical_nRepeat.txt} repeats of the experiment.}
+  \caption{ROC area and various errors obtained when conducting hypothesis test on a \emph{MAD mode null} filtered contaminated image of a $256 \times 256$ salt defected Gaussian image. a) shows the ROC area when testing the image before/after contamination and after filtering. In b) c) the dotted line shows the 95\% empirical confidence interval of the resulting error when testing the image before contamination. The filter used a kernel radius . Defected pixels have the distribution $\normal(\mu_1,1)$ where $\mu_1$ was varied in this experiment. The salt defect has density $\pi_1 = 0.1$. The contamination is such that the null distribution is $Z_{x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$. The FDR was controlled at the 5\% level. The box plot summarise the \addNumber{../figures/inference/defectsimulation/DefectAltDustEmpirical_nRepeat.txt} repeats of the experiment.}
 \end{figure}
 
 The results are shown in Figure \ref{fig:inference_DefectSimulationDust}. The ROC areas were quantified here and shows that, in terms of the ROC area, using the filter improved the performance of the test from the contamination. Figure \ref{fig:inference_DefectSimulationDust_fdr} illustrate that in the uncontaminated image, the FDR is controlled below 5\%. However after contamination and then filtering, the FDR was not well controlled at this threshold. Ideally the error rates before contamination and after filtering should be similar so that sensitivity is preserved after filtering. This should highlight that while performance can be recovered from contamination in terms of the ROC area, the FDR threshold may not be preserved.
@@ -1823,155 +1980,6 @@ The false positives were tackled by manually segmenting the image further as sho
   \label{fig:inference_subroisep16120deg_inference_radius4}
 \end{figure}
 
-\begin{figure}[htp]
-  \centering
-  \centerline{
-  \begin{subfigure}[b]{0.49\textwidth}
-    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianEmpirical_mean.eps}
-    \caption{Empirical Null}
-  \end{subfigure}
-  \begin{subfigure}[b]{0.49\textwidth}
-    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianMadMode_mean.eps}
-    \caption{MAD Mode Null}
-  \end{subfigure}
-  }
-  \centerline{
-    \begin{subfigure}[b]{0.49\textwidth}
-    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianMedianIqr_mean.eps}
-    \caption{Median IQR Null}
-  \end{subfigure}
-  \begin{subfigure}[b]{0.49\textwidth}
-    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianMeanVar_mean.eps}
-    \caption{Mean Var Null}
-  \end{subfigure}
-  }
-  \caption{The sample mean of the test statistics in a filtered Gaussian image of size $\addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_width.txt} \times \addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_height.txt}$. The box plots summarise the \addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_nrepeat.txt} repeats of the experiment. The dotted lines show the critical region at the 2$\sigma$ level using standard tests for the sample mean and sample variance, assuming independence.}
-\end{figure}
-
-\begin{figure}[htp]
-  \centering
-  \centerline{
-  \begin{subfigure}[b]{0.49\textwidth}
-    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianEmpirical_variance.eps}
-    \caption{Empirical Null}
-  \end{subfigure}
-  \begin{subfigure}[b]{0.49\textwidth}
-    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianMadMode_variance.eps}
-    \caption{MAD Mode Null}
-  \end{subfigure}
-  }
-  \centerline{
-    \begin{subfigure}[b]{0.49\textwidth}
-    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianMedianIqr_variance.eps}
-    \caption{Median IQR Null}
-  \end{subfigure}
-  \begin{subfigure}[b]{0.49\textwidth}
-    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianMeanVar_variance.eps}
-    \caption{Mean Var Null}
-  \end{subfigure}
-  }
-  \caption{The sample std of the test statistics in a filtered Gaussian image of size $\addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_width.txt} \times \addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_height.txt}$. The box plots summarise the \addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_nrepeat.txt} repeats of the experiment. The dotted lines show the critical region at the 2$\sigma$ level using standard tests for the sample mean and sample variance, assuming independence.}
-\end{figure}
-
-\begin{figure}[htp]
-  \centering
-  \centerline{
-  \begin{subfigure}[b]{0.49\textwidth}
-    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianEmpirical_kurtosis.eps}
-    \caption{Empirical Null}
-  \end{subfigure}
-  \begin{subfigure}[b]{0.49\textwidth}
-    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianMadMode_kurtosis.eps}
-    \caption{MAD Mode Null}
-  \end{subfigure}
-  }
-  \centerline{
-    \begin{subfigure}[b]{0.49\textwidth}
-    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianMedianIqr_kurtosis.eps}
-    \caption{Median IQR Null}
-  \end{subfigure}
-  \begin{subfigure}[b]{0.49\textwidth}
-    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullGaussianMeanVar_kurtosis.eps}
-    \caption{Mean Var Null}
-  \end{subfigure}
-  }
-  \caption{The sample kurtosis of the test statistics in a filtered Gaussian image of size $\addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_width.txt} \times \addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_height.txt}$. The box plots summarise the \addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_nrepeat.txt} repeats of the experiment. The dotted lines show the critical region at the 2$\sigma$ level using standard tests for the sample mean and sample variance, assuming independence.}
-\end{figure}
-
-\begin{figure}[htp]
-  \centering
-  \centerline{
-  \begin{subfigure}[b]{0.49\textwidth}
-    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneEmpirical_mean.eps}
-    \caption{Empirical Null}
-  \end{subfigure}
-  \begin{subfigure}[b]{0.49\textwidth}
-    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneMadMode_mean.eps}
-    \caption{MAD Mode Null}
-  \end{subfigure}
-  }
-  \centerline{
-    \begin{subfigure}[b]{0.49\textwidth}
-    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneMedianIqr_mean.eps}
-    \caption{Median IQR Null}
-  \end{subfigure}
-  \begin{subfigure}[b]{0.49\textwidth}
-    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneMeanVar_mean.eps}
-    \caption{Mean Var Null}
-  \end{subfigure}
-  }
-  \caption{The sample mean test statistics in a filtered contaminated Gaussian image of size $\addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_width.txt} \times \addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_height.txt}$. The contamination is such that the null distribution is $Z_{x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = \addNumber{../figures/inference/contamination/gradx.txt} (x-x_0) + \addNumber{../figures/inference/contamination/grady.txt} (y-y_0)$ and $\sigma_0=\addNumber{../figures/inference/contamination/nullstd.txt}$. The box plots summarise the 100 repeats of the experiment. The dotted lines show the critical region at the 5\% level using standard tests for the sample mean and sample variance, assuming independence.}
-\end{figure}
-
-\begin{figure}[htp]
-  \centering
-  \centerline{
-  \begin{subfigure}[b]{0.49\textwidth}
-    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneEmpirical_variance.eps}
-    \caption{Empirical Null}
-  \end{subfigure}
-  \begin{subfigure}[b]{0.49\textwidth}
-    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneMadMode_variance.eps}
-    \caption{MAD Mode Null}
-  \end{subfigure}
-  }
-  \centerline{
-    \begin{subfigure}[b]{0.49\textwidth}
-    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneMedianIqr_variance.eps}
-    \caption{Median IQR Null}
-  \end{subfigure}
-  \begin{subfigure}[b]{0.49\textwidth}
-    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneMeanVar_variance.eps}
-    \caption{Mean Var Null}
-  \end{subfigure}
-  }
-  \caption{The sample standard deviation test statistics in a filtered contaminated Gaussian image of size $\addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_width.txt} \times \addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_height.txt}$. The contamination is such that the null distribution is $Z_{x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = \addNumber{../figures/inference/contamination/gradx.txt} (x-x_0) + \addNumber{../figures/inference/contamination/grady.txt} (y-y_0)$ and $\sigma_0=\addNumber{../figures/inference/contamination/nullstd.txt}$. The box plots summarise the 100 repeats of the experiment. The dotted lines show the critical region at the 5\% level using standard tests for the sample mean and sample variance, assuming independence.}
-\end{figure}
-
-\begin{figure}[htp]
-  \centering
-  \centerline{
-  \begin{subfigure}[b]{0.49\textwidth}
-    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneEmpirical_kurtosis.eps}
-    \caption{Empirical Null}
-  \end{subfigure}
-  \begin{subfigure}[b]{0.49\textwidth}
-    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneMadMode_kurtosis.eps}
-    \caption{MAD Mode Null}
-  \end{subfigure}
-  }
-  \centerline{
-    \begin{subfigure}[b]{0.49\textwidth}
-    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneMedianIqr_kurtosis.eps}
-    \caption{Median IQR Null}
-  \end{subfigure}
-  \begin{subfigure}[b]{0.49\textwidth}
-    \includegraphics[width=\textwidth]{../figures/inference/allnull/AllNullPlaneMeanVar_kurtosis.eps}
-    \caption{Mean Var Null}
-  \end{subfigure}
-  }
-  \caption{The sample kurtosis test statistics in a filtered contaminated Gaussian image of size $\addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_width.txt} \times \addNumber{../figures/inference/allnull/AllNullGaussianEmpirical_height.txt}$. The contamination is such that the null distribution is $Z_{x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = \addNumber{../figures/inference/contamination/gradx.txt} (x-x_0) + \addNumber{../figures/inference/contamination/grady.txt} (y-y_0)$ and $\sigma_0=\addNumber{../figures/inference/contamination/nullstd.txt}$. The box plots summarise the 100 repeats of the experiment. The dotted lines show the critical region at the 5\% level using standard tests for the sample mean and sample variance, assuming independence.}
-\end{figure}
 
 \begin{figure}[htp]
   \centering

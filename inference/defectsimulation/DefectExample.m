@@ -40,7 +40,7 @@ classdef DefectExample < handle
     function plotExample(this, defectSimulator, imageSize, radius, directory, prefix)
 
       %get the defected image
-      [imageContaminated, isAltImage, imagePreContaminated] = ...
+      [imageContaminated, isNonNullImage, imagePreContaminated] = ...
           defectSimulator.getDefectedImage([imageSize, imageSize]);
 
       filter = EmpiricalNullFilter(radius); %filter it
@@ -60,7 +60,7 @@ classdef DefectExample < handle
       zTesterPreContaminated = ZTester(imagePreContaminated);
       zTesterPreContaminated.doTest();
       fig = LatexFigure.sub();
-      zTesterPreContaminated.plotPValues2(~isAltImage);
+      zTesterPreContaminated.plotPValues2(~isNonNullImage);
       fig.CurrentAxes.XTick = 10.^(0:4);
       saveas(fig,fullfile(directory, strcat(prefix,'_pValuePreContaminated.eps')),'epsc');
       
@@ -70,27 +70,27 @@ classdef DefectExample < handle
       zTesterFiltered = ZTester(imageFiltered);
       zTesterFiltered.doTest();
       fig = LatexFigure.sub();
-      zTesterFiltered.plotPValues2(~isAltImage);
+      zTesterFiltered.plotPValues2(~isNonNullImage);
       fig.CurrentAxes.XTick = 10.^(0:4);
       saveas(fig,fullfile(directory, strcat(prefix,'_pValueFiltered.eps')),'epsc');
 
       %plot the z images
       fig = LatexFigure.sub();
       imagePlot = ImagescSignificant(imagePreContaminated);
-      imagePlot.addSigPixels(zTesterPreContaminated.sig_image);
+      imagePlot.addSigPixels(zTesterPreContaminated.positiveImage);
       climOriginal = imagePlot.clim;
       imagePlot.plot();
       saveas(fig,fullfile(directory, strcat(prefix,'_imagePreContaminated.eps')),'epsc');
 
       fig = LatexFigure.sub();
       imagePlot = ImagescSignificant(imageContaminated);
-      imagePlot.addSigPixels(zTesterContaminated.sig_image);
+      imagePlot.addSigPixels(zTesterContaminated.positiveImage);
       imagePlot.plot();
       saveas(fig,fullfile(directory, strcat(prefix,'_imageContaminated.eps')),'epsc');
 
       fig = LatexFigure.sub();
       imagePlot = ImagescSignificant(imageFiltered);
-      imagePlot.addSigPixels(zTesterFiltered.sig_image);
+      imagePlot.addSigPixels(zTesterFiltered.positiveImage);
       imagePlot.setCLim(climOriginal);
       imagePlot.plot();
       saveas(fig,fullfile(directory, strcat(prefix,'_imageFiltered.eps')),'epsc');
@@ -107,16 +107,16 @@ classdef DefectExample < handle
       imagePlot = ImagescSignificant(nullStd);
       imagePlot.setCLim([0,5]);
       if (this.plotDefectNullStd)
-        imagePlot.addSigPixels(zTesterFiltered.sig_image);
+        imagePlot.addSigPixels(zTesterFiltered.positiveImage);
       end
       imagePlot.plot();
       saveas(fig,fullfile(directory, strcat(prefix,'_nullStd.eps')),'epsc');
 
       %work out true and false positive, plot ROC
       [falsePositivePreContamination, truePositivePreContamination, ~] = ...
-          roc(imagePreContaminated, isAltImage, this.nRoc);
+          roc(imagePreContaminated, isNonNullImage, this.nRoc);
       [falsePositiveContamination, truePositiveContamination, ~] = ...
-          roc(imageContaminated, isAltImage, this.nRoc);
+          roc(imageContaminated, isNonNullImage, this.nRoc);
       %[falsePositiveFiltered, truePositiveFiltered, ~] = ...
           %roc(imageFiltered, isAltImage, this.nRoc);
       fig = LatexFigure.sub();
@@ -140,7 +140,7 @@ classdef DefectExample < handle
         %get the empirical null and the filtered image
         imageFiltered = filter.getFilteredImage();
         [falsePositiveFiltered, truePositiveFiltered, ~] = ...
-            roc(imageFiltered, isAltImage, this.nRoc);
+            roc(imageFiltered, isNonNullImage, this.nRoc);
         plot(falsePositiveFiltered, truePositiveFiltered);
         hold on;
       end

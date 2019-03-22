@@ -27,6 +27,6 @@ altStd = 1;
 
 defectSimulator = PlaneMultLine(randStream, trueNullMeanGrad, trueNullStd, altMean, altStd, ...
     lineThickness);
-defectExample = DefectExample();
+defectExample = DefectExample(randStream);
 defectExample.setPlotDefectNullStd(true);
 defectExample.plotExample(defectSimulator, imageSize, radius, directory, prefix);

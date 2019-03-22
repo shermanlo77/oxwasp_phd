@@ -23,3 +23,13 @@ this.run();
 
 this = DefectAltDustBaseline();
 this.run();
+
+this = DefectRadiusLine();
+this.run();
+this.printResults();
+close all;
+
+this = DefectRadiusSquare();
+this.run();
+this.printResults();
+close all;

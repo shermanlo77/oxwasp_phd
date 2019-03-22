@@ -1,4 +1,4 @@
-classdef Experiment_DefectRadiusSquare < Experiment_DefectRadius
+classdef DefectRadiusSquare < DefectRadius
   
   properties (SetAccess = private)
     defectSize = 30;
@@ -6,8 +6,8 @@ classdef Experiment_DefectRadiusSquare < Experiment_DefectRadius
   
   methods (Access = public)
     
-    function this = Experiment_DefectRadiusSquare()
-      this@Experiment_DefectRadius('Experiment_DefectRadiusSquare');
+    function this = DefectRadiusSquare()
+      this@DefectRadius();
     end
     
   end
@@ -15,7 +15,7 @@ classdef Experiment_DefectRadiusSquare < Experiment_DefectRadius
   methods (Access = protected)
     
     function setup(this)
-      this.setup@Experiment_DefectRadius(uint32(3826400333));
+      this.setup@DefectRadius(uint32(3826400333));
     end
     
     function defectSimulator = getDefectSimulator(this)
