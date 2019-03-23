@@ -33,6 +33,15 @@ image_plot.addSigPixels(convolution.sig_image);
 image_plot.plot();
 saveas(fig,fullfile('reports','figures','inference','filter_sig_image.eps'),'epsc');
 
+%POSTER VERSION
+fig = LatexFigure.main();
+image_plot = ImagescSignificant(test);
+image_plot.turnOnPoster();
+image_plot.addSigPixels(convolution.sig_image);
+image_plot.setDilateSize(2);
+image_plot.plot();
+saveas(fig,fullfile('reports','figures','filter_sig_image_POSTER.eps'),'epsc');
+
 fig = LatexFigure.main();
 image_plot = ImagescSignificant(convolution.mean_null);
 image_plot.plot();

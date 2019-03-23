@@ -6,7 +6,7 @@
     %the 2 images and dividing by the sqrt predicted variance given aRTist. The z image is filtered
     %using the empirical null filter. Various kernel radius are investigated in this experiment. The
     %filtered image along with the empirical null mean and std are recorded
-classdef (Abstract) ExperimentDefectDetect < Experiment
+classdef (Abstract) DefectDetect < Experiment
   
   properties (SetAccess = protected)
     
@@ -25,8 +25,8 @@ classdef (Abstract) ExperimentDefectDetect < Experiment
   methods (Access = public)
     
     %CONSTRUCTOR
-    function this = ExperimentDefectDetect(experimentName)
-      this@Experiment(experimentName);
+    function this = DefectDetect()
+      this@Experiment();
     end
     
     %IMPLEMENTED: PRINT RESULTS
@@ -34,7 +34,7 @@ classdef (Abstract) ExperimentDefectDetect < Experiment
       %nullStdCLim: cLim for the null std plot, empty to use default min and max null std for cLim
     function printResults(this, nullStdCLim)
       
-      directory = fullfile('reports','figures','inference','defectdetect');
+      directory = fullfile('reports','figures','inference');
       
       %array of p value images from the filtered z images
       logPArray = zeros(this.scan.height, this.scan.width, numel(this.radiusArray));
@@ -62,12 +62,12 @@ classdef (Abstract) ExperimentDefectDetect < Experiment
         zTester = ZTester(filteredImage);
         zTester.doTest();
         %save the p value
-        logPArray(:,:,iRadius) = -log10(zTester.p_image);
+        logPArray(:,:,iRadius) = -log10(zTester.pImage);
         
         %plot the test image with the significant pixels
         fig = LatexFigure.sub();
         sigPlot = ImagescSignificant(this.scan.loadImageStack(this.testIndex));
-        sigPlot.addSigPixels(zTester.sig_image);
+        sigPlot.addPositivePixels(zTester.positiveImage);
         sigPlot.setDilateSize(2);
         sigPlot.plot();
         saveas(fig,fullfile(directory, strcat(this.experiment_name,'_radius',num2str(iRadius), ...
@@ -131,13 +131,13 @@ classdef (Abstract) ExperimentDefectDetect < Experiment
       %assign random index for the training images (train the var-mean) and the test image
       %the test image is compared with aRTist
       randStream = RandStream('mt19937ar','Seed',seed);
-      index = randStream.randperm(scan.n_sample);
-      nTrain = scan.n_sample - 1;
+      index = randStream.randperm(scan.nSample);
+      nTrain = scan.nSample - 1;
       this.trainingIndex = index(1:nTrain);
       this.testIndex = index(end);
       
       %get the aRTist image
-      artist = scan.getShadingCorrectedARTistImage(ShadingCorrector(),1:scan.reference_white);
+      artist = scan.getShadingCorrectedArtistImage(ShadingCorrector(),1:scan.referenceWhite);
       
       %get the segmentation image
       segmentation = scan.getSegmentation();

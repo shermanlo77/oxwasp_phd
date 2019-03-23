@@ -1,6 +1,6 @@
 %ABSTRACT CLASS: EXPERIMENT SUB ROI DEFECT DETECT
 %Inference is done in separate segmentated section of the image
-classdef (Abstract) ExperimentSubRoiDefectDetect < ExperimentDefectDetect
+classdef (Abstract) DefectDetectSubRoi < DefectDetect
   
   properties
   end
@@ -8,8 +8,8 @@ classdef (Abstract) ExperimentSubRoiDefectDetect < ExperimentDefectDetect
   methods (Access = public)
     
     %CONSTRUCTOR
-    function this = ExperimentSubRoiDefectDetect(experimentName)
-      this@ExperimentDefectDetect(experimentName);
+    function this = DefectDetectSubRoi()
+      this@DefectDetect();
     end
     
     %OVERRIDE: PRINT RESULTS
@@ -18,7 +18,7 @@ classdef (Abstract) ExperimentSubRoiDefectDetect < ExperimentDefectDetect
       %nullStdCLim: cLim for the null std plot, empty to use default min and max null std for cLim
     function printResults(this, cLim)
       
-      this.printResults@ExperimentDefectDetect(cLim);
+      this.printResults@DefectDetect(cLim);
       
       %for each radius
       for iRadius = 1:numel(this.radiusArray)
@@ -35,13 +35,13 @@ classdef (Abstract) ExperimentSubRoiDefectDetect < ExperimentDefectDetect
           zTester = ZTester(filteredImage(subRoi));
           zTester.doTest();
           %save the significant pixels only in that segment
-          sigImage(subRoi) = zTester.sig_image();
+          sigImage(subRoi) = zTester.positiveImage();
         end
         
         %plot the test image with the significant pixels from each segment
         fig = LatexFigure.sub();
         sigPlot = ImagescSignificant(this.scan.loadImageStack(this.testIndex));
-        sigPlot.addSigPixels(sigImage);
+        sigPlot.addPositivePixels(sigImage);
         sigPlot.setDilateSize(2);
         sigPlot.plot();
         saveas(fig,fullfile(directory, strcat(this.experiment_name,'_radius',num2str(iRadius), ...

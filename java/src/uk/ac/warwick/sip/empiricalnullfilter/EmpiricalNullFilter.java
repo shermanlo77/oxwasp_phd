@@ -369,7 +369,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     
     //produce a random seed for each row
     final int seeds[] = new int[roiRectangle.height];
-    for (int i=0; i<this.imageProcessor.getHeight(); i++) {
+    for (int i=0; i<roiRectangle.height; i++) {
       seeds[i] = rng.nextInt();
     }
     
@@ -540,7 +540,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
       //=====FILTER A LINE=====
       
       //points to pixel (roiRectangle.x, y)
-      rng.setSeed(seeds[y]);
+      rng.setSeed(seeds[y - roiRectangle.y]);
       this.filterLine(values, cache, kernel, y, normal, rng);
     }// end while (!aborted[0]); loops over y (lines)
   }
