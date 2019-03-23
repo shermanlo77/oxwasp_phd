@@ -53,7 +53,7 @@ classdef DefectAlt < Experiment
       %Override with a printResult with no parameters
     function printResults(this, baseline0, baseline)
       
-      directory = fullfile('reports','figures','inference','defectsimulation');
+      directory = fullfile('reports','figures','inference');
       
       %print radius
       fildId = fopen(fullfile(directory,strcat(this.experiment_name,'_radius.txt')),'w');

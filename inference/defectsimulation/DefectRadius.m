@@ -43,18 +43,7 @@ classdef DefectRadius < Experiment
     %Plots pre/post contamination results on the same graph
     function printResults(this)
       
-      directory = fullfile('reports','figures','inference','defectsimulation');
-      
-      %print alt mean
-      fildId = fopen(fullfile(directory,strcat(this.experiment_name,'_altMean.txt')),'w');
-      fprintf(fildId,'%d',this.altMean);
-      fclose(fildId);
-      
-      %print nRepeat
-      fildId = fopen(fullfile(directory,strcat(this.experiment_name,'_nRepeat.txt')),'w');
-      fprintf(fildId,'%d',this.nRepeat);
-      fclose(fildId);
-      
+      directory = fullfile('reports','figures','inference');
       offset = 1;
       
       %plot roc area vs alt mean
@@ -67,8 +56,8 @@ classdef DefectRadius < Experiment
       ax.XLim(1) = this.radiusArray(1) - offset;
       ax.XLim(2) = this.radiusArray(end) + offset;
       oracleInterval = quantile(reshape(this.rocAreaArray(:,:,1),[],1), [0.025, 0.975]);
-      plot(ax.XLim, [oracleInterval(1), oracleInterval(1)], 'k--', 'LineWidth', 2);
-      plot(ax.XLim, [oracleInterval(2), oracleInterval(2)], 'k--', 'LineWidth', 2);
+      plot(ax.XLim, [oracleInterval(1), oracleInterval(1)], 'k--');
+      plot(ax.XLim, [oracleInterval(2), oracleInterval(2)], 'k--');
       xlabel('kernel radius');
       ylabel('roc area');
       saveas(fig,fullfile(directory, strcat(this.experiment_name,'_roc.eps')),'epsc');
@@ -83,8 +72,8 @@ classdef DefectRadius < Experiment
       ax.XLim(1) = this.radiusArray(1) - offset;
       ax.XLim(2) = this.radiusArray(end) + offset;
       oracleInterval = quantile(reshape(this.type1ErrorArray(:,:,1),[],1), [0.025, 0.975]);
-      plot(ax.XLim, [oracleInterval(1), oracleInterval(1)], 'k--', 'LineWidth', 2);
-      plot(ax.XLim, [oracleInterval(2), oracleInterval(2)], 'k--', 'LineWidth', 2);
+      plot(ax.XLim, [oracleInterval(1), oracleInterval(1)], 'k--');
+      plot(ax.XLim, [oracleInterval(2), oracleInterval(2)], 'k--');
       xlabel('kernel radius');
       ylabel('type 1 error');
       saveas(fig,fullfile(directory, strcat(this.experiment_name,'_type1.eps')),'epsc');
@@ -99,8 +88,8 @@ classdef DefectRadius < Experiment
       ax.XLim(1) = this.radiusArray(1) - offset;
       ax.XLim(2) = this.radiusArray(end) + offset;
       oracleInterval = quantile(reshape(this.type2ErrorArray(:,:,1),[],1), [0.025, 0.975]);
-      plot(ax.XLim, [oracleInterval(1), oracleInterval(1)], 'k--', 'LineWidth', 2);
-      plot(ax.XLim, [oracleInterval(2), oracleInterval(2)], 'k--', 'LineWidth', 2);
+      plot(ax.XLim, [oracleInterval(1), oracleInterval(1)], 'k--');
+      plot(ax.XLim, [oracleInterval(2), oracleInterval(2)], 'k--');
       xlabel('kernel radius');
       ylabel('type 2 error');
       saveas(fig,fullfile(directory, strcat(this.experiment_name,'_type2.eps')),'epsc');
@@ -115,8 +104,8 @@ classdef DefectRadius < Experiment
       ax.XLim(1) = this.radiusArray(1) - offset;
       ax.XLim(2) = this.radiusArray(end) + offset;
       oracleInterval = quantile(reshape(this.fdrArray(:,:,1),[],1), [0.025, 0.975]);
-      plot(ax.XLim, [oracleInterval(1), oracleInterval(1)], 'k--', 'LineWidth', 2);
-      plot(ax.XLim, [oracleInterval(2), oracleInterval(2)], 'k--', 'LineWidth', 2);
+      plot(ax.XLim, [oracleInterval(1), oracleInterval(1)], 'k--');
+      plot(ax.XLim, [oracleInterval(2), oracleInterval(2)], 'k--');
       xlabel('kernel radius');
       ylabel('fdr');
       saveas(fig,fullfile(directory, strcat(this.experiment_name,'_fdr.eps')),'epsc');
@@ -183,19 +172,19 @@ classdef DefectRadius < Experiment
           this.type2ErrorArray(iRepeat, iRadius, 2) = ...
               sum(~(zTesterPostCont.positiveImage(isNonNullImage))) / sum(sum(isNonNullImage));
             
-          nSig = sum(sum(zTesterPreCont.positiveImage));
-          if nSig == 0
+          nPositive = sum(sum(zTesterPreCont.positiveImage));
+          if nPositive == 0
             fdr = 0;
           else
-            fdr = sum(sum(zTesterPreCont.positiveImage(~isNonNullImage))) / nSig;
+            fdr = sum(sum(zTesterPreCont.positiveImage(~isNonNullImage))) / nPositive;
           end
           this.fdrArray(iRepeat, iRadius, 1) = fdr;
           
-          nSig = sum(sum(zTesterPostCont.positiveImage));
-          if nSig == 0
+          nPositive = sum(sum(zTesterPostCont.positiveImage));
+          if nPositive == 0
             fdr = 0;
           else
-            fdr = sum(sum(zTesterPostCont.positiveImage(~isNonNullImage))) / nSig;
+            fdr = sum(sum(zTesterPostCont.positiveImage(~isNonNullImage))) / nPositive;
           end
           this.fdrArray(iRepeat, iRadius, 2) = fdr;
 

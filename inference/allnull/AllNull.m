@@ -60,7 +60,7 @@ classdef AllNull < Experiment
     function printResults(this)
       
       %where to save the figures
-      directory = fullfile('reports','figures','inference','allnull');
+      directory = fullfile('reports','figures','inference');
       
       %save properties of this experiment to txt
       

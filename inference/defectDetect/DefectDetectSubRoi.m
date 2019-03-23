@@ -16,9 +16,10 @@ classdef (Abstract) DefectDetectSubRoi < DefectDetect
     %Include the significant pixels when doing hypothesis testing on each segment separately
     %PARAMETERS:
       %nullStdCLim: cLim for the null std plot, empty to use default min and max null std for cLim
-    function printResults(this, cLim)
+    function printResults(this, zCLim, nullStdCLim, logPMax)
       
-      this.printResults@DefectDetect(cLim);
+      this.printResults@DefectDetect(zCLim, nullStdCLim, logPMax);
+      directory = fullfile('reports','figures','inference');
       
       %for each radius
       for iRadius = 1:numel(this.radiusArray)

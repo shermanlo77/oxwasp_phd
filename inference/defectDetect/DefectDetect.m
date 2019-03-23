@@ -32,21 +32,12 @@ classdef (Abstract) DefectDetect < Experiment
     %IMPLEMENTED: PRINT RESULTS
     %PARAMETERS:
       %nullStdCLim: cLim for the null std plot, empty to use default min and max null std for cLim
-    function printResults(this, nullStdCLim)
+    function printResults(this, zCLim, nullStdCLim, logPMax)
       
       directory = fullfile('reports','figures','inference');
       
       %array of p value images from the filtered z images
       logPArray = zeros(this.scan.height, this.scan.width, numel(this.radiusArray));
-      
-      zCLim = [min(reshape(this.zFilterArray,[],1)), max(reshape(this.zFilterArray,[],1))];
-      nullMeanCLim = [min(reshape(this.nullMeanArray,[],1)), max(reshape(this.nullMeanArray,[],1))];
-      if (isempty(nullStdCLim))
-        nullStdCLim = ...
-            [min(reshape(this.nullStdArray,[],1)), max(reshape(this.nullStdArray,[],1))];
-      end
-      
-      %logpCLim;
       
       %for each radius
       for iRadius = 1:numel(this.radiusArray)
@@ -84,7 +75,7 @@ classdef (Abstract) DefectDetect < Experiment
         %plot the null mean
         fig = LatexFigure.sub();
         nullMeanPlot = ImagescSignificant(this.nullMeanArray(:,:,iRadius));
-        nullMeanPlot.setCLim(nullMeanCLim);
+        nullMeanPlot.setCLim(zCLim);
         nullMeanPlot.plot();
         saveas(fig,fullfile(directory, strcat(this.experiment_name,'_radius',num2str(iRadius), ...
             '_nullMean.eps')),'epsc');
@@ -96,19 +87,15 @@ classdef (Abstract) DefectDetect < Experiment
         nullStdPlot.plot();
         saveas(fig,fullfile(directory, strcat(this.experiment_name,'_radius',num2str(iRadius), ...
             '_nullStd.eps')),'epsc');
-        
-      end
-      
-      logpCLim = [min(reshape(logPArray,[],1)), max(reshape(logPArray,[],1))];
-      %for each radius, plot -log p value
-      for iRadius = 1:numel(this.radiusArray)
+          
         %plot the -log p values
         fig = LatexFigure.sub();
         pPlot = ImagescSignificant(logPArray(:,:,iRadius));
-        pPlot.setCLim(logpCLim);
+        pPlot.setCLim([0, logPMax]);
         pPlot.plot();
         saveas(fig,fullfile(directory, strcat(this.experiment_name,'_radius',num2str(iRadius), ...
             '_logp.eps')),'epsc');
+        
       end
       
     end

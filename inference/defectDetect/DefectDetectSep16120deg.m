@@ -7,7 +7,7 @@ classdef DefectDetectSep16120deg < DefectDetect
     end
     
     function printResults(this)
-      this.printResults@DefectDetect([0,5]);
+      this.printResults@DefectDetect([-6, 8], [0,5], 15);
     end
     
   end

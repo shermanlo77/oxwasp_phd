@@ -40,7 +40,7 @@ classdef (Abstract) NullIid < Experiment
     %Plots the mean, variance and kurtosis of the normalised z statistics for different n 
     function printResults(this)
       
-      directory = fullfile('reports','figures','inference','NullIid');
+      directory = fullfile('reports','figures','inference');
       
       radiusPlot = sqrt(this.nArray/pi); %treat n as as circular kernel area
       
