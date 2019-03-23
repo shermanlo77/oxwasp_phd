@@ -1444,7 +1444,7 @@ When filtering the contaminated image, all estimators suffered from negative bia
 The kurtosis in Figures \ref{fig:inference_AllNullGaussian_kurtosis} and \ref{fig:inference_AllNullPlane_kurtosis} shows that the empirical null filter can cause the filtered statistics to have heavy tails, in particular for small kernel radiuses. This could cause problems in hypothesis testing because heavy tails could be misinterpreted as contribution from non-null statistics. The source of the kurtosis inflation is from the estimation of the null standard deviation. This can be seen by comparing the empirical null filter with the MAD mode null filter because the only difference between the two filters is in the estimation of the null standard deviation.
 
 \afterpage{\clearpage}
-\subsection{Contaminated Experiment}
+\subsection{Detecting Defects Experiment}
 
 
 Figure \ref{fig:inference_contamination_images} shows an example of a contaminated image before and after filtering. When doing a hypothesis test, the contamination caused systematic error such that there are false positives on the two corners of the unfiltered image. The empirical null filter can recover the original image by extracting the systematic errors such as the plane, as shown by the empirical null mean, and the increase of variance, as shown by the empirical null std.
@@ -1454,8 +1454,6 @@ The QQ plot of the filtered test statistics, as shown in Figure \ref{fig:inferen
 An experiment was conducted to investigate the sample mean and sample variance of the filtered contaminated image. Ideally the sample mean and sample variance should be 0 and 1 respectively. Different radiuses were investigated from ??? to ??? and repeated ??? times.
 
 The results are shown in Figure \ref{fig:inference_allnullplane}. The filter correctly centred the test statistics at zero. However there was some variance mismatch and this depended on the kernel radius. A kernel radius of about 80 scaled the test statistics correctly. This suggest there may be an optimal kernel radius for this particular null distribution. Another caveat is that the sensitivity may not be exactly preserved after filtering.
-
-\subsection{Contaminated Defect Experiment}
 
 The study will now turn to contaminated defected images. Let $Z_{x,y}$ be the test statistics of pixel $(x,y)$ and under the null, it is distributed such that $Z_{x,y}|H_0\sim\normal(0,1)$. Defects refer to statistics which do not follow the null distribution, but instead an alternative distribution. For example it can be $Z_{x,y}|H_1\sim\normal(\mu_{1,x,y},1)$ and this example was used in this experiment. Contamination is a linear transform of the test statistics $Z_{x,y}$ such that
 \begin{equation}
@@ -1479,21 +1477,21 @@ The square defected images, including the contaminated ones, are shown in Figure
   \centering
     \centerline{
       \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectDust_imagePreContaminated.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/defectDustExample_imagePreContaminated.eps}
         \caption{Uncontaminated}
       \end{subfigure}
       \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectDust_imageContaminated.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/defectDustExample_imageContaminated.eps}
         \caption{Contaminated}
       \end{subfigure}
     }
     \centerline{
       \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectDust_imageFiltered.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/defectDustExample_imageFiltered.eps}
         \caption{Filtered}
       \end{subfigure}
       \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectDust_nullStd.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/defectDustExample_nullStd.eps}
         \caption{Empirical null std}
       \end{subfigure}
     }
@@ -1505,21 +1503,21 @@ The square defected images, including the contaminated ones, are shown in Figure
   \centering
     \centerline{
       \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectLine_imagePreContaminated.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/defectLineExample_imagePreContaminated.eps}
         \caption{Uncontaminated}
       \end{subfigure}
       \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectLine_imageContaminated.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/defectLineExample_imageContaminated.eps}
         \caption{Contaminated}
       \end{subfigure}
     }
     \centerline{
       \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectLine_imageFiltered.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/defectLineExample_imageFiltered.eps}
         \caption{Filtered}
       \end{subfigure}
       \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectLine_nullStd.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/defectLineExample_nullStd.eps}
         \caption{Empirical null std}
       \end{subfigure}
     }
@@ -1531,21 +1529,21 @@ The square defected images, including the contaminated ones, are shown in Figure
   \centering
     \centerline{
       \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectSquare_imagePreContaminated.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/defectSquareExample_imagePreContaminated.eps}
         \caption{Uncontaminated}
       \end{subfigure}
       \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectSquare_imageContaminated.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/defectSquareExample_imageContaminated.eps}
         \caption{Contaminated}
       \end{subfigure}
     }
     \centerline{
       \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectSquare_imageFiltered.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/defectSquareExample_imageFiltered.eps}
         \caption{Filtered}
       \end{subfigure}
       \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectSquare_nullMean.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/defectSquareExample_nullMean.eps}
         \caption{Empirical null mean}
       \end{subfigure}
     }
@@ -1557,22 +1555,22 @@ The square defected images, including the contaminated ones, are shown in Figure
   \centering
     \centerline{
       \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectSquare2_imagePreContaminated.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/defectSquare2Example_imagePreContaminated.eps}
         \caption{Uncontaminated}
       \end{subfigure}
       \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectSquare2_imageContaminated.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/defectSquare2Example_imageContaminated.eps}
         \caption{Contaminated}
       \end{subfigure}
     }
     \centerline{
       \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectSquare2_imageFiltered.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/defectSquare2Example_imageFiltered.eps}
         \caption{Filtered}
       \end{subfigure}
       \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectSquare2_nullStd.eps}
-        \caption{Empirical null std}
+        \includegraphics[width=\textwidth]{../figures/inference/defectSquare2Example_nullMean.eps}
+        \caption{Empirical null mean}
       \end{subfigure}
     }
   \caption{A $256 \times 256$ square defect Gaussian image with/without contamination and after filtering with kernel radius 40. Defected pixels have the distribution $\normal(3,1)$. The square is $30\times 30$ pixels in size. The contamination is such that the null distribution is $Z_{x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$. Highlighted in red are significant pixels when controlling the FDR at the $2\sigma$ level.}
@@ -1585,22 +1583,22 @@ The receiver operating characteristic (ROC) curves \citep{green1966signal, metz1
   \centering
     \centerline{
       \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectDust_roc.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/defectDustExample_roc.eps}
         \caption{Dust defect $\pi_1=0.1$, $r=20$}
       \end{subfigure}
       \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectLine_roc.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/defectLineExample_roc.eps}
         \caption{5 pixels thick line defect, $r=20$}
       \end{subfigure}
     }
     \centerline{
       \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectSquare_roc.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/defectSquareExample_roc.eps}
         \caption{$30\times 30$ square defect, $r=20$}
         \label{fig:inference_defectSimulationRoc_square20}
       \end{subfigure}
       \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/defectsimulation/defectSquare2_roc.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/defectSquare2Example_roc.eps}
         \caption{$30\times 30$ square defect, $r=40$}
       \end{subfigure}
     }
