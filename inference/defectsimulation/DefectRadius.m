@@ -44,7 +44,7 @@ classdef DefectRadius < Experiment
     function printResults(this)
       
       directory = fullfile('reports','figures','inference');
-      offset = 1;
+      rightOffset = 10;
       
       %plot roc area vs alt mean
       fig = LatexFigure.sub();
@@ -53,11 +53,10 @@ classdef DefectRadius < Experiment
       boxplot.setPosition(this.radiusArray);
       boxplot.plot();
       hold on;
-      ax.XLim(1) = this.radiusArray(1) - offset;
-      ax.XLim(2) = this.radiusArray(end) + offset;
       oracleInterval = quantile(reshape(this.rocAreaArray(:,:,1),[],1), [0.025, 0.975]);
       plot(ax.XLim, [oracleInterval(1), oracleInterval(1)], 'k--');
       plot(ax.XLim, [oracleInterval(2), oracleInterval(2)], 'k--');
+      ax.XLim(2) = ax.XLim(2) + rightOffset;
       xlabel('kernel radius');
       ylabel('roc area');
       saveas(fig,fullfile(directory, strcat(this.experiment_name,'_roc.eps')),'epsc');
@@ -69,11 +68,10 @@ classdef DefectRadius < Experiment
       boxplot.setPosition(this.radiusArray);
       boxplot.plot();
       hold on;
-      ax.XLim(1) = this.radiusArray(1) - offset;
-      ax.XLim(2) = this.radiusArray(end) + offset;
       oracleInterval = quantile(reshape(this.type1ErrorArray(:,:,1),[],1), [0.025, 0.975]);
       plot(ax.XLim, [oracleInterval(1), oracleInterval(1)], 'k--');
       plot(ax.XLim, [oracleInterval(2), oracleInterval(2)], 'k--');
+      ax.XLim(2) = ax.XLim(2) + rightOffset;
       xlabel('kernel radius');
       ylabel('type 1 error');
       saveas(fig,fullfile(directory, strcat(this.experiment_name,'_type1.eps')),'epsc');
@@ -85,11 +83,10 @@ classdef DefectRadius < Experiment
       boxplot.setPosition(this.radiusArray);
       boxplot.plot();
       hold on;
-      ax.XLim(1) = this.radiusArray(1) - offset;
-      ax.XLim(2) = this.radiusArray(end) + offset;
       oracleInterval = quantile(reshape(this.type2ErrorArray(:,:,1),[],1), [0.025, 0.975]);
       plot(ax.XLim, [oracleInterval(1), oracleInterval(1)], 'k--');
       plot(ax.XLim, [oracleInterval(2), oracleInterval(2)], 'k--');
+      ax.XLim(2) = ax.XLim(2) + rightOffset;
       xlabel('kernel radius');
       ylabel('type 2 error');
       saveas(fig,fullfile(directory, strcat(this.experiment_name,'_type2.eps')),'epsc');
@@ -101,11 +98,10 @@ classdef DefectRadius < Experiment
       boxplot.setPosition(this.radiusArray);
       boxplot.plot();
       hold on;
-      ax.XLim(1) = this.radiusArray(1) - offset;
-      ax.XLim(2) = this.radiusArray(end) + offset;
       oracleInterval = quantile(reshape(this.fdrArray(:,:,1),[],1), [0.025, 0.975]);
       plot(ax.XLim, [oracleInterval(1), oracleInterval(1)], 'k--');
       plot(ax.XLim, [oracleInterval(2), oracleInterval(2)], 'k--');
+      ax.XLim(2) = ax.XLim(2) + rightOffset;
       xlabel('kernel radius');
       ylabel('fdr');
       saveas(fig,fullfile(directory, strcat(this.experiment_name,'_fdr.eps')),'epsc');

@@ -51,7 +51,7 @@ defectSimulator = PlaneMultSquare(randStream, trueNullMeanGrad, trueNullStd, def
     altMean, altStd);
 examplePlot = DefectExample(randStream);
 examplePlot.setNInitial(10);
-examplePlot.setCLimNullMean([-2.5, 5]);
+examplePlot.setCLim([-4, 6]);
 examplePlot.plotExample(defectSimulator, imageSize, radius, directory, prefix);
 
 %=====SQUARE DEFECT (LARGE KERNEL)=====%
@@ -63,5 +63,5 @@ defectSimulator = PlaneMultSquare(randStream, trueNullMeanGrad, trueNullStd, def
     altMean, altStd);
 examplePlot = DefectExample(randStream);
 examplePlot.setNInitial(10);
-examplePlot.setCLimNullMean([-2.5, 5]);
+examplePlot.setCLim([-4, 6]);
 examplePlot.plotExample(defectSimulator, imageSize, radius, directory, prefix);

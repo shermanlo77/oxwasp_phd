@@ -21,7 +21,7 @@ classdef DefectExample < handle
   
   properties (SetAccess = private)
     
-    cLimNullMean; %cLim for null mean plot
+    cLim; %cLim for null mean plot
     plotDefectNullStd = false; %boolean, plot significant pixels on null std plot if true
     nInitial; %number of initial points for Newton-Raphson in empirical null filter
     nRoc = 1000;
@@ -79,6 +79,9 @@ classdef DefectExample < handle
       imagePlot = ImagescSignificant(imagePreContaminated);
       imagePlot.addSigPixels(zTesterPreContaminated.positiveImage);
       climOriginal = imagePlot.clim;
+      if (~isempty(this.cLim))
+        imagePlot.setCLim(this.cLim);
+      end
       imagePlot.plot();
       saveas(fig,fullfile(directory, strcat(prefix,'_imagePreContaminated.eps')),'epsc');
 
@@ -91,21 +94,29 @@ classdef DefectExample < handle
       fig = LatexFigure.sub();
       imagePlot = ImagescSignificant(imageFiltered);
       imagePlot.addSigPixels(zTesterFiltered.positiveImage);
-      imagePlot.setCLim(climOriginal);
+      if (~isempty(this.cLim))
+        imagePlot.setCLim(this.cLim);
+      else
+        imagePlot.setCLim(climOriginal);
+      end
       imagePlot.plot();
       saveas(fig,fullfile(directory, strcat(prefix,'_imageFiltered.eps')),'epsc');
 
-      %empirical null plot
+      %empirical null mean plot
       fig = LatexFigure.sub();
       imagePlot = ImagescSignificant(nullMean);
-      if (~isempty(this.cLimNullMean))
-        imagePlot.setCLim(this.cLimNullMean);
+      if (~isempty(this.cLim))
+        imagePlot.setCLim(this.cLim);
+      else
+        imagePlot.setCLim(climOriginal);
       end
       imagePlot.plot();
       saveas(fig,fullfile(directory, strcat(prefix,'_nullMean.eps')),'epsc');
+      
+      %empirical null std plot
       fig = LatexFigure.sub();
       imagePlot = ImagescSignificant(nullStd);
-      imagePlot.setCLim([0,5]);
+      imagePlot.setCLim([0,climOriginal(2)]);
       if (this.plotDefectNullStd)
         imagePlot.addSigPixels(zTesterFiltered.positiveImage);
       end
@@ -148,7 +159,7 @@ classdef DefectExample < handle
       hold on;
       plot(falsePositiveContamination, truePositiveContamination, 'k--');
       
-      plot([0,1],[0,1],'k--');
+      plot([0,1],[0,1],'k:');
       xlabel('false positive rate');
       ylabel('true positive rate');
       legend('empirical','mad mode','meadian iqr','mean var','Location','southeast');
@@ -162,10 +173,10 @@ classdef DefectExample < handle
       this.nInitial = nInitial;
     end
     
-    %METHOD: SET CLIM NULL MEAN
-    %cLim for null mean plot
-    function setCLimNullMean(this, cLimNullMean)
-      this.cLimNullMean = cLimNullMean;
+    %METHOD: SET CLIM
+    %cLim
+    function setCLim(this, cLim)
+      this.cLim = cLim;
     end
     
     %METHOD: SET PLOT DEFECT NULL STD
