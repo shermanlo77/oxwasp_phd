@@ -1037,7 +1037,7 @@ Using these estimates, the test statistics were normalised using
     \widehat{\sigma}_{0,x,y}
   }
 \end{equation}
-and only the normalised test statistics were used in hypothesis testing.
+and only the normalised test statistics were used in hypothesis testing. It should be noted that because the kernels can overlap, correlation between $T_{x,y}$ for different $(x,y)$ is introduced.
 
 The parameter of choice is the kernel radius $r$. A $r$ too small will treat defects as the null and will not detect them. A $r$ too big can also cause problems as well. The empirical null filter assumes that the null parameters vary smoothly and slowly so that the null test statistics captured by the kernel is somewhat Normal. If $r$ is too big, the kernel will capture far away test statistics with a very different null distribution. If all of these test statistics are pulled together into a histogram, the null distribution may not look Normal at all which can cause problems when fitting a Normal null distribution. Furthermore, if $r\rightarrow \infty$, then this is just using the empirical null on all pixels.
 
@@ -1466,7 +1466,7 @@ Various defects were investigated. Speckle defect with density $\pi_1$ assign al
         \caption{Empirical null std}
       \end{subfigure}
     }
-  \caption{A $256 \times 256$ Gaussian image with \emph{speckle} defect is shown in a). The image was contaminated in b) and then filtered with kernel radius 20 in c). Defected pixels have the distribution $\normal(3,1)$. The speckle defect has density $\pi_1 = 0.1$. The contamination is such that the null distribution is $Z_{x,y}|H_{0,x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$. Highlighted in red are pixels tested as positive when controlling at the 5\% FDR level.}
+  \caption{A $256 \times 256$ Gaussian image with \emph{speckle} defect is shown in a). The image was contaminated in b) and then filtered with kernel radius 20 in c). Defected pixels have the distribution $\normal(3,1)$. The speckle defect has density $\pi_1 = 0.1$. The contamination is such that the null distribution is $Z_{x,y}|H_{0,x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$. Highlighted in red are pixels tested as positive at the 5\% FDR level.}
   \label{fig:inference_defectDustExample}
 \end{figure}
 
@@ -1492,7 +1492,7 @@ Various defects were investigated. Speckle defect with density $\pi_1$ assign al
         \caption{Empirical null std}
       \end{subfigure}
     }
-  \caption{A $256 \times 256$ Gaussian image with a \emph{line} defect is shown in a). The image was contaminated in b) and then filtered with kernel radius 20 in c). Defected pixels have the distribution $\normal(3,1)$. The line defect is 5 pixels thick. The contamination is such that the null distribution is $Z_{x,y}|H_{0,x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$. Highlighted in red are pixels tested as positive when controlling at the 5\% FDR level.}
+  \caption{A $256 \times 256$ Gaussian image with a \emph{line} defect is shown in a). The image was contaminated in b) and then filtered with kernel radius 20 in c). Defected pixels have the distribution $\normal(3,1)$. The line defect is 5 pixels thick. The contamination is such that the null distribution is $Z_{x,y}|H_{0,x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$. Highlighted in red are pixels tested as positive at the 5\% FDR level.}
   \label{fig:inference_defectLineExample}
 \end{figure}
 
@@ -1518,7 +1518,7 @@ Various defects were investigated. Speckle defect with density $\pi_1$ assign al
         \caption{Empirical null mean}
       \end{subfigure}
     }
-  \caption{A $256 \times 256$ Gaussian image with a \emph{square} defect is shown in a). The image was contaminated in b) and then filtered with kernel radius \emph{20} in c). Defected pixels have the distribution $\normal(3,1)$. The square defect is $30\times 30$ pixels in size. The contamination is such that the null distribution is $Z_{x,y}|H_{0,x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$. Highlighted in red are pixels tested as positive when controlling at the 5\% FDR level.}
+  \caption{A $256 \times 256$ Gaussian image with a \emph{square} defect is shown in a). The image was contaminated in b) and then filtered with kernel radius \emph{20} in c). Defected pixels have the distribution $\normal(3,1)$. The square defect is $30\times 30$ pixels in size. The contamination is such that the null distribution is $Z_{x,y}|H_{0,x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$. Highlighted in red are pixels tested as positive at the 5\% FDR level.}
   \label{fig:inference_defectSquareExample}
 \end{figure}
 
@@ -1544,7 +1544,7 @@ Various defects were investigated. Speckle defect with density $\pi_1$ assign al
         \caption{Empirical null mean}
       \end{subfigure}
     }
-  \caption{A $256 \times 256$ Gaussian image with a \emph{square} defect is shown in a). The image was contaminated in b) and then filtered with kernel radius \emph{40} in c). Defected pixels have the distribution $\normal(3,1)$. The square defect is $30\times 30$ pixels in size. The contamination is such that the null distribution is $Z_{x,y}|H_{0,x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$. Highlighted in red are pixels tested as positive when controlling at the 5\% FDR level.}
+  \caption{A $256 \times 256$ Gaussian image with a \emph{square} defect is shown in a). The image was contaminated in b) and then filtered with kernel radius \emph{40} in c). Defected pixels have the distribution $\normal(3,1)$. The square defect is $30\times 30$ pixels in size. The contamination is such that the null distribution is $Z_{x,y}|H_{0,x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$. Highlighted in red are pixels tested as positive at the 5\% FDR level.}
   \label{fig:inference_defectSquare2Example}
 \end{figure}
 
@@ -1615,7 +1615,7 @@ An experiment was conducted to investigate the specificity of the test before an
   \label{fig:inference_DefectSimulationDust}
 \end{figure}
 
-The results are shown in Figure \ref{fig:inference_DefectSimulationDust}. The ROC areas quantified showed that using the filter improved the performance of the test from the contamination. The type 1 error, or specificity, did decreased after filtering. However the results illustrated that the FDR is controlled quite well at around 5\% after filtering. This meant that in this particular example, the FDR control is consistent after contamination and filtering.
+The results are shown in Figure \ref{fig:inference_DefectSimulationDust}. The ROC areas quantified showed that using the filter improved the performance of the test from the contamination. The type 1 error, or specificity, did decreased after filtering. However the results illustrated that the FDR is controlled quite well at around 5\% after filtering. This meant that in this particular example, the FDR control is consistent after contamination and filtering. At situations with low detection power, the FDR can fluctuate between 0 and 1 and can take only so many values. For example if 3 positive pixels were detected, then the FDR can only take values of multiples of $1/3$ between and including 0 and 1.
 
 There is the question of what kernel size to choose for a given defect. Literature, such as \cite{efron2004large} and \cite{schwartzman2008empirical}, suggest that, as a rule of thumb, the proportion of non-null statistics should not be larger than $\pi_1=0.1$ to satisfy some assumptions made for the empirical null. Given the size of the defect, one could work out the minimum kernel radius by setting a threshold for the maximum proportion of the area of kernel which is a defect to 10\%. In other words for a kernel with radius $r$
 \begin{equation}
@@ -1681,6 +1681,8 @@ An experiment was conducted where the contaminated defected image were filtered 
 The results showed that the ROC area increased with kernel radius. This highlighted that a kernel with a good radius can performance almost as though there was no contamination. It also appeared that the optimal ROC area was achieved when using the kernel radius from the rule of thumb, making these results consistent with literature.
 
 For large enough kernel radius, the FDR was controlled at around, perhaps a bit below, 5\%. It appeared a large kernel radius helped preserve FDR control after filtering in these examples. However a large kernel radius did come at a computational cost. Choosing a kernel radius is a matter of trading computational cost with precise FDR control.
+
+It appeared there exist a kernel radius which minimised the type 2 error. So a large kernel radius is required for FDR control but too large can lose statistical power.
 
 \afterpage{\clearpage}
 \section{Results}
@@ -1819,23 +1821,23 @@ The empirical null filter was applied to the \texttt{Sep16 120deg} image as show
 
 False positives were detected on the bottom right of the 3D printed sample. This was the result of the null distribution being bimodal where each face had a different distribution. Figure \ref{fig:inference_cornerSelect} illustrates this. The geometry of the faces and the kernel was such that it resulted in one of the faces to be treated as non-null and then tested positive, falsely so.
 
+The false positives were tackled by manually segmenting the image further as shown in Figure \ref{fig:inference_segmentFurther}. It was segmented using the edges of the projection of the 3D printed object. The empirical null filter was then used on each segment, or ROI, independently, ignoring any pixels outside the ROI the filter is working on. The resulting filtered segments were stitched together to form the resulting filtered image. By using this method, the resulting inference is shown in Figure \ref{fig:inference_subroisep16120deg_inference_radius4}. It can be seen that the empirical null mean did change face to face, resulting in a clear boundary set by the edges. Most of false positives around the corners and edges have been eliminated.
+
 \begin{figure}[htp]
   \centering
-    \centerline{
-      \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/cornerSelect.png}
-        \caption{$z$ image with kernel of radius $r=120$}
-      \end{subfigure}
-      \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/cornerSelectHisto.png}
-        \caption{Histogram of $z$ in the kernel}
-      \end{subfigure}
-    }
+  \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+      \includegraphics[width=\textwidth]{../figures/inference/cornerSelect.png}
+      \caption{$z$ image with kernel of radius $r=120$}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+      \includegraphics[width=\textwidth]{../figures/inference/cornerSelectHisto.png}
+      \caption{Histogram of $z$ in the kernel}
+    \end{subfigure}
+  }
   \caption{A kernel of radius $r=120$ is placed over the bottom right of a unfiltered $z$ image. The histogram of the test statistics captured by the kernel shows a bimodal distribution.}
   \label{fig:inference_cornerSelect}
 \end{figure}
-
-The false positives were tackled by manually segmenting the image further as shown in Figure \ref{fig:inference_segmentFurther}. It was segmented using the edges of the projection of the 3D printed object. The empirical null filter was then used on each segment, or ROI, independently, ignoring any pixels outside the ROI the filter is working on. The resulting filtered segments were stitched together to form the resulting filtered image. By using this method, the resulting inference is shown in Figure \ref{fig:inference_subroisep16120deg_inference_radius4}. It can be seen that the empirical null mean does change face to face, resulting in a clear boundary set by the edges. Most of false positives around the corners and edges have been eliminated.
 
 \begin{figure}[htp]
   \centering
@@ -1872,6 +1874,32 @@ The false positives were tackled by manually segmenting the image further as sho
 
 \section{Conclusion}
 
-Clusters of significant pixels should raise suspicions. One could create a binary image, assigning a Boolean value whether that pixel is tested positive or not. A binary image filter, such as erode followed by a dilate, can be used to remove isolate significant pixels and emphasise the cluster of significant pixels.
+The empirical null filter demonstrated that it can adjust the null hypotheses according to the data to make sensible inference. In the experiments, it was found that the FDR level is preserved after filtering. In experiments it was found that the empirical null filter outperformed other methods based on quantiles, as suggested by \cite{efron2004large}.
 
-Robust statistics \citep{hampel1986robust, rousseeuw1987robust, maronna2006robust, huber2009robust, jewson2018principles}
+False positives do occur but this is unavoidable because tests were done at the 5\% FDR level. Typically in the experiments, false positives were isolated single pixels and probably occurred due to random chance. Clusters of positive pixels should raise suspicion. One could create a binary image, assigning a Boolean value whether that pixel was tested positive or not. A binary image filter, such as erode followed by a dilate, can be used to remove isolated positive pixels to emphasise the cluster of positive pixels.
+
+For good results, the faces of the 3D printed cuboid were segmented. This was necessary because the empirical null filter assumes that the null parameters varied spatially smoothly and slowly. Manual segmentation was easy to do because a cuboid has 6 faces. However, segmentation of faces cannot be generalised well to 3D printed samples with complicated geometry and curved surfaces.
+
+The main issue was how slow the filter was. Figure \ref{fig:inference_timing} shows the timings of the empirical null filter and the mean variance filter. For a filter to take more than a minute is unacceptable when used on the production line when typical filters can take a fraction of a second.
+
+\begin{figure}[htp]
+  \centering
+    \centerline{
+      \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/AllNullGaussianEmpirical_time.eps}
+        \caption{Empirical null filter}
+      \end{subfigure}
+      \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/AllNullGaussianMeanVar_time.eps}
+        \caption{Mean variance null filter}
+      \end{subfigure}
+    }
+  \caption{Timings when filtering a $256\times 256$ image. Note the y-axis change scale.}
+  \label{fig:inference_timing}
+\end{figure}
+
+There are a few strategies to accelerate the filter. The empirical null filter may be accelerated using GPUs \citep{yang2008parallel, hwu2011gpu, eklund2013medical}, however efforts to implement the filter in \texttt{CUDA} and \texttt{C++} is fruitless if there may exist a faster method. Instead, accuracy may be sacrificed for speed by only estimating the null parameters for a number of regularly spaced pixels, the remaining pixels then do estimation through interpolation. The problem is that the assumption of a slow varying null parameter is required much more because of the use of interpolation, this may cause bigger problems due to the face to face transition observed in the experiments. It was found that if a bad solution was found for a point, then that solution would spread its bad solution to neighbour pixels due to the interpolation.
+
+Estimation of the null parameters is essentially robust statistics, estimating the parameters of the null distribution without being affected by non-null statistics. Potential faster methods than the empirical null could exist in literature for robust statistics such as \cite{hampel1986robust, rousseeuw1987robust, maronna2006robust, huber2009robust, jewson2018principles}. The EM algorithm \citep{dempster1977maximum} could be used to fit a mixture of Gaussians to identify the null distribution and estimate its parameters. However the power of hypothesis testing and the empirical null comes from the fact that the alternative distribution does not need to be specified.
+
+The main bottleneck is the evaluation of the density estimate, each step in the Newton-Raphson required the evaluation of $\pi r^2$ data points. Perhaps there may be faster methods for density estimation such as fitting a smoothing spline on the histogram \citep{efron2004large}, however that would require tuning the histogram bins as well as the tuning parameters for the spline. On the other hand, the method in \cite{schwartzman2008empirical} which uses the histogram count found that the estimation of the null parameters was insensitive to the histogram binning.

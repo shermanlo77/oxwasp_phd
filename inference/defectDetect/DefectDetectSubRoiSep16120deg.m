@@ -7,7 +7,7 @@ classdef DefectDetectSubRoiSep16120deg < DefectDetectSubRoi
     end
     
     function printResults(this)
-      this.printResults@DefectDetectSubRoi([-6, 8], [0,5], 15);
+      this.printResults@DefectDetectSubRoi([-6, 8], [0,8], 15);
     end
     
   end
