@@ -113,9 +113,9 @@ public class EmpiricalNull {
   
   /**METHOD: ESTIMATE NULL
    * Estimate the parameters nullMean and nullStd
-   * @throws Exception if Newton-Raphson failed to converge
+   * @throws ConvergenceException if Newton-Raphson failed to converge
    */
-  public void estimateNull() throws Exception{
+  public void estimateNull() throws ConvergenceException{
     
     //get the initial value, if it not finite, get a random one
     float initialValue = this.initialValue;
@@ -141,7 +141,7 @@ public class EmpiricalNull {
         secondDivArray[i] = densityAtMode[2];
         //get a random value for the next initial point
         initialValue = this.getRandomInitial();
-      } catch (Exception exception) {
+      } catch (ConvergenceException exception) {
         throw exception;
       }
       
@@ -184,9 +184,9 @@ public class EmpiricalNull {
    * Find the mode of the log density using the newton-raphson method
    * @return 3-array, [0] contains the maximum density, [1] mode, [2] 2nd div of log density
    * std
-   * @throws Exception when the algorithm fails to converge
+   * @throws ConvergenceException when the algorithm fails to converge
    */
-  private float[] findMode(float greyvalue) throws Exception{
+  private float[] findMode(float greyvalue) throws ConvergenceException{
     //declare array for the output
     float[] densityAtMode = new float[3];
     //declare flag to indiciate if a solution has been found
@@ -237,7 +237,7 @@ public class EmpiricalNull {
       counter++; //count the number of times a initial value has been generated
       //if too many initial values has been generated, throw an exception
       if (counter > 10*this.nInitial) {
-        throw new Exception("convergence problem in EmpiricalNull");
+        throw new ConvergenceException();
       }
     }
     return densityAtMode;

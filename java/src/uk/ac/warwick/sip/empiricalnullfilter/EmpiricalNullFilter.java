@@ -643,7 +643,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
               }
             }
           }
-        } catch (Exception exception) {
+        } catch (ConvergenceException exception) {
           isPreviousFinite = false;
         }
       } else { //else this pixel is not finite
@@ -654,7 +654,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   }
   
   protected float[] getNullMeanStd(float initialValue, Cache cache, Kernel kernel,
-      NormalDistribution normal, RandomGenerator rng) throws Exception{
+      NormalDistribution normal, RandomGenerator rng) throws ConvergenceException{
     //declare 2 vector to store the null mean and null std
     float[] nullMeanStd = new float[2];
     //get the empirical null
@@ -668,13 +668,13 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
           this.bandwidthParameterA, this.bandwidthParameterB, initialValue, kernel, normal,
           rng);
       empiricalNull.estimateNull();
-    } catch (Exception exception1) { //exception is caught, use median as initial value this time
+    } catch (ConvergenceException exception1) { //exception is caught, use median as initial value this time
       try {
         empiricalNull = new EmpiricalNull(this.nInitial, this.nStep, this.log10Tolerance,
             this.bandwidthParameterA, this.bandwidthParameterB, kernel.getMedian(), kernel, normal,
             rng);
         empiricalNull.estimateNull();
-      } catch (Exception exceptionAfterMedian) { //median as initial value didn't work
+      } catch (ConvergenceException exceptionAfterMedian) { //median as initial value didn't work
         throw exceptionAfterMedian;
       }
     }
