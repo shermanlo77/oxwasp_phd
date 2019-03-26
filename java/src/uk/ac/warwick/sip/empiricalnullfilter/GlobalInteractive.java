@@ -1,18 +1,18 @@
-package test;
+package uk.ac.warwick.sip.empiricalnullfilter;
 
 import ij.ImageJ;
 import ij.ImagePlus;
+import ij.plugin.filter.PlugInFilterRunner;
 import ij.process.FloatProcessor;
 import uk.ac.warwick.sip.empiricalnullfilter.EmpiricalNullFilter;
 
 import org.apache.commons.math3.random.MersenneTwister;
 
-public class Global {
+public class GlobalInteractive {
   
   public static void main(String[] args) {
     
     System.out.println("Hello");
-    
     ImageJ.main(null);
     FloatProcessor processorOrginal = new FloatProcessor(255, 250);
     MersenneTwister rng = new MersenneTwister(1018526);
@@ -30,11 +30,9 @@ public class Global {
     long time = System.currentTimeMillis();
     
     EmpiricalNullFilter filter = new EmpiricalNullFilter();
-    filter.setup(null, image);
-    filter.setRadius(radius);
-    filter.setOutputImage(63);
-    filter.run(image.getProcessor());
+    PlugInFilterRunner pfr = new PlugInFilterRunner(filter, "empirical null filter", null);
     image.show();
+    pfr = new PlugInFilterRunner(filter, "empirical null filter", null);
     
     System.out.println("time "+(System.currentTimeMillis() - time) + " ms");
     

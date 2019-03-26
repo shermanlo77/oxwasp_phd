@@ -117,11 +117,30 @@ public class EmpiricalNull {
    */
   public void estimateNull() throws ConvergenceException{
     
+    //=====DEBUG=====//
+    //Check if n is positive
+    if (this.n <= 0) {
+      throw new RuntimeException("n = "+this.n+" is not positive");
+    }
+    //check the std is positive
+    if (this.dataStd <= 0) {
+      throw new RuntimeException("dataStd = "+this.dataStd+" is not valid");
+    }
+    //check if iqr is positive
+    if (this.iqr <= 0) {
+      throw new RuntimeException("iqr = "+this.iqr+" is not valid");
+    }
+    //=====END DEBUG=====
+    
     //get the initial value, if it not finite, get a random one
     float initialValue = this.initialValue;
+    //=====DEBUG=====//
+    //Check if the initial value is finite
     if (!isFinite(initialValue)) {
       initialValue = this.getRandomInitial();
+      throw new RuntimeException("initial value "+initialValue+" is not finite");
     }
+    //=====END DEBUG=====
     
     //declare arrays, storing the max density, mode and the 2nd div of the log density at mode
     //for each new initial point
@@ -233,6 +252,14 @@ public class EmpiricalNull {
       }
       //generate a new initial value and start from there
       greyvalue = this.getRandomInitial();
+      
+      //=====DEBUG=====//
+      //check if the random initial value is different
+      if (Float.compare(greyvalue, this.initialValue)==0) {
+        throw new RuntimeException("random initial value is the same as this.initial value");
+      }
+      //=====END DEBUG=====
+      
       counter++; //count the number of times a initial value has been generated
       //if too many initial values has been generated, throw an exception
       if (counter > 10*this.nInitial) {
@@ -375,6 +402,13 @@ public class EmpiricalNull {
     //get the bandwidth for the density estimate
     this.bandwidth = (this.bandwidthParameterB * ( (float) Math.pow((double) this.n, -0.2))
         + this.bandwidthParameterA) * Math.min(this.dataStd, this.iqr/1.34f);
+    
+    //=====DEBUG=====
+    //check if the bandwidth is positive
+    if (this.bandwidth < 0) {
+      throw new RuntimeException("bandwidth = "+this.bandwidth+" is not positive");
+    }
+    //=====END DEBUG=====
   }
   
   /**METHOD: SET BANDIWDTH
@@ -419,6 +453,18 @@ public class EmpiricalNull {
   public void setBandwidthParameterB(float bandwidthParameterB) {
     this.bandwidthParameterB = bandwidthParameterB;
     this.setBandwidth();
+  }
+  
+  public static void debugStart(String name) {
+    DebugPrint.newFile(name);
+  }
+  
+  public static void debugPrint(String debug) {
+    DebugPrint.write(debug);
+  }
+  
+  public static void debugStop() {
+    DebugPrint.close();
   }
   
 }

@@ -121,5 +121,24 @@ classdef EmpiricalNull < handle
     
   end
   
+  methods (Static)
+    
+    function debugStart(name)
+      empiricalNull = uk.ac.warwick.sip.empiricalnullfilter.EmpiricalNull(0, 0, [0,0,0], 0, 0, 0);
+      empiricalNull.debugStart(name);
+    end
+    
+    function debugPrint(debug)
+      empiricalNull = uk.ac.warwick.sip.empiricalnullfilter.EmpiricalNull(0, 0, [0,0,0], 0, 0, 0);
+      empiricalNull.debugPrint(debug);
+    end
+    
+    function debugStop()
+      empiricalNull = uk.ac.warwick.sip.empiricalnullfilter.EmpiricalNull(0, 0, [0,0,0], 0, 0, 0);
+      empiricalNull.debugStop();
+    end
+    
+  end
+  
 end
 

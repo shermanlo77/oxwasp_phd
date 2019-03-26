@@ -23,6 +23,7 @@ import ij.plugin.filter.PlugInFilterRunner;
 import ij.Prefs;
 import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
+
 import java.awt.AWTEvent;
 import java.awt.Rectangle;
 import java.io.IOException;
@@ -598,7 +599,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     int cacheLineP = cache.getCacheWidth() * (y % cache.getCacheHeight()) + Kernel.getKRadius();
     //declare the pointer for a pixel in values
     int valuesP = this.imageProcessor.getRoi().x+y*this.imageProcessor.getWidth();
-    float initialValue = 0; //initial value to be used for the newton-raphson method
+    float initialValue = Float.NaN; //initial value to be used for the newton-raphson method
     kernel.moveToNewLine(y);
     boolean isPreviousFinite = false; //boolean to indicate if the previous pixel is finite
     do {
@@ -612,6 +613,14 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
         
         //get the null mean and null std
         try {
+          
+          //=====DEBUG=====
+          //Check if the initial value has changed
+          if (Float.isNaN(initialValue)) {
+            throw new RuntimeException("initialValue has not been initalised");
+          }
+          //=====END DEBUG=====
+          
           float [] nullMeanStd = this.getNullMeanStd(initialValue, cache, kernel, normal, rng);
           //normalise this pixel
           values[0][valuesP] =
@@ -644,6 +653,9 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
             }
           }
         } catch (ConvergenceException exception) {
+          //=====DEBUG=====
+          DebugPrint.write("ConvergenceException caught at ("+kernel.getX()+","+y+")");
+          //=====END DEBUG=====
           isPreviousFinite = false;
         }
       } else { //else this pixel is not finite
@@ -669,12 +681,22 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
           rng);
       empiricalNull.estimateNull();
     } catch (ConvergenceException exception1) { //exception is caught, use median as initial value this time
+      
+      //=====DEBUG=====
+      DebugPrint.write("Initial ConvergenceException caught at (\"+kernel.getX()+\",\"+y+\")\", "
+          + "initial value = "+initialValue);
+      //=====END DEBUG
+      
       try {
         empiricalNull = new EmpiricalNull(this.nInitial, this.nStep, this.log10Tolerance,
             this.bandwidthParameterA, this.bandwidthParameterB, kernel.getMedian(), kernel, normal,
             rng);
         empiricalNull.estimateNull();
       } catch (ConvergenceException exceptionAfterMedian) { //median as initial value didn't work
+        //=====DEBUG=====
+        DebugPrint.write("Second ConvergenceException thrown, initial value = "
+            +kernel.getMedian());
+        //=====END DEBUG
         throw exceptionAfterMedian;
       }
     }
@@ -849,6 +871,18 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
    */
   public void setProgress(boolean isShowProgressBar) {
     this.isShowProgressBar = isShowProgressBar;
+  }
+  
+  public static void debugStart(String name) {
+    DebugPrint.newFile(name);
+  }
+  
+  public static void debugPrint(String debug) {
+    DebugPrint.write(debug);
+  }
+  
+  public static void debugStop() {
+    DebugPrint.close();
   }
   
 }

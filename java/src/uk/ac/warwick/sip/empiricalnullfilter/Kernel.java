@@ -84,7 +84,6 @@ class Kernel {
     this.isFullCalculation = true;
     
     this.previousY = Kernel.getKHeight()/2-cache.getCacheHeight();
-    
   }
   
   /**METHOD: MOVE TO NEW LINE
@@ -150,7 +149,38 @@ class Kernel {
           if (Double.isNaN(this.sums[0])) {
             this.isFullCalculation = true;
             this.isFinite = false;
+            //=====DEBUG=====
+            //sum[0] is nan
+            throw new RuntimeException("this.sums[0] is nan");
+            //=====END DEBUG=====
           }
+          
+          //=====DEBUG=====
+          //check if sumArea and sumSides produce same answer
+          double[] sums = new double [2];
+          sums[0] = this.sums[0];
+          sums[1] = this.sums[1];
+          int nFinite = this.nFinite;
+          this.sumArea();
+          if (Math.random() < 0.0001) {
+            DebugPrint.write("diff in sum[0] = E"+Math.log10(Math.abs(sums[0] - this.sums[0])));
+            DebugPrint.write("diff in sum[1] = E"+Math.log10(Math.abs(sums[1] - this.sums[1])));
+          }
+          if (Math.log10(Math.abs(sums[0] - this.sums[0]))>-5) {
+            throw new RuntimeException("sumArea() and sumSides() produced different sums[0] by "
+                + "E-5");
+          }
+          if (Math.log10(Math.abs(sums[1] - this.sums[1]))>-5) {
+            throw new RuntimeException("sumArea() and sumSides() produced different sums[1] by "
+                + "E-5");
+          }
+          if (nFinite != this.nFinite) {
+            throw new RuntimeException("sumArea() and sumSides() produced different nFinite");
+          }
+          this.sums[0] = sums[0];
+          this.sums[1] = sums[1];
+          //=====END DEBUG=====
+          
         }
         
         //at least 2 data points are required for standard deviation calculations

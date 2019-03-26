@@ -14,7 +14,7 @@ classdef EmpiricalNullFilter < handle
     nullStd; %empirical null std image
   end
   
-  properties (GetAccess = protected)
+  properties
     javaFilter; %the java object EmpiricalNullFilter
   end
   
@@ -166,6 +166,25 @@ classdef EmpiricalNullFilter < handle
           uk.ac.warwick.sip.empiricalnullfilter.EmpiricalNullFilter.NULL_MEAN), height, width);
       this.nullStd = reshape(this.javaFilter.getOutputImage( ...
           uk.ac.warwick.sip.empiricalnullfilter.EmpiricalNullFilter.NULL_STD), height, width);
+    end
+    
+  end
+  
+  methods (Static)
+    
+    function debugStart(name)
+      filter = uk.ac.warwick.sip.empiricalnullfilter.EmpiricalNullFilter();
+      filter.debugStart(name);
+    end
+    
+    function debugPrint(debug)
+      filter = uk.ac.warwick.sip.empiricalnullfilter.EmpiricalNullFilter();
+      filter.debugPrint(debug);
+    end
+    
+    function debugStop()
+      filter = uk.ac.warwick.sip.empiricalnullfilter.EmpiricalNullFilter();
+      filter.debugStop();
     end
     
   end
