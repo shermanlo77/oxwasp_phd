@@ -17,7 +17,6 @@ public class EmpiricalNull {
   static final float BANDWIDTH_PARAMETER_A = (float) 0.16; //intercept
   static final float BANDWIDTH_PARAMETER_B = (float) 0.9; //gradient
   
-  
   //MEMBER VARIABLES
   
   //member variable copies of the static final variables
@@ -27,17 +26,17 @@ public class EmpiricalNull {
   private float bandwidthParameterA;
   private float bandwidthParameterB;
   
-  protected float[] zArray;
-  protected int n;
+  protected final float[] zArray;
+  protected final int n;
   private float dataStd;
   private float iqr;
+  private final float initialValue; //the user requested initial value
   
-  private float initialValue; //the user requested initial value
   private float nullMean; //empirical null mean
   private float nullStd; //empirical null std
   private float bandwidth; //bandwidth for the density estimate
-  private NormalDistribution normalDistribution; //standard normal distribution
-  private RandomGenerator rng; //random number generator when a random initial value is needed
+  private final NormalDistribution normalDistribution; //standard normal distribution
+  private final RandomGenerator rng; //random number generator when a random initial value is needed
   
   /**CONSTRUCTOR
    * To be used by MATLAB, default values are provided for you
@@ -57,8 +56,9 @@ public class EmpiricalNull {
     this.bandwidthParameterA = BANDWIDTH_PARAMETER_A;
     this.bandwidthParameterB = BANDWIDTH_PARAMETER_B;
     
+    this.initialValue = initialValue;
     this.zArray = zArray;
-    this.n= n;
+    this.n = n;
     this.dataStd = dataStd;
     this.iqr = quartiles[2] - quartiles[0];
     
@@ -183,7 +183,6 @@ public class EmpiricalNull {
   /**METHOD: FIND MODE
    * Find the mode of the log density using the newton-raphson method
    * @return 3-array, [0] contains the maximum density, [1] mode, [2] 2nd div of log density
-   * std
    * @throws ConvergenceException when the algorithm fails to converge
    */
   private float[] findMode(float greyvalue) throws ConvergenceException{

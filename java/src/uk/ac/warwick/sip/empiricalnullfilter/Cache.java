@@ -6,6 +6,13 @@ import java.util.Arrays;
 import ij.gui.Roi;
 import ij.process.ImageProcessor;
 
+/**CLASS: CACHE
+ * A image containing a deep copy of the section of the image to be filtered
+ * Pixels are copied from the image to the cache
+ * Modified from the RankFilters.java
+ *     See https://github.com/imagej/ImageJA/blob/master/src/main/java/ij/plugin/filter/
+ *         RankFilters.java
+ */
 class Cache {
   
   private int highestYInCache;
@@ -15,17 +22,22 @@ class Cache {
   private final float[] cache;
   private final int cacheWidth;
   private final int cacheHeight;
-  private final int xMin;
-  private final int xMax;
-  private final int padLeft;
-  private final int padRight;
-  private final int xMinInside;
-  private final int xMaxInside;
-  private final int widthInside;
+  private final int xMin; //minimum x captured by kernel
+  private final int xMax; //maximum x captured by kernel
+  private final int padLeft; //amount of padding left
+  private final int padRight; //amount of padding right
+  private final int xMinInside; //minimum x captured by kernel and image coordinates
+  private final int xMaxInside; //maximum x captured by kernel and image coordinates
+  private final int widthInside; //this.xMaxInside - this.xMinInside
   private final boolean isMultiThread;
   
   private boolean copyingToCache = false;
   
+  /**CONSTRUCTOR
+   * @param numThreads number of threads
+   * @param ip The image to be filtered
+   * @param roi The image region of interest
+   */
   public Cache(int numThreads, ImageProcessor ip, Roi roi) {
     
     this.ip = ip;
@@ -55,6 +67,11 @@ class Cache {
     this.isMultiThread = numThreads > 1;
   }
   
+  /**METHOD: READ INTO CACHE
+   * Start deep copying pixels into the cache, according to the size and position of the kernel
+   * @param yForThread array of y positions of each thread
+   * @param kernel Kernel which has yet to filter a line
+   */
   public void readIntoCache(int[] yForThread, Kernel kernel) {
     int y = kernel.getY();
     Rectangle roiRectangle = this.ip.getRoi();
@@ -82,18 +99,6 @@ class Cache {
   
   /**METHOD: READ LINE TO CACHE OR PAD
    * Read a line into the cache (including padding in x), anything outside the boundary is nan
-   * @param pixels
-   * @param width
-   * @param height
-   * @param roiY
-   * @param xminInside
-   * @param widthInside
-   * @param cache modified
-   * @param cacheWidth
-   * @param cacheHeight
-   * @param padLeft
-   * @param padRight
-   * @param kHeight
    * @param y
    */
   private void readLineToCacheOrPad(int y) {
@@ -117,15 +122,7 @@ class Cache {
   /**METHOD: READ LINE TO CACHE
    * Read a line into the cache (includes conversion to flaot)
    * Pad with nan if necessary
-   * @param pixels
-   * @param pixelLineP
    * @param y
-   * @param xminInside
-   * @param widthInside
-   * @param cache modified
-   * @param cacheLineP
-   * @param padLeft
-   * @param padRight
    */
   private void readLineToCache(int y) {
     
@@ -155,7 +152,7 @@ class Cache {
     }
   }
   
-  /**METHOD: ARRAY MIN NON NEGATIVE
+  /**FUNCTION: ARRAY MIN NON NEGATIVE
    * Used by thread control in threadFilter
    * @param array
    * @return the minimum of the array, but not less than 0

@@ -3,27 +3,36 @@ package uk.ac.warwick.sip.empiricalnullfilter;
 import org.apache.commons.math3.stat.descriptive.rank.Percentile;
 import ij.gui.Roi;
 
+/**CLASS: KERNEL
+ * A circular kernel, contains statistics and methods using the pixels captured by the circular
+ *     kernel. The kernel can move right or start on a new row, the member variables are updated
+ *     when the kernel moves
+ * Modified from the RankFilters.java
+ *     See https://github.com/imagej/ImageJA/blob/master/src/main/java/ij/plugin/filter/
+ *         RankFilters.java
+ */
 class Kernel {
   
   //=====STATIC VARIABLES=====//
   private static boolean isSmallKernel; //indicate if this kernel is small of not
-  private static int kNPoints;
-  private static int kRadius;
-  private static int kHeight;
+  private static int kNPoints; //number of points in the kernel
+  private static int kRadius; //radius of the kernel
+  private static int kHeight; //height of the kernel (2*kRadius + 1);
+  //pairs of pointers to be used in iteration, see method setKernel
   private static int [] kernelPointer;
   
   //=====MEMBER VARIABLES=====//
-  private double[] sums; //[0] sum of greyvalues, [1] sum of greyvalues squared
-  private float[] pixels; //array of pixel greyvalues in the kernel
+  private final double[] sums; //[0] sum of greyvalues, [1] sum of greyvalues squared
+  private final float[] pixels; //array of pixel greyvalues in the kernel
   private float mean;
   private float std;
   private float[] quartiles; //[0,1,2] 1st 2nd and 3rd quartiles greyvalues of pixels in the kernel
   private boolean isFullCalculation; //true to do full sum
   private int x; //x position of kernel, increments with the method moveKernel()
-  private int y; //y position of kernel, fixed
+  private int y; //y position of kernel, set using method moveToNewLine()
   private int previousY;
   private int nFinite;
-  private boolean isFinite;
+  private boolean isFinite; //false if the kernel is centred on a non-ROI pixel or NaN calculations
   
   //indicate if to copy pixels to the member variable pixels
   //must be true if isQuartile is true
@@ -31,25 +40,24 @@ class Kernel {
   private boolean isMeanStd; //indicate if to calculate sums
   private boolean isQuartile; //indicate if to do quartile calculations
   
-  private Cache cache; //contains copy of pixels of the orginial image
+  private final Cache cache; //contains copy of pixels of the orginial image
   //pairs of integers which points to the cache according to the shape of the kernel
-  private int[] cachePointers;
+  private final int[] cachePointers;
   Roi roi; //region of interest
   
-  /**CONSTRUCTOR
-   * 
-   * @param y
-   * @param cache
-   * @param cachePointers
-   * @param kNPoints
-   * @param kRadius
-   * @param roi
-   * @param isMeanStd
-   * @param isQuartile
+  /**CONTRUCTOR
+   * @param cache The kernel is placed on this Cache
+   * @param roi Region of interest of the image being filtered
+   * @param isCopy true if the kernel to copy pixels from cache
+   * @param isMeanStd true if to work out mean and standard deviation
+   * @param isQuartile true if to work out quartiles
    */
   public Kernel(Cache cache, Roi roi, boolean isCopy, boolean isMeanStd, boolean isQuartile) {
-    
     this.cache = cache;
+    
+    //make the cache points
+    //pairs of integers which points the start and end of the current row to the cache according to
+        //the shape of the kernel
     this.cachePointers = new int[2*Kernel.getKHeight()];
     for (int i=0; i<Kernel.getKHeight(); i++) {
       cachePointers[2*i] =
@@ -79,20 +87,29 @@ class Kernel {
     
   }
   
+  /**METHOD: MOVE TO NEW LINE
+   * Position the kernel centred at (x=0, y)
+   * Member variables are updated
+   * @param y Row number
+   */
   public void moveToNewLine(int y) {
     this.y = y;
     this.x = 0;
     this.isFullCalculation = true;
-    
+    //shift the cachePointers
     for (int i=0; i<this.cachePointers.length; i++) {  //shift kernel pointers to new line
       this.cachePointers[i] = (this.cachePointers[i] +
           this.cache.getCacheWidth()*(y-this.previousY))%this.cache.getCache().length;
     }
     this.previousY = y;
-    
     this.updateStatistics();
   }
   
+  /**METHOD: MOVE RIGHT
+   * Move the kernel one pixel to the right
+   * Member variables are updated
+   * @return true if the move was successful (ie within the roi bounding box)
+   */
   public boolean moveRight() {
     if (this.x<this.roi.getBounds().width) {
       this.x++;
@@ -103,6 +120,9 @@ class Kernel {
     }
   }
   
+  /**METHOD: UPDATE STATISTICS
+   * Update the following member variables: sums, pixels, mean, std, quartiles
+   */
   private void updateStatistics() {
     //if this pixel is not in the roi, for the next pixel do a full calculation as the summation
         //cannot be propagate
@@ -114,9 +134,12 @@ class Kernel {
       this.isFinite = true;
     }
     
+    //if centred on finite pixel
     if (this.isFinite) {
       
+      //if request for mean and std calculations
       if (this.isMeanStd) {
+        
         if (this.isFullCalculation) {
           //for small kernel, always use the full area, not incremental algorithm
           this.isFullCalculation = isSmallKernel;
@@ -129,6 +152,8 @@ class Kernel {
             this.isFinite = false;
           }
         }
+        
+        //at least 2 data points are required for standard deviation calculations
         if (this.nFinite < 2) {
           this.isFullCalculation = true;
           this.isFinite = false;
@@ -140,10 +165,12 @@ class Kernel {
         }
       }
       
+      //if request to copy pixels from cache to kernel
       if (this.isCopy) {
         this.copyPixels();
       }
       
+      //if request for quartile calculations
       if (this.isQuartile) {
         if (this.nFinite < 2) {
           this.isFinite = false;
@@ -159,12 +186,6 @@ class Kernel {
    * x between 0 and cacheWidth-1
    * Output is written to array sums[0] = sum; sums[1] = sum of squares
    * Ignores nan
-   * Returns the number of non-nan numbers
-   * @param cache
-   * @param xCache0
-   * @param kernel
-   * @param sums modified
-   * @return  number of non-nan numbers
    */
   //MODIFIES nFinite
   private void sumArea() {
@@ -189,12 +210,6 @@ class Kernel {
    * the kernal area.
    * Output is added or subtracted to/from array sums[0] += sum; sums[1] += sum of squares  when at
    * the right border, minus when at the left border
-   * @param cache
-   * @param xCache0
-   * @param kernel
-   * @param sums modified
-   * @param nData
-   * @return number of non-nan numbers
    */
   private void sumSides() {
     //for each row
@@ -216,6 +231,9 @@ class Kernel {
     }
   }
   
+  /**METHOD: COPY PIXELS
+   * Deep copy pixels captured by the kernel from the cache
+   */
   private void copyPixels() {
     this.nFinite = 0;
     for (int kk=0; kk<this.cachePointers.length; kk++) {
@@ -233,15 +251,10 @@ class Kernel {
   /**METHOD: GET QUARTILES
    * Get the quartiles of values within kernel-sized neighborhood.
    * nan values are ignored
-   * @param cache
-   * @param xCache0
-   * @param kernel
-   * @param quartileBuf
-   * @param kNPoints
-   * @param quartiles modified
    */
   private void calculateQuartiles() {
     Percentile percentile = new Percentile();
+    //convert float to double
     double[] pixels = new double[this.pixels.length];
     for (int i=0; i<this.nFinite; i++) {
       pixels[i] = (double) this.pixels[i];
@@ -251,7 +264,7 @@ class Kernel {
       this.quartiles[i] = (float) percentile.evaluate((i+1) * 25.0);
     }
   }
-
+  
   public int getY() {
     return this.y;
   }
@@ -259,15 +272,15 @@ class Kernel {
   public float getMean() {
     return this.mean;
   }
-
+  
   public float getStd() {
     return this.std;
   }
-
+  
   public int getNFinite() {
     return this.nFinite;
   }
-
+  
   public boolean isFinite() {
     return this.isFinite;
   }
@@ -275,7 +288,7 @@ class Kernel {
   public float getMedian() {
     return this.quartiles[1];
   }
-
+  
   public float[] getQuartiles() {
     return this.quartiles;
   }
@@ -296,26 +309,25 @@ class Kernel {
     return this.cachePointers;
   }
   
-  /**METHOD: MAKE LINE RADII
-   * Create a circular kernel (structuring element) of a given radius.
-   * @param radius
-   * Radius = 0.5 includes the 4 neighbors of the pixel in the center,
-   *  radius = 1 corresponds to a 3x3 kernel size.
-   * @return the circular kernel
-   * The output is an array that gives the length of each line of the structuring element
-   * (kernel) to the left (negative) and to the right (positive):
-   * [0] left in line 0, [1] right in line 0,
-   * [2] left in line 2, ...
-   * The maximum (absolute) value should be kernelRadius.
-   * Array elements at the end:
-   * length-2: nPoints, number of pixels in the kernel area
-   * length-1: kernelRadius in x direction (kernel width is 2*kernelRadius+1)
-   * Kernel height can be calculated as (array length - 1)/2 (odd number);
-   * Kernel radius in y direction is kernel height/2 (truncating integer division).
+  /**FUNCTION: MAKE LINE RADII
+   * Set the static variables given the kernel radius: isSmallKernel, kNPoints, kRadius, kHeight.
+   *     kernelPointer
+   * kernelPointer: the output is an array that gives the length of each line of the structuring
+   *     element (kernel) to the left (negative) and to the right (positive):
+   *         [0] left in line 0, [1] right in line 0,
+   *         [2] left in line 2, ...
+   *     Array elements at the end:
+   *         length-2: nPoints, number of pixels in the kernel area
+   *         length-1: kernelRadius in x direction (kernel width is 2*kernelRadius+1)
+   * Kernel height: (array length - 1)/2 (odd number);
+   * Kernel radius: kernel height/2 (truncating integer division).
    * Note that kernel width and height are the same for the circular kernels used here,
    * but treated separately for the case of future extensions with non-circular kernels.
    * e.g. r=0.5 will return [0,0,-1,1,0,0,nPoints, kernelRadius]
    * e.g. r=3 will return [-1,1,-2,2,-3,3,-3,3,-3,3,-2,2,-1,1,nPoints, kernelRadius]
+   * @param radius of the kernel
+   *     Radius = 0.5 includes the 4 neighbours of the pixel in the centre,
+   *     radius = 1 corresponds to a 3x3 kernel
    */
   public static void setKernel(double radius) {
     if (radius>=1.5 && radius<1.75) {//this code creates the same sizes as the previous RankFilters
@@ -330,7 +342,7 @@ class Kernel {
     kernelPointer[2*kRadius] = -kRadius;
     kernelPointer[2*kRadius+1] =  kRadius;
     kNPoints = 2*kRadius+1;
-    for (int y=1; y<=kRadius; y++) { //lines above and below center together
+    for (int y=1; y<=kRadius; y++) { //lines above and below centre together
       int dx = (int)(Math.sqrt(r2-y*y+1e-10));
       kernelPointer[2*(kRadius-y)] = -dx;
       kernelPointer[2*(kRadius-y)+1] =  dx;
