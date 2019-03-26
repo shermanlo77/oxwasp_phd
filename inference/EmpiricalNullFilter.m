@@ -14,7 +14,7 @@ classdef EmpiricalNullFilter < handle
     nullStd; %empirical null std image
   end
   
-  properties
+  properties (GetAccess = protected)
     javaFilter; %the java object EmpiricalNullFilter
   end
   
