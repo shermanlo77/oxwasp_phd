@@ -57,11 +57,6 @@ classdef Imagesc < handle
       this.positiveImage = positiveImage;
     end
     
-    %%%%%DEPRECATED%%%%%
-    function addSigPixels(this, positiveImage)
-      this.addPositivePixels(positiveImage)
-    end
-    
     %METHOD: PLOT
     %Plots this.image using imagesc
     %colour in significant pixels, indicated by this.positiveImage

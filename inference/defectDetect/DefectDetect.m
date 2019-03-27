@@ -57,16 +57,16 @@ classdef (Abstract) DefectDetect < Experiment
         
         %plot the test image with the significant pixels
         fig = LatexFigure.sub();
-        sigPlot = ImagescSignificant(this.scan.loadImageStack(this.testIndex));
-        sigPlot.addPositivePixels(zTester.positiveImage);
-        sigPlot.setDilateSize(2);
-        sigPlot.plot();
+        positivePlot = Imagesc(this.scan.loadImageStack(this.testIndex));
+        positivePlot.addPositivePixels(zTester.positiveImage);
+        positivePlot.setDilateSize(2);
+        positivePlot.plot();
         saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
             '_sig.eps')),'epsc');
         
         %plot the filtered image
         fig = LatexFigure.sub();
-        filteredImagePlot = ImagescSignificant(filteredImage);
+        filteredImagePlot = Imagesc(filteredImage);
         filteredImagePlot.setCLim(zCLim);
         filteredImagePlot.plot();
         saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
@@ -74,7 +74,7 @@ classdef (Abstract) DefectDetect < Experiment
         
         %plot the null mean
         fig = LatexFigure.sub();
-        nullMeanPlot = ImagescSignificant(this.nullMeanArray(:,:,iRadius));
+        nullMeanPlot = Imagesc(this.nullMeanArray(:,:,iRadius));
         nullMeanPlot.setCLim(zCLim);
         nullMeanPlot.plot();
         saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
@@ -82,7 +82,7 @@ classdef (Abstract) DefectDetect < Experiment
         
         %plot the null std
         fig = LatexFigure.sub();
-        nullStdPlot = ImagescSignificant(this.nullStdArray(:,:,iRadius));
+        nullStdPlot = Imagesc(this.nullStdArray(:,:,iRadius));
         nullStdPlot.setCLim(nullStdCLim);
         nullStdPlot.plot();
         saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
@@ -90,7 +90,7 @@ classdef (Abstract) DefectDetect < Experiment
           
         %plot the -log p values
         fig = LatexFigure.sub();
-        pPlot = ImagescSignificant(logPArray(:,:,iRadius));
+        pPlot = Imagesc(logPArray(:,:,iRadius));
         pPlot.setCLim([0, logPMax]);
         pPlot.plot();
         saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
