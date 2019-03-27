@@ -22,6 +22,11 @@ classdef LatexFigure
             end
         end
         
+        function convertToPoster(fig)
+           fig.Position(3:4) = [2244,1683];
+           fig.CurrentAxes.FontSize = 50;
+        end
+        
     end
     
 end
