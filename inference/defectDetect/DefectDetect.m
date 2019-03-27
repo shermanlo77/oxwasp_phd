@@ -43,7 +43,7 @@ classdef (Abstract) DefectDetect < Experiment
       for iRadius = 1:numel(this.radiusArray)
         
         %print radius
-        fildId = fopen(fullfile(directory,strcat(this.experiment_name,'_radius', ...
+        fildId = fopen(fullfile(directory,strcat(this.experimentName,'_radius', ...
             num2str(iRadius),'.txt')),'w');
         fprintf(fildId,'%d',this.radiusArray(iRadius));
         fclose(fildId);
@@ -61,7 +61,7 @@ classdef (Abstract) DefectDetect < Experiment
         sigPlot.addPositivePixels(zTester.positiveImage);
         sigPlot.setDilateSize(2);
         sigPlot.plot();
-        saveas(fig,fullfile(directory, strcat(this.experiment_name,'_radius',num2str(iRadius), ...
+        saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
             '_sig.eps')),'epsc');
         
         %plot the filtered image
@@ -69,7 +69,7 @@ classdef (Abstract) DefectDetect < Experiment
         filteredImagePlot = ImagescSignificant(filteredImage);
         filteredImagePlot.setCLim(zCLim);
         filteredImagePlot.plot();
-        saveas(fig,fullfile(directory, strcat(this.experiment_name,'_radius',num2str(iRadius), ...
+        saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
             '_z.eps')),'epsc');
         
         %plot the null mean
@@ -77,7 +77,7 @@ classdef (Abstract) DefectDetect < Experiment
         nullMeanPlot = ImagescSignificant(this.nullMeanArray(:,:,iRadius));
         nullMeanPlot.setCLim(zCLim);
         nullMeanPlot.plot();
-        saveas(fig,fullfile(directory, strcat(this.experiment_name,'_radius',num2str(iRadius), ...
+        saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
             '_nullMean.eps')),'epsc');
         
         %plot the null std
@@ -85,7 +85,7 @@ classdef (Abstract) DefectDetect < Experiment
         nullStdPlot = ImagescSignificant(this.nullStdArray(:,:,iRadius));
         nullStdPlot.setCLim(nullStdCLim);
         nullStdPlot.plot();
-        saveas(fig,fullfile(directory, strcat(this.experiment_name,'_radius',num2str(iRadius), ...
+        saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
             '_nullStd.eps')),'epsc');
           
         %plot the -log p values
@@ -93,7 +93,7 @@ classdef (Abstract) DefectDetect < Experiment
         pPlot = ImagescSignificant(logPArray(:,:,iRadius));
         pPlot.setCLim([0, logPMax]);
         pPlot.plot();
-        saveas(fig,fullfile(directory, strcat(this.experiment_name,'_radius',num2str(iRadius), ...
+        saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
             '_logp.eps')),'epsc');
         
       end

@@ -65,27 +65,27 @@ classdef AllNull < Experiment
       %save properties of this experiment to txt
       
       %radius range
-      fildId = fopen(fullfile(directory,strcat(this.experiment_name,'_radius1.txt')),'w');
+      fildId = fopen(fullfile(directory,strcat(this.experimentName,'_radius1.txt')),'w');
       fprintf(fildId,'%d',this.radiusArray(1));
       fclose(fildId);
       
       %radius range
-      fildId = fopen(fullfile(directory,strcat(this.experiment_name,'_radiusend.txt')),'w');
+      fildId = fopen(fullfile(directory,strcat(this.experimentName,'_radiusend.txt')),'w');
       fprintf(fildId,'%d',this.radiusArray(end));
       fclose(fildId);
       
       %nrepeat
-      fildId = fopen(fullfile(directory,strcat(this.experiment_name,'_nrepeat.txt')),'w');
+      fildId = fopen(fullfile(directory,strcat(this.experimentName,'_nrepeat.txt')),'w');
       fprintf(fildId,'%d',this.nRepeat);
       fclose(fildId);
       
       %imagesize
-      fildId = fopen(fullfile(directory,strcat(this.experiment_name,'_height.txt')),'w');
+      fildId = fopen(fullfile(directory,strcat(this.experimentName,'_height.txt')),'w');
       fprintf(fildId,'%d',this.imageSize(1));
       fclose(fildId);
       
       %imagesize
-      fildId = fopen(fullfile(directory,strcat(this.experiment_name,'_width.txt')),'w');
+      fildId = fopen(fullfile(directory,strcat(this.experimentName,'_width.txt')),'w');
       fprintf(fildId,'%d',this.imageSize(2));
       fclose(fildId);
       
@@ -104,7 +104,7 @@ classdef AllNull < Experiment
       if (~isempty(this.getYLim(1)))
         ylim(this.getYLim(1));
       end
-      saveas(fig,fullfile(directory, strcat(this.experiment_name,'_nullMean.eps')),'epsc');
+      saveas(fig,fullfile(directory, strcat(this.experimentName,'_nullMean.eps')),'epsc');
       
       %plot null var
       fig = LatexFigure.sub();
@@ -117,7 +117,7 @@ classdef AllNull < Experiment
       if (~isempty(this.getYLim(2)))
         ylim(this.getYLim(2));
       end
-      saveas(fig,fullfile(directory, strcat(this.experiment_name,'_nullStd.eps')),'epsc');
+      saveas(fig,fullfile(directory, strcat(this.experimentName,'_nullStd.eps')),'epsc');
       
       %plot post filter mean vs radius
       fig = LatexFigure.sub();
@@ -134,7 +134,7 @@ classdef AllNull < Experiment
       if (~isempty(this.getYLim(3)))
         ylim(this.getYLim(3));
       end
-      saveas(fig,fullfile(directory, strcat(this.experiment_name,'_mean.eps')),'epsc');
+      saveas(fig,fullfile(directory, strcat(this.experimentName,'_mean.eps')),'epsc');
       
       %plot post filter variance vs radius
       fig = LatexFigure.sub();
@@ -152,7 +152,7 @@ classdef AllNull < Experiment
       if (~isempty(this.getYLim(4)))
         ylim(this.getYLim(4));
       end
-      saveas(fig,fullfile(directory, strcat(this.experiment_name,'_variance.eps')),'epsc');
+      saveas(fig,fullfile(directory, strcat(this.experimentName,'_variance.eps')),'epsc');
       
       %plot post filter kurtosisArray vs radius
       fig = LatexFigure.sub();
@@ -169,7 +169,7 @@ classdef AllNull < Experiment
       if (~isempty(this.getYLim(5)))
         ylim(this.getYLim(5));
       end
-      saveas(fig,fullfile(directory, strcat(this.experiment_name,'_kurtosis.eps')),'epsc');
+      saveas(fig,fullfile(directory, strcat(this.experimentName,'_kurtosis.eps')),'epsc');
       
       %plot time vs radius
       fig = LatexFigure.sub();
@@ -182,7 +182,7 @@ classdef AllNull < Experiment
       if (~isempty(this.getYLim(6)))
         ylim(this.getYLim(6));
       end
-      saveas(fig,fullfile(directory, strcat(this.experiment_name,'_time.eps')),'epsc');
+      saveas(fig,fullfile(directory, strcat(this.experimentName,'_time.eps')),'epsc');
       
     end
 
