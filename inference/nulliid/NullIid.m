@@ -13,7 +13,7 @@ classdef (Abstract) NullIid < Experiment
   properties (SetAccess = protected)
     
     nArray = round(pi*(10:10:100).^2); %array of n to investigate
-    nRepeat = 100; %number of times to repeat the experiment
+    nRepeat = 3; %number of times to repeat the experiment
     
     %array of results
       %dim 1: for each repeat
@@ -140,10 +140,13 @@ classdef (Abstract) NullIid < Experiment
     %IMPLEMENTED: DO EXPERIMENT
     function doExperiment(this)
       
+      DebugPrint.newFile(this.experiment_name);
+      
       %for each n
       for iN = 1:numel(this.nArray)
         %get n, the number of N(0,1) samples to simulate
         n = this.nArray(iN);
+        DebugPrint.write(strcat('n=',num2str(n)));
         
         %nRepeat times
         for iRepeat = 1:this.nRepeat
@@ -166,6 +169,8 @@ classdef (Abstract) NullIid < Experiment
         end
         
       end
+      
+      DebugPrint.close(this.experiment_name);
 
     end
     

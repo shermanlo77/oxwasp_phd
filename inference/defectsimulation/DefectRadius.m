@@ -9,7 +9,7 @@ classdef DefectRadius < Experiment
 
   properties (SetAccess = protected)
     
-    nRepeat = 100; %number of times to repeat the experiment
+    nRepeat = 3; %number of times to repeat the experiment
     imageSize = 256; %dimension of the image
     radiusArray = 10:10:100; %radius of the empirical null filter kernel
     randStream; %rng
@@ -124,11 +124,15 @@ classdef DefectRadius < Experiment
     %METHOD: DO EXPERIMENT
     function doExperiment(this)
       
+      DebugPrint.newFile(this.experiment_name);
+      
       %for each alt mean
       for iRadius = 1:numel(this.radiusArray)
         
         %get up the contamination
         defectSimulator = this.getDefectSimulator();
+        
+        DebugPrint.write(strcat('r=', num2str(this.radiusArray(iRadius))));
         
         %repeat nRepeat times
         for iRepeat = 1:this.nRepeat
@@ -190,6 +194,8 @@ classdef DefectRadius < Experiment
         end
         
       end
+      
+      DebugPrint.close();
       
     end
     

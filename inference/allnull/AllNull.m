@@ -22,7 +22,7 @@ classdef AllNull < Experiment
     %array of kernel radius to investigate
     radiusArray = 10:10:100;
     %number of times to repeat the experiment
-    nRepeat = 100;
+    nRepeat = 3;
     %number of initial points
     nInitial = 3;
     
@@ -210,6 +210,8 @@ classdef AllNull < Experiment
     %Filter Gaussian images for different radius multiple times
     function doExperiment(this)
       
+      DebugPrint.newFile(this.experiment_name);
+      
       %for each radius
       for iRadius = 1:numel(this.radiusArray)
         
@@ -218,6 +220,8 @@ classdef AllNull < Experiment
         %instantiate a null filter with that radius
         filter = this.getFilter(radius);
         filter.setNInitial(this.nInitial);
+        
+        DebugPrint.write(strcat('r=',num2str(radius)));
         
         %for nRepeat times
         for iRepeat = 1:this.nRepeat
@@ -253,6 +257,8 @@ classdef AllNull < Experiment
         end
         
       end
+      
+      DebugPrint.close();
       
     end
     

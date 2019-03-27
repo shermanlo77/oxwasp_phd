@@ -157,10 +157,12 @@ classdef (Abstract) DefectDetect < Experiment
     %IMPLEMENTED: DO EXPERIMENT
     %For each radius, filter the zImage with a filter with that radius
     function doExperiment(this)
+      DebugPrint.newFile(this.experiment_name);
       %for each radius in radius Array
       for iRadius = 1:numel(this.radiusArray)
         %filter the image
         radius = this.radiusArray(iRadius);
+        DebugPrint.write(strcat('r=',num2str(radius)));
         filter = EmpiricalNullFilter(radius);
         filter.filterRoi(this.zImage, this.scan.getRoiPath);
         %get the resulting filtered image and save it
@@ -170,6 +172,7 @@ classdef (Abstract) DefectDetect < Experiment
         %print progress
         this.printProgress(iRadius/numel(this.radiusArray));
       end
+      DebugPrint.close();
     end
     
   end

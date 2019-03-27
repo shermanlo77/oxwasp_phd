@@ -12,6 +12,8 @@ clc;
 clearvars;
 close all;
 
+DebugPrint.newFile(mfilename);
+
 directory = fullfile('reports','figures','inference');
 imageSize = 256;
 %distribution parameters of the alt distribution
@@ -65,3 +67,5 @@ examplePlot = DefectExample(randStream);
 examplePlot.setNInitial(10);
 examplePlot.setCLim([-4, 6]);
 examplePlot.plotExample(defectSimulator, imageSize, radius, directory, prefix);
+
+DebugPrint.close();

@@ -13,16 +13,21 @@ clc;
 clearvars;
 close all;
 
+DebugPrint.newFile(mfilename);
+
 subsampleExample(1:2000, 1:2000, 'inferenceSubsampleAll'); %whole image
 subsampleExample(1100:1299, 400:599, 'inferenceSubsample1'); %subimage with no defect
 subsampleExample(500:699, 500:699, 'inferenceSubsample2'); %subimage with defect
 
+DebugPrint.close();
 
 %PARAMETERS:
   %rowSubsample: vector of indicies of rows which indiciate the position of the subimage
   %colSubsample: vector of indicies of columns which indiciate the position of the subimage
   %name: prefix used when saving results
 function subsampleExample(rowSubsample, colSubsample, name)
+
+  DebugPrint.write(name);
 
   [~, ~, zImage] = inferenceExample();
 

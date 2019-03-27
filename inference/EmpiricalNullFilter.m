@@ -170,24 +170,5 @@ classdef EmpiricalNullFilter < handle
     
   end
   
-  methods (Static)
-    
-    function debugStart(name)
-      filter = uk.ac.warwick.sip.empiricalnullfilter.EmpiricalNullFilter();
-      filter.debugStart(name);
-    end
-    
-    function debugPrint(debug)
-      filter = uk.ac.warwick.sip.empiricalnullfilter.EmpiricalNullFilter();
-      filter.debugPrint(debug);
-    end
-    
-    function debugStop()
-      filter = uk.ac.warwick.sip.empiricalnullfilter.EmpiricalNullFilter();
-      filter.debugStop();
-    end
-    
-  end
-  
 end
 

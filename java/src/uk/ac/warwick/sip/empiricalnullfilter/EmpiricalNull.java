@@ -263,6 +263,9 @@ public class EmpiricalNull {
       counter++; //count the number of times a initial value has been generated
       //if too many initial values has been generated, throw an exception
       if (counter > 10*this.nInitial) {
+        //=====DEBUG=====
+        DebugPrint.write("ConvergenceException thrown");
+        //=====END DEBUG
         throw new ConvergenceException();
       }
     }
@@ -453,18 +456,6 @@ public class EmpiricalNull {
   public void setBandwidthParameterB(float bandwidthParameterB) {
     this.bandwidthParameterB = bandwidthParameterB;
     this.setBandwidth();
-  }
-  
-  public static void debugStart(String name) {
-    DebugPrint.newFile(name);
-  }
-  
-  public static void debugPrint(String debug) {
-    DebugPrint.write(debug);
-  }
-  
-  public static void debugStop() {
-    DebugPrint.close();
   }
   
 }

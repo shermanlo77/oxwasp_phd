@@ -12,7 +12,7 @@ public class DebugPrint {
   static final String directory = "/home/sherman/Documents/oxwasp_phd/debugReport";
   static String name;
   static BufferedWriter bufferedWriter;
-
+  
   public static void newFile(String prefix) {
     DateFormat dateFormat = new SimpleDateFormat("yyyymmddhhmmss");
     Date date = new Date();

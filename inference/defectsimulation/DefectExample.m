@@ -38,6 +38,8 @@ classdef DefectExample < handle
     
     %METHOD: DEFECT EXAMPLE
     function plotExample(this, defectSimulator, imageSize, radius, directory, prefix)
+      
+      DebugPrint.write(prefix);
 
       %get the defected image
       [imageContaminated, isNonNullImage, imagePreContaminated] = ...

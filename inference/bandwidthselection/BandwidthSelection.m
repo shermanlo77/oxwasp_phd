@@ -10,7 +10,7 @@ classdef BandwidthSelection < Experiment
     rng = RandStream('mt19937ar', 'Seed', uint32(2055696007)); %random number generator
     nArray = unique(flip(round(linspace(0.0631, 0.63, 300).^(-5))))'; %array of n (sample size)
     kArray = linspace(0.09, 1.5, 30)'; %array of kernel width
-    nRepeat = 100;
+    nRepeat = 3;
     
     %array to store the mode and half width estimation using the Parzen density estimation
     %dim 1: for each repeat
@@ -127,6 +127,8 @@ classdef BandwidthSelection < Experiment
     %IMPLEMENTED: DO EXPERIMENT
     function doExperiment(this)
       
+      DebugPrint.newFile(this.experiment_name);
+      
       %for every n in nArray
       for iN = 1:numel(this.nArray)
         
@@ -135,6 +137,9 @@ classdef BandwidthSelection < Experiment
         
         %for every kernel width
         for iK = 1:numel(this.kArray)
+          
+          DebugPrint.write(strcat('n=',num2str(n)));
+          DebugPrint.write(strcat('k=',num2str(k)));
           
           %get the kernel width
           k = this.kArray(iK);
@@ -163,6 +168,8 @@ classdef BandwidthSelection < Experiment
         end
         
       end
+      
+      DebugPrint.close();
       
     end
      

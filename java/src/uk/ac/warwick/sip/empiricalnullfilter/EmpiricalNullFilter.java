@@ -873,16 +873,4 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     this.isShowProgressBar = isShowProgressBar;
   }
   
-  public static void debugStart(String name) {
-    DebugPrint.newFile(name);
-  }
-  
-  public static void debugPrint(String debug) {
-    DebugPrint.write(debug);
-  }
-  
-  public static void debugStop() {
-    DebugPrint.close();
-  }
-  
 }

@@ -33,7 +33,7 @@ classdef DefectAlt < Experiment
   end
   
   properties (SetAccess = protected)
-    nRepeat = 100; %number of times to repeat the experiment
+    nRepeat = 3; %number of times to repeat the experiment
   end
   
   methods (Access = public)
@@ -193,11 +193,15 @@ classdef DefectAlt < Experiment
     %METHOD: DO EXPERIMENT
     function doExperiment(this)
       
+      DebugPrint.newFile(this.experiment_name);
+      
       %for each alt mean
       for iMu = 1:numel(this.altMeanArray)
         
         %set up the contamination
         defectSimulator = this.getDefectSimulator(this.altMeanArray(iMu));
+        
+        DebugPrint.write(strcat('mu_1=',num2str(this.altMeanArray(iMu))));
         
         %repeat nRepeat times
         for iRepeat = 1:this.nRepeat
@@ -237,6 +241,8 @@ classdef DefectAlt < Experiment
         end
         
       end
+      
+      DebugPrint.close();
       
     end
     
