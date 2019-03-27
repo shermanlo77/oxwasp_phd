@@ -54,6 +54,11 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   
   //STATIC VARIABLES
   private static double lastRadius = 0;
+  private static int lastNInitial = EmpiricalNull.N_INITIAL;
+  private static int lastNStep = EmpiricalNull.N_STEP;
+  private static float lastLog10Tolerance = EmpiricalNull.LOG_10_TOLERANCE;
+  private static float lastBandwidthParameterA = EmpiricalNull.BANDWIDTH_PARAMETER_A;
+  private static float lastBandwidthParameterB = EmpiricalNull.BANDWIDTH_PARAMETER_B;
   private static int lastOutputImagePointer = -1;
   
   //MEMBER VARIABLES
@@ -74,11 +79,11 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   protected int pass;
   
   //EMPIRICAL NULL RELATED
-  protected int nInitial = EmpiricalNull.N_INITIAL;
-  protected int nStep = EmpiricalNull.N_STEP;
-  protected float log10Tolerance = EmpiricalNull.LOG_10_TOLERANCE;
-  protected float bandwidthParameterA = EmpiricalNull.BANDWIDTH_PARAMETER_A;
-  protected float bandwidthParameterB = EmpiricalNull.BANDWIDTH_PARAMETER_B;
+  protected int nInitial = lastNInitial;
+  protected int nStep = lastNStep;
+  protected float log10Tolerance = lastLog10Tolerance;
+  protected float bandwidthParameterA = lastBandwidthParameterA;
+  protected float bandwidthParameterB = lastBandwidthParameterB;
   
   //indicate if pixels in the kernel need to be copied to a float[]
   protected boolean isKernelCopy = true;
@@ -199,8 +204,13 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     //protected static class variables (filter parameters) from garbage collection
     IJ.register(this.getClass());
     
-    if (Macro.getOptions() == null) { //interactive only: remember radius entered
+    if (Macro.getOptions() == null) { //interactive only: remember settings
       lastRadius = this.radius;
+      lastNInitial = this.nInitial;
+      lastNStep = this.nStep;
+      lastLog10Tolerance = this.log10Tolerance;
+      lastBandwidthParameterA = this.bandwidthParameterA;
+      lastBandwidthParameterB = this.bandwidthParameterB;
       lastOutputImagePointer = this.outputImagePointer;
     }
     

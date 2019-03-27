@@ -78,8 +78,8 @@ classdef DefectExample < handle
 
       %plot the z images
       fig = LatexFigure.sub();
-      imagePlot = ImagescSignificant(imagePreContaminated);
-      imagePlot.addSigPixels(zTesterPreContaminated.positiveImage);
+      imagePlot = Imagesc(imagePreContaminated);
+      imagePlot.addPositivePixels(zTesterPreContaminated.positiveImage);
       climOriginal = imagePlot.clim;
       if (~isempty(this.cLim))
         imagePlot.setCLim(this.cLim);
@@ -88,14 +88,14 @@ classdef DefectExample < handle
       saveas(fig,fullfile(directory, strcat(prefix,'_imagePreContaminated.eps')),'epsc');
 
       fig = LatexFigure.sub();
-      imagePlot = ImagescSignificant(imageContaminated);
-      imagePlot.addSigPixels(zTesterContaminated.positiveImage);
+      imagePlot = Imagesc(imageContaminated);
+      imagePlot.addPositivePixels(zTesterContaminated.positiveImage);
       imagePlot.plot();
       saveas(fig,fullfile(directory, strcat(prefix,'_imageContaminated.eps')),'epsc');
 
       fig = LatexFigure.sub();
-      imagePlot = ImagescSignificant(imageFiltered);
-      imagePlot.addSigPixels(zTesterFiltered.positiveImage);
+      imagePlot = Imagesc(imageFiltered);
+      imagePlot.addPositivePixels(zTesterFiltered.positiveImage);
       if (~isempty(this.cLim))
         imagePlot.setCLim(this.cLim);
       else
@@ -106,7 +106,7 @@ classdef DefectExample < handle
 
       %empirical null mean plot
       fig = LatexFigure.sub();
-      imagePlot = ImagescSignificant(nullMean);
+      imagePlot = Imagesc(nullMean);
       if (~isempty(this.cLim))
         imagePlot.setCLim(this.cLim);
       else
@@ -117,10 +117,10 @@ classdef DefectExample < handle
       
       %empirical null std plot
       fig = LatexFigure.sub();
-      imagePlot = ImagescSignificant(nullStd);
+      imagePlot = Imagesc(nullStd);
       imagePlot.setCLim([0,climOriginal(2)]);
       if (this.plotDefectNullStd)
-        imagePlot.addSigPixels(zTesterFiltered.positiveImage);
+        imagePlot.addPositivePixels(zTesterFiltered.positiveImage);
       end
       imagePlot.plot();
       saveas(fig,fullfile(directory, strcat(prefix,'_nullStd.eps')),'epsc');
