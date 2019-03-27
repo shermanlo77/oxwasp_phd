@@ -30,7 +30,6 @@ import java.util.Arrays;
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.random.MersenneTwister;
 import org.apache.commons.math3.random.RandomGenerator;
-import org.apache.commons.math3.stat.descriptive.rank.Percentile;
 import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
 
 /**CLASS: EMPIRICAL NULL FILTER
@@ -668,7 +667,8 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
           this.bandwidthParameterA, this.bandwidthParameterB, initialValue, kernel, normal,
           rng);
       empiricalNull.estimateNull();
-    } catch (ConvergenceException exception1) { //exception is caught, use median as initial value this time
+    } catch (ConvergenceException exception1) {
+      //exception is caught, use median as initial value this time
       try {
         empiricalNull = new EmpiricalNull(this.nInitial, this.nStep, this.log10Tolerance,
             this.bandwidthParameterA, this.bandwidthParameterB, kernel.getMedian(), kernel, normal,
@@ -746,9 +746,14 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
         * ((float) Math.pow((double) this.n, -0.2))
         + bandwidthParameterA;
    * @param bandwidthParameterA
+   * @throws InvalidValue if the parameter is not positive
    */
-  public void setBandwidthA(float bandwidthParameterA) {
-    this.bandwidthParameterA = bandwidthParameterA;
+  public void setBandwidthA(float bandwidthParameterA) throws InvalidValue{
+    if (bandwidthParameterA >= 0) {
+      this.bandwidthParameterA = bandwidthParameterA;
+    } else {
+      throw new InvalidValue("bandwidthParameterA must be non-negative");
+    }
   }
   
   /**FUNCTION: GET BANDWIDTH A
@@ -769,8 +774,12 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
         + bandwidthParameterA;
    * @param bandwidthParameterB
    */
-  public void setBandwidthB(float bandwidthParameterB) {
-    this.bandwidthParameterB = bandwidthParameterB;
+  public void setBandwidthB(float bandwidthParameterB) throws InvalidValue{
+    if (bandwidthParameterB >= 0) {
+      this.bandwidthParameterB = bandwidthParameterB;
+    } else {
+      throw new InvalidValue("bandwidthParameterB must be non-negative");
+    }
   }
   
   /**FUNCTION: GET BANDWIDTH B
