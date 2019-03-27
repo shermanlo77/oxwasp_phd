@@ -598,7 +598,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     int cacheLineP = cache.getCacheWidth() * (y % cache.getCacheHeight()) + Kernel.getKRadius();
     //declare the pointer for a pixel in values
     int valuesP = this.imageProcessor.getRoi().x+y*this.imageProcessor.getWidth();
-    float initialValue = 0; //initial value to be used for the newton-raphson method
+    float initialValue = Float.NaN; //initial value to be used for the newton-raphson method
     kernel.moveToNewLine(y);
     boolean isPreviousFinite = false; //boolean to indicate if the previous pixel is finite
     do {

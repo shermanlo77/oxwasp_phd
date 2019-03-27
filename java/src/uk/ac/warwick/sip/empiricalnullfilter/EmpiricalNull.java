@@ -119,9 +119,6 @@ public class EmpiricalNull {
     
     //get the initial value, if it not finite, get a random one
     float initialValue = this.initialValue;
-    if (!isFinite(initialValue)) {
-      initialValue = this.getRandomInitial();
-    }
     
     //declare arrays, storing the max density, mode and the 2nd div of the log density at mode
     //for each new initial point
