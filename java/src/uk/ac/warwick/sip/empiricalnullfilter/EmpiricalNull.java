@@ -134,10 +134,10 @@ public class EmpiricalNull {
     
     //get the initial value, if it not finite, get a random one
     float initialValue = this.initialValue;
+    
     //=====DEBUG=====//
     //Check if the initial value is finite
     if (!isFinite(initialValue)) {
-      initialValue = this.getRandomInitial();
       throw new RuntimeException("initial value "+initialValue+" is not finite");
     }
     //=====END DEBUG=====
