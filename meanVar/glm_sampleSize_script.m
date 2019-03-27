@@ -55,7 +55,7 @@ for i_sample = 1:numel(n_sample_array)
     [variance_prediction, up_error, down_error] = model.predict(x_plot');
 
     %plot the frequency density
-    fig_array{i_sample} = LatexFigure.main();
+    fig_array{i_sample} = LatexFigure.sub();
     axe_array{i_sample} = hist_plot.plot(sample_mean,sample_var);
     hold on;
     %plot the fit/prediction
@@ -116,3 +116,22 @@ for i_sample = 1:numel(n_sample_array)
     %export the figure
     saveas(fig_array{i_sample},fullfile('reports','figures','meanVar',strcat('sample_size_',num2str(n_sample_array(i_sample)),'.eps')),'epsc');
 end
+
+hist_poster = Hist3Heatmap();
+fig_poster = LatexFigure.sub();
+ax_poster = hist_poster.posterPlot(sample_mean,sample_var);
+hold on;
+%plot the fit/prediction
+plot(x_plot,variance_prediction,'r');
+%plot the error bars
+plot(x_plot,up_error,'r--');
+plot(x_plot,down_error,'r--');
+xlabel('mean');
+ylabel('variance');
+ylim([0,3E5]);
+ax_poster.set('color',blank_colour);
+fig_poster.InvertHardcopy = 'off';
+%set the background to white (of the figure)
+fig_poster.Color = 'white';
+%POSTER
+saveas(fig_poster,fullfile('reports','figures','meanVar_POSTER.eps'),'epsc');

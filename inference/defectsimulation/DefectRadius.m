@@ -59,7 +59,7 @@ classdef DefectRadius < Experiment
       ax.XLim(2) = ax.XLim(2) + rightOffset;
       xlabel('kernel radius');
       ylabel('roc area');
-      saveas(fig,fullfile(directory, strcat(this.experiment_name,'_roc.eps')),'epsc');
+      saveas(fig,fullfile(directory, strcat(this.experimentName,'_roc.eps')),'epsc');
       
       %plot type 1 error vs alt mean
       fig = LatexFigure.sub();
@@ -74,7 +74,7 @@ classdef DefectRadius < Experiment
       ax.XLim(2) = ax.XLim(2) + rightOffset;
       xlabel('kernel radius');
       ylabel('type 1 error');
-      saveas(fig,fullfile(directory, strcat(this.experiment_name,'_type1.eps')),'epsc');
+      saveas(fig,fullfile(directory, strcat(this.experimentName,'_type1.eps')),'epsc');
       
       %plot type 2 error vs alt mean
       fig = LatexFigure.sub();
@@ -89,7 +89,7 @@ classdef DefectRadius < Experiment
       ax.XLim(2) = ax.XLim(2) + rightOffset;
       xlabel('kernel radius');
       ylabel('type 2 error');
-      saveas(fig,fullfile(directory, strcat(this.experiment_name,'_type2.eps')),'epsc');
+      saveas(fig,fullfile(directory, strcat(this.experimentName,'_type2.eps')),'epsc');
       
       %fdr vs alt mean
       fig = LatexFigure.sub();
@@ -104,7 +104,7 @@ classdef DefectRadius < Experiment
       ax.XLim(2) = ax.XLim(2) + rightOffset;
       xlabel('kernel radius');
       ylabel('fdr');
-      saveas(fig,fullfile(directory, strcat(this.experiment_name,'_fdr.eps')),'epsc');
+      saveas(fig,fullfile(directory, strcat(this.experimentName,'_fdr.eps')),'epsc');
       
     end
     

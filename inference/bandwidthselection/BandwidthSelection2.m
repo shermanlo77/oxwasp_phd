@@ -71,7 +71,7 @@ classdef BandwidthSelection2 < Experiment
         title(strcat('log n=',num2str(log10(previous.nArray(iN)))));
         ylim(yLim);
         saveas(fig,fullfile('reports','figures','inference', ...
-            strcat(this.experiment_name,'_plot',num2str(iN),'.eps')),'epsc');
+            strcat(this.experimentName,'_plot',num2str(iN),'.eps')),'epsc');
       end
       
       %see random method in classreg.regr.CompactGeneralizedLinearModel
@@ -91,14 +91,14 @@ classdef BandwidthSelection2 < Experiment
       ax = gca;
       ax.YLim(1) = 0;
       saveas(fig,fullfile('reports','figures','inference', ...
-          strcat(this.experiment_name,'_ruleOfThumb','.eps')),'epsc');
+          strcat(this.experimentName,'_ruleOfThumb','.eps')),'epsc');
       
       %save the intercept and gradient
       coefficients = this.fitter.Coefficients.Estimate;
       standardError = this.fitter.Coefficients.SE;
       latex_table = LatexTable(coefficients, standardError,{'Intercept','Gradient'} , {'Estimate'});
       latex_table.print(fullfile('reports','figures','inference', ...
-          strcat(this.experiment_name,'_bandwidthEstimate.txt')));
+          strcat(this.experimentName,'_bandwidthEstimate.txt')));
       
     end
     

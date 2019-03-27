@@ -45,7 +45,7 @@ classdef (Abstract) DefectDetectSubRoi < DefectDetect
         sigPlot.addPositivePixels(sigImage);
         sigPlot.setDilateSize(2);
         sigPlot.plot();
-        saveas(fig,fullfile(directory, strcat(this.experiment_name,'_radius',num2str(iRadius), ...
+        saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
             '_sigSeparate.eps')),'epsc');
         
       end

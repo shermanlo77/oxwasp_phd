@@ -58,7 +58,7 @@ classdef (Abstract) NullIid < Experiment
       ax.YLabel.String = 'null mean';
       ax.YLim = this.getYLim(1);
       ax.XLim(2) = 110;
-      saveas(fig, fullfile(directory,strcat(this.experiment_name,'_nullMean.eps')), 'epsc');
+      saveas(fig, fullfile(directory,strcat(this.experimentName,'_nullMean.eps')), 'epsc');
       
       %plot null std
       fig = LatexFigure.sub();
@@ -73,7 +73,7 @@ classdef (Abstract) NullIid < Experiment
       ax.YLabel.String = 'null std';
       ax.YLim = this.getYLim(2);
       ax.XLim(2) = 110;
-      saveas(fig, fullfile(directory,strcat(this.experiment_name,'_nullStd.eps')), 'epsc');
+      saveas(fig, fullfile(directory,strcat(this.experimentName,'_nullStd.eps')), 'epsc');
       
       %plot mean normalised z
       fig = LatexFigure.sub();
@@ -89,7 +89,7 @@ classdef (Abstract) NullIid < Experiment
       ax.YLabel.String = 'mean corrected z';
       ax.YLim = this.getYLim(3);
       ax.XLim(2) = 110;
-      saveas(fig, fullfile(directory,strcat(this.experiment_name,'_zMean.eps')), 'epsc');
+      saveas(fig, fullfile(directory,strcat(this.experimentName,'_zMean.eps')), 'epsc');
       
       %plot std normalised z
       fig = LatexFigure.sub();
@@ -104,7 +104,7 @@ classdef (Abstract) NullIid < Experiment
       ax.YLabel.String = 'std corrected z';
       ax.YLim = this.getYLim(4);
       ax.XLim(2) = 110;
-      saveas(fig, fullfile(directory,strcat(this.experiment_name,'_zStd.eps')), 'epsc');
+      saveas(fig, fullfile(directory,strcat(this.experimentName,'_zStd.eps')), 'epsc');
       
       %plot kurtosis normalised z
       fig = LatexFigure.sub();
@@ -119,7 +119,7 @@ classdef (Abstract) NullIid < Experiment
       ax.YLabel.String = 'kurtosis corrected z';
       ax.YLim = this.getYLim(5);
       ax.XLim(2) = 110;
-      saveas(fig, fullfile(directory,strcat(this.experiment_name,'_zKurtosis.eps')), 'epsc');
+      saveas(fig, fullfile(directory,strcat(this.experimentName,'_zKurtosis.eps')), 'epsc');
       
     end
     

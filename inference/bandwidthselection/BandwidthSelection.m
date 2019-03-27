@@ -101,7 +101,7 @@ classdef BandwidthSelection < Experiment
         
         %save the figure;
         saveas(fig,fullfile('reports','figures','inference', ...
-            strcat(this.experiment_name,'_error',num2str(i_array),'.eps')),'epsc');
+            strcat(this.experimentName,'_error',num2str(i_array),'.eps')),'epsc');
         
       end
     end

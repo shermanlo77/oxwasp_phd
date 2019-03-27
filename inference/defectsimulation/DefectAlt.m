@@ -56,12 +56,12 @@ classdef DefectAlt < Experiment
       directory = fullfile('reports','figures','inference');
       
       %print radius
-      fildId = fopen(fullfile(directory,strcat(this.experiment_name,'_radius.txt')),'w');
+      fildId = fopen(fullfile(directory,strcat(this.experimentName,'_radius.txt')),'w');
       fprintf(fildId,'%d',this.radius);
       fclose(fildId);
       
       %print nRepeat
-      fildId = fopen(fullfile(directory,strcat(this.experiment_name,'_nRepeat.txt')),'w');
+      fildId = fopen(fullfile(directory,strcat(this.experimentName,'_nRepeat.txt')),'w');
       fprintf(fildId,'%d',this.nRepeat);
       fclose(fildId);
       
@@ -110,7 +110,7 @@ classdef DefectAlt < Experiment
       ax.XLim(1) = this.altMeanArray(1) - offset*2;
       ax.XLim(2) = this.altMeanArray(end) + offset*2;    
       legend(boxplotLegend, label, 'Location', 'southeast');
-      saveas(fig,fullfile(directory, strcat(this.experiment_name,'_roc.eps')),'epsc');
+      saveas(fig,fullfile(directory, strcat(this.experimentName,'_roc.eps')),'epsc');
       
       %plot type 1 error vs alt mean
       %omit the contaminted plot as this very off the scale compared to the non-contaminted and
@@ -133,7 +133,7 @@ classdef DefectAlt < Experiment
       ylim([0,0.012]);
       ax.XLim(1) = this.altMeanArray(1) - offset*2;
       ax.XLim(2) = this.altMeanArray(end) + offset*2;
-      saveas(fig,fullfile(directory, strcat(this.experiment_name,'_type1.eps')),'epsc');
+      saveas(fig,fullfile(directory, strcat(this.experimentName,'_type1.eps')),'epsc');
       
       %plot type 2 error vs alt mean
       fig = LatexFigure.sub();
@@ -153,7 +153,7 @@ classdef DefectAlt < Experiment
       ylabel('type 2 error');
       ax.XLim(1) = this.altMeanArray(1) - offset*2;
       ax.XLim(2) = this.altMeanArray(end) + offset*2;
-      saveas(fig,fullfile(directory, strcat(this.experiment_name,'_type2.eps')),'epsc');
+      saveas(fig,fullfile(directory, strcat(this.experimentName,'_type2.eps')),'epsc');
       
       %fdr vs alt mean
       fig = LatexFigure.sub();
@@ -173,7 +173,7 @@ classdef DefectAlt < Experiment
       ylabel('fdr');
       ax.XLim(1) = this.altMeanArray(1) - offset*2;
       ax.XLim(2) = this.altMeanArray(end) + offset*2;
-      saveas(fig,fullfile(directory, strcat(this.experiment_name,'_fdr.eps')),'epsc');
+      saveas(fig,fullfile(directory, strcat(this.experimentName,'_fdr.eps')),'epsc');
       
     end
     
