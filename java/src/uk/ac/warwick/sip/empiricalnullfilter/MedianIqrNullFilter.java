@@ -17,6 +17,7 @@ public class MedianIqrNullFilter extends EmpiricalNullFilter {
     this.isKernelMeanVar = false;
   }
   
+  @Override
   protected float[] getNullMeanStd(float initialValue, Cache cache, Kernel kernel,
       NormalDistribution normal, RandomGenerator rng) {
   //declare 2 vector to store the null mean and null std
