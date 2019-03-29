@@ -87,7 +87,7 @@ classdef DefectExample < handle
 
       fig = LatexFigure.sub();
       imagePlot = Imagesc(imageContaminated);
-      imagePlot.addPositivePixels(zTesterContaminated.positiveImage);
+      %imagePlot.addPositivePixels(zTesterContaminated.positiveImage);
       imagePlot.plot();
       saveas(fig,fullfile(directory, strcat(prefix,'_imageContaminated.eps')),'epsc');
 
