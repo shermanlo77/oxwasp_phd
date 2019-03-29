@@ -58,6 +58,7 @@ public class MadModeNull extends EmpiricalNull{
    * @param secondDiv second derivative of the log density at the mode
    * @return empirical null std
    */
+  @Override
   protected float estimateNullStd(float mode, float secondDiv) {
     for (int i=0; i<this.n; i++) {
       this.zArray[i] -= mode;

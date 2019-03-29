@@ -18,6 +18,7 @@ public class MeanVarNullFilter extends EmpiricalNullFilter {
     this.isKernelQuartile = false;
   }
   
+  @Override
   protected float[] getNullMeanStd(float initialValue, Cache cache, Kernel kernel,
       NormalDistribution normal, RandomGenerator rng) {
   //declare 2 vector to store the null mean and null std
