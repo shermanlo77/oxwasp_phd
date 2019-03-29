@@ -19,7 +19,7 @@ classdef Experiment < handle
   
   %MEMBER VARIABLES
   properties (SetAccess = public)
-    directory = fullfile('results'); %where the resuls are saved
+    directory = fullfile('results','debug'); %where the resuls are saved
     experimentName; %string, name of the experiment and the file name for storing it in a .mat file
     isComplete; %boolean, true if the experiment is completed
   end
