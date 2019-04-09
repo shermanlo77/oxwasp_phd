@@ -48,7 +48,7 @@ Software, \texttt{aRTist}, was used to simulate the scan and it was compared wit
 
 \section{Introduction}
 
-Quality control in additive manufacturing (or 3D printing) can be done using x-ray computed tomography (CT) \citep{thompson2016x}. The CT is compared to the computer aided design (CAD) so that voids and surface deviation can be measured in terms of position and size \citep{villarraga2015assessing, lee2015compliance, kim2016inspection}. The disadvantage of x-ray CT is that it involves calculations on acquisition of hundreds of angles of the sample.
+Quality control in additive manufacturing (or 3D printing) can be done using x-ray computed tomography \citep{thompson2016x}. The CT is compared to the computer aided design (CAD) so that voids and surface deviation can be measured in terms of position and size \citep{villarraga2015assessing, lee2015compliance, kim2016inspection}. The disadvantage of x-ray CT is that it involves calculations on acquisition of hundreds of angles of the sample.
 
 Speeding up the quality control process on the production line could be done by doing inspection on a few number of x-ray images \citep{warnett2016towards}. These x-ray images are compared with a simulation of that scan using software called \texttt{aRTist} \citep{bellon2007artist, jaenisch2008artist, bellon2012radiographic}. \texttt{aRTist} can simulate x-ray acquisitions of the 3D printed sample given the specifications of the scan, such as the x-ray source, the x-ray detector and the computer aided design (CAD) of the 3D printed sample \citep{bellon2011simulation, deresch2012simulating}. Users of \texttt{aRTist} can align the simulated x-ray image to the real x-ray image using numerical methods.
 
@@ -330,7 +330,7 @@ The main issue was how slow the filter was. Figure \ref{fig:inference_timing} sh
         \caption{Mean variance null filter}
       \end{subfigure}
     }
-  \caption{Timings when filtering a $256\times 256$ image. Note the y-axis change scale.}
+  \caption{Timings when filtering a $256\times 256$ image. The mean variance null filter uses the sample mean and sample standard deviation to locally normalise the image. Note the y-axis change scale.}
   \label{fig:inference_timing}
 \end{figure*}
 
