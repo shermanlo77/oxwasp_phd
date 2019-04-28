@@ -41,35 +41,35 @@
 \maketitle
 
 \begin{abstract}
-X-ray computed tomography (CT) can be used for defect detection in additive manufacturing. The object is scanned at multiple angles to reconstruct the object in 3D space. The process can be time consuming. The aim is to investigate if it is possible to conduct defect detection from a single scan to speed up the quality control procedure. An experiment was conducted, a 3D printed sample was manufactured with voids to see if they can be detected.
-
-Software, \texttt{aRTist}, was used to simulate the scan and it was compared with the x-ray acquisition under the face of uncertainty. Each pixel was treated as a hypothesis test. The software, and the information provided to it, was not perfect which led to model misspecification and incorrect inference. The empirical null filter was proposed. It locally normalise each test statistic using robust estimators of the mean and deviation. This reduces the number of false positives. Sensible inference was achieved in the simulation and experiment.
+X-ray computed tomography can be used for defect detection in additive manufacturing. The object is scanned at multiple angles to reconstruct the object in 3D space. To avoid this time consuming process, it was investigated whenever it is possible to detect defects based on a single scan. A 3D printed sample was manufactured with voids to see if they can be detected. The x-ray acquisition was compared with a simulation of that scan under the face of uncertainty by treating each pixel as a hypothesis test. The empirical null filter locally normalises each test statistic using robust estimators of the mean and deviation so that sensible inference was achieved.
 \end{abstract}
 
 \section{Introduction}
 
-Quality control in additive manufacturing (or 3D printing) can be done using x-ray computed tomography \citep{thompson2016x}. The CT is compared to the computer aided design (CAD) so that voids and surface deviation can be measured in terms of position and size \citep{villarraga2015assessing, lee2015compliance, kim2016inspection}. The disadvantage of x-ray CT is that it involves calculations on acquisition of hundreds of angles of the sample.
+Quality control in additive manufacturing (or 3D printing) can be done using x-ray computed tomography (CT) \citep{thompson2016x}. The CT is compared to the computer aided design (CAD) so that voids and surface deviation can be measured in terms of position and size \citep{villarraga2015assessing, lee2015compliance, kim2016inspection}. The disadvantage of x-ray CT is that it involves calculations on the acquisition of hundreds of angles of the sample.
 
-Speeding up the quality control process on the production line could be done by doing inspection on a few number of x-ray images \citep{warnett2016towards}. These x-ray images are compared with a simulation of that scan using software called \texttt{aRTist} \citep{bellon2007artist, jaenisch2008artist, bellon2012radiographic}. \texttt{aRTist} can simulate x-ray acquisitions of the 3D printed sample given the specifications of the scan, such as the x-ray source, the x-ray detector and the computer aided design (CAD) of the 3D printed sample \citep{bellon2011simulation, deresch2012simulating}. Users of \texttt{aRTist} can align the simulated x-ray image to the real x-ray image using numerical methods.
+Speeding up the quality control process on the production line could be done by doing an inspection on a few numbers of x-ray images \citep{warnett2016towards}. These x-ray images are compared with a simulation of that scan using software called \texttt{aRTist} \citep{bellon2007artist, jaenisch2008artist, bellon2012radiographic}. \texttt{aRTist} can simulate x-ray acquisitions of the 3D printed sample given the specifications of the scan, such as the x-ray source, the x-ray detector and the computer aided design (CAD) of the 3D printed sample \citep{bellon2011simulation, deresch2012simulating}. Users of \texttt{aRTist} can align the simulated x-ray image to the real x-ray image using numerical methods.
 
-A method was proposed to compare the x-ray image with \texttt{aRTist} by treating the simulation of \texttt{aRTist} as the ground truth. This was done by using two-tailed multiple hypothesis testing \citep{pearson1900on, neyman1933on, fisher1970statistical} controlling the false discovery rate (FDR) \citep{benjamini1995controlling, benjamini2010discovering}, treating each pixel as an individual test. Beforehand however, the empirical null \citep{efron2004large} was used to do local normalisation on the test statistics. This was necessary because the simulation of \texttt{aRTist} do not match up perfectly with the x-ray image, producing incorrect inference. The empirical null filter is demonstrated on simulated and real data.
+A method was proposed to compare the x-ray image with \texttt{aRTist} by treating the simulation of \texttt{aRTist} as the ground truth. This was done by using two-tailed multiple hypothesis testing \citep{pearson1900on, neyman1933on, fisher1970statistical} controlling the false discovery rate (FDR) \citep{benjamini1995controlling, benjamini2010discovering}, treating each pixel as an individual test. However beforehand, the empirical null \citep{efron2004large} was used to do local normalisation on the test statistics. This was necessary because the simulation of \texttt{aRTist} do not match up perfectly with the x-ray image, producing incorrect inference.
 
-\section{Method}
+An x-ray image of a 3D printed sample was obtained and compared with the \texttt{aRTist} simulation in an experiment. The procedure is shown in the methods section along with the description of the empirical null filter. In addition, the software development and simulation studies of the filter was discussed. The results from the simulation and the experiment are shown in the results section. The conclusion section summarises the study along with a discussion on further work.
+
+\section{Methods}
 
 \subsection{Apparatus and Data Collection}
 
 A ABS plastic cuboid (\SI{4}{\centi\metre} $\times$ \SI{4}{\centi\metre} $\times$ \SI{6}{\centi\metre}) with voids was purposefully manufactured to see if they can be detected. The CAD shown in Figure \ref{fig:inference_testObject} was manufactured using a \emph{Fortus} 3D printer. The voids were of various diameters \SI{2.4}{\milli\metre}, \SI{1.2}{\milli\metre}, \SI{0.6}{\milli\metre} and \SI{0.3}{\milli\metre}. 6 voids for each diameter were designed in the CAD. Voids with diameters \SI{2.4}{\milli\metre} and \SI{0.6}{\milli\metre} were regularly arranged, otherwise they were arranged irregularly. The precision of the manufacturing was in the order of $\pm\SI{0.1}{\milli\metre}$.
 
-\begin{figure}[htp]
+\begin{figure}
   \centering
-  \includegraphics[width=0.4\textwidth]{../figures/inference/TestObject.png}
-  \caption{CAD of a 3D cuboid with voids; the scale shown is approximate.}
+  \includegraphics[width=0.35\textwidth]{../figures/inference/TestObject.png}
+  \caption{CAD of a 3D cuboid with voids. The voids were of various diameters \SI{2.4}{\milli\metre}, \SI{1.2}{\milli\metre}, \SI{0.6}{\milli\metre} and \SI{0.3}{\milli\metre}. 6 voids for each diameter were designed in the CAD. Voids with diameters \SI{2.4}{\milli\metre} and \SI{0.6}{\milli\metre} were regularly arranged, otherwise they were arranged irregularly. The scale shown is approximate.}
   \label{fig:inference_testObject}
 \end{figure}
 
 The x-ray source used a tungsten filament with a copper filter. The current and voltage was set to \SI{250}{\micro\ampere} and \SI{80}{\kilo\volt} respectively. The exposure time was \SI{500}{\milli\second}. The x-ray detector is a \emph{Perkin Elmer XRD 1621 AN/CN} digital x-ray detector, producing a $2000\times 2000$ 16-bit image. Shading correction \citep{young2000shading, munzenmayer2003enhancing}, using a black image at \SI{0}{\kilo\volt} and a white image at \SI{80}{\kilo\volt}, were used to remove panel effects from the x-ray detector.
 
-The 3D printed sample was scanned 20 times. The 20 x-ray images were spilt into 2. 19 random images were held out. The remaining image was used to compare with \texttt{aRTist}. In the \texttt{aRTist} simulation, the software did a simulation as if the voids were not there.
+The 3D printed sample was scanned 20 times at a fixed angle. The 20 x-ray images were spilt into 2. 19 random images were held out. The remaining image was used to compare with \texttt{aRTist}. In the \texttt{aRTist} simulation, the software did a simulation as if the voids were not there.
 
 \subsection{Statistical Methodology}
 
@@ -210,7 +210,7 @@ at the current step. This was chosen arbitrary to speed up the algorithm without
 \end{equation}
 Further initial values were generated by sampling from $\normal(z^{(0)}, s_{x,y}^2)$. This was done multiple times until 3 valid solutions were obtained. The best solution, the one with the largest $\ln\widehat{p}_{Z_{x,y}}\left(\widehat{\mu}_{0,x,y}\right)$, out of all the different initial values was used as the final answer.
 
-\section{Simulation}
+\subsection{Simulation}
 
 The empirical null filter was tested to see if it can detect simulated defects from a $256\times 256$ contaminated image. A defect is a pixel which has a value not distributed under the null distribution, but instead an alternative distribution. For example suppose $Z_{x,y}|H_{0,x,y}\sim\normal(0,1)$, then a defect would have a value distributed as $Z_{x,y}|H_{1,x,y}\sim\normal(\mu_{1},1)$ where $\mu_1\neq0$. A $30\times 30$ square defect was simulated. A kernel can capture the entire defect if its radius is large enough.
 
@@ -220,7 +220,7 @@ Contamination is the result of a linear transform of the test statistics $Z_{x,y
   \\
   Z_{x,y}|H_{1,x,y}&\sim\normal(2\mu_1+\mu_{0,x,y},2^2)
 \end{align}
-where $\mu_{0,x,y}=0.01(x-x_0)+0.01(y-y_0)$ and $(x_0,y_0)$ is the centre of the image. This was used in this experiment to simulate a contaminated image with defects. The contaminated square defected image is shown in Figure \ref{fig:inference_defectSquare2Example}.
+where $\mu_{0,x,y}=0.01(x-x_0)+0.01(y-y_0)$ and $(x_0,y_0)$ is the centre of the image. This was used in this study to simulate a contaminated image with defects. The contaminated square defected image is shown in Figure \ref{fig:inference_defectSquare2Example}.
 
 \begin{figure}
   \centering
@@ -235,7 +235,7 @@ Literature, such as \cite{efron2004large} and \cite{schwartzman2008empirical}, s
 
 The receiver operating characteristic (ROC) curve \citep{green1966signal, metz1978basic, hanley1982meaning, friedman2001elements, cook2007use} was studied in this experiment. The ROC is a parametric plot, plotting the true positive rate (sensitivity) against the false positive rate ($1-\text{specificity}$) for varying thresholds. The area under the ROC curve is a commonly used statistic to quantify the performance of the test \citep{friedman2001elements}. Interpretations of the area do exist \citep{metz1978basic,hanley1982meaning} and discussed thoroughly in \cite{cook2007use}.
 
-An experiment was conducted where the contaminated defected image was filtered for various kernel radiuses for $\mu_1=3$. Hypothesis testing was done on the uncontaminated and filtered contaminated image. The area under the ROC curve and various errors were recorded. This was repeated 100 times by simulating another contaminated image with a defect. To form a baseline to compare with, the results of the uncontaminated image were all pooled together to obtain the empirical distribution of the ROC area and errors without contamination. The results are shown in Figure \ref{fig:inference_Experiment_DefectRadiusSquare}.
+A simulation study was conducted where the contaminated defected image was filtered for various kernel radiuses for $\mu_1=3$. Hypothesis testing was done on the uncontaminated defected image and filtered contaminated defected image. The area under the ROC curve and various errors were recorded. This was repeated 100 times by simulating another image. To form a baseline to compare with, the results of the uncontaminated image were all pooled together to obtain the empirical distribution of the ROC area and errors without contamination.
 
 \begin{figure*}[p]
   \centering
@@ -263,15 +263,15 @@ An experiment was conducted where the contaminated defected image was filtered f
   \label{fig:inference_Experiment_DefectRadiusSquare}
 \end{figure*}
 
-The results showed that the ROC area increased with kernel radius. This highlighted that a filtered image with a good radius kernel can performance almost as well as though there was no contamination. It also appeared that the optimal ROC area was achieved when using the kernel radius from the rule of thumb, making these results consistent with literature.
+\section{Results}
+
+The result from the simulation is shown Figure \ref{fig:inference_Experiment_DefectRadiusSquare}. The ROC area increased with kernel radius which highlighted that a filtered image with a good radius kernel can performance almost as well as though there was no contamination. It also appeared that the optimal ROC area was achieved when using the kernel radius from the rule of thumb, making these results consistent with literature.
 
 Keeping the FDR consistent before and after filtering is desirable so that the FDR is kept controlled at a specified level after filtering. For large enough kernel radius, the FDR was controlled at around, perhaps a bit below, 5\%. It appeared a large kernel radius helped preserve FDR control after filtering in these examples. 
 
 It appeared there is a kernel radius which minimised the type 2 error. A large kernel radius is required for FDR control but too large can lose statistical power.
 
-\section{Results}
-
-The empirical null was used on the real data. The x-ray image was manually segmented further as shown in Figure \ref{fig:inference_segmentFurther}. It was segmented using the edges of the projection of the 3D printed object. The empirical null filter was then used on each segment, or ROI, independently, ignoring any pixels outside the ROI the filter is working on. The resulting filtered segments were stitched together to form the resulting filtered image. The resulting inference is shown in Figure \ref{fig:inference_subroisep16120deg_inference_radius4}. 
+In the experiment with the 3D printed sample, the x-ray image was manually segmented further as shown in Figure \ref{fig:inference_segmentFurther}. It was segmented using the edges of the projection of the 3D printed object. The empirical null filter was then used on each segment, or ROI, independently, ignoring any pixels outside the ROI the filter is working on. The resulting filtered segments were stitched together to form the resulting filtered image. The resulting inference is shown in Figure \ref{fig:inference_subroisep16120deg_inference_radius4}.
 
 The larger defects were successfully highlighted by the hypothesis test. It can be seen that the empirical null mean did change face to face, resulting in a clear boundary set by the edges. This probably suggest that the contamination or inaccuracy from \texttt{aRTist} was face dependent.
 
@@ -336,9 +336,9 @@ The main issue was how slow the filter was. Figure \ref{fig:inference_timing} sh
 
 There are a few strategies to accelerate the filter. The empirical null filter may be accelerated using GPUs \citep{yang2008parallel, hwu2011gpu, eklund2013medical}, however efforts to implement the filter in \texttt{CUDA} and \texttt{C++} is fruitless if there may exist a faster method. Instead, accuracy may be sacrificed for speed by only estimating the null parameters for a number of regularly spaced pixels, the remaining pixels then do estimation through interpolation. The problem is that the assumption of a slow varying null parameter is required much more because of the use of interpolation, this may cause bigger problems due to the face to face transition observed in the experiments. It was found that if a bad solution was found for a point, then that solution would spread its bad solution to neighbour pixels due to the interpolation.
 
-Estimation of the null parameters is essentially robust statistics, estimating the parameters of the null distribution without being affected by non-null statistics. Potential faster methods than the empirical null could exist in literature for robust statistics such as \cite{hampel1986robust, rousseeuw1987robust, maronna2006robust, huber2009robust, jewson2018principles}. The EM algorithm \citep{dempster1977maximum} could be used to fit a mixture of Gaussians to identify the null distribution and estimate its parameters. However the power of hypothesis testing and the empirical null comes from the fact that the alternative distribution does not need to be specified.
-
 The main bottleneck is the evaluation of the density estimate, each step in the Newton-Raphson required the evaluation of each pixel in the kernel. Perhaps there may be faster methods for density estimation such as fitting a smoothing spline on the histogram \citep{efron2004large}, however that would require tuning the histogram bins as well as the tuning parameters for the spline. On the other hand, the method in \cite{schwartzman2008empirical} which uses the histogram count found that the estimation of the null parameters was insensitive to the histogram binning.
+
+Estimation of the null parameters is essentially robust statistics, estimating the parameters of the null distribution without being affected by non-null statistics. Potential faster methods than the empirical null could exist in literature for robust statistics such as \cite{hampel1986robust, rousseeuw1987robust, maronna2006robust, huber2009robust, jewson2018principles}. The EM algorithm \citep{dempster1977maximum} could be used to fit a mixture of Gaussians to identify the null distribution and estimate its parameters. However the power of hypothesis testing and the empirical null comes from the fact that the alternative distribution does not need to be specified.
 
 \section{Acknowledgements}
 This work is funded by EPSRC grant numbers EP/K031066/1 and EP/L016710/1.
