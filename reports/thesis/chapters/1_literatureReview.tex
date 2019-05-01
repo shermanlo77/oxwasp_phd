@@ -1,6 +1,6 @@
 One of the first methods of additive manufacturing (AM) is stereolithography \citep{kodama1981automatic, hull1986apparatus, 3d2019our} which involves the curing of a photosensitive resin using an ultraviolet laser. The technology has evolved and AM is capable of manufacturing objects with complicated internal and external geometries. However, there is a need for product inspection and in particular assessing the quality of the internal structures.
 
-Imaging using x-rays \citep{rontgen1896on} have been used in the medical field. In x-ray computed tomography \citep{cormack1973reconstruction, hounsfield1973computerized, hounsfield1980computed}, the patent has an x-ray image taken at multiple angles. These x-ray images are used to reconstruct what was taken in 3D in order to make a diagnostic.
+Imaging using x-rays \citep{rontgen1896on} have been used in the medical field. In x-ray computed tomography \citep{cormack1973reconstruction, hounsfield1973computerized, hounsfield1980computed}, the patient has an x-ray image taken at multiple angles. These x-ray images are used to reconstruct what was taken in 3D in order to make a diagnostic.
 
 X-ray computed tomography (XCT) can be used as a non-destructive test for additive manufactured objects, this is the main theme of this thesis. Various reviews on additive manufacturing exist such as \cite{kruth1991material, kruth1998progress, pham1998comparison, gibson2010additive, wong2012review, ngo2018additive}. For XCT used in manufacturing, there are \cite{cantatore2011introduction, kruth2011computed, sun2012overview}. \cite{thompson2016x} reviewed the applications of XCT on AM.
 
@@ -48,7 +48,58 @@ There are various discontinuities in AM, in particular in the manufacturing of m
 
 Various methods are used for in-situ process monitoring. Most commonly a high speed camera is installed capturing the various wavelengths in the electromagnetic spectrum emitted by the melt pool \citep{berumen2010quality, craeghs2011online, lott2011design}. Various discontinuities and errors can be detected \citep{clijsters2014in} and be used to give feedback to the AM apparatus \citep{herzog2013method}. Other methods include measuring the surface using a laser \citep{cerniglia2015inspection} and using an infrared camera to measure the temperature of the melt pool \citep{rodriguez2012integration}. 
 
-\section{X-ray Imaging}
+\section{X-ray Computed Tomography}
+
+XCT started its use in the medical field but advancement of the technology saw its use in manufacturing and metrology, the science of measurement. Applications of XCT include the examination of acetabular hip prosthesis cups \citep{kourra2018computed}, skeletons \citep{appleby2014scoliosis}, batteries \citep{taiwo2017investigating} and materials \citep{zhang2016x, wang2017x}. Reverse engineering is possible when XCT is combined with AM, for example it was use for improving existing hollow engine valves \citep{cooper2015design}. However the use of XCT in metrology is not yet firmly established compared to other methods of measurement \citep{thompson2016x}. This is because is a lot of inconsistent in the setup of XCT apparatuses and on controlling the sources of error.
+
+\subsection{Concepts from the Medical Field}
+
+The setup of XCT \citep{cormack1973reconstruction, hounsfield1973computerized, hounsfield1980computed} in the medical field involves the patient laying on a bed. An x-ray source and x-ray detector pair rotate and/or translate around and/or along the patient to get readings of the x-rays after attenuating the patient using different paths. X-ray beams are pencil beams in the early versions of XCT. To reduce scanning times, cone shaped beams and arrays of detectors were used and they can move in a spiral fashion along and around the patient \citep{cierniak2011x}. These multiple x-ray readings or images can be used to reconstruct a representation of the patient in 3D \citep{zeng2010medical}.
+
+The patient cannot be exposed to too much radiation, therefore the x-rays used are of low power. This can cause noisy readings from the detector. The sources of noise are from the behaviour of the x-rays and from the electronics in the detector \citep{yang2010noise}. In this realm of low signal to noise ratio, the noise has a compound Poisson element to it \citep{whiting2002signal, whiting2006properties}. Many reconstruction algorithms have been proposed to take the compound Poisson noise into consideration \citep{elbakri2002statistical, elbakri2003efficient, elbakri2003statistical, lasio2007statistical, xie2008x}. They are very complicated will not be discussed here because they are beyond the scope of this thesis.
+
+\subsection{Acquisition Process}
+
+Higher power x-rays can be used in XCT for the purpose of manufacturing and metrology because there is no consequence of the manufactured object being scanned absorbing the radiation. The XCT setup is different, the object is held by foam on a turntable and placed between an x-ray source and an x-ray detector. X-ray images are taken while the object rotates. Typically the x-ray is a cone beam \citep{kruth2011computed}.
+
+The acquisition process consist of the production of x-rays, x-ray attenuating the object, the detection of x-rays and the reconstruction process.
+
+X-rays \citep{rontgen1896on} are produced in an x-ray tube. It consist of a vacuum tube containing a cathode and an anode. Electrons are fired from the cathode to the anode due to an electric potential. The cathode is usually tungsten and the anode contains a small amount of tungsten, molybdenum or copper \citep{sun2012overview}.
+
+The electrons can interact with the anode in a number of ways. The electrons can be deflected or decelerated due to the electric field from the nucleus of the target material, the energy lost by the electrons is emitted as bremsstrahlung radiation. The energy of the bremsstrahlung radiation depends on the potential difference in the x-ray tube, as this determines the energy of the fired electrons, and also the proton number of the anode target because this affects the electric field produced by the nucleus in the anode target \citep{sun2012overview}. Another interaction is when the electrons may collide with the nucleus in the anode target, exciting an inner shell electron and ionizing it. This produce a vacancy in the electron shell and emits a photon when the excited electron drops down back to the ground state. This is known as characteristic radiation and the energy emitted is discrete and depends on the material in the anode target.
+
+The efficiency of an x-ray tube is poor, 99\% of the electron energy is converted to heat, the rest on x-rays \citep{kruth2011computed}.
+
+Photons are emitted from the x-ray tube as a Poisson process. The rate of x-ray emission depends on the current, that is the rate of charge between the cathode and anode. The energy of each photon are from bremsstrahlung radiation and characteristic radiation, making the distribution of x-ray photons energy a mix of continuous and discrete energies.
+
+The object being scanned are being exposed x-ray photons in XCT. X-ray photons undergo attenuation when interacting with the object in a number of ways. The object can absorb the photons via the photoelectric effect. In the photoelectric effect, the photons transfers all its energy to a bounded electron and ejects it from the sample's atom \citep{millikan1916direct}. Photons can be scattered by the sample by colliding inelastically with and transfers its energy to the an electron. This process is known as Compton scattering \citep{compton1923quantum}. The photoelectric effect and Compton scattering make a number of photons undetectable. However if some of the photons avoid these processes, they are detected and their energy is left unaffected.
+
+Beer's law simplifies these quantum mechanistic process. Suppose the x-ray beam with rate of emission $I_0$ is mono-energetic and travels in a straight line in the $x$-axis. Let $\mu=\mu(x)$ be the attenuation coefficient of the object and the x-ray beam has rate of emission $I$ after attenuation. A differential equation can be setup such that
+\begin{equation}
+\dfrac{\diff I}{\diff x} = -I\mu(x)
+\end{equation}
+which can be solved
+\begin{equation}
+I = I_0\exp\left[\int_{\text{path of photon}}-\mu(x)\diff x\right] \ .
+\label{eq:beerLaw}
+\end{equation}
+However the photoelectric effect and Compton scattering, thus the attenuation coefficient as well, depends on the energy of the photons \citep{elbakri2002statistical}. Therefore $\mu=\mu(x,E)$ should be made dependent on the energy of the photons \citep{cantatore2011introduction}. In general low energy photons are more likely to be absorbed and scattered than high energy photons, this increases the average energy of the attenuated photons. This is called beam hardening.
+
+After attenuation, the x-ray photons are detected by the x-ray detector. Most X-ray detectors are made up of a scintillator material \citep{curran1953luminescence, greskovich1997ceramic} and photodiodes. The x-ray photons interact with the scintiallator material and produce visible light \citep{rossner1993conversion}. The visible light is detected by photodiodes and covert it into electrical signal \citep{michael2001x}. The electrical signal can be a quantum counter, counting the number of photons detected, or an energy integrating detector, adding up all of the energies of each detected photon \citep{whiting2006properties, kruth2011computed}.
+
+Not all of the visible light photons are detected by the photodiodes, thus not all the x-ray photons are detected. The ratio between the number of x-ray photons detected by the detector and the number of x-ray photons arriving at the detector is called the quantum efficiency \citep{cierniak2011x}.
+
+The detection is a two stage process \citep{cierniak2011x}, although there exist equipment which detects x-ray directly such as a xenon gas ionization detector \citep{fuchs2000direct}, solid state CT systems such as sintillator-photodiodes detectors have high quantum efficiency of about 98\% to 99.5\% \citep{hsieh2000investigation}. The detectors used in CT scanning are typically flat bed scanners which consist of an array of panels of photodiodes \citep{cantatore2011introduction}. The electrical signal from the photodiodes are subject to sampling and quantisation to store these signals as an image \citep{cierniak2011x}.
+
+%DEAD PIXELS, PANELS
+
+Methods used to reconstruct the 3D surface of the sample are available such as filtered back-projection \citep{brooks1976principles} and the FDK algorithm \citep{feldkamp1984practical}. There exist software such as \emph{VGStudio MAX} \citep{reinhart2008industrial} which automatically aligns and scales the 3D reconstruction with the computed aided design and compares them.
+
+Reconstruction \citep{radon1986on} There exist various reconstruction algorithms \citep{smith1990cone}
+
+\subsection{Metrology}
+
+\subsection{Latest Research}
 
 \subsection{X-Ray Production}
 Photons in CT scanning are produced in an X-ray tube. In an X-ray tube, a cathode, consisting of a heated filament, fires projectile electrons through an electric potential to a target which forms the anode \citep{michael2001x}, as shown in Figure \ref{fig:x_ray_tube}. Most of the kinetic energy of the projectile electrons is converted into heat however some is converted into electromagnetic radiation. This depends on how the projectile electrons interact with the atoms in the anode \citep{cantatore2011introduction}.
@@ -95,6 +146,7 @@ By comparing the intensity before and after attenuation, the integral of the att
 
 However it was shown that the attenuation coefficient does depend on the energy of the photons \citep{elbakri2002statistical}. Thus $\mu=\mu(x,E)$ should be made dependent on the energy of the photons \citep{cantatore2011introduction}. In general low energy photons are more likely to be absorbed than high energy photons, this increases the average energy of the attenuated photons and can be a source of error in CT scanning. This is referred to beam hardening and can cause inaccuracies in Equation \eqref{eq:beerLaw} \citep{michael2001x}. This can be reduced by placing a thin sheet of filter to absorb low energy photons \citep{welkenhuyzen2009industrial} or by correcting it in the data analysis stage \citep{michael2001x}.
 
+
 \subsection{Detection}
 Most X-ray detectors are made up of a scintillator material \citep{greskovich1997ceramic} and photodiodes. Firstly the x-ray photons interact with the scintiallator material and produce visible light \citep{rossner1993conversion}. Lastly the visible light is then detected by photodiodes and coverts it into electricical current \citep{michael2001x}. Not all of the visible light photons are detected by the photodiodes, thus not all the x-ray photons are detected. The ratio between the number of x-ray photons detected by the detector and the number of x-ray photons arriving at the detector is called the quantum efficiency \citep{cierniak2011x}.
 
@@ -129,8 +181,6 @@ The scale of the 2D images can be calibrated with the use of reference standards
 The greyvalues of each pixel in the detector can be modelled as a random variable, due to the random behaviour of photons being produced, interacting with the phantom and interacting with the scintillator in the detector. When the photons interact with the scintillator, they are converted into visible light. The visible light photons are then detected and converted into a greyvalue. How the detected visible light is converted is important in modelling the greyvalue.
 
 Should the greyvalue be proportional to the number of photons detected, the detector is known as a quantum counter and the greyvalue is a Poisson random variable, up to a constant \citep{whiting2006properties}. However if the greyvalue records the signal strength, proportional to the energy detected, then the detector is an energy integrating detector. The greyvalue has the compound Poisson distribution, again up to a constant \citep{whiting2006properties}. There are other types of detection schemes \citep{whiting2006properties} but it shall be not be considered here.
-
-Many reconstruction algorithms have been proposed considering the compound Poisson nature of the detector \citep{elbakri2002statistical} \citep{elbakri2003statistical} \citep{lasio2007statistical} \citep{xie2008x} and with beam hardening correction \citep{elbakri2003efficient}. These will not be discussed here as they are beyond the scope of this thesis.
 
 Experiments have been done to verify the compound Poisson nature of the detector. This was done by investigating the variance of radiographs of air \citep{hsieh2015compound} and a polyethylene cylinder \citep{yang2009evaluation} \citep{yang2010noise} at different voltages and powers. It was found there were 2 components in the noise, one was signal dependent and comes from the compound Poisson, the other was signal independent and may be electronic noise. The electronic noise can be modelled as Normally distributed \citep{xu2009electronic}.
 
