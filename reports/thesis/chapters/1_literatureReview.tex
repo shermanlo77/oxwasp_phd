@@ -1,4 +1,11 @@
-One of the first methods of additive manufacturing (AM) is stereolithography \citep{kodama1981automatic, hull1986apparatus, 3d2019our} which involves the curing of a photosensitive resin using an ultraviolet laser. The technology has evolved and AM is capable of manufacturing objects with complicated internal and external geometries. However, there is a need for product inspection and in particular assessing the quality of the internal structures.
+One of the first methods of additive manufacturing (AM) is stereolithography \citep{kodama1981automatic, hull1986apparatus, 3d2019our} which involves the curing of a photosensitive resin using an ultraviolet laser. The technology has evolved and AM is capable of manufacturing objects with complicated internal and external geometries, some examples are shown in Figure \ref{fig:literature_3dprint}. However, there is a need for product inspection and in particular assessing the quality of the internal structures.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.9\textwidth]{../figures/literatureReview/literature_3dprint.png}
+  \caption{Examples of additive manufactured parts: a) lattice structure, b) toy, c) chain, d) model of a facial implant, e) spanner, f) ratchet mechanism, g) toy, h) series of rotatable gears, i) lattice structure. Reprinted from \cite{gibson2010additive} with permission from Springer New York.}
+  \label{fig:literature_3dprint}
+\end{figure}
 
 Imaging using x-rays \citep{rontgen1896on} have been used in the medical field. In x-ray computed tomography \citep{cormack1973reconstruction, hounsfield1973computerized, hounsfield1980computed}, the patient has an x-ray image taken at multiple angles. These x-ray images are used to reconstruct what was taken in 3D in order to make a diagnostic.
 
@@ -14,19 +21,54 @@ Various different AM technologies were invented during the advancement of AM. Be
 
 \subsection{Additive Manufacturing Technologies}
 
-The different AM technologies can be classified based on the apparatus, for example liquid based or power based, and/or on the method of manufacturing, for example point by point or layer by layer \citep{kruth1991material}. The liquid based AM technologies presented here are stereolithography \citep{kodama1981automatic, hull1986apparatus, 3d2019our} and fused deposition modelling \citep{crump1991fused, crump1992apparatus, stratasys2019what}. The following power based technologies are presented here: 3D printing \citep{sachs1990three}, selective laser sintering \citep{deckard1989method, dtm1990the, 3d2019our}, electron beam melting \citep{larsson2004arrangement, arcam2019history}, laser engineered net shaping \citep{atwood1998laser}.
+The different AM technologies can be classified based on the apparatus, for example liquid based or power based, and/or on the method of manufacturing, for example point by point or layer by layer \citep{kruth1991material}. The liquid based AM technologies presented here are stereolithography \citep{kodama1981automatic, hull1986apparatus, 3d2019our} and fused deposition modelling \citep{crump1991fused, crump1992apparatus, stratasys2019what}. The following power based technologies are presented here: 3D printing \citep{sachs1990three}, selective laser sintering \citep{deckard1989method, dtm1990the, 3d2019our}, electron beam melting \citep{larsson2004arrangement, arcam2019history}, laser engineered net shaping \citep{atwood1998laser}. Illustrations of these technologies are shown in Figure \ref{fig:literature_technologies}.
 
-Stereolithography is a liquid based AM technology. It consist of a container containing a liquid photo-hardening monomer or polymer as well as a piston and platform which holds and moves the manufactured product up and down. A laser with a specific wavelength, typically \SIrange{300}{400}{\nano\metre} \citep{kodama1981automatic}, is emitted onto a point of the surface of the liquid and solidifies. The laser is controlled by a computer to solidified specific parts of the liquid surface. The platform is lowered and the cycle repeats, manufacturing the object layer by layer. Laser absorption happens a few tenths of a millimetre which corresponds to the thickness of each layer \citep{kruth1991material, pham1998comparison}.
+\begin{figure}
+  \centering
+  \centerline{
+    \begin{subfigure}[b]{0.59\textwidth}
+      \includegraphics[width=\textwidth]{../figures/literatureReview/literature_technologies_stl.png}
+      \caption{Stereolithography}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.39\textwidth}
+      \includegraphics[width=\textwidth]{../figures/literatureReview/literature_technologies_fdm.png}
+      \caption{Fused deposition modelling}
+    \end{subfigure}
+  }
+  \centerline{
+    \begin{subfigure}[b]{0.7\textwidth}
+      \includegraphics[width=\textwidth]{../figures/literatureReview/literature_technologies_3dp.png}
+      \caption{3D printing}
+    \end{subfigure}
+  }
+  \centerline{
+    \begin{subfigure}[b]{0.7\textwidth}
+      \includegraphics[width=\textwidth]{../figures/literatureReview/literature_technologies_laser.png}
+      \caption{Selective laser sintering}
+    \end{subfigure}
+  }
+  \caption{Diagrams of various AM technologies. Reprinted from \cite{wang20173d} with permission from Elsevier.}
+  \label{fig:literature_technologies}
+\end{figure}
+
+Stereolithography is a liquid based AM technology. It consist of a container containing a liquid photo-hardening monomer or polymer as well as a piston and platform which holds and moves the manufactured product up and down. A laser with a specific wavelength, typically \SIrange{300}{400}{\nano\metre} \citep{kodama1981automatic}, is emitted onto a point of the surface of the liquid and solidifies. The laser is controlled by a computer to solidify specific parts of the liquid surface. The platform is lowered and the cycle repeats, manufacturing the object layer by layer. Laser absorption happens a few tenths of a millimetre which corresponds to the thickness of each layer \citep{kruth1991material, pham1998comparison}.
 
 Fused deposition modelling is another liquid based AM technology. A jetting head, or nozzle, deposit the molten material onto a platform or on top of the previous layer. The material is usually plastic in a form of a thin filament. It is heated to just above its melting points, typically \SI{1}{\degreeCelsius} \citep{crump1992apparatus}, so that it cools down within \SI{0.1}{\second} \citep{kruth1991material}. The platform moves, and controlled by a computer, in the $x-y$ axis, or left to right and front to back, to produce a layer. The jetting head can move in the $z$ axis, or up and down, to manufacture the next layer. In the original patent by \cite{crump1992apparatus}, the thickness can be as thin as 0.0001 inches (\SI{0.003}{\milli\metre}).
 
-3D printing is a powder based AM technology. A jetting head deposit a binding agent in droplets onto a bed of powder of ceramic, metal or polymer. The binding agent is cured via evaporation or heating which glues the powder particles together. The bed can move in all 3 dimensions and the object is manufactured layer by layer. The binding agent must have low viscosity so it can be deposited, it may also be charged so that it can be deflected using an electric field for precise deposition \citep{sachs1990three}. The thickness of each layer is determined by the size of the droplets of the binding agent, which can be as small as \SI{15}{\micro\metre} in diameter \citep{sachs1990three}. \cite{sachs1990three} reported a tolerance of 0.001 inches (\SI{0.03}{\milli\metre}).
+3D printing is a powder based AM technology. A jetting head deposit a binding agent in droplets onto a bed of powder of ceramic, metal or polymer. The binding agent is cured via evaporation or heating which glues the powder particles together. The jetting head can move in the $x-y$ plane and the object is manufactured layer by layer by moving the platform in the $z$ direction and renewing the powder using a roller. The binding agent must have low viscosity so it can be deposited, it may also be charged so that it can be deflected using an electric field for precise deposition \citep{sachs1990three}. The thickness of each layer is determined by the size of the droplets of the binding agent, which can be as small as \SI{15}{\micro\metre} in diameter \citep{sachs1990three}. \cite{sachs1990three} reported a tolerance of 0.001 inches (\SI{0.03}{\milli\metre}).
 
-Selective laser sintering, electron beam melting and laser engineered net shaping are powder based AM technology. Selective laser sintering is similar to 3D printing but instead a laser is used to sinter or fuse the powder particles together. This is done in a chamber heated just below the melting point of the material \citep{wong2012review}. Various materials such as metal and plastics can be used \citep{wong2012review}. Electron beam melting is similar but instead an electron beam is used instead of a laser and this is done in a high vacuum chamber to avoid oxidation \citep{wong2012review}. In laser engineered net shaping, a powder bed is not used; instead the powder is deposited on the desired location and then melted using a laser. This is a popular method to manufacture metal objects \citep{gibson2010additive}.
+Selective laser sintering, electron beam melting and laser engineered net shaping are powder based AM technology. Selective laser sintering is similar to 3D printing but instead a laser is used to sinter or fuse the powder particles together. This is done in a chamber heated just below the melting point of the material \citep{wong2012review}. Various materials such as metals and plastics can be used \citep{wong2012review}. Electron beam melting is similar but instead an electron beam is used instead of a laser and this is done in a high vacuum chamber to avoid oxidation \citep{wong2012review}. In laser engineered net shaping, a powder bed is not used; the powder is deposited on the desired location and then melted using a laser, as shown in Figure \ref{fig:literature_lens}. This is a popular method to manufacture metal objects \citep{gibson2010additive}.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.7\textwidth]{../figures/literatureReview/literature_lens.png}
+  \caption{Laser engineered net shaping. Reprinted from \citep{wong2012review} under the CC BY 3.0 license.}
+  \label{fig:literature_lens}
+\end{figure}
 
 There are many more AM technologies but they can be found in numerous review literatures. A comparison of the mentioned AM technologies available at the time were done by \cite{pham1998comparison, kim2008benchmark}. Factors such as material cost, mechanical properties and the resolution of the manufacturing were considered. There are also safety aspects to assess, for example powder in powder based methods can escape into the environment and the liquid used in stereolithography is toxic, sticky and has spilling risk \citep{kim2008benchmark}. This makes fused deposition modelling a popular choice and can be used in an office environment \citep{ngo2018additive}.
 
-The strength of the manufactured object vary from geometry to geometry but also from direction to direction. Because the manufactured object was made layer by layer, the strength varies if the load was applied in the building direction (vertical) or the scanning direction (horizontal) \citep{kim2008benchmark}. Experimental results shown that fused deposition modelling has superior strength in the scanning direction but weak in the building direction \citep{kim2008benchmark}.
+The strength of the manufactured object vary from geometry to geometry but also from direction to direction. Because the manufactured object are made layer by layer, the strength varies if the load was applied in the building direction (vertical) or the scanning direction (horizontal) \citep{kim2008benchmark}. Experimental results shown that fused deposition modelling has superior strength in the scanning direction but weak in the building direction \citep{kim2008benchmark}.
 
 The strongest manufactured methods were found to be powder based methods and stereolithography, however they are slow and material costs are high \citep{kim2008benchmark}. Fused deposition modelling has low costs and high speeds but suffers from weak mechanical properties \citep{ngo2018additive}.
 
@@ -34,17 +76,38 @@ The materials available for each AM technology varies. The materials used in ste
 
 \subsection{Pre/Post Processing}
 
-The blueprint of the object to be manufactured is called a computer-aided design (CAD). For it to be processed by an AM apparatus, the CAD is converted to a STL file \citep{3d1989sterolithography, 3d2019what} which represent surfaces made up of series of triangles. STL stands for sterolithography but could also be called standard tessellation language \citep{wong2012review}. Some accuracy is lost here as the surface of the CAD is represented approximately by triangles \citep{gibson2010additive}. The STL file is then sliced into layers \citep{jamieson1995direct, vatani2009enhanced} so that the AM apparatus knows what to build for each layer.
+The blueprint of the object to be manufactured is called a computer-aided design (CAD). For it to be processed by an AM apparatus, the CAD is converted to a STL file \citep{3d1989sterolithography, 3d2019what} which represent surfaces made up of a series of triangles, an example is shown in Figure \ref{fig:literature_stl}. STL stands for sterolithography but could also be called standard tessellation language \citep{wong2012review}. Some accuracy is lost here as the surface of the CAD is represented approximately by triangles \citep{gibson2010additive}. The STL file is then sliced into layers \citep{jamieson1995direct, vatani2009enhanced} so that the AM apparatus knows what to build for each layer.
 
-When the AM object is manufactured, post processing techniques can be done at this stage. For example sanding may be done to smooth the surfaces \citep{gibson2010additive}. The manufactured object may be inspected for pores or defects by comparing the x-ray image of the object with the CAD \citep{lee2015compliance, villarraga2015assessing, kim2016inspection}. This will be reviewed in the second half of this chapter.
+\begin{figure}
+  \centering
+  \includegraphics[width=0.9\textwidth]{../figures/literatureReview/literature_stl.png}
+  \caption{An example of a CAD (left) converted to a STL file (right). Reprinted from \cite{gibson2010additive} with permission from Springer New York.}
+  \label{fig:literature_stl}
+\end{figure}
+
+When the AM object is manufactured, post processing techniques can be done at this stage. For example sanding may be done to smooth the surfaces \citep{gibson2010additive}. The manufactured object may be inspected for pores or defects by comparing the x-ray image of the object with the CAD \citep{lee2015compliance, villarraga2015assessing, kim2016inspection}.
 
 As with any apparatus, regular maintenance is required \citep{bell2014maintaining}.
 
 \subsection{Online Inspection and Defects}
 
-The manufacturing process can be monitored, this is called online or in-situ process monitoring \citep{everton2016review}. The idea is that problems in the manufacturing is found as soon as possible before the final product is spoiled \citep{cerniglia2015inspection}.
+The manufacturing process can be monitored, this is called online or in-situ process monitoring \citep{everton2016review}. The idea is that problems in the manufacturing are found as soon as possible before the final product is spoiled \citep{cerniglia2015inspection}.
 
-There are various discontinuities in AM, in particular in the manufacturing of metal parts \citep{everton2016review}. For example gas can become trapped during the manufacturing process forming gas pores in the manufactured object \citep{thijs2010study, tammas2015xct}; they can be \SIrange{5}{20}{\micro\metre} in diameter \citep{everton2016review}. Layers may not fuse together and form elongated pores, this can be fixed by increasing the energy of the beam but too high will cause evaporation of the AM part \citep{mumtaz2008high}. They can be \SIrange{50}{500}{\micro\metre} in size \citep{everton2016review}. Low wetting ability of the melt pool can cause balling, this is where the sintered powder has poor contact on the existing layer causing spherical particles on the surface of the AM part \citep{li2012balling, gu2009balling}. The spherical particles can vary in size of \SIrange{10}{500}{\micro\metre} \citep{li2012balling}. Low oxygen content in the environment \citep{niu1999instability} and higher energy beams \citep{gu2009balling} can reduce the balling effect. Cracks can form due to extreme temperature changes and gradients \citep{mercelis2006residual, zaeh2010investigations}.
+There are various discontinuities in AM, in particular in the manufacturing of metal parts \citep{everton2016review}. For example gas can become trapped during the manufacturing process forming gas pores in the manufactured object \citep{thijs2010study, tammas2015xct}, they can be \SIrange{5}{20}{\micro\metre} in diameter \citep{everton2016review}. Layers may not fuse together and form elongated pores, this can be fixed by increasing the energy of the beam but too high will cause evaporation of the AM part \citep{mumtaz2008high}. They can be \SIrange{50}{500}{\micro\metre} in size \citep{everton2016review}. They are observable using a scanning electron microscope as shown in Figure \ref{fig:literature_pores}. Low wetting ability of the melt pool can cause balling, this is where the sintered powder has poor contact on the existing layer causing spherical particles to form on the surface of the AM part \citep{li2012balling, gu2009balling}. The spherical particles can vary in size of \SIrange{10}{500}{\micro\metre} \citep{li2012balling}. Low oxygen content in the environment \citep{niu1999instability} and higher energy beams \citep{gu2009balling} can reduce the balling effect. Some examples are shown in Figure \ref{fig:literature_balling} using an electron scanning microscope. Cracks can form due to extreme temperature changes and gradients \citep{mercelis2006residual, zaeh2010investigations}.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.99\textwidth]{../figures/literatureReview/literature_pores.png}
+  \caption{A scanning electron microscope image of a) pores and b) elongated pores from an electron beam melting manufactured object. Reprinted from \cite{tammas2015xct} under the CC BY 4.0 license.}
+  \label{fig:literature_pores}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.7\textwidth]{../figures/literatureReview/literature_balling.png}
+  \caption{A scanning electron microscope image of balling on a selective laser melting manufactured object. Reprinted from \cite{li2012balling} with permission from Springer Nature.}
+  \label{fig:literature_balling}
+\end{figure}
 
 Various methods are used for in-situ process monitoring. Most commonly a high speed camera is installed capturing the various wavelengths in the electromagnetic spectrum emitted by the melt pool \citep{berumen2010quality, craeghs2011online, lott2011design}. Various discontinuities and errors can be detected \citep{clijsters2014in} and be used to give feedback to the AM apparatus \citep{herzog2013method}. Other methods include measuring the surface using a laser \citep{cerniglia2015inspection} and using an infrared camera to measure the temperature of the melt pool \citep{rodriguez2012integration}. 
 
@@ -54,25 +117,53 @@ XCT started its use in the medical field but advancement of the technology saw i
 
 \subsection{Concepts from the Medical Field}
 
-The setup of XCT \citep{cormack1973reconstruction, hounsfield1973computerized, hounsfield1980computed} in the medical field involves the patient laying on a bed. An x-ray source and x-ray detector pair rotate and/or translate around and/or along the patient to get readings of the x-rays after attenuating the patient using different paths. X-ray beams are pencil beams in the early versions of XCT. To reduce scanning times, cone shaped beams and arrays of detectors were used and they can move in a spiral fashion along and around the patient \citep{cierniak2011x}. These multiple x-ray readings or images can be used to reconstruct a representation of the patient in 3D \citep{zeng2010medical}.
+The setup of XCT \citep{cormack1973reconstruction, hounsfield1973computerized, hounsfield1980computed} in the medical field involves the patient laying on a bed. An x-ray source and x-ray detector pair rotate around and translate along the patient to get readings of the x-rays after attenuating the patient using different paths. X-ray beams were pencil beams in the early versions of XCT \citep{michael2001x}. To reduce scanning times, fan shaped beams and arrays of detectors were used and they can move in a spiral fashion along and around the patient \citep{cierniak2011x}. These multiple x-ray readings or images can be used to reconstruct a representation of the patient in 3D \citep{zeng2010medical}. This is illustrated in Figure \ref{fig:literature_medicalct}.
 
-The patient cannot be exposed to too much radiation, therefore the x-rays used are of low power. This can cause noisy readings from the detector. The sources of noise are from the behaviour of the x-rays and from the electronics in the detector \citep{yang2010noise}. In this realm of low signal to noise ratio, the noise has a compound Poisson element to it \citep{whiting2002signal, whiting2006properties}. Many reconstruction algorithms have been proposed to take the compound Poisson noise into consideration \citep{elbakri2002statistical, elbakri2003efficient, elbakri2003statistical, lasio2007statistical, xie2008x}. They are very complicated will not be discussed here because they are beyond the scope of this thesis.
+\begin{figure}
+  \centering
+  \includegraphics[width=0.99\textwidth]{../figures/literatureReview/literature_medicalct.png}
+  \caption{In medical XCT, a fan shaped x-ray beam is emitted and attenuate through the patient and detected by a detector. The x-ray source and detector rotate around and translate along the patient. By collecting readings at different angles, the image of the patient can be reconstructed. Reprinted from \cite{michael2001x} with permission from IOP Publishing.}
+  \label{fig:literature_medicalct}
+\end{figure}
+
+The patient cannot be exposed to too much radiation, therefore the x-rays used are of low power. This can cause noisy readings from the detector. The sources of noise are from the behaviour of the x-rays and from the electronics in the detector \citep{yang2010noise}. In this realm of low signal to noise ratio, the noise has a compound Poisson element to it \citep{whiting2002signal, whiting2006properties}. Many reconstruction algorithms have been proposed to take the compound Poisson noise into consideration \citep{elbakri2002statistical, elbakri2003efficient, elbakri2003statistical, lasio2007statistical, xie2008x}.
 
 \subsection{Acquisition Process}
 
-Higher power x-rays can be used in XCT for the purpose of manufacturing and metrology because there is no consequence of the manufactured object being scanned absorbing the radiation. The XCT setup is different, the object is held by foam on a turntable and placed between an x-ray source and an x-ray detector. X-ray images are taken while the object rotates. Typically the x-ray is a cone beam \citep{kruth2011computed}.
+Higher power x-rays can be used in XCT for the purpose of manufacturing and metrology because there is no consequence of the manufactured object being scanned absorbing the radiation. The XCT setup is different, the object is held by foam on a turntable and placed between an x-ray source and an x-ray detector. X-ray images are taken while the object rotates. Typically the x-ray is a cone beam \citep{kruth2011computed}. This is illustrated in Figure \ref{fig:literature_xct}.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.75\textwidth]{../figures/literatureReview/literature_xct.png}
+  \caption{The setup of XCT used in metrology. Reprinted from \cite{warnett2016towards} under the CC BY 3.0 license.}
+  \label{fig:literature_xct}
+\end{figure}
 
 The acquisition process consist of the production of x-rays, x-rays attenuating the object, the detection of x-rays and the reconstruction process.
 
-X-rays \citep{rontgen1896on} are produced in an x-ray tube. It consist of a vacuum tube containing a cathode and an anode. Electrons are fired from the cathode to the anode due to an electric potential. The cathode is usually tungsten and the anode contains a small amount of tungsten, molybdenum or copper \citep{sun2012overview}.
+X-rays \citep{rontgen1896on} are produced in an x-ray tube, a diagram shown in Figure \ref{fig:literature_tube}. It consist of a vacuum tube containing a cathode and an anode. Electrons are fired from the cathode to the anode due to an electric potential. The cathode is usually tungsten and the anode contains a small amount of tungsten, molybdenum or copper \citep{sun2012overview}.
 
-The electrons can interact with the anode in a number of ways. The electrons can be deflected or decelerated due to the electric field from the nucleus of the target anode material, the energy lost by the electrons is emitted as bremsstrahlung radiation. The energy of the bremsstrahlung radiation depends on the potential difference in the x-ray tube, as this determines the energy of the fired electrons, and also the proton number of the anode target because this affects the electric field produced by the nucleus in the anode target \citep{sun2012overview}. Another interaction is when the electrons may collide with the nucleus in the anode target, exciting an inner shell electron and ionizing it. This produce a vacancy in the electron shell and emits a photon when the excited electron drops down back to the ground state. This is known as characteristic radiation and the energy emitted is discrete and depends on the material in the anode target.
+\begin{figure}
+  \centering
+  \includegraphics[width=0.8\textwidth]{../figures/literatureReview/literature_tube.png}
+  \caption{An x-ray tube. Reprinted from \cite{michael2001x} with permission from IOP Publishing.}
+  \label{fig:literature_tube}
+\end{figure}
+
+The electrons can interact with the anode in a number of ways. The electrons can be deflected or decelerated due to the electric field from the nucleus of the target anode material, the energy lost by the electrons is emitted as bremsstrahlung radiation. The energy of the bremsstrahlung radiation depends on the potential difference in the x-ray tube, as this determines the energy of the fired electrons, and also the proton number of the anode target because this affects the electric field produced by the nucleus in the anode target \citep{sun2012overview}. Another interaction is when the electrons may collide with the nucleus in the anode target, exciting an inner shell electron and ionizing it. This produce a vacancy in the electron shell and emits a photon when the excited electron drops down back to the ground state. This is known as characteristic radiation and the energy emitted is discrete and depends on the material in the anode target \citep{sun2012overview}.
 
 The efficiency of an x-ray tube is poor, 99\% of the energy from electrons is converted to heat, the rest to x-rays \citep{kruth2011computed}.
 
-Photons, making up the radiation, are emitted from the x-ray tube as a Poisson process. The rate of x-ray emission depends on the current, that is the rate of charge between the cathode and anode. The energy of each photon are from bremsstrahlung radiation and characteristic radiation, making the distribution of x-ray photons energy a mix of continuous and discrete energies.
+Photons, making up the radiation, are emitted from the x-ray tube as a Poisson process. The rate of x-ray emission depends on the current, that is the rate of charge between the cathode and anode. The energy of each photon are from bremsstrahlung radiation and characteristic radiation, making the distribution of x-ray photons energy a mix of continuous and discrete energies \citep{sun2012overview}. An example is shown in Figure \ref{fig:literature_spectrum}.
 
-The object being scanned are exposed to x-ray photons in XCT. X-ray photons undergo attenuation when interacting with the object in a number of ways. The object can absorb the photons via the photoelectric effect. In the photoelectric effect, the photons transfers all its energy to a bounded electron and ejects it from the sample's atom \citep{millikan1916direct}. Photons can be scattered by the sample by colliding inelastically with and transfers its energy to the an electron. This process is known as Compton scattering \citep{compton1923quantum}. The photoelectric effect and Compton scattering make a number of photons undetectable. However if some of the photons avoid these processes, they are detected and their energy is left unaffected.
+\begin{figure}
+  \centering
+  \includegraphics[width=0.65\textwidth]{../figures/literatureReview/literature_spectrum.png}
+  \caption{An example of the distribution of energies a photon can have emitted from an x-ray tube. Bremsstrahlung and characteristic radiation contribute to the continuous and discrete components of the distribution. Reprinted from \cite{michael2001x} with permission from IOP Publishing.}
+  \label{fig:literature_spectrum}
+\end{figure}
+
+The object being scanned are exposed to x-ray photons in XCT. X-ray photons undergo attenuation when interacting with the object in a number of ways \citep{cantatore2011introduction}. The object can absorb the photons via the photoelectric effect. In the photoelectric effect, the photons transfers all its energy to a bounded electron and ejects it from the object's atom \citep{millikan1916direct}. Photons can be scattered by the object by colliding inelastically with and transfers its energy to the an electron. This process is known as Compton scattering \citep{compton1923quantum}. The photoelectric effect and Compton scattering make a number of photons undetectable. However if some of the photons avoid these processes, they are detected and their energy is left unaffected.
 
 Beer's law simplifies these quantum mechanistic process. Suppose the x-ray beam with rate of emission $I_0$ is mono-energetic and travels in a straight line in the $x$-axis. Let $\mu(x)$ be the attenuation coefficient of the object and the x-ray beam has rate of emission $I$ after attenuation. A differential equation can be set up to model the decay of photons as it attenuate through the object such that
 \begin{equation}
@@ -83,9 +174,9 @@ which can be solved
 I = I_0\exp\left[\int_{x \in \text{path of photon}}-\mu(u)\diff u\right] \ .
 \label{eq:beerLaw}
 \end{equation}
-However, the photoelectric effect and Compton scattering, thus the attenuation coefficient as well, depends on the energy of the photons \citep{elbakri2002statistical}. Therefore $\mu(x,E)$ should be made dependent on the energy of the photons \citep{cantatore2011introduction} and can cause some inaccuracies in Beer's law. In general low energy photons are more likely to be absorbed and scattered than high energy photons, this increases the average energy of the detected photons. This is called beam hardening.
+However, the photoelectric effect and Compton scattering, thus the attenuation coefficient as well, depends on the energy of the photons \citep{elbakri2002statistical}. Therefore $\mu(x,E)$ should be made dependent on the energy of the photons \citep{cantatore2011introduction} and can cause some inaccuracies in Beer's law. In general low energy photons are more likely to be absorbed and scattered than high energy photons, this increases the average energy of the detected photons \citep{sun2012overview}. This is called beam hardening.
 
-After attenuation, the x-ray photons are detected by the x-ray detector. The detectors used in XCT are typically flat bed scanners made up of a scintillator material \citep{curran1953luminescence, greskovich1997ceramic} and photodiodes. The x-ray photons interact with the scintiallator material and produce visible light \citep{rossner1993conversion}. The visible light is detected by photodiodes and coverts it into an electrical signal \citep{michael2001x}. The electrical signal can be a quantum counter, counting the number of photons detected, or an energy integrating detector, adding up all of the energies of each detected photon \citep{whiting2006properties, kruth2011computed}. The electrical signals are subject to sampling and quantisation to store these signals as an image \citep{cierniak2011x}.
+After attenuation, the x-ray photons are detected by the x-ray detector. The detectors used in XCT are typically flat bed scanners made up of a scintillator material \citep{curran1953luminescence, greskovich1997ceramic} and photodiodes. The x-ray photons interact with the scintiallator material and produce visible light \citep{rossner1993conversion}. The visible light is detected by photodiodes and coverts it into an electrical signal. The electrical signal can be a quantum counter, counting the number of photons detected, or an energy integrating detector, adding up all of the energies of each detected photon \citep{whiting2006properties, kruth2011computed}. The electrical signals are subject to sampling and quantisation to store these signals as an image \citep{cierniak2011x}.
 
 Not all of the visible light photons are detected by the photodiodes, thus not all the x-ray photons are detected. The ratio between the number of x-ray photons detected by the detector and the number of x-ray photons arriving at the detector is called the quantum efficiency \citep{cierniak2011x}. The detection is a two stage process \citep{cierniak2011x}, although there exist equipment which detects x-ray directly such as a xenon gas ionization detector \citep{fuchs2000direct}, solid state CT systems such as sintillator-photodiodes detectors have high quantum efficiency of about 98\% to 99.5\% \citep{hsieh2000investigation}.
 
@@ -97,24 +188,111 @@ There exist many reconstruction algorithms in XCT \citep{smith1990cone} such as 
 
 XCT can be used to measure the length of the object, making it useful for measuring AM objects internally and externally. \emph{Nikon} offer products and services for XCT including features such as direct comparison to the CAD \citep{nikon2015microfocus, nikon2018mct225} and automated production line inspection \citep{nikon2015inline, nikon2018automated}.
 
-As with a lot of measurement apparatus, calibration is required. In XCT, the scale of each voxel in the reconstruction can be obtained by using XCT on an object with pre-determined lengths, these are known as reference standards \citep{bartscher2007enhancement} but can have similar names. Reference standards can vary in geometry such as a sphere on a cylinder \citep{lifton2013application}, two spheres on a cylinder \citep{sun2016reference}, a cube with cut outs \citep{kiekens2011test}, a plate with various features \citep{moylan2014additive, mohring2015testpart}, a hollow cylinder, a step-cylinder and a ball-bar \citep{bartscher2007enhancement}. They can be manufactured using AM \citep{mohring2015testpart} but this can become a chicken and egg problem, determining the measurements of an AM object using an AM object.
+As with a lot of measurement apparatus, calibration is required. In XCT, the scale of each voxel in the reconstruction can be obtained by using XCT on an object with pre-determined lengths, these are known as reference standards \citep{bartscher2007enhancement} but can have similar names. Reference standards can vary in geometry such as a sphere on a cylinder \citep{lifton2013application}, two spheres on a cylinder \citep{sun2016reference}, a cube with cut outs \citep{kiekens2011test}, a hollow cylinder, a step-cylinder and a ball-bar \citep{bartscher2007enhancement}; the latter three are shown in Figure \ref{fig:literature_referenceStandards}.
+
+\begin{figure}
+  \centering
+  \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+      \includegraphics[width=\textwidth]{../figures/literatureReview/literature_test1.png}
+      \caption{Hollow cylinder}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+      \includegraphics[width=\textwidth]{../figures/literatureReview/literature_test2.png}
+      \caption{Step-cylinder}
+    \end{subfigure}
+  }
+  \begin{subfigure}[b]{0.6\textwidth}
+    \includegraphics[width=\textwidth]{../figures/literatureReview/literature_test3.png}
+    \caption{Ball-bar}
+  \end{subfigure}
+  \caption{Various reference standards: a) aluminium hollow cylinder, outer diameters \SI{30}{\milli\metre} and \SI{20}{\milli\metre}, b) aluminium step-cylinder with diameter \SI{300}{\milli\metre}, c) ceramic balls of diameter \SI{30}{\milli\metre} on a carbon fibre rod, the balls are separated by \SI{100}{\milli\metre}. Reprinted from \citep{bartscher2007enhancement} with permission from Elsevier.}
+  \label{fig:literature_referenceStandards}
+\end{figure}
 
 There are many variables in XCT and a lot of them have to be controlled. For example XCT should be done in room temperature to avoid any thermal variation \citep{bryan1990international}, however this can be hard to do when the x-ray tube is a heat source \citep{kruth2011computed}.
 
-The set up of XCT has a number of variables. The potential difference and current of the x-ray tube can be adjusted to control the contrast and brightness of the x-ray image. The exposure time is also a factor. These settings should be set high enough to avoid beam extinction but low enough that there is contrast where less material is present \citep{kruth2011computed}. The magnification can be adjusted by adjusting the distances between the x-ray tube, the object and the x-ray detector. Increasing the magnification increases the image resolution but can cause blurred images \citep{kruth2011computed}. Another important factor is the focal spot size because larger spot sizes produce blurry results, this is know as the penumbra effect \citep{kueh2016modelling}. However spot sizes too small can produce concentrated heat \citep{welkenhuyzen2009industrial} and can damage the x-ray tube. There is also the question on how to orient the object on the turntable \citep{corcoran2016observations}. All of these variables can be determined before the XCT process by use of simulations \citep{reisinger2011simulation, reiter2011simulation}, however there may be inconsistencies. For example even though the target material of the anode and power is specified, the energy spectrum can still vary \citep{stumbo2004direct}.
+The set up of XCT has a number of variables. The potential difference and current of the x-ray tube can be adjusted to control the contrast and brightness of the x-ray image. The exposure time is also a factor. These settings should be set high enough to avoid beam extinction but low enough that there is contrast where less material is present \citep{kruth2011computed}. The magnification can be adjusted by adjusting the distances between the x-ray tube, the object and the x-ray detector. Increasing the magnification increases the image resolution but can cause blurry images, this is the result from using an x-ray source with a finite spot size as shown in Figure \ref{fig:literature_magnification} \citep{kruth2011computed}. Blurry results from larger spot sizes, this is know as the penumbra effect \citep{kueh2016modelling}. However, spot sizes too small can produce concentrated heat \citep{welkenhuyzen2009industrial} and can damage the x-ray tube.
 
-Problems can occur in the detector. For examples pixels in the acquired x-ray can be defected or dead \citep{brettschneider2014spatial} and panels can appear \citep{yang2009evaluation}. Spatially correlated noise can be observed as well \citep{sun2016characterisation}.
+\begin{figure}
+  \centering
+  \includegraphics[width=0.7\textwidth]{../figures/literatureReview/literature_magnification.png}
+  \caption{The magnification can be adjusted by adjusting the distances between the x-ray source, the object and the x-ray detector. Because of a finite x-ray spot size, blurry effects are produced using a magnification too large. Reprinted from \cite{kruth2011computed} with permission from Elsevier.}
+  \label{fig:literature_magnification}
+\end{figure}
 
-Errors due to beam hardening can occur. Low energy photons are more likely to be absorbed or scattered, this causes a few millimetres of the surface of the object to absorb or scatter more photons than the interior. This can cause flat surfaces to be barrelled and edges rounded off \citep{kruth2011computed} as well as artefacts \citep{sun2016applications}. Beam hardening can be tackled by eliminating the low energy photons by placing a thin metal plate in front of the x-ray tube \citep{welkenhuyzen2009industrial}, for example copper. This reduces the rate of photon emission but this can be compensated by increasing the exposure time \citep{kruth2011computed}. Beam hardening can also be considered in the reconstruction stage \citep{sun2016applications}.
+There is also the question on how to orient the object on the turntable \citep{corcoran2016observations} as well as how many angles to use \citep{kruth2011computed}. More angles produce a more accurate reconstruction but requires more acquisition time. Figure \ref{fig:literature_angles} shows an example of a reconstruction using various number of angles.
 
-The most common reconstruction method is the FDK \citep{feldkamp1984practical} algorithm as it caters for cone beams. However it assumes a circular trajectory from the source which can produce artefacts \citep{sun2016applications}.
+\begin{figure}
+  \centering
+  \includegraphics[width=0.7\textwidth]{../figures/literatureReview/literature_angles.png}
+  \caption{A reconstruction when scanning three aligned balls using a different number of angles. Reprinted from \cite{kruth2011computed} with permission from Elsevier.}
+  \label{fig:literature_angles}
+\end{figure}
+
+All of the parameters of XCT discussed can be determined before the XCT process by use of simulations \citep{reisinger2011simulation, reiter2011simulation}, however there may be inconsistencies. For example even though the target material of the anode and power is specified, the energy spectrum can still vary \citep{stumbo2004direct}.
+
+Problems can occur in the detector. For examples pixels in the acquired x-ray can be defected or dead \citep{brettschneider2014spatial} and the panel structure of the detector can appear \citep{yang2009evaluation}. Spatially correlated noise can be observed as well \citep{sun2016characterisation}.
+
+Errors due to beam hardening can occur. Low energy photons are more likely to be absorbed or scattered, this causes a few millimetres of the surface of the object to absorb or scatter more photons than the interior. This can cause flat surfaces to be barrelled and edges rounded off \citep{kruth2011computed} as well as artefacts \citep{sun2016applications}. Beam hardening can be tackled by eliminating the low energy photons by placing a thin metal plate, called a filter, in front of the x-ray tube \citep{welkenhuyzen2009industrial}, for example copper. Figure \ref{fig:literature_hardening} shows an example of a reconstruction with and without a filter, without the filter the outer perimeter appears less dense than it should be.  A filter reduces the rate of photon emission but this can be compensated by increasing the exposure time \citep{kruth2011computed}. Early reconstruction algorithms assumed no beam hardening but it can be corrected using modern methods \citep{sun2016applications}.
+
+\begin{figure}
+  \centering
+    \begin{subfigure}[b]{0.4\textwidth}
+      \includegraphics[width=\textwidth]{../figures/literatureReview/literature_hardening_noFilter.png}
+      \caption{No filter}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.4\textwidth}
+      \includegraphics[width=\textwidth]{../figures/literatureReview/literature_hardening_filter.png}
+      \caption{Al/Cu filter}
+    \end{subfigure}
+  \caption{A reconstruction of a hollow cylinder, outer diameter \SI{6.0}{\milli\metre} and inner diameter \SI{0.6}{\milli\metre}. In a), no filter was used. In b) a filter was placed in front of the x-ray tube. Reprinted from \citep{kruth2011computed} with permission from Elsevier}
+  \label{fig:literature_hardening}
+\end{figure}
+
+The most common reconstruction method is the FDK \citep{feldkamp1984practical} algorithm as it caters for cone beams. However it assumes a circular trajectory from the source which can cause artefacts if assumptions are not met \citep{sun2016applications}.
 
 \subsection{Latest Research}
 
 The most common use of XCT in AM is the investigation of pores in the manufactured object \citep{thompson2016x}. Pores can be classified as defects if the pores are larger than some volume threshold. This threshold controls the probability of the detection of defects \citep{gandossi2010probability, amrhein2014characterization}.
 
-The porosity can be estimated by dividing the volume of all of the pores by the volume of solid material in the XCT scan \citep{taud2005porosity}. However more accurate methods of measuring the porosity can be done using Archimedes' method \citep{spierings2011comparison}. The strength of XCT comes from the fact that the location of the pores can be visualised and compared to the CAD \citep{lee2015compliance, villarraga2015assessing, kim2016inspection}. Studies have been done to link porosity to stress concentration \citep{leuders2015fatigue, siddique2015computed, carlton2016damage}. \cite{leuders2015fatigue} pointed out that the location of the pores is an important factor. In addition to pores, any surface deviation can be measured by aligning the reconstruction with the CAD and measuring any discrepancies \citep{lee2015compliance, villarraga2015assessing, kim2016inspection}.
+The porosity can be estimated by dividing the volume of all of the pores by the volume of solid material in the XCT scan \citep{taud2005porosity}. However more accurate methods of measuring the porosity can be done using Archimedes' method \citep{spierings2011comparison}. The strength of XCT comes from the fact that the location of the pores can be visualised, for example in Figure \ref{fig:literature_pores3D}, and compared to the CAD \citep{lee2015compliance, villarraga2015assessing, kim2016inspection}. Studies have been done to link porosity to stress concentration \citep{leuders2015fatigue, siddique2015computed, carlton2016damage}. \cite{leuders2015fatigue} pointed out that the location of the pores is an important factor. In addition to pores, any surface deviation can be measured by aligning the reconstruction with the CAD and measuring any discrepancies \citep{lee2015compliance, villarraga2015assessing, kim2016inspection}, an example is shown in Figure \ref{fig:literature_warnett}.
 
-One of the disadvantages of XCT is that it is a slow process. Even in the marketing of \cite{nikon2015inline}'s inline quality control featured automatic reconstruction in the background with a progress bar. The reconstruction can take between 5 minutes to a number of hours \citep{warnett2016towards}. \cite{warnett2016towards} improved the speed of XCT by sacrificing accuracy of the reconstruction. This was done by placing the object to scan on a conveyor belt surrounded by multiple x-ray source and detector pairs. X-ray images at fewer angles can be taken but they can be obtained in one acquisition, speeding up the process.
+\begin{figure}
+  \centering
+      \begin{subfigure}[b]{0.49\textwidth}
+      \includegraphics[width=\textwidth]{../figures/literatureReview/literature_pores3D1.png}
+      \caption{Reconstruction}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+      \includegraphics[width=\textwidth]{../figures/literatureReview/literature_pores3D2.png}
+      \caption{Sample from the reconstruction}
+    \end{subfigure}
+    \caption{The reconstruction can show pores in the manufactured object. b) shows the reconstructed samples from the blue cubes in a). Reprinted from \cite{tammas2015xct} under the CC BY 4.0 license.}
+    \label{fig:literature_pores3D}
+\end{figure}
+
+\begin{figure}
+  \centering
+      \begin{subfigure}[b]{0.49\textwidth}
+      \includegraphics[width=\textwidth]{../figures/literatureReview/literature_warnett1.png}
+      \caption{External}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+      \includegraphics[width=\textwidth]{../figures/literatureReview/literature_warnett2.png}
+      \caption{Internal}
+    \end{subfigure}
+    \caption{The reconstruction was aligned and compared to the CAD. The surface heat map shows the surface deviation (or `variance' in the literature) externally (a) and internally (b). Reprinted from \cite{warnett2016towards} under the CC BY 3.0 license.}
+    \label{fig:literature_warnett}
+\end{figure}
+
+One of the disadvantages of XCT is that it is a slow process. Even in the marketing of \cite{nikon2015inline}'s inline quality control featured automatic reconstruction in the background with a progress bar. The reconstruction can take between 5 minutes to a number of hours \citep{warnett2016towards} however more images would improve the accuracy of the reconstruction \citep{kruth2011computed}. \cite{warnett2016towards} improved the speed of XCT by sacrificing accuracy of the reconstruction. This was done by placing the object to scan on a conveyor belt surrounded by multiple x-ray source and detector pairs as shown in Figure \ref{fig:literature_conveyor}. X-ray images at fewer angles can be taken but they can be obtained in one acquisition, speeding up the process.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.7\textwidth]{../figures/literatureReview/literature_conveyor.png}
+  \caption{XCT can be done on a conveyor belt surrounded by x-ray source and detector pairs. Reprinted from \cite{warnett2016towards} under the CC BY 3.0 license.}
+  \label{fig:literature_conveyor}
+\end{figure}
 
 Instead of reconstructing the object, the analysis can be done on the x-ray images itself, or projection space, by comparing it to a simulation such as \emph{aRTist} \citep{bellon2007artist, jaenisch2008artist, bellon2012radiographic}. \cite{brierley2018optimized} developed an algorithm to adjust the parameters of the simulation as well as aligning it so that it fits with the x-ray acquisition. It is however very complicated as it is optimising over a very large dimensional space. \cite{brierley2018optimized} also demonstrated that detection of defects is possible in projection space by comparing two simulations with each other, one with defects and the other without. It is however inevitable that accuracy is lost from the jump from 3D to 2D \citep{hayden2009chest}.
