@@ -97,13 +97,13 @@ classdef Scan < matlab.mixin.Heterogeneous & handle
     
     %METHOD: ADD DEFAULT SHADING CORRECTOR
     %Add bw shading corrector, using 0 power and the white power
-    function addDefaultShadingCorrector(this)
+    function addShadingCorrectorDefault(this)
       this.addShadingCorrector(ShadingCorrector(this.height, this.width),[1,this.whiteIndex]);
     end
     
     %METHOD: ADD LINEAR SHADING CORRECTION
     %Add linear shading corrector, using 0 W and all the powers till the white power
-    function addLinearShadingCorrector(this)
+    function addShadingCorrectorLinear(this)
       this.addShadingCorrector(ShadingCorrector(this.height, this.width),1:this.whiteIndex);
     end
     
@@ -137,7 +137,7 @@ classdef Scan < matlab.mixin.Heterogeneous & handle
       end
       %calibrate the shading corrector and add it to the member variable
       shadingCorrector.calibrate();
-      this.addManualShadingCorrector(shadingCorrector);
+      this.addShadingCorrectorManual(shadingCorrector);
       
     end
     
@@ -148,14 +148,14 @@ classdef Scan < matlab.mixin.Heterogeneous & handle
     %IMPORANT: Each calibration has a shallow copy of the provided shadingCorrector
     %PARAMETERS:
       %shadingCorrector: shadingCorrector object, calibration images should be provided to it
-    function addManualShadingCorrector(this, shadingCorrector)
+    function addShadingCorrectorManual(this, shadingCorrector)
       %assign the provided shading corrector to the member variable
       this.shadingCorrector = shadingCorrector;
       %set shading correction to be on
       this.setShadingCorrectionOn();
       %add the shading corrector to each calibration scan in calibrationScanArray, shallow copies
       for i = 1:numel(this.calibrationScanArray)
-        this.calibrationScanArray(i).addManualShadingCorrector(shadingCorrector);
+        this.calibrationScanArray(i).addShadingCorrectorManual(shadingCorrector);
       end
     end
     
@@ -224,7 +224,7 @@ classdef Scan < matlab.mixin.Heterogeneous & handle
       %calibrationIndex: integer vector, pointing to which calibration images to use
     %RETURN:
       %slice: shading corrected aRTist image
-    function slice = getShadingCorrectedArtistImage(this, shadingCorrector, calibrationIndex)
+    function slice = getArtistImageShadingCorrected(this, shadingCorrector, calibrationIndex)
       %get the folder location and file name of the artist image
       [artistLocation, artistName, ~] = fileparts(this.artistFile);
       %instantise a Scan object containing the aRTist image
