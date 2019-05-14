@@ -7,7 +7,7 @@ classdef ScanSingle < Scan
   properties
   end
   
-  methods
+  methods (Access = public)
     
     %CONSTRUCTOR
     function this = ScanSingle(folderLocation, fileName, width, height, voltage, power, ...
@@ -19,7 +19,7 @@ classdef ScanSingle < Scan
     %OVERRIDE: LOAD IMAGE
     %Return a sample image
     function slice = loadImage(this, ~)
-      slice = imread(strcat(this.folderLocation, this.fileName,'.tif'));
+      slice = imread(fullfile(this.folderLocation,strcat(this.fileName,'.tif')));
       slice = this.shadingCorrect(double(slice));
     end
     

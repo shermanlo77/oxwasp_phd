@@ -3,14 +3,14 @@
 %Contains an image of only one greyvalue
 classdef ScanSingleFlat < ScanSingle
   
-  properties
+  properties (SetAccess = private)
     
     %greyvalue of the flat colour
     greyvalue;
     
   end
   
-  methods
+  methods (Access = public)
     
     %CONSTRUCTOR
     function this = ScanSingleFlat(width, height, voltage, power, timeExposure, greyvalue)

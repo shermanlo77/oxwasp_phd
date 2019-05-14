@@ -1,4 +1,5 @@
 %SCAN Class for handling x-ray images
+%matlab.mixin.Heterogeneous allows for subclasses to be stored in an array
 classdef Scan < matlab.mixin.Heterogeneous & handle
   
   %MEMBER VARIABLES
@@ -6,8 +7,8 @@ classdef Scan < matlab.mixin.Heterogeneous & handle
     width; %width of the image
     height; %height of the image
     area; %area of the image
-    nSample; %number of images
-    fileName; %... name of sample image
+    nSample; %number of images or replications
+    fileName; %name of sample image
     folderLocation; %location of the dataset
     artistFile; %location of the aRTist simulation
     referenceScanArray; %array of reference scan objects (in ascending powers)
@@ -22,21 +23,19 @@ classdef Scan < matlab.mixin.Heterogeneous & handle
     shadingCorrector; %shading corrector object
     %boolean, true to do shading correction, default false, automatically turns to true if a shading
         %corrector is added
-    wantShadingCorrection;
-    wantRemoveDeadPixels; %boolean, true to remove dead pixels, default false
+    wantShadingCorrection = false;
     
-    minGreyvalue; %minimum possible greyvalue
   end
   
-  methods
+  methods (Access = public)
     
     %CONSTRUCTOR
     %PARAMETERS:
       %folderLocation: location of the images
-      %fileName: name of the image files
+      %fileName: name of the image files (appended with a sequential number for each replication)
       %width: width of the image
       %height: height of the image
-      %nSample: number of images
+      %nSample: number of images or replications
       %voltage: in units of kV
       %power: in units of W
       %timeExposure: in units of ms
@@ -50,38 +49,38 @@ classdef Scan < matlab.mixin.Heterogeneous & handle
         this.height = height;
         this.area = width * height;
         this.nSample = nSample;
-        
         this.voltage = voltage;
         this.power = power;
         this.timeExposure = timeExposure;
-        
-        this.wantShadingCorrection = false;
-        this.wantRemoveDeadPixels = false;
-        this.minGreyvalue = 0;
       end
     end
     
     %METHOD: LOAD IMAGE
     %Return a sample image
     %PARAMETERS
-      %index: index of image (scalar)
+      %index: index of image, integer
+    %RETURN;
+      %slice: height x width image
     function slice = loadImage(this, index)
-      slice = imread(strcat(this.folderLocation,this.fileName,num2str(index),'.tif'));
+      %file name is appended with the index
+      slice = imread( fullfile( ...
+          this.folderLocation, strcat( this.fileName, num2str(index), '.tif') ) );
       slice = this.shadingCorrect(double(slice));
     end
     
     %METHOD: LOAD IMAGE STACK
     %Return stack of sample images
     %PARAMETERS:
-      %range (optional): vector of indices of images requested
-      %if empty return the full range
+      %range (optional): vector of indices of images requested, if empty return the full range
+    %RETURN:
+      %stack: height x width x numel(range), contains image for each index in range
     function stack = loadImageStack(this, range)
       %if range not provided, provide the full range
       if nargin == 1
         range = 1:this.nSample;
       end
       %declare stack of images
-      stack = zeros(this.height,this.width,numel(range));
+      stack = zeros(this.height, this.width, numel(range));
       %for each image, put it in the stack
       for index = 1:numel(range)
         stack(:,:,index) = this.loadImage(range(index));
@@ -89,167 +88,114 @@ classdef Scan < matlab.mixin.Heterogeneous & handle
     end
     
     %METHOD: SHADING CORRECTION
-    %if wantShadingCorrection, does shading correction on the
-    %provided image and returns it
-    %if wantRemoveDeadPixels, remove dead pixels
-    function slice = shadingCorrect(this,slice)
+    %if wantShadingCorrection, does shading correction on the provided image and returns it
+    function slice = shadingCorrect(this, slice)
       if this.wantShadingCorrection
         slice = this.shadingCorrector.shadingCorrect(slice);
-      end
-      if this.wantRemoveDeadPixels
-        slice = removeDeadPixels(slice);
       end
     end
     
     %METHOD: ADD DEFAULT SHADING CORRECTOR
     %Add bw shading corrector, using 0 power and the white power
     function addDefaultShadingCorrector(this)
-      this.addShadingCorrector(ShadingCorrector(),[1,this.referenceWhite]);
+      this.addShadingCorrector(ShadingCorrector(this.height, this.width),[1,this.referenceWhite]);
     end
     
     %METHOD: ADD LINEAR SHADING CORRECTION
     %Add linear shading corrector, using 0 W and all the powers till the white power
     function addLinearShadingCorrector(this)
-      this.addShadingCorrector(ShadingCorrector(),1:this.referenceWhite);
+      this.addShadingCorrector(ShadingCorrector(this.height, this.width),1:this.referenceWhite);
     end
     
     %METHOD: ADD SHADING CORRECTOR
     %Assign a shading corrector to the member variable and calibrate it for shading correction
-    %The reference images used are determined by the parameter reference_index
+    %Which reference images to use for the shading correction is specified in the parameter
     %PARAMETERS:
       %shadingCorrector: ShadingCorrector object
-      %reference_index: matrix of integers, representing image index (optional), zeros are ignored
-      %dim 1: #
-      %dim 2: for each referenceScanArray
-      %for each column, (eg 1st column for black images)
-      %the mean of black images specified by dim 1 are used for shading corrector
-      %
-      %if not provided, use the mean of all images, black, grey and white
-    function addShadingCorrector(this,shadingCorrector,referenceIndex,imageIndex)
+      %referenceIndex: vector of integers, which currents to use
+      %imageIndex (optional): matrix of integers, size # x numel(referenceIndex)
+        %dim 1: for the current in referenceIndex(#), points to which replication to use
+        %dim 2: for each current specified in referenceIndex
+        %if imageIndex is not provided, then all replications are used
+    function addShadingCorrector(this, shadingCorrector, referenceIndex, imageIndex)
       
       %turn off shading correction to obtain the reference images
-      this.turnOffShadingCorrection();
+      this.setShadingCorrectionOff();
       
       %count the number of reference scans
-      n_reference = numel(referenceIndex);
-      
-      shadingCorrector.initalise(n_reference, this.height, this.width);
+      nReference = numel(referenceIndex);
       
       %for each reference scan
-      for i = 1:n_reference
-        %if reference_index is not provided, take the mean of all images
+      for i = 1:nReference
+        %if imageIndex is not provided, take the mean of all images
         if nargin == 3
           shadingCorrector.addScan(this.referenceScanArray(referenceIndex(i)));
-          %else take the mean of all images specified in the ith column of reference_index
+        %else take the mean of all images specified in the ith column of imageIndex
         else
           shadingCorrector.addScan(this.referenceScanArray(referenceIndex(i)),imageIndex(:,i));
         end
       end
-      
-      %add the shading corrector to the member variable
+      %calibrate the shading corrector and add it to the member variable
+      shadingCorrector.calibrate();
       this.addManualShadingCorrector(shadingCorrector);
       
     end
     
     %METHOD: ADD MANUAL SHADING CORRECTOR
-    %Assign a provided shading corrector to the member variable and calibrate it
-    %for shading correction
+    %Assign a provided calibrated shading corrector to the member variable and also to all reference
+        %images
+    %IMPORTANT: the provided shadingCorrector should be calibrated using the method calibrate()
+    %IMPORANT: Each reference has a shallow copy of the provided shadingCorrector
     %PARAMETERS:
-    %shadingCorrector: shadingCorrector object
-    function addManualShadingCorrector(this,shadingCorrector)
+      %shadingCorrector: shadingCorrector object, reference images should be provided to it
+    function addManualShadingCorrector(this, shadingCorrector)
       %assign the provided shading corrector to the member variable
       this.shadingCorrector = shadingCorrector;
-      
-      %get the minimum possible greyvalue to the shading corrector
-      this.shadingCorrector.minGreyvalue = this.minGreyvalue;
-      
-      %if the shading corrector can smooth the reference images panel by panel
-      %add the panel counter
-      if this.shadingCorrector.can_smooth
-        this.shadingCorrector.addPanelCounter(this.panelCounter);
-      end
-      
-      %calibrate the shading corrector to do shading correction
-      this.shadingCorrector.calibrate();
       %set shading correction to be on
-      this.turnOnShadingCorrection();
-      
-      %add the shading corrector to each reference scan in referenceScanArray
+      this.setShadingCorrectionOn();
+      %add the shading corrector to each reference scan in referenceScanArray, shallow copies
       for i = 1:numel(this.referenceScanArray)
-        this.referenceScanArray(i).shadingCorrector = this.shadingCorrector;
+        this.referenceScanArray(i).addManualShadingCorrector(shadingCorrector);
       end
     end
     
-    %METHOD: TURN ON SHADING CORRECTION
-    %Set the member variable wantShadingCorrection to be true
-    function turnOnShadingCorrection(this)
+    %METHOD: SET SHADING CORRECTION ON
+    %Set the member variable wantShadingCorrection for this and all reference images to be true
+    function setShadingCorrectionOn(this)
       this.wantShadingCorrection = true;
       for i = 1:numel(this.referenceScanArray)
-        this.referenceScanArray(i).turnOnShadingCorrection();
+        this.referenceScanArray(i).setShadingCorrectionOn();
       end
     end
     
-    %METHOD: TURN OFF SHADING CORRECTION
-    %Set the memebr variable wantShadingCorrection to be false
-    function turnOffShadingCorrection(this)
+    %METHOD: SET SHADING CORRECTION OFF
+    %Set the member variable wantShadingCorrection for this and all reference images to be false
+    function setShadingCorrectionOff(this)
       this.wantShadingCorrection = false;
       for i = 1:numel(this.referenceScanArray)
-        this.referenceScanArray(i).turnOffShadingCorrection();
+        this.referenceScanArray(i).setShadingCorrectionOff();
       end
     end
-    
-    %METHOD: TURN ON REMOVE DEAD PIXELS
-    function turnOnRemoveDeadPixels(this)
-      this.wantRemoveDeadPixels = true;
-      for i = 1:numel(this.referenceScanArray)
-        this.referenceScanArray(i).turnOnRemoveDeadPixels();
-      end
-    end
-    
-    %METHOD: TURN OFF REMOVE DEAD PIXELS
-    function turnOffRemoveDeadPixels(this)
-      this.wantRemoveDeadPixels = false;
-      for i = 1:numel(this.referenceScanArray)
-        this.referenceScanArray(i).turnOffRemoveDeadPixels();
-      end
-    end
-    
-    %METHOD: TURN ON SET EXTREME TO NAN
-    %Set the shading corrector to set extreme greyvalues to be NaN
-    function turnOnSetExtremeToNan(this)
-      this.shadingCorrector.turnOnSetExtremeToNan();
-    end
-    
-    %METHOD: TURN OFF SET EXTREME TO NAN
-    %Set the shading corrector to keep extreme greyvalues
-    function turnOffSetExtremeToNan(this)
-      this.shadingCorrector.turnOffSetExtremeToNan();
-    end
-    
-    %METHOD: ADD ARTIST FILE
-    function addArtistFile(this,artistFile)
-      this.artistFile = artistFile;
-    end
-    
+
     %METHOD: GET ARTIST IMAGE
     function slice = getArtistImage(this)
       slice = double(imread(this.artistFile));
     end
     
     %METHOD: GET N REFERENCE
-    function n_reference = getNReference(this)
-      n_reference = numel(this.referenceScanArray);
+    function reference = getNReference(this)
+      reference = numel(this.referenceScanArray);
     end
     
     %METHOD: GET POWER ARRAY
-    %Return array of powers for each reference scan
+    %Return array of powers (W) for each reference scan
     function powerArray = getPowerArray(this)
       %get the number of reference scans
-      nReference = numel(this.referenceScanArray);
+      nReference = this.getNReference();
       %declare array of powers
-      powerArray = zeros(1,nReference);
+      powerArray = zeros(1, nReference);
       %for each reference scan, get the power and save it
-      for i = 1:n_reference
+      for i = 1:nReference
         powerArray(i) = this.referenceScanArray(i).power;
       end
     end
@@ -262,8 +208,63 @@ classdef Scan < matlab.mixin.Heterogeneous & handle
     
     %METHOD: GET SUB SEGMENTATION
     %Returns a binary image for a sub segemtation, true values represent ROI
+    %PARAMETER:
+      %index: integer, for each sub segmentation
     function segmentation = getSubSegmentation(this, index)
       segmentation = this.getRoi(this.getSubRoiPath(index));
+    end
+
+    %METHOD: GET SHADING CORRECTED ARTIST IMAGE
+    %Returns the aRTist image, shading corrected
+    %Shading correction is done using aRTist simulations of the references except for the black
+        %image because this is not provided. Instead a flat image using the mean of the black images
+        %is used for the black image in calibrating the shading correction
+    %PARAMETERS:
+      %shadingCorrector: newly instantised shading corrector
+      %referenceIndex: integer vector, pointing to which reference images to use
+    %RETURN:
+      %slice: shading corrected aRTist image
+    function slice = getShadingCorrectedArtistImage(this, shadingCorrector, referenceIndex)
+      %get the folder location and file name of the artist image
+      [artistLocation, artistName, ~] = fileparts(this.artistFile);
+      %instantise a Scan object containing the aRTist image
+      aRTist = ScanSingle(artistLocation, artistName, this.width, this.height, this.voltage, ...
+          this.power, this.timeExposure);
+      %instantise an array of Scan objects, storing aRTist reference images
+      %store the array in the aRTist member variable referenceScanArray
+      artistReferenceArray(this.getNReference()) = Scan();
+      aRTist.referenceScanArray = artistReferenceArray;
+      
+      %use the mean of the black image for the artist simulation of the black image
+      referenceScan = this.referenceScanArray(1);
+      greyvalue = mean(reshape(referenceScan.loadImageStack(),[],1));
+      aRTist.referenceScanArray(1) = ScanSingleFlat(this.width, this.height, this.voltage, ...
+          referenceScan.power, this.timeExposure, greyvalue);
+      
+      %for each reference scan, except for black
+      for i = 2:this.getNReference()
+        %get the reference scan
+        referenceScan = this.referenceScanArray(i);
+        %get the file location and file name of the aRTist reference image
+        [artistLocation, artistName, ~] = fileparts(referenceScan.artistFile);
+        %instantise a Scan object for that aRTist reference image
+        aRTist.referenceScanArray(i) = ScanSingle(artistLocation, artistName, this.width, ...
+            this.height, this.voltage, referenceScan.power, this.timeExposure);
+      end
+      
+      aRTist.referenceWhite = this.referenceWhite;
+      %add shading correction and get the shading corrected aRTist image
+      aRTist.addShadingCorrector(shadingCorrector, referenceIndex);
+      slice = aRTist.loadImage();
+    end
+    
+  end
+  
+  methods (Access = protected)
+    
+    %METHOD: ADD ARTIST FILE
+    function addArtistFile(this, artistFile)
+      this.artistFile = artistFile;
     end
     
     %METHOD: GET ROI
@@ -301,49 +302,6 @@ classdef Scan < matlab.mixin.Heterogeneous & handle
     %Returns the path of the sub region of interst file
     function roiPath = getSubRoiPath(this, index)
       roiPath = strcat(this.folderLocation,'segmentation',num2str(index),'.roi');
-    end
-    
-    %METHOD: GET SHADING CORRECTED ARTIST IMAGE
-    %Returns the aRTist image, shading corrected
-    %Uses aRTist simulations of the references except for the black image
-    %PARAMETERS:
-      %shadingCorrector: newly instantised shading corrector
-      %referenceIndex: integer vector, pointing to which reference images to use
-    %RETURN:
-      %slice: shading corrected aRTist image
-    function slice = getShadingCorrectedArtistImage(this, shadingCorrector, referenceIndex)
-      %get the folder location and file name of the artist image
-      [artistLocation,artistName,~] = fileparts(this.artistFile);
-      artistLocation = strcat(artistLocation,'/');
-      %instantise a Scan object containing the aRTist image
-      aRTist = ScanSingle(artistLocation, artistName, this.width, this.height, this.voltage, ...
-          this.power, this.timeExposure);
-      %instantise an array of Scan objects, storing aRTist reference images
-      %store the array in the aRTist member variable referenceScanArray
-      artistReferenceArray(this.getNReference()) = Scan();
-      aRTist.referenceScanArray = artistReferenceArray;
-      
-      referenceScan = this.referenceScanArray(1);
-      greyvalue = mean(reshape(referenceScan.loadImageStack(),[],1));
-      aRTist.referenceScanArray(1) = ScanSingleFlat(this.width, this.height, this.voltage, ...
-          referenceScan.power, this.timeExposure, greyvalue);
-      
-      %for each reference scan, except for black
-      for i = 2:this.getNReference()
-        %get the reference scan
-        referenceScan = this.referenceScanArray(i);
-        %get the file location and file name of the aRTist reference image
-        [artistLocation,artistName,~] = fileparts(referenceScan.artistFile);
-        artistLocation = strcat(artistLocation,'/');
-        %instantise a Scan object for that aRTist reference image
-        aRTist.referenceScanArray(i) = ScanSingle(artistLocation, artistName, this.width, ...
-            this.height, this.voltage, referenceScan.power, this.timeExposure);
-      end
-      
-      aRTist.referenceWhite = this.referenceWhite;
-      %add shading correction and get the shading corrected aRTist image
-      aRTist.addShadingCorrector(shadingCorrector,referenceIndex);
-      slice = aRTist.loadImage();
     end
     
   end
