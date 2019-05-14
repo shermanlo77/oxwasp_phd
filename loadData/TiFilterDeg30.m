@@ -1,13 +1,12 @@
 classdef TiFilterDeg30 < TiFilter
   
-  properties
-  end
-  
-  methods
+  methods (Access = public)
     
     function this = TiFilterDeg30()
-      this@TiFilter('data/titaniumBlock_SnFilter_Dec16/scans/phantom_30deg/', '30deg_');
-      this.addArtistFile('data/titaniumBlock_SnFilter_Dec16/sim/phantom/30deg.tif');
+      this@TiFilter(fullfile('data','titaniumBlock_SnFilter_Dec16','scans','phantom_30deg'), ...
+          '30deg_');
+      this.addArtistFile(fullfile('data','titaniumBlock_SnFilter_Dec16','sim','phantom', ...
+          '30deg.tif'));
     end
     
   end
