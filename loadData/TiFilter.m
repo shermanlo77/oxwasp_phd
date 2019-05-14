@@ -1,11 +1,11 @@
-classdef TitaniumBlock_Dec16 < Scan
+classdef TiFilter < Scan
   
   properties
   end
   
   methods
     
-    function this = TitaniumBlock_Dec16(folderLocation, fileName)
+    function this = TiFilter(folderLocation, fileName)
       this@Scan(folderLocation, fileName, 2000, 2000, 20, 190, 19.95, 1415);
       
       calibrationScanArray(4) = Scan();

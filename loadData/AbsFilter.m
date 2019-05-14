@@ -1,11 +1,11 @@
-classdef AbsBlock_Sep16 < Scan
+classdef AbsFilter < Scan
   
   properties
   end
   
   methods
     
-    function this = AbsBlock_Sep16(folderLocation, fileName)
+    function this = AbsFilter(folderLocation, fileName)
       this@Scan(folderLocation, fileName, 2000, 2000, 20, 80, 20, 500);
       
       calibrationScanArray(5) = Scan();

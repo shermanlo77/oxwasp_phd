@@ -1,8 +1,8 @@
-classdef DefectDetectSep16120deg < DefectDetect
+classdef DefectDetectAbsFilterDeg120 < DefectDetect
   
   methods (Access = public)
     
-    function this = DefectDetectSep16120deg()
+    function this = DefectDetectAbsFilterDeg120()
       this@DefectDetect();
     end
     
@@ -15,7 +15,7 @@ classdef DefectDetectSep16120deg < DefectDetect
   methods (Access = protected)
   
     function setup(this)
-      this.setup@DefectDetect(uint32(3538096789), AbsBlock_Sep16_120deg(), ...
+      this.setup@DefectDetect(uint32(3538096789), AbsFilterDeg120(), ...
           [10, 50, 90, 130]);
     end
     
