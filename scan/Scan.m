@@ -97,14 +97,34 @@ classdef Scan < matlab.mixin.Heterogeneous & handle
     
     %METHOD: ADD BLACK WHITE SHADING CORRECTOR
     %Add bw shading corrector, using 0 power and the white power
-    function addShadingCorrectorBw(this)
-      this.addShadingCorrector(ShadingCorrector(this.height, this.width),[1,this.whiteIndex]);
+    %PARAMETERS:
+      %imageIndex (optional): 2 column matrix of integers, size # x 2
+          %dim 1: points to which replication to use
+          %dim 2: [black, white]
+          %if imageIndex is not provided, then all replications are used
+    function addShadingCorrectorBw(this, imageIndex)
+      if (nargin == 1)
+        this.addShadingCorrector(ShadingCorrector(this), [1,this.whiteIndex]);
+      else
+        this.addShadingCorrector(ShadingCorrector(this), [1,this.whiteIndex], imageIndex);
+      end
     end
     
     %METHOD: ADD LINEAR SHADING CORRECTION
     %Add linear shading corrector, using 0 W and all the powers till the white power
-    function addShadingCorrectorLinear(this)
-      this.addShadingCorrector(ShadingCorrector(this.height, this.width),1:this.whiteIndex);
+    %PARAMETERS:
+      %calibrationIndex (optional): vector of integers, which currents to use
+      %imageIndex (optional): matrix of integers, size # x numel(calibrationIndex)
+        %dim 1: for the current in calibrationIndex(#), points to which replication to use
+        %dim 2: for each current specified in calibrationIndex
+      %if calibrationIndex and imageIndex is not provided, then all replications are used from black
+          %to white
+    function addShadingCorrectorLinear(this, calibrationIndex, imageIndex)
+      if (nargin == 1)
+        this.addShadingCorrector(ShadingCorrector(this), 1:this.whiteIndex);
+      else
+        this.addShadingCorrector(ShadingCorrector(this), calibrationIndex, imageIndex);
+      end
     end
     
     %METHOD: ADD SHADING CORRECTOR
@@ -157,6 +177,7 @@ classdef Scan < matlab.mixin.Heterogeneous & handle
       for i = 1:numel(this.calibrationScanArray)
         this.calibrationScanArray(i).addShadingCorrectorManual(shadingCorrector);
       end
+      
     end
     
     %METHOD: SET SHADING CORRECTION ON
@@ -220,11 +241,13 @@ classdef Scan < matlab.mixin.Heterogeneous & handle
         %image because this is not provided. Instead a flat image using the mean of the black images
         %is used for the black image in calibrating the shading correction
     %PARAMETERS:
-      %shadingCorrector: newly instantised shading corrector
+      %shadingCorrectorClass: class name of the shading corrector
       %calibrationIndex: integer vector, pointing to which calibration images to use
     %RETURN:
       %slice: shading corrected aRTist image
-    function slice = getArtistImageShadingCorrected(this, shadingCorrector, calibrationIndex)
+    function slice = getArtistImageShadingCorrected(this, shadingCorrectorClass, calibrationIndex)
+      %instantise shading corrector
+      shadingCorrectorArtist = feval(shadingCorrectorClass, this);
       %get the folder location and file name of the artist image
       [artistLocation, artistName, ~] = fileparts(this.artistFile);
       %instantise a Scan object containing the aRTist image
@@ -254,8 +277,18 @@ classdef Scan < matlab.mixin.Heterogeneous & handle
       
       aRTist.whiteIndex = this.whiteIndex;
       %add shading correction and get the shading corrected aRTist image
-      aRTist.addShadingCorrector(shadingCorrector, calibrationIndex);
+      aRTist.addShadingCorrector(shadingCorrectorArtist, calibrationIndex);
       slice = aRTist.loadImage();
+    end
+    
+    %METHOD: GET SHADING CORRECTOR STATUS
+    %Returns a string describing the shading corrector
+    function name = getShadingCorrectionStatus(this)
+      if (this.wantShadingCorrection)
+        name = this.shadingCorrector.getName();
+      else
+        name = 'null';
+      end
     end
     
   end

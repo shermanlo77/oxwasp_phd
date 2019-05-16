@@ -32,17 +32,15 @@ classdef ShadingCorrector < handle
     
     %CONSTRUCTOR
     %PARAMETERS:
-      %nImage: number of reference scans
-      %height: height of the image
-      %width: width of the image
-    function this = ShadingCorrector(height, width)
-      this.imageSize = [height, width];
+      %scan: scan object, used to extract the size of the object
+    function this = ShadingCorrector(scan)
+      this.imageSize = [scan.height, scan.width];
     end
     
     %METHOD: ADD SCAN
     %Add a reference scan to the shading correction
     %PARAMETERS:
-      %scan: Scan object
+      %scan: Scan object containing calibration images
       %index: integer vector, pointing to which images in that scan to use
     function addScan(this, scan, index)
       %if index is not supplied, load all images

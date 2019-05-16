@@ -18,8 +18,8 @@ seed = uint32(2146127166); %seed used for selecting random pixels for the interp
 scanArray(1) = AbsNoFilterDeg120();
 scanArray(2) = AbsNoFilterDeg120();
 scanArray(3) = AbsNoFilterDeg120();
-scanArray(2).addShadingCorrectorBw();
-scanArray(3).addShadingCorrectorLinear();
+scanArray(2).addShadingCorrectorBw([1,1]);
+scanArray(3).addShadingCorrectorLinear(1:scanArray(3).whiteIndex, ones(1, scanArray(3).whiteIndex));
 
 %set the cLim for the gradient b
 climB = ones(2,1);
@@ -48,15 +48,15 @@ for i = 1:numel(scanArray)
   imagesc.plot();
   clim = imagesc.clim; %save the clim
   saveas(fig,fullfile('reports','figures','data', ...
-        strcat(mfilename,'_image',num2str(i),'.eps')),'epsc');
+        strcat(mfilename,'_image_',scan.getShadingCorrectionStatus(),'.eps')),'epsc');
   
   %plot the white image
   fig = LatexFigure.sub();
-  imagesc = Imagesc(scan.calibrationScanArray(scan.whiteIndex).loadImage(1));
+  imagesc = Imagesc(scan.calibrationScanArray(scan.whiteIndex).loadImage(2));
   imagesc.setCLim(clim);
   imagesc.plot();
   saveas(fig,fullfile('reports','figures','data', ...
-        strcat(mfilename,'_white',num2str(i),'.eps')),'epsc');
+        strcat(mfilename,'_white_',scan.getShadingCorrectionStatus(),'.eps')),'epsc');
   
   %plot the gradient if this has shading correction
   if (scan.wantShadingCorrection)
@@ -65,7 +65,7 @@ for i = 1:numel(scanArray)
     imagesc.setCLim(climB);
     imagesc.plot();
     saveas(fig,fullfile('reports','figures','data', ...
-        strcat(mfilename,'_gradient',num2str(i),'.eps')),'epsc');
+        strcat(mfilename,'_gradient_',scan.getShadingCorrectionStatus(),'.eps')),'epsc');
   end
 end
 
@@ -95,7 +95,7 @@ for i = 1:nPlot
   scatter(xArray(:,i), yArray, 'x', 'MarkerEdgeColor', ax.ColorOrder(i,:));
 end
 ax = gca;
-%plot the  best line of fit
+%plot the best line of fit
 xPlot = ax.XLim';
 yPlot = zeros(2, nPlot);
 shadingCorrector = scanArray(3).shadingCorrector;
