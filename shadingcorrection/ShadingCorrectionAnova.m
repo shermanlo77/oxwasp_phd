@@ -28,6 +28,10 @@ classdef (Abstract) ShadingCorrectionAnova < Experiment
     function printResults(this)
       
       powerArray = this.scan.getPowerArray();
+      minVar = min([min(reshape(this.varWithinArray,[],1)), ...
+          min(reshape(this.varBetweenArray,[],1))]);
+      maxVar = max([max(reshape(this.varWithinArray,[],1)), ...
+          max(reshape(this.varBetweenArray,[],1))]);
       
       %for each shading correction, plot the within and between variance
       for iShading = 1:this.nShadingCorrection
@@ -47,6 +51,7 @@ classdef (Abstract) ShadingCorrectionAnova < Experiment
         ylabel('variance');
         legend([boxplotWithin.getLegendAx(), boxplotBetween.getLegendAx()], ...
             'within pixel','between pixel', 'Location', 'best');
+        ylim([minVar,maxVar]);
         
       end
       
