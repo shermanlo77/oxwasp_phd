@@ -113,7 +113,7 @@ classdef AllNull < Experiment
       nullVarPlot.setWantOutlier(false);
       nullVarPlot.plot();
       ylabel('null std');
-      xlabel('radius (pixel)');
+      xlabel('radius (px)');
       if (~isempty(this.getYLim(2)))
         ylim(this.getYLim(2));
       end
@@ -130,7 +130,7 @@ classdef AllNull < Experiment
       plot([0,this.radiusArray(end)+10],[-meanCritical,-meanCritical], 'k--');
       xlim([0,this.radiusArray(end)+10]);
       ylabel('post filter image greyvalue mean');
-      xlabel('radius (pixel)');
+      xlabel('radius (px)');
       if (~isempty(this.getYLim(3)))
         ylim(this.getYLim(3));
       end
@@ -148,7 +148,7 @@ classdef AllNull < Experiment
       plot([0,this.radiusArray(end)+10],[stdCritical2,stdCritical2], 'k--');
       xlim([0,this.radiusArray(end)+10]);
       ylabel('post filter image greyvalue std');
-      xlabel('radius (pixel)');
+      xlabel('radius (px)');
       if (~isempty(this.getYLim(4)))
         ylim(this.getYLim(4));
       end
@@ -165,7 +165,7 @@ classdef AllNull < Experiment
       plot([0,this.radiusArray(end)+10],3+sqrt(24)*[-meanCritical,-meanCritical], 'k--');
       xlim([0,this.radiusArray(end)+10]);
       ylabel('post filter image greyvalue kurtosis');
-      xlabel('radius (pixel)');
+      xlabel('radius (px)');
       if (~isempty(this.getYLim(5)))
         ylim(this.getYLim(5));
       end
@@ -177,7 +177,7 @@ classdef AllNull < Experiment
       timePlot.setPosition(this.radiusArray);
       timePlot.plot();
       ylabel('time (s)');
-      xlabel('radius (pixel)');
+      xlabel('radius (px)');
       xlim([0,this.radiusArray(end)+10]);
       if (~isempty(this.getYLim(6)))
         ylim(this.getYLim(6));
