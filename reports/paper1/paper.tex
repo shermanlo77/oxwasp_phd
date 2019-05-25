@@ -15,6 +15,7 @@
 \usepackage{MnSymbol} %udots
 \usepackage{afterpage} %\afterpage{\clearpage}
 \usepackage{siunitx} %for measurements
+\usepackage{soul}%highlight changes
 
 \setcounter{tocdepth}{2}
 \setcounter{secnumdepth}{2}
@@ -30,7 +31,7 @@
 \newcommand{\addNumber}[1]{\protect\input{#1}\unskip}
 \newcommand{\inputNumber}[1]{\protect\input{#1}\unskip}
 
-\title{Local Normalisation using the Empirical Null for Inspection of Additive Manufacturing using X-Rays}
+\title{Local normalisation using the empirical null for inspection of additive manufacturing using a single x-ray projection}
 \date{2019}
 \author{
   Sherman Lo \and Gregory Gibbons \and Thomas Nichols \and Julia Brettschneider \and Mark Williams \and Jason Warnett
@@ -41,43 +42,41 @@
 \maketitle
 
 \begin{abstract}
-X-ray computed tomography can be used for defect detection in additive manufacturing. The object is scanned at multiple angles to reconstruct the object in 3D space. To avoid this time consuming process, it was investigated whenever it is possible to detect defects based on a single scan. A 3D printed sample was manufactured with voids to see if they can be detected. The x-ray acquisition was compared with a simulation of that scan under the face of uncertainty by treating each pixel as a hypothesis test. The empirical null filter locally normalises each test statistic using robust estimators of the mean and deviation so that sensible inference was achieved.
+X-ray computed tomography can be used for defect detection in additive manufacturing. \hl{Typically, x-ray projections of an object are taken at a number of angles that are then reconstructed to create a 3D representation of the object inclusive of internal features. To avoid this time consuming process, it was investigated whenever it is possible to detect defects based on a single angular projection.} A 3D printed sample was manufactured with voids to see if they can be detected. The x-ray acquisition was compared with a simulation of that scan under the face of uncertainty by treating each pixel as a hypothesis test. The empirical null filter locally normalises each test statistic using robust estimators of the mean and deviation so that sensible inference was achieved.
 \end{abstract}
 
 \section{Introduction}
 
-Quality control in additive manufacturing (or 3D printing) can be done using x-ray computed tomography (CT) \citep{thompson2016x}. The CT is compared to the computer aided design (CAD) so that voids and surface deviation can be measured in terms of position and size \citep{villarraga2015assessing, lee2015compliance, kim2016inspection}. The disadvantage of x-ray CT is that it involves calculations on the acquisition of hundreds of angles of the sample.
+Quality control in additive manufacturing (or 3D printing) can be done using x-ray computed tomography (CT) \citep{thompson2016x}. The CT is compared to the computer aided design (CAD) so that voids and surface deviation can be measured in terms of position and size \citep{villarraga2015assessing, lee2015compliance, kim2016inspection}. The disadvantage of x-ray CT is that it involves the \hl{acquisition and reconstruction of thousands} of projections of the sample. Speeding up the quality control process on the production line could be done by doing an inspection on a \hl{fewer number of projections by sacrificing accuracy} \citep{warnett2016towards, brierley2018optimized}.
 
-Speeding up the quality control process on the production line could be done by doing an inspection on a few numbers of x-ray images \citep{warnett2016towards}. These x-ray images are compared with a simulation of that scan using software called \texttt{aRTist} \citep{bellon2007artist, jaenisch2008artist, bellon2012radiographic}. \texttt{aRTist} can simulate x-ray acquisitions of the 3D printed sample given the specifications of the scan, such as the x-ray source, the x-ray detector and the computer aided design (CAD) of the 3D printed sample \citep{bellon2011simulation, deresch2012simulating}. Users of \texttt{aRTist} can align the simulated x-ray image to the real x-ray image using numerical methods.
+A method was proposed to compare a \hl{single projection with a simulation of that projection and treating it as the ground truth.} This was done by using two-tailed multiple hypothesis testing \citep{pearson1900on, neyman1933on, fisher1970statistical} controlling the false discovery rate (FDR) \citep{benjamini1995controlling, benjamini2010discovering}, treating each pixel as an individual test. Beforehand however, the empirical null \citep{efron2004large} was used to do local normalisation on the test statistics. This was necessary because the simulation of the projection did not match up perfectly, producing incorrect inference.
 
-A method was proposed to compare the x-ray image with \texttt{aRTist} by treating the simulation of \texttt{aRTist} as the ground truth. This was done by using two-tailed multiple hypothesis testing \citep{pearson1900on, neyman1933on, fisher1970statistical} controlling the false discovery rate (FDR) \citep{benjamini1995controlling, benjamini2010discovering}, treating each pixel as an individual test. However beforehand, the empirical null \citep{efron2004large} was used to do local normalisation on the test statistics. This was necessary because the simulation of \texttt{aRTist} do not match up perfectly with the x-ray image, producing incorrect inference.
-
-An x-ray image of a 3D printed sample was obtained and compared with the \texttt{aRTist} simulation in an experiment. The procedure is shown in the methods section along with the description of the empirical null filter. In addition, the software development and simulation studies of the filter was discussed. The results from the simulation and the experiment are shown in the results section. The conclusion section summarises the study along with a discussion on further work.
+An x-ray \hl{projection} of a 3D printed sample was obtained and compared with the simulation in an experiment. The procedure is shown in the methods section along with the description of the empirical null filter. In addition, the software development and simulation studies of the filter was discussed. The results from the simulation and the experiment are shown in the results section. The conclusion section summarises the study along with a discussion on further work.
 
 \section{Methods}
 
 \subsection{Apparatus and Data Collection}
 
-A ABS plastic cuboid (\SI{4}{\centi\metre} $\times$ \SI{4}{\centi\metre} $\times$ \SI{6}{\centi\metre}) with voids was purposefully manufactured to see if they can be detected. The CAD shown in Figure \ref{fig:inference_testObject} was manufactured using a \emph{Fortus} 3D printer. The voids were of various diameters \SI{2.4}{\milli\metre}, \SI{1.2}{\milli\metre}, \SI{0.6}{\milli\metre} and \SI{0.3}{\milli\metre}. 6 voids for each diameter were designed in the CAD. Voids with diameters \SI{2.4}{\milli\metre} and \SI{0.6}{\milli\metre} were regularly arranged, otherwise they were arranged irregularly. The precision of the manufacturing was in the order of $\pm\SI{0.1}{\milli\metre}$.
+An ABS plastic cuboid (\SI{40}{\milli\metre} $\times$ \SI{40}{\milli\metre} $\times$ \SI{60}{\milli\metre}) with voids was purposefully manufactured to see if they can be detected. The CAD shown in Figure \ref{fig:inference_testObject} was manufactured using a \emph{Fortus 400mc (Stratasys, US)} 3D printer. The voids were of diameters \SI{2.4}{\milli\metre}, \SI{1.2}{\milli\metre}, \SI{0.6}{\milli\metre} and \SI{0.3}{\milli\metre}. 6 voids for each diameter were designed in the CAD. Voids with diameters \SI{2.4}{\milli\metre} and \SI{0.6}{\milli\metre} were regularly arranged, otherwise they were arranged irregularly. The precision of the manufacturing was in the order of $\pm\SI{0.1}{\milli\metre}$.
 
 \begin{figure}
   \centering
   \includegraphics[width=0.35\textwidth]{../figures/inference/TestObject.png}
-  \caption{CAD of a 3D cuboid with voids. The voids were of various diameters \SI{2.4}{\milli\metre}, \SI{1.2}{\milli\metre}, \SI{0.6}{\milli\metre} and \SI{0.3}{\milli\metre}. 6 voids for each diameter were designed in the CAD. Voids with diameters \SI{2.4}{\milli\metre} and \SI{0.6}{\milli\metre} were regularly arranged, otherwise they were arranged irregularly. The scale shown is approximate.}
+  \caption{CAD of a 3D cuboid with voids. The voids were of diameters \SI{2.4}{\milli\metre}, \SI{1.2}{\milli\metre}, \SI{0.6}{\milli\metre} and \SI{0.3}{\milli\metre}. 6 voids for each diameter were designed in the CAD. Voids with diameters \SI{2.4}{\milli\metre} and \SI{0.6}{\milli\metre} were regularly arranged, otherwise they were arranged irregularly. The scale shown is approximate.}
   \label{fig:inference_testObject}
 \end{figure}
 
-The x-ray source used a tungsten filament with a copper filter. The current and voltage was set to \SI{250}{\micro\ampere} and \SI{80}{\kilo\volt} respectively. The exposure time was \SI{500}{\milli\second}. The x-ray detector is a \emph{Perkin Elmer XRD 1621 AN/CN} digital x-ray detector, producing a $2000\times 2000$ 16-bit image. Shading correction \citep{young2000shading, munzenmayer2003enhancing}, using a black image at \SI{0}{\kilo\volt} and a white image at \SI{80}{\kilo\volt}, were used to remove panel effects from the x-ray detector.
+X-ray projections were obtained using the \emph{Nikon XT H LC 225/320} x-ray CT scanner \emph{(Nikon Metrology, UK)}. The \SI{225}{\kilo\volt} source was used with a $2000\times2000$ pixel \emph{Perkin Elmer} detector consisting of \SI{200}{\micro\metre} pixels, separated by a distance of \SI{1870}{\milli\metre}. This object was placed on the manipulator, positioned to obtain a $5.7\times$ magnification resulting in an equivalent pixel size of \SI{35}{\micro\metre}. A voltage of \SI{80}{\kilo\volt} was used with a power of \SI{20}{\watt} resulting in a spot size of \SI{20}{\micro\metre} such that penumbra effects were negligible. 20 greyscale projections were acquired at an exposure time of \SI{500}{\milli\second}. A shading correction \citep{young2000shading, munzenmayer2003enhancing} was applied to each projection using a black (\SI{0}{\kilo\volt}) and white image (\SI{80}{\kilo\volt}) projection to remove intensity influences and variations in pixels of the detector.
 
-The 3D printed sample was scanned 20 times at a fixed angle. The 20 x-ray images were spilt into 2. 19 random images were held out. The remaining image was used to compare with \texttt{aRTist}. In the \texttt{aRTist} simulation, the software did a simulation as if the voids were not there.
+The 3D printed sample was scanned 20 times at a fixed angle. The 20 x-ray projections were spilt into 2. 19 random projections were held out. The remaining projection was used to compare with the simulation using \emph{aRTist} \citep{bellon2007artist, jaenisch2008artist, bellon2012radiographic}. In the \emph{aRTist} simulation, the software did a simulation as if the voids were not there. Numerical methods were used to align the simulated x-ray image to the obtained x-ray projection.
 
 \subsection{Statistical Methodology}
 
-Two-tailed multiple hypothesis testing \citep{pearson1900on, neyman1933on, fisher1970statistical} was used to quantify the disagreement of each pixel between the scan and \texttt{aRTist}. A disagreement too big will classify that pixel as a positive result. A test statistic $Z_{x,y}$ for the $(x,y)$ positioned pixel was calculated for all pixels. This test statistic, together makes a $z$ image, is
+Two-tailed multiple hypothesis testing \citep{pearson1900on, neyman1933on, fisher1970statistical} was used to quantify the disagreement of each pixel between the scan and \emph{aRTist}. A disagreement too big will classify that pixel as a positive result. A test statistic $Z_{x,y}$ for the $(x,y)$ positioned pixel was calculated for all pixels. This test statistic, together makes a $z$ image, is
 \begin{equation}
   Z_{x,y} = 
   \dfrac{
-    \text{scan}_{x,y} - \texttt{aRTist}_{x,y}
+    \text{scan}_{x,y} - \emph{aRTist}_{x,y}
   }
   {
     \sqrt{\widehat{\variance}\left[\text{scan}_{x,y}\right]}
@@ -85,7 +84,7 @@ Two-tailed multiple hypothesis testing \citep{pearson1900on, neyman1933on, fishe
 \end{equation}
 where $\widehat{\variance}\left[\text{scan}_{x,y}\right]$ is the estimated grey value variance of pixel $(x,y)$ in the scan.
 
-The variance model, $\widehat{\variance}\left[\text{scan}_{x,y}\right]$ has a linear relationship between the variance and the grey value \citep{yang2010noise}. The fitting of the model was done using the held out replicated x-ray images of the 3D printed sample. These replicated x-ray images were manually segmented. This provided variance-mean data, where each pixel is a data point, and was used to fit the variance model. The model used was a gamma distributed generalised linear model \citep{nelder1972generalized, mccullagh1984generalized} with an identity link. The variance was predicted using the grey value in the \texttt{aRTist} simulation as the predictor variable when working out the test statistics.
+The variance model, $\widehat{\variance}\left[\text{scan}_{x,y}\right]$ has a linear relationship between the variance and the grey value \citep{yang2010noise}. The fitting of the model was done using the held out replicated x-ray images of the 3D printed sample. These replicated x-ray images were manually segmented. This provided variance-mean data, where each pixel is a data point, and was used to fit the variance model. The model used was a gamma distributed generalised linear model \citep{nelder1972generalized, mccullagh1984generalized} with an identity link. The variance was predicted using the grey value in the \emph{aRTist} simulation as the predictor variable when working out the test statistics.
 
 It was assumed that the grey values were Normal, therefore the test statistics should be approximately Normal as well. Let the test statistic of the pixel at position $(x,y)$ be
 \begin{equation}
@@ -145,7 +144,7 @@ and was used in the \cite{benjamini1995controlling} (BH) procedure at the 5\% FD
 
 \subsection{Software Development}
 
-The empirical null filter was implemented using \texttt{ImageJ} \citep{abramoff2004image, schindelin2012fiji, schneider2012nih, perez2013image} by modifying the existing class \texttt{RankFilters}. It contains implementations of filters, such as the mean filter and median filter, using a circular kernel and multiple threads. Each thread filters a row in parallel.
+The empirical null filter was implemented using \emph{ImageJ} \citep{abramoff2004image, schindelin2012fiji, schneider2012nih, perez2013image} by modifying the existing class \texttt{RankFilters}. It contains implementations of filters, such as the mean filter and median filter, using a circular kernel and multiple threads. Each thread filters a row in parallel.
 
 Line filtering was done from left to right. At the start on the far left, an initial value of the median of all the test statistics in the kernel was used. For the following pixel to the right, the empirical null mean of the neighbouring left pixel was used as the initial point. This was chosen as it was assumed the empirical null mean would vary slowly and smoothly spatially.
 
@@ -273,7 +272,7 @@ It appeared there is a kernel radius which minimised the type 2 error. A large k
 
 In the experiment with the 3D printed sample, the x-ray image was manually segmented further as shown in Figure \ref{fig:inference_segmentFurther}. It was segmented using the edges of the projection of the 3D printed object. The empirical null filter was then used on each segment, or ROI, independently, ignoring any pixels outside the ROI the filter is working on. The resulting filtered segments were stitched together to form the resulting filtered image. The resulting inference is shown in Figure \ref{fig:inference_subroiAbsFilterDeg120_inference_radius4}.
 
-The larger defects were successfully highlighted by the hypothesis test. It can be seen that the empirical null mean did change face to face, resulting in a clear boundary set by the edges. This probably suggest that the contamination or inaccuracy from \texttt{aRTist} was face dependent.
+The larger defects were successfully highlighted by the hypothesis test. It can be seen that the empirical null mean did change face to face, resulting in a clear boundary set by the edges. This probably suggest that the contamination or inaccuracy from \emph{aRTist} was face dependent.
 
 \begin{figure}
   \centering
@@ -330,18 +329,18 @@ The main issue was how slow the filter was. Figure \ref{fig:inference_timing} sh
         \caption{Mean variance null filter}
       \end{subfigure}
     }
-  \caption{Timings when filtering a $256\times 256$ image. The mean variance null filter uses the sample mean and sample standard deviation to locally normalise the image. Note the y-axis change scale.}
+  \caption{Timings when filtering a $256\times 256$ image. The mean variance null filter uses the sample mean and sample standard deviation to locally normalise the image. Note that the $y$-axis changes scale. The box plot summarise 100 repeated measurements of the timings.}
   \label{fig:inference_timing}
 \end{figure*}
 
-There are a few strategies to accelerate the filter. The empirical null filter may be accelerated using GPUs \citep{yang2008parallel, hwu2011gpu, eklund2013medical}, however efforts to implement the filter in \texttt{CUDA} and \texttt{C++} is fruitless if there may exist a faster method. Instead, accuracy may be sacrificed for speed by only estimating the null parameters for a number of regularly spaced pixels, the remaining pixels then do estimation through interpolation. The problem is that the assumption of a slow varying null parameter is required much more because of the use of interpolation, this may cause bigger problems due to the face to face transition observed in the experiments. It was found that if a bad solution was found for a point, then that solution would spread its bad solution to neighbour pixels due to the interpolation.
+There are a few strategies to accelerate the filter. The empirical null filter may be accelerated using GPUs \citep{yang2008parallel, hwu2011gpu, eklund2013medical}, however efforts to implement the filter in \emph{CUDA} and \emph{C++} is fruitless if there may exist a faster method. Instead, accuracy may be sacrificed for speed by only estimating the null parameters for a number of regularly spaced pixels, the remaining pixels then do estimation through interpolation. The problem is that the assumption of a slow varying null parameter is required much more because of the use of interpolation, this may cause bigger problems due to the face to face transition observed in the experiments. It was found that if a bad solution was found for a point, then that solution would spread its bad solution to neighbour pixels due to the interpolation.
 
 The main bottleneck is the evaluation of the density estimate, each step in the Newton-Raphson required the evaluation of each pixel in the kernel. Perhaps there may be faster methods for density estimation such as fitting a smoothing spline on the histogram \citep{efron2004large}, however that would require tuning the histogram bins as well as the tuning parameters for the spline. On the other hand, the method in \cite{schwartzman2008empirical} which uses the histogram count found that the estimation of the null parameters was insensitive to the histogram binning.
 
 Estimation of the null parameters is essentially robust statistics, estimating the parameters of the null distribution without being affected by non-null statistics. Potential faster methods than the empirical null could exist in literature for robust statistics such as \cite{hampel1986robust, rousseeuw1987robust, maronna2006robust, huber2009robust, jewson2018principles}. The EM algorithm \citep{dempster1977maximum} could be used to fit a mixture of Gaussians to identify the null distribution and estimate its parameters. However the power of hypothesis testing and the empirical null comes from the fact that the alternative distribution does not need to be specified.
 
 \section{Acknowledgements}
-This work is funded by EPSRC grant numbers EP/K031066/1 and EP/L016710/1.
+This work is funded by EPSRC grant numbers EP/K031066/1 (Inside-out: Statistical methods for Computed Tomography validation of complex structures in Additive Layer Manufacturing) and EP/L016710/1 (EPSRC and MRC Centre for Doctoral Training in Next Generation Statistical Science: The Oxford-Warwick Statistics Programme).
 
 \bibliographystyle{apalike}
 \bibliography{../bib}
