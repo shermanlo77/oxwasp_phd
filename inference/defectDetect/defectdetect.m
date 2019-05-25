@@ -1,9 +1,9 @@
-this = DefectDetectSep16120deg();
+this = DefectDetectAbsFilterDeg120();
 this.run();
 this.printResults();
 close all;
 
-this = DefectDetectSubRoiSep16120deg();
+this = DefectDetectSubRoiAbsFilterDeg120();
 this.run();
 this.printResults();
 close all;

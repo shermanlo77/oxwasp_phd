@@ -1,0 +1,114 @@
+Figure \ref{fig:data_AbsNoFilter} shows the data. Shading correction is done via the following. It requires calibration images, they are projections of nothing at different powers. For each calibration image, calculate the within image mean. For each pixel, do a linear regression of the within image mean versus the grey value for different powers: bw shading correction uses only the black and max power calibration images, linear shading correction uses all calibration images. The regression maps the uncorrected grey value ($x$) to the shading corrected grey value ($y$) for this particular pixel.
+
+An example is shown in Figure \ref{fig:data_shadingCorrectionExample_gainMap}. In Figure \ref{fig:data_shadingCorrectionExample_gainMap} a), 3 random pixels were used to demonstrate the regression. The gradient of the regression for all pixels are shown in Figure \ref{fig:data_shadingCorrectionExample_gainMap} b).
+
+\begin{figure}
+  \centering
+  \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+      \includegraphics[width=\textwidth]{../figures/data/AbsNoFilterDeg30.eps}
+      \caption{Projection of sample at \SI{44}{\watt}}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+      \includegraphics[width=\textwidth]{../figures/data/AbsNoFilterDeg30_sim.eps}
+      \caption{Simulation of sample at \SI{44}{\watt}}
+    \end{subfigure}
+  }
+  \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+      \includegraphics[width=\textwidth]{../figures/data/AbsNoFilter_calibration1.eps}
+      \caption{Projection at \SI{0}{\watt}}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+      \includegraphics[width=\textwidth]{../figures/data/AbsNoFilter_calibration5.eps}
+      \caption{Projection at \SI{44}{\watt}}
+    \end{subfigure}
+  }
+  \caption{Projections obtained; note the colour scale may vary.}
+  \label{fig:data_AbsNoFilter}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+      \includegraphics[width=\textwidth]{../figures/data/shadingCorrectionExample_interpolation.eps}
+      \caption{Example gain curves}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+      \includegraphics[width=\textwidth]{../figures/data/shadingCorrectionExample_gradient_bw.eps}
+      \caption{Normalised gain map}
+    \end{subfigure}
+  }
+  \caption{Normalised gain map from bw shading correction is shown in b). They were obtained by using the gradient in the example shown in a) for 3 random pixels.}
+  \label{fig:data_shadingCorrectionExample_gainMap}
+\end{figure}
+
+The gain is actually the sensitivity so it should be a plot of the grey value versus the power, this is shown in Figure \ref{fig:data_shadingCorrectionExample_gain}. However this is similar to the linear regression done for shading correction.
+
+\begin{figure}
+  \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+      \includegraphics[width=\textwidth]{../figures/data/shadingCorrectionExample_power_null.eps}
+      \caption{No shading correction}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+      \includegraphics[width=\textwidth]{../figures/data/shadingCorrectionExample_power_bw.eps}
+      \caption{bw shading correction}
+    \end{subfigure}
+  }
+  \caption{Gain curve before and after shading correction. The box plot summarise all $2000\times2000$ pixels in a projection.}
+  \label{fig:data_shadingCorrectionExample_gain}
+\end{figure}
+
+In the black image, I've noticed the vertical read-out structure can be seen. This can be done by plotting the grey value down a column as shown in Figure \ref{fig:data_oddEven}. In particular, the grey value jumps up and down at every pixel, this is seen by plotting the same profile curve but for every odd and even $y$. Shading correction corrects this because the black image has information on the odd/even structure which is then fed into the shading correction.
+
+An autocorrelation plot could be plotted, but it's easier to do a Fourier transform, this is shown in Figure \ref{fig:data_fft}.
+
+No read-out structure can be seen horizontally, see Figure \ref{fig:data_oddEvenX}. Panel structure can be seen however.
+
+\begin{figure}
+  \centerline{
+    \begin{subfigure}[b]{\textwidth}
+      \includegraphics[width=0.49\textwidth]{../figures/data/oddEvenPlot1_null.eps}
+      \includegraphics[width=0.49\textwidth]{../figures/data/oddEvenPlot2_null.eps}
+      \caption{No shading correction}
+    \end{subfigure}
+  }
+  \centerline{
+    \begin{subfigure}[b]{\textwidth}
+      \includegraphics[width=0.49\textwidth]{../figures/data/oddEvenPlot1_bw.eps}
+      \includegraphics[width=0.49\textwidth]{../figures/data/oddEvenPlot2_bw.eps}
+      \caption{bw shading correction}
+    \end{subfigure}
+  }
+  \caption{Left shows the profile plot of a black image at $(879,y)$ before and after shading correction. Right shows two curves for odd and even $y$.}
+  \label{fig:data_oddEven}
+\end{figure}
+
+\begin{figure}
+  \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+      \includegraphics[width=\textwidth]{../figures/data/shadingCorrectionExample_blackFft_null.eps}
+      \caption{No shading correction}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+      \includegraphics[width=\textwidth]{../figures/data/shadingCorrectionExample_blackFft_bw.eps}
+      \caption{bw shading correction}
+    \end{subfigure}
+  }
+  \caption{Fourier transform on the black image before and after shading correction. The colour scale is in arbitrary units and range between 0 to 255.}
+  \label{fig:data_fft}
+\end{figure}
+
+\begin{figure}
+  \centerline{
+    \begin{subfigure}[b]{\textwidth}
+      \includegraphics[width=0.49\textwidth]{../figures/data/oddEvenPlot1_nullX.eps}
+      \includegraphics[width=0.49\textwidth]{../figures/data/oddEvenPlot2_nullX.eps}
+      \caption{No shading correction}
+    \end{subfigure}
+  }
+  \caption{Left shows the profile plot of a black image at $(y,879)$ before and after shading correction. Right shows two curves for odd and even $y$.}
+  \label{fig:data_oddEvenX}
+\end{figure}

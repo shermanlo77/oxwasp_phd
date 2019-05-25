@@ -1,4 +1,4 @@
-classdef ShadingCorrector_null < ShadingCorrector
+classdef ShadingCorrectorNull < ShadingCorrector
     %SHADINGCORRECTOR_NULL Stores an array of refererence scans, does not do
     %shading correction
     %   A stack of reference scans (white, grey, black images) is passed to the
@@ -14,7 +14,7 @@ classdef ShadingCorrector_null < ShadingCorrector
         %CONSTRUCTOR
         %PARAMETERS:
             %reference_image_array: stack of reference scans
-        function this = ShadingCorrector_null()
+        function this = ShadingCorrectorNull()
             this = this@ShadingCorrector();
         end
         
