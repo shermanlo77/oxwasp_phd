@@ -109,7 +109,7 @@ classdef (Abstract) DefectDetect < Experiment
       
       %assign member variables
       this.scan = scan;
-      this.scan.addDefaultShadingCorrector();
+      this.scan.addShadingCorrectorBw();
       this.radiusArray = radiusArray;
       this.zFilterArray = nan(scan.height, scan.width, numel(radiusArray));
       this.nullMeanArray = nan(scan.height, scan.width, numel(radiusArray));
@@ -124,7 +124,7 @@ classdef (Abstract) DefectDetect < Experiment
       this.testIndex = index(end);
       
       %get the aRTist image
-      artist = scan.getShadingCorrectedArtistImage(ShadingCorrector(),1:scan.referenceWhite);
+      artist = scan.getArtistImageShadingCorrected('ShadingCorrector',1:scan.whiteIndex);
       
       %get the segmentation image
       segmentation = scan.getSegmentation();

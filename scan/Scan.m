@@ -291,6 +291,18 @@ classdef Scan < matlab.mixin.Heterogeneous & handle
       end
     end
     
+    %METHOD: GET ROI PATH
+    %Returns the path of the region of interst file
+    function roiPath = getRoiPath(this)
+      roiPath = fullfile(this.folderLocation,'segmentation.roi');
+    end
+    
+    %METHOD: GET SUB ROI PATH
+    %Returns the path of the sub region of interst file
+    function roiPath = getSubRoiPath(this, index)
+      roiPath = fullfile(this.folderLocation,strcat('segmentation',num2str(index),'.roi'));
+    end
+    
   end
   
   methods (Access = protected)
@@ -323,18 +335,6 @@ classdef Scan < matlab.mixin.Heterogeneous & handle
       %copy the pixels from the mask to the segmentation matrix at the roi coordinates
       segmentation = false(this.height, this.width);
       segmentation(y:(y+mask.getHeight()-1), x:(x+mask.getWidth()-1)) = roiMask;
-    end
-    
-    %METHOD: GET ROI PATH
-    %Returns the path of the region of interst file
-    function roiPath = getRoiPath(this)
-      roiPath = strcat(this.folderLocation,'segmentation.roi');
-    end
-    
-    %METHOD: GET SUB ROI PATH
-    %Returns the path of the sub region of interst file
-    function roiPath = getSubRoiPath(this, index)
-      roiPath = strcat(this.folderLocation,'segmentation',num2str(index),'.roi');
     end
     
   end

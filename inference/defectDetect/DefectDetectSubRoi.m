@@ -41,7 +41,7 @@ classdef (Abstract) DefectDetectSubRoi < DefectDetect
         
         %plot the test image with the significant pixels from each segment
         fig = LatexFigure.sub();
-        sigPlot = ImagescSignificant(this.scan.loadImageStack(this.testIndex));
+        sigPlot = Imagesc(this.scan.loadImageStack(this.testIndex));
         sigPlot.addPositivePixels(sigImage);
         sigPlot.setDilateSize(2);
         sigPlot.plot();
