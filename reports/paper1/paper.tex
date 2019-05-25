@@ -271,7 +271,7 @@ Keeping the FDR consistent before and after filtering is desirable so that the F
 
 It appeared there is a kernel radius which minimised the type 2 error. A large kernel radius is required for FDR control but too large can lose statistical power.
 
-In the experiment with the 3D printed sample, the x-ray image was manually segmented further as shown in Figure \ref{fig:inference_segmentFurther}. It was segmented using the edges of the projection of the 3D printed object. The empirical null filter was then used on each segment, or ROI, independently, ignoring any pixels outside the ROI the filter is working on. The resulting filtered segments were stitched together to form the resulting filtered image. The resulting inference is shown in Figure \ref{fig:inference_subroisep16120deg_inference_radius4}.
+In the experiment with the 3D printed sample, the x-ray image was manually segmented further as shown in Figure \ref{fig:inference_segmentFurther}. It was segmented using the edges of the projection of the 3D printed object. The empirical null filter was then used on each segment, or ROI, independently, ignoring any pixels outside the ROI the filter is working on. The resulting filtered segments were stitched together to form the resulting filtered image. The resulting inference is shown in Figure \ref{fig:inference_subroiAbsFilterDeg120_inference_radius4}.
 
 The larger defects were successfully highlighted by the hypothesis test. It can be seen that the empirical null mean did change face to face, resulting in a clear boundary set by the edges. This probably suggest that the contamination or inaccuracy from \texttt{aRTist} was face dependent.
 
@@ -286,26 +286,26 @@ The larger defects were successfully highlighted by the hypothesis test. It can 
   \centering
     \centerline{
       \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/DefectDetectSubRoiSep16120deg_radius4_sig.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/DefectDetectSubRoiAbsFilterDeg120_radius4_sig.eps}
         \caption{X-ray image with positive pixels}
       \end{subfigure}
       \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/DefectDetectSubRoiSep16120deg_radius4_logp.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/DefectDetectSubRoiAbsFilterDeg120_radius4_logp.eps}
         \caption{$-\log p$}
       \end{subfigure}
     }
     \centerline{
       \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/DefectDetectSubRoiSep16120deg_radius4_nullMean.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/DefectDetectSubRoiAbsFilterDeg120_radius4_nullMean.eps}
         \caption{Empirical null mean}
       \end{subfigure}
       \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/DefectDetectSubRoiSep16120deg_radius4_nullStd.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/DefectDetectSubRoiAbsFilterDeg120_radius4_nullStd.eps}
         \caption{Empirical null std}
       \end{subfigure}
     }
   \caption{Resulting inference when using the empirical null filter, on each segment independently, with radius $r=\addNumber{../figures/inference/DefectDetectSubRoiSep16120deg_radius4.txt}$. a) X-ray image with highlighted red positive pixels at the 5\% FDR level. b) $p$-values on the log scale. c) and d) Empirical null mean and standard deviation.}
-  \label{fig:inference_subroisep16120deg_inference_radius4}
+  \label{fig:inference_subroiAbsFilterDeg120_inference_radius4}
 \end{figure*}
 
 \section{Conclusion}
