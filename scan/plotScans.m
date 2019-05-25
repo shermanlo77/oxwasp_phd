@@ -34,7 +34,6 @@ function plotAndSaveScan(scanArray)
   %get the clim using the min and max of the x-ray images
   %the calibration clim will use the min over all calibration images
   clim = [min(min(min(imageArray))), max(max(max(imageArray)))];
-  climCalibration = clim;
   
   %for each angle
   for i = 1:n
@@ -60,15 +59,9 @@ function plotAndSaveScan(scanArray)
     %get the calibration scan image
     calibration = scan.calibrationScanArray(i).loadImage(1);
     
-    %if this is the first power, get the minimum and set the clim
-    if (i == 1)
-      climCalibration(1) = min(min(calibration));
-    end
-    
     %plot the calibration image
     fig = LatexFigure.sub();
     imagescPlot = Imagesc(calibration);
-    imagescPlot.setCLim(climCalibration);
     imagescPlot.plot();
     saveas(fig,fullfile('reports','figures','data', ...
         strcat(dataName,'_calibration',num2str(i),'.eps')),'epsc');
@@ -78,9 +71,9 @@ function plotAndSaveScan(scanArray)
     if (i >= 2)
       calibration = scan.calibrationScanArray(i).getArtistImage();
       fig = LatexFigure.sub();
-      imagescPlot = Imagesc(calibration);
-      imagescPlot.setCLim(climCalibration);
-      imagescPlot.plot();
+      imagescArtistPlot = Imagesc(calibration);
+      imagescArtistPlot.setCLim(imagescPlot.clim);
+      imagescArtistPlot.plot();
       saveas(fig,fullfile('reports','figures','data', ...
         strcat(dataName,'_calibrationSim',num2str(i),'.eps')),'epsc');
     end
