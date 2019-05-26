@@ -124,7 +124,7 @@ classdef (Abstract) DefectDetect < Experiment
       this.testIndex = index(end);
       
       %get the aRTist image
-      artist = scan.getArtistImageShadingCorrected('ShadingCorrector',1:scan.whiteIndex);
+      artist = scan.getArtistImageShadingCorrected('ShadingCorrector',[1,scan.whiteIndex]);
       
       %get the segmentation image
       segmentation = scan.getSegmentation();
