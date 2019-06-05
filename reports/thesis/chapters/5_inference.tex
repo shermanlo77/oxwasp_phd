@@ -1,5 +1,3 @@
-The aim of this project was to obtain an x-ray image of a 3D printed sample and compare it with a simulation of that scan using software called \texttt{aRTist} \citep{bellon2007artist, jaenisch2008artist, bellon2012radiographic}. \texttt{aRTist} can simulate x-ray acquisitions of the 3D printed sample given the specifications of the scan, such as the x-ray source, the x-ray detector and the computer aided design (CAD) of the 3D printed sample \citep{bellon2011simulation, deresch2012simulating}. Users of \texttt{aRTist} can align the simulated x-ray image to the real x-ray image using numerical methods, however this is outside the scope of this thesis.
-
 Disagreement between the scan and \texttt{aRTist} can be found by subtracting one image from the other, any values too big in magnitude can be considered as a defect. However in the previous chapters, it was found that x-ray photons behave randomly and differences in the comparison can be due to chance. Thus the comparisons should be done under the face of uncertainty.
 
 A pixel by pixel inference was proposed to do defect detection. A test statistic $Z_{x,y}$ for the $(x,y)$ positioned pixel was calculated for all pixels. This test statistic is
@@ -19,15 +17,6 @@ Z_{x,y}\sim \normal(0,1) \ .
 As with usual statistical convention, upper case $Z$ denote a random variable. Lower case $z$ denote a realisation or an observation of that random variable.
 
 The variance model, $\widehat{\variance}\left[\text{scan}_{x,y}\right]$, can be calibrated, or trained, by holding out a number replicated x-ray images of a 3D printed sample. These replicated x-ray images were manually segmented. This provided variance-mean data and was used to train the variance model, such as a gamma distributed GLM. The method on doing so was described in the previous chapter and it was found a linear relationship between the variance and the mean was a good model. The variance was then predicted using the grey value in the \texttt{aRTist} simulation as the predictor variable.
-
-This method for inference was applied to the dataset \texttt{Sep16 120deg}. A cuboid (4 cm $\times$ 4 cm $\times$ 6 cm) with voids was purposefully manufactured to see if they can be detected, the CAD shown in Figure \ref{fig:inference_testObject}. The voids were of various diameters 2.4 mm, 1.2 mm, 0.6 mm and 0.3 mm. 6 voids for each diameter were designed in the CAD. Voids with diameters 2.4 mm and 0.6 mm were regularly arranged, otherwise they were arranged irregularly. The precision of the manufacturing was in the order of $\pm0.1\text{ mm}$.
-
-\begin{figure}[htp]
-  \centering
-  \includegraphics[width=0.4\textwidth]{../figures/inference/TestObject.png}
-  \caption{CAD of a 3D cuboid with voids; the scale shown is approximate.}
-  \label{fig:inference_testObject}
-\end{figure}
 
 The 20 x-ray images were spilt into 2. 19 images were used to train the variance-mean model. One image, called the test image, was used to compare with \texttt{aRTist}. In the \texttt{aRTist} simulation, the software did a simulation as if the voids were not there. The test image and the \texttt{aRTist} simulation is shown in Figures \ref{fig:inference_inferenceIntro_inference_scan} and \ref{fig:inference_inferenceIntro_inference_artist} respectively.
 

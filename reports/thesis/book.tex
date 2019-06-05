@@ -17,6 +17,7 @@
 \usepackage{MnSymbol} %udots
 \usepackage{afterpage} %\afterpage{\clearpage}
 \usepackage{siunitx} %for measurements
+\usepackage{rotating}
 
 
 \setcounter{tocdepth}{2}
@@ -62,8 +63,10 @@
 \newcommand{\addNumber}[1]{\protect\input{#1}\unskip}
 \newcommand{\inputNumber}[1]{\protect\input{#1}\unskip}
 
-\begin{document}\sloppy
+\DeclareSIUnit\pixel{px}
+\DeclareSIUnit\adu{ADU}
 
+\begin{document}\sloppy
 \includepdf{title.pdf}
 
 \frontmatter
