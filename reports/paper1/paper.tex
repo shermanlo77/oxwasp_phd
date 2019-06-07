@@ -33,34 +33,37 @@
 \title{Local normalisation using the empirical null for inspection of additive manufacturing using a single x-ray projection}
 \date{2019}
 \author{
-  Sherman Lo \and Jason Warnett \and Gregory Gibbons \and Thomas Nichols \and Julia Brettschneider \and Mark Williams
+  Sherman Lo \and Jason Warnett \and Gregory Gibbons \and Mark Williams \and Thomas Nichols \and Julia Brettschneider 
 }
+
+\DeclareSIUnit\pixel{px}
+\DeclareSIUnit\adu{ADU}
 
 \begin{document}\sloppy
 
 \maketitle
 
 \begin{abstract}
-X-ray computed tomography can be used for defect detection in additive manufacturing. Typically, x-ray projections of an object are taken at a number of angles that are then reconstructed to create a 3D representation of the object inclusive of internal features. To avoid this time-consuming process, it was investigated whenever it is possible to detect defects based on a single angular projection. A 3D printed sample was manufactured with voids to see if they can be detected. The x-ray projection was compared with a simulation of that projection under the face of uncertainty by treating each pixel as a hypothesis test. The empirical null filter locally normalises each test statistic using robust estimators of the mean and deviation so that sensible inference was achieved. Voids with diameters in the order of millimetres were detectable.
+X-ray computed tomography can be used for defect detection in additive manufacturing (AM). Typically, x-ray projections of an object are taken at a number of angles that are then reconstructed to create a 3D representation of the object inclusive of internal features. To avoid this time-consuming process, it was investigated whenever it is possible to detect defects based on a single angular projection. An AM sample was manufactured with voids to see if they can be detected. The x-ray projection was compared with a simulation of that projection under the face of uncertainty by treating each pixel as a hypothesis test. The empirical null filter locally normalises each test statistic using robust estimators of the mean and deviation so that sensible inference was achieved. Voids with diameters in the order of millimetres were detectable.
 \end{abstract}
 
 \section{Introduction}
 
-Additive manufacturing (AM) is capable of manufacturing objects with complicated internal and external geometries. One example of AM technology is fused deposition modelling (FDM) \citep{crump1991fused, crump1992apparatus, stratasys2019what}. A jetting head, or nozzle, deposit the molten material onto a platform or on top of the previous layer. The material is usually plastic in a form of a thin filament. It is heated to just above its melting points, typically \SI{1}{\degreeCelsius} \citep{crump1992apparatus}, so that it cools down within \SI{0.1}{\second} \citep{kruth1991material}. The platform moves, and controlled by a computer, in the $x-y$ axis, or left to right and front to back, to produce a layer. The jetting head can move in the $z$ axis, or up and down, to manufacture the next layer.
+Additive manufacturing (AM) is capable of manufacturing objects with complicated internal and external geometries \citep{wong2012review, ngo2018additive}. One example of AM technology is fused deposition modelling (FDM) \citep{crump1991fused, crump1992apparatus, stratasys2019what}. A jetting head, or nozzle, deposit the molten material onto a platform or on top of the previous layer. The material is usually plastic in a form of a thin filament. It is heated to just above its melting points, typically \SI{1}{\degreeCelsius} \citep{crump1992apparatus}, so that it cools down within \SI{0.1}{\second} \citep{kruth1991material}. The platform moves, and controlled by a computer, in the $x-y$ axis, or left to right and front to back, to produce a layer. The jetting head can move in the $z$ axis, or up and down, to manufacture the next layer.
 
 However, there is a need for product inspection and in particular assessing the quality of the internal structures. For example, voids can form between layers which can hinder the mechanical properties of the product \citep{wang20173d, ngo2018additive}. In power based AM technologies, gas can become trapped during the manufacturing process forming gas pores in the manufactured object \citep{thijs2010study, tammas2015xct}. Low wetting ability of the melt pool can cause balling, this is where the sintered powder has poor contact on the existing layer causing spherical particles to form on the surface of the AM part \citep{li2012balling, gu2009balling}.
 
-Non-destructive testing can be used to assess the quality of the product such as x-ray computed tomography (XCT). The object is held by foam on a turntable and placed between an x-ray source and an x-ray detector. X-ray projections are taken while the object rotates. Typically the x-ray is a cone beam \citep{kruth2011computed}. The x-ray projections are then used to reconstruct the object in 3D \citep{brooks1976principles, feldkamp1984practical, smith1990cone}. 
+Non-destructive testing can be used to assess the quality of the product such as x-ray computed tomography (XCT) \citep{kruth2011computed, sun2012overview}. The object is held by foam on a turntable and placed between an x-ray source and an x-ray detector. X-ray projections are taken while the object rotates. Typically the x-ray is a cone beam. The x-ray projections are then used to reconstruct the object in 3D \citep{brooks1976principles, feldkamp1984practical, smith1990cone}. 
 
-XCT is commonly used for the investigation of pores in the manufactured object \citep{thompson2016x}. Pores can be classified as defects if the pores are larger than some volume threshold. This threshold controls the probability of the detection of defects \citep{gandossi2010probability, amrhein2014characterization}. The porosity can be estimated by dividing the volume of all of the pores by the volume of solid material in the XCT scan \citep{taud2005porosity}. However more accurate methods of measuring the porosity can be done using Archimedes' method \citep{spierings2011comparison}.
+In AM, XCT is commonly used for the investigation of pores \citep{thompson2016x}. Pores can be classified as defects if the pores are larger than some volume threshold. This threshold controls the probability of the detection of defects \citep{gandossi2010probability, amrhein2014characterization}. The porosity can be estimated by dividing the volume of all of the pores by the volume of solid material in the XCT scan \citep{taud2005porosity}. However more accurate methods of measuring the porosity can be done using Archimedes' method \citep{spierings2011comparison}.
 
-The strength of XCT comes from the fact that the location of the pores can be visualised. Studies have been done to link porosity to stress concentration \citep{leuders2015fatigue, siddique2015computed, carlton2016damage}. \cite{leuders2015fatigue} pointed out that the location of the pores is an important factor. In addition to pores, any surface deviation can be measured by aligning the reconstruction with the CAD and measuring any discrepancies \linebreak\citep{lee2015compliance, villarraga2015assessing, kim2016inspection}.
+The strength of XCT comes from the fact that the location of the pores can be visualised. Studies have been done to link porosity to stress concentration \citep{leuders2015fatigue, siddique2015computed, carlton2016damage}. \cite{leuders2015fatigue} pointed out that the location of the pores is an important factor. In addition to pores, any surface deviation can be measured by aligning the reconstruction with the CAD and measuring any discrepancies \citep{lee2015compliance, villarraga2015assessing, kim2016inspection}.
 
 The disadvantage of x-ray CT is that it involves the acquisition and reconstruction of thousands of projections of the sample. Even in the marketing of \cite{nikon2015inline}'s inline quality control featured automatic reconstruction in the background with a progress bar. The reconstruction can take between 5 minutes to a number of hours \citep{warnett2016towards} however more images would improve the accuracy of the reconstruction \citep{kruth2011computed}.
 
 Instead of reconstructing the object, the analysis can be done on a single x-ray projection itself by comparing it to a simulated projection such as \emph{aRTist} \citep{bellon2007artist, jaenisch2008artist, bellon2012radiographic}. \cite{brierley2018optimized} demonstrated that detection of defects is possible in projection space by comparing two simulated projections with each other, one with defects and the other without. It is however inevitable that accuracy is lost from the jump from 3D to 2D \citep{hayden2009chest}.
 
-It was investigated whenever defects can be detected from a single x-ray projection. This was done by obtaining an x-ray projection of a 3D printed sample, with purposely designed voids, and comparing it with the simulation. The apparatus and procedures are shown in the methods section. In addition, software development and simulation studies were discussed. The results from the simulation and the experiment are shown in the results section. The conclusion section summarises the study along with a discussion on further work.
+It was investigated whenever defects can be detected from a single x-ray projection. This was done by obtaining an x-ray projection of an AM sample, with purposely designed voids, and comparing it with the simulation. The apparatus and procedures are shown in the methods section. In addition, software development and simulation studies were discussed. The results from the simulation and the experiment are shown in the results section. The conclusion section summarises the study along with a discussion on further work.
 
 \section{Methods}
 
@@ -71,11 +74,11 @@ An ABS plastic cuboid (\SI{40}{\milli\metre} $\times$ \SI{40}{\milli\metre} $\ti
 \begin{figure}
   \centering
   \includegraphics[width=0.35\textwidth]{../figures/inference/TestObject.png}
-  \caption{The CAD of a 3D cuboid with voids. The voids were of diameters \SI{2.4}{\milli\metre}, \SI{1.2}{\milli\metre}, \SI{0.6}{\milli\metre} and \SI{0.3}{\milli\metre}. 6 voids for each diameter were designed in the CAD. Voids with diameters \SI{2.4}{\milli\metre} and \SI{0.6}{\milli\metre} were regularly arranged, otherwise, they were arranged irregularly. The scale shown is approximate.}
+  \caption{The CAD of a cuboid with voids. The voids were of diameters \SI{2.4}{\milli\metre}, \SI{1.2}{\milli\metre}, \SI{0.6}{\milli\metre} and \SI{0.3}{\milli\metre}. 6 voids for each diameter were designed in the CAD. Voids with diameters \SI{2.4}{\milli\metre} and \SI{0.6}{\milli\metre} were regularly arranged, otherwise, they were arranged irregularly. The scale shown is approximate.}
   \label{fig:inference_testObject}
 \end{figure}
 
-X-ray projections were obtained using the \emph{Nikon XT H LC 225/320} x-ray CT scanner \emph{(Nikon Metrology, UK)}. The \SI{225}{\kilo\volt} source was used with a $2000\times2000$ pixel \emph{Perkin Elmer} detector consisting of \SI{200}{\micro\metre} pixels, separated by a distance of \SI{1870}{\milli\metre}. The sample was placed on the manipulator, positioned to obtain a $5.7\times$ magnification resulting in an equivalent pixel size of \SI{35}{\micro\metre}. A voltage of \SI{80}{\kilo\volt} was used with a power of \SI{20}{\watt} resulting in a spot size of \SI{20}{\micro\metre} such that penumbra effects were negligible. 20 greyscale projections were acquired at an exposure time of \SI{500}{\milli\second}. A shading correction \citep{young2000shading, munzenmayer2003enhancing} was applied to each projection using a black (\SI{0}{\kilo\volt}) and white image (\SI{80}{\kilo\volt}) projection to remove intensity influences and variations in pixels of the detector.
+X-ray projections were obtained using the \emph{Nikon XT H LC 225/320} x-ray CT scanner \emph{(Nikon Metrology, UK)}. The \SI{225}{\kilo\volt} source was used with a $\SI{2000}{\pixel}\times\SI{2000}{\pixel}$ \emph{Perkin Elmer} detector consisting of \SI{200}{\micro\metre} pixels, separated by a distance of \SI{1870}{\milli\metre}. The sample was placed on the manipulator, positioned to obtain a $5.7\times$ magnification resulting in an equivalent pixel size of \SI{35}{\micro\metre}. A voltage of \SI{80}{\kilo\volt} was used with a power of \SI{20}{\watt} resulting in a spot size of \SI{20}{\micro\metre} such that penumbra effects were negligible. 20 greyscale projections were acquired at an exposure time of \SI{500}{\milli\second}. A shading correction \citep{young2000shading, munzenmayer2003enhancing} was applied to each projection using a black (\SI{0}{\kilo\volt}) and white image (\SI{80}{\kilo\volt}) projection to remove intensity influences and variations in pixels of the detector.
 
 The projection of the sample was obtained and repeated 20 times at a fixed angle. The 20 projections were split into 2. 19 random projections were held out. The remaining projection was used to compare with a simulated projection, obtained using \emph{aRTist} \citep{bellon2007artist, jaenisch2008artist, bellon2012radiographic}. \emph{aRTist} can simulate projections of the sample given the specifications of the CT apparatus, such as the x-ray source and the x-ray detector, and the
 CAD of the sample \citep{bellon2011simulation, deresch2012simulating}. \emph{aRTist} was used to obtain a simulation projection as if the voids were not there. Numerical methods were used to align the simulated projection to the obtained projection. A shading correction was applied to the simulated projection using a flat black image and a simulated white image.
@@ -223,7 +226,7 @@ Further initial values were generated by sampling from $\normal(z^{(0)}, s_{x,y}
 
 \subsection{Simulation}
 
-The empirical null filter was tested to see if it can detect simulated defects from a $\SI{256}{px}\times \SI{256}{px}$ contaminated image. A defect is a pixel which has a value not distributed under the null distribution, but instead an alternative distribution. For example suppose $Z_{x,y}|H_{0,x,y}\sim\normal(0,1)$, then a defect would have a value distributed as $Z_{x,y}|H_{1,x,y}\sim\normal(\mu_{1},1)$ where $\mu_1\neq0$. A $\SI{30}{px}\times \SI{30}{px}$ square defect was simulated. A kernel can capture the entire defect if its radius is large enough.
+The empirical null filter was tested to see if it can detect simulated defects from a $\SI{256}{\pixel}\times \SI{256}{\pixel}$ contaminated image. A defect is a pixel which has a value not distributed under the null distribution, but instead an alternative distribution. For example suppose $Z_{x,y}|H_{0,x,y}\sim\normal(0,1)$, then a defect would have a value distributed as $Z_{x,y}|H_{1,x,y}\sim\normal(\mu_{1},1)$ where $\mu_1\neq0$. A $\SI{30}{\pixel}\times \SI{30}{\pixel}$ square defect was simulated. A kernel can capture the entire defect if its radius is large enough.
 
 Contamination is the result of a linear transform of the test statistics $Z_{x,y}$. For example in this experiment, the image was multiplied by 2 and a gradient was added to it. Suppose the image does contain defects, then an example of a resulting distribution is
 \begin{align}
@@ -236,13 +239,13 @@ where $\mu_{0,x,y}=0.01(x-x_0)+0.01(y-y_0)$ and $(x_0,y_0)$ is the centre of the
 \begin{figure}
   \centering
   \includegraphics[width=0.4\textwidth]{../figures/inference/defectSquare2Example_imageContaminated.eps}
-  \caption{A $\SI{256}{px}\times \SI{256}{px}$ contaminated Gaussian image with a $\SI{30}{px} \times \SI{30}{px}$ square defect. The null and alternative distributions are $Z_{x,y}|H_{0,x,y}\sim\normal(\mu_{0,x,y},2^2)$ and $Z_{x,y}|H_{1,x,y}\sim\normal(6+\mu_{0,x,y},2^2)$ respectively where $\mu_{0,x,y}=0.01(x-x_0)+0.01(y-y_0)$ and $(x_0,y_0)$ is the centre of the image.}
+  \caption{A $\SI{256}{\pixel}\times \SI{256}{\pixel}$ contaminated Gaussian image with a $\SI{30}{\pixel} \times \SI{30}{\pixel}$ square defect. The null and alternative distributions are $Z_{x,y}|H_{0,x,y}\sim\normal(\mu_{0,x,y},2^2)$ and $Z_{x,y}|H_{1,x,y}\sim\normal(6+\mu_{0,x,y},2^2)$ respectively where $\mu_{0,x,y}=0.01(x-x_0)+0.01(y-y_0)$ and $(x_0,y_0)$ is the centre of the image.}
   \label{fig:inference_defectSquare2Example}
 \end{figure}
 
 The contamination is a nuisance because the test statistics will have larger variance and larger values at the two corners. This will cause an inflation in false positives which will lead to incorrect inference. 
 
-Literature, such as \cite{efron2004large} and \cite{schwartzman2008empirical}, suggest that, as a rule of thumb, the proportion of non-null statistics should not be larger than $0.1$ to satisfy some assumptions made for the empirical null. In this simulated example, it is about $r>\SI{54}{px}$. A kernel too small would treat the defects as null, making them difficult to detect.
+Literature, such as \cite{efron2004large} and \cite{schwartzman2008empirical}, suggest that, as a rule of thumb, the proportion of non-null statistics should not be larger than $0.1$ to satisfy some assumptions made for the empirical null. In this simulated example, it is about $r>\SI{54}{\pixel}$. A kernel too small would treat the defects as null, making them difficult to detect.
 
 The receiver operating characteristic (ROC) curve \citep{green1966signal, metz1978basic, hanley1982meaning, friedman2001elements, cook2007use} was studied in this experiment. The ROC is a parametric plot, plotting the true positive rate (sensitivity) against the false positive rate ($1-\text{specificity}$) for varying thresholds. The area under the ROC curve is a commonly used statistic to quantify the performance of the test \citep{friedman2001elements}. Interpretations of the area do exist \citep{metz1978basic,hanley1982meaning} and discussed thoroughly in \cite{cook2007use}.
 
@@ -270,7 +273,7 @@ A simulation study was conducted where the contaminated defected image was filte
         \caption{FDR}
       \end{subfigure}
     }
-  \caption{ROC area and various errors obtained when conducting a hypothesis test on a $\SI{256}{px} \times \SI{256}{px}$ filtered contaminated Gaussian image with a $\SI{30}{px}\times \SI{30}{px}$ square defect. Various kernel radiuses were investigated. The dashed lines show the resulting 95\% empirical confidence interval when the hypothesis test was done on the uncontaminated image with a defect. The null and alternative distributions are $Z_{x,y}|H_{0,x,y}\sim\normal(\mu_{0,x,y},2^2)$ and $Z_{x,y}|H_{1,x,y}\sim\normal(6+\mu_{0,x,y},2^2)$ respectively where $\mu_{0,x,y}=0.01(x-x_0)+0.01(y-y_0)$ and $(x_0,y_0)$ is the centre of the image. The test was done at the 5\% FDR level. The box plot summarise the 100 repeated measurements of the experiment.}
+  \caption{ROC area and various errors obtained when conducting a hypothesis test on a $\SI{256}{\pixel} \times \SI{256}{\pixel}$ filtered contaminated Gaussian image with a $\SI{30}{\pixel}\times \SI{30}{\pixel}$ square defect. Various kernel radiuses were investigated. The dashed lines show the resulting 95\% empirical confidence interval when the hypothesis test was done on the uncontaminated image with a defect. The null and alternative distributions are $Z_{x,y}|H_{0,x,y}\sim\normal(\mu_{0,x,y},2^2)$ and $Z_{x,y}|H_{1,x,y}\sim\normal(6+\mu_{0,x,y},2^2)$ respectively where $\mu_{0,x,y}=0.01(x-x_0)+0.01(y-y_0)$ and $(x_0,y_0)$ is the centre of the image. The test was done at the 5\% FDR level. The box plot summarise the 100 repeated measurements of the experiment.}
   \label{fig:inference_Experiment_DefectRadiusSquare}
 \end{figure*}
 
@@ -282,7 +285,7 @@ Keeping the FDR consistent before and after filtering is desirable so that the F
 
 It appeared there is a kernel radius which minimised the type 2 error. A large kernel radius is required for FDR control but too large can lose statistical power.
 
-In the experiment with the 3D printed sample, the x-ray projection was manually segmented further as shown in Figure \ref{fig:inference_segmentFurther}. It was segmented using the edges of the projection of the sample. The empirical null filter was then used on each segment, or ROI, independently, ignoring any pixels outside the ROI the filter is working on. The resulting filtered segments were stitched together to form the resulting filtered image. The resulting inference is shown in Figure \ref{fig:inference_subroiAbsFilterDeg120_inference_radius4}.
+In the experiment with the AM sample, the x-ray projection was manually segmented further as shown in Figure \ref{fig:inference_segmentFurther}. It was segmented using the edges of the projection of the sample. The empirical null filter was then used on each segment, or ROI, independently, ignoring any pixels outside the ROI the filter is working on. The resulting filtered segments were stitched together to form the resulting filtered image. The resulting inference is shown in Figure \ref{fig:inference_subroiAbsFilterDeg120_inference_radius4}.
 
 The larger defects were successfully highlighted by the hypothesis test. It can be seen that the empirical null mean did change face to face, resulting in a clear boundary set by the edges. This probably suggest that the contamination or inaccuracy from \emph{aRTist} was face dependent.
 
@@ -315,7 +318,7 @@ The larger defects were successfully highlighted by the hypothesis test. It can 
         \caption{Empirical null std}
       \end{subfigure}
     }
-  \caption{Resulting inference when using the empirical null filter, on each segment independently, with radius $r=\SI{130}{px}$. a) X-ray projection with highlighted red positive pixels at the 5\% FDR level. b) $p$-values on the log scale. c) and d) Empirical null mean and standard deviation.}
+  \caption{Resulting inference when using the empirical null filter, on each segment independently, with radius $r=\SI{130}{\pixel}$. a) X-ray projection with highlighted red positive pixels at the 5\% FDR level. b) $p$-values on the log scale. c) and d) Empirical null mean and standard deviation.}
   \label{fig:inference_subroiAbsFilterDeg120_inference_radius4}
 \end{figure*}
 
@@ -327,7 +330,7 @@ The empirical null filter catered for inaccuracies made by \emph{aRTist}. This d
 
 False positives do occur but this is unavoidable because tests were done at the 5\% FDR level. Typically in the experiments, false positives were isolated single pixels and probably occurred due to random chance. Clusters of positive pixels should raise suspicion. One could create a binary image, assigning a Boolean value whether that pixel was tested positive or not. A binary image filter, such as erode followed by a dilate, can be used to remove isolated positive pixels to emphasise the cluster of positive pixels.
 
-For good results, the faces of the 3D printed cuboid were segmented. This was necessary because the empirical null filter assumes that the null parameters varied spatially smoothly and slowly. Manual segmentation was easy to do because a cuboid has 6 faces. However, segmentation of faces cannot be generalised well to 3D printed samples with complicated geometry and curved surfaces.
+For good results, the faces of the AM cuboid were segmented. This was necessary because the empirical null filter assumes that the null parameters varied spatially smoothly and slowly. Manual segmentation was easy to do because a cuboid has 6 faces. However, segmentation of faces cannot be generalised well to AM samples with complicated geometry and curved surfaces.
 
 The main issue was how slow the filter was. Figure \ref{fig:inference_timing} shows the timings of the empirical null filter and the mean variance filter. For a filter to take more than a minute is unacceptable when used on the production line when typical filters can take a fraction of a second.
 
@@ -343,7 +346,7 @@ The main issue was how slow the filter was. Figure \ref{fig:inference_timing} sh
         \caption{Mean variance null filter}
       \end{subfigure}
     }
-  \caption{Timings when filtering a $\SI{256}{px}\times \SI{256}{px}$ image. The mean variance null filter uses the sample mean and sample standard deviation to locally normalise the image. Note that the $y$-axis changes scale. The box plot summarise the 100 repeated measurements of the timings.}
+  \caption{Timings when filtering a $\SI{256}{\pixel}\times \SI{256}{\pixel}$ image. The mean variance null filter uses the sample mean and sample standard deviation to locally normalise the image. Note that the $y$-axis changes scale. The box plot summarise the 100 repeated measurements of the timings.}
   \label{fig:inference_timing}
 \end{figure*}
 
@@ -351,7 +354,7 @@ There are a few strategies to accelerate the filter. The empirical null filter m
 
 The main bottleneck is the evaluation of the density estimate, each step in the Newton-Raphson required the evaluation of each pixel in the kernel. Perhaps there may be faster methods for density estimation such as fitting a smoothing spline on the histogram \citep{efron2004large}, however that would require tuning the histogram bins as well as the tuning parameters for the spline. On the other hand, the method in \cite{schwartzman2008empirical} which uses the histogram count found that the estimation of the null parameters was insensitive to the histogram binning.
 
-Estimation of the null parameters is essentially robust statistics, estimating the parameters of the null distribution without being affected by non-null statistics. Potential faster methods than the empirical null could exist in literature for robust statistics such as \cite{hampel1986robust, rousseeuw1987robust, maronna2006robust, huber2009robust, jewson2018principles}. The EM algorithm \citep{dempster1977maximum} could be used to fit a mixture of Gaussians to identify the null distribution and estimate its parameters. However the power of hypothesis testing and the empirical null comes from the fact that the alternative distribution does not need to be specified.
+Estimation of the null parameters is essentially robust statistics, estimating the parameters of the null distribution without being affected by non-null statistics. Potential faster methods than the empirical null could exist in literature for robust statistics such as \cite{hampel1986robust, rousseeuw1987robust, maronna2006robust, huber2009robust, jewson2018principles}. The EM algorithm \citep{dempster1977maximum, bishop2006pattern} could be used to fit a mixture of Gaussians to identify the null distribution and estimate its parameters. However the power of hypothesis testing and the empirical null comes from the fact that the alternative distribution does not need to be specified.
 
 \section{Acknowledgements}
 This work is funded by EPSRC grant numbers EP/K031066/1 (Inside-out: Statistical methods for Computed Tomography validation of complex structures in Additive Layer Manufacturing) and EP/L016710/1 (EPSRC and MRC Centre for Doctoral Training in Next Generation Statistical Science: The Oxford-Warwick Statistics Programme).
