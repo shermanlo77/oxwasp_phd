@@ -170,12 +170,8 @@ Consider a pixel at $(x,y)$, shading correction was done by fitting a linear reg
 \end{equation}
 for $P\in \mathfrak{P}$ where $\mathfrak{P} = \left\{0,P_1,P_2,\cdots, P_\text{proj}\right\}$ are the powers used for the greyscale projections. $\varepsilon$ is a random variable and an error term, it is included only for formality purposes. Let $b_{x,y}$ and $a_{x,y}$ be the estimated parameters of $\beta_{x,y}$ and $\alpha_{x,y}$ from the linear regression respectively. Given a projection $N_{x,y}$, the shading corrected projection $U_{x,y}$ is
 \begin{equation}
-U_{x,y} = b_{x,y} N_{x,y} + a_{x,y}
+U_{x,y} = b_{x,y} N_{x,y} + a_{x,y} \ .
 \end{equation}
-or in the form of Equation \eqref{eq:data_shadingCorrectionOld}
-\begin{multline}
-U_{x,y} = \dfrac{N_{x,y}-\text{black}_{x,y}}{\text{white}_{x,y}-\text{black}_{x,y}}\times \left[b_{x,y}(\text{white}_{x,y}-\text{black}_{x,y})\right]\\+\left[b_{x,y} \text{black}_{x,y} + a_{x,y}\right] \ .
-\end{multline}
 In full, the equations for $b_{x,y}$ and $a_{x,y}$ are given as
 \begin{equation}
 b_{x,y} = \dfrac{
@@ -198,7 +194,7 @@ and $\overline{S}$ is the global mean
 \end{equation}
 This type of shading correction shall be referred to as linear shading correction. Expressing shading correction in this way has the advantage that there are no user defined constants.
 
-An example of the linear regression is shown in Figure \ref{fig:data_shadingCorrectionExample_gainMap} where 3 random pixels were chosen for illustration. By plotting the within projection mean versus the grey value for a particular pixel, a linear relationship can be observed. The gradient varied for different pixels which correspond to different sensitivities. The resulting shading correction for the \texttt{AbsNoFilter} projection is shown in Figure \ref{fig:data_shadingCorrectionExample_image}. It can be observed that the shading correction remove panel and spot effects from the background and test object.
+An example of the linear regression is shown in Figure \ref{fig:data_shadingCorrectionExample_gainMap} where 3 random pixels were chosen for illustration. By plotting the within projection mean versus the grey value for a particular pixel, a linear relationship can be observed. The gradient varied for different pixels which correspond to different sensitivities. The resulting shading correction for the \texttt{AbsNoFilter} projection is shown in Figure \ref{fig:data_shadingCorrectionExample_image}. It can be observed that the shading correction removed the panel and spot effects from the background and test object.
 
 \begin{figure}
   \centering
@@ -224,7 +220,7 @@ An example of the linear regression is shown in Figure \ref{fig:data_shadingCorr
       \caption{No shading correction}
     \end{subfigure}
     \begin{subfigure}[b]{0.49\textwidth}
-      \includegraphics[width=\textwidth]{../figures/data/shadingCorrectionExample_image_bw.eps}
+      \includegraphics[width=\textwidth]{../figures/data/shadingCorrectionExample_image_linear.eps}
       \caption{Linear shading correction}
     \end{subfigure}
   }
@@ -234,15 +230,11 @@ An example of the linear regression is shown in Figure \ref{fig:data_shadingCorr
 
 A variation of the shading correction which uses only the black and white image such that $\mathfrak{P}=\left\{0,P_\text{proj}\right\}$ shall be known as BW shading correction.
 
-\subsection{ANOVA}
+\subsection{Exploratory Analysis}
 
-Figure \ref{fig:data_AbsNoFilter} shows the data. Shading correction is done via the following. It requires calibration images, they are projections of nothing at different powers. For each calibration image, calculate the within image mean. For each pixel, do a linear regression of the within image mean versus the grey value for different powers: bw shading correction uses only the black and max power calibration images, linear shading correction uses all calibration images. The regression maps the uncorrected grey value ($x$) to the shading corrected grey value ($y$) for this particular pixel.
+Shading correction on a greyscale projection should result in a image which is flat with some noise. To avoid overfitting, one greyscale projection from each power were held out and used to fit the parameters of the shading correction. Shading correction was then used on unused greyscale projections in this exploratory analysis.
 
-An example is shown in Figure \ref{fig:data_shadingCorrectionExample_gainMap}. In Figure \ref{fig:data_shadingCorrectionExample_gainMap} a), 3 random pixels were used to demonstrate the regression. The gradient of the regression for all pixels are shown in Figure \ref{fig:data_shadingCorrectionExample_gainMap} b).
-
-
-
-The gain is actually the sensitivity so it should be a plot of the grey value versus the power, this is shown in Figure \ref{fig:data_shadingCorrectionExample_gain}. However this is similar to the linear regression done for shading correction.
+Figure \ref{fig:data_shadingCorrectionExample_greyvaluePower} shows the grey values in each greyscale projections before and after shading correction. The sensitivity, which corresponds to the gradient in units of \SI{}{\adu\per\watt}, became more consistent between pixels with shading correction. This should mean that pixels will respond similarly to each other.
 
 \begin{figure}
   \centerline{
@@ -251,19 +243,32 @@ The gain is actually the sensitivity so it should be a plot of the grey value ve
       \caption{No shading correction}
     \end{subfigure}
     \begin{subfigure}[b]{0.49\textwidth}
-      \includegraphics[width=\textwidth]{../figures/data/shadingCorrectionExample_power_bw.eps}
-      \caption{bw shading correction}
+      \includegraphics[width=\textwidth]{../figures/data/shadingCorrectionExample_power_linear.eps}
+      \caption{Linear shading correction}
     \end{subfigure}
   }
-  \caption{Gain curve before and after shading correction. The box plot summarise all $2000\times2000$ pixels in a projection.}
-  \label{fig:data_shadingCorrectionExample_gain}
+  \caption{Grey values in the \texttt{AbsNoFilter} greyscale projections before and after shading correction. The box plot summarise all $2000\times2000$ pixels in a projection.}
+  \label{fig:data_shadingCorrectionExample_greyvaluePower}
 \end{figure}
 
-In the black image, I've noticed the vertical read-out structure can be seen. This can be done by plotting the grey value down a column as shown in Figure \ref{fig:data_oddEven}. In particular, the grey value jumps up and down at every pixel, this is seen by plotting the same profile curve but for every odd and even $y$. Shading correction corrects this because the black image has information on the odd/even structure which is then fed into the shading correction.
+The \texttt{AbsNoFilter} black image before and after shading correction is shown in Figure \ref{fig:data_shadingCorrectionExample_black}. The flatness of the image can be shown using a profile plot, this is a plot of the grey values along a column or row, an example shown in Figure \ref{fig:data_oddEven}. The figure shows that the shading uncorrected black image is not flat but a remarkable structure can be observed by plotting only the odd rows and even rows separately. Such a plot shows that the grey values depend on neighbouring pixels, where the majority of pixels on even rows have grey values larger than pixels above and below it. Perhaps this is caused by the read-out structure in the detector.
 
-An autocorrelation plot could be plotted, but it's easier to do a Fourier transform, this is shown in Figure \ref{fig:data_fft}.
+The BW shading corrected black image looks very uniform but there is some structure in the linear shading correction. By giving linear shading correction various greyscale projections, it tried to generalise to a range of powers and thus may struggle at shading correcting the black and white images.
 
-No read-out structure can be seen horizontally, see Figure \ref{fig:data_oddEvenX}. Panel structure can be seen however.
+\begin{figure}
+  \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+      \includegraphics[width=\textwidth]{../figures/data/shadingCorrectionExample_black_bw.eps}
+      \caption{BW shading correction}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+      \includegraphics[width=\textwidth]{../figures/data/shadingCorrectionExample_black_linear.eps}
+      \caption{Linear shading correction}
+    \end{subfigure}
+  }
+  \caption{The \texttt{AbsNoFilter} black image after shading correction.}
+  \label{fig:data_shadingCorrectionExample_black}
+\end{figure}
 
 \begin{figure}
   \centerline{
@@ -277,36 +282,57 @@ No read-out structure can be seen horizontally, see Figure \ref{fig:data_oddEven
     \begin{subfigure}[b]{\textwidth}
       \includegraphics[width=0.49\textwidth]{../figures/data/oddEvenPlot1_bw.eps}
       \includegraphics[width=0.49\textwidth]{../figures/data/oddEvenPlot2_bw.eps}
-      \caption{bw shading correction}
+      \caption{BW shading correction}
     \end{subfigure}
   }
-  \caption{Left shows the profile plot of a black image at $(879,y)$ before and after shading correction. Right shows two curves for odd and even $y$.}
+  \centerline{
+    \begin{subfigure}[b]{\textwidth}
+      \includegraphics[width=0.49\textwidth]{../figures/data/oddEvenPlot1_linear.eps}
+      \includegraphics[width=0.49\textwidth]{../figures/data/oddEvenPlot2_linear.eps}
+      \caption{linear shading correction}
+    \end{subfigure}
+  }
+  \caption{Left shows the profile plot of a \texttt{AbsNoFilter} black image at $(879,y)$. Right shows two curves for odd and even $y$.}
   \label{fig:data_oddEven}
 \end{figure}
 
-\begin{figure}
-  \centerline{
-    \begin{subfigure}[b]{0.49\textwidth}
-      \includegraphics[width=\textwidth]{../figures/data/shadingCorrectionExample_blackFft_null.eps}
-      \caption{No shading correction}
-    \end{subfigure}
-    \begin{subfigure}[b]{0.49\textwidth}
-      \includegraphics[width=\textwidth]{../figures/data/shadingCorrectionExample_blackFft_bw.eps}
-      \caption{bw shading correction}
-    \end{subfigure}
-  }
-  \caption{Fourier transform on the black image before and after shading correction. The colour scale is in arbitrary units and range between 0 to 255.}
-  \label{fig:data_fft}
-\end{figure}
+% \begin{figure}
+%   \centering
+%   \centerline{
+%     \begin{subfigure}[b]{0.49\textwidth}
+%       \includegraphics[width=\textwidth]{../figures/data/shadingCorrectionExample_blackFft_null.eps}
+%       \caption{No shading correction}
+%     \end{subfigure}
+%     \begin{subfigure}[b]{0.49\textwidth}
+%       \includegraphics[width=\textwidth]{../figures/data/shadingCorrectionExample_blackFft_bw.eps}
+%       \caption{BW shading correction}
+%     \end{subfigure}
+%   }
+%   \begin{subfigure}[b]{0.49\textwidth}
+%     \includegraphics[width=\textwidth]{../figures/data/shadingCorrectionExample_blackFft_linear.eps}
+%     \caption{Linear shading correction}
+%   \end{subfigure}
+%   \caption{Fourier transform on the black image before and after shading correction. The colour scale is in arbitrary units and range between 0 to 255.}
+%   \label{fig:data_fft}
+% \end{figure}
 
-\begin{figure}
-  \centerline{
-    \begin{subfigure}[b]{\textwidth}
-      \includegraphics[width=0.49\textwidth]{../figures/data/oddEvenPlot1_nullX.eps}
-      \includegraphics[width=0.49\textwidth]{../figures/data/oddEvenPlot2_nullX.eps}
-      \caption{No shading correction}
-    \end{subfigure}
-  }
-  \caption{Left shows the profile plot of a black image at $(y,879)$ before and after shading correction. Right shows two curves for odd and even $y$.}
-  \label{fig:data_oddEvenX}
-\end{figure}
+\subsection{ANOVA}
+
+Figure \ref{fig:data_AbsNoFilter} shows the data. Shading correction is done via the following. It requires calibration images, they are projections of nothing at different powers. For each calibration image, calculate the within image mean. For each pixel, do a linear regression of the within image mean versus the grey value for different powers: bw shading correction uses only the black and max power calibration images, linear shading correction uses all calibration images. The regression maps the uncorrected grey value ($x$) to the shading corrected grey value ($y$) for this particular pixel.
+
+An example is shown in Figure \ref{fig:data_shadingCorrectionExample_gainMap}. In Figure \ref{fig:data_shadingCorrectionExample_gainMap} a), 3 random pixels were used to demonstrate the regression. The gradient of the regression for all pixels are shown in Figure \ref{fig:data_shadingCorrectionExample_gainMap} b).
+
+
+
+The gain is actually the sensitivity so it should be a plot of the grey value versus the power, this is shown in Figure \ref{fig:data_shadingCorrectionExample_gain}. However this is similar to the linear regression done for shading correction.
+
+
+
+In the black image, I've noticed the vertical read-out structure can be seen. This can be done by plotting the grey value down a column as shown in Figure \ref{fig:data_oddEven}. In particular, the grey value jumps up and down at every pixel, this is seen by plotting the same profile curve but for every odd and even $y$. Shading correction corrects this because the black image has information on the odd/even structure which is then fed into the shading correction.
+
+An autocorrelation plot could be plotted, but it's easier to do a Fourier transform, this is shown in Figure \ref{fig:data_fft}.
+
+No read-out structure can be seen horizontally, see Figure \ref{fig:data_oddEvenX}. Panel structure can be seen however.
+
+
+
