@@ -8,8 +8,8 @@ function [test, artist, zImage] = inferenceExample()
   randStream = RandStream('mt19937ar','Seed',uint32(3538096789));
 
   %load data and add shading correction
-  blockData = AbsBlock_Sep16_120deg();
-  blockData.addDefaultShadingCorrector();
+  blockData = AbsFilterDeg120();
+  blockData.addShadingCorrectorLinear();
 
   %get random permutation for each image
   index = randStream.randperm(blockData.nSample);
@@ -19,7 +19,7 @@ function [test, artist, zImage] = inferenceExample()
   testIndex = index((nTrain+1):(nTrain+nTest));
 
   %get a phanton image and aRTist image
-  artist = blockData.getShadingCorrectedArtistImage(ShadingCorrector(),1:blockData.referenceWhite);
+  artist = blockData.getArtistImageShadingCorrected('ShadingCorrector', 1:blockData.whiteIndex);
 
   %get the segmentation image
   segmentation = blockData.getSegmentation();
