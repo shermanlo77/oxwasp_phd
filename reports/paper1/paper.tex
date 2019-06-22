@@ -29,6 +29,7 @@
 \DeclareMathOperator{\variance}{\mathbb{V}ar}
 \DeclareMathOperator{\normal}{N}
 \DeclareMathOperator*{\argmax}{argmax}
+\DeclareMathOperator{\expectation}{\mathbb{E}}
 
 \newcommand{\addNumber}[1]{\protect\input{#1}\unskip}
 \newcommand{\inputNumber}[1]{\protect\input{#1}\unskip}
@@ -40,7 +41,7 @@
 \endgroup}
 
 
-\title{Inspection of additive manufacturing from a single x-ray projection using local empirical null hypotheses}
+\title{Detection of defects in additive manufacturing from a single x-ray projection using the empirical null filter}
 \date{2019}
 \author[1]{S.E.~Lo}
 \author[2]{J.W.~Warnett}
@@ -110,12 +111,13 @@ The projection of the sample was obtained and repeated 20 times at a fixed angle
 CAD of the sample \citep{bellon2011simulation, deresch2012simulating}. \emph{aRTist} was used to obtain a simulation projection as if the voids were not there. Numerical methods were used to align the simulated projection to the obtained projection. The same shading correction was applied to the simulated projection, but instead using a flat black image and a simulated white image.
 
 \subsection{The Empirical Null Filter}
+\label{subsection:empiricalnullfilter}
 
-We propose a statistical method to compare a single projection with a simulation of that projection to look for any significant differences which may indicate a defect. It is built on two-tailed multiple hypothesis testing \citep{fisher1970statistical, neyman1933on, pearson1900on} controlling the false discovery rate (FDR) \citep{benjamini2010discovering, benjamini1995controlling}, conducting individual test for each pixel. A disagreement too big, relative to the anticipated variance of the projection, will classify that pixel as a positive result. Beforehand, the empirical null \citep{efron2004large} is used to locally normalisation \citep{sage2018local, sage2003teaching} the test statistics. This is necessary because the simulation of the projection did not perfectly reproduce the obtained projection, leading to incorrect inference.
+We propose a statistical method to compare a single projection with a simulation of that projection to look for any significant differences which may indicate a defect. It is built on two-tailed multiple hypothesis testing \citep{fisher1970statistical, neyman1933on, pearson1900on} controlling the false discovery rate \citep{benjamini2010discovering, benjamini1995controlling}, conducting individual test for each pixel. A disagreement too big, relative to the anticipated variance of the projection, will classify that pixel as a positive result. Beforehand, the empirical null \citep{efron2004large} is used to locally normalisation \citep{sage2018local, sage2003teaching} the test statistics. This is necessary because the simulation of the projection did not perfectly reproduce the obtained projection, leading to incorrect inference.
 
-Fig.~\ref{fig:flowchart} shows a flowchart which summarises the process of the experiment. The CAD model was used as a blueprint for the manufacture of the test sample. Projections of the test sample and the simulated projection were obtained and compared under the face of uncertainty. The test statistics from the comparison were filtered using the empirical null filter and converted to $p$-values. A threshold was used for the $p$-values to classify pixels as positive for defects or not.
+Fig.~\ref{fig:flowchart} shows a flowchart which summarises the process of the experiment and defect detection. The CAD model was used as a blueprint for the manufacture of the test sample. Projections of the test sample and the simulated projection were obtained and compared under the face of uncertainty. The uncertainty was modelled using the replicated projections. The test statistics from the comparison were filtered using the empirical null filter and converted to $p$-values. A threshold was used for the $p$-values to classify pixels as positive for defects or not.
 
-For each position $(x,y)$, we calculate a test statistic
+For each position $(x,y)$, a test statistic was calculated
 \begin{equation}
   Z_{x,y} = 
   \dfrac{
@@ -125,7 +127,7 @@ For each position $(x,y)$, we calculate a test statistic
     \sqrt{\widehat{\variance}\left[\text{projection}_{x,y}\right]}
   }
 \end{equation}
-where $\widehat{\variance}\left[\text{projection}_{x,y}\right]$ is the estimated grey value variance of pixel $(x,y)$ in the projection. We used a variance model $\widehat{\variance}\left[\text{projection}_{x,y}\right]$ with linear relationship between the variance and the grey value \citep{yang2010noise}. We used was a gamma distributed generalised linear model \citep{mccullagh1984generalized, nelder1972generalized} with an identity link. The fitting of the model was done using the held out replicated projections of the sample (see Section \ref{subsection:appratus}). These replicated projections were manually segmented so that only pixels which represent the test sample were used. This provided variance-mean data, where each pixel is a data point, which was used to fit the variance model. The variance was predicted using the grey value in the simulated projection as the predictor variable.
+where $\widehat{\variance}\left[\text{projection}_{x,y}\right]$ is the estimated grey value variance of pixel $(x,y)$ in the projection. The variance model $\widehat{\variance}\left[\text{projection}_{x,y}\right]$ has a linear relationship between the variance and the grey value \citep{yang2010noise}. A gamma distributed generalised linear model \citep{mccullagh1984generalized, nelder1972generalized} was used with an identity link. The fitting of the model was done using the held out replicated projections of the sample (see Section \ref{subsection:appratus}). These replicated projections were manually segmented so that only pixels which represent the test sample were used. This provided variance-mean data, where each pixel is a data point, which was used to fit the variance model. The variance was predicted using the grey value in the simulated projection as the predictor variable.
 
 It was assumed that the grey values were Normally distributed, therefore the test statistics should be approximately Normal as well. Let the test statistic of the pixel at position $(x,y)$ be
 \begin{equation}
@@ -150,7 +152,7 @@ To obtain the estimates, a circular kernel $C_r(x,y)$ with radius $r$ was centre
     \dfrac{z_{i,j}-z}{h}
   \right)
 \end{equation}
-where $K_{x,y} = C_r(x,y) \cap \text{ROI}$, $n$ is the number of pixels captured by $K_{x,y}$, $\phi(z)$ is the probability density function of a standard Normal random variable and $h$ is the bandwidth. The bandwidth was chosen such that
+where $K_{x,y} = C_r(x,y) \cap \text{ROI}$, $n$ is the number of pixels captured by $K_{x,y}$, $\phi(z)$ is the standard Normal density function and $h$ is the bandwidth. The bandwidth was chosen such that
 \begin{equation}
   h = (0.9n^{-1/5}\ + 0.16) \times \text{min}\left(s_{x,y},\text{IQR}_{x,y}/1.34\right)
   \label{eq:inference_ourruleofthumb}
@@ -182,7 +184,11 @@ and converted to $p$-values
   p_{x,y} = 2(1-\Phi(|t_{x,y}|)) \ .
 \end{equation}
 
-Pixels are classified as positive for defects if its $p$-value is less than some threshold $\alpha$. The Benjamini-Hochberg \citep{benjamini1995controlling}(BH) procedure was used to select the threshold such that the FDR is less than 5\%. This was done by ordering the $p$-values such that $p_{(1)}\leqslant p_{(2)}\leqslant \cdots \leqslant p_{(N)}$, where $N$ is the area of the ROI, and using the threshold
+Pixels are classified as positive for defects if its $p$-value is less than some threshold $\alpha$. The Benjamini-Hochberg (BH) \citep{benjamini1995controlling} procedure was used to select the threshold such that the false discovery rate (FDR) is less than 5\%. The FDR is defined as
+\begin{equation}
+\text{FDR}=\expectation\left[\dfrac{\text{number of false positives}}{\text{number of positives}}\right]
+\end{equation}
+where the ratio is defined to be zero when the number of positives is zero. It indicates the average proportion of positives which are false. The BH procedure is done by ordering the $p$-values such that $p_{(1)}\leqslant p_{(2)}\leqslant \cdots \leqslant p_{(N)}$, where $N$ is the area of the ROI, and using the threshold
 \begin{equation}
   \alpha = \frac{0.05 k}{N}
 \end{equation}
@@ -193,6 +199,7 @@ where
 \end{equation}
 
 \subsection{Computational Implementation}
+\label{subsection:computational}
 
 The empirical null filter was implemented using \emph{ImageJ} \citep{abramoff2004image, perez2013image, schindelin2012fiji, schneider2012nih} by modifying the existing class \texttt{RankFilters}. The class contains implementations of filters, such as the mean filter and the median filter, using a circular kernel and multiple threads. Each thread filters a row in parallel.
 
@@ -259,7 +266,10 @@ at the current step. This was chosen arbitrary to speed up the algorithm without
 \end{equation}
 Further initial values were generated by sampling from $\normal(z^{(0)}, s_{x,y}^2)$. This was done multiple times until 3 valid solutions were obtained. The best solution, the one with the largest $\ln\widehat{p}_{Z_{x,y}}\left(\widehat{\mu}_{0,x,y}\right)$ out of all the different initial values, was used as the final answer.
 
+To satisfy the condition that the empirical null mean is slowly and smoothly varying, the x-ray projection of the test sample was manually segmented further as shown in Fig.~\ref{fig:inference_segmentFurther}. It was segmented using the edges of the projection of the sample. The empirical null filter was then used on each segment, or ROI, independently, ignoring any pixels outside the ROI the filter was working on. The resulting filtered segments were stitched together to form the resulting filtered image prior to any hypothesis testing.
+
 \subsection{Simulation of Defect Detection}
+\label{subsection:simulation}
 
 We tested if the empirical null filter can detect simulated defects from a $\SI{256}{\pixel}\times \SI{256}{\pixel}$ contaminated image. Statistically speaking, a defect is a pixel which has a value not distributed under the null distribution, but instead a alternative distribution. For example suppose $Z_{x,y}|H_{0,x,y}\sim\normal(0,1)$, then a defect would have a value distributed as $Z_{x,y}|H_{1,x,y}\sim\normal(\mu_{1},1)$ where $\mu_1\neq0$. A $\SI{30}{\pixel}\times \SI{30}{\pixel}$ square defect was simulated. A kernel can capture the entire defect if its radius is large enough.
 
@@ -277,19 +287,19 @@ It was suggested that, as a rule of thumb, the proportion of non-null statistics
 
 The receiver operating characteristic (ROC) curve \citep{cook2007use, friedman2001elements, green1966signal, hanley1982meaning, metz1978basic} is a parametric plot, displaying the true positive rate (sensitivity) against the false positive rate ($1-\text{specificity}$) for varying thresholds. The area under the ROC curve is a commonly used statistic to quantify the performance of the test \citep{friedman2001elements}. Interpretations of the area do exist \citep{hanley1982meaning, metz1978basic} and discussed thoroughly \citep{cook2007use}.
 
-A simulation study was conducted where a simulated contaminated defected image was filtered for various kernel radiuses for $\mu_1=3$. Hypothesis testing was done on the uncontaminated defected image and filtered contaminated defected image. The area under the ROC curve and various errors were recorded. This was repeated 100 times by simulating another image. To form a baseline to compare with, the results of the uncontaminated image were all pooled together to obtain the empirical distribution of the ROC area and errors without contamination.
+A simulation study was conducted where a simulated contaminated defected image was filtered for various kernel radiuses for $\mu_1=3$. Hypothesis testing was done on the uncontaminated defected image and filtered contaminated defected image. The area under the ROC curve (AUC) and statistical errors were recorded. This was repeated 100 times by simulating another image and repeating the measurement. To form a baseline to compare with, the results of the uncontaminated image were all pooled together to obtain the empirical distribution of the AUC and errors without contamination.
 
 \section{Results}
 
-The result from the simulation is shown Fig.~\ref{fig:inference_Experiment_DefectRadiusSquare}. The ROC area increased with kernel radius which highlighted that a filtered image with a good radius kernel can performance almost as well as though there was no contamination. It also appeared that the optimal ROC area was achieved when using the kernel radius from the rule of thumb, making these results consistent with literature.
+In the simulation study, defection detection was conducted on a uncontaminated defected image and a filtered contaminated defected image so that the statistical properties were compared. The results from the simulation is shown Fig.~\ref{fig:inference_Experiment_DefectRadiusSquare}.
 
-Keeping the FDR consistent before and after filtering is desirable so that the FDR is kept controlled at a specified level after filtering. For large enough kernel radius, the FDR was controlled at around, perhaps a bit below, 5\%. It appeared a large kernel radius helped preserve FDR control after filtering in these examples. 
+The area under the ROC curve (AUC) increased with kernel radius which highlighted that a filtered image with a suitable radius kernel can perform almost as well as though there was no contamination. The rule of thumb (see Section \ref{subsection:simulation}) suggest a kernel radius of $r>\SI{54}{\pixel}$ which achieved optimal AUC thus justifies the use of the rule of thumb.
 
-It appeared there is a kernel radius which minimised the type 2 error. A large kernel radius is required for FDR control but too large can lose statistical power.
+It was observed that there is a kernel radius which minimised the type 2 error. A large kernel radius helped preserve false discovery rate (FDR) control after filtering in these examples but a kernel radius too large can lose statistical power. Keeping the FDR consistent before and after filtering is desirable so it is controlled at a specified level after filtering. For large enough kernel radius, the FDR was controlled at fluctuates around 5\%.
 
-In the experiment with the AM sample, the x-ray projection was manually segmented further as shown in Fig.~\ref{fig:inference_segmentFurther}. It was segmented using the edges of the projection of the sample. The empirical null filter was then used on each segment, or ROI, independently, ignoring any pixels outside the ROI the filter is working on. The resulting filtered segments were stitched together to form the resulting filtered image. The resulting inference is shown in Fig.~\ref{fig:inference_subroiAbsFilterDeg120_inference_radius4}.
+The running times of the filtering are shown in Fig.~\ref{fig:inference_timing}. The running times are compared with the mean variance filter which normalise the statistics using the sample mean and sample standard deviation. Compared to the mean variance filter, the empirical null filter was slow and much slower for larger kernel radiuses.
 
-The larger defects were successfully highlighted by the hypothesis test. It can be seen that the empirical null mean did change face to face, resulting in a clear boundary set by the edges. This probably suggest that the contamination or inaccuracy from \emph{aRTist} was face dependent.
+The resulting inference from the test sample is shown in Fig.~\ref{fig:inference_subroiAbsFilterDeg120_inference_radius4}. The larger defects were successfully highlighted by the hypothesis test. The empirical null mean changed face to face, resulting in a clear boundary set by the edges. This suggest that the contamination or inaccuracy from \emph{aRTist} was face dependent.
 
 \section{Conclusion}
 
@@ -301,13 +311,14 @@ False positives do occur but this is unavoidable because tests were done at the 
 
 For good results, the faces of the AM sample were segmented. This was necessary because the empirical null filter assumes that the null parameters varied spatially smoothly and slowly. Manual segmentation was easy to do because a cuboid has 6 faces. However, segmentation of faces cannot be generalised well to AM samples with complicated geometry and curved surfaces.
 
-The main issue was how slow the filter was. Fig.~\ref{fig:inference_timing} shows the timings of the empirical null filter and the mean variance filter. For a filter to take more than a minute is unacceptable when used on the production line when typical filters can take a fraction of a second.
-
-There are a few strategies to accelerate the filter. The empirical null filter may be accelerated using GPUs \citep{eklund2013medical, hwu2011gpu, yang2008parallel}, however efforts to implement the filter in \emph{CUDA} and \emph{C++} is fruitless if there may exist a faster method. Instead, accuracy may be sacrificed for speed by only estimating the null parameters for a number of regularly spaced pixels, the remaining pixels then do estimation through interpolation. The problem is that the assumption of a slow varying null parameter is required much more because of the use of interpolation, this may cause bigger problems due to the face to face transition observed in the experiments. It was found that if a bad solution was found for a point, then that solution would spread its bad solution to neighbour pixels due to the interpolation.
+For a filter to take more than a minute is unacceptable when used on the production line when typical filters can take a fraction of a second. There are a few strategies to accelerate the filter. The empirical null filter may be accelerated using GPUs \citep{eklund2013medical, hwu2011gpu, yang2008parallel}, however efforts to implement the filter in \emph{CUDA} and \emph{C++} is fruitless if there may exist a faster method. Instead, accuracy may be sacrificed for speed by only estimating the null parameters for a number of regularly spaced pixels, the remaining pixels then do estimation through interpolation. The problem is that the assumption of a slow varying null parameter is required much more because of the use of interpolation, this may cause bigger problems due to the face to face transition observed in the experiments. It was found that if a bad solution was found for a point, then that solution would spread its bad solution to neighbour pixels due to the interpolation.
 
 The main bottleneck is the evaluation of the density estimate, each step in the Newton-Raphson required the evaluation of each pixel in the kernel. Perhaps there may be faster methods for density estimation such as fitting a smoothing spline on the histogram \citep{efron2004large}, however that would require tuning the histogram bins as well as the tuning parameters for the spline. On the other hand, there are methods which uses the histogram count and it was found that the estimation of the null parameters was insensitive to the histogram binning \citep{schwartzman2008empirical}.
 
 Estimation of the null parameters is essentially robust statistics, estimating the parameters of the null distribution without being affected by non-null statistics. Potential faster methods than the empirical null could exist in literature \citep{hampel1986robust, huber2009robust, jewson2018principles, maronna2006robust, rousseeuw1987robust}. The EM algorithm \citep{bishop2006pattern, dempster1977maximum} could be used to fit a mixture of Gaussians to identify the null distribution and estimate its parameters. However the power of hypothesis testing and the empirical null comes from the fact that the alternative distribution does not need to be specified.
+
+\section{Appendix}
+Code which reproduces this paper can be found on the \emph{GitHub} page.
 
 \section{Acknowledgements}
 This work is funded by EPSRC grant numbers EP/K031066/1 (Inside-out: Statistical methods for Computed Tomography validation of complex structures in Additive Layer Manufacturing) and EP/L016710/1 (EPSRC and MRC Centre for Doctoral Training in Next Generation Statistical Science: The Oxford-Warwick Statistics Programme).
@@ -328,6 +339,8 @@ This work is funded by EPSRC grant numbers EP/K031066/1 (Inside-out: Statistical
   \label{fig:inference_testObject}
 \end{figure}
 
+\clearpage
+
 \begin{figure}
   \centering
   \includegraphics[width=0.7\textwidth]{../figures/flowchart.eps}
@@ -342,12 +355,23 @@ This work is funded by EPSRC grant numbers EP/K031066/1 (Inside-out: Statistical
   \label{fig:inference_defectSquare2Example}
 \end{figure}
 
+\clearpage
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.49\textwidth]{../figures/inference/segment.JPG}
+  \caption{The x-ray projection was segmented further into 7 segments or ROI.}
+  \label{fig:inference_segmentFurther}
+\end{figure}
+
+\clearpage
+
 \begin{figure}
   \centering
     \centerline{
       \begin{subfigure}{0.49\textwidth}
         \includegraphics[width=\textwidth]{../figures/inference/DefectRadiusSquare_roc.eps}
-        \caption{ROC area}
+        \caption{AUC}
       \end{subfigure}
       \begin{subfigure}{0.49\textwidth}
         \includegraphics[width=\textwidth]{../figures/inference/DefectRadiusSquare_type1.eps}
@@ -364,16 +388,29 @@ This work is funded by EPSRC grant numbers EP/K031066/1 (Inside-out: Statistical
         \caption{FDR}
       \end{subfigure}
     }
-  \caption{ROC area and various errors obtained when conducting a hypothesis test on a $\SI{256}{\pixel} \times \SI{256}{\pixel}$ filtered contaminated Gaussian image with a $\SI{30}{\pixel}\times \SI{30}{\pixel}$ square defect. Various kernel radiuses were investigated. The dashed lines show the resulting 95\% empirical confidence interval when the hypothesis test was done on the uncontaminated image with a defect. The null and alternative distributions are $Z_{x,y}|H_{0,x,y}\sim\normal(\mu_{0,x,y},2^2)$ and $Z_{x,y}|H_{1,x,y}\sim\normal(\mu_{0,x,y}+6,2^2)$ respectively where $\mu_{0,x,y}=0.01(x-x_0)+0.01(y-y_0)$ and $(x_0,y_0)$ is the centre of the image. The test was done at the 5\% FDR level. The box plot summarise the 100 repeated measurements of the experiment.}
+  \caption{Area under the ROC curve (AUC) and statistical errors obtained when conducting a hypothesis test on a $\SI{256}{\pixel} \times \SI{256}{\pixel}$ filtered contaminated Gaussian image with a $\SI{30}{\pixel}\times \SI{30}{\pixel}$ square defect for Various kernel radiuses. The dashed lines show the resulting 95\% empirical confidence interval when the hypothesis test was done on the uncontaminated image with a defect. The null and alternative distributions are $Z_{x,y}|H_{0,x,y}\sim\normal(\mu_{0,x,y},2^2)$ and $Z_{x,y}|H_{1,x,y}\sim\normal(\mu_{0,x,y}+6,2^2)$ respectively where $\mu_{0,x,y}=0.01(x-x_0)+0.01(y-y_0)$ and $(x_0,y_0)$ is the centre of the image. The test was conducted at the 5\% FDR level. The box plots summarise the 100 repeated measurements of the simulation.}
   \label{fig:inference_Experiment_DefectRadiusSquare}
 \end{figure}
 
+\clearpage
+
 \begin{figure}
   \centering
-  \includegraphics[width=0.49\textwidth]{../figures/inference/segment.JPG}
-  \caption{The x-ray projection was segmented further into 7 segments or ROI.}
-  \label{fig:inference_segmentFurther}
+    \centerline{
+      \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/AllNullGaussianEmpirical_time.eps}
+        \caption{Empirical null filter}
+      \end{subfigure}
+      \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../figures/inference/AllNullGaussianMeanVar_time.eps}
+        \caption{Mean variance null filter}
+      \end{subfigure}
+    }
+  \caption{Running times when filtering a $\SI{256}{\pixel}\times \SI{256}{\pixel}$ image. The mean variance null filter uses the sample mean and sample standard deviation to locally normalise the image. Note that the $y$-axis changes scale. The box plots summarise the 100 repeated measurements of the running times.}
+  \label{fig:inference_timing}
 \end{figure}
+
+\clearpage
 
 \begin{figure}
   \centering
@@ -399,22 +436,6 @@ This work is funded by EPSRC grant numbers EP/K031066/1 (Inside-out: Statistical
     }
   \caption{Resulting inference when using the empirical null filter, on each segment independently, with radius $r=\SI{130}{\pixel}$. a) X-ray projection with highlighted red positive pixels at the 5\% FDR level. b) $p$-values on the log scale. c) and d) Empirical null mean and standard deviation.}
   \label{fig:inference_subroiAbsFilterDeg120_inference_radius4}
-\end{figure}
-
-\begin{figure}
-  \centering
-    \centerline{
-      \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/AllNullGaussianEmpirical_time.eps}
-        \caption{Empirical null filter}
-      \end{subfigure}
-      \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/AllNullGaussianMeanVar_time.eps}
-        \caption{Mean variance null filter}
-      \end{subfigure}
-    }
-  \caption{Timings when filtering a $\SI{256}{\pixel}\times \SI{256}{\pixel}$ image. The mean variance null filter uses the sample mean and sample standard deviation to locally normalise the image. Note that the $y$-axis changes scale. The box plot summarise the 100 repeated measurements of the timings.}
-  \label{fig:inference_timing}
 \end{figure}
 
 \end{document}
