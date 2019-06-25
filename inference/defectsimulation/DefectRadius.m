@@ -58,7 +58,7 @@ classdef DefectRadius < Experiment
       plot(ax.XLim, [oracleInterval(2), oracleInterval(2)], 'k--');
       ax.XLim(2) = ax.XLim(2) + rightOffset;
       xlabel('radius (px)');
-      ylabel('roc area');
+      ylabel('AUC');
       saveas(fig,fullfile(directory, strcat(this.experimentName,'_roc.eps')),'epsc');
       
       %plot type 1 error vs alt mean

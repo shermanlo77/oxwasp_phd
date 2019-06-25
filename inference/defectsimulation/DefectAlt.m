@@ -105,7 +105,7 @@ classdef DefectAlt < Experiment
         label{numel(boxplotLegend)} = 'contaminated';
       end
       xlabel('alt distribution mean');
-      ylabel('ROC area');
+      ylabel('AUC');
       ylim([0.5,1]);
       ax.XLim(1) = this.altMeanArray(1) - offset*2;
       ax.XLim(2) = this.altMeanArray(end) + offset*2;    
