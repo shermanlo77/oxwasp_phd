@@ -138,9 +138,7 @@ classdef (Abstract) DefectDetect < Experiment
       trainingVar = var(trainingStack,[],2);
 
       %train glm using the training set mean and variance
-      model = GlmGamma(1,IdentityLink());
-      model.setShapeParameter((nTrain-1)/2);
-      model.train(trainingMean, trainingVar);
+      model = fitglm(trainingMean, trainingVar, 'Distribution', 'gamma', 'Link', 'identity');
 
       %predict variance given aRTist
       varPredict = reshape(model.predict(reshape(artist,[],1)),scan.height, scan.width);
