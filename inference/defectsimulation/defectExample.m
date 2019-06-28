@@ -1,12 +1,8 @@
 %SCRIPT: DEFECT DUST
-%Plot Gaussian image with dust defect with plane contimation
+%Plot Gaussian image with defect with plane contamination
 %Plot empirical null mean
 %Plot empirical null std
-%Plot roc curve before and after contimation
-%For the z_alpha=2 level, print:
-  %type 1 error
-  %type 2 error
-  %area under ROC
+%Plot roc curve before and after contamination
 
 clc;
 clearvars;
