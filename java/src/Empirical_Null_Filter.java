@@ -14,4 +14,7 @@ public class Empirical_Null_Filter extends EmpiricalNullFilter{
     IJ.showProgress(percent);
   }
   
+  public static void main(String[] args){
+    System.out.println("MIT License\nCopyright (c) 2019 Sherman Lo");
+  }
 }
