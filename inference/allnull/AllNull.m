@@ -185,6 +185,14 @@ classdef AllNull < Experiment
       saveas(fig,fullfile(directory, strcat(this.experimentName,'_time.eps')),'epsc');
       
     end
+    
+    function printTime(this, iRadius)
+      
+      time = mean(this.timeArray(:,iRadius));
+      timeError = std(this.timeArray(:,iRadius));
+      disp(cell2mat({'running time for radius = ',num2str(this.radiusArray(iRadius)),' in seconds: ', num2str(time), '±',num2str(timeError)}));
+      
+    end
 
   end
   
