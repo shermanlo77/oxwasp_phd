@@ -7,15 +7,18 @@ import ij.gui.Roi;
 /**A circular kernel, contains statistics and methods using the pixels captured by the circular
  *     kernel. The kernel can move right or start on a new row, the member variables are updated
  *     when the kernel moves
+ * <p>
  * Modified from the RankFilters.java
  *     See https://github.com/imagej/ImageJA/blob/master/src/main/java/ij/plugin/filter/
  *         RankFilters.java
- * 
+ * <p>
  * How to use:
- *   Pass the required parameters into the constructor
- *   Call the method moveToNewLine(int y) to move the kernel onto a line
- *   Call the method moveRight() to move the kernel one pixel to the right
- *   Call the getter methods to get required kernel statistics
+ *   <ul>
+ *     <li>Pass the required parameters into the constructor</li>
+ *     <li>Call the method moveToNewLine(int y) to move the kernel onto a line</li>
+ *     <li>Call the method moveRight() to move the kernel one pixel to the right</li>
+ *     <li>Call the getter methods to get required kernel statistics</li>
+ *   </ul>
  */
 class Kernel {
   

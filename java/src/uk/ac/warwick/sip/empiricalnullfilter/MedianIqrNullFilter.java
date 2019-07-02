@@ -4,10 +4,8 @@ import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.random.RandomGenerator;
 
 //CLASS: MEDIAN IQR NULL FILTER
-/**Subclass of EmpiricalNullFilter
- * Replaces the empirical null mean with median
- * Replaces the empirical null std with iqr/1.3490
- * @author sherman
+/**Subclass of EmpiricalNullFilter, replaces the empirical null mean with median, replaces the 
+ *     empirical null std with iqr/1.3490.
  */
 public class MedianIqrNullFilter extends EmpiricalNullFilter {
   

@@ -5,17 +5,17 @@ import org.apache.commons.math3.random.MersenneTwister;
 import org.apache.commons.math3.random.RandomGenerator;
 
 //CLASS: EMPIRICAL NULL
-/**Implementation of the empirical null
+/**Implementation of the empirical null.
  * 
  * Fits a kernel density on the histogram, finds the mode using the Newton-Raphson method. The null
  *     std uses the 2nd derivate of the log density at the mode. The mode (null mean) and the null 
- *     is used to normalise the statistics
+ *     is used to normalise the statistics.
  * 
  * How to use:
  *   Pass the array of statistics to the constructor as well as other parameters required for the 
  *       kernel density estimate and the Newton-Raphson method.
- *   Call the method estimateNull()
- *   Call the method getNullMean() and getNullStd() to get the null parameters
+ *   Call the method estimateNull().
+ *   Call the method getNullMean() and getNullStd() to get the null parameters.
  */
 public class EmpiricalNull {
   
@@ -82,8 +82,8 @@ public class EmpiricalNull {
   }
   
   //CONSTRUCTOR
-  /**To be used by EmpiricalNullFilter
-   * All parameters must be provided
+  /**To be used by EmpiricalNullFilter.
+   * All parameters must be provided.
    * @param nInitial number of times to repeat the newton-raphson using different initial values
    * @param nStep number of steps in newton-raphson
    * @param log10Tolerance stopping condition tolerance for newton-raphson, stopping condition is

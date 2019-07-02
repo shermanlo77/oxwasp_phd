@@ -6,7 +6,7 @@ import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.random.RandomGenerator;
 
 //CLASS: MAD MODE NULL
-/**Uses the mode for the empirical null mean, uses the median around the mode deviation of the null
+/**Uses the mode for the empirical null mean, uses the median around the mode deviation for the null
  *     std
  */
 public class MadModeNull extends EmpiricalNull{
@@ -28,8 +28,8 @@ public class MadModeNull extends EmpiricalNull{
   }
   
   //CONSTRUCTOR
-  /**To be used by EmpiricalNullFilter
-   * All parameters must be provided
+  /**To be used by EmpiricalNullFilter.
+   * All parameters must be provided.
    * @param nInitial number of times to repeat the newton-raphson using different initial values
    * @param nStep number of steps in newton-raphson
    * @param log10Tolerance stopping condition tolerance for newton-raphson, stopping condition is

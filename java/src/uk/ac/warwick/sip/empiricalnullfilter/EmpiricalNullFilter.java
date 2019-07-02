@@ -34,34 +34,38 @@ import org.apache.commons.math3.random.RandomGenerator;
 //CLASS: EMPIRICAL NULL FILTER
 /**Implementation of the empirical null filter, normalise the grey values using the empirical null 
  *     mean (mode) and the empirical null std.
- * 
+ * <p>
  * The method filter is overloaded but at all directed to the filter() with no parameters. The
  *     filter() with no parameter is used directly by ImageJ because the image is passed through the
  *     methods setup and run. The methods filter(float [][] image) and
- *     filter(float [][] image, String roiPath) are required to pass the image when used by MATLAB
- * 
+ *     filter(float [][] image, String roiPath) are required to pass the image when used by MATLAB.
+ * <p>
  * How to use:
- *   Compile to a .jar file and use ImageJ or Fiji
- * 
+ *   <ul><li>Compile to a .jar file and use ImageJ or Fiji</li></ul>
+ * <p>
  * For use outside ImageJ such as MATLAB:
- *   Use the empty constructor
- *   Set the radius using the method setRadius(double)
- *   Call the method setNPasses(1)
- *   Call the method filter(float [][] image) or filter(float [][] image, String roiPath)
- *   Call the method getFilteredImage() to get the filtered image
- *   Call the method getOutputImage(int outputImagePointer) to get any other images
- *   
+ *   <ul>
+ *     <li>Use the empty constructor</li>
+ *     <li>Set the radius using the method setRadius(double)</li>
+ *     <li>Call the method setNPasses(1)</li>
+ *     <li>Call the method filter(float [][] image) or filter(float [][] image, String roiPath)</li>
+ *     <li>Call the method getFilteredImage() to get the filtered image</li>
+ *     <li>Call the method getOutputImage(int outputImagePointer) to get any other images</li>
+ *   </ul>
  */
 public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener {
   
   //STATIC FINAL VARIABLES
   
-  //the filter can output the std and quantiles filter
-  //the static int are options for what output images to show
-  //to combine the options, either add them together or use the OR operator
+  //
+  /**the filter can output the std and quantiles filter
+   * the static int are options for what output images to show
+   * to combine the options, either add them together or use the OR operator
+   */
   public static final int NULL_MEAN = 1, NULL_STD = 2, STD = 4, Q1 = 8, Q2 = 16, Q3 = 32;
-  public static final int N_IMAGE_OUTPUT = 6; //number of output images which can be shown
-  //name of each output image
+  /**number of output images which can be shown*/
+  public static final int N_IMAGE_OUTPUT = 6;
+  /**name of each output image*/
   public static final String[] OUTPUT_NAME = {"null mean", "null std", "standard deviation",
       "quantile 1", "median", "quantile 3"};
   //this filter only works on 32-bit images, this is indicated in FLAGS
@@ -144,8 +148,8 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   }
   
   //IMPLEMENTED: RUN
-  /**For the use of ExtendedPlugInFilter
-   * Do the filtering
+  /**For the use of ExtendedPlugInFilter.
+   * Do the filtering.
    * @param ip image to be filtered
    */
   @Override
@@ -345,9 +349,9 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   }
   
   //METHOD: FILTER
-  /**Do the empirical null filter using several threads
+  /**Do the empirical null filter using several threads.
    * Implementation: each thread uses the same input buffer (cache), always works on the next
-   * unfiltered line
+   * unfiltered line.
    * Usually, one thread reads reads several lines into the cache,
    * while the others are processing the data.
    * 'aborted[0]' is set if the main thread has been interrupted (during preview) or ESC pressed.
