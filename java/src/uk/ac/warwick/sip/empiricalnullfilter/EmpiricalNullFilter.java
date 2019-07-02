@@ -30,7 +30,6 @@ import java.util.Arrays;
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.random.MersenneTwister;
 import org.apache.commons.math3.random.RandomGenerator;
-import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
 
 /**CLASS: EMPIRICAL NULL FILTER
  * Implementation of the empirical null filter
@@ -248,7 +247,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
       this.setLog10Tolerance((float)gd.getNextNumber());
       this.setBandwidthA((float)gd.getNextNumber());
       this.setBandwidthB((float)gd.getNextNumber());
-    } catch (InvalidValue exception) {
+    } catch (InvalidValueException exception) {
       return false;
     }
     
@@ -698,13 +697,13 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   
   /**PROCEDURE: SET NUMBER OF INITIAL POINTS
    * @param nInitial must be 1 or bigger
-   * @throws InvalidValue
+   * @throws InvalidValueException
    */
-  public void setNInitial(int nInitial) throws InvalidValue {
+  public void setNInitial(int nInitial) throws InvalidValueException {
     if (nInitial>0) {
       this.nInitial = nInitial;
     } else {
-      throw new InvalidValue("number of initial points must be positive");
+      throw new InvalidValueException("number of initial points must be positive");
     }
   }
   
@@ -717,13 +716,13 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   
   /**PROCEDURE: SET NUMBER OF STEPS
    * @param nStep
-   * @throws InvalidValue
+   * @throws InvalidValueException
    */
-  public void setNStep(int nStep) throws InvalidValue {
+  public void setNStep(int nStep) throws InvalidValueException {
     if (nStep>0) {
       this.nStep = nStep;
     } else {
-      throw new InvalidValue("number of steps must be positive");
+      throw new InvalidValueException("number of steps must be positive");
     }
   }
   
@@ -756,13 +755,13 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
         * ((float) Math.pow((double) this.n, -0.2))
         + bandwidthParameterA;
    * @param bandwidthParameterA
-   * @throws InvalidValue if the parameter is not positive
+   * @throws InvalidValueException if the parameter is not positive
    */
-  public void setBandwidthA(float bandwidthParameterA) throws InvalidValue{
+  public void setBandwidthA(float bandwidthParameterA) throws InvalidValueException{
     if (bandwidthParameterA >= 0) {
       this.bandwidthParameterA = bandwidthParameterA;
     } else {
-      throw new InvalidValue("bandwidthParameterA must be non-negative");
+      throw new InvalidValueException("bandwidthParameterA must be non-negative");
     }
   }
   
@@ -784,11 +783,11 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
         + bandwidthParameterA;
    * @param bandwidthParameterB
    */
-  public void setBandwidthB(float bandwidthParameterB) throws InvalidValue{
+  public void setBandwidthB(float bandwidthParameterB) throws InvalidValueException{
     if (bandwidthParameterB >= 0) {
       this.bandwidthParameterB = bandwidthParameterB;
     } else {
-      throw new InvalidValue("bandwidthParameterB must be non-negative");
+      throw new InvalidValueException("bandwidthParameterB must be non-negative");
     }
   }
   
