@@ -4,6 +4,19 @@ import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.random.MersenneTwister;
 import org.apache.commons.math3.random.RandomGenerator;
 
+//CLASS: EMPIRICAL NULL
+/**Implementation of the empirical null
+ * 
+ * Fits a kernel density on the histogram, finds the mode using the Newton-Raphson method. The null
+ *     std uses the 2nd derivate of the log density at the mode. The mode (null mean) and the null 
+ *     is used to normalise the statistics
+ * 
+ * How to use:
+ *   Pass the array of statistics to the constructor as well as other parameters required for the 
+ *       kernel density estimate and the Newton-Raphson method.
+ *   Call the method estimateNull()
+ *   Call the method getNullMean() and getNullStd() to get the null parameters
+ */
 public class EmpiricalNull {
   
   //STATIC FINAL VARIABLES (these are used for default values)
@@ -38,8 +51,8 @@ public class EmpiricalNull {
   private final NormalDistribution normalDistribution; //standard normal distribution
   private final RandomGenerator rng; //random number generator when a random initial value is needed
   
-  /**CONSTRUCTOR
-   * To be used by MATLAB, default values are provided for you
+  //CONSTRUCTOR
+  /**To be used by MATLAB, default values are provided for you
    * @param zArray float array of z statistics to be corrected
    * @param initialValue initial value for the newton-raphson
    * @param quartiles array the 3 quartiles of the data in the kernel at this position
@@ -68,25 +81,20 @@ public class EmpiricalNull {
     this.setBandwidth();
   }
   
-  /**CONSTRUCTOR
-   * To be used by EmpiricalNullFilter
+  //CONSTRUCTOR
+  /**To be used by EmpiricalNullFilter
    * All parameters must be provided
    * @param nInitial number of times to repeat the newton-raphson using different initial values
    * @param nStep number of steps in newton-raphson
    * @param log10Tolerance stopping condition tolerance for newton-raphson, stopping condition is
-   *     Math.abs(dxLnF[1])<this.tolerance where dxLnF[1] is the gradient of the log density and
+   *     Math.abs(dxLnF[1])&lt;this.tolerance where dxLnF[1] is the gradient of the log density and
    *     this.tolerance is 10^log10Tolerance
    * @param bandwidthParameterA the bandwidth for the density estimate is
    *     (B x n^{-1/5} + A) * std
    * @param bandwidthParameterB the bandwidth for the density estimate is
    *     (B x n^{-1/5} + A) * std
-   * @param cache array of greyvalues
-   * @param x x position
-   * @param cachePointers array of integer pairs, pointing to the boundary of the kernel
    * @param initialValue initial value for the newton-raphson
-   * @param quartiles array the 3 quartiles of the data in the kernel at this position
-   * @param dataStd standard deviation of the pixels in the kernel t this position
-   * @param n number of non-nan in the kernel at this position
+   * @param kernel contains the statistics to do the empirical null on
    * @param normalDistribution standard normal distribution object
    * @param rng random number generator when a random initial value is needed
    */
@@ -111,8 +119,8 @@ public class EmpiricalNull {
     this.setBandwidth();
   }
   
-  /**METHOD: ESTIMATE NULL
-   * Estimate the parameters nullMean and nullStd
+  //METHOD: ESTIMATE NULL
+  /**Estimate the parameters nullMean and nullStd
    * @throws ConvergenceException if Newton-Raphson failed to converge
    */
   public void estimateNull() throws ConvergenceException{
@@ -159,8 +167,8 @@ public class EmpiricalNull {
     this.nullStd = this.estimateNullStd(nullMeanArray[maxPointer], secondDivArray[maxPointer]);
   }
   
-  /**METHOD: ESTIMATE NULL STD
-   * Return the null std given the mode and the second derivative of the log density
+  //METHOD: ESTIMATE NULL STD
+  /**Return the null std given the mode and the second derivative of the log density
    * @param mode location of the mode
    * @param secondDiv second derivative of the log density at the mode
    * @return empirical null std
@@ -169,16 +177,16 @@ public class EmpiricalNull {
     return (float) Math.pow(-secondDiv, -0.5);
   }
   
-  /**METHOD: SET NULL TO RANDOM DATA
-   * Set the initial value for the newton-raphson method to a random data point
+  //METHOD: SET NULL TO RANDOM DATA
+  /**Set the initial value for the newton-raphson method to a random data point
    * This is the orginal initial value plus Gaussian noise
    */
   private float getRandomInitial() {
     return this.initialValue + ((float) this.rng.nextGaussian()) * this.dataStd;
   }
   
-  /**METHOD: FIND MODE
-   * Find the mode of the log density using the newton-raphson method
+  //METHOD: FIND MODE
+  /**Find the mode of the log density using the newton-raphson method
    * @return 3-array, [0] contains the maximum density, [1] mode, [2] 2nd div of log density
    * @throws ConvergenceException when the algorithm fails to converge
    */
@@ -239,8 +247,8 @@ public class EmpiricalNull {
     return densityAtMode;
   }
   
-  /**METHOD: GET D LN DENSITY
-   * Return a 3 element array containing:
+  //METHOD: GET D LN DENSITY
+  /**Return a 3 element array containing:
    * 0. the density (ignore any constant multiplied to it) (NOT THE LOG)
    * 1. the first derivative of the log density
    * 2. the second derivative of the log density
@@ -286,22 +294,22 @@ public class EmpiricalNull {
     return dxLnF;
   }
   
-  /**METHOD: GET NULL MEAN
-   * @return null mean after calling estimateNull()
+  //METHOD: GET NULL MEAN
+  /**@return null mean after calling estimateNull()
    */
   public float getNullMean() {
     return this.nullMean;
   }
   
-  /**METHOD: GET NULL STD
-   * @return null std after calling estimateNull()
+  //METHOD: GET NULL STD
+  /**@return null std after calling estimateNull()
    */
   public float getNullStd() {
     return this.nullStd;
   }
   
-  /**FUNCTION: IS FINITE
-   * Indicate if the float is finite, ie not nan and not infinite
+  //FUNCTION: IS FINITE
+  /**Indicate if the float is finite, ie not nan and not infinite
    * @param f
    * @return
    */
@@ -309,54 +317,54 @@ public class EmpiricalNull {
     return !(Float.isNaN(f) || Float.isInfinite(f) || Float.isInfinite(-f));
   }
   
-  /**METHOD: GET N INITIAL
-   * @return number of initial points used in newton-raphson
+  //METHOD: GET N INITIAL
+  /**@return number of initial points used in newton-raphson
    */
   public int getNInitial() {
     return this.nInitial;
   }
   
-  /**METHOD: SET N INITIAL
-   * @param nInitial number of initial points used in newton-raphson
+  //METHOD: SET N INITIAL
+  /**@param nInitial number of initial points used in newton-raphson
    */
   public void setNInitial(int nInitial) {
     this.nInitial = nInitial;
   }
   
-  /**METHOD: GET N STEP
-   * @return number of steps used in newton-raphson
+  //METHOD: GET N STEP
+  /**@return number of steps used in newton-raphson
    */
   public int getNStep() {
     return this.nStep;
   }
   
-  /**METHOD: SET N STEP
-   * @param nStep number of steps used in newton-raphson
+  //METHOD: SET N STEP
+  /**@param nStep number of steps used in newton-raphson
    */
   public void setNStep(int nStep) {
     this.nStep = nStep;
   }
   
-  /**METHOD: GET LOG 10 TOLERANCE
-   * @return stopping condition tolerance for newton-raphson
-   * stopping condition is Math.abs(dxLnF[1])<this.tolerance where dxLnF[1] is the gradient of the
+  //METHOD: GET LOG 10 TOLERANCE
+  /**@return stopping condition tolerance for newton-raphson
+   * stopping condition is Math.abs(dxLnF[1])&lt;this.tolerance where dxLnF[1] is the gradient of the
    *     log density and this.tolerance is 10^log10Tolerance
    */
   public float getLog10Tolerance() {
     return this.log10Tolerance;
   }
   
-  /**METHOD: SET LOG 10 TOLERANCE
-   * @param tolerance stopping condition tolerance for newton-raphson
-   * stopping condition is Math.abs(dxLnF[1])<this.tolerance where dxLnF[1] is the gradient of the
+  //METHOD: SET LOG 10 TOLERANCE
+  /**@param log10Tolerance stopping condition tolerance for newton-raphson
+   * stopping condition is Math.abs(dxLnF[1])&lt;this.tolerance where dxLnF[1] is the gradient of the
    *     log density and this.tolerance is 10^log10Tolerance
    */
   public void setLog10Tolerance(float log10Tolerance) {
     this.log10Tolerance = log10Tolerance;
   }
   
-  /**METHOD: SET BANDWIDTH
-   * Set the bandwidth for the kernel density using the bandwidth parameters
+  //METHOD: SET BANDWIDTH
+  /**Set the bandwidth for the kernel density using the bandwidth parameters
    * Change datastd and the iqr if needed, for example if they are zero
    */
   private void setBandwidth() {
@@ -374,24 +382,24 @@ public class EmpiricalNull {
         + this.bandwidthParameterA) * Math.min(this.dataStd, this.iqr/1.34f);
   }
   
-  /**METHOD: SET BANDIWDTH
-   * Set the bandwidth for the kernel density directly
+  //METHOD: SET BANDIWDTH
+  /**Set the bandwidth for the kernel density directly
    * @param bandwidth
    */
   public void setBandwidth(float bandwidth) {
     this.bandwidth = bandwidth;
   }
   
-  /**METHOD: GET BANDWIDTH PARAMETER A
-   * @return the bandwidth parameter A where the bandwidth for the density estimate is
+  //METHOD: GET BANDWIDTH PARAMETER A
+  /**@return the bandwidth parameter A where the bandwidth for the density estimate is
    *     (B x n^{-1/5} + A) * std
    */
   public float getBandwidthParameterA() {
     return this.bandwidthParameterA;
   }
   
-  /**METHOD: SET BANDWIDTH PARAMETER A
-   * Recalculate the bandwidth by changing the bandwidth parameter A
+  //METHOD: SET BANDWIDTH PARAMETER A
+  /**Recalculate the bandwidth by changing the bandwidth parameter A
    * @param bandwidthParameterA the bandwidth parameter A where the bandwidth for the density
    *     estimate is (B x n^{-1/5} + A) * std
    */
@@ -400,16 +408,16 @@ public class EmpiricalNull {
     this.setBandwidth();
   }
   
-  /**METHOD: GET BANDWIDTH PARAMETER B
-   * @return the bandwidth parameter B where the bandwidth for the density estimate is
+  //METHOD: GET BANDWIDTH PARAMETER B
+  /**@return the bandwidth parameter B where the bandwidth for the density estimate is
    *     (B x n^{-1/5} + A) * std
    */
   public float getBandwidthParameterB() {
     return this.bandwidthParameterB;
   }
   
-  /**METHOD: SET BANDWIDTH PARAMETER B
-   * Recalculate the bandwidth by changing the bandwidth parameter B
+  //METHOD: SET BANDWIDTH PARAMETER B
+  /**Recalculate the bandwidth by changing the bandwidth parameter B
    * @param bandwidthParameterB the bandwidth parameter A where the bandwidth for the density
    *     estimate is (B x n^{-1/5} + A) * std
    */

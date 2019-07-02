@@ -3,7 +3,8 @@ import uk.ac.warwick.sip.empiricalnullfilter.EmpiricalNullFilter;
 
 public class Empirical_Null_Filter extends EmpiricalNullFilter{
   
-  /**METHOD: SHOW PROGRESS
+  //METHOD: SHOW PROGRESS
+  /**
    * Use ImageJ to show progress bar
    * @param percent
    */

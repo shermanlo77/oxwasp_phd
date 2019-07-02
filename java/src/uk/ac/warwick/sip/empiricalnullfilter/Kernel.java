@@ -3,13 +3,19 @@ package uk.ac.warwick.sip.empiricalnullfilter;
 import org.apache.commons.math3.stat.descriptive.rank.Percentile;
 import ij.gui.Roi;
 
-/**CLASS: KERNEL
- * A circular kernel, contains statistics and methods using the pixels captured by the circular
+//CLASS: KERNEL
+/**A circular kernel, contains statistics and methods using the pixels captured by the circular
  *     kernel. The kernel can move right or start on a new row, the member variables are updated
  *     when the kernel moves
  * Modified from the RankFilters.java
  *     See https://github.com/imagej/ImageJA/blob/master/src/main/java/ij/plugin/filter/
  *         RankFilters.java
+ * 
+ * How to use:
+ *   Pass the required parameters into the constructor
+ *   Call the method moveToNewLine(int y) to move the kernel onto a line
+ *   Call the method moveRight() to move the kernel one pixel to the right
+ *   Call the getter methods to get required kernel statistics
  */
 class Kernel {
   
@@ -45,8 +51,8 @@ class Kernel {
   private final int[] cachePointers;
   Roi roi; //region of interest
   
-  /**CONTRUCTOR
-   * @param cache The kernel is placed on this Cache
+  //CONTRUCTOR
+  /**@param cache The kernel is placed on this Cache
    * @param roi Region of interest of the image being filtered
    * @param isCopy true if the kernel to copy pixels from cache
    * @param isMeanStd true if to work out mean and standard deviation
@@ -87,8 +93,8 @@ class Kernel {
     
   }
   
-  /**METHOD: MOVE TO NEW LINE
-   * Position the kernel centred at (x=0, y)
+  //METHOD: MOVE TO NEW LINE
+  /**Position the kernel centred at (x=0, y)
    * Member variables are updated
    * @param y Row number
    */
@@ -105,8 +111,8 @@ class Kernel {
     this.updateStatistics();
   }
   
-  /**METHOD: MOVE RIGHT
-   * Move the kernel one pixel to the right
+  //METHOD: MOVE RIGHT
+  /**Move the kernel one pixel to the right
    * Member variables are updated
    * @return true if the move was successful (ie within the roi bounding box)
    */
@@ -120,8 +126,8 @@ class Kernel {
     }
   }
   
-  /**METHOD: UPDATE STATISTICS
-   * Update the following member variables: sums, pixels, mean, std, quartiles
+  //METHOD: UPDATE STATISTICS
+  /**Update the following member variables: sums, pixels, mean, std, quartiles
    */
   private void updateStatistics() {
     //if this pixel is not in the roi, for the next pixel do a full calculation as the summation
@@ -181,8 +187,8 @@ class Kernel {
     }
   }
   
-  /**METHOD: GET AREA SUMS
-   * Get sum of values and values squared within the kernel area.
+  //METHOD: GET AREA SUMS
+  /**Get sum of values and values squared within the kernel area.
    * x between 0 and cacheWidth-1
    * Output is written to array sums[0] = sum; sums[1] = sum of squares
    * Ignores nan
@@ -205,8 +211,8 @@ class Kernel {
     }
   }
   
-  /**METHOD: ADD SIDE SUMS
-   * Add all values and values squared at the right border inside minus at the left border outside
+  //METHOD: ADD SIDE SUMS
+  /**Add all values and values squared at the right border inside minus at the left border outside
    * the kernal area.
    * Output is added or subtracted to/from array sums[0] += sum; sums[1] += sum of squares  when at
    * the right border, minus when at the left border
@@ -231,8 +237,8 @@ class Kernel {
     }
   }
   
-  /**METHOD: COPY PIXELS
-   * Deep copy pixels captured by the kernel from the cache
+  //METHOD: COPY PIXELS
+  /**Deep copy pixels captured by the kernel from the cache
    */
   private void copyPixels() {
     this.nFinite = 0;
@@ -309,8 +315,8 @@ class Kernel {
     return this.cachePointers;
   }
   
-  /**FUNCTION: MAKE LINE RADII
-   * Set the static variables given the kernel radius: isSmallKernel, kNPoints, kRadius, kHeight.
+  //FUNCTION: MAKE LINE RADII
+  /**Set the static variables given the kernel radius: isSmallKernel, kNPoints, kRadius, kHeight.
    *     kernelPointer
    * kernelPointer: the output is an array that gives the length of each line of the structuring
    *     element (kernel) to the left (negative) and to the right (positive):

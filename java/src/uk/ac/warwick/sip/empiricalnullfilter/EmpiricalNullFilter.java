@@ -31,9 +31,26 @@ import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.random.MersenneTwister;
 import org.apache.commons.math3.random.RandomGenerator;
 
-/**CLASS: EMPIRICAL NULL FILTER
- * Implementation of the empirical null filter
- * @author Sherman Ip
+//CLASS: EMPIRICAL NULL FILTER
+/**Implementation of the empirical null filter, normalise the grey values using the empirical null 
+ *     mean (mode) and the empirical null std.
+ * 
+ * The method filter is overloaded but at all directed to the filter() with no parameters. The
+ *     filter() with no parameter is used directly by ImageJ because the image is passed through the
+ *     methods setup and run. The methods filter(float [][] image) and
+ *     filter(float [][] image, String roiPath) are required to pass the image when used by MATLAB
+ * 
+ * How to use:
+ *   Compile to a .jar file and use ImageJ or Fiji
+ * 
+ * For use outside ImageJ such as MATLAB:
+ *   Use the empty constructor
+ *   Set the radius using the method setRadius(double)
+ *   Call the method setNPasses(1)
+ *   Call the method filter(float [][] image) or filter(float [][] image, String roiPath)
+ *   Call the method getFilteredImage() to get the filtered image
+ *   Call the method getOutputImage(int outputImagePointer) to get any other images
+ *   
  */
 public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener {
   
@@ -99,17 +116,17 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   // ONLY with one thread for the image (not using these class variables):
   private boolean threadWaiting; // a thread waits until it may read data
   
-  /**CONSTRUCTOR
-   * Empty constructor, used by ImageJ
+  //CONSTRUCTOR
+  /**Empty constructor, used by ImageJ
    */
   public EmpiricalNullFilter() {
   }
   
-  /**IMPLEMENTED: SETUP
-   * Setup of the PlugInFilter. Returns the flags specifying the capabilities and needs
+  //IMPLEMENTED: SETUP
+  /**Setup of the PlugInFilter. Returns the flags specifying the capabilities and needs
    * of the filter.
    * @param arg not used
-   * @param imp not used
+   * @param ip not used
    * @return Flags specifying further action of the PlugInFilterRunner
    */
   @Override
@@ -126,8 +143,8 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     return FLAGS;
   }
   
-  /**IMPLEMENTED: RUN
-   * For the use of ExtendedPlugInFilter
+  //IMPLEMENTED: RUN
+  /**For the use of ExtendedPlugInFilter
    * Do the filtering
    * @param ip image to be filtered
    */
@@ -151,8 +168,8 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     }
   }
   
-  /**IMPLEMENTED: SHOW DIALOG
-   * Dialog box for setting the radius and which output images to show
+  //IMPLEMENTED: SHOW DIALOG
+  /**Dialog box for setting the radius and which output images to show
    * @param imp image to apply the filter on
    * @param command name of this command
    * @param pfr
@@ -218,8 +235,8 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     return FLAGS;
   }
   
-  /**IMPLEMENTED: DIALOG ITEM CHANGED
-   * Called on user input
+  //IMPLEMENTED: DIALOG ITEM CHANGED
+  /**Called on user input
    * Update the radius and outputImagePointer
    */
   @Override
@@ -254,29 +271,29 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     return true;
   }
   
-  /**METHOD: GET RADIUS
-   * @return the radius of the kernel
+  //METHOD: GET RADIUS
+  /**@return the radius of the kernel
    */
   public double getRadius() {
     return this.radius;
   }
   
-  /**METHOD: SET RADIUS
-   * @param radius The radius of the kernel
+  //METHOD: SET RADIUS
+  /**@param radius The radius of the kernel
    */
   public void setRadius(double radius) {
     this.radius = radius;
   }
   
-  /**METHOD: GET FILTERED IMAGE
-   * @return array of pixels of the filtered image
+  //METHOD: GET FILTERED IMAGE
+  /**@return array of pixels of the filtered image
    */
   public float [] getFilteredImage() {
     return (float []) this.imageProcessor.getPixels();
   }
   
-  /**METHOD: GET OUTPUT IMAGE
-   * Returns an array of pixels from one of the requested output images
+  //METHOD: GET OUTPUT IMAGE
+  /**Returns an array of pixels from one of the requested output images
    * @param outputImagePointer e.g. NULL_MEAN, NULL_STD
    * @return float array containing the value of each pixel of a requested output image
    */
@@ -291,16 +308,16 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     return null;
   }
   
-  /**METHOD: SET OUTPUT IMAGE
-   * Set outputImagePointer, this indicate which output images to show
+  //METHOD: SET OUTPUT IMAGE
+  /**Set outputImagePointer, this indicate which output images to show
    * @param pointer which output images to show, use the static int variable, e.g. NULL_MEAN
    */
   public void setOutputImage(int pointer) {
     this.outputImagePointer = pointer;
   }
   
-  /**METHOD: FILTER
-   * Call the method filter using the image passed in the parameter
+  //METHOD: FILTER
+  /**Call the method filter using the image passed in the parameter
    * @param image image to be filtered
    */
   public void filter(float [][] image) {
@@ -309,8 +326,8 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     this.filter();
   }
   
-  /**METHOD: FILTER
-   * Call the method filter using the image and ROI passed in the parameter
+  //METHOD: FILTER
+  /**Call the method filter using the image and ROI passed in the parameter
    * @param image image to be filtered
    * @param roiPath path to the roi file
    * @throws IOException throws exception if opener.openRoi fails and returns a null
@@ -327,8 +344,8 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     this.filter();
   }
   
-  /**METHOD: FILTER
-   * Do the empirical null filter using several threads
+  //METHOD: FILTER
+  /**Do the empirical null filter using several threads
    * Implementation: each thread uses the same input buffer (cache), always works on the next
    * unfiltered line
    * Usually, one thread reads reads several lines into the cache,
@@ -415,8 +432,8 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     pass++;
   }
   
-  /**METHOD: THREAD FILTER
-   * Empirical null filter a grayscale image for a given thread
+  //METHOD: THREAD FILTER
+  /**Empirical null filter a grayscale image for a given thread
    * Synchronization: unless a thread is waiting, we avoid the overhead of 'synchronized'
    * statements. That's because a thread waiting for another one should be rare.
    *
@@ -553,8 +570,8 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     }// end while (!aborted[0]); loops over y (lines)
   }
   
-  /**METHOD: ARRAY MAX
-   * Used by thread control in threadFilter
+  //METHOD: ARRAY MAX
+  /**Used by thread control in threadFilter
    * @param array
    * @return maximum in array
    */
@@ -568,8 +585,8 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     return max;
   }
   
-  /**METHOD: ARRAY MIN NON NEGATIVE
-   * Used by thread control in threadFilter
+  //METHOD: ARRAY MIN NON NEGATIVE
+  /**Used by thread control in threadFilter
    * @param array
    * @return the minimum of the array, but not less than 0
    */
@@ -583,8 +600,8 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     return min<0 ? 0 : min;
   }
   
-  /**METHOD: FILTER LINE
-   * Empirical null filter a line
+  //METHOD: FILTER LINE
+  /**Empirical null filter a line
    * @param values array of float [] for output values to be stored
    * @param width width of the image
    * @param cache contains pixels of the pre-filter image
@@ -661,6 +678,17 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     } while(kernel.moveRight());
   }
   
+  //METHOD: GET NULL MEAN STD
+  /**Perform the Newton-Raphson on the kernel density estimate to get the empirical null mean and 
+   *     the empirical null std
+   * @param initialValue starting value for the Newton-Raphson
+   * @param cache
+   * @param kernel
+   * @param normal
+   * @param rng random number generator for producing new initial values
+   * @return
+   * @throws ConvergenceException
+   */
   protected float[] getNullMeanStd(float initialValue, Cache cache, Kernel kernel,
       NormalDistribution normal, RandomGenerator rng) throws ConvergenceException{
     //declare 2 vector to store the null mean and null std
@@ -695,8 +723,8 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   
   //=====STATIC FUNCTIONS AND PROCEDURES=====
   
-  /**PROCEDURE: SET NUMBER OF INITIAL POINTS
-   * @param nInitial must be 1 or bigger
+  //PROCEDURE: SET NUMBER OF INITIAL POINTS
+  /**@param nInitial must be 1 or bigger
    * @throws InvalidValueException
    */
   public void setNInitial(int nInitial) throws InvalidValueException {
@@ -707,15 +735,15 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     }
   }
   
-  /**FUNCTION: GET N INITIAL
-   * @return number of initial points to try out in newton-raphson
+  //FUNCTION: GET N INITIAL
+  /**@return number of initial points to try out in newton-raphson
    */
   public int getNInitial() {
     return this.nInitial;
   }
   
-  /**PROCEDURE: SET NUMBER OF STEPS
-   * @param nStep
+  //PROCEDURE: SET NUMBER OF STEPS
+  /**@param nStep
    * @throws InvalidValueException
    */
   public void setNStep(int nStep) throws InvalidValueException {
@@ -726,15 +754,15 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     }
   }
   
-  /**FUNCTION: GET N STEP
-   * @return number of steps to do in newton-raphson
+  //FUNCTION: GET N STEP
+  /**@return number of steps to do in newton-raphson
    */
   public int getNStep() {
     return this.nStep;
   }
   
-  /**PROCEDURE: SET LOG 10  TOLERANCE
-   * Stops the newton-raphson algorithm when (Math.abs(dxLnF[1])<tolerance)
+  //PROCEDURE: SET LOG 10  TOLERANCE
+  /**Stops the newton-raphson algorithm when (Math.abs(dxLnF[1])&lt;tolerance)
    * where dxLnF is the first diff of the log density
    * @param log10Tolerance
    */
@@ -742,15 +770,15 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     this.log10Tolerance = log10Tolerance;
   }
   
-  /**METHOD: GET LOG 10 TOLERANCE
-   * @return log10 tolerance when doing newton-raphson
+  //METHOD: GET LOG 10 TOLERANCE
+  /**@return log10 tolerance when doing newton-raphson
    */
   public float getLog10Tolerance() {
     return this.log10Tolerance;
   }
   
-  /**PROCEDURE: SET BANDWIDTH A
-   * The bandwidth for the density estimate is
+  //PROCEDURE: SET BANDWIDTH A
+  /**The bandwidth for the density estimate is
    * bandwidthParameterB * Math.min(dataStd, iqr/1.34f)
         * ((float) Math.pow((double) this.n, -0.2))
         + bandwidthParameterA;
@@ -765,8 +793,8 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     }
   }
   
-  /**FUNCTION: GET BANDWIDTH A
-   * The bandwidth for the density estimate is
+  //FUNCTION: GET BANDWIDTH A
+  /**The bandwidth for the density estimate is
    * bandwidthParameterB * Math.min(dataStd, iqr/1.34f)
         * ((float) Math.pow((double) this.n, -0.2))
         + bandwidthParameterA;
@@ -776,8 +804,8 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     return this.bandwidthParameterA;
   }
   
-  /**METHOD: SET BANDWIDTH B
-   * The bandwidth for the density estimate is
+  //METHOD: SET BANDWIDTH B
+  /**The bandwidth for the density estimate is
    * bandwidthParameterB * Math.min(dataStd, iqr/1.34f)
         * ((float) Math.pow((double) this.n, -0.2))
         + bandwidthParameterA;
@@ -791,8 +819,8 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     }
   }
   
-  /**FUNCTION: GET BANDWIDTH B
-   * The bandwidth for the density estimate is
+  //FUNCTION: GET BANDWIDTH B
+  /**The bandwidth for the density estimate is
    * bandwidthParameterB * Math.min(dataStd, iqr/1.34f)
         * ((float) Math.pow((double) this.n, -0.2))
         + bandwidthParameterA;
@@ -802,16 +830,16 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     return this.bandwidthParameterB;
   }
   
-  /**FUNCTION: SET SEED
-   * Set the seed for the rng used to give seeds for each row
+  //FUNCTION: SET SEED
+  /**Set the seed for the rng used to give seeds for each row
    * @param seed
    */
   public void setSeed(int seed) {
     this.seed = seed;
   }
   
-  /**METHOD: SHOW MASKS
-   * Show the kernel
+  //METHOD: SHOW MASKS
+  /**Show the kernel
    */
   void showMasks() {
     int w=150, h=150;
@@ -829,8 +857,8 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     new ImagePlus("Masks", stack).show();
   }
   
-  /**METHOD: SET N PASSES
-   * This method is called by ImageJ to set the number of calls to run(ip)
+  //METHOD: SET N PASSES
+  /**This method is called by ImageJ to set the number of calls to run(ip)
    * corresponding to 100% of the progress bar
    */
   @Override
@@ -839,8 +867,8 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     pass = 0;
   }
   
-  /**METHOD: SHOW PROGRESS
-   * @param percent
+  //METHOD: SHOW PROGRESS
+  /**@param percent
    */
   protected void showProgress(double percent) {
     if (this.isShowProgressBar) {
@@ -861,8 +889,8 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     }
   }
   
-  /**METHOD: SET PROGRESS BAR
-   * Turn the progress bar on or off
+  //METHOD: SET PROGRESS BAR
+  /**Turn the progress bar on or off
    * @param isShowProgressBar true to show the progress bar
    */
   public void setProgress(boolean isShowProgressBar) {

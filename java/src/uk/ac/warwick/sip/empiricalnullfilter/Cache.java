@@ -6,7 +6,8 @@ import java.util.Arrays;
 import ij.gui.Roi;
 import ij.process.ImageProcessor;
 
-/**CLASS: CACHE
+//CLASS: CACHE
+/**
  * A image containing a deep copy of the section of the image to be filtered
  * Pixels are copied from the image to the cache
  * Modified from the RankFilters.java
@@ -33,8 +34,8 @@ class Cache {
   
   private boolean copyingToCache = false;
   
-  /**CONSTRUCTOR
-   * @param numThreads number of threads
+  //CONSTRUCTOR
+  /**@param numThreads number of threads
    * @param ip The image to be filtered
    * @param roi The image region of interest
    */
@@ -67,8 +68,8 @@ class Cache {
     this.isMultiThread = numThreads > 1;
   }
   
-  /**METHOD: READ INTO CACHE
-   * Start deep copying pixels into the cache, according to the size and position of the kernel
+  //METHOD: READ INTO CACHE
+  /**Start deep copying pixels into the cache, according to the size and position of the kernel
    * @param yForThread array of y positions of each thread
    * @param kernel Kernel which has yet to filter a line
    */
@@ -97,8 +98,8 @@ class Cache {
     }
   }
   
-  /**METHOD: READ LINE TO CACHE OR PAD
-   * Read a line into the cache (including padding in x), anything outside the boundary is nan
+  //METHOD: READ LINE TO CACHE OR PAD
+  /**Read a line into the cache (including padding in x), anything outside the boundary is nan
    * @param y
    */
   private void readLineToCacheOrPad(int y) {
@@ -119,8 +120,8 @@ class Cache {
     }
   }
   
-  /**METHOD: READ LINE TO CACHE
-   * Read a line into the cache (includes conversion to flaot)
+  //METHOD: READ LINE TO CACHE
+  /**Read a line into the cache (includes conversion to flaot)
    * Pad with nan if necessary
    * @param y
    */
@@ -152,8 +153,8 @@ class Cache {
     }
   }
   
-  /**FUNCTION: ARRAY MIN NON NEGATIVE
-   * Used by thread control in threadFilter
+  //FUNCTION: ARRAY MIN NON NEGATIVE
+  /**Used by thread control in threadFilter
    * @param array
    * @return the minimum of the array, but not less than 0
    */
