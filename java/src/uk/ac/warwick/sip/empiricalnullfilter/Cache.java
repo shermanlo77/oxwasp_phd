@@ -7,31 +7,45 @@ import ij.gui.Roi;
 import ij.process.ImageProcessor;
 
 //CLASS: CACHE
-/**
- * A image containing a deep copy of the section of the image to be filtered
- * Pixels are copied from the image to the cache
- * Modified from the RankFilters.java
- *     See https://github.com/imagej/ImageJA/blob/master/src/main/java/ij/plugin/filter/
- *         RankFilters.java
+/**A image containing a deep copy of the section of the image to be filtered.
+ * 
+ * <p>Pixels are copied from the image to the cache.
+ * 
+ * <p>Modified from 
+ *     <a href=https://github.com/imagej/ImageJA/blob/7f965b866c9db364b0b47140caeef4f62d5d8c15/src/main/java/ij/plugin/filter/RankFilters.java>
+ *     RankFilters.java</a>
  */
 class Cache {
   
-  private int highestYInCache;
-  
+  /**image to be working on*/
   private final ImageProcessor ip;
+  /**region of interest*/
   private final Roi roi;
+  /**contains deep copy of a section of the image*/
   private final float[] cache;
+  /**y position of the cache*/
+  private int highestYInCache;
+  /**width of cache*/
   private final int cacheWidth;
+  /**height of cache*/
   private final int cacheHeight;
-  private final int xMin; //minimum x captured by kernel
-  private final int xMax; //maximum x captured by kernel
-  private final int padLeft; //amount of padding left
-  private final int padRight; //amount of padding right
-  private final int xMinInside; //minimum x captured by kernel and image coordinates
-  private final int xMaxInside; //maximum x captured by kernel and image coordinates
-  private final int widthInside; //this.xMaxInside - this.xMinInside
+  /**minimum x captured by kernel*/
+  private final int xMin;
+  /**maximum x captured by kernel*/
+  private final int xMax;
+  /**amount of padding left*/
+  private final int padLeft;
+  /**amount of padding right*/
+  private final int padRight;
+  /**minimum x captured by kernel and image coordinates*/
+  private final int xMinInside;
+  /**maximum x captured by kernel and image coordinates*/
+  private final int xMaxInside;
+  /**this.xMaxInside - this.xMinInside*/
+  private final int widthInside;
+  /**indicate if this machine can do multiple threads*/
   private final boolean isMultiThread;
-  
+  /**indicate if the cache is deep copying the next line(s)*/
   private boolean copyingToCache = false;
   
   //CONSTRUCTOR
@@ -121,8 +135,8 @@ class Cache {
   }
   
   //METHOD: READ LINE TO CACHE
-  /**Read a line into the cache (includes conversion to flaot)
-   * Pad with nan if necessary
+  /**Read a line into the cache (includes conversion to float).
+   * Pad with nan if necessary.
    * @param y
    */
   private void readLineToCache(int y) {

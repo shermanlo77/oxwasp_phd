@@ -8,9 +8,9 @@ import ij.gui.Roi;
  *     kernel. The kernel can move right or start on a new row, the member variables are updated
  *     when the kernel moves
  * <p>
- * Modified from the RankFilters.java
- *     See https://github.com/imagej/ImageJA/blob/master/src/main/java/ij/plugin/filter/
- *         RankFilters.java
+ * <p>Modified from 
+ *     <a href=https://github.com/imagej/ImageJA/blob/7f965b866c9db364b0b47140caeef4f62d5d8c15/src/main/java/ij/plugin/filter/RankFilters.java>
+ *     RankFilters.java</a>
  * <p>
  * How to use:
  *   <ul>
@@ -23,36 +23,52 @@ import ij.gui.Roi;
 class Kernel {
   
   //=====STATIC VARIABLES=====//
-  private static boolean isSmallKernel; //indicate if this kernel is small of not
-  private static int kNPoints; //number of points in the kernel
-  private static int kRadius; //radius of the kernel
-  private static int kHeight; //height of the kernel (2*kRadius + 1);
-  //pairs of pointers to be used in iteration, see method setKernel
+  /**indicate if this kernel is small of not*/
+  private static boolean isSmallKernel;
+  /**number of points in the kernel*/
+  private static int kNPoints;
+  /**radius of the kernel*/
+  private static int kRadius;
+  /**height of the kernel (2*kRadius + 1)*/
+  private static int kHeight;
+  /**pairs of pointers to be used in iteration, see method setKernel*/
   private static int [] kernelPointer;
   
   //=====MEMBER VARIABLES=====//
-  private final double[] sums; //[0] sum of greyvalues, [1] sum of greyvalues squared
-  private final float[] pixels; //array of pixel greyvalues in the kernel
+  /**[0] sum of greyvalues, [1] sum of greyvalues squared*/
+  private final double[] sums;
+  /**array of pixel greyvalues in the kernel*/
+  private final float[] pixels;
   private float mean;
   private float std;
-  private float[] quartiles; //[0,1,2] 1st 2nd and 3rd quartiles greyvalues of pixels in the kernel
-  private boolean isFullCalculation; //true to do full sum
-  private int x; //x position of kernel, increments with the method moveKernel()
-  private int y; //y position of kernel, set using method moveToNewLine()
+  /**[0,1,2] 1st 2nd and 3rd quartiles greyvalues of pixels in the kernel*/
+  private float[] quartiles;
+  /**true to do full sum*/
+  private boolean isFullCalculation;
+  /**x position of kernel, increments with the method moveKernel()*/
+  private int x;
+  /**y position of kernel, set using method moveToNewLine()*/
+  private int y;
+  /**previous y position*/
   private int previousY;
+  /**number of finite numbers in kernel*/
   private int nFinite;
-  private boolean isFinite; //false if the kernel is centred on a non-ROI pixel or NaN calculations
+  /**false if the kernel is centred on a non-ROI pixel or NaN calculations*/
+  private boolean isFinite;
   
-  //indicate if to copy pixels to the member variable pixels
-  //must be true if isQuartile is true
+  /**indicate if to copy pixels to the member variable pixels, must be true if isQuartile is true*/
   private boolean isCopy;
-  private boolean isMeanStd; //indicate if to calculate sums
-  private boolean isQuartile; //indicate if to do quartile calculations
+  /**indicate if to calculate sums*/
+  private boolean isMeanStd;
+  /**indicate if to do quartile calculations*/
+  private boolean isQuartile;
   
-  private final Cache cache; //contains copy of pixels of the orginial image
-  //pairs of integers which points to the cache according to the shape of the kernel
+  /**contains copy of pixels of the orginial image*/
+  private final Cache cache;
+  /**pairs of integers which points to the cache according to the shape of the kernel*/
   private final int[] cachePointers;
-  Roi roi; //region of interest
+  /**region of interest*/
+  Roi roi;
   
   //CONTRUCTOR
   /**@param cache The kernel is placed on this Cache
@@ -97,8 +113,7 @@ class Kernel {
   }
   
   //METHOD: MOVE TO NEW LINE
-  /**Position the kernel centred at (x=0, y)
-   * Member variables are updated
+  /**Position the kernel centred at (x=0, y), member variables are updated
    * @param y Row number
    */
   public void moveToNewLine(int y) {
@@ -115,8 +130,7 @@ class Kernel {
   }
   
   //METHOD: MOVE RIGHT
-  /**Move the kernel one pixel to the right
-   * Member variables are updated
+  /**Move the kernel one pixel to the right, member variables are updated
    * @return true if the move was successful (ie within the roi bounding box)
    */
   public boolean moveRight() {
@@ -192,11 +206,10 @@ class Kernel {
   
   //METHOD: GET AREA SUMS
   /**Get sum of values and values squared within the kernel area.
-   * x between 0 and cacheWidth-1
-   * Output is written to array sums[0] = sum; sums[1] = sum of squares
-   * Ignores nan
+   * x between 0 and cacheWidth-1.
+   * Output is written to array sums[0] = sum; sums[1] = sum of squares.
+   * Ignores nan. MODIFIES nFinite.
    */
-  //MODIFIES nFinite
   private void sumArea() {
     this.sums[0] = 0;
     this.sums[1] = 0;
@@ -217,8 +230,6 @@ class Kernel {
   //METHOD: ADD SIDE SUMS
   /**Add all values and values squared at the right border inside minus at the left border outside
    * the kernal area.
-   * Output is added or subtracted to/from array sums[0] += sum; sums[1] += sum of squares  when at
-   * the right border, minus when at the left border
    */
   private void sumSides() {
     //for each row
@@ -259,7 +270,7 @@ class Kernel {
   
   /**METHOD: GET QUARTILES
    * Get the quartiles of values within kernel-sized neighborhood.
-   * nan values are ignored
+   * nan values are ignored.
    */
   private void calculateQuartiles() {
     Percentile percentile = new Percentile();
@@ -320,23 +331,30 @@ class Kernel {
   
   //FUNCTION: MAKE LINE RADII
   /**Set the static variables given the kernel radius: isSmallKernel, kNPoints, kRadius, kHeight.
-   *     kernelPointer
-   * kernelPointer: the output is an array that gives the length of each line of the structuring
+   *     kernelPointer.
+   * 
+   * <p>kernelPointer: an array that gives the length of each line of the structuring
    *     element (kernel) to the left (negative) and to the right (positive):
    *         [0] left in line 0, [1] right in line 0,
    *         [2] left in line 2, ...
-   *     Array elements at the end:
+   * 
+   * <p>Array elements at the end:
    *         length-2: nPoints, number of pixels in the kernel area
    *         length-1: kernelRadius in x direction (kernel width is 2*kernelRadius+1)
-   * Kernel height: (array length - 1)/2 (odd number);
-   * Kernel radius: kernel height/2 (truncating integer division).
-   * Note that kernel width and height are the same for the circular kernels used here,
+   * 
+   * <p>Kernel height: (array length - 1)/2 (odd number)
+   * 
+   * <p>Kernel radius: kernel height/2 (truncating integer division).
+   * 
+   * <p>Note that kernel width and height are the same for the circular kernels used here,
    * but treated separately for the case of future extensions with non-circular kernels.
-   * e.g. r=0.5 will return [0,0,-1,1,0,0,nPoints, kernelRadius]
-   * e.g. r=3 will return [-1,1,-2,2,-3,3,-3,3,-3,3,-2,2,-1,1,nPoints, kernelRadius]
-   * @param radius of the kernel
-   *     Radius = 0.5 includes the 4 neighbours of the pixel in the centre,
-   *     radius = 1 corresponds to a 3x3 kernel
+   * 
+   * <p>e.g. r=0.5 will return [0,0,-1,1,0,0,nPoints, kernelRadius]
+   * 
+   * <p>e.g. r=3 will return [-1,1,-2,2,-3,3,-3,3,-3,3,-2,2,-1,1,nPoints, kernelRadius]
+   * @param radius radius of the kernel.
+   *     Radius = 0.5 includes the 4 neighbours of the pixel in the centre.
+   *     Radius = 1 corresponds to a 3x3 kernel.
    */
   public static void setKernel(double radius) {
     if (radius>=1.5 && radius<1.75) {//this code creates the same sizes as the previous RankFilters
