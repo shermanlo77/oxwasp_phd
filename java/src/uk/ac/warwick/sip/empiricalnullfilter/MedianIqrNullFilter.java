@@ -6,6 +6,7 @@ import org.apache.commons.math3.random.RandomGenerator;
 //CLASS: MEDIAN IQR NULL FILTER
 /**Subclass of EmpiricalNullFilter, replaces the empirical null mean with median, replaces the 
  *     empirical null std with iqr/1.3490.
+ * @author Sherman Lo
  */
 public class MedianIqrNullFilter extends EmpiricalNullFilter {
   

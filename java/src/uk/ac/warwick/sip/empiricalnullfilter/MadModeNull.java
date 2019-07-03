@@ -8,6 +8,7 @@ import org.apache.commons.math3.random.RandomGenerator;
 //CLASS: MAD MODE NULL
 /**Uses the mode for the empirical null mean, uses the median around the mode deviation for the null
  *     std
+ * @author Sherman Lo
  */
 public class MadModeNull extends EmpiricalNull{
   

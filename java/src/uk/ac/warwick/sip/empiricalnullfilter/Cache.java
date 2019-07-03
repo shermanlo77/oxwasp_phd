@@ -14,6 +14,8 @@ import ij.process.ImageProcessor;
  * <p>Modified from 
  *     <a href=https://github.com/imagej/ImageJA/blob/7f965b866c9db364b0b47140caeef4f62d5d8c15/src/main/java/ij/plugin/filter/RankFilters.java>
  *     RankFilters.java</a>
+ * 
+ * @author Sherman Lo
  */
 class Cache {
   

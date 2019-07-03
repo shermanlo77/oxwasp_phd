@@ -6,6 +6,7 @@ import org.apache.commons.math3.random.RandomGenerator;
 //CLASS: MEAN VAR NULL FILTER
 /**Subclass of EmpiricalNullFilter, replaces the empirical null mean with mean, replaces the 
  *     empirical null variance with variance.
+ * @author Sherman Lo
  */
 public class MeanVarNullFilter extends EmpiricalNullFilter {
   

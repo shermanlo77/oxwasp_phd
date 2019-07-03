@@ -16,6 +16,8 @@ import org.apache.commons.math3.random.RandomGenerator;
  *     <li>Call the method estimateNull()</li>
  *     <li>Call the method getNullMean() and getNullStd() to get the null parameters</li>
  *   </ul>
+ * 
+ * @author Sherman Lo
  */
 public class EmpiricalNull {
   

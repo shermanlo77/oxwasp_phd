@@ -5,6 +5,7 @@ import org.apache.commons.math3.random.RandomGenerator;
 
 //CLASS: MAD MODE NULL FILTER
 /**Subclass of EmpiricalNullFilter, replaces the empirical null std with median around the mode.
+ * @author Sherman Lo
  */
 public class MadModeNullFilter extends EmpiricalNullFilter {
   

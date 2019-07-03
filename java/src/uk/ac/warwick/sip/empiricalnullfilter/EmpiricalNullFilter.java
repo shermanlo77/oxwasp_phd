@@ -56,6 +56,8 @@ import org.apache.commons.math3.random.RandomGenerator;
  * <p>Based on
  *     <a href=https://github.com/imagej/ImageJA/blob/7f965b866c9db364b0b47140caeef4f62d5d8c15/src/main/java/ij/plugin/filter/RankFilters.java>
  *     RankFilters.java</a>
+ * 
+ * @author Sherman Lo
  */
 public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener {
   

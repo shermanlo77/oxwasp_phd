@@ -19,6 +19,8 @@ import ij.gui.Roi;
  *     <li>Call the method moveRight() to move the kernel one pixel to the right</li>
  *     <li>Call the getter methods to get required kernel statistics</li>
  *   </ul>
+ * 
+ * @author Sherman Lo
  */
 class Kernel {
   
