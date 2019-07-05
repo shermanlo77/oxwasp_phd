@@ -61,7 +61,7 @@ classdef GlmSelect < Experiment
     function doExperiment(this)
       
       %load the greyvalues
-      greyValueArray = this.getGreyValue();
+      greyValueArray = getGreyValue(this.scan);
       n = this.scan.nSample;
 
       %for each link function
@@ -128,19 +128,6 @@ classdef GlmSelect < Experiment
         
       end
       
-    end
-    
-    %METHOD: GET GRAY VALUE
-    %Returns an array of grey values from the ROI
-    function greyValueArray = getGreyValue(this)
-      %get the segmentation of the scan
-      %reshape the segmentation to be a column vector
-      segmentation = reshape(this.scan.getSegmentation(),[],1);
-      %load the images and reshape it to be a design matrix
-      imageStack = this.scan.loadImageStack();
-      imageStack = reshape(imageStack,this.scan.area,this.scan.nSample);
-      %segment the design matrix and save it to greyvalue_array
-      greyValueArray = imageStack(segmentation,:);
     end
     
   end

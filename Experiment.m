@@ -87,7 +87,7 @@ classdef Experiment < handle
   end %methods
   
   %PROTECTED METHODS
-  methods (Access = protected)
+  methods (Access = public)
     
     %METHOD: PRINT PROGRESS
     %Displays a progress bar (with resoloution of 20)
@@ -117,7 +117,7 @@ classdef Experiment < handle
         %display time
         time = clock;
         time = time(4:5);
-        progressBar = [progressBar, '  Time:  ', num2str(time)];
+        progressBar = [progressBar, ' ', class(this), ' at time: ', num2str(time)];
         
         %display the progress bar
         disp(progressBar);
