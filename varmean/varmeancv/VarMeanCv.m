@@ -2,9 +2,9 @@ classdef VarMeanCv < Experiment
   
   properties (SetAccess = protected)
     
-    modelArray = {'linear','inverse','canonical','spline'}; %list of models
+    modelArray = {'kernel', 'linear','inverse','canonical'}; %list of models
     scan; %contains the projections to work on, apply shading correction if needed
-    nRepeat = 100; %number of times to repeat the experiment
+    nRepeat = 10; %number of times to repeat the experiment
     
     %array of training and test deviance
       %dim 1: for each repeat
@@ -65,12 +65,14 @@ classdef VarMeanCv < Experiment
           trainingIndex = randPermutation(1:nTrain);
           testIndex = randPermutation((nTrain+1):end);
           
-          %normalise the data using the training set
-          xCentre = mean(X(trainingIndex,:),1);
-          xScale = std(X(trainingIndex,:),[],1);
-          X = (X-xCentre)./xScale; %noramlise
-          yStd = std(y(trainingIndex));
-          y = y/yStd; %noramlise
+          %normalise the data using the training set if it is glm
+          if (iModel ~= 1)
+            xCentre = mean(X(trainingIndex,:),1);
+            xScale = std(X(trainingIndex,:),[],1);
+            X = (X-xCentre)./xScale; %noramlise
+            yStd = std(y(trainingIndex));
+            y = y/yStd; %noramlise
+          end
           
           %get the training set, train the model using it, get deviance
           XTraining = X(trainingIndex, :);
@@ -80,7 +82,7 @@ classdef VarMeanCv < Experiment
           this.devianceTrainingArray(iRepeat, iModel) = this.getDeviance(yTraining, yHat);
           
           %predict the test set, get deviance
-          yHat = predict(model, X(testIndex, :));
+          yHat = this.predict(model, X(testIndex, :));
           yTest = y(testIndex);
           this.devianceTestArray(iRepeat, iModel) = this.getDeviance(yTest, yHat);
           
@@ -106,13 +108,14 @@ classdef VarMeanCv < Experiment
     function model = trainModel(this, index, X, y)
       switch index
         case 1
-          model = fitglm(X,y,[0,0,0;0,1,0],'Distribution','gamma','Link','identity');
+          model = KernelRegressionLookup(EpanechnikovKernel(),1E3);
+          model.train(X(:,2),y);
         case 2
-          model = fitglm(X,y,[0,0,0;1,0,0],'Distribution','gamma','Link','identity');
+          model = fitglm(X,y,[0,0,0;0,1,0],'Distribution','gamma','Link','identity');
         case 3
-          model = fitglm(X,y,[0,0,0;1,0,0],'Distribution','gamma','Link','reciprocal');
+          model = fitglm(X,y,[0,0,0;1,0,0],'Distribution','gamma','Link','identity');
         case 4
-          model = fit(X(:,2),y,'smoothingspline');
+          model = fitglm(X,y,[0,0,0;1,0,0],'Distribution','gamma','Link','reciprocal');
       end
     end
     
@@ -122,8 +125,8 @@ classdef VarMeanCv < Experiment
     function yHat = predict(this, model, X)
       if (isa(model, 'GeneralizedLinearModel'))
         yHat = model.predict(X);
-      elseif (isa(model, 'cfit'))
-        yHat = feval(model, X(:,2));
+      elseif (isa(model, 'KernelRegressionLookup'))
+        yHat = model.predict(X(:,2));
       else
         error('Model is of unknown class');
       end
