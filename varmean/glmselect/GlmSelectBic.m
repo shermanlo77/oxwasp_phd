@@ -10,7 +10,7 @@ classdef GlmSelectBic < GlmSelect
     end
     
     function bic = getCriterion(this, glm)
-      bic = log(glm.NumObservations)*glm.NumCoefficients - 2*glm.LogLikelihood;
+      bic = log(glm.NumObservations)*glm.NumCoefficients - 2*this.getLogLikelihood(glm);
     end
     
   end

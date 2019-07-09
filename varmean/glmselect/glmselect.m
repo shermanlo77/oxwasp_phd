@@ -13,6 +13,5 @@ experiments = {...
   GlmSelectBicAbsFilterLinear();
 };
 
-parfor i = 1:numel(experiments)
   experiments{i}.run();
 end
