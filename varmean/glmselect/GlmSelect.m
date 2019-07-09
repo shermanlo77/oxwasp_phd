@@ -43,6 +43,77 @@ classdef GlmSelect < Experiment
     %IMPLEMENTED: PRINT RESULTS
     function printResults(this)
       
+      %store results as a string
+        %dim 1: selected polynomial, number of votes, criterion
+        %dim 2: for each link function
+      resultsArray = cell(3, numel(this.linkArray));
+      
+      %for each link function
+      for iLink = 1:numel(this.linkArray)
+        
+        %declare empty array to store polynomial properties
+        polynomialKey = cell(0,0); %store string identifier for the selected polynomial eg '-1 to 0'
+        %store number of votes this polynomial has, entries correspond to polynomialKey
+        polynomialCount = [];
+        
+        %for each repeat
+        for iRepeat = 1:this.nRepeat
+          
+          if (this.selectedPolynomial(1,iRepeat,iLink) == 0)
+            minusSign = '';
+          else
+            minusSign = '-';
+          end
+          
+          %make a sting identifier for this selected polynomial
+          selectedPolyString = cell2mat({ ...
+            minusSign, num2str(this.selectedPolynomial(1,iRepeat,iLink)), ...
+            ' to ', ...
+            num2str(this.selectedPolynomial(2,iRepeat,iLink)) ...
+          });
+          
+          %find if this selected polynomial has already been stored
+          isGotPolynomial = false;
+          for iKey = 1:numel(polynomialKey)
+            %if this selected polynomial has already been storied, then increment the polynomial
+                %count
+            if (strcmp(polynomialKey{iKey},selectedPolyString))
+              isGotPolynomial = true;
+              polynomialCount(iKey) = polynomialCount(iKey)+1;
+              break; 
+            end
+          end
+          %if this selected polynomial hasn't been stored, append it to array of polynomials
+          if (~isGotPolynomial)
+            polynomialKey{numel(polynomialKey)+1} = selectedPolyString;
+            polynomialCount(numel(polynomialKey)) = 1; %set counter to 1
+          end
+
+        end
+
+        %quote deviance
+        devianceQuote = siUncertainity(mean(this.criterionArray(:,iLink)), ...
+            std(this.criterionArray(:,iLink)), 2);
+        %quote polynomial with the most votes
+        [maxCount,maxKey] = max(polynomialCount);
+        
+        file = fopen(fullfile('reports','figures','varMean',strcat(class(this), ...
+            '_',this.linkArray{iLink},'order.txt')),'wt');
+        fprintf(file, polynomialKey{maxKey});
+        fclose(file);
+        
+        file = fopen(fullfile('reports','figures','varMean',strcat(class(this), ...
+            '_',this.linkArray{iLink},'vote.txt')),'wt');
+        fprintf(file, num2str(maxCount));
+        fclose(file);
+        
+        file = fopen(fullfile('reports','figures','varMean',strcat(class(this), ...
+            '_',this.linkArray{iLink},'criterion.txt')),'wt');
+        fprintf(file, devianceQuote);
+        fclose(file);
+        
+      end
+      
     end
     
   end
