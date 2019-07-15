@@ -121,7 +121,7 @@ classdef VarMeanCv < Experiment
     
     %METHOD: GET DEVIANCE
     function deviance = getDeviance(this, y, yHat)
-      deviance = 2*sum((y-yHat)./yHat - log(y./yHat));
+      deviance = (2*sum((y-yHat)./yHat - log(y./yHat))) / numel(y);
     end
     
     %METHOD: TRAIN MODEL
