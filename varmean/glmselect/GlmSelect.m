@@ -217,8 +217,8 @@ classdef GlmSelect < Experiment
     %Evaluate the log likelihood with KNOWN shape parameter
     function lnL = getLogLikelihood(this, glm)
       alpha = (this.scan.nSample - 1) / 2;
-      yHat = table2array(glm.Fitted(:,2));
-      y = table2array(glm.Variables(:,1));
+      yHat = table2array(glm.Fitted(:,1));
+      y = table2array(glm.Variables(:,end));
       lnL = sum(alpha*log(alpha) - alpha*log(yHat) - gammaln(alpha) + (alpha-1)*log(y) ...
           - alpha*y./yHat);
     end

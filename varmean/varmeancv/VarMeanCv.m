@@ -2,9 +2,9 @@ classdef VarMeanCv < Experiment
   
   properties (SetAccess = protected)
     
-    modelArray = {'kernel', 'linear','inverse','canonical'}; %list of models
+    modelArray = {'linear','inverse','canonical'}; %list of models
     scan; %contains the projections to work on, apply shading correction if needed
-    nRepeat = 10; %number of times to repeat the experiment
+    nRepeat = 100; %number of times to repeat the experiment
     
     %array of training and test deviance
       %dim 1: for each repeat
@@ -22,8 +22,19 @@ classdef VarMeanCv < Experiment
       this@Experiment();
     end
     
-    function printResults(this)
-      
+    %IMPLEMENTED: PRINT RESULTS
+    %Return and plot box plot for the training or test deviance
+    %PARAMETERS:
+      %xOffset: shift the box plot x
+      %isTraining: true if want training error, else test error
+    function boxplots = printResults(this, xOffset, isTraining)
+      if (isTraining)
+        boxplots = Boxplots(this.devianceTrainingArray);
+      else
+        boxplots = Boxplots(this.devianceTestArray);
+      end
+      boxplots.setPosition((1:numel(this.modelArray))+xOffset);
+      boxplots.plot();
     end
     
   end
@@ -108,13 +119,10 @@ classdef VarMeanCv < Experiment
     function model = trainModel(this, index, X, y)
       switch index
         case 1
-          model = KernelRegressionLookup(EpanechnikovKernel(),1E3);
-          model.train(X(:,2),y);
-        case 2
           model = fitglm(X,y,[0,0,0;0,1,0],'Distribution','gamma','Link','identity');
-        case 3
+        case 2
           model = fitglm(X,y,[0,0,0;1,0,0],'Distribution','gamma','Link','identity');
-        case 4
+        case 3
           model = fitglm(X,y,[0,0,0;1,0,0],'Distribution','gamma','Link','reciprocal');
       end
     end

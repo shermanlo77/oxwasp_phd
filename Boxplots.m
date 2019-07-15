@@ -46,6 +46,12 @@ classdef Boxplots < handle
         this.trendLine = line(x,y);
         this.trendLine.Color = this.boxplotArray{1}.colour;
       end
+      %increment the colour order index
+      ax = gca;
+      ax.ColorOrderIndex = ax.ColorOrderIndex+1;
+      if (ax.ColorOrderIndex > numel(ax.ColorOrder(:,1)))
+        ax.ColorOderIndex = 1;
+      end
     end
     
     %METHOD: SET POSITION

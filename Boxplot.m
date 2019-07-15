@@ -37,8 +37,8 @@ classdef Boxplot < handle
     function this = Boxplot(X)
       %assign member variables
       this.X = X;
-      colorOrder = get(groot,'defaultAxesColorOrder');
-      this.colour = colorOrder(1,:);
+      ax = gca;
+      this.colour = ax.ColorOrder(ax.ColorOrderIndex,:);
     end
     
     %METHOD: SET POSITION
