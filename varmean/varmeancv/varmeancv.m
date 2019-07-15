@@ -69,7 +69,7 @@ for iData = 1:2
     ax.XTickLabel = this.modelArray;
     ax.XLim = [0.5,numel(this.modelArray)+0.5];
     %label the axis and legend
-    ylabel(statName,'Interpreter','latex');
+    ylabel(statName);
     legend(legendArray,shadingCorrectionNameArray,'Location','best');
     
     %save the figure
