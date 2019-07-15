@@ -6,8 +6,8 @@ directoryList = {
   fullfile('reports','figures')
   fullfile('reports','figures','literatureReview')
   fullfile('reports','figures','data')
-  fullfile('reports','figures','compoundPoisson')
-  fullfile('reports','figures','varMean')
+  fullfile('reports','figures','compoundpoisson')
+  fullfile('reports','figures','varmean')
   fullfile('reports','figures','inference')
 };
 
@@ -20,8 +20,8 @@ end
 
 addpath(genpath(fullfile('scan')));
 addpath(genpath(fullfile('shadingcorrection')));
-addpath(genpath(fullfile('compoundPoisson')));
-addpath(genpath(fullfile('varMean')));
+addpath(genpath(fullfile('compoundpoisson')));
+addpath(genpath(fullfile('varmean')));
 addpath(genpath(fullfile('inference')));
 
 clc;

@@ -1,3 +1,15 @@
+%CLASS: VARIANCE MEAN CROSS VALIDATION
+%Experiment to do cross validation to assess the different GLM
+%
+%Random images (that is selecting which replicate projections to use with replacement) were selected
+    %to get var-mean data where each pixel is a data point. The data points were randomly spilt into
+    %a training and test set. The GLM is trainined on the training set, and then the prediction is
+    %assessed on the test set. The measure of performance used is the deviance. The experiment was
+    %repeated by choosing different random images.
+%Models considered here:
+  %linear: y = a + bx using identity link
+  %inverse: y = a + b/x using identity link
+  %canonical: y = 1/(a+b/x) using reciprocal link
 classdef VarMeanCv < Experiment
   
   properties (SetAccess = protected)
@@ -139,7 +151,6 @@ classdef VarMeanCv < Experiment
         error('Model is of unknown class');
       end
     end
-    
     
   end
   

@@ -97,17 +97,17 @@ classdef GlmSelect < Experiment
         %quote polynomial with the most votes
         [maxCount,maxKey] = max(polynomialCount);
         
-        file = fopen(fullfile('reports','figures','varMean',strcat(class(this), ...
+        file = fopen(fullfile('reports','figures','varmean',strcat(class(this), ...
             '_',this.linkArray{iLink},'order.txt')),'wt');
         fprintf(file, polynomialKey{maxKey});
         fclose(file);
         
-        file = fopen(fullfile('reports','figures','varMean',strcat(class(this), ...
+        file = fopen(fullfile('reports','figures','varmean',strcat(class(this), ...
             '_',this.linkArray{iLink},'vote.txt')),'wt');
         fprintf(file, num2str(maxCount));
         fclose(file);
         
-        file = fopen(fullfile('reports','figures','varMean',strcat(class(this), ...
+        file = fopen(fullfile('reports','figures','varmean',strcat(class(this), ...
             '_',this.linkArray{iLink},'criterion.txt')),'wt');
         fprintf(file, devianceQuote);
         fclose(file);
