@@ -66,11 +66,10 @@ for iData = 1:2
     ax = fig.Children;
     ax.XTick = 1:numel(this.modelArray);
     %label each glm with its name
-    ax.XTickLabelRotation = 45;
     ax.XTickLabel = this.modelArray;
     ax.XLim = [0.5,numel(this.modelArray)+0.5];
     %label the axis and legend
-    ylabel(statName);
+    ylabel(statName,'Interpreter','latex');
     legend(legendArray,shadingCorrectionNameArray,'Location','best');
     
     %save the figure

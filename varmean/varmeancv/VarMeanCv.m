@@ -7,14 +7,14 @@
     %assessed on the test set. The measure of performance used is the deviance. The experiment was
     %repeated by choosing different random images.
 %Models considered here:
-  %linear: y = a + bx using identity link
-  %inverse: y = a + b/x using identity link
-  %canonical: y = 1/(a+b/x) using reciprocal link
+  %y = a + bx using identity link
+  %y = a + b/x using identity link
+  %y = 1/(a+b/x) using reciprocal link
 classdef VarMeanCv < Experiment
   
-  properties (SetAccess = protected)
+  properties (SetAccess = public)
     
-    modelArray = {'linear','inverse','canonical'}; %list of models
+    modelArray = {'y=a+bx','y=a+b/x','y=(a+b/x)^{-1}'}; %list of models
     scan; %contains the projections to work on, apply shading correction if needed
     nRepeat = 100; %number of times to repeat the experiment
     
