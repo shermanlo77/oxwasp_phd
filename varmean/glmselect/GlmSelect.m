@@ -2,14 +2,15 @@
 %Does forward stepwise regression to select a GLM model for the var-mean data
 %
 %The following was choosen:
-%  gamma distributed GLM
-%  link functions: identity, reciprocal
+  %gamma distributed GLM
+  %link functions: identity, reciprocal
 %
-%A GLM is fitted onto the var-mean data with just a constant. Then an extra term is added, either a
-%    higher positive polynomial term or a higher negative polynomial term. If the extra term reduce
-%    the criterion, then add that term. This is continued until the criterion doesn't decrease. The
-%    exerpiement is repeated by calculating the var-mean data again using a different 
-%
+%The var-mean data was obtained by selecting random replicated projections with replacement. A GLM
+    %is fitted onto the var-mean data with just a constant. Then an extra term is added, either a
+    %higher positive polynomial term or a higher negative polynomial term. If the extra term reduce
+    %the criterion, then add that term. This is continued until the criterion doesn't decrease. The 
+    %experiment is repeated by calculating the var-mean data again using a different random
+    %selection of replicated projections.
 classdef GlmSelect < Experiment
   
   properties (SetAccess = protected)
@@ -42,11 +43,6 @@ classdef GlmSelect < Experiment
     
     %IMPLEMENTED: PRINT RESULTS
     function printResults(this)
-      
-      %store results as a string
-        %dim 1: selected polynomial, number of votes, criterion
-        %dim 2: for each link function
-      resultsArray = cell(3, numel(this.linkArray));
       
       %for each link function
       for iLink = 1:numel(this.linkArray)
@@ -219,8 +215,8 @@ classdef GlmSelect < Experiment
       alpha = (this.scan.nSample - 1) / 2;
       yHat = table2array(glm.Fitted(:,1));
       y = table2array(glm.Variables(:,end));
-      lnL = sum(alpha*log(alpha) - alpha*log(yHat) - gammaln(alpha) + (alpha-1)*log(y) ...
-          - alpha*y./yHat);
+      lnL = sum((alpha*log(alpha) - gammaln(alpha)) - alpha*log(yHat)  + (alpha-1)*log(y) ...
+          - alpha*(y./yHat));
     end
     
   end

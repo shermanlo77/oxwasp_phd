@@ -13,5 +13,7 @@ experiments = {...
   GlmSelectBicAbsFilterLinear();
 };
 
+for i = 1:numel(experiments)
   experiments{i}.run();
+  experiments{i}.printResults();
 end
