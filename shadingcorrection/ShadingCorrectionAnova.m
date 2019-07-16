@@ -44,14 +44,15 @@ classdef (Abstract) ShadingCorrectionAnova < Experiment
         hold on;
         boxplotBetween = Boxplots(this.varBetweenArray(:,:,iShading));
         boxplotBetween.setPosition(powerArray);
-        boxplotBetween.setColour(ax.ColorOrder(2,:));
         boxplotBetween.plot();
         ax.YScale = 'log';
         xlabel('power (W)');
-        ylabel('variance');
+        ylabel('variance (ADU²)');
         legend([boxplotWithin.getLegendAx(), boxplotBetween.getLegendAx()], ...
             'within pixel','between pixel', 'Location', 'best');
         ylim([minVar,maxVar]);
+        saveas(fig, fullfile('reports','figures','data',strcat(class(this),'_', ...
+            this.shadingCorrectionNameArray{iShading},'.eps')), 'epsc');
         
       end
       
@@ -63,14 +64,16 @@ classdef (Abstract) ShadingCorrectionAnova < Experiment
       for iShading = 1:this.nShadingCorrection
         boxPlotF = Boxplots(fArray(:,:,iShading));
         boxPlotF.setPosition(powerArray);
-        boxPlotF.setColour(ax.ColorOrder(iShading,:));
         boxPlotF.plot();
+        hold on;
         legendAxes(iShading) = boxPlotF.getLegendAx();
       end
       ax.YScale = 'log';
       xlabel('power (W)');
       ylabel('F statistic');
-      legend(legendAxes, this.shadingCorrectionNameArray);
+      legend(legendAxes, this.shadingCorrectionNameArray, 'Location', 'best');
+      saveas(fig, fullfile('reports','figures','data',strcat(class(this),'_FStatistic.eps')), ...
+          'epsc');
       
     end
     
