@@ -92,14 +92,12 @@ classdef VarMeanCv < Experiment
           trainingIndex = randPermutation(1:nTrain);
           testIndex = randPermutation((nTrain+1):end);
           
-          %normalise the data using the training set if it is glm
-          if (iModel ~= 1)
-            xCentre = mean(X(trainingIndex,:),1);
-            xScale = std(X(trainingIndex,:),[],1);
-            X = (X-xCentre)./xScale; %noramlise
-            yStd = std(y(trainingIndex));
-            y = y/yStd; %noramlise
-          end
+          %normalise the data
+          xCentre = mean(X(trainingIndex,:),1);
+          xScale = std(X(trainingIndex,:),[],1);
+          X = (X-xCentre)./xScale; %noramlise
+          yStd = std(y(trainingIndex));
+          y = y/yStd; %noramlise
           
           %get the training set, train the model using it, get deviance
           XTraining = X(trainingIndex, :);
