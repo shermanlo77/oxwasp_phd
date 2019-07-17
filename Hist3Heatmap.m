@@ -7,7 +7,7 @@
 classdef Hist3Heatmap < handle
   
   properties (SetAccess = public)
-    isLog = false; %show heatmap as log value
+    isLog = true; %show heatmap as log value
     nBin = [100,100]; %number of bins in [y,x] direction
     %truncate the display of the heatmap as a percentage, [y,x] direction
     percentageCapture = [0.99,0.99];

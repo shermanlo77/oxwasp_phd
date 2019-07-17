@@ -1,3 +1,98 @@
+In the previous chapter, it was found that it is very hard to fit a compound Poisson random variable onto the grey values directly itself. It is not totally useless however. The compound Poisson model showed that the variance of the grey value has a linear relationship with the mean grey value. Given this, it would be possible to predict the variance of the grey value, given the grey value. This opens up new ways to predict the uncertainty of each individual pixel in an x-ray scan.
+
+In this chapter, different types of regressions were tested to see if they perform well in predicting grey value variance given the grey value. Two types of regressions were used. Generalised linear models \citep{nelder1972generalized} \citep{nelder1972generalized_2} \citep{mccullagh1984generalized} (GLM) is a parametric regression which models the response variable as a random variable in the exponential family. In this project, a Gamma distributed random variable was chosen as the response variable. A non-parametric regression was also considered, here there kernel regression \citep{friedman2001elements} was used.
+
+Using the replicated x-ray images, the within individual pixel sample mean and sample variance were obtained. The sample variance-mean data were then used for the regressions to be fitted on. The deviance was investigated as a method of model selection. The regression was also used to test it's prediction performance on held out images.
+
+In the end, a GLM with a linear relationship between the variance and the mean was good enough. Its performance is similar to other complicated models and its simple form attracts those who follows Occam's razor, that the simpler models are usually better. The linear relationship is also justified by the compound Poisson model.
+
+\subsection{Generalised Linear Models}
+
+The sample variance-mean data were obtained from the replicated projections. Let $x_{x,y}^{(r)}$ be the grey value of the pixel at $(x.y)$ from the $r$th replicate projection for $r=1,2,3,\dotdotdot,n$. The pixel sample mean is
+\begin{equation}
+    \overline{x}_{x,y}=\frac{1}{n}\sum_{r=1}^n x_{x,y}^{(r)}
+\end{equation}
+and the pixel sample variance is
+\begin{equation}
+    y_{x,y} =
+    \frac{1}{n-1}
+    \sum_{r=1}^n
+        \left(
+            x_{x,y}^{(r)} - \overline{x}_{x,y}
+        \right)^2
+    \ .
+\end{equation}
+Only pixels in the region of interest (ROI) were considered here, that is pixels which represent the test sample.
+
+The aim is to model and predict the pixel variance given the pixel grey value by fitting a model onto the sample variance-mean data. No spatial information is used, thus the variance-mean data is denoted as $(x_1,y_1),(x_2,y_2),\cdots,(x_m,y_m)$ from now on, where $m$ is the area of the ROI or the size of the dataset. Let $Y(x)$ be a random variable and the sample variance given a grey value mean $x$. It was assumed the standard error from estimating the mean was negligible so that the uncertainty is captured by the random variable $Y$. It was assumed that for a given pixel, the grey values are Normally distributed and i.i.d. Let $\sigma^2(x)$ be the variance given a grey value $x$, then it can be shown that
+\begin{equation}
+\dfrac{(n-1)Y(x)}{\sigma^2(x)}\sim\chi^2_{n-1}
+\end{equation}
+which results in
+\begin{equation}
+Y(x)\sim\gammaDist\left(\alpha,\dfrac{\alpha}{\sigma^2(x)}\right)
+\end{equation}
+where $\alpha=(n-1)/2$ is the shape parameter. The expectation and variance are
+\begin{equation}
+\expectation\left[Y(x)\right]=\sigma^2(x)
+\end{equation}
+and
+\begin{equation}
+\variance\left[Y(x)\right]=\dfrac{\sigma^2(x)}{\alpha}
+\end{equation}
+respectively.
+
+This framework allows the use of generalised linear models (GLM) \citep{nelder1972generalized,nelder1972generalized_2, mccullagh1984generalized}. In the gamma distribution case, GLM can be used to model
+\begin{equation}
+Y(x)\sim\gammaDist\left(\alpha,\dfrac{\alpha}{g^{-1}(\eta(x))}\right)
+\end{equation}
+where $g(\sigma^2)$ is the link function and $\eta(x)$ is a linear function called the systematic component. It should be noted that
+\begin{equation}
+  \expectation\left[Y(x)\right]=g^{-1}(\eta(x))
+\end{equation}
+which shows how the link function and systematic component work together. Examples of link functions are the identity link
+\begin{equation}
+g(\sigma^2)=g^{-1}(\sigma^2)=\sigma^2
+\end{equation}
+and, for the gamma distribution case, the canonical link
+\begin{equation}
+g(\sigma^2)=g^{-1}(\sigma^2)=1/\sigma^2 \ .
+\end{equation}
+An example of a systematic component are polynomials $\eta(x)=\beta_0+\sum_{j=1}^{p-1}\beta_j x^j$ so that when used with the identity link, for example, $\expectation\left[Y(x)\right] = \beta_0+\sum_{j=1}^{p-1}\beta_j x^j$. Iterative reweighted least squares \citep{friedman2001elements} can be used to estimate the parameters $\beta_0, \beta_1, \cdots, \beta_{p-1}$ given data for the model to fit onto.
+
+Once the parameters have been estimated, prediction of the variance given a grey value $x$ is done using the expectation $\widehat{y}(x) = \expectation\left[Y(x)\right] = g^{-1}(\eta(x))$.
+
+\section{Model Selection}
+
+This section describes how forward stepwise selection \citep{friedman2001elements} was used to select which polynomials to use in the systematic component.
+
+In summary, forward stepwise selection fits a basic model to the data initially. A term is added to make the model more complicated at each step to improve the fit onto the data. This is continued until the model cannot be improved subject to overfitting. The Akaike information criterion (AIC) \citep{friedman2001elements} and the Bayesian information criterion (BIC) \citep{friedman2001elements} are criteria which can be used to assess the fit of the model at each step without overfitting to the data too much.
+
+The AIC and BIC are given as
+\begin{equation}
+\AIC = 2p-2\ln L
+\end{equation}
+and
+\begin{equation}
+\BIC = p\ln m - 2\ln L
+\end{equation}
+respectively where $p$ is the number of terms in the systematic component, $m$ is the size of the data set and $\ln L$ is the log likelihood of the GLM. The model with the lowest AIC or BIC is preferred. GLM aims to maximise the log likelihood but the additional terms in the criteria penalise models with too many terms. The log likelihood is given as
+\begin{equation}
+  \ln L = \sum_{i=1}^m \left[
+    \alpha\ln\alpha
+    -\ln\Gamma(\alpha)
+    -\alpha\ln \widehat{y}_i
+    +(\alpha-1)\ln y_i
+    -\frac{\alpha y_i}{\widehat{y}_i}
+  \right]
+  \ .
+\end{equation}
+where $\widehat{y}_i=\expectation\left[Y(x_i)\right]$. It should be reminded that $\alpha=(n-1)/2$ was assumed to be known and does not need to be estimated.
+
+The procedure is as follows. A criterion and a link function is chosen beforehand. In the initial step, a GLM with systematic component $\eta(x)=\beta_0$ is fitted and the criterion is recorded. In the next step, a polynomial term with one order higher is added to the systematic component $\eta(x)=\beta_0+\beta_1 x$, fitted and the criterion recorded. In addition, a polynomial term with one order lower is added $\beta(x)=\beta_{-1}x^{-1}+\beta_0$ and fitted separately with the criterion recorded. The model which decreases the criterion the most is accepted. Adding higher and lower order polynomials to the systematic component is repeated, for example after accepting $\eta(x)=\beta_0+\beta_1 x$, the following systematic components $\eta(x)=\beta_0+\beta_1 x+\beta_2x^2$ and $\eta(x)=\beta_{-1}x^{-1}+\beta_0+\beta_1 x$ are fitted and assessed. This is repeated until the criterion cannot be decreased and the procedure is left with the final model.
+
+Forward stepwise selection was conducted on the datasets \texttt{AbsNoFilterDeg120} and \texttt{AbsFilterDeg120}. The procedure was repeated 100 times by using a random permutation with replacement of the replicated projections to work out a different sample variance-mean data which introduces some variation to the data. The procedure was also repeated using various shading corrections to investigate the effects of shading correction on the variance-mean relationship.
+
 \begin{sidewaystable}
 \centering
 \begin{tabular}{cc|ccc}
@@ -17,6 +112,8 @@
                      & votes      & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterNull_reciprocalvote.txt}      & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterBw_reciprocalvote.txt}      & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterLinear_reciprocalvote.txt}      \\
                      & criterion  & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterNull_reciprocalcriterion.txt} & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterBw_reciprocalcriterion.txt} & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterLinear_reciprocalcriterion.txt}     
 \end{tabular}
+\caption{Forward stepwise selection was used to find suitable polynomial orders when fitting a GLM onto the sample variance-mean data of the grey values from the projections in \texttt{AbsNoFilterDeg120}. The columns of the table represent different shading corrections used on the projections. Forward stepwise selection was repeated 100 times by using a different random permutation with replacement to obtain a different sample variance-mean data. The row labelled order shows the most common selected polynomial orders. The error bars are the standard deviation from the 100 repeats.}
+\label{table:meanVar_glmselect_absnofilter}
 \end{sidewaystable}
 
 \begin{sidewaystable}
@@ -38,188 +135,45 @@
                      & votes      & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterNull_reciprocalvote.txt}      & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterBw_reciprocalvote.txt}      & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterLinear_reciprocalvote.txt}      \\
                      & criterion  & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterNull_reciprocalcriterion.txt} & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterBw_reciprocalcriterion.txt} & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterLinear_reciprocalcriterion.txt}     
 \end{tabular}
+\caption{Forward stepwise selection was used to find suitable polynomial orders when fitting a GLM onto the sample variance-mean data of the grey values from the projections in \texttt{AbsFilterDeg120}. The columns of the table represent different shading corrections used on the projections. Forward stepwise selection was repeated 100 times by using a different random permutation with replacement to obtain a different sample variance-mean data. The row labelled order shows the most common selected polynomial orders. The error bars are the standard deviation from the 100 repeats.}
+\label{table:meanVar_glmselect_absfilter}
 \end{sidewaystable}
 
-In the previous chapter, it was found that it is very hard to fit a compound Poisson random variable onto the grey values directly itself. It is not totally useless however. The compound Poisson model showed that the variance of the grey value has a linear relationship with the mean grey value. Given this, it would be possible to predict the variance of the grey value, given the grey value. This opens up new ways to predict the uncertainty of each individual pixel in an x-ray scan.
+The results are shown in Tables \ref{table:meanVar_glmselect_absnofilter} and \ref{table:meanVar_glmselect_absfilter}. The models selected all have only two terms and are quite simple. Different shading correction or different criteria had no effect on the selected model. The method is quite robust to the variation introduced to the dataset when repeating the experiment because all 100 repeats consistently selected the same model.
 
-In this chapter, different types of regressions were tested to see if they perform well in predicting grey value variance given the grey value. Two types of regressions were used. Generalised linear models \citep{nelder1972generalized} \citep{nelder1972generalized_2} \citep{mccullagh1984generalized} (GLM) is a parametric regression which models the response variable as a random variable in the exponential family. In this project, a Gamma distributed random variable was chosen as the response variable. A non-parametric regression was also considered, here there kernel regression \citep{friedman2001elements} was used.
-
-Using the replicated x-ray images, the within individual pixel sample mean and sample variance were obtained. The sample variance-mean data were then used for the regressions to be fitted on. The deviance was investigated as a method of model selection. The regression was also used to test it's prediction performance on held out images.
-
-In the end, a GLM with a linear relationship between the variance and the mean was good enough. Its performance is similar to other complicated models and its simple form attracts those who follows Occam's razor, that the simpler models are usually better. The linear relationship is also justified by the compound Poisson model.
-
-\section{Variance-Mean Relationship}
-
-The sample variance-mean data were obtained from the replicated x-ray images, assuming each image are i.i.d.
-
-Let $x_{i,j}^{(r)}$ be the grey value of the pixel in the $i$th row and $j$th column in the $r$th image for $r=1,2,3,\dotdotdot,n$. The within individual pixel sample mean is
-\begin{equation}
-    \bar{x}_{i,j}=\frac{1}{n}\sum_{r=1}^n x_{i,j}^{(r)}
-\end{equation}
-and the within individual pixel sample variance is
-\begin{equation}
-    y_{i,j} =
-    \frac{1}{n-1}
-    \sum_{r=1}^n
-        \left(
-            x_{i,j}^{(r)} - \bar{x}_{i,j}
-        \right)^2
-    \ .
-\end{equation}
-
-Only the masked pixels will be considered here as this is the region of interest (ROI). The sample variance-mean data can be obtained by calculating the within individual pixel sample mean and variance for all ROI pixels and can be plotted as a histogram. For example, the sample variance-mean data for \texttt{Mar16} can be seen in Figure \ref{fig:meanvar_mar16_100}.
-
-\subsection{Generalised Linear Models}
-By making some assumptions, some useful and simple results can be obtained. Firstly, it was assumed the standard error from estimating the mean was negligible. Secondly, it was assumed for a given pixel, the grey value from each each were Normal i.i.d. Following from these assumptions, the sample variance is Gamma distributed with shape parameter $(n-1)/2$. Furthermore the standard error of the sample variance is proportional to $(n-1)^{-1/2}$, meaning the sample variance is more precise when more and more images were used to estimate the variance. This was experimentally shown in Figure \ref{fig:meanvar_mar16_differentn}, the spread of the sample variance decreased as $n$ increased.
+There was some variation to the selected models between datasets. For example when using the identity link, \texttt{AbsNoFilterDeg120} prefers $\eta(x)=\beta_0+\beta_1 x$ whereas \texttt{AbsFilterDeg120} prefers $\eta(x)=\beta_{-1}x^{-1}\beta_0$. Using the canonical link, both datasets selected $\eta(x)=\beta_{-1}x^{-1}\beta_0$ which correspond to $\widehat{y}(x)=\left(\beta_{-1}x^{-1}+\beta_0\right)^{-1}$. Figures \ref{fig:meanVar_varMeanExample_AbsNoFilterDeg120} and \ref{fig:meanVar_varMeanExample_AbsFilterDeg120} shows the GLM fits. There is a leverage towards the low grey values because there are more low grey values in the dataset. As a result, the GLM does not capture the curvature towards the high grey values.
 
 \begin{figure}
-	\centering
+  \centering
     \centerline{
     \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/sample_size_25.eps}
-        \caption{$n=25$}
+        \includegraphics[width=\textwidth]{../figures/varmean/varMeanExample_AbsNoFilterDeg120_identity000010.eps}
+        \caption{$\widehat{y}(x)=\beta_0+\beta_1 x$}
     \end{subfigure}
     \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/sample_size_50.eps}
-        \caption{$n=50$}
+        \includegraphics[width=\textwidth]{../figures/varmean/varMeanExample_AbsNoFilterDeg120_reciprocal000100.eps}
+        \caption{$\widehat{y}(x)=(\beta_{-1}x^{-1}\beta_0)^{-1}$}
     \end{subfigure}
     }
-    \centerline{
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/sample_size_75.eps}
-        \caption{$n=75$}
-    \end{subfigure}
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/sample_size_100.eps}
-        \caption{$n=100$}
-        \label{fig:meanvar_mar16_100}
-    \end{subfigure}
-    }
-    \caption{Log frequency density of the within pixel variance-mean data from \texttt{Mar16} using $n$ of the images. Fitted is a Gamma GLM with identity link. Error bars represent the $\Phi(\pm1)$ quantile.}
-    \label{fig:meanvar_mar16_differentn}
+    \caption{Log frequency density histogram of the sample variance-mean data from \texttt{AbsNoFilter}. The red solid line shows the GLM fit along with $\Phi(\pm 1)$ quantile error bars as dashed lines.}
+    \label{fig:meanVar_varMeanExample_AbsNoFilterDeg120}
 \end{figure}
-
-A GLM \citep{nelder1972generalized} \citep{nelder1972generalized_2} \citep{mccullagh1984generalized}, with Gamma distributed response, would then be an appropriate regression to be used. Let $Y$ be the grey value sample variance and $X$ be the grey value, then a GLM models $Y$ via the following
-\begin{equation}
-    Y|X \sim 
-    \gammaDist\left(
-        \frac{n-1}{2},
-        f(X)
-    \right)
-\end{equation}
-where $f(X)$ is some user specified function. Conventionally it is useful for the specified function to be a parameter of the conditional mean $Y|X$. This function is known as the link function and can be expressed as
-\begin{equation}
-g(\mu_X) = \eta(X)
-\end{equation}
-where $\mu_X=\expectation\left[Y|X\right]$ and $\eta(X)$ is a linear function of $X$, for example
-\begin{equation}
-\eta(X) = \beta_0 + \beta_1 X^p \ .
-\end{equation}
-For a specified link function and $p$, the GLM is fitted onto the data by estimating the parameters $\beta_0$ and $\beta_1$.
-
-In this project, the identity, inverse and log link functions were investigated for a selected few integer values of $p$. These link functions are shown in Table \ref{table:meanvar_linkfunctions}. They are fitted on the variance-mean data from \texttt{Mar16} as shown in Figure \ref{fig:meanvar_mar16}.
-
-\begin{table}
-    \centering
-    \begin{tabular}{c|c|c|c}
-    &\multicolumn{3}{c}{Link functions}\\
-    &Identity&Inverse&Log\\
-    \hline
-    $g(\mu)$&$\mu$&$1/\mu$&$\ln(\mu)$\\
-    \hline
-    $\expectation[Y|X=x]$&$\beta_0 + \beta_1 x^p$&$\left[\beta_0 + \beta_1 x^p\right]^{-1}$&$\exp\left[\beta_0 + \beta_1 x^p\right]$
-    \end{tabular}
-    \caption{Link functions}
-    \label{table:meanvar_linkfunctions}
-\end{table}
 
 \begin{figure}
-	\centering
+  \centering
     \centerline{
     \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/MeanVarFit_Mar16_iShad1_iGlm2.eps}
-        \caption{Inverse link, $p=-1$}
+        \includegraphics[width=\textwidth]{../figures/varmean/varMeanExample_AbsFilterDeg120_identity000100.eps}
+        \caption{$\widehat{y}(x)=\beta_{-1}x^{-1}+\beta_0$}
     \end{subfigure}
     \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/MeanVarFit_Mar16_iShad1_iGlm3.eps}
-        \caption{Inverse link, $p=-2$}
+        \includegraphics[width=\textwidth]{../figures/varmean/varMeanExample_AbsFilterDeg120_reciprocal000100.eps}
+        \caption{$\widehat{y}(x)=(\beta_{-1}x^{-1}+\beta_0)^{-1}$}
     \end{subfigure}
     }
-    \centering
-    \centerline{
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/MeanVarFit_Mar16_iShad1_iGlm4.eps}
-        \caption{Log link, $p=1$}
-    \end{subfigure}
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/MeanVarFit_Mar16_iShad1_iGlm5.eps}
-        \caption{Log link, $p=-1$}
-    \end{subfigure}
-    }
-    \caption{Log frequency density of the variance-mean data from \texttt{Mar16}. Fitted are Gamma GLM with different link functions polynomial features. Error bars represent the $\Phi(\pm1)$ quantile.}
-    \label{fig:meanvar_mar16}
+    \caption{Log frequency density histogram of the sample variance-mean data from \texttt{AbsFilter}. The red solid line shows the GLM fit along with $\Phi(\pm 1)$ quantile error bars as dashed lines.}
+    \label{fig:meanVar_varMeanExample_AbsFilterDeg120}
 \end{figure}
-
-\subsection{Kernel Regression}
-
-Kernel regression \citep{friedman2001elements} is a type of non-parametric regression and its prediction is done using a weighted sum of the data rather then fitting a parametric model. Suppose a collection of variance-mean data were collected $\{(y_1,x_1),(y_2,x_2),\dotdotdot,(y_m,x_m)\}$, then the kernel regression is
-\begin{equation}
-    \widehat{y}(x)=
-    \dfrac{
-        \sum_{i=1}^m k\left(\dfrac{x-x_i}{\lambda}\right) y_i
-    }
-    {
-        \sum_{i=1}^m k\left(\dfrac{x-x_i}{\lambda}\right)
-    }
-\end{equation}
-where $k(x)$ is a specified kernel function and $\lambda$ is called the bandwidth. Popular choices for the kernel include the Gaussian kernel \citep{friedman2001elements}
-\begin{equation}
-    k(x)=\phi(x)
-\end{equation}
-and the Epanechnikov kernel \citep{friedman2001elements}
-\begin{equation}
-    k(x) = 
-    \begin{cases}
-        \frac{3}{4}\left(1-x^2\right)& \text{ for } -1<x<1 \\ 
-        0 & \text{ otherwise } 
-    \end{cases}
-    \ .
-\end{equation}
-
-An example of the kernel regression using the Epanechnikov kernel is shown in Figure \ref{fig:meanvar_epanechnikov}. It shows the kernel regression fitted onto the \texttt{Mar16} variance-mean data for different values of $\lambda$. The bandwidth controls how smooth the kernel regression is. Just by observation, $\lambda=1$ is too small because it is capturing the noise whereas $\lambda=10^4$ is too large as it did not captured the general shape of the variance-mean relationship.
-
-\begin{figure}
-	\centering
-    \centerline{
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/MeanVarFit_Mar16_iShad1_iGlm6.eps}
-        \caption{$\lambda=10^0$}
-    \end{subfigure}
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/MeanVarFit_Mar16_iShad1_iGlm8.eps}
-        \caption{$\lambda=10^2$}
-    \end{subfigure}
-    }
-    \centering
-    \centerline{
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/MeanVarFit_Mar16_iShad1_iGlm9.eps}
-        \caption{$\lambda=10^3$}
-    \end{subfigure}
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/MeanVarFit_Mar16_iShad1_iGlm10.eps}
-        \caption{$\lambda=10^4$}
-    \end{subfigure}
-    }
-    \caption{Epanechnikov kernel regression, with bandwidth $\lambda$, fitted on the variance-mean data from \texttt{Mar16}.}
-    \label{fig:meanvar_epanechnikov}
-\end{figure}
-
-Choosing a good bandwidth can be done using cross validation methods \citep{friedman2001elements} but this can be computationally expensive thus time consuming. By eyeballing the figure and choosing a bandwidth which captures a smooth variance-mean relationship, a value of $\lambda=10^3$ was chosen.
-
-\section{Model Selection}
-
-In the previous section, several models for the variance-mean relationship have been described. This section will use model selection techniques to access the goodness of fit and prediction performance for each model. 
 
 \subsection{Deviance}
 The deviance is one way to assess the goodness of fit of the regression on the variance-mean data. The deviance is defined to be
@@ -231,16 +185,7 @@ The deviance is one way to assess the goodness of fit of the regression on the v
 where $L$ and $L_s$ are the likelihood and saturated likelihood respectively. 
 
 Let $\alpha=(n-1)/2$ be the shape parameter. Suppose the variance-mean data consist of the following values $\{(y_1,x_1),(y_2,x_2),\dotdotdot,(y_m,x_m)\}$ and $\widehat{y}_i$ is the predicted $Y$ given $x_i$, then the log likelihood is
-\begin{equation}
-    \ln L = \sum_{i=1}^m \left[
-        \alpha\ln\alpha
-        -\alpha\ln \widehat{y_i}
-        -\ln\Gamma(\alpha)
-        +(\alpha-1)\ln y_i
-        -\frac{\alpha y_i}{\widehat{y}_i}
-    \right]
-    \ .
-\end{equation}
+
 The log saturated likelihood is obtained by replacing all $\widehat{y}_i$ with $y_i$ so that
 \begin{equation}
     \ln L_s = \sum_{i=1}^m \left[
