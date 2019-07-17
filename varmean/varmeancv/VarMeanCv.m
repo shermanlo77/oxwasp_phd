@@ -14,7 +14,11 @@ classdef VarMeanCv < Experiment
   
   properties (SetAccess = public)
     
-    modelArray = {'y=a+bx','y=a+b/x','y=(a+b/x)^{-1}'}; %list of models
+    %list of models
+    %the use of unicode so that it renders properly in .eps output
+    %see https://uk.mathworks.com/matlabcentral/answers/159732-2014b-axis-label-errors-when-printing-to-postscript
+    %see https://uk.mathworks.com/matlabcentral/answers/290136-unwanted-whitespace-gap-in-figure-text-before-symbols-and-subscripts-in-matlab-2015a-for-pdf-and-e
+    modelArray = {'y=a+bx','y=a+b/x','y=(a+b/x)⁻¹'};
     scan; %contains the projections to work on, apply shading correction if needed
     nRepeat = 100; %number of times to repeat the experiment
     

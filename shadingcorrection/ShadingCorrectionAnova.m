@@ -47,6 +47,9 @@ classdef (Abstract) ShadingCorrectionAnova < Experiment
         boxplotBetween.plot();
         ax.YScale = 'log';
         xlabel('power (W)');
+        %the use of unicode so that it renders properly in .eps output
+        %see https://uk.mathworks.com/matlabcentral/answers/159732-2014b-axis-label-errors-when-printing-to-postscript
+        %see https://uk.mathworks.com/matlabcentral/answers/290136-unwanted-whitespace-gap-in-figure-text-before-symbols-and-subscripts-in-matlab-2015a-for-pdf-and-e
         ylabel('variance (ADU²)');
         legend([boxplotWithin.getLegendAx(), boxplotBetween.getLegendAx()], ...
             'within pixel','between pixel', 'Location', 'best');
