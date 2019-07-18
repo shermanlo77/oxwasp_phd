@@ -10,4 +10,4 @@ plot(ratio, yPlot);
 ax = gca;
 ax.XScale = 'log';
 xlabel('$y/\widehat{y}$','Interpreter','latex');
-ylabel('deviance');
+ylabel('scaled deviance');

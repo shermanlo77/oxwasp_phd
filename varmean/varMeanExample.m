@@ -18,6 +18,9 @@ plotExample(AbsFilterDeg120, {[0,0,0;1,0,0], [0,0,0;1,0,0]}, {'identity', 'recip
   %linkArray: cell array of link functions
 function plotExample(scan, termMatrixArray, linkArray)
   
+  %add shading correction
+  scan.addShadingCorrectorLinear();
+
   %get the grey values
   greyValueArray = getGreyValue(scan);
   %get var-mean data

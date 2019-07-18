@@ -74,7 +74,7 @@ for iData = 1:2
     
     %save the figure
     fileName = fullfile('reports','figures','varmean', ...
-        strcat('VarMeanCv','_',class(this.scan),'_',statName,'.eps'));
+        strcat(mfilename,'_',class(this.scan),'_',statName,'.eps'));
     saveas(fig,fileName,'epsc');
   end
 end
