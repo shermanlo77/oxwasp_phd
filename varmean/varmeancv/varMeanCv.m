@@ -48,9 +48,9 @@ for iData = 1:2
   for iStat = 1:2
     isTrainingDeviance = iStat == 1;
     if (isTrainingDeviance)
-      statName = 'training deviance';
+      statName = 'training mean scaled deviance';
     else
-      statName = 'test deviance';
+      statName = 'test mean scaled deviance';
     end
     
     %plot the test deviance for each shading correction
@@ -75,6 +75,7 @@ for iData = 1:2
     %save the figure
     fileName = fullfile('reports','figures','varmean', ...
         strcat(mfilename,'_',class(this.scan),'_',statName,'.eps'));
+    fileName(fileName == ' ') = [];
     saveas(fig,fileName,'epsc');
   end
 end
