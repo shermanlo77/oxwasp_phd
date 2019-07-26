@@ -34,17 +34,17 @@ function cpQQDensity(compound_poisson, histo_file, qq_file)
     
     %get the pdf and mass at 0
     pdf_range = compound_poisson.getPdf(x_array);
-    if compound_poisson.can_support_zero_mass
+    if compound_poisson.isSupportZeroMass
         p_0 = compound_poisson.getPdf(0);
     end
 
     %% DENSITY
     
-    fig = figure_latexSub;
+    fig = LatexFigure.sub();
     
     %plot the histogram (frequency density axis on the left)
     %do not include zeros if support zero mass
-    if compound_poisson.can_support_zero_mass
+    if compound_poisson.isSupportZeroMass
         if (n_0~=0)
             yyaxis left;
         end
@@ -58,7 +58,7 @@ function cpQQDensity(compound_poisson, histo_file, qq_file)
     ylabel('freq. density');
     
     %if this density can support zero mass and there are zeros
-    if compound_poisson.can_support_zero_mass && (n_0~=0)
+    if compound_poisson.isSupportZeroMass && (n_0~=0)
         %plot the zero frequency for both the simulation and the pmf (frequency axis on the right)
         yyaxis right;
         %plot the frequency in the first bin of the histogram
@@ -72,7 +72,7 @@ function cpQQDensity(compound_poisson, histo_file, qq_file)
     %set the size of the x axis and label
     xlim([min(X),max(X)]);
     xlabel('support');
-    if compound_poisson.can_support_zero_mass && (n_0~=0)
+    if compound_poisson.isSupportZeroMass && (n_0~=0)
         legend('Simulation freq. density','Theoretical freq. density','Simulation freq.','Theoretical freq.');
     else
         legend('Simulation freq. density','Theoretical freq. density');
@@ -83,14 +83,14 @@ function cpQQDensity(compound_poisson, histo_file, qq_file)
     
     %% QQPLOT
     
-    fig = figure_latexSub;
+    fig = LatexFigure.sub();
     
     %get array of percentages
     p = ((1:n)'-0.5)/n;
     
     %x_min is the lower limit for numerical integration to get the cdf
     %if the density cannot support zero and there are zeros
-    if ( (~compound_poisson.can_support_zero_mass) && (n_0~=0) )
+    if ( (~compound_poisson.isSupportZeroMass) && (n_0~=0) )
         %x_min is between 0 and min(X_no_0), weighted averaged
         x_min = exp(-compound_poisson.lambda) * min(X_no_0) * 0.1 / (exp(-compound_poisson.lambda) * (1+compound_poisson.lambda));
     %else...
@@ -112,10 +112,6 @@ function cpQQDensity(compound_poisson, histo_file, qq_file)
     %save figure
     saveas(fig,qq_file,'png');
     
-    %% CDF GRAPH
-    %DEBUGGING PURPOSES
-%     figure;
-%     plot(x_theoretical,p);
     
 end
 
