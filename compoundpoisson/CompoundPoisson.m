@@ -69,6 +69,12 @@ classdef CompoundPoisson < handle
       this.sigma = sqrt(this.phi * this.mu^this.p);
     end
     
+    %METHODS: SET N
+    %Set the number of data, this is required to evaluate the Fisher's information matrix
+    function setN(this, n)
+      this.n = n;
+    end
+    
     %METHOD: GET DENSITY
     %PARAMETER:
       %x: vector of compound Poisson variables
@@ -119,6 +125,7 @@ classdef CompoundPoisson < handle
     
     %METHOD: GET FISHER'S INFORMATION MATRIX
     %Returns the Fisher's information matrix (using the joint log likelihood)
+    %NOTE: this.n needs to be set, call the method setN to do this
     function I = getFisherInformation(this)
       
       %declare 3 x 3 matrix

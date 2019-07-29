@@ -850,29 +850,29 @@ The Cram\'er-Rao lower bound is then
 
 An experiment was conducted to assess the performance on the EM algorithm. For a given set of parameters, 1\,000 samples of a $\CPoisson(\lambda,\alpha,\beta)$ random variable were simulated. The EM algorithm was initialised with its parameters at the true values to investigate the convergence in that vicinity. The log likelihood $\ln L(\lambda,\alpha,\beta;X)$ and the parameters were recorded at every EM step. The experiment was repeated 10 times using different simulated samples.
 
-The results for $\CPoisson(1,1,1)$, $\CPoisson(10,1,1)$, $\CPoisson(1,100,1)$ and $\CPoisson(100,100,1)$ are shown in Figures \ref{fig:compoundPoisson_convergence_1}, \ref{fig:compoundPoisson_convergence_2}, \ref{fig:compoundPoisson_convergence_3} and \ref{fig:compoundPoisson_convergence_4} respectively. Good performance can be seen for the $\lambda=1$ case with convergence of all 3 parameters within a step or two. The Cram\'er-Rao lower bound captured the spread of the estimates well.
+The results for $\CPoisson(1,1,1)$, $\CPoisson(1,100,1)$, $\CPoisson(10,1,1)$ and $\CPoisson(100,100,1)$ are shown in Figures \ref{fig:compoundPoisson_convergence_1}, \ref{fig:compoundPoisson_convergence_2}, \ref{fig:compoundPoisson_convergence_3} and \ref{fig:compoundPoisson_convergence_4} respectively. Good performance was observed in the $\lambda=1$ case with convergence of all 3 parameters within a step or two. The Cram\'er-Rao lower bound captured the spread of the estimates well.
 
 However for $\lambda=10$ and $\lambda=100$ case, the estimates of $\alpha$ and $\beta$ struggled to converge and increased/decreased without bounds without affecting the log likelihood. It appears the EM algorithm failed for $\lambda>10$ looking at these particular examples.
 
 \begin{figure}[p]
   \centering
     \centerline{
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/compoundPoisson/convergence_1_lnL.eps}
+    \begin{subfigure}[b]{\subSize}
+        \includegraphics[width=\textwidth]{../figures/compoundpoisson/cpEmAlgorithm_CompoundPoissonlambda1alpha1beta1_lnL.eps}
         \caption{Log likelihood}
     \end{subfigure}
-        \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/compoundPoisson/convergence_1_lambda.eps}
+        \begin{subfigure}[b]{\subSize}
+        \includegraphics[width=\textwidth]{../figures/compoundpoisson/cpEmAlgorithm_CompoundPoissonlambda1alpha1beta1_lambda.eps}
         \caption{$\lambda$}
     \end{subfigure}
     }
     \centerline{
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/compoundPoisson/convergence_1_alpha.eps}
+    \begin{subfigure}[b]{\subSize}
+        \includegraphics[width=\textwidth]{../figures/compoundpoisson/cpEmAlgorithm_CompoundPoissonlambda1alpha1beta1_alpha.eps}
         \caption{$\alpha$}
     \end{subfigure}
-        \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/compoundPoisson/convergence_1_beta.eps}
+        \begin{subfigure}[b]{\subSize}
+        \includegraphics[width=\textwidth]{../figures/compoundpoisson/cpEmAlgorithm_CompoundPoissonlambda1alpha1beta1_beta.eps}
         \caption{$\beta$}
     \end{subfigure}
     }
@@ -883,74 +883,74 @@ However for $\lambda=10$ and $\lambda=100$ case, the estimates of $\alpha$ and $
 \begin{figure}[p]
   \centering
     \centerline{
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/compoundPoisson/convergence_2_lnL.eps}
+    \begin{subfigure}[b]{\subSize}
+        \includegraphics[width=\textwidth]{../figures/compoundpoisson/cpEmAlgorithm_CompoundPoissonlambda1alpha100beta1_lnL.eps}
         \caption{Log likelihood}
     \end{subfigure}
-        \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/compoundPoisson/convergence_2_lambda.eps}
+        \begin{subfigure}[b]{\subSize}
+        \includegraphics[width=\textwidth]{../figures/compoundpoisson/cpEmAlgorithm_CompoundPoissonlambda1alpha100beta1_lambda.eps}
         \caption{$\lambda$}
     \end{subfigure}
     }
     \centerline{
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/compoundPoisson/convergence_2_alpha.eps}
+    \begin{subfigure}[b]{\subSize}
+        \includegraphics[width=\textwidth]{../figures/compoundpoisson/cpEmAlgorithm_CompoundPoissonlambda1alpha100beta1_alpha.eps}
         \caption{$\alpha$}
     \end{subfigure}
-        \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/compoundPoisson/convergence_2_beta.eps}
+        \begin{subfigure}[b]{\subSize}
+        \includegraphics[width=\textwidth]{../figures/compoundpoisson/cpEmAlgorithm_CompoundPoissonlambda1alpha100beta1_beta.eps}
         \caption{$\beta$}
     \end{subfigure}
     }
-    \caption{EM algorithm was used to estimate the parameters of a $\CPoisson(10,1,1)$ random variable using 1\,000 simulated samples, repeated 10 times. The graphs show the log likelihood and the estimated parameters at each EM step for each repeat of the experiment. The dashed lines show the standard deviation using the Cram\'er-Rao lower bound.}
+    \caption{EM algorithm was used to estimate the parameters of a $\CPoisson(1,100,1)$ random variable using 1\,000 simulated samples, repeated 10 times. The graphs show the log likelihood and the estimated parameters at each EM step for each repeat of the experiment. The dashed lines show the standard deviation using the Cram\'er-Rao lower bound.}
     \label{fig:compoundPoisson_convergence_2}
 \end{figure}
 
 \begin{figure}[p]
   \centering
     \centerline{
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/compoundPoisson/convergence_3_lnL.eps}
+    \begin{subfigure}[b]{\subSize}
+        \includegraphics[width=\textwidth]{../figures/compoundpoisson/cpEmAlgorithm_CompoundPoissonlambda10alpha1beta1_lnL.eps}
         \caption{Log likelihood}
     \end{subfigure}
-        \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/compoundPoisson/convergence_3_lambda.eps}
+        \begin{subfigure}[b]{\subSize}
+        \includegraphics[width=\textwidth]{../figures/compoundpoisson/cpEmAlgorithm_CompoundPoissonlambda10alpha1beta1_lambda.eps}
         \caption{$\lambda$}
     \end{subfigure}
     }
     \centerline{
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/compoundPoisson/convergence_3_alpha.eps}
+    \begin{subfigure}[b]{\subSize}
+        \includegraphics[width=\textwidth]{../figures/compoundpoisson/cpEmAlgorithm_CompoundPoissonlambda10alpha1beta1_alpha.eps}
         \caption{$\alpha$}
     \end{subfigure}
-        \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/compoundPoisson/convergence_3_beta.eps}
+        \begin{subfigure}[b]{\subSize}
+        \includegraphics[width=\textwidth]{../figures/compoundpoisson/cpEmAlgorithm_CompoundPoissonlambda10alpha1beta1_beta.eps}
         \caption{$\beta$}
     \end{subfigure}
     }
-    \caption{EM algorithm was used to estimate the parameters of a $\CPoisson(1,100,1)$ random variable using 1\,000 simulated samples, repeated 10 times. The graphs show the log likelihood and the estimated parameters at each EM step for each repeat of the experiment. The dashed lines show the standard deviation using the Cram\'er-Rao lower bound.}
+    \caption{EM algorithm was used to estimate the parameters of a $\CPoisson(10,1,1)$ random variable using 1\,000 simulated samples, repeated 10 times. The graphs show the log likelihood and the estimated parameters at each EM step for each repeat of the experiment. The dashed lines show the standard deviation using the Cram\'er-Rao lower bound.}
     \label{fig:compoundPoisson_convergence_3}
 \end{figure}
 
 \begin{figure}[p]
   \centering
     \centerline{
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/compoundPoisson/convergence_4_lnL.eps}
+    \begin{subfigure}[b]{\subSize}
+        \includegraphics[width=\textwidth]{../figures/compoundpoisson/cpEmAlgorithm_CompoundPoissonlambda100alpha100beta1_lnL.eps}
         \caption{Log likelihood}
     \end{subfigure}
-        \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/compoundPoisson/convergence_4_lambda.eps}
+        \begin{subfigure}[b]{\subSize}
+        \includegraphics[width=\textwidth]{../figures/compoundpoisson/cpEmAlgorithm_CompoundPoissonlambda100alpha100beta1_lambda.eps}
         \caption{$\lambda$}
     \end{subfigure}
     }
     \centerline{
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/compoundPoisson/convergence_4_alpha.eps}
+    \begin{subfigure}[b]{\subSize}
+        \includegraphics[width=\textwidth]{../figures/compoundpoisson/cpEmAlgorithm_CompoundPoissonlambda100alpha100beta1_alpha.eps}
         \caption{$\alpha$}
     \end{subfigure}
-        \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/compoundPoisson/convergence_4_beta.eps}
+        \begin{subfigure}[b]{\subSize}
+        \includegraphics[width=\textwidth]{../figures/compoundpoisson/cpEmAlgorithm_CompoundPoissonlambda100alpha100beta1_beta.eps}
         \caption{$\beta$}
     \end{subfigure}
     }
@@ -1126,3 +1126,51 @@ Taking the derivative with respect to $\alpha$
   \right]
 \end{equation}
 and this is not $\alpha$ dependent, thus there is no solution to $\alpha$.
+
+\subsection{Log Likelihood Plot}
+
+\begin{figure}
+  \centering
+    \centerline{
+    \begin{subfigure}[b]{\subSize}
+        \includegraphics[width=\textwidth]{../figures/compoundpoisson/cpLogLikelihoodPlot_CompoundPoissonlambda1alpha1beta1.eps}
+        \caption{$\CPoisson(1,1,1)$}
+    \end{subfigure}
+        \begin{subfigure}[b]{\subSize}
+        \includegraphics[width=\textwidth]{../figures/compoundpoisson/cpLogLikelihoodPlot_CompoundPoissonlambda1alpha100beta1.eps}
+        \caption{$\CPoisson(1,100,1)$}
+    \end{subfigure}
+    }
+    \centerline{
+    \begin{subfigure}[b]{\subSize}
+        \includegraphics[width=\textwidth]{../figures/compoundpoisson/cpLogLikelihoodPlot_CompoundPoissonlambda10alpha1beta1.eps}
+        \caption{$\CPoisson(10,1,1)$}
+    \end{subfigure}
+        \begin{subfigure}[b]{\subSize}
+        \includegraphics[width=\textwidth]{../figures/compoundpoisson/cpLogLikelihoodPlot_CompoundPoissonlambda100alpha100beta1.eps}
+        \caption{$\CPoisson(100,100,1)$}
+    \end{subfigure}
+    }
+    \caption{Log likelihood from a simulation of 100 compound Poisson-gamma random variables. $\lambda$ is fixed at the true value.}
+    \label{fig:compoundPoisson_loglikelihoodplot}
+\end{figure}
+
+The log likelihood, using a simulation of 100 compound Poisson-gamma random variables, are shown in Figure \ref{fig:compoundPoisson_loglikelihoodplot}. These plots are concerning because the likelihood appeared not to be convex and there is no unique maxima, surprising in $\lambda=1$ case as well.
+
+It was observed there is a saddle point in the log likelihood for the $\CPoisson(1,100,1)$ case. This is when the log likelihood increases and decreases. This suggest a possibility of a local maxima.
+
+These plots suggest there is no unique maximum likelihood estimator and the EM algorithm would be very sensitive to the starting position, including for small $\lambda$.
+
+\section{Conclusion}
+The compound Poisson-gamma distribution was studied but it was found there were identifiability issues when fitting the model onto simulated data, in particular for high $\lambda$.
+
+XCT is in the realm of high $\lambda$ and this can be shown using back of the envelope calculations. Using the properties in the \texttt{AbsNoFilter} dataset, the power and potential difference of the x-ray tube are $P=\SI{36}{\watt}$ and $V=\SI{80}{\kilo\volt}$ respectively. The time exposure is $\tau=\SI{708}{\milli\second}$. Assume an efficiency of \SI{0.01}{{photon}\,{electron}^{-1}} and the charge per electron is $e=\SI{1.602e-19}{\coulomb\,{electron}^{-1}}$. Assume the photons projected onto the array of $2\,000^2\,\si{\pixel}$. The number of photons detected per pixel is
+\begin{align*}
+\lambda &\approx \dfrac{\text{efficiency} P \tau}{\text{number of pixels} V e}
+\\
+&\sim 10^7\,\si{{photon}\,\pixel^{-1}}
+\ .
+\end{align*}
+Fitting the compound Poisson model onto XCT data would not be possible with such a high value of $\lambda$.
+
+All is not lost though, it was found there was a linear relationship between the variance and mean of the grey value in a pixel. This suggest the uncertainty can be predicted by using such a relationship. The next chapter investigates this.
