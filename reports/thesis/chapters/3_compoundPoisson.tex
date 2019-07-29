@@ -95,7 +95,7 @@ A special case of the compound Poisson is when $U\sim\gammaDist\left(\alpha,\bet
   p_X(x) = 
   \begin{cases}
     \delta(x) \euler^{-\lambda} & \text{ for } x=0 \\ 
-    \sum_{y=1}^{\infty}\frac{\beta^{y\alpha}}{\Gamma(y\alpha)}x^{y\alpha-1}\euler^{-\beta x}\euler^{-\lambda}\frac{\lambda^y}{y!} & \text{ for } x>0
+    \displaystyle\sum_{y=1}^{\infty}\dfrac{\beta^{y\alpha}}{\Gamma(y\alpha)}x^{y\alpha-1}\euler^{-\beta x}\euler^{-\lambda}\frac{\lambda^y}{y!} & \text{ for } x>0
   \end{cases}
   \ .
   \label{eq:compoundPoisson_pdf}
@@ -162,7 +162,7 @@ where
   W_y = W_y(x,p,\phi)=\frac{x^{y\alpha}}{\phi^{y(1+\alpha)}(p-1)^{y\alpha}(2-p)^yy!\Gamma(y\alpha)}
   \ .
 \end{equation}
-The derivation is shown in Appendix \ref{chapter:appendix_tweedie}. This is in the form of a generalised linear model \citep{nelder1972generalized, nelder1972generalized_2, mccullagh1984generalized} for fixed $p$ or $\alpha$ because the above is in the form of a distribution in the dispersive exponential family. This has applications in, for example, insurance claim data \citep{jorgensen1994fitting, smyth2002fitting}.
+The derivation is shown in Appendix \ref{chapter:appendix_tweedie}. This is in the form of a generalised linear model \citep{nelder1972generalized, nelder1972generalized_2, mccullagh1984generalized} for fixed $p$ and $\phi$ because the above is in the form of a distribution in the dispersive exponential family. This has applications in, for example, insurance claim data \citep{jorgensen1994fitting, smyth2002fitting}.
 
 Parameter estimation for fixed $p$ can be done via the generalised linear model framework and can be extended to include linear mixed models \citep{zhang2013likelihood}. Estimating $p$ is difficult and various methods were discussed by \cite{zhang2013likelihood}. One way is to estimate $\mu$ and $\phi$ on a grid of $p$'s and then select the $p$ which maximises the likelihood \citep{dunn2005series}.
 
@@ -170,7 +170,7 @@ One special property of the compound Poisson-gamma distribution is that it is in
 \begin{equation}
   \variance[X] = \phi \mu^p
 \end{equation}
-where $1<p<2$. This is derived in Appendix \ref{chapter:appendix_tweedie}. It should be noted that this relationship is for fixed $p$. This is different from the linear variance mean relationship found at the start of the chapter which was for fixed $\alpha$ from assuming no beam hardening.
+where $1<p<2$. This is derived in Appendix \ref{chapter:appendix_tweedie}. It should be noted that this relationship is for fixed $p$ and $\phi$. This is different from the linear variance mean relationship found at the start of the chapter which was for fixed $\alpha$ and $\beta$ from assuming no beam hardening.
 
 \subsection{Method of Moments}
 
