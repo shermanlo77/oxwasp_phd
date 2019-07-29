@@ -1,6 +1,6 @@
 The grey value of each pixel in the detector can be modelled as a random variable, due to the random behaviour of photons being produced, interacting with the test sample and the scintillator in the detector. By modelling using a random variable, the uncertainty can be quantified and considered when conducting inference about any detected defects.
 
-The compound Poisson distribution is studied here because of the compound Poission-like behaviour from the detection of photons. It is defined by defining a latent variable $Y\sim\poisson(\lambda)$ with probability mass function (p.m.f.) $\prob(Y=y)=\euler^{-\lambda}\frac{\lambda^y}{y!}$ for $y=0,1,2,\cdots$, where $\lambda>0$ is the Poisson rate parameter. Let $U_i$ be some independent and identically distributed (i.i.d.) latent random variables with probability density function (p.d.f.) $p_U(u)$ for $i=1,2,3,\cdots$. Let $X$ be a compound Poisson random variable where
+The compound Poisson distribution is studied here because of the compound Poission-like behaviour from the detection of photons \citep{whiting2002signal, elbakri2003efficient, whiting2006properties}. It is defined by defining a latent variable $Y\sim\poisson(\lambda)$ with probability mass function (p.m.f.) $\prob(Y=y)=\euler^{-\lambda}\frac{\lambda^y}{y!}$ for $y=0,1,2,\cdots$, where $\lambda>0$ is the Poisson rate parameter. Let $U_i$ be some independent and identically distributed (i.i.d.) latent random variables with probability density function (p.d.f.) $p_U(u)$ for $i=1,2,3,\cdots$. Let $X$ be a compound Poisson random variable where
 \begin{equation}
   X|Y = \sum_{i=1}^{Y}U_i \ .
   \label{eq:compoundPoisson_X|Y}
@@ -28,7 +28,7 @@ This chapter starts with a literature review on the compound Poisson distributio
 
 In an x-ray tube, photons are emitted as a Poisson process and each photon has some random energy due to bremsstrahlung and characteristic radiation. This shares similarities to the compound Poisson. Let $Y$ be the number of photons emitted for some time exposure $\tau$, then $Y\sim\poisson(\lambda)$. Each photon is assumed to be i.i.d.~with energy $U_i$ for $i=1,2,3,\cdots$. $U_i$ has p.d.f.~$p_U(u)$. The random variables discussed here covers all the latent variables in the compound Poisson.
 
-Photons emitted from the x-ray tube undergo attenuation when propagating through the test sample. Assuming no beam hardening, some photons are either absorbed or scattered, making them undetectable. Scattered photons may be detected but it is very rare. Attenuated photon energy remains unaffected so attenuation decreases the parameter $\lambda$ and the amount it decreases by depends on the attenuation coefficient of the material and the amount of material the x-ray attenuates. The parameters of the random variable $U_i$ remains unchanged because the energy of each photon remains the same after attenuation, assuming no beam hardening.
+Photons emitted from the x-ray tube undergo attenuation when propagating through the test sample. Assuming no beam hardening, some photons are either absorbed or scattered, making them undetectable. Scattered photons may be detected but it is very rare \citep{cantatore2011introduction}. Attenuated photon energy remains unaffected so attenuation decreases the parameter $\lambda$ and the amount it decreases by depends on the attenuation coefficient of the material and the amount of material the x-ray attenuates. The parameters of the random variable $U_i$ remains unchanged because the energy of each photon remains the same after attenuation, assuming no beam hardening.
 
 When the photons interact with the scintillator in the detector, they are converted into visible light. The visible light photons are then detected and converted into a digital signal. A quantum counter set the digital signal to be linear with to the number of photons detected \citep{whiting2006properties}. Let $X$ be the grey value observed, then
 \begin{equation}
@@ -46,7 +46,7 @@ respectively. By eliminating $\lambda$
 \begin{equation}
 \variance\left[X\right] = b\expectation\left[X\right]+\kappa-ab \ ,
 \end{equation}
-a linear relationship between the variance and expectation of the grey value is obtained.
+a linear relationship between the variance and expectation of the grey value \citep{ma2012varaince} is obtained.
 
 An energy integrating detector records the grey value as linear to the energy detected \citep{whiting2006properties}. The grey value $X$ is
 \begin{equation}
@@ -64,7 +64,7 @@ respectively. Eliminating $\lambda$ obtains
 \begin{equation}
 \variance\left[X\right] = \dfrac{\expectation\left[U^2\right]}{\expectation\left[U\right]} \expectation\left[X\right] + \kappa - a\dfrac{\expectation\left[U^2\right]}{\expectation\left[U\right]} \ .
 \end{equation}
-By assuming no beam hardening, $\expectation\left[U\right]$ and $\expectation\left[U^2\right]$ remains constant, thus there is a linear relationship between the variance and expectation of the grey value. There are other types of detection schemes \citep{whiting2006properties} but it shall be not be considered here.
+By assuming no beam hardening, $\expectation\left[U\right]$ and $\expectation\left[U^2\right]$ remains constant, thus there is a linear relationship between the variance and expectation of the grey value \citep{yang2009evaluation}. There are other types of detection schemes \citep{whiting2006properties} but it shall be not be considered here.
 
 Experiments have been done to verify the compound Poisson nature of the detector. This was done by investigating the variance of radiographs of air \citep{hsieh2015compound} and a polyethylene cylinder \citep{yang2009evaluation, yang2010noise} at different voltages and powers. It was found there were 2 components in the noise, one was signal dependent and comes from the compound Poisson, the other was signal independent and may be electronic noise. The electronic noise can be modelled as Normally distributed \citep{xu2009electronic}.
 
@@ -78,9 +78,9 @@ Returning back to the compound Poisson with no electronic noise $X|Y = \sum_{i=1
     \left(
       M_U(\theta)-1
     \right)
-  \right] \ .
+  \right]
 \end{equation}
-The derivation is shown in Appendix \ref{chapter:appendix_compoundPoissonMgf}. Moments of $X$ can be obtained from the m.g.f.~by differentiating it and setting it to zero. In other words, $\expectation[X^r]=M_X^{(r)}(\theta)$. Then it can be shown that
+\citep{gatto2010saddlepoint}. The derivation is shown in Appendix \ref{chapter:appendix_compoundPoissonMgf}. Moments of $X$ can be obtained from the m.g.f.~by differentiating it and setting it to zero. In other words, $\expectation[X^r]=M_X^{(r)}(\theta)$. Then it can be shown that
 \begin{align}
   \expectation\left[X\right]&=\lambda\expectation\left[U\right]
   \\
@@ -192,7 +192,7 @@ The evaluation of the density of a compound Poisson-gamma distribution is useful
 
 The m.g.f.~provides a starting point to what limiting distributions the compound Poisson-gamma distribution converges to for large parameters. These limiting distributions can be used to approximate the p.d.f.~of the compound Poisson-gamma distribution.
 
-It can be shown for large $\lambda$, the Normal approximation is
+It can be shown for large $\lambda$, the Normal approximation \citep{shevtsova2014on} is
 \begin{equation}
   X\sim\normal\left(\frac{\lambda\alpha}{\beta},\frac{\lambda\alpha(\alpha+1)}{\beta^2}\right) \ .
 \end{equation}
@@ -209,7 +209,7 @@ For a given m.g.f.~$M_X(\theta)$, the saddlepoint approximation \citep{daniels19
 \end{equation}
 where $K_X(\theta) = \ln\left(M_X(\theta)\right)$, and $s=s(x)$ is the solution to the saddle point equation $K_X'(s)=x$.
 
-For the compound Poisson-gamma distribution, the saddle point approximation is given as 
+For the compound Poisson-gamma distribution, the saddle point approximation \citep{jensen1991saddlepoint} is given as 
 \begin{multline}
   p_X(x)\approx
   \frac{\left(\lambda\alpha\beta^\alpha\right)^{\frac{1}{2(\alpha+1)}}\euler^{-\lambda}}{\sqrt{2\pi(\alpha+1)}}x^{-\frac{\alpha+2}{2(\alpha+1)}}
@@ -487,7 +487,7 @@ The model may be simplified by omitting the electronic noise, this can be done b
 
 \section{EM Algorithm}
 
-The EM algorithm \citep{dempster1977maximum} is proposed as a method to estimate the parameters of a $X\sim\CPoisson(\lambda,\alpha,\beta)$ random variable given a sample of measurements of it $\left\{x_1,x_2,x_3,\cdots,x_n\right\}$.
+The EM algorithm \citep{dempster1977maximum} is proposed as a method to estimate the parameters of a $X\sim\CPoisson(\lambda,\alpha,\beta)$ random variable given a sample of measurements of it $\left\{x_1,x_2,x_3,\cdots,x_n\right\}$. The use of the EM algorithm here for the compound Poisson is similar to \cite{elbakri2003statistical, xu2009electronic}.
 
 Let $\widehat{\lambda}$, $\widehat{\alpha}$ and $\widehat{\beta}$ be estimators of $\lambda$, $\alpha$ and $\beta$ respectively. The log likelihood is defined to be
 \begin{equation*}
