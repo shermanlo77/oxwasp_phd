@@ -4,7 +4,6 @@ directoryList = {
   fullfile('results','debug')
   fullfile('reports')
   fullfile('reports','figures')
-  fullfile('reports','figures','literatureReview')
   fullfile('reports','figures','data')
   fullfile('reports','figures','compoundpoisson')
   fullfile('reports','figures','varmean')

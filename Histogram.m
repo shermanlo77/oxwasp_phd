@@ -10,6 +10,10 @@ classdef Histogram < handle
   methods (Access = public)
     
     %CONSTRUCTOR
+    %PARAMETERS:
+      %X: vector of data
+      %edges (optional): the edges of the bins, vector size numel(X)+1, if empty, uses bins in
+          %the default MATLAB function histcounts
     function this = Histogram(X, edges)
       if nargin == 1
         [this.n, this.edges] = histcounts(X);

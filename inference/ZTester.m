@@ -92,7 +92,8 @@ classdef ZTester < handle
     %METHOD: PLOT HISTOGRAM
     %Plot histogram of z statistics
     function plotHistogram(this)
-      histogramCustom(reshape(this.zImage(),[],1));
+      hist = Histogram(reshape(this.zImage(),[],1));
+      hist.plot();
     end
 
     %METHOD: PLOT HISTOGRAM WITH NULL DISTRIBUTION AND CRITICAL BOUNDARY
