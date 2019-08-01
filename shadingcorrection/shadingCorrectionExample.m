@@ -8,7 +8,6 @@
   %plots best line of fit
   %this is repeated using a different colour and a differen pixel
 
-clc;
 clearvars;
 close all;
 
@@ -19,9 +18,9 @@ rng = RandStream('mt19937ar', 'Seed', seed); %random number generator
     %resulting shading correction
 
 %instantise scans with different shading corrections
-scanArray(1) = AbsNoFilterDeg120();
-scanArray(2) = AbsNoFilterDeg120();
-scanArray(3) = AbsNoFilterDeg120();
+scanArray(1) = AbsNoFilterDeg30(); %no shading correction
+scanArray(2) = AbsNoFilterDeg30(); %bw shading correction
+scanArray(3) = AbsNoFilterDeg30(); %linear shading correction
 %use random replication for training the shading correction, and another for the resulting shading
     %correction
 calibrationIndex = zeros(scanArray(1).calibrationScanArray(1).nSample, scanArray(1).whiteIndex);
@@ -58,7 +57,7 @@ for i = 1:numel(scanArray)
   imagesc.plot();
   clim = imagesc.clim; %save the clim
   saveas(fig,fullfile('reports','figures','data', ...
-        strcat(mfilename,'_image_',scan.getShadingCorrectionStatus(),'.eps')),'epsc');
+      strcat(mfilename,'_image_',scan.getShadingCorrectionStatus(),'.eps')),'epsc');
   
   %get the black and white image
   black = scan.calibrationScanArray(1).loadImage(calibrationIndex(2,1));
@@ -69,7 +68,7 @@ for i = 1:numel(scanArray)
   imagesc = Imagesc(black);
   imagesc.plot();
   saveas(fig,fullfile('reports','figures','data', ...
-        strcat(mfilename,'_black_',scan.getShadingCorrectionStatus(),'.eps')),'epsc');
+      strcat(mfilename,'_black_',scan.getShadingCorrectionStatus(),'.eps')),'epsc');
   
   %plot the white image
   fig = LatexFigure.sub();
@@ -77,14 +76,14 @@ for i = 1:numel(scanArray)
   imagesc.setCLim(clim);
   imagesc.plot();
   saveas(fig,fullfile('reports','figures','data', ...
-        strcat(mfilename,'_white_',scan.getShadingCorrectionStatus(),'.eps')),'epsc');
+      strcat(mfilename,'_white_',scan.getShadingCorrectionStatus(),'.eps')),'epsc');
   
   %plot the fourier transform of the black and white image
   fig = LatexFigure.sub();
   imagesc = Imagesc(fft(black));
   imagesc.plot();
   saveas(fig,fullfile('reports','figures','data', ...
-        strcat(mfilename,'_blackFft_',scan.getShadingCorrectionStatus(),'.eps')),'epsc');
+      strcat(mfilename,'_blackFft_',scan.getShadingCorrectionStatus(),'.eps')),'epsc');
   
   fig = LatexFigure.sub();
   imagesc = Imagesc(fft(white));
@@ -103,10 +102,10 @@ for i = 1:numel(scanArray)
   boxplotPower.setPosition(scan.getPowerArray());
   boxplotPower.setWantOutlier(false);
   boxplotPower.plot();
-  ylabel('grey value');
+  ylabel('grey value (ADU)');
   xlabel('power (W)');
   saveas(fig,fullfile('reports','figures','data', ...
-    strcat(mfilename,'_power_',scan.getShadingCorrectionStatus(),'.eps')),'epsc');
+      strcat(mfilename,'_power_',scan.getShadingCorrectionStatus(),'.eps')),'epsc');
   
   %plot the gradient if this has shading correction
   if (scan.wantShadingCorrection)
@@ -149,7 +148,7 @@ ax = gca;
 %plot the best line of fit
 xPlot = ax.XLim';
 yPlot = zeros(2, nPlot);
-shadingCorrector = scanArray(3).shadingCorrector;
+shadingCorrector = scanArray(3).shadingCorrector; %use linear shading corrector
 yPlot(1,:) = shadingCorrector.bArray(sampleIndex) ...
     .* (xPlot(1) - shadingCorrector.betweenReferenceMean(sampleIndex)) ...
     + shadingCorrector.globalMean;
@@ -161,8 +160,8 @@ for i = 1:nPlot
 end
 %force the ylim to start at zero
 ax.YLim(1) = 0;
-xlabel('grey value (arb. unit)');
-ylabel('within image mean (arb. unit)');
+xlabel('grey value (ADU)');
+ylabel('within image mean (ADU)');
 legend('pixel 1', 'pixel 2', 'pixel 3', 'Location', 'northwest');
 saveas(fig,fullfile('reports','figures','data', strcat(mfilename,'_interpolation.eps')),'epsc');
 

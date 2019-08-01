@@ -1,3 +1,10 @@
+%CLASS: SHADING CORRECTION ANOVA
+%Does ANOVA on the shading corrected grey value in a greyscale projection
+%
+%One randomly selected replication from each power is assigned to the training set which trains the
+    %shading correction (no shading correction, bw and linear). The remaining image (test set) are
+    %shading corrected. The within and between pixel variances, as well as the F statistic, are
+    %looked at for each power. The experiment is repeated by reallocating the training and test set
 classdef (Abstract) ShadingCorrectionAnova < Experiment
   
   properties (SetAccess = public)
