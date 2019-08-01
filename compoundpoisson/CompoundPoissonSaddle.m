@@ -48,11 +48,11 @@ classdef CompoundPoissonSaddle < CompoundPoisson
     
     %OVERRIDE: GET LOG DENSITY
     %PARAMETER:
-    %x: scalar, compound poisson variable
+      %x: scalar, compound poisson variable
     %RETURN:
-    %ln_pdf: log density
-    function ln_pdf = getlnpdf(this,x)
-      ln_pdf = log(this.getPdf(x));
+      %ln_pdf: log density
+    function lnPdf = getlnpdf(this,x)
+      lnPdf = log(this.getPdf(x));
     end
     
   end
