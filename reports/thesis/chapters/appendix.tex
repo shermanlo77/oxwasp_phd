@@ -10,7 +10,7 @@ Let $Y\sim\poisson(\lambda)$, $U_1,U_2,U_3,\cdots$ be i.i.d.~random variables an
   &=\expectation\expectation\left[\euler^{\theta U_1}\cdot\euler^{\theta U_2}\cdot\dotdotdot\cdot\euler^{\theta U_Y}|Y\right]
   \ .
 \end{align}
-But because $U_i$ for $i=1,2,3,\dotdotdot$ are i.i.d., then each $U_i$ has a common m.g.f.~$M_U(\theta)=\expectation\left[\euler^{U\theta}\right]$ and
+But because $U_i$ for $i=1,2,3,\dotdotdot$ are i.i.d., then each $U_i$ has a m.g.f.~$M_U(\theta)=\expectation\left[\euler^{U\theta}\right]$ and
 \begin{align}
   M_X(\theta)&=\expectation\left(
     \expectation\left[\euler^{\theta U_1}|Y\right]\cdot
@@ -53,6 +53,8 @@ Moments of $X$ can be obtained from the m.g.f.~by differentiating it and setting
   M_X'(\theta)&=\exp\left[\lambda\left(M_U(\theta)-1\right)\right]\cdot\lambda M_U'(\theta)
   \nonumber\\
   &=M_X(\theta)\lambda M_U'(\theta)
+  \\
+  M_X'(0)&=\lambda\expectation\left[U\right]
 \end{align}
 then
 \begin{equation}
@@ -60,24 +62,72 @@ then
   \ .
 \end{equation}
 Conducting the same procedure
-\begin{equation}
-  M_X''(\theta)=M_X'(\theta)\lambda M_U'(\theta)+M_X(\theta)\lambda M_U''(\theta)
-  \ ,
-\end{equation}
+\begin{align}
+  M_X''(\theta)&=M_X'(\theta)\lambda M_U'(\theta)+M_X(\theta)\lambda M_U''(\theta)
+  \nonumber\\
+  &=\lambda M_X(\theta)\left[
+    \lambda\left(M_U'(\theta)\right)^2+M_U''(\theta)
+  \right]
+  \\
+  M_X''(0)&=\lambda\left[\lambda\left(\expectation[U]\right)^2+\expectation\left[U^2\right]\right]
+\end{align}
 the variance can be obtained
-\begin{align*}
+\begin{align}
   \variance\left[X\right]&=M_X''(0)-\left[M_X'(0)\right]^2
+  \nonumber \\
+  &=\lambda\left[\lambda\left(\expectation[U]\right)^2+\expectation\left[U^2\right]\right]-\left[\lambda\expectation\left[U\right]\right]^2
+  \nonumber \\
+  &=\lambda\expectation\left[U^2\right] \ .
+\end{align}
+Differentiating the m.g.f.~one more time
+\begin{align}
+  M_X'''(\theta) &=
+  \begin{multlined}[t]
+    \lambda M_X'(\theta)\left[
+      \lambda\left(M_U'(\theta)\right)^2+M_U''(\theta)
+    \right]
+    \\+
+    \lambda M_X(\theta)\left[
+      2\lambda M_U'(\theta)M_U''(\theta)+M_U'''(\theta)
+    \right]
+  \end{multlined}
+  \nonumber \\
+  &=
+  \begin{multlined}[t]
+    \lambda^2 M_X(\theta)M_U'(\theta)\left[
+      \lambda\left(M_U'(\theta)\right)^2+M_U''(\theta)
+    \right]
+    \\+
+    \lambda M_X(\theta)\left[
+      2\lambda M_U'(\theta)M_U''(\theta)+M_U'''(\theta)
+    \right]
+  \end{multlined}
+  \nonumber \\
+  &=
+  \lambda M_X(\theta)\left[
+    \lambda^2 \left(M_U'(\theta)\right)^3 + 3\lambda M_U'(\theta)M_U''(\theta) + M_U'''(\theta)
+  \right]
   \\
-  &=M_X'(0)\lambda M_U'(0)+M_X(0)\lambda M_U''(0)-\left[\lambda\expectation\left[U\right]\right]^2
-  \\
-  &=\lambda^2 \left(\expectation\left[U\right]\right)^2+\lambda \expectation\left[U^2\right]-\left[\lambda\expectation\left[U\right]\right]^2
-\end{align*}
-resulting in
-\begin{equation}
-  \variance\left[X\right] = \lambda\expectation\left[U^2\right]
-  \ .
-\end{equation}
-This can be extended for higher moments.
+  M_X'''(0) &=
+  \lambda \left[
+    \lambda^2 \left(\expectation[U]\right)^3 + 3\lambda \expectation[U]\expectation\left[U^2\right] + \expectation\left[U^3\right]
+  \right]
+\end{align}
+and the third moment about the mean is
+\begin{align}
+  \expectation\left[\left(X-\expectation[X]\right)^3\right] & =
+  M_X'''(0) - 3M_X''(0)M_X'(0) + 2\left(M_X'(0)\right)^3
+  \nonumber\\
+  &=
+  \begin{multlined}[t]
+    \lambda \left[
+      \lambda^2 \left(\expectation[U]\right)^3 + 3\lambda \expectation[U]\expectation\left[U^2\right] + \expectation\left[U^3\right]
+    \right]
+    \\-3\lambda\left[\lambda\left(\expectation[U]\right)^2+\expectation\left[U^2\right]\right]\lambda\expectation[U] + 2\left(\lambda\expectation[U]\right)^3
+  \end{multlined}
+  \nonumber\\
+  &=\lambda\expectation\left[U^3\right] \ .
+\end{align}
 
 \section{Tweedie Dispersion Exponential Family}
 \label{chapter:appendix_tweedie}
@@ -110,35 +160,39 @@ Substituting these parameters into Equation \eqref{eq:appendix_compoundPoisson_p
   \right]
 \end{equation}
 and the p.d.f.~for $x>0$ is
-\begin{multline*}
-  p_X(x) = \sum_{y=1}^{\infty}
-  \left[
-    \frac{1}{\phi(p-1)\mu^{p-1}}
-  \right]^{y\alpha}
-  \frac{1}{\Gamma(y\alpha)}
-  x^{y\alpha-1}
-  \exp\left[
-      -\frac{x}{\phi(p-1)\mu^{p-1}}
-  \right]
+\begin{align*}
+  p_X(x) &=
+  \begin{multlined}[t]
+    \sum_{y=1}^{\infty}
+    \left[
+      \frac{1}{\phi(p-1)\mu^{p-1}}
+    \right]^{y\alpha}
+    \frac{1}{\Gamma(y\alpha)}
+    x^{y\alpha-1}
+    \exp\left[
+        -\frac{x}{\phi(p-1)\mu^{p-1}}
+    \right]
+    \\
+    \exp\left[
+        -\frac{\mu^{2-p}}{\phi(2-p)}
+    \right]
+    \left[
+      \frac{\mu^{2-p}}{\phi(2-p)}
+    \right]^y
+    \frac{1}{y!}
+  \end{multlined}
   \\
-  \exp\left[
-      -\frac{\mu^{2-p}}{\phi(2-p)}
-  \right]
-  \left[
-    \frac{\mu^{2-p}}{\phi(2-p)}
-  \right]^y
-  \frac{1}{y!}
-\end{multline*}
-\begin{multline*}
-  p_X(x) = 
-  \exp\left[
-    \frac{1}{\phi}\left(x\frac{\mu^{1-p}}{1-p}-\frac{\mu^{2-p}}{2-p}\right)
-  \right]
-  \frac{1}{x}
-  \\
-  \sum_{y=1}^{\infty}\frac{x^{y\alpha}\mu^{y[2-p-\alpha(p-1)]}}{\phi^{y(1+\alpha)}(p-1)^{y\alpha}(2-p)^yy!\Gamma(y\alpha)}
-  \ .
-\end{multline*}
+  &= 
+  \begin{multlined}[t]
+    \exp\left[
+      \frac{1}{\phi}\left(x\frac{\mu^{1-p}}{1-p}-\frac{\mu^{2-p}}{2-p}\right)
+    \right]
+    \frac{1}{x}
+    \\
+    \sum_{y=1}^{\infty}\frac{x^{y\alpha}\mu^{y[2-p-\alpha(p-1)]}}{\phi^{y(1+\alpha)}(p-1)^{y\alpha}(2-p)^yy!\Gamma(y\alpha)}
+    \ .
+  \end{multlined}
+\end{align*}
 It should be noted that $2-p-\alpha(p-1) = 2-p - \frac{2-p}{p-1}(p-1) =0$ so that
 \begin{equation}
   p_X(x) = 
@@ -537,134 +591,141 @@ Substituting in Equation \eqref{eq:appendix_saddlepointSolution}
   \right]
 \end{multline*}
 simplifying further
-\begin{multline*}
-  p_X(x)\approx
-  \frac{1}{\sqrt{2\pi}}
-  \left[
-    \frac{
-      \left(\frac{\lambda\alpha\beta^\alpha}{x}\right)^{\frac{\alpha+2}{\alpha+1}}
-    }
-    {
-      \lambda\alpha(\alpha+1)\beta^\alpha
-    }
-  \right]^{1/2}
-  \\
-  \exp\left[
-    \lambda
-    \left(
-      \beta^\alpha
-      \left(\frac{x}{\lambda\alpha\beta^\alpha}\right)^{\frac{\alpha}{\alpha+1}}
-      -1
-    \right)
-    -x\beta
-    +(\lambda\alpha\beta^\alpha)^{\frac{1}{\alpha+1}}x^{1-\frac{1}{\alpha+1}}
-  \right]
-\end{multline*}
-\begin{multline*}
-  p_X(x)\approx
-  \frac{1}{\sqrt{2\pi(\alpha+1)}}x^{-\frac{\alpha+2}{2(\alpha+1)}}
-  \left(\lambda\alpha\beta^\alpha\right)^{\left(\frac{\alpha+2}{\alpha+1}-1\right)/2}
-  \\
-  \exp\left[
-    \lambda\left(
-      \beta^\alpha
-      \left(\frac{x}{\lambda\alpha\beta^\alpha}\right)^{\frac{\alpha}{\alpha+1}}
-      -1
-    \right)
-    -x\beta
-    +(\lambda\alpha\beta^\alpha)^{\frac{1}{\alpha+1}}x^{\frac{\alpha}{\alpha+1}}
-  \right]
-\end{multline*}
-\begin{multline*}
-  p_X(x)\approx
-  \frac{
-    \left(
-      \lambda\alpha\beta^\alpha
-    \right)^{\frac{1}{2(\alpha+1)}}
-  }
-  {
-    \sqrt{2\pi(\alpha+1)}}x^{-\frac{\alpha+2}{2(\alpha+1)}
-  } 
-  \\
-  \exp\left[
-    -\lambda
-    -x\beta
-    +x^{\frac{\alpha}{\alpha+1}}
-    \left(
+\begin{align*}
+  p_X(x)&\approx
+  \begin{multlined}[t]
+    \frac{1}{\sqrt{2\pi}}
+    \left[
       \frac{
-        \lambda\beta^\alpha
+        \left(\frac{\lambda\alpha\beta^\alpha}{x}\right)^{\frac{\alpha+2}{\alpha+1}}
       }
       {
-        \left(\lambda\alpha\beta^\alpha\right)^{\frac{\alpha}{\alpha+1}}
+        \lambda\alpha(\alpha+1)\beta^\alpha
       }
-      +
+    \right]^{1/2}
+    \\
+    \exp\left[
+      \lambda
+      \left(
+        \beta^\alpha
+        \left(\frac{x}{\lambda\alpha\beta^\alpha}\right)^{\frac{\alpha}{\alpha+1}}
+        -1
+      \right)
+      -x\beta
+      +(\lambda\alpha\beta^\alpha)^{\frac{1}{\alpha+1}}x^{1-\frac{1}{\alpha+1}}
+    \right]
+  \end{multlined}
+  \\
+  &\approx
+  \begin{multlined}[t]
+    \frac{1}{\sqrt{2\pi(\alpha+1)}}x^{-\frac{\alpha+2}{2(\alpha+1)}}
+    \left(\lambda\alpha\beta^\alpha\right)^{\left(\frac{\alpha+2}{\alpha+1}-1\right)/2}
+    \\
+    \exp\left[
+      \lambda\left(
+        \beta^\alpha
+        \left(\frac{x}{\lambda\alpha\beta^\alpha}\right)^{\frac{\alpha}{\alpha+1}}
+        -1
+      \right)
+      -x\beta
+      +(\lambda\alpha\beta^\alpha)^{\frac{1}{\alpha+1}}x^{\frac{\alpha}{\alpha+1}}
+    \right]
+  \end{multlined}
+  \\
+  &\approx
+  \begin{multlined}[t]
+    \frac{
       \left(
         \lambda\alpha\beta^\alpha
-      \right)^{\frac{1}{\alpha+1}}
-    \right)
-  \right]
-\end{multline*}
-\begin{multline*}
-  p_X(x)\approx
-  \frac{
-    \left(
-      \lambda\alpha\beta^\alpha
-    \right)^{\frac{1}{2(\alpha+1)}}\euler^{-\lambda}
-  }
-  {
-    \sqrt{2\pi(\alpha+1)}}x^{-\frac{\alpha+2}{2(\alpha+1)}
-  }
-  \euler^{-x\beta}
+      \right)^{\frac{1}{2(\alpha+1)}}
+    }
+    {
+      \sqrt{2\pi(\alpha+1)}}x^{-\frac{\alpha+2}{2(\alpha+1)}
+    } 
+    \\
+    \exp\left[
+      -\lambda
+      -x\beta
+      +x^{\frac{\alpha}{\alpha+1}}
+      \left(
+        \frac{
+          \lambda\beta^\alpha
+        }
+        {
+          \left(\lambda\alpha\beta^\alpha\right)^{\frac{\alpha}{\alpha+1}}
+        }
+        +
+        \left(
+          \lambda\alpha\beta^\alpha
+        \right)^{\frac{1}{\alpha+1}}
+      \right)
+    \right]
+  \end{multlined}
   \\
-  \exp\left[
-    x^{\frac{\alpha}{\alpha+1}}
-    \left(
-      (\lambda\beta^\alpha)^{1-\frac{\alpha}{\alpha+1}}\alpha^{-\frac{\alpha}{\alpha+1}}
-      +
+  &\approx
+  \begin{multlined}[t]
+    \frac{
       \left(
         \lambda\alpha\beta^\alpha
-      \right)^{\frac{1}{\alpha+1}}
-    \right)
-  \right]
-\end{multline*}
-\begin{multline*}
-  p_X(x)\approx
-  \frac{
-    \left(\lambda\alpha\beta^\alpha\right)^{\frac{1}{2(\alpha+1)}}\euler^{-\lambda}
-  }
-  {
-    \sqrt{2\pi(\alpha+1)}
-  }
-  x^{-\frac{\alpha+2}{2(\alpha+1)}}\euler^{-x\beta}
+      \right)^{\frac{1}{2(\alpha+1)}}\euler^{-\lambda}
+    }
+    {
+      \sqrt{2\pi(\alpha+1)}}x^{-\frac{\alpha+2}{2(\alpha+1)}
+    }
+    \euler^{-x\beta}
+    \\
+    \exp\left[
+      x^{\frac{\alpha}{\alpha+1}}
+      \left(
+        (\lambda\beta^\alpha)^{1-\frac{\alpha}{\alpha+1}}\alpha^{-\frac{\alpha}{\alpha+1}}
+        +
+        \left(
+          \lambda\alpha\beta^\alpha
+        \right)^{\frac{1}{\alpha+1}}
+      \right)
+    \right]
+  \end{multlined}
   \\
-  \exp\left[
-    x^{\frac{\alpha}{\alpha+1}}
-    \left(
-      (\lambda\beta^\alpha)^{\frac{1}{\alpha+1}}
-      \alpha^{-\frac{\alpha}{\alpha+1}}
-      +
-      \left(\lambda\alpha\beta^\alpha\right)^{\frac{1}{\alpha+1}}
-    \right)
-  \right]
-\end{multline*}
-\begin{multline*}
-  p_X(x)\approx
-  \frac{
-    \left(\lambda\alpha\beta^\alpha\right)^{\frac{1}{2(\alpha+1)}}\euler^{-\lambda}
-  }
-  {
-    \sqrt{2\pi(\alpha+1)}
-  }
-  x^{-\frac{\alpha+2}{2(\alpha+1)}}\euler^{-x\beta}
+  &\approx
+  \begin{multlined}[t]
+    \frac{
+      \left(\lambda\alpha\beta^\alpha\right)^{\frac{1}{2(\alpha+1)}}\euler^{-\lambda}
+    }
+    {
+      \sqrt{2\pi(\alpha+1)}
+    }
+    x^{-\frac{\alpha+2}{2(\alpha+1)}}\euler^{-x\beta}
+    \\
+    \exp\left[
+      x^{\frac{\alpha}{\alpha+1}}
+      \left(
+        (\lambda\beta^\alpha)^{\frac{1}{\alpha+1}}
+        \alpha^{-\frac{\alpha}{\alpha+1}}
+        +
+        \left(\lambda\alpha\beta^\alpha\right)^{\frac{1}{\alpha+1}}
+      \right)
+    \right]
+  \end{multlined}
   \\
-  \exp\left[
-    x^{\frac{\alpha}{\alpha+1}}(\lambda\beta^\alpha)^{\frac{1}{\alpha+1}}
-    \left(
-      \alpha^{-\frac{\alpha}{\alpha+1}}+\alpha^{\frac{1}{\alpha+1}}
-    \right)
-  \right]
-  \ .
-\end{multline*}
+  &\approx
+  \begin{multlined}[t]
+    \frac{
+      \left(\lambda\alpha\beta^\alpha\right)^{\frac{1}{2(\alpha+1)}}\euler^{-\lambda}
+    }
+    {
+      \sqrt{2\pi(\alpha+1)}
+    }
+    x^{-\frac{\alpha+2}{2(\alpha+1)}}\euler^{-x\beta}
+    \\
+    \exp\left[
+      x^{\frac{\alpha}{\alpha+1}}(\lambda\beta^\alpha)^{\frac{1}{\alpha+1}}
+      \left(
+        \alpha^{-\frac{\alpha}{\alpha+1}}+\alpha^{\frac{1}{\alpha+1}}
+      \right)
+    \right]
+    \ .
+  \end{multlined}
+\end{align*}
 
 The expression $\alpha^{-\frac{\alpha}{\alpha+1}}+\alpha^{\frac{1}{\alpha+1}}$ can be simplified by putting the two terms over a common denominator
 \begin{align}
@@ -752,24 +813,25 @@ Using Stirling's approximation $\ln(n!)\approx\ln\Gamma(n)\approx n\ln(n!)-n$
   \ .
 \end{equation}
 Taking the derivative with respect to $y$
-\begin{multline*}
-  \frac{\partial \ln(W_y)}{\partial y} \approx
-  \ln\left(
-    \frac{x^\alpha}{\phi^{1+\alpha}(p-1)^\alpha(2-p)}
-  \right)
-  -\ln(y)-1+1
+\begin{align*}
+  \frac{\partial \ln(W_y)}{\partial y} &\approx
+  \begin{multlined}[t]
+    \ln\left(
+      \frac{x^\alpha}{\phi^{1+\alpha}(p-1)^\alpha(2-p)}
+    \right)
+    -\ln(y)-1+1
+    \\
+    -\alpha\ln(y\alpha)-\alpha+\alpha
+  \end{multlined}
   \\
-  -\alpha\ln(y\alpha)-\alpha+\alpha
-\end{multline*}
-\begin{equation}
-  \frac{\partial \ln(W_y)}{\partial y} \approx
+  &\approx
   \ln\left(
     \frac{x^\alpha}{\phi^{1+\alpha}(p-1)^\alpha(2-p)}
   \right)
   -\ln(y)
   -\alpha\ln(y\alpha)
   \ .
-\end{equation}
+\end{align*}
 
 Setting the derivative to zero
 \begin{equation*}

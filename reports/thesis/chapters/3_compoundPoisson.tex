@@ -85,8 +85,10 @@ Returning back to the compound Poisson with no electronic noise $X|Y = \sum_{i=1
   \expectation\left[X\right]&=\lambda\expectation\left[U\right]
   \\
   \variance\left[X\right] &= \lambda\expectation\left[U^2\right]
+  \\
+  \expectation\left[(X-\expectation[X])^3\right] &=\lambda\expectation\left[U^3\right]
 \end{align}
-which agrees with the results in the previous section. The derivation is shown in Appendix \ref{chapter:appendix_compoundPoissonMgf}.
+which agrees with the expectation and variance results in the previous section. The derivation is shown in Appendix \ref{chapter:appendix_compoundPoissonMgf}.
 
 \subsection{Compound Poisson-Gamma}
 
@@ -105,7 +107,7 @@ Recall that $X|Y=\sum_{i=1}^YU_i$ which involves a sum of gamma random variables
   X|Y\sim\gammaDist\left(Y\alpha,\beta\right).
 \end{equation}
 
-The m.g.f.~of $U$ is $M_U(\theta) = \left(\dfrac{\beta}{\beta-\alpha}\right)^\alpha$. Then the m.g.f.~of $X$ is
+The m.g.f.~of $U$ is $M_U(\theta) = \left(\dfrac{\beta}{\beta-\theta}\right)^\alpha$. Then the m.g.f.~of $X$ is
 \begin{equation}
   M_X(\theta)=\exp\left[\lambda\left(\left(\frac{\beta}{\beta-\theta}\right)^{\alpha}-1\right)\right]
 \end{equation}
@@ -490,26 +492,29 @@ The model may be simplified by omitting the electronic noise, this can be done b
 The EM algorithm \citep{dempster1977maximum} is proposed as a method to estimate the parameters of a $X\sim\CPoisson(\lambda,\alpha,\beta)$ random variable given a sample of measurements of it $\left\{x_1,x_2,x_3,\cdots,x_n\right\}$. The use of the EM algorithm here for the compound Poisson is similar to \cite{elbakri2003statistical, xu2009electronic}.
 
 Let $\widehat{\lambda}$, $\widehat{\alpha}$ and $\widehat{\beta}$ be estimators of $\lambda$, $\alpha$ and $\beta$ respectively. The log likelihood is defined to be
-\begin{equation*}
-  \ln L(\lambda,\alpha,\beta;X) = \sum_{i=1}^n
+\begin{align}
+  \ln L(\lambda,\alpha,\beta;X) &= \sum_{i=1}^n
   \left[
     \mathbb{I}(x_i=0)\ln \prob(X=x_i)
     +\mathbb{I}(x_i>0)\ln p_X(x_i)
   \right]
-\end{equation*}
-\begin{multline}
-  \ln L(\lambda,\alpha,\beta;X) = \sum_{i=1}^n
-  \left[
-    -\mathbb{I}(x_i=0)\lambda
-    \vphantom{\sum_i^i}
-  \right.
-  \\
-  \left.
-    +\mathbb{I}(x_i>0)\left(
-    -1-\beta x_i-\lambda-\ln x -\ln\sum_{y=1}^\infty W_y
-    \right)
-  \right] \ .
-\end{multline}
+  \nonumber \\
+  &\!\begin{multlined}[b]
+  =
+    \sum_{i=1}^n
+    \left[
+      -\mathbb{I}(x_i=0)\lambda
+      \vphantom{\sum_i^i}
+    \right.
+    {}\\
+    \left.
+      +\mathbb{I}(x_i>0)\left(
+      -1-\beta x_i-\lambda-\ln x -\ln\sum_{y=1}^\infty W_y
+      \right)
+    \right] \ .
+  \end{multlined}
+\end{align}
+
 $\widehat{\lambda}$, $\widehat{\alpha}$ and $\widehat{\beta}$ are values of $\lambda$, $\alpha$ and $\beta$ which jointly maximises the log likelihood.
 
 The EM algorithm \citep{dempster1977maximum} instead treats $Y\sim\poisson(\lambda)$ as a latent variable. Let $\left\{Y_1,Y_2,Y_3,\cdots, Y_n\right\}$ be realizations of $Y$ and $\left\{x_1,x_2,x_3,\cdots, x_n\right\}$ be measurements of $X|Y$. Define the joint log likelihood to be
@@ -632,43 +637,45 @@ Therefore the maximum of $W_y^{(r)}$ is located at $y_\text{max}$ for all $r=0,1
 \subsection{M Step}
 
 In the M step, the conditional expected joint log likelihood is maximised with respect to the parameters $\lambda$, $\alpha$ and $\beta$. The objective function is then
-\begin{multline*}
-  T(\lambda,\alpha,\beta)=
-  \sum_{i=1}^n
-  \expectation\left[
-    -\mathbb{I}(x_i=0)
-    \lambda
-  \right.
-  \\
-  \left.+
-    \mathbb{I}(x_i>0)
-    \left(
-      Y_i\alpha\ln\beta-\ln\Gamma(Y_i\alpha)+(Y_i\alpha-1)\ln x_i - \beta x_i
+\begin{align}
+  T(\lambda,\alpha,\beta)&=
+  \begin{multlined}[t]
+    \sum_{i=1}^n
+    \expectation\left[
+      -\mathbb{I}(x_i=0)
+      \lambda
     \right.
-  \right.
-  \\
-  \left.
-    \left.  
-      - \lambda + Y_i \ln \lambda - \ln(Y_i!)
-    \right)
-    |X_i=x_i
-  \right]
-\end{multline*}
-\begin{multline}
-  T(\lambda,\alpha,\beta)=
-  -n\lambda
-  \\
-  +\sum_{i=1}^n
-  \mathbb{I}(x_i>0)
-  \left[
-    \expectation[Y_i|X_i=x_i]\alpha\ln\beta-\expectation[\ln\Gamma(Y_i\alpha)|X_i=x_i]
-  \right.
-  \\
-  \left.
-    +\expectation[Y_i|X_i=x_i]\alpha\ln x_i - \beta x_i
-    + \expectation[Y_i|X_i=x_i] \ln \lambda
-  \right] + c
-\end{multline}
+    \\
+    \left.+
+      \mathbb{I}(x_i>0)
+      \left(
+        Y_i\alpha\ln\beta-\ln\Gamma(Y_i\alpha)+(Y_i\alpha-1)\ln x_i - \beta x_i
+      \right.
+    \right.
+    \\
+    \left.
+      \left.  
+        - \lambda + Y_i \ln \lambda - \ln(Y_i!)
+      \right)
+      |X_i=x_i
+    \right]
+  \end{multlined}
+  \nonumber\\
+  &\!\begin{multlined}[b]=
+    -n\lambda
+    \\
+    +\sum_{i=1}^n
+    \mathbb{I}(x_i>0)
+    \left[
+      \expectation[Y_i|X_i=x_i]\alpha\ln\beta-\expectation[\ln\Gamma(Y_i\alpha)|X_i=x_i]
+    \right.
+    {}\\
+    \left.
+      +\expectation[Y_i|X_i=x_i]\alpha\ln x_i - \beta x_i
+      + \expectation[Y_i|X_i=x_i] \ln \lambda
+    \right] + c
+  \end{multlined}
+\end{align}
 where $c$ is some constant not dependent on $\lambda$, $\alpha$ or $\beta$.
 
 The conditional expectation $y_i = \expectation[Y_i|X_i=x_i]$ and $\zeta_i = \variance[Y_i|X_i=x_i]$ were calculated beforehand in the E step. The quantity $\expectation[\ln\Gamma(Y_i\alpha)|X_i=x_i]$ can be calculated using the approximation
@@ -1031,12 +1038,10 @@ The determinant of the Hessian matrix is then
   \left(\sum_{i=1}^n-\frac{\alpha y_i}{\beta^2}\right)
   \left(\sum_{i=1}^n-\frac{y_i}{\alpha}\right) - \left(\sum_{i=1}^n\frac{y_i}{\beta}\right)^2
   \\
-  \|\nabla_{\alpha,\beta}\nabla_{\alpha,\beta}\T T\|
   &\approx
   \left(\sum_{i=1}^n\sum_{j=1}^n\frac{y_iy_j}{\beta^2}\right)
    - \left(\sum_{i=1}^n\frac{y_i}{\beta}\right)\left(\sum_{j=1}^n\frac{y_j}{\beta}\right)
   \\
-  \|\nabla_{\alpha,\beta}\nabla_{\alpha,\beta}\T T\|
   &\approx
   \left(\sum_{i=1}^n\sum_{j=1}^n\frac{y_iy_j}{\beta^2}\right)
    - \left(\sum_{i=1}^n\sum_{j=1}^n\frac{y_iy_j}{\beta^2}\right)
@@ -1082,39 +1087,41 @@ and it was investigated whenever a unique solution to $\dfrac{\partial T}{\parti
   + c
 \end{multline}
 which can be approximated to
-\begin{multline*}
-  T(\lambda,\alpha)=
-  -n\lambda+
-  \sum_{i=1}^n
-  \mathbb{I}(x_i>0)
-  \left[
-    y_i\alpha\ln\left(\frac{\lambda\alpha}{\widehat{\mu}}\right)-\alpha y_i\ln(\alpha y_i) + \alpha y_i - \frac{1}{2}\frac{\zeta_i\alpha}{y_i}
-  \right.
-  \\
-  \left.
-    +y_i\alpha\ln x_i - \frac{\lambda\alpha x_i}{\widehat{\mu}}
-    + y_i \ln \lambda
-    \vphantom{\frac{1}{1}}
-  \right]
-  + c
-\end{multline*}
-\begin{multline}
-  T(\lambda,\alpha)=
-  -n\lambda+
-  \sum_{i=1}^n
-  \mathbb{I}(x_i>0)
-  \left[
-    y_i\alpha\ln\left(\frac{\lambda}{y_i\widehat{\mu}}\right) + \alpha y_i - \frac{1}{2}\frac{\zeta_i\alpha}{y_i}
-  \right.
-  \\
-  \left.
-    +y_i\alpha\ln x_i - \frac{\lambda\alpha x_i}{\widehat{\mu}}
-    + y_i \ln \lambda
-    \vphantom{\frac{1}{1}}
-  \right]
-  + c
-  \ .
-\end{multline}
+\begin{align}
+  T(\lambda,\alpha)&=
+  \begin{multlined}[t]
+    -n\lambda+
+    \sum_{i=1}^n
+    \mathbb{I}(x_i>0)
+    \left[
+      y_i\alpha\ln\left(\frac{\lambda\alpha}{\widehat{\mu}}\right)-\alpha y_i\ln(\alpha y_i) + \alpha y_i - \frac{1}{2}\frac{\zeta_i\alpha}{y_i}
+    \right.
+    \\
+    \left.
+      +y_i\alpha\ln x_i - \frac{\lambda\alpha x_i}{\widehat{\mu}}
+      + y_i \ln \lambda
+      \vphantom{\frac{1}{1}}
+    \right]
+    + c
+  \end{multlined}
+  \nonumber\\
+  &\!\begin{multlined}[b]=
+    -n\lambda+
+    \sum_{i=1}^n
+    \mathbb{I}(x_i>0)
+    \left[
+      y_i\alpha\ln\left(\frac{\lambda}{y_i\widehat{\mu}}\right) + \alpha y_i - \frac{1}{2}\frac{\zeta_i\alpha}{y_i}
+    \right.
+    {}\\
+    \left.
+      +y_i\alpha\ln x_i - \frac{\lambda\alpha x_i}{\widehat{\mu}}
+      + y_i \ln \lambda
+      \vphantom{\frac{1}{1}}
+    \right]
+    + c
+    \ .
+  \end{multlined}
+\end{align}
 Taking the derivative with respect to $\alpha$
 \begin{equation}
   \frac{\partial T}{\partial \alpha} =
@@ -1157,18 +1164,18 @@ and this is not $\alpha$ dependent, thus there is no solution to $\alpha$.
     \label{fig:compoundPoisson_loglikelihoodplot}
 \end{figure}
 
-The log likelihood, using a simulation of 100 compound Poisson-gamma random variables, are shown in Figure \ref{fig:compoundPoisson_loglikelihoodplot}. These plots are concerning because the likelihood appeared not to be convex and there is no unique maxima, surprising in $\lambda=1$ case as well.
+The log likelihood, using a simulation of 100 compound Poisson-gamma random variables, are plotted for fixed $\lambda$ in Figure \ref{fig:compoundPoisson_loglikelihoodplot}. These plots are concerning because the likelihood appeared not to be convex and there is no unique maxima for all $\lambda$ investigated.
 
 It was observed there is a saddle point in the log likelihood for the $\CPoisson(1,100,1)$ case. This is when the log likelihood increases and decreases. This suggest a possibility of a local maxima.
 
-These plots suggest there is no unique maximum likelihood estimator and the EM algorithm would be very sensitive to the starting position, including for small $\lambda$.
+As a results, there is no unique maximum likelihood estimator and the EM algorithm would be very sensitive to the starting position, including for small $\lambda$.
 
 \section{Conclusion}
 The compound Poisson-gamma distribution was studied but it was found there were identifiability issues when fitting the model onto simulated data, in particular for high $\lambda$.
 
-XCT is in the realm of high $\lambda$ and this can be shown using back of the envelope calculations. Using the properties in the \texttt{AbsNoFilter} dataset, the power and potential difference of the x-ray tube are $P=\SI{36}{\watt}$ and $V=\SI{80}{\kilo\volt}$ respectively. The time exposure is $\tau=\SI{708}{\milli\second}$. Assume an efficiency of \SI{0.01}{{photon}\,{electron}^{-1}} and the charge per electron is $e=\SI{1.602e-19}{\coulomb\,{electron}^{-1}}$. Assume the photons projected onto the array of $2\,000^2\,\si{\pixel}$. The number of photons detected per pixel is
+XCT is in the realm of high $\lambda$ and this can be shown using back of the envelope calculations. Using the properties in the \texttt{AbsNoFilter} dataset, the power and potential difference of the x-ray tube are $P=\SI{36}{\watt}$ and $V=\SI{80}{\kilo\volt}$ respectively. The time exposure is $\tau=\SI{708}{\milli\second}$. Assume an efficiency of \SI{0.01}{{photon.}{electron}^{-1}} and the charge per electron is $e=\SI{1.602e-19}{\coulomb\,{electron}^{-1}}$. Assume the photons projected onto the array of $2\,000^2\,\si{\pixel}$. The number of photons detected per pixel is
 \begin{align*}
-\lambda &\approx \dfrac{\text{efficiency} P \tau}{\text{number of pixels} V e}
+\lambda &\approx \dfrac{\text{efficiency} \times P \tau}{\text{number of pixels} \times V e}
 \\
 &\sim 10^7\,\si{{photon}\,\pixel^{-1}}
 \ .
