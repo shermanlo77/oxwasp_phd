@@ -224,7 +224,7 @@ An example of the linear regression is shown in Figure \ref{fig:data_shadingCorr
       \caption{Linear shading correction}
     \end{subfigure}
   }
-  \caption{Projection of \texttt{AbsNoFilter} at \ang{30} with and without shading correction}
+  \caption{Projection of \texttt{AbsNoFilter} at \ang{30} with and without shading correction.}
   \label{fig:data_shadingCorrectionExample_image}
 \end{figure}
 
@@ -258,25 +258,35 @@ The BW shading corrected black and white image appeared uniform but there is som
 \begin{figure}
   \centerline{
     \begin{subfigure}[b]{\subSize}
-      \includegraphics[width=\textwidth]{../figures/data/shadingCorrectionExample_black_bw.eps}
-      \caption{Black - BW shading correction}
+      \includegraphics[width=\textwidth]{../figures/data/shadingCorrectionExample_black_null.eps}
+      \caption{Black - No shading correction}
     \end{subfigure}
     \begin{subfigure}[b]{\subSize}
-      \includegraphics[width=\textwidth]{../figures/data/shadingCorrectionExample_black_linear.eps}
-      \caption{Black - Linear shading correction}
+      \includegraphics[width=\textwidth]{../figures/data/shadingCorrectionExample_white_null.eps}
+      \caption{White - No shading correction}
     \end{subfigure}
   }
   \centerline{
     \begin{subfigure}[b]{\subSize}
+      \includegraphics[width=\textwidth]{../figures/data/shadingCorrectionExample_black_bw.eps}
+      \caption{Black - BW shading correction}
+    \end{subfigure}
+    \begin{subfigure}[b]{\subSize}
       \includegraphics[width=\textwidth]{../figures/data/shadingCorrectionExample_white_bw.eps}
       \caption{White - BW shading correction}
+    \end{subfigure}
+  }
+  \centerline{
+    \begin{subfigure}[b]{\subSize}
+      \includegraphics[width=\textwidth]{../figures/data/shadingCorrectionExample_black_linear.eps}
+      \caption{Black - Linear shading correction}
     \end{subfigure}
     \begin{subfigure}[b]{\subSize}
       \includegraphics[width=\textwidth]{../figures/data/shadingCorrectionExample_white_linear.eps}
       \caption{White - Linear shading correction}
     \end{subfigure}
   }
-  \caption{The black and white images after shading correction from the \texttt{AbsNoFilter} dataset.}
+  \caption{The black and white images before and after shading correction from the \texttt{AbsNoFilter} dataset.}
   \label{fig:data_shadingCorrectionExample_greyscale}
 \end{figure}
 
@@ -343,7 +353,7 @@ F(P)=\dfrac{s_\mathrm{b}^2(P)}{s_\mathrm{w}^2(P)}
 \end{equation}
 and should be about one if the within and between pixel variances are similar. The experiment was repeated 100 times by reallocating the training and test set.
 
-\begin{figure}
+\begin{figure}[p]
   \centering
   \centerline{
     \begin{subfigure}[b]{\subSize}
@@ -369,7 +379,7 @@ and should be about one if the within and between pixel variances are similar. T
   \label{fig:data_anovaAbsNoFilter}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[p]
   \centering
   \centerline{
     \begin{subfigure}[b]{\subSize}

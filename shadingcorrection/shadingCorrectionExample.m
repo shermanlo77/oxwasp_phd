@@ -25,8 +25,9 @@ scanArray(3) = AbsNoFilterDeg30(); %linear shading correction
     %correction
 calibrationIndex = zeros(scanArray(1).calibrationScanArray(1).nSample, scanArray(1).whiteIndex);
 for i = 1:scanArray(1).whiteIndex
-  calibrationIndex(:,i) = rng.randperm(scanArray(1).calibrationScanArray(1).nSample)';
+  calibrationIndex(:,i) = (rng.randperm(scanArray(1).calibrationScanArray(1).nSample))';
 end
+
 scanArray(2).addShadingCorrectorBw([calibrationIndex(1,1), calibrationIndex(1,end)]);
 scanArray(3).addShadingCorrectorLinear(1:scanArray(3).whiteIndex, calibrationIndex(1,:));
 
@@ -42,7 +43,10 @@ for i = 1:numel(scanArray)
 end
 
 %use the min and max of the no shading correction image for the cLim
-clim = [];
+climProjection = [];
+%use the same clim for the white and black image for no shading correction
+climBlack = [];
+climWhite = [];
 %for each shading correction
 for i = 1:numel(scanArray)
   
@@ -51,11 +55,11 @@ for i = 1:numel(scanArray)
   %plot the scan
   fig = LatexFigure.sub();
   imagesc = Imagesc(scan.loadImage(1));
-  if (~isempty(clim))
-    imagesc.setCLim(clim);
+  if (~isempty(climProjection))
+    imagesc.setCLim(climProjection);
   end
   imagesc.plot();
-  clim = imagesc.clim; %save the clim
+  climProjection = imagesc.clim; %save the clim
   saveas(fig,fullfile('reports','figures','data', ...
       strcat(mfilename,'_image_',scan.getShadingCorrectionStatus(),'.eps')),'epsc');
   
@@ -66,15 +70,22 @@ for i = 1:numel(scanArray)
   %plot the black image
   fig = LatexFigure.sub();
   imagesc = Imagesc(black);
+  if (~isempty(climBlack))
+    imagesc.setCLim(climBlack);
+  end
   imagesc.plot();
+  climBlack = imagesc.clim; %save the clim
   saveas(fig,fullfile('reports','figures','data', ...
       strcat(mfilename,'_black_',scan.getShadingCorrectionStatus(),'.eps')),'epsc');
   
   %plot the white image
   fig = LatexFigure.sub();
   imagesc = Imagesc(white);
-  imagesc.setCLim(clim);
+  if (~isempty(climWhite))
+    imagesc.setCLim(climWhite);
+  end
   imagesc.plot();
+  climWhite = imagesc.clim; %save the clim
   saveas(fig,fullfile('reports','figures','data', ...
       strcat(mfilename,'_white_',scan.getShadingCorrectionStatus(),'.eps')),'epsc');
   
