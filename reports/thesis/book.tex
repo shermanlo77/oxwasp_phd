@@ -20,6 +20,7 @@
 \usepackage{rotating}
 \usepackage{multirow} %for multirow tables
 \usepackage{mathtools} %multlined
+\usepackage{longtable}
 
 
 \setcounter{tocdepth}{2}
@@ -73,24 +74,21 @@
 \DeclareSIUnit\adu{ADU}
 
 \begin{document}\sloppy
-\includepdf{title.pdf}
+
+\begin{titlingpage}
+\centering
+{\LARGE Characterisation of Computed Tomography Noise in Projection Space with Applications in Additive Manufacturing \par}
+\vspace{1cm}
+{\Large Sherman E.~Lo\par}
+{\Large Doctor of Philosophy in Statistics\par}
+\vfill
+{\Large University of Warwick\par}
+{\Large Department of Statistics\par}
+{\Large September 2019\par}
+\end{titlingpage}
+
 
 \frontmatter
-\section*{Abstract}
-X-ray computed tomography (CT) can be used for defect detection in 3D printing. The object is scanned at multiple angles to reconstruct the object in 3D space. The process can be time consuming. The aim of this project was to investigate if it is possible to conduct defect detection in projection space from a single scan to speed up the defect detection procedure. To do this, a 3D printed sample was manufactured with voids to see if they can be detected.
-
-X-ray photons behave randomly. Hence to do defect detection pixel by pixel, uncertainty must be taken into account. A compound Poisson model was used to model the grey valyes in a pixel. It assumed that photon arrivals are a Poisson process with Gamma distributed energy. This resulted in a linear relationship between the mean and variance of the grey value, which was used for variance prediction and to quantify the uncertainty.
-
-Software, called \texttt{aRTist}, was used to simulate the scan and it was compared with the x-ray acquisition under the face of uncertainty. However the software, and the information provided to it, was not perfect which led to model misspecification and incorrect inference. The empirical null filter was proposed. It adjust each pixel statistic so that inference was done by comparing each pixel with the majority of its local pixels.
-
-\newpage
-
-\section*{Acknowledgements}
-\begin{itemize}
-	\item Supervisors: Julia Brettschneider and Tom Nichols
-	\item Inside Out Team: Wilfrid Kendall, Audrey Kueh, Jay Warnett and Clair Barnes
-	\item EPSRC Funding: EP/L016710/1
-\end{itemize}
 
 \newpage
 \tableofcontents*
@@ -98,6 +96,27 @@ Software, called \texttt{aRTist}, was used to simulate the scan and it was compa
 \listoffigures
 \newpage
 \listoftables
+
+\chapter{Acknowledgements}
+I would like to thank my supervisors Julia Brettschneider and Tom Nichols. I would also like to thank my calibrators, as part of the Inside-Out group, in Warwick Statistics, Clair Barnes, Wilfred Kendall and Audrey Kueh, and the Warwick Manufacturing Group, Greg Gibbons, Jay Warnett and Mark Williams.
+
+This work is funded by the EPSRC and MRC Centre for Doctoral Training in Next Generation Statistical Science: The Oxford-Warwick Statistics Programme (EP/L016710/1). I would like to thank my cohort for the friendship and collaboration during the programme: Nathan Cunningham, Giuseppe di Benedetto, Beniamino Hadj-Amar, Jack Jewson, Ella Kaye, Leon Law, Kaspar Martens, Marcin Mider, Xenia Miscouridou, Paul Vanetti and Andi Wang.
+
+\chapter{Declaration}
+This thesis is the author's own work and has not been published at the time of submitting.
+
+This thesis is a result of collaborative research with Inside-out: Statistical methods for Computed Tomography validation of complex structures in Additive Layer Manufacturing funded by EPSRC (EP/K031066/1).  Greg Gibbons and Jay Warnett, from the Warwick Manufacturing Group, were responsible for the fabrication, x-ray computed tomography acquisition and simulation of test samples used in this thesis. In this thesis, they are referred to as engineers.
+
+This thesis has not been submitted for a degree at another university.
+
+\chapter{Abstract}
+X-ray computed tomography (CT) can be used for defect detection in 3D printing. The object is scanned at multiple angles to reconstruct the object in 3D space. The process can be time consuming. The aim of this project was to investigate if it is possible to conduct defect detection in projection space from a single scan to speed up the defect detection procedure. To do this, a 3D printed sample was manufactured with voids to see if they can be detected.
+
+X-ray photons behave randomly. Hence to do defect detection pixel by pixel, uncertainty must be taken into account. A compound Poisson model was used to model the grey valyes in a pixel. It assumed that photon arrivals are a Poisson process with Gamma distributed energy. This resulted in a linear relationship between the mean and variance of the grey value, which was used for variance prediction and to quantify the uncertainty.
+
+Software, called \texttt{aRTist}, was used to simulate the scan and it was compared with the x-ray acquisition under the face of uncertainty. However the software, and the information provided to it, was not perfect which led to model misspecification and incorrect inference. The empirical null filter was proposed. It adjust each pixel statistic so that inference was done by comparing each pixel with the majority of its local pixels.
+
+\newpage
 
 \mainmatter
 

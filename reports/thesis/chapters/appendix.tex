@@ -1,3 +1,40 @@
+\chapter{Abbreviations}
+
+\begin{longtable}{ll}
+3D&Three dimensions\\
+ABS&Acrylonitrile butadiene styrene\\
+AIC&Akaike information criterion\\
+AM&Additive manufacturing\\
+Approx.&Approximate\\
+BH&Benjamini and Hochberg\\
+BIC&Bayesian information criterion\\
+BW&Black/white\\
+CAD&Computer-aided design\\
+CC BY&Creative Commons Attribution\\
+$\CPoisson$&Compound Poisson-gamma\\
+EM&Expectation maximisation\\
+Expec.&Expected\\
+FDR&False discovery rate\\
+FWER&Family-wise error rate\\
+Freq.&Frequency\\
+GLM&Generalised linear models\\
+GPU&Graphics processing unit\\
+i.i.d.&Independent and identically distributed\\
+IOP&Institute of Physics\\
+IQR&Interquartile range\\
+MAD&Median absolute deviation\\
+m.g.f.&Moment generating function\\
+Obv.&Observed\\
+PCER&Per comparison error rate\\
+p.d.f.&Probability density function\\
+Q-Q&Quantile-quantile\\
+ROC&Rceiver operating characteristic\\
+ROI&Region of interest\\
+STL&Sterolithography or Standard tessellation language\\
+XCT&X-ray computed tomography
+\end{longtable}
+
+
 \chapter{Compound Poisson}
 
 \section{Moment Generating Function}
@@ -791,18 +828,20 @@ where $p=\dfrac{2+\alpha}{1+\alpha}$, $\mu=\dfrac{\lambda\alpha}{\beta}$, $\phi 
 where $y_\text{l}<y_{\text{max}}<y_\text{u}$ and $y_{\text{max}}$ is the value of $y$ which maximises $W_y$. \cite{dunn2005series} treated $W_y$ as a continuous and differentiable function of $y$.
 
 It is easier to differentiate $\ln(W_y)$ where
-\begin{multline*}
-  \ln(W_y) = y\alpha\ln(x)-y(1+\alpha)\ln(\phi)-y\alpha\ln(p-1)\\-y\ln(2-p)-\ln(y!)-\ln\Gamma(y\alpha)
-\end{multline*}
-\begin{equation}
-  \ln(W_y) =
+\begin{align}
+  \ln(W_y) &= 
+  \begin{multlined}[t]
+    y\alpha\ln(x)-y(1+\alpha)\ln(\phi)-y\alpha\ln(p-1)\\-y\ln(2-p)-\ln(y!)-\ln\Gamma(y\alpha)
+  \end{multlined}
+  \nonumber\\
+  &=
   y
   \ln\left(
     \frac{x^\alpha}{\phi^{1+\alpha}(p-1)^\alpha(2-p)}
   \right)
   -\ln(y!)-\ln\Gamma(y\alpha)
   \ .
-\end{equation}
+\end{align}
 Using Stirling's approximation $\ln(n!)\approx\ln\Gamma(n)\approx n\ln(n!)-n$
 \begin{equation}
   \ln(W_y) \approx
