@@ -10,7 +10,7 @@ The p.d.f.~of $X$ can be obtained by marginalising the joint p.d.f.
   p_X(x)=\sum_{y=0}^\infty p_{X|Y}(x|y)\prob(Y=y) \quad\text{for }x\geqslant 0
   \ .
 \end{equation}
-It should be noted that $X=0$ if and only if $Y=0$ with probability $\prob(X=0)=\euler^{-\lambda}$. Then $X$ has probability mass at zero and probability density for positive numbers which results in the p.d.f.
+It should be noted that $X=0$ if and only if $Y=0$ and this happens with probability $\prob(Y=0)=\euler^{-\lambda}$. This implies that $X$ has probability mass at zero and probability density for positive numbers which results in the p.d.f.
 \begin{equation}
   p_X(x) = 
   \begin{cases}
@@ -20,7 +20,7 @@ It should be noted that $X=0$ if and only if $Y=0$ with probability $\prob(X=0)=
 \end{equation}
 where $\delta(x)$ is the Dirac delta function.
 
-This chapter starts with a literature review on the compound Poisson distribution, how it is derived from the behaviour of photons, how its likelihood is evaluated and methods for fitting onto data. A model was proposed for the pixel's grey values and the expectation-maximization (EM) algorithm was implemented to fit the model onto data. It was found that for high photon rate, there were identifiability issues. The chapter is concluded on a discussion on why the EM algorithm failed.
+This chapter starts with a literature review on the compound Poisson distribution, how it is derived from the behaviour of photons, how its likelihood is evaluated and methods for fitting it onto data. A model was proposed for the pixel's grey values and the expectation-maximization (EM) algorithm was implemented to fit the model onto data. It was found that for high photon rate, there were identifiability issues. The chapter is concluded on a discussion on why the EM algorithm failed.
 
 \section{Literature Review}
 
@@ -34,7 +34,7 @@ When the photons interact with the scintillator in the detector, they are conver
 \begin{equation}
 X = bY + \epsilon
 \end{equation}
-where $\epsilon\sim\normal(a,\kappa)$, $b$ and $a$ are some constant and $\kappa$ is the variance of electronic noise. In a quantum counter, the mean and variance of the grey value are
+where $\epsilon\sim\normal(a,\kappa)$, $b$ and $a$ are some constant and $\kappa$ is the variance of electronic noise. The mean and variance of the grey value are
 \begin{equation}
 \expectation\left[X\right] = b\lambda + a
 \end{equation}
@@ -66,7 +66,7 @@ respectively. Eliminating $\lambda$ obtains
 \end{equation}
 By assuming no beam hardening, $\expectation\left[U\right]$ and $\expectation\left[U^2\right]$ remains constant, thus there is a linear relationship between the variance and expectation of the grey value \citep{yang2009evaluation}. There are other types of detection schemes \citep{whiting2006properties} but it shall be not be considered here.
 
-Experiments have been done to verify the compound Poisson nature of the detector. This was done by investigating the variance of radiographs of air \citep{hsieh2015compound} and a polyethylene cylinder \citep{yang2009evaluation, yang2010noise} at different voltages and powers. It was found there were 2 components in the noise, one was signal dependent and comes from the compound Poisson, the other was signal independent and may be electronic noise. The electronic noise can be modelled as Normally distributed \citep{xu2009electronic}.
+Experiments have been done to verify the compound Poisson nature of the detector. This was done by investigating the variance of radiographs of air \citep{hsieh2015compound} and a polyethylene cylinder \citep{yang2009evaluation, yang2010noise} at different voltages and powers. It was found there were two components in the noise, one was signal dependent and comes from the compound Poisson, the other was signal independent and may be electronic noise. The electronic noise can be modelled using a Normal distribution \citep{xu2009electronic}.
 
 \subsection{Moment Generating Function}
 
@@ -80,7 +80,7 @@ Returning back to the compound Poisson with no electronic noise $X|Y = \sum_{i=1
     \right)
   \right]
 \end{equation}
-\citep{gatto2010saddlepoint}. The derivation is shown in Appendix \ref{chapter:appendix_compoundPoissonMgf}. Moments of $X$ can be obtained from the m.g.f.~by differentiating it and setting it to zero. In other words, $\expectation[X^r]=M_X^{(r)}(\theta)$. Then it can be shown that
+\citep{gatto2010saddlepoint}. The derivation is shown in Appendix \ref{chapter:appendix_compoundPoissonMgf}. Moments of $X$ can be obtained from the m.g.f.~by differentiating it and setting $\theta$ to zero. In other words, $\expectation[X^r]=M_X^{(r)}(0)$. Then it can be shown that
 \begin{align}
   \expectation\left[X\right]&=\lambda\expectation\left[U\right]
   \\
@@ -107,7 +107,7 @@ Recall that $X|Y=\sum_{i=1}^YU_i$ which involves a sum of gamma random variables
   X|Y\sim\gammaDist\left(Y\alpha,\beta\right).
 \end{equation}
 
-The m.g.f.~of $U$ is $M_U(\theta) = \left(\dfrac{\beta}{\beta-\theta}\right)^\alpha$. Then the m.g.f.~of $X$ is
+The m.g.f.~of $U$ is $M_U(\theta) = \left(\dfrac{\beta}{\beta-\theta}\right)^\alpha$, then the m.g.f.~of $X$ is
 \begin{equation}
   M_X(\theta)=\exp\left[\lambda\left(\left(\frac{\beta}{\beta-\theta}\right)^{\alpha}-1\right)\right]
 \end{equation}
@@ -250,7 +250,7 @@ where $y_\text{l}<y_{\text{max}}<y_\text{u}$ and $y_{\text{max}}$ is the value o
 \begin{equation}
   y_{\text{max}} \approx \frac{x^{2-p}}{\phi(2-p)}
 \end{equation}
-by treating $W_y$ as a continuous and differentiable function of $y$. The derivation is shown in \ref{chapter:appendix_compoundPoissonSeries}. Because values of $y$ should be a positive integer, it would be appropriate to round the solution to $y_\text{max}$ accordingly
+by treating $W_y$ as a continuous and differentiable function of $y$. The derivation is shown in Appendix \ref{chapter:appendix_compoundPoissonSeries}. Because values of $y$ should be a positive integer, it would be appropriate to round the solution to $y_\text{max}$ accordingly
 \begin{equation}
   y_{\text{max}} = \text{max}\left[
     1,\text{round}\left(\frac{x^{2-p}}{\phi(2-p)}\right)
@@ -292,7 +292,7 @@ The evaluation of the p.d.f.~using the saddlepoint approximate required a bit of
     \right)^{\frac{\alpha}{\alpha+1}}\lambda^{\frac{1}{\alpha+1}}(\alpha+1) - k
   \right]
 \end{equation}
-for 500 equally spaced points from and including the minimum non-zero simulated value to the maximum simulated value. $k$ is some constant was chosen to be
+for 500 equally spaced points from and including the minimum non-zero simulated value to the maximum simulated value. $k$ is some constant which was chosen to be
 \begin{equation}
   k =
   \max_{i\in\left\{1,2,3,\cdots,n\right\}}
@@ -320,11 +320,11 @@ and
   \right]
   \ ,
 \end{equation}
-then a Q-Q plot is a parametric plot which plots $\widehat{F}_X^{-1}(p)$ against $F_X^{-1}(p)$ for $p=\frac{0.5}{n},\frac{1.5}{n},\frac{2.5}{n},\cdots,\frac{n-0.5}{n}$. If $F_X(x)$ and $\widehat{F}_X(x)$ are similar, a Q-Q plot should be a straight line with gradient 1, intercepting the origin. For the exact method and the saddlepoint approximate, $F_X(x)$ was found numerically by evaluating the p.d.f.~at $10\,000$ equally spaced points from and including the minimum to the maximum of the simulated samples, and then summing the required trapeziums. $\widehat{F}_X^{-1}(p)$ was then calculated by interpolation. Because the Normal and saddlepoint approximation does not support zero, the Q-Q plot was omitted for these approximations for small $\lambda$.
+then a Q-Q plot is a parametric plot which plots $\widehat{F}_X^{-1}(p)$ against $F_X^{-1}(p)$ for $p=\frac{0.5}{n},\frac{1.5}{n},\frac{2.5}{n},\cdots,\frac{n-0.5}{n}$. If $F_X(x)$ and $\widehat{F}_X(x)$ are similar, a Q-Q plot should be a straight line with gradient 1, intercepting the origin. For the exact method and the saddlepoint approximate, $F_X(x)$ was found numerically by evaluating the p.d.f.~at $10\,000$ equally spaced points from and including the minimum to the maximum of the simulated samples, and then summing the required trapeziums. $\widehat{F}_X^{-1}(p)$ was then calculated by interpolation. Because the Normal and saddlepoint approximation does not support zero, the Q-Q plot was omitted for small $\lambda$.
 
 When plotting the probability of obtaining a zero or the p.d.f.~for positive values, confidence intervals were plotted as well. Consider a bin in a histogram, the confidence intervals were obtained by assuming that the frequency in a bin $\sim\poisson(\text{p.d.f.~evaluated at the bin}\times 1\,000 \times \text{bin width})$.
 
-For low $\lambda$ (Figures \ref{fig:compoundPoisson_histogram_1_1_1}, \ref{fig:compoundPoisson_histogram_1_100_1}, \ref{fig:compoundPoisson_histogram_approx_1_1_1} and \ref{fig:compoundPoisson_histogram_approx_1_100_1}) there is a chance of simulating zeros. For $\lambda = 1$, the Normal approximation failed to capture the probability mass at zero because the Normal distribution is symmetric and support negative values. The saddlepoint approximation did capture the probability mass at zero as shown by an increase in probability density towards zero. For $\CPoisson(1,100,1)$ in Figure \ref{fig:compoundPoisson_histogram_approx_1_100_1}, the compound Poisson-gamma p.d.f.~contains multiple peaks and the saddlepoint approximation was not flexible enough them. In Figure \ref{fig:compoundPoisson_histogram_1_100_1}, the Q-Q plot for the exact method was quite sensitive at the tails of each peak, perhaps there were a few inaccuracies in the exact evaluation of the p.d.f.~or in the calculation or inversion of the c.d.f.
+For low $\lambda$ (Figures \ref{fig:compoundPoisson_histogram_1_1_1}, \ref{fig:compoundPoisson_histogram_1_100_1} and \ref{fig:compoundPoisson_histogram_approx}) there is a chance of simulating zeros. For $\lambda = 1$, the Normal approximation failed to capture the probability mass at zero because the Normal distribution is symmetric and support negative values. The saddlepoint approximation did capture the probability mass at zero as shown by an increase in probability density towards zero. For $\CPoisson(1,100,1)$ in Figure \ref{fig:compoundPoisson_histogram_approx}, the compound Poisson-gamma p.d.f.~contains multiple peaks and the saddlepoint approximation was not flexible enough to capture them. In Figure \ref{fig:compoundPoisson_histogram_1_100_1}, the Q-Q plot for the exact method was quite sensitive at the tails of each peak, perhaps there were a few inaccuracies in the exact evaluation of the p.d.f.~or in the calculation or inversion of the c.d.f.
 
 As $\lambda$ increased, in Figures \ref{fig:compoundPoisson_histogram_10_1_1} and \ref{fig:compoundPoisson_histogram_100_1_1}, all 3 density evaluation methods performed quite well. For $\CPoisson(10,1,1)$ in Figure \ref{fig:compoundPoisson_histogram_10_1_1}, the Normal approximation did not quite capture the skewness. In Figure \ref{fig:compoundPoisson_histogram_100_1_1}, $\lambda$ was high enough where the compound-Poisson distribution starts to converge to a Normal distribution. All methods performed well in this realm.
 
@@ -343,7 +343,7 @@ As $\lambda$ increased, in Figures \ref{fig:compoundPoisson_histogram_10_1_1} an
         \caption{Q-Q plot}
     \end{subfigure}
     }
-    \caption{1\,000 simulations of a $\CPoisson(1,1,1)$ random variable were simulated and its empirical distribution is compared to the p.d.f.~evaluated using the exact method. In a), the dotted red line shows the $\Phi(\pm1)$ quantile of the expected frequency or frequency density.}
+    \caption{1\,000 $\CPoisson(1,1,1)$ random variables were simulated and its empirical distribution is compared to the p.d.f.~evaluated using the exact method. In a), the dotted red line shows the $\Phi(\pm1)$ quantile of the expected frequency or frequency density.}
     \label{fig:compoundPoisson_histogram_1_1_1}
 \end{figure}
 
@@ -362,7 +362,7 @@ As $\lambda$ increased, in Figures \ref{fig:compoundPoisson_histogram_10_1_1} an
         \caption{Q-Q plot}
     \end{subfigure}
     }
-    \caption{1\,000 simulations of a $\CPoisson(1,100,1)$ random variable were simulated and its empirical distribution is compared to the p.d.f.~evaluated using the exact method. In a), the dotted red line shows the $\Phi(\pm1)$ quantile of the expected frequency or frequency density.}
+    \caption{1\,000 $\CPoisson(1,100,1)$ random variables were simulated and its empirical distribution is compared to the p.d.f.~evaluated using the exact method. In a), the dotted red line shows the $\Phi(\pm1)$ quantile of the expected frequency or frequency density.}
     \label{fig:compoundPoisson_histogram_1_100_1}
 \end{figure}
 
@@ -371,31 +371,27 @@ As $\lambda$ increased, in Figures \ref{fig:compoundPoisson_histogram_10_1_1} an
     \centerline{
     \begin{subfigure}[b]{\subSize}
         \includegraphics[width=\textwidth]{../figures/compoundpoisson/cpHistogram_CompoundPoissonNormlambda1alpha1beta1.eps}
-        \caption{Normal approximation}
+        \caption{$\CPoisson(1,1,1)$ Normal approx.}
     \end{subfigure}
     \begin{subfigure}[b]{\subSize}
         \includegraphics[width=\textwidth]{../figures/compoundpoisson/cpHistogram_CompoundPoissonSaddlelambda1alpha1beta1.eps}
-        \caption{Saddlepoint approximation}
+        \caption{$\CPoisson(1,1,1)$ saddlepoint approx.}
     \end{subfigure}
     }
-    \caption{1\,000 simulations of a $\CPoisson(1,1,1)$ random variable were simulated and its empirical distribution is compared to the p.d.f.~evaluated using approximate methods. In a), the dotted red line shows the $\Phi(\pm1)$ quantile of the expected frequency density.}
-    \label{fig:compoundPoisson_histogram_approx_1_1_1}
-\end{figure}
-
-\begin{figure}
-  \centering
+    \vspace{1em}
     \centerline{
     \begin{subfigure}[b]{\subSize}
         \includegraphics[width=\textwidth]{../figures/compoundpoisson/cpHistogram_CompoundPoissonNormlambda1alpha100beta1.eps}
-        \caption{Normal approximation}
+        \caption{$\CPoisson(1,100,1)$ Normal approx.}
     \end{subfigure}
     \begin{subfigure}[b]{\subSize}
         \includegraphics[width=\textwidth]{../figures/compoundpoisson/cpHistogram_CompoundPoissonSaddlelambda1alpha100beta1.eps}
-        \caption{Saddlepoint approximation}
+        \caption{$\CPoisson(1,100,1)$ saddlepoint approx.}
+        \label{fig:compoundPoisson_histogram_approx_1_100_1}
     \end{subfigure}
     }
-    \caption{1\,000 simulations of a $\CPoisson(1,100,1)$ random variable were simulated and its empirical distribution is compared to the p.d.f.~evaluated using approximate methods. In a), the dotted red line shows the $\Phi(\pm1)$ quantile of the expected frequency density.}
-    \label{fig:compoundPoisson_histogram_approx_1_100_1}
+    \caption{1\,000 $\CPoisson(1,\alpha,1)$ random variables were simulated and its empirical distribution is compared to the p.d.f.~evaluated using approximate methods. The dotted red line shows the $\Phi(\pm1)$ quantile of the expected frequency density.}
+    \label{fig:compoundPoisson_histogram_approx}
 \end{figure}
 
 \begin{figure}
@@ -430,7 +426,7 @@ As $\lambda$ increased, in Figures \ref{fig:compoundPoisson_histogram_10_1_1} an
         \caption{Q-Q plot - Saddlepoint approx.}
     \end{subfigure}
     }
-    \caption{1\,000 simulations of a $\CPoisson(10,1,1)$ random variable were simulated and its empirical distribution is compared to the p.d.f. On the left, the dotted red line shows the $\Phi(\pm1)$ quantile of the expected frequency density.}
+    \caption{1\,000 $\CPoisson(10,1,1)$ random variables were simulated and its empirical distribution is compared to the p.d.f. On the left, the dotted red line shows the $\Phi(\pm1)$ quantile of the expected frequency density.}
     \label{fig:compoundPoisson_histogram_10_1_1}
 \end{figure}
 
@@ -466,7 +462,7 @@ As $\lambda$ increased, in Figures \ref{fig:compoundPoisson_histogram_10_1_1} an
         \caption{Q-Q plot - Saddlepoint approx.}
     \end{subfigure}
     }
-    \caption{1\,000 simulations of a $\CPoisson(100,100,1)$ random variable were simulated and its empirical distribution is compared to the p.d.f. On the left, the dotted red line shows the $\Phi(\pm1)$ quantile of the expected frequency density.}
+    \caption{1\,000 $\CPoisson(100,100,1)$ random variables were simulated and its empirical distribution is compared to the p.d.f. On the left, the dotted red line shows the $\Phi(\pm1)$ quantile of the expected frequency density.}
     \label{fig:compoundPoisson_histogram_100_1_1}
 \end{figure}
 
@@ -485,7 +481,7 @@ By assuming no beam hardening, the distribution of the photon energy does not ch
 
 The graphical model in Figure \ref{fig:compoundPoisson_graphicalModel} illustrates how all of these variables link together. $a$ and $\kappa$ are unknown parameters but can be estimated beforehand from replicate black images. The energy of each photon $U\sim\gammaDist(\alpha,\beta)$ was omitted in the graphical model because the conditional distribution $X|Y\sim\gammaDist(Y\alpha,\beta)$ encapsulates each detected photon energy already.
 
-The model may be simplified by omitting the electronic noise, this can be done by setting $a=0$ and $\kappa=0$. The number of pixels can be set to $m=1$ as well. Parameter estimation can be done using gradient methods because the likelihood of the compound Poisson can be evaluated \citep{dunn2005series}. However, the EM algorithm is faster and the model is well set up for it.\citep{dempster1977maximum}.
+The model may be simplified by omitting the electronic noise, this can be done by setting $a=0$ and $\kappa=0$. The number of pixels can be set to $m=1$ as well. Parameter estimation can be done using gradient methods because the likelihood of the compound Poisson can be evaluated \citep{dunn2005series}. However, the EM algorithm is faster and the model is well set up for it.
 
 \section{EM Algorithm}
 
@@ -514,10 +510,9 @@ Let $\widehat{\lambda}$, $\widehat{\alpha}$ and $\widehat{\beta}$ be estimators 
     \right] \ .
   \end{multlined}
 \end{align}
-
 $\widehat{\lambda}$, $\widehat{\alpha}$ and $\widehat{\beta}$ are values of $\lambda$, $\alpha$ and $\beta$ which jointly maximises the log likelihood.
 
-The EM algorithm \citep{dempster1977maximum} instead treats $Y\sim\poisson(\lambda)$ as a latent variable. Let $\left\{Y_1,Y_2,Y_3,\cdots, Y_n\right\}$ be realizations of $Y$ and $\left\{x_1,x_2,x_3,\cdots, x_n\right\}$ be measurements of $X|Y$. Define the joint log likelihood to be
+The EM algorithm \citep{dempster1977maximum} instead treats $Y\sim\poisson(\lambda)$ as a latent variable. Let $\left\{Y_1,Y_2,Y_3,\cdots, Y_n\right\}$ be realizations of $Y$ and $\left\{x_1,x_2,x_3,\cdots, x_n\right\}$ be the respective measurements of $X|Y$. Define the joint log likelihood to be
 \begin{multline*}
   \ln L(\lambda,\alpha,\beta;X,Y)
   =
@@ -562,7 +557,7 @@ so that
 \end{multline}
 The estimators are found by optimising the joint log likelihood. This is done iteratively by estimating the $Y$s given the $X$s and parameters (E step), followed by estimating the parameters given the $Y$s and $X$s (M step) until some convergence conditions are met.
 
-It will be shown that using some approximations, the E step and M step can be implemented. The Cram\'er-Rao lower bound \citep{rao1945information, cramer1946mathematical} can also be found by using a few approximations. However simulations show that these estimators struggle for high $\lambda$ and it will be shown that this will be the case for all estimators.
+It will be shown that using some approximations, the E step and M step can be implemented. The Cram\'er-Rao lower bound \citep{rao1945information, cramer1946mathematical} can also be found by using a few approximations. However, simulations showed that these estimators struggle for high $\lambda$.
 
 \subsection{E Step}
 
@@ -636,7 +631,7 @@ Therefore the maximum of $W_y^{(r)}$ is located at $y_\text{max}$ for all $r=0,1
 
 \subsection{M Step}
 
-In the M step, the conditional expected joint log likelihood is maximised with respect to the parameters $\lambda$, $\alpha$ and $\beta$. The objective function is then
+In the M step, the conditional expected joint log likelihood is maximised with respect to the parameters $\lambda$, $\alpha$ and $\beta$. The objective function is
 \begin{align}
   T(\lambda,\alpha,\beta)&=
   \begin{multlined}[t]
@@ -857,9 +852,9 @@ The Cram\'er-Rao lower bound is then
 
 An experiment was conducted to assess the performance on the EM algorithm. For a given set of parameters, 1\,000 samples of a $\CPoisson(\lambda,\alpha,\beta)$ random variable were simulated. The EM algorithm was initialised with its parameters at the true values to investigate the convergence in that vicinity. The log likelihood $\ln L(\lambda,\alpha,\beta;X)$ and the parameters were recorded at every EM step. The experiment was repeated 10 times using different simulated samples.
 
-The results for $\CPoisson(1,1,1)$, $\CPoisson(1,100,1)$, $\CPoisson(10,1,1)$ and $\CPoisson(100,100,1)$ are shown in Figures \ref{fig:compoundPoisson_convergence_1}, \ref{fig:compoundPoisson_convergence_2}, \ref{fig:compoundPoisson_convergence_3} and \ref{fig:compoundPoisson_convergence_4} respectively. Good performance was observed in the $\lambda=1$ case with convergence of all 3 parameters within a step or two. The Cram\'er-Rao lower bound captured the spread of the estimates well.
+The results for $\CPoisson(1,1,1)$, $\CPoisson(1,100,1)$, $\CPoisson(10,1,1)$ and $\CPoisson(100,100,1)$ are shown in Figures \ref{fig:compoundPoisson_convergence_1}, \ref{fig:compoundPoisson_convergence_2}, \ref{fig:compoundPoisson_convergence_3} and \ref{fig:compoundPoisson_convergence_4} respectively. Good performance was observed in the $\lambda=1$ case with convergence of all three parameters within a step or two. The Cram\'er-Rao lower bound captured the spread of the estimates well.
 
-However for $\lambda=10$ and $\lambda=100$ case, the estimates of $\alpha$ and $\beta$ struggled to converge and increased/decreased without bounds without affecting the log likelihood. It appears the EM algorithm failed for $\lambda>10$ looking at these particular examples.
+For $\lambda=10$ and $\lambda=100$ case, the estimates of $\alpha$ and $\beta$ struggled to converge and increased/decreased without bounds without affecting the log likelihood. It appears the EM algorithm failed for $\lambda>10$ looking at these particular examples.
 
 \begin{figure}[p]
   \centering
@@ -969,7 +964,7 @@ However for $\lambda=10$ and $\lambda=100$ case, the estimates of $\alpha$ and $
 
 \section{Failure Evaluation}
 
-It should be convincing that the EM algorithm failed when the compound Poisson-gamma random variable starts behaving Normally. In particular in Figure \ref{fig:compoundPoisson_convergence_4}, estimates of $\lambda$ are stable while estimates of $\alpha$ and $\beta$ struggled to converge. This could be because as the compound Poisson-gamma random variable approach being Normal, the parameters $(\lambda,\alpha,\beta)$ becomes degenerate and there is more than one way to represent a two parameter random variable $\normal(\mu,\sigma^2)$.
+It should be convincing that the EM algorithm failed when the compound Poisson-gamma random variable starts behaving Normally. In particular in Figure \ref{fig:compoundPoisson_convergence_4}, estimates of $\lambda$ are stable while estimates of $\alpha$ and $\beta$ struggled to converge. This could be because as the compound Poisson-gamma distribution approach the Normal distribution, the parameters $(\lambda,\alpha,\beta)$ becomes degenerate because there is more than one way to represent a two parameter random variable $\normal(\mu,\sigma^2)$ using the three parameters $(\lambda,\alpha,\beta)$.
 
 \subsection{Determinant of the Hessian}
 
@@ -986,11 +981,7 @@ One investigation is to look at the Newton-Raphson step in the M step, in partic
   \right]
   \ .
 \end{multline*}
-For high $\alpha$ and high $\lambda$, and hence high $y_i$'s, an approximation can be used for the polygamma functions $\psi^{(k)}(n)$. Firstly, using Stirling's approximation
-\begin{equation}
-  \ln\Gamma(n)\approx\ln(n!)\approx n\ln n-n
-\end{equation}
-then
+For high $\alpha$ and high $\lambda$, and hence high $y_i$'s, an approximation can be used for the polygamma functions $\psi^{(k)}(n)$. Firstly, using Stirling's approximation $\ln\Gamma(n)\approx\ln(n!)\approx n\ln n-n$ then
 \begin{equation}
   \psi(n) = \frac{\partial\ln\Gamma(n)}{\partial n} \approx \ln n
   \ .
@@ -1031,7 +1022,7 @@ The Hessian matrix is, omitting the $\mathbb{I}(x_i>0)$ term,
   \end{pmatrix}
   \ . 
 \end{equation}
-The determinant of the Hessian matrix is then
+The determinant of the Hessian matrix is
 \begin{align*}
   \|\nabla_{\alpha,\beta}\nabla_{\alpha,\beta}\T T\|
   &\approx
@@ -1046,7 +1037,7 @@ The determinant of the Hessian matrix is then
   \left(\sum_{i=1}^n\sum_{j=1}^n\frac{y_iy_j}{\beta^2}\right)
    - \left(\sum_{i=1}^n\sum_{j=1}^n\frac{y_iy_j}{\beta^2}\right)
 \end{align*}
-to get
+to obtain
 \begin{equation}
   \|\nabla_{\alpha,\beta}\nabla_{\alpha,\beta}\T T\|
   \approx
@@ -1054,7 +1045,7 @@ to get
   \ .
 \end{equation}
 
-This results in a few things. Firstly $\nabla_{\alpha,\beta}\nabla_{\alpha,\beta}\T T$ is singular thus its inverse cannot be evaluated, needed for the Newton-Raphson method. Secondly, the sufficient conditions to classify a stationary point as a maximum are that the diagonal elements of the Hessian matrix are negative and the determinate is positive. For high $\lambda$ and $\alpha$, the second condition is not met.
+This results in a few things. Firstly, $\nabla_{\alpha,\beta}\nabla_{\alpha,\beta}\T T$ is singular thus its inverse cannot be evaluated which is needed for the Newton-Raphson method. Secondly, the sufficient conditions to classify a stationary point as a maximum are that the diagonal elements of the Hessian matrix are negative and the determinate is positive. For high $\lambda$ and $\alpha$, the second condition is not met.
 
 \subsection{Constrained Objective}
 
@@ -1166,7 +1157,7 @@ and this is not $\alpha$ dependent, thus there is no solution to $\alpha$.
 
 The log likelihood, using a simulation of 100 compound Poisson-gamma random variables, are plotted for fixed $\lambda$ in Figure \ref{fig:compoundPoisson_loglikelihoodplot}. These plots are concerning because the likelihood appeared not to be convex and there is no unique maxima for all $\lambda$ investigated.
 
-It was observed there is a saddle point in the log likelihood for the $\CPoisson(1,100,1)$ case. This is when the log likelihood increases and decreases. This suggest a possibility of a local maxima.
+It was observed there is a saddle point in the log likelihood for the $\CPoisson(1,100,1)$ case. This is when the log likelihood increased and decreased when varying $\alpha$ and $\beta$. This suggest a possibility of a local maxima.
 
 As a results, there is no unique maximum likelihood estimator and the EM algorithm would be very sensitive to the starting position, including for small $\lambda$.
 
@@ -1182,4 +1173,4 @@ XCT is in the realm of high $\lambda$ and this can be shown using back of the en
 \end{align*}
 Fitting the compound Poisson model onto XCT data would not be possible with such a high value of $\lambda$.
 
-All is not lost though, it was found there was a linear relationship between the variance and mean of the grey value in a pixel. This suggest the uncertainty can be predicted by using such a relationship. The next chapter investigates this.
+All is not lost though, it was found there is a linear relationship between the variance and mean of the grey value in a pixel. This suggest the uncertainty can be predicted by using such a relationship. The next chapter investigates this.

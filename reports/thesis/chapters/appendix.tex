@@ -42,17 +42,17 @@ XCT&X-ray computed tomography
 
 Let $Y\sim\poisson(\lambda)$, $U_1,U_2,U_3,\cdots$ be i.i.d.~random variables and $X|Y=\sum_{i=1}^YU_i$. Let the m.g.f.~of $X$ be $M_X(\theta)=\expectation\left[\euler^{\theta X}\right]$. This can be computed using the result for conditional expectations $M_X(\theta)=\expectation\expectation\left[\euler^{X\theta}|Y\right]$. This results in 
 \begin{align}
-  M_X(\theta)&=\expectation\expectation\left[\exp\left(\theta U_1 + \theta U_2 + \dotdotdot + \theta U_Y\right)|Y\right]
+  M_X(\theta)&=\expectation\expectation\left[\exp\left(\theta U_1 + \theta U_2 + \cdots + \theta U_Y\right)|Y\right]
   \nonumber \\
-  &=\expectation\expectation\left[\euler^{\theta U_1}\cdot\euler^{\theta U_2}\cdot\dotdotdot\cdot\euler^{\theta U_Y}|Y\right]
+  &=\expectation\expectation\left[\euler^{\theta U_1}\cdot\euler^{\theta U_2}\cdot\cdots\cdot\euler^{\theta U_Y}|Y\right]
   \ .
 \end{align}
-But because $U_i$ for $i=1,2,3,\dotdotdot$ are i.i.d., then each $U_i$ has a m.g.f.~$M_U(\theta)=\expectation\left[\euler^{U\theta}\right]$ and
+But because $U_i$ for $i=1,2,3,\cdots$ are i.i.d.~and each $U_i$ has a m.g.f.~$M_U(\theta)=\expectation\left[\euler^{U\theta}\right]$, then
 \begin{align}
   M_X(\theta)&=\expectation\left(
     \expectation\left[\euler^{\theta U_1}|Y\right]\cdot
     \expectation\left[\euler^{\theta U_2}|Y\right]\cdot
-    \dotdotdot \cdot
+    \cdots \cdot
     \expectation\left[\euler^{\theta U_Y}|Y\right]
   \right)
   \nonumber\\
@@ -93,7 +93,7 @@ Moments of $X$ can be obtained from the m.g.f.~by differentiating it and setting
   \\
   M_X'(0)&=\lambda\expectation\left[U\right]
 \end{align}
-then
+which results in
 \begin{equation}
   \expectation\left[X\right]=\lambda\expectation\left[U\right]
   \ .
@@ -189,7 +189,7 @@ Let $X\sim\CPoisson(\lambda,\alpha,\beta)$ and has p.d.f.
 \begin{equation}
   \beta=\frac{1}{\phi(p-1)\mu^{p-1}} \ .
 \end{equation}
-Substituting these parameters into Equation \eqref{eq:appendix_compoundPoisson_pdf}, the p.m.f.~at zero can be shown to be
+Substituting these parameters into Equation \eqref{eq:appendix_compoundPoisson_pdf}, the p.m.f.~at zero is
 \begin{equation}
   \prob(X=0) = \exp
   \left[
@@ -296,7 +296,7 @@ and the partition function is
 \begin{equation*}
   Z(\theta) = 
   \exp\left[
-    \frac{\mu^{2-p}}{2-p}
+    \frac{\mu^{2-p}}{\phi(2-p)}
   \right]
   \ .
 \end{equation*}
@@ -499,7 +499,7 @@ For large $\lambda$
 \begin{equation}
   \lim_{\lambda\rightarrow\infty}M_Z(\theta)=\exp\left[\frac{\theta^2}{2}\right]
 \end{equation}
-which is the same as the m.g.f.~of a standard Normal variable, therefore
+which is the same as the m.g.f.~of a standard Normal distribution, therefore
 \begin{equation}
   \lim_{\lambda\rightarrow\infty}Z\sim\normal(0,1) \ .
 \end{equation}
@@ -923,7 +923,7 @@ To verify that $y_\text{max}$ is a maximum, the second derivative can be investi
 \end{equation}
 to see that
 \begin{equation}
-  \frac{\partial^2\ln(W_y)}{\partial y^2} < 0 \quad \text{for }y=1,2,3,\dotdotdot
+  \frac{\partial^2\ln(W_y)}{\partial y^2} < 0 \quad \text{for }y=1,2,3,\cdots
 \end{equation}
 therefore $y_\text{max}$ is a maximum.
 
