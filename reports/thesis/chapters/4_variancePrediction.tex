@@ -87,88 +87,156 @@ where $\widehat{y}_i=\widehat{y}(x_i)$. It should be reminded that $\alpha=(n-1)
 
 The procedure is as follows. A criterion and a link function is chosen beforehand. In the initial step, a GLM with systematic component $\eta(x)=\beta_0$ is fitted and the criterion is recorded. In the next step, a polynomial term with one order higher is added to the systematic component $\eta(x)=\beta_0+\beta_1 x$, fitted and the criterion recorded. In addition, a polynomial term with one order lower is added $\beta(x)=\beta_{-1}x^{-1}+\beta_0$ and fitted separately with the criterion recorded. The model which decreases the criterion the most is accepted. Adding higher and lower order polynomials to the systematic component is repeated, for example after accepting $\eta(x)=\beta_0+\beta_1 x$, the following systematic components $\eta(x)=\beta_0+\beta_1 x+\beta_2x^2$ and $\eta(x)=\beta_{-1}x^{-1}+\beta_0+\beta_1 x$ are fitted and assessed. This is repeated until the criterion cannot be decreased and the procedure is left with the final model.
 
-Forward stepwise selection was conducted on the datasets \texttt{AbsNoFilterDeg120} and \texttt{AbsFilterDeg120}. The procedure was repeated 100 times by using a random permutation with replacement of the replicated projections to obtain a different sample variance-mean data which introduces some variation to the data. The procedure was also repeated using various shading corrections to investigate the effects of shading correction on the variance-mean relationship.
+Forward stepwise selection was conducted on the datasets \texttt{AbsNoFilter} and \texttt{AbsFilter}. The procedure was repeated 10 times by using a random permutation with replacement of the replicated projections to obtain a different sample variance-mean data which introduces some variation to the data. The procedure was also repeated using various shading corrections to investigate the effects of shading correction on the variance-mean relationship.
 
 \begin{sidewaystable}
 \centering
 \begin{tabular}{cc|ccc}
 \multicolumn{2}{c|}{Identity Link}& null & bw & linear \\ \hline
-\multirow{3}{*}{AIC} & order     & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterNull_identityorder.txt}     & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterBw_identityorder.txt}     & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterLinear_identityorder.txt}     \\
-                     & votes     & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterNull_identityvote.txt}      & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterBw_identityvote.txt}      & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterLinear_identityvote.txt}      \\
-                     & criterion & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterNull_identitycriterion.txt} & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterBw_identitycriterion.txt} & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterLinear_identitycriterion.txt} \\ \hline
-\multirow{3}{*}{BIC} & order     & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterNull_identityorder.txt}     & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterBw_identityorder.txt}     & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterLinear_identityorder.txt}     \\
-                     & votes     & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterNull_identityvote.txt}      & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterBw_identityvote.txt}      & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterLinear_identityvote.txt}      \\
-                     & criterion & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterNull_identitycriterion.txt} & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterBw_identitycriterion.txt} & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterLinear_identitycriterion.txt} \\
+\multirow{3}{*}{AIC} & order     & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg30null_identityorder.txt}     & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg30bw_identityorder.txt}     & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg30linear_identityorder.txt}     \\
+                     & votes     & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg30null_identityvote.txt}      & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg30bw_identityvote.txt}      & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg30linear_identityvote.txt}      \\
+                     & criterion & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg30null_identitycriterion.txt} & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg30bw_identitycriterion.txt} & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg30linear_identitycriterion.txt} \\ \hline
+\multirow{3}{*}{BIC} & order     & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg30null_identityorder.txt}     & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg30bw_identityorder.txt}     & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg30linear_identityorder.txt}     \\
+                     & votes     & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg30null_identityvote.txt}      & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg30bw_identityvote.txt}       & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg30linear_identityvote.txt}      \\
+                     & criterion & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg30null_identitycriterion.txt} & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg30bw_identitycriterion.txt} & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg30linear_identitycriterion.txt} \\
 \\
 \multicolumn{2}{c|}{Canonical Link}& null & bw & linear \\ \hline
-\multirow{3}{*}{AIC} & order      & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterNull_reciprocalorder.txt}     & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterBw_reciprocalorder.txt}     & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterLinear_reciprocalorder.txt}     \\
-                     & votes      & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterNull_reciprocalvote.txt}      & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterBw_reciprocalvote.txt}      & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterLinear_reciprocalvote.txt}      \\
-                     & criterion  & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterNull_reciprocalcriterion.txt} & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterBw_reciprocalcriterion.txt} & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterLinear_reciprocalcriterion.txt} \\ \hline
-\multirow{3}{*}{BIC} & order      & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterNull_reciprocalorder.txt}     & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterBw_reciprocalorder.txt}     & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterLinear_reciprocalorder.txt}     \\
-                     & votes      & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterNull_reciprocalvote.txt}      & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterBw_reciprocalvote.txt}      & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterLinear_reciprocalvote.txt}      \\
-                     & criterion  & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterNull_reciprocalcriterion.txt} & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterBw_reciprocalcriterion.txt} & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterLinear_reciprocalcriterion.txt}     
+\multirow{3}{*}{AIC} & order      & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg30null_reciprocalorder.txt}     & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg30bw_reciprocalorder.txt}     & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg30linear_reciprocalorder.txt}     \\
+                     & votes      & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg30null_reciprocalvote.txt}      & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg30bw_reciprocalvote.txt}      & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg30linear_reciprocalvote.txt}      \\
+                     & criterion  & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg30null_reciprocalcriterion.txt} & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg30bw_reciprocalcriterion.txt} & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg30linear_reciprocalcriterion.txt} \\ \hline
+\multirow{3}{*}{BIC} & order      & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg30null_reciprocalorder.txt}     & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg30bw_reciprocalorder.txt}     & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg30linear_reciprocalorder.txt}     \\
+                     & votes      & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg30null_reciprocalvote.txt}      & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg30bw_reciprocalvote.txt}      & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg30linear_reciprocalvote.txt}      \\
+                     & criterion  & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg30null_reciprocalcriterion.txt} & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg30bw_reciprocalcriterion.txt} & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg30linear_reciprocalcriterion.txt}     
 \end{tabular}
-\caption{Forward stepwise selection was used to find suitable polynomial orders when fitting a GLM onto the sample variance-mean data of the grey values from the projections in \texttt{AbsNoFilterDeg120}. The columns of the table represent different shading corrections used on the projections. Forward stepwise selection was repeated 100 times by using a different random permutation with replacement to obtain a different sample variance-mean data. The row labelled order shows the most common selected polynomial orders. The error bars are the standard deviation from the 100 repeats.}
-\label{table:meanVar_glmselect_absnofilter}
+\caption{Forward stepwise selection was used to find suitable polynomial orders when fitting a GLM onto the sample variance-mean data of the grey values from the projections in \texttt{AbsNoFilter} at \ang{30}. The columns of the table represent different shading corrections used on the projections. Forward stepwise selection was repeated 10 times by using a different random permutation with replacement to obtain a different sample variance-mean data. The row labelled order shows the most common selected polynomial orders. The error bars are the standard deviation from the 10 repeats.}
+\label{table:meanVar_glmselect_absnofilterdeg30}
 \end{sidewaystable}
 
 \begin{sidewaystable}
 \centering
 \begin{tabular}{cc|ccc}
 \multicolumn{2}{c|}{Identity Link}& null & bw & linear \\ \hline
-\multirow{3}{*}{AIC} & order     & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterNull_identityorder.txt}     & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterBw_identityorder.txt}     & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterLinear_identityorder.txt}     \\
-                     & votes     & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterNull_identityvote.txt}      & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterBw_identityvote.txt}      & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterLinear_identityvote.txt}      \\
-                     & criterion & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterNull_identitycriterion.txt} & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterBw_identitycriterion.txt} & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterLinear_identitycriterion.txt} \\ \hline
-\multirow{3}{*}{BIC} & order     & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterNull_identityorder.txt}     & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterBw_identityorder.txt}     & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterLinear_identityorder.txt}     \\
-                     & votes     & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterNull_identityvote.txt}      & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterBw_identityvote.txt}      & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterLinear_identityvote.txt}      \\
-                     & criterion & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterNull_identitycriterion.txt} & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterBw_identitycriterion.txt} & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterLinear_identitycriterion.txt} \\
+\multirow{3}{*}{AIC} & order     & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg120null_identityorder.txt}     & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg120bw_identityorder.txt}     & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg120linear_identityorder.txt}     \\
+                     & votes     & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg120null_identityvote.txt}      & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg120bw_identityvote.txt}      & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg120linear_identityvote.txt}      \\
+                     & criterion & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg120null_identitycriterion.txt} & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg120bw_identitycriterion.txt} & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg120linear_identitycriterion.txt} \\ \hline
+\multirow{3}{*}{BIC} & order     & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg120null_identityorder.txt}     & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg120bw_identityorder.txt}     & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg120linear_identityorder.txt}     \\
+                     & votes     & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg120null_identityvote.txt}      & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg120bw_identityvote.txt}       & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg120linear_identityvote.txt}      \\
+                     & criterion & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg120null_identitycriterion.txt} & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg120bw_identitycriterion.txt} & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg120linear_identitycriterion.txt} \\
 \\
 \multicolumn{2}{c|}{Canonical Link}& null & bw & linear \\ \hline
-\multirow{3}{*}{AIC} & order      & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterNull_reciprocalorder.txt}     & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterBw_reciprocalorder.txt}     & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterLinear_reciprocalorder.txt}     \\
-                     & votes      & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterNull_reciprocalvote.txt}      & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterBw_reciprocalvote.txt}      & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterLinear_reciprocalvote.txt}      \\
-                     & criterion  & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterNull_reciprocalcriterion.txt} & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterBw_reciprocalcriterion.txt} & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterLinear_reciprocalcriterion.txt} \\ \hline
-\multirow{3}{*}{BIC} & order      & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterNull_reciprocalorder.txt}     & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterBw_reciprocalorder.txt}     & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterLinear_reciprocalorder.txt}     \\
-                     & votes      & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterNull_reciprocalvote.txt}      & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterBw_reciprocalvote.txt}      & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterLinear_reciprocalvote.txt}      \\
-                     & criterion  & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterNull_reciprocalcriterion.txt} & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterBw_reciprocalcriterion.txt} & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterLinear_reciprocalcriterion.txt}     
+\multirow{3}{*}{AIC} & order      & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg120null_reciprocalorder.txt}     & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg120bw_reciprocalorder.txt}     & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg120linear_reciprocalorder.txt}     \\
+                     & votes      & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg120null_reciprocalvote.txt}      & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg120bw_reciprocalvote.txt}      & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg120linear_reciprocalvote.txt}      \\
+                     & criterion  & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg120null_reciprocalcriterion.txt} & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg120bw_reciprocalcriterion.txt} & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg120linear_reciprocalcriterion.txt} \\ \hline
+\multirow{3}{*}{BIC} & order      & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg120null_reciprocalorder.txt}     & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg120bw_reciprocalorder.txt}     & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg120linear_reciprocalorder.txt}     \\
+                     & votes      & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg120null_reciprocalvote.txt}      & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg120bw_reciprocalvote.txt}      & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg120linear_reciprocalvote.txt}      \\
+                     & criterion  & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg120null_reciprocalcriterion.txt} & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg120bw_reciprocalcriterion.txt} & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg120linear_reciprocalcriterion.txt}     
 \end{tabular}
-\caption{Forward stepwise selection was used to find suitable polynomial orders when fitting a GLM onto the sample variance-mean data of the grey values from the projections in \texttt{AbsFilterDeg120}. The columns of the table represent different shading corrections used on the projections. Forward stepwise selection was repeated 100 times by using a different random permutation with replacement to obtain a different sample variance-mean data. The row labelled order shows the most common selected polynomial orders. The error bars are the standard deviation from the 100 repeats.}
-\label{table:meanVar_glmselect_absfilter}
+\caption{Forward stepwise selection was used to find suitable polynomial orders when fitting a GLM onto the sample variance-mean data of the grey values from the projections in \texttt{AbsNoFilter} at \ang{120}. The columns of the table represent different shading corrections used on the projections. Forward stepwise selection was repeated 10 times by using a different random permutation with replacement to obtain a different sample variance-mean data. The row labelled order shows the most common selected polynomial orders. The error bars are the standard deviation from the 10 repeats.}
+\label{table:meanVar_glmselect_absnofilterdeg120}
 \end{sidewaystable}
 
-The results are shown in Tables \ref{table:meanVar_glmselect_absnofilter} and \ref{table:meanVar_glmselect_absfilter}. The models selected all have only two terms and are quite simple. Different shading correction or different criteria had no effect on the selected model. The method is quite robust to the variation introduced to the dataset when repeating the experiment because all 100 repeats consistently selected the same model.
+\begin{sidewaystable}
+\centering
+\begin{tabular}{cc|ccc}
+\multicolumn{2}{c|}{Identity Link}& null & bw & linear \\ \hline
+\multirow{3}{*}{AIC} & order     & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg30null_identityorder.txt}     & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg30bw_identityorder.txt}     & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg30linear_identityorder.txt}     \\
+                     & votes     & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg30null_identityvote.txt}      & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg30bw_identityvote.txt}      & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg30linear_identityvote.txt}      \\
+                     & criterion & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg30null_identitycriterion.txt} & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg30bw_identitycriterion.txt} & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg30linear_identitycriterion.txt} \\ \hline
+\multirow{3}{*}{BIC} & order     & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg30null_identityorder.txt}     & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg30bw_identityorder.txt}     & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg30linear_identityorder.txt}     \\
+                     & votes     & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg30null_identityvote.txt}      & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg30bw_identityvote.txt}       & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg30linear_identityvote.txt}      \\
+                     & criterion & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg30null_identitycriterion.txt} & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg30bw_identitycriterion.txt} & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg30linear_identitycriterion.txt} \\
+\\
+\multicolumn{2}{c|}{Canonical Link}& null & bw & linear \\ \hline
+\multirow{3}{*}{AIC} & order      & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg30null_reciprocalorder.txt}     & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg30bw_reciprocalorder.txt}     & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg30linear_reciprocalorder.txt}     \\
+                     & votes      & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg30null_reciprocalvote.txt}      & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg30bw_reciprocalvote.txt}      & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg30linear_reciprocalvote.txt}      \\
+                     & criterion  & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg30null_reciprocalcriterion.txt} & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg30bw_reciprocalcriterion.txt} & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg30linear_reciprocalcriterion.txt} \\ \hline
+\multirow{3}{*}{BIC} & order      & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg30null_reciprocalorder.txt}     & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg30bw_reciprocalorder.txt}     & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg30linear_reciprocalorder.txt}     \\
+                     & votes      & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg30null_reciprocalvote.txt}      & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg30bw_reciprocalvote.txt}      & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg30linear_reciprocalvote.txt}      \\
+                     & criterion  & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg30null_reciprocalcriterion.txt} & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg30bw_reciprocalcriterion.txt} & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg30linear_reciprocalcriterion.txt}     
+\end{tabular}
+\caption{Forward stepwise selection was used to find suitable polynomial orders when fitting a GLM onto the sample variance-mean data of the grey values from the projections in \texttt{AbsFilter} at \ang{30}. The columns of the table represent different shading corrections used on the projections. Forward stepwise selection was repeated 10 times by using a different random permutation with replacement to obtain a different sample variance-mean data. The row labelled order shows the most common selected polynomial orders. The error bars are the standard deviation from the 10 repeats.}
+\label{table:meanVar_glmselect_absfilterdeg30}
+\end{sidewaystable}
 
-There was some variation to the selected models between datasets. For example when using the identity link, \texttt{AbsNoFilterDeg120} prefers $\eta(x)=\beta_0+\beta_1 x$ whereas \texttt{AbsFilterDeg120} prefers $\eta(x)=\beta_{-1}x^{-1}+\beta_0$. Using the canonical link, both datasets selected $\eta(x)=\beta_{-1}x^{-1}+\beta_0$ which correspond to $\widehat{y}(x)=\left(\beta_{-1}x^{-1}+\beta_0\right)^{-1}$. Figures \ref{fig:meanVar_varMeanExample_AbsNoFilterDeg120} and \ref{fig:meanVar_varMeanExample_AbsFilterDeg120} shows the GLM fits. There is a leverage towards the low grey values because there are more low grey values in the dataset. As a result, the GLM does not capture the curvature towards the high grey values.
+\begin{sidewaystable}
+\centering
+\begin{tabular}{cc|ccc}
+\multicolumn{2}{c|}{Identity Link}& null & bw & linear \\ \hline
+\multirow{3}{*}{AIC} & order     & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg120null_identityorder.txt}     & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg120bw_identityorder.txt}     & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg120linear_identityorder.txt}     \\
+                     & votes     & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg120null_identityvote.txt}      & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg120bw_identityvote.txt}      & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg120linear_identityvote.txt}      \\
+                     & criterion & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg120null_identitycriterion.txt} & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg120bw_identitycriterion.txt} & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg120linear_identitycriterion.txt} \\ \hline
+\multirow{3}{*}{BIC} & order     & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg120null_identityorder.txt}     & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg120bw_identityorder.txt}     & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg120linear_identityorder.txt}     \\
+                     & votes     & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg120null_identityvote.txt}      & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg120bw_identityvote.txt}       & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg120linear_identityvote.txt}      \\
+                     & criterion & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg120null_identitycriterion.txt} & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg120bw_identitycriterion.txt} & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg120linear_identitycriterion.txt} \\
+\\
+\multicolumn{2}{c|}{Canonical Link}& null & bw & linear \\ \hline
+\multirow{3}{*}{AIC} & order      & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg120null_reciprocalorder.txt}     & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg120bw_reciprocalorder.txt}     & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg120linear_reciprocalorder.txt}     \\
+                     & votes      & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg120null_reciprocalvote.txt}      & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg120bw_reciprocalvote.txt}      & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg120linear_reciprocalvote.txt}      \\
+                     & criterion  & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg120null_reciprocalcriterion.txt} & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg120bw_reciprocalcriterion.txt} & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg120linear_reciprocalcriterion.txt} \\ \hline
+\multirow{3}{*}{BIC} & order      & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg120null_reciprocalorder.txt}     & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg120bw_reciprocalorder.txt}     & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg120linear_reciprocalorder.txt}     \\
+                     & votes      & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg120null_reciprocalvote.txt}      & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg120bw_reciprocalvote.txt}      & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg120linear_reciprocalvote.txt}      \\
+                     & criterion  & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg120null_reciprocalcriterion.txt} & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg120bw_reciprocalcriterion.txt} & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg120linear_reciprocalcriterion.txt}     
+\end{tabular}
+\caption{Forward stepwise selection was used to find suitable polynomial orders when fitting a GLM onto the sample variance-mean data of the grey values from the projections in \texttt{AbsFilter} at \ang{30}. The columns of the table represent different shading corrections used on the projections. Forward stepwise selection was repeated 10 times by using a different random permutation with replacement to obtain a different sample variance-mean data. The row labelled order shows the most common selected polynomial orders. The error bars are the standard deviation from the 10 repeats.}
+\label{table:meanVar_glmselect_absfilterdeg120}
+\end{sidewaystable}
+
+The results are shown in Tables \ref{table:meanVar_glmselect_absnofilterdeg30} and \ref{table:meanVar_glmselect_absnofilterdeg120} for \texttt{AbsNoFilter} and Tables \ref{table:meanVar_glmselect_absfilterdeg30} and \ref{table:meanVar_glmselect_absfilterdeg120} for for \texttt{AbsFilter}. The models selected all have only two terms and are quite simple. Different shading correction or different criteria had no effect on the selected model. The method is quite robust to the variation introduced to the dataset when repeating the experiment because all 10 repeats consistently selected the same model.
+
+There was some variation to the selected models between datasets. For example when using the identity link, \texttt{AbsNoFilter} prefers $\eta(x)=\beta_0+\beta_1 x$ whereas \texttt{AbsFilter} prefers $\eta(x)=\beta_{-1}x^{-1}+\beta_0$. Using the canonical link, both datasets selected $\eta(x)=\beta_{-1}x^{-1}+\beta_0$ which correspond to $\widehat{y}(x)=\left(\beta_{-1}x^{-1}+\beta_0\right)^{-1}$.
+
+Figures \ref{fig:meanVar_varMeanExample_AbsNoFilter} and \ref{fig:meanVar_varMeanExample_AbsFilter} shows the GLM fits for the datasets \texttt{AbsNoFilter} and \texttt{AbsFilter} respectively. The prediction intervals were obtained using the distribution $\widehat{Y}(x)\sim\gammaDist\left(\alpha, \dfrac{\alpha}{g^{-1}\left(\widehat{\eta}(x)\right)}\right)$ where $\widehat{\eta}(x)$ is the fitted systematic component. The fits all looked reasonable except for \texttt{AbsNoFilter} at \ang{120} where the fit did not capture the inflection. The forward stepwise selection may not pick this up because there are a lot of low grey values, causing a leverage towards these low grey values and the inflection does not stand out to the method.
 
 \begin{figure}
   \centering
     \centerline{
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/varmean/varMeanExample_AbsNoFilterDeg120_identity000010.eps}
-        \caption{$\widehat{y}(x)=\beta_0+\beta_1 x$}
+    \begin{subfigure}[b]{\subSize}
+        \includegraphics[width=\textwidth]{../figures/varmean/varMeanExample_AbsNoFilterDeg30_identity000010.eps}
+        \caption{$\widehat{y}(x)=\beta_0+\beta_1 x$ at \ang{30}}
     \end{subfigure}
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/varmean/varMeanExample_AbsNoFilterDeg120_reciprocal000100.eps}
-        \caption{$\widehat{y}(x)=(\beta_{-1}x^{-1}\beta_0)^{-1}$}
+    \begin{subfigure}[b]{\subSize}
+        \includegraphics[width=\textwidth]{../figures/varmean/varMeanExample_AbsNoFilterDeg30_reciprocal000100.eps}
+        \caption{$\widehat{y}(x)=(\beta_{-1}x^{-1}\beta_0)^{-1}$ at \ang{30}}
     \end{subfigure}
     }
-    \caption{Log frequency density histogram of the sample variance-mean data from \texttt{AbsNoFilterDeg120} with linear shading correction. The red solid line shows the GLM fit along with $\Phi(\pm 1)$ quantile error bars as dashed lines.}
-    \label{fig:meanVar_varMeanExample_AbsNoFilterDeg120}
+    \centerline{
+    \begin{subfigure}[b]{\subSize}
+        \includegraphics[width=\textwidth]{../figures/varmean/varMeanExample_AbsNoFilterDeg120_identity000010.eps}
+        \caption{$\widehat{y}(x)=\beta_0+\beta_1 x$ at \ang{120}}
+    \end{subfigure}
+    \begin{subfigure}[b]{\subSize}
+        \includegraphics[width=\textwidth]{../figures/varmean/varMeanExample_AbsNoFilterDeg120_reciprocal000100.eps}
+        \caption{$\widehat{y}(x)=(\beta_{-1}x^{-1}\beta_0)^{-1}$ at \ang{120}}
+    \end{subfigure}
+    }
+    \caption{Log frequency density histogram of the sample variance-mean data from \texttt{AbsNoFilter} with linear shading correction. The red solid line shows the GLM fit along with $\Phi(\pm 1)$ prediction interval as dashed lines.}
+    \label{fig:meanVar_varMeanExample_AbsNoFilter}
 \end{figure}
 
 \begin{figure}
   \centering
     \centerline{
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/varmean/varMeanExample_AbsFilterDeg120_identity000100.eps}
-        \caption{$\widehat{y}(x)=\beta_{-1}x^{-1}+\beta_0$}
+    \begin{subfigure}[b]{\subSize}
+        \includegraphics[width=\textwidth]{../figures/varmean/varMeanExample_AbsFilterDeg30_identity000100.eps}
+        \caption{$\widehat{y}(x)=\beta_{-1}x^{-1}+\beta_0$ at \ang{30}}
     \end{subfigure}
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/varmean/varMeanExample_AbsFilterDeg120_reciprocal000100.eps}
-        \caption{$\widehat{y}(x)=(\beta_{-1}x^{-1}+\beta_0)^{-1}$}
+    \begin{subfigure}[b]{\subSize}
+        \includegraphics[width=\textwidth]{../figures/varmean/varMeanExample_AbsFilterDeg30_reciprocal000100.eps}
+        \caption{$\widehat{y}(x)=(\beta_{-1}x^{-1}+\beta_0)^{-1}$ at \ang{120}}
     \end{subfigure}
     }
-    \caption{Log frequency density histogram of the sample variance-mean data from \texttt{AbsFilterDeg120} with linear shading correction. The red solid line shows the GLM fit along with $\Phi(\pm 1)$ quantile error bars as dashed lines.}
-    \label{fig:meanVar_varMeanExample_AbsFilterDeg120}
+    \centerline{
+    \begin{subfigure}[b]{\subSize}
+        \includegraphics[width=\textwidth]{../figures/varmean/varMeanExample_AbsFilterDeg120_identity000100.eps}
+        \caption{$\widehat{y}(x)=\beta_{-1}x^{-1}+\beta_0$ at \ang{30}}
+    \end{subfigure}
+    \begin{subfigure}[b]{\subSize}
+        \includegraphics[width=\textwidth]{../figures/varmean/varMeanExample_AbsFilterDeg120_reciprocal000100.eps}
+        \caption{$\widehat{y}(x)=(\beta_{-1}x^{-1}+\beta_0)^{-1}$ at \ang{120}}
+    \end{subfigure}
+    }
+    \caption{Log frequency density histogram of the sample variance-mean data from \texttt{AbsFilter} with linear shading correction. The red solid line shows the GLM fit along with $\Phi(\pm 1)$ prediction interval as dashed lines.}
+    \label{fig:meanVar_varMeanExample_AbsFilter}
 \end{figure}
 
 \section{Cross Validation}
@@ -223,7 +291,7 @@ The mean scaled deviance is obtained by removing the factor of $\alpha$ and divi
 
 \begin{figure}
   \centering
-  \includegraphics[width=0.49\textwidth]{../figures/varmean/devianceGraph.eps}
+  \includegraphics[width=\subSize]{../figures/varmean/devianceGraph.eps}
   \caption{Scaled deviance loss function}
   \label{fig:meanVar_deviance}
 \end{figure}
@@ -245,13 +313,23 @@ Cross validation was performed on the datasets \texttt{AbsNoFilterDeg120} and \t
 \begin{figure}
   \centering
   \centerline{
-  \begin{subfigure}[b]{0.49\textwidth}
-      \includegraphics[width=\textwidth]{../figures/varmean/varMeanCv_AbsNoFilterDeg120_testmeanscaleddeviance.eps}
-      \caption{\texttt{AbsNoFilterDeg120}}
+  \begin{subfigure}[b]{\subSize}
+      \includegraphics[width=\textwidth]{../figures/varmean/VarMeanCvAbsNoFilterDeg30_testmeanscaleddeviance.eps}
+      \caption{\texttt{AbsNoFilter} at \ang{30}}
   \end{subfigure}
-  \begin{subfigure}[b]{0.49\textwidth}
-      \includegraphics[width=\textwidth]{../figures/varmean/varMeanCv_AbsFilterDeg120_testmeanscaleddeviance.eps}
-      \caption{\texttt{AbsFilterDeg120}}
+  \begin{subfigure}[b]{\subSize}
+      \includegraphics[width=\textwidth]{../figures/varmean/VarMeanCvAbsNoFilterDeg120_testmeanscaleddeviance.eps}
+      \caption{\texttt{AbsFilter} at \ang{120}}
+  \end{subfigure}
+  }
+    \centerline{
+  \begin{subfigure}[b]{\subSize}
+      \includegraphics[width=\textwidth]{../figures/varmean/VarMeanCvAbsFilterDeg30_testmeanscaleddeviance.eps}
+      \caption{\texttt{AbsFilter} at \ang{30}}
+  \end{subfigure}
+  \begin{subfigure}[b]{\subSize}
+      \includegraphics[width=\textwidth]{../figures/varmean/VarMeanCvAbsFilterDeg120_testmeanscaleddeviance.eps}
+      \caption{\texttt{AbsFilter} at \ang{120}}
   \end{subfigure}
   }
   \caption{Test mean scaled deviance from predicting variances in a test set using a GLM fitted onto a training set. The box plot represent the 100 repeats of the analysis by by using a random permutation with replacement of the replicated projections to work out a different sample variance-mean data.}
@@ -264,8 +342,74 @@ Shading correction, again, did not had an effect in the analysis.
 
 From these results, it is recommended that the relationship $\widehat{y}(x)=\beta_0+\beta_1 x$ should be used for its simple form, similar performance to other candidate models and connections to the compound Poisson.
 
+\section{Residual Analysis}
+
+A residual analysis was conducted to look for anything overlooked. The model $\widehat{y}(x)=\beta_0+\beta_1 x$ was looked at here. A residual plot plots $r_i=y_i-\widehat{y}(x_i)$ for all $x_i$ in the dataset. This was done using a 2D histogram. Due to the gamma GLM, higher grey values typically have bigger residuals in magnitude, a predicted residual interval is included in the histogram to aid judging the residuals. This interval was obtained by obtaining the prediction interval and subtracting it from the fit.
+
+\begin{figure}
+  \centering
+  \centerline{
+  \begin{subfigure}[b]{\subSize}
+      \includegraphics[width=\textwidth]{../figures/varmean/varMeanResidualAbsNoFilterDeg30_vsgreyvalue.eps}
+      \caption{\texttt{AbsNoFilter} at \ang{30}}
+  \end{subfigure}
+  \begin{subfigure}[b]{\subSize}
+      \includegraphics[width=\textwidth]{../figures/varmean/varMeanResidualAbsNoFilterDeg120_vsgreyvalue.eps}
+      \caption{\texttt{AbsFilter} at \ang{120}}
+  \end{subfigure}
+  }
+  \centerline{
+  \begin{subfigure}[b]{\subSize}
+      \includegraphics[width=\textwidth]{../figures/varmean/varMeanResidualAbsFilterDeg30_vsgreyvalue.eps}
+      \caption{\texttt{AbsFilter} at \ang{30}}
+  \end{subfigure}
+  \begin{subfigure}[b]{\subSize}
+      \includegraphics[width=\textwidth]{../figures/varmean/varMeanResidualAbsFilterDeg120_vsgreyvalue.eps}
+      \caption{\texttt{AbsFilter} at \ang{120}}
+  \end{subfigure}
+  }
+  \caption{Log frequency density histogram of the residuals given the mean grey value. The residuals are from fitting a gamma GLM of the form $\widehat{y}(x)=\beta_0+\beta_1 x$ onto the sample variance-mean data obtained from the replicated projections. The dashed red line shows the $\Phi(\pm 1)$ predicted residual interval.}
+  \label{fig:meanVar_residualGreyvalue}
+\end{figure}
+
+The residual plots are shown in Figure \ref{fig:meanVar_residualGreyvalue}. The residuals are all sensible and increase in size with grey value which is captured by the predicted residual interval. The inflection in \texttt{AbsNoFilter} at \ang{120}, as discussed previously, can be seen more clearly here.
+
+\begin{figure}
+  \centering
+  \centerline{
+  \begin{subfigure}[b]{\subSize}
+      \includegraphics[width=\textwidth]{../figures/varmean/varMeanResidualAbsNoFilterDeg30_spatial.eps}
+      \caption{\texttt{AbsNoFilter} at \ang{30}}
+  \end{subfigure}
+  \begin{subfigure}[b]{\subSize}
+      \includegraphics[width=\textwidth]{../figures/varmean/varMeanResidualAbsNoFilterDeg120_spatial.eps}
+      \caption{\texttt{AbsNoFilter} at \ang{120}}
+  \end{subfigure}
+  }
+  \centerline{
+  \begin{subfigure}[b]{\subSize}
+      \includegraphics[width=\textwidth]{../figures/varmean/varMeanResidualAbsFilterDeg30_spatial.eps}
+      \caption{\texttt{AbsFilter} at \ang{30}}
+  \end{subfigure}
+  \begin{subfigure}[b]{\subSize}
+      \includegraphics[width=\textwidth]{../figures/varmean/varMeanResidualAbsFilterDeg120_spatial.eps}
+      \caption{\texttt{AbsFilter} at \ang{120}}
+  \end{subfigure}
+  }
+  \caption{Absolute value residuals from fitting a gamma GLM of the form $\widehat{y}(x)=\beta_0+\beta_1 x$ onto the sample variance-mean data obtained from the replicated projections. Highlighted in a red box is an inflection.}
+  \label{fig:meanVar_spatialResidual}
+\end{figure}
+
+Because no spatial information was used in modelling the variance, the residuals were plotted on top of the projections to look for any spatial structure, this is shown in Figure \ref{fig:meanVar_spatialResidual}. Because of the geometry of the test sample, lower grey values, thus smaller residuals, are found in the middle of the projection. Similarly higher grey values, thus bigger residuals, are found on the edges of the test sample. Considering that, the residuals do not show any striking spatial structure. Again, the inflection in \texttt{AbsNoFilter} at \ang{120} can be seen more clearly here.
+
 \section{Conclusion}
 
-It was found that a gamma GLM with relationship $\widehat{y}(x)=\beta_0+\beta_1 x$ using the identity link was a good model. The simple linear relationship is attractive because it is justified by the compound Poisson model of x-ray photon behaviour. This model is also preferred by those who follows Occam’s razor.
+Various parametric models were investigated. A gamma GLM with identity and canonical link functions were looked at with different explanatory polynomials. In terms of cross-validation, most of the models looked at have similar prediction performance when predicting the variance given a grey value. Thus the relationship $\widehat{y}(x)=\beta_0+\beta_1 x$ using the identity link is attractive for its simplicity and links with the compound Poisson model.
+
+It was found shading correction had little effect on the variance-mean relationship.
+
+As discussed in the compound Poisson chapter, a linear relationship can be derived by assuming no beam hardening. Then it should be expected that a linear relationship is observed in the dataset \texttt{AbsFilter}. In the forward stepwise selection, \texttt{AbsNoFilter} consistently selected the linear model, given the identity link function. \texttt{AbsFilter} did not select the linear model but in terms of cross-validation prediction performance, the linear model was just as good as the other models.
+
+It was unusual to see an infection in the sample variance-mean data in \texttt{AbsNoFilter} at \ang{120} which was not captured by the GLM. A good explanation was not found but perhaps the absence of an x-ray filter may have contributed to this.
 
 Non-parametric and machine learning methods may be used in the prediction of variance for more flexible models. These models are flexible, however, they are slow and are unnecessary in a low dimensional problem with a large number of data points.

@@ -1,19 +1,24 @@
 experiments = {...
-  GlmSelectAicAbsNoFilterNull();
-  GlmSelectAicAbsNoFilterBw();
-  GlmSelectAicAbsNoFilterLinear();
-  GlmSelectBicAbsNoFilterNull();
-  GlmSelectBicAbsNoFilterBw();
-  GlmSelectBicAbsNoFilterLinear();
-  GlmSelectAicAbsFilterNull();
-  GlmSelectAicAbsFilterBw();
-  GlmSelectAicAbsFilterLinear();
-  GlmSelectBicAbsFilterNull();
-  GlmSelectBicAbsFilterBw();
-  GlmSelectBicAbsFilterLinear();
+  GlmSelectAicAbsNoFilterDeg30();
+  GlmSelectAicAbsNoFilterDeg120();
+  GlmSelectBicAbsNoFilterDeg30();
+  GlmSelectBicAbsNoFilterDeg120();
 };
 
 for i = 1:numel(experiments)
   experiments{i}.run();
   experiments{i}.printResults();
 end
+
+experiments = {...
+  GlmSelectAicAbsFilterDeg30();
+  GlmSelectAicAbsFilterDeg120();
+  GlmSelectBicAbsFilterDeg30();
+  GlmSelectBicAbsFilterDeg120();
+};
+
+for i = 1:numel(experiments)
+  experiments{i}.run();
+  experiments{i}.printResults();
+end
+

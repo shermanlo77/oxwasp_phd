@@ -5,6 +5,8 @@
 clearvars;
 close all;
 
+plotExample(AbsNoFilterDeg30, {[0,0,0;0,1,0], [0,0,0;1,0,0]}, {'identity', 'reciprocal'});
+plotExample(AbsFilterDeg30, {[0,0,0;1,0,0], [0,0,0;1,0,0]}, {'identity', 'reciprocal'});
 plotExample(AbsNoFilterDeg120, {[0,0,0;0,1,0], [0,0,0;1,0,0]}, {'identity', 'reciprocal'});
 plotExample(AbsFilterDeg120, {[0,0,0;1,0,0], [0,0,0;1,0,0]}, {'identity', 'reciprocal'});
 

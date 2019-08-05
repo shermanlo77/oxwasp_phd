@@ -22,6 +22,8 @@ classdef Experiment < handle
     directory = fullfile('results'); %where the resuls are saved
     experimentName; %string, name of the experiment and the file name for storing it in a .mat file
     isComplete; %boolean, true if the experiment is completed
+    nIteration; %total of iterations in the experiment
+    iIteration; %number of iterations done so far
   end
   properties (SetAccess = protected, GetAccess = protected)
     nArrow; %number of arrows to be displayed in the progress bar
@@ -88,6 +90,22 @@ classdef Experiment < handle
   
   %PROTECTED METHODS
   methods (Access = public)
+    
+    %METHOD: SET N ITERATION
+    %Set the number of iterations so that the method madeProgress can called
+    %PARAMETERS:
+      %nIteration: number of iterations in the experiment
+    function setNIteration(this, nIteration)
+      this.nIteration = nIteration;
+      this.iIteration = 0;
+    end
+    
+    %METHOD: MADE PROGRESS
+    %Update the number of iterations made in this experiment and print the progress bar
+    function madeProgress(this)
+      this.iIteration = this.iIteration+1;
+      this.printProgress(this.iIteration / this.nIteration);
+    end
     
     %METHOD: PRINT PROGRESS
     %Displays a progress bar (with resoloution of 20)

@@ -10,6 +10,7 @@
   %y = a + bx using identity link
   %y = a + b/x using identity link
   %y = 1/(a+b/x) using reciprocal link
+%Different shading corrections were investigated: null, bw, linear
 classdef VarMeanCv < Experiment
   
   properties (SetAccess = public)
@@ -19,12 +20,15 @@ classdef VarMeanCv < Experiment
     %see https://uk.mathworks.com/matlabcentral/answers/159732-2014b-axis-label-errors-when-printing-to-postscript
     %see https://uk.mathworks.com/matlabcentral/answers/290136-unwanted-whitespace-gap-in-figure-text-before-symbols-and-subscripts-in-matlab-2015a-for-pdf-and-e
     modelArray = {'y=a+bx','y=a+b/x','y=(a+b/x)⁻¹'};
-    scan; %contains the projections to work on, apply shading correction if needed
+    scanArray; %array of projections with different shading corrections to work on
     nRepeat = 100; %number of times to repeat the experiment
+    
+    nShadingCorrection = 3;
     
     %array of training and test deviance
       %dim 1: for each repeat
       %dim 2: for each model
+      %dim 3: for each shading correction
     devianceTrainingArray;
     devianceTestArray;
     
@@ -34,20 +38,69 @@ classdef VarMeanCv < Experiment
   
   methods (Access = public)
     
+    %CONSTRUCTOR
     function this = VarMeanCv()
       this@Experiment();
     end
     
     %IMPLEMENTED: PRINT RESULTS
+    %Plots the training and test deviance for the different shading corrections and models
+    function printResults(this)
+      %get list of shading correction
+      shadingCorrectionNameArray = cell(this.nShadingCorrection,1);
+      for iShadingCorrection = 1:this.nShadingCorrection
+        shadingCorrectionNameArray{iShadingCorrection} = ...
+            this.scanArray{iShadingCorrection}.getShadingCorrectionStatus();
+      end
+
+      %plot the training and test deviance
+      for iStat = 1:2
+        isTrainingDeviance = iStat == 1;
+        if (isTrainingDeviance)
+          statName = 'training mean scaled deviance';
+        else
+          statName = 'test mean scaled deviance';
+        end
+
+        %plot the test deviance for each shading correction
+        fig = LatexFigure.sub();
+        legendArray = line(0,0);
+        for iShadingCorrection = 1:this.nShadingCorrection
+          boxplots = this.getBoxplot(-0.1 + ((iShadingCorrection-1)*0.1), isTrainingDeviance, ...
+              iShadingCorrection);
+          legendArray(iShadingCorrection) = boxplots.getLegendAx();
+        end
+
+        %retick the x axis
+        ax = fig.Children;
+        ax.XTick = 1:numel(this.modelArray);
+        %label each glm with its name
+        ax.XTickLabel = this.modelArray;
+        ax.XLim = [0.5,numel(this.modelArray)+0.5];
+        %label the axis and legend
+        ylabel(statName);
+        legend(legendArray,shadingCorrectionNameArray,'Location','best');
+
+        %save the figure
+        fileName = fullfile('reports','figures','varmean', ...
+            strcat(class(this),'_',statName,'.eps'));
+        fileName(fileName == ' ') = [];
+        saveas(fig,fileName,'epsc');
+      end
+    end
+    
+    
+    %METHOD: GET BOXPLOT
     %Return and plot box plot for the training or test deviance
     %PARAMETERS:
       %xOffset: shift the box plot x
       %isTraining: true if want training error, else test error
-    function boxplots = printResults(this, xOffset, isTraining)
+      %iShadingCorrection: which shading correction to plot
+    function boxplots = getBoxplot(this, xOffset, isTraining, iShadingCorrection)
       if (isTraining)
-        boxplots = Boxplots(this.devianceTrainingArray);
+        boxplots = Boxplots(this.devianceTrainingArray(:,:,iShadingCorrection));
       else
-        boxplots = Boxplots(this.devianceTestArray);
+        boxplots = Boxplots(this.devianceTestArray(:,:,iShadingCorrection));
       end
       boxplots.setPosition((1:numel(this.modelArray))+xOffset);
       boxplots.plot();
@@ -59,61 +112,84 @@ classdef VarMeanCv < Experiment
     
     %IMPLEMENTED: SETUP
     function setup(this, scan, seed)
-      this.scan = scan;
+      this.scanArray = cell(3,1);
+      for iShadingCorrection = 1:this.nShadingCorrection
+        this.scanArray{iShadingCorrection} = feval(scan);
+        switch iShadingCorrection
+          case 1
+            this.scanArray{iShadingCorrection}.setShadingCorrectionOff();
+          case 2
+            this.scanArray{iShadingCorrection}.addShadingCorrectorBw();
+          case 3
+            this.scanArray{iShadingCorrection}.addShadingCorrectorLinear();
+        end
+      end
       this.rng = RandStream('mt19937ar','Seed', seed);
-      this.devianceTrainingArray = zeros(this.nRepeat, numel(this.modelArray));
-      this.devianceTestArray = zeros(this.nRepeat, numel(this.modelArray));
+      this.devianceTrainingArray = ...
+          zeros(this.nRepeat, numel(this.modelArray), this.nShadingCorrection);
+      this.devianceTestArray = ...
+          zeros(this.nRepeat, numel(this.modelArray), this.nShadingCorrection);
+      
     end
     
     %IMPLEMENTED: DO EXPERIMENT
     function doExperiment(this)
       
-      %load the greyvalues
-      greyValueArray = getGreyValue(this.scan);
-      nSample = this.scan.nSample;
-      nPixel = numel(greyValueArray(:,1));
-      nTrain = round(nPixel/2);
+      %set the progress bar
+      this.setNIteration(this.nRepeat*numel(this.modelArray)*this.nShadingCorrection);
       
-      %for each model
-      for iModel = 1:numel(this.modelArray)
-        
-        %for nRepeat times
-        for iRepeat = 1:this.nRepeat
-          
-          %get the greyvalues, bootstrap the images used
-          imageIndex = this.rng.randi([1,nSample],nSample,1);
-          X = mean(greyValueArray(:,imageIndex),2);
-          %use x^-1 and x features, they will be multiplied to get higher order features
-          X = X.^([-1,1]);
-          y = var(greyValueArray(:,imageIndex),[],2); %get the variance of the greyvalues
-          
-          %assign random permutation for the training and test set
-          randPermutation = this.rng.randperm(nPixel);
-          trainingIndex = randPermutation(1:nTrain);
-          testIndex = randPermutation((nTrain+1):end);
-          
-          %normalise the data
-          xCentre = mean(X(trainingIndex,:),1);
-          xScale = std(X(trainingIndex,:),[],1);
-          X = (X-xCentre)./xScale; %noramlise
-          yStd = std(y(trainingIndex));
-          y = y/yStd; %noramlise
-          
-          %get the training set, train the model using it, get deviance
-          XTraining = X(trainingIndex, :);
-          yTraining = y(trainingIndex);
-          model = this.trainModel(iModel, XTraining, yTraining);
-          yHat = this.predict(model, XTraining);
-          this.devianceTrainingArray(iRepeat, iModel) = this.getDeviance(yTraining, yHat);
-          
-          %predict the test set, get deviance
-          yHat = this.predict(model, X(testIndex, :));
-          yTest = y(testIndex);
-          this.devianceTestArray(iRepeat, iModel) = this.getDeviance(yTest, yHat);
-          
-          %print progress
-          this.printProgress(((iModel-1)*this.nRepeat + iRepeat) ...
-              /(this.nRepeat*numel(this.modelArray)));
+      %for each shading correction, apply shading correction
+      for iShadingCorrection = 1:this.nShadingCorrection
+
+        %load the greyvalues
+        greyValueArray = getGreyValue(this.scanArray{iShadingCorrection});
+        nSample = this.scanArray{iShadingCorrection}.nSample;
+        nPixel = numel(greyValueArray(:,1));
+        nTrain = round(nPixel/2);
+
+        %for each model
+        for iModel = 1:numel(this.modelArray)
+
+          %for nRepeat times
+          for iRepeat = 1:this.nRepeat
+
+            %get the greyvalues, bootstrap the images used
+            imageIndex = this.rng.randi([1,nSample],nSample,1);
+            X = mean(greyValueArray(:,imageIndex),2);
+            %use x^-1 and x features, they will be multiplied to get higher order features
+            X = X.^([-1,1]);
+            y = var(greyValueArray(:,imageIndex),[],2); %get the variance of the greyvalues
+
+            %assign random permutation for the training and test set
+            randPermutation = this.rng.randperm(nPixel);
+            trainingIndex = randPermutation(1:nTrain);
+            testIndex = randPermutation((nTrain+1):end);
+
+            %normalise the data
+            xCentre = mean(X(trainingIndex,:),1);
+            xScale = std(X(trainingIndex,:),[],1);
+            X = (X-xCentre)./xScale; %noramlise
+            yStd = std(y(trainingIndex));
+            y = y/yStd; %noramlise
+
+            %get the training set, train the model using it, get deviance
+            XTraining = X(trainingIndex, :);
+            yTraining = y(trainingIndex);
+            model = this.trainModel(iModel, XTraining, yTraining);
+            yHat = this.predict(model, XTraining);
+            this.devianceTrainingArray(iRepeat, iModel, iShadingCorrection) = ...
+                this.getDeviance(yTraining, yHat);
+
+            %predict the test set, get deviance
+            yHat = this.predict(model, X(testIndex, :));
+            yTest = y(testIndex);
+            this.devianceTestArray(iRepeat, iModel, iShadingCorrection) = ...
+                this.getDeviance(yTest, yHat);
+
+            %print progress
+            this.madeProgress();
+
+          end
           
         end
 
