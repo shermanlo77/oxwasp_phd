@@ -1,26 +1,26 @@
-In the previous chapter, it was found that it was hard to fit a compound Poisson random variable onto the grey values directly itself. Results did show that the variance of the grey value has a linear relationship with the mean grey value. As a result, it would be possible to predict the variance of the grey value, given the grey value. This opens up new ways to predict the uncertainty of each individual pixel in an x-ray projection.
+In the previous chapter, it was found that it was hard to fit a compound Poisson distribution onto the grey values. Results did show that the variance of the grey value has a linear relationship with the mean grey value. As a result, it would be possible to predict the variance of the grey value, given the grey value. This opens up new ways to predict the uncertainty of each individual pixel in an x-ray projection.
 
-In this chapter, generalised linear models \citep{nelder1972generalized, nelder1972generalized_2, mccullagh1984generalized} with different link functions and polynomial explanatory variables were selected using forward step-wise selection. These selected models were compared using cross validation to find the best model.
+In this chapter, generalised linear models \citep{nelder1972generalized, nelder1972generalized_2, mccullagh1984generalized} with different link functions and polynomial features were selected using forward step-wise selection. These selected models were compared using cross validation to find the best model and verified using residual analysis.
 
 \section{Generalised Linear Models}
 
-The sample variance-mean data were obtained from the replicated projections. Let $x_{x,y}^{(r)}$ be the grey value of the pixel at $(x,y)$ from the $r$th replicate projection for $r=1,2,3,\dotdotdot,n$. The pixel sample mean is
+The sample variance-mean data were obtained from the replicated projections. Let $x_{i,j}^{(r)}$ be the grey value of the pixel at $(i,j)$ from the $r$th replicate projection for $r=1,2,3,\dotdotdot,n$. The pixel sample mean is
 \begin{equation}
-    \overline{x}_{x,y}=\frac{1}{n}\sum_{r=1}^n x_{x,y}^{(r)}
+    \overline{x}_{i,j}=\frac{1}{n}\sum_{r=1}^n x_{i,j}^{(r)}
 \end{equation}
 and the pixel sample variance is
 \begin{equation}
-    y_{x,y} =
+    y_{i,j} =
     \frac{1}{n-1}
     \sum_{r=1}^n
         \left(
-            x_{x,y}^{(r)} - \overline{x}_{x,y}
+            x_{i,j}^{(r)} - \overline{x}_{i,j}
         \right)^2
     \ .
 \end{equation}
-Only pixels in the region of interest (ROI) were considered here, that is pixels which represent the test sample.
+Only pixels in the region of interest (ROI) were considered here, that is pixels which represent the test sample. The ROI was created by manually segmenting the test sample from the projection.
 
-The aim is to model and predict the pixel variance given the pixel grey value by fitting a model onto the sample variance-mean data. No spatial information is used, thus the variance-mean data is denoted as $(x_1,y_1),(x_2,y_2),\cdots,(x_m,y_m)$ from now on, where $m$ is the area of the ROI or the size of the dataset. Let $Y(x)$ be a random variable and the sample variance given a grey value mean $x$. It was assumed the standard error from estimating the mean was negligible so that the uncertainty is captured by the random variable $Y$. It was assumed that for a given pixel, the grey values are Normal and i.i.d. Let $\sigma^2(x)$ be the variance given a grey value $x$, then it can be shown that
+The aim is to model and predict the grey value variance of a pixel given the pixel's grey value by fitting a model onto the sample variance-mean data. No spatial information was used, thus the variance-mean data is denoted as $(x_1,y_1),(x_2,y_2),\cdots,(x_m,y_m)$ from now on, where $m$ is the area of the ROI or the size of the dataset. Let $Y(x)$ be a random variable and the sample variance given a grey value mean $x$. It was assumed the standard error from estimating the mean was negligible so that the uncertainty is captured by the random variable $Y$. It was assumed that for a given pixel, the grey values are Normal and i.i.d. Let $\sigma^2(x)$ be the variance given a grey value $x$, then it can be shown that
 \begin{equation}
 \dfrac{(n-1)Y(x)}{\sigma^2(x)}\sim\chi^2_{n-1}
 \end{equation}
@@ -54,15 +54,17 @@ and, for the gamma distribution case, the canonical link
 \begin{equation}
 g(y)=g^{-1}(y)=1/y \ .
 \end{equation}
-An example of a systematic component are polynomials $\eta(x)=\beta_0+\sum_{j=1}^{p-1}\beta_j x^j$ so that when used with the identity link, for example, $\expectation\left[Y(x)\right] = \beta_0+\sum_{j=1}^{p-1}\beta_j x^j$. Iterative reweighted least squares \citep{friedman2001elements} can be used to estimate the parameters $\beta_0, \beta_1, \cdots, \beta_{p-1}$ given data for the model to fit onto.
+There is also the log link $g(y)=\ln y$ but $y$ must be a unitless quantity, for example Poisson counts, for it to be comparable. Because $y$ is in units of $\SI{}{\adu^2}$, the log link is not used in this analysis.
 
-Once the parameters have been estimated, prediction of the variance given a grey value $x$ is done using the expectation $\widehat{y}(x) = \expectation\left[Y(x)\right] = g^{-1}(\eta(x))$.
+An example of a systematic component are polynomial features $\eta(x)=\beta_0+\sum_{j=1}^{p-1}\beta_j x^j$ so that when used with the identity link, for example, $\expectation\left[Y(x)\right] = \beta_0+\sum_{j=1}^{p-1}\beta_j x^j$. Iterative reweighted least squares \citep{friedman2001elements} can be used to estimate the parameters $\beta_0, \beta_1, \cdots, \beta_{p-1}$ given data for the model to fit onto.
+
+Once the parameters have been estimated, prediction of the variance given a grey value $x$ is done by using $\widehat{y}(x) = g^{-1}(\widehat{\eta}(x))$ where $\widehat{\eta}(x)$ is the systematic component using the estimated parameters.
 
 \section{Model Selection}
 
-This section describes how forward stepwise selection \citep{friedman2001elements} was used to select which polynomials to use in the systematic component.
+This section describes how forward stepwise selection \citep{friedman2001elements} was used to select which polynomial features to use in the systematic component.
 
-In summary, forward stepwise selection fits a basic model to the data initially. A term is added to make the model more complicated at each step to improve the fit onto the data. This is continued until the model cannot be improved subject to overfitting. The Akaike information criterion (AIC) \citep{friedman2001elements} and the Bayesian information criterion (BIC) \citep{friedman2001elements} are criteria which can be used to assess the fit of the model at each step without overfitting to the data too much.
+In summary, forward stepwise selection fits a basic model to the data initially. A feature is added to make the model more complicated at each step to improve the fit onto the data. This is continued until the model cannot be improved subject to overfitting. The Akaike information criterion (AIC) \citep{friedman2001elements} and the Bayesian information criterion (BIC) \citep{friedman2001elements} are criteria which can be used to assess the fit of the model at each step without overfitting to the data too much.
 
 The AIC and BIC are given as
 \begin{equation}
@@ -72,7 +74,7 @@ and
 \begin{equation}
 \BIC = p\ln m - 2\ln L
 \end{equation}
-respectively where $p$ is the number of terms in the systematic component and $\ln L$ is the log likelihood of the GLM. The model with the lowest AIC or BIC is preferred. GLM aims to maximise the log likelihood but the additional terms in the criteria penalise models with too many terms. The log likelihood is given as
+respectively where $p$ is the number of features in the systematic component and $\ln L$ is the log likelihood of the GLM. The model with the lowest AIC or BIC is preferred. GLM aims to maximise the log likelihood but the additional terms in the criteria penalise models with too many terms. The log likelihood is given as
 \begin{equation}
   \ln L = \sum_{i=1}^m \left[
     \alpha\ln\alpha
@@ -85,7 +87,7 @@ respectively where $p$ is the number of terms in the systematic component and $\
 \end{equation}
 where $\widehat{y}_i=\widehat{y}(x_i)$. It should be reminded that $\alpha=(n-1)/2$ was assumed to be known and does not need to be estimated.
 
-The procedure is as follows. A criterion and a link function is chosen beforehand. In the initial step, a GLM with systematic component $\eta(x)=\beta_0$ is fitted and the criterion is recorded. In the next step, a polynomial term with one order higher is added to the systematic component $\eta(x)=\beta_0+\beta_1 x$, fitted and the criterion recorded. In addition, a polynomial term with one order lower is added $\beta(x)=\beta_{-1}x^{-1}+\beta_0$ and fitted separately with the criterion recorded. The model which decreases the criterion the most is accepted. Adding higher and lower order polynomials to the systematic component is repeated, for example after accepting $\eta(x)=\beta_0+\beta_1 x$, the following systematic components $\eta(x)=\beta_0+\beta_1 x+\beta_2x^2$ and $\eta(x)=\beta_{-1}x^{-1}+\beta_0+\beta_1 x$ are fitted and assessed. This is repeated until the criterion cannot be decreased and the procedure is left with the final model.
+The procedure is as follows. A criterion and a link function is chosen beforehand. In the initial step, a GLM with systematic component $\eta(x)=\beta_0$ is fitted and the criterion is recorded. In the next step, a polynomial feature with one order higher is added to the systematic component $\eta(x)=\beta_0+\beta_1 x$, fitted and the criterion recorded. In addition, a polynomial feature with one order lower is added $\beta(x)=\beta_{-1}x^{-1}+\beta_0$ and fitted separately with the criterion recorded. The model which decreases the criterion the most is accepted. Adding higher and lower order polynomials to the systematic component is repeated, for example after accepting $\eta(x)=\beta_0+\beta_1 x$, the following systematic components $\eta(x)=\beta_0+\beta_1 x+\beta_2x^2$ and $\eta(x)=\beta_{-1}x^{-1}+\beta_0+\beta_1 x$ are fitted and assessed. The fitted parameters $\beta_0$ and $\beta_1$ may change when adding more terms. This is repeated until the criterion cannot be decreased and the procedure is left with the final model.
 
 Forward stepwise selection was conducted on the datasets \texttt{AbsNoFilter} and \texttt{AbsFilter}. The procedure was repeated 10 times by using a random permutation with replacement of the replicated projections to obtain a different sample variance-mean data which introduces some variation to the data. The procedure was also repeated using various shading corrections to investigate the effects of shading correction on the variance-mean relationship.
 
@@ -108,7 +110,7 @@ Forward stepwise selection was conducted on the datasets \texttt{AbsNoFilter} an
                      & votes      & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg30null_reciprocalvote.txt}      & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg30bw_reciprocalvote.txt}      & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg30linear_reciprocalvote.txt}      \\
                      & criterion  & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg30null_reciprocalcriterion.txt} & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg30bw_reciprocalcriterion.txt} & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg30linear_reciprocalcriterion.txt}     
 \end{tabular}
-\caption{Forward stepwise selection was used to find suitable polynomial orders when fitting a GLM onto the sample variance-mean data of the grey values from the projections in \texttt{AbsNoFilter} at \ang{30}. The columns of the table represent different shading corrections used on the projections. Forward stepwise selection was repeated 10 times by using a different random permutation with replacement to obtain a different sample variance-mean data. The row labelled order shows the most common selected polynomial orders. The error bars are the standard deviation from the 10 repeats.}
+\caption{Forward stepwise selection was used to find suitable polynomial features when fitting a gamma GLM onto the sample variance-mean data of the grey values from the projections in \texttt{AbsNoFilter} at \ang{30}. The columns of the table represent different shading corrections used on the projections. Forward stepwise selection was repeated 10 times by using a different random permutation with replacement to obtain a different sample variance-mean data. `Order' shows the most commonly selected polynomial orders and `votes' shows the number of times it was selected out of the 10 repeats. The error bars are the standard deviation from the 10 repeats.}
 \label{table:meanVar_glmselect_absnofilterdeg30}
 \end{sidewaystable}
 
@@ -131,7 +133,7 @@ Forward stepwise selection was conducted on the datasets \texttt{AbsNoFilter} an
                      & votes      & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg120null_reciprocalvote.txt}      & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg120bw_reciprocalvote.txt}      & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg120linear_reciprocalvote.txt}      \\
                      & criterion  & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg120null_reciprocalcriterion.txt} & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg120bw_reciprocalcriterion.txt} & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg120linear_reciprocalcriterion.txt}     
 \end{tabular}
-\caption{Forward stepwise selection was used to find suitable polynomial orders when fitting a GLM onto the sample variance-mean data of the grey values from the projections in \texttt{AbsNoFilter} at \ang{120}. The columns of the table represent different shading corrections used on the projections. Forward stepwise selection was repeated 10 times by using a different random permutation with replacement to obtain a different sample variance-mean data. The row labelled order shows the most common selected polynomial orders. The error bars are the standard deviation from the 10 repeats.}
+\caption{Forward stepwise selection was used to find suitable polynomial features when fitting a gamma GLM onto the sample variance-mean data of the grey values from the projections in \texttt{AbsNoFilter} at \ang{120}. The columns of the table represent different shading corrections used on the projections. Forward stepwise selection was repeated 10 times by using a different random permutation with replacement to obtain a different sample variance-mean data. `Order' shows the most commonly selected polynomial orders and `votes' shows the number of times it was selected out of the 10 repeats. The error bars are the standard deviation from the 10 repeats.}
 \label{table:meanVar_glmselect_absnofilterdeg120}
 \end{sidewaystable}
 
@@ -154,7 +156,7 @@ Forward stepwise selection was conducted on the datasets \texttt{AbsNoFilter} an
                      & votes      & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg30null_reciprocalvote.txt}      & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg30bw_reciprocalvote.txt}      & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg30linear_reciprocalvote.txt}      \\
                      & criterion  & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg30null_reciprocalcriterion.txt} & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg30bw_reciprocalcriterion.txt} & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg30linear_reciprocalcriterion.txt}     
 \end{tabular}
-\caption{Forward stepwise selection was used to find suitable polynomial orders when fitting a GLM onto the sample variance-mean data of the grey values from the projections in \texttt{AbsFilter} at \ang{30}. The columns of the table represent different shading corrections used on the projections. Forward stepwise selection was repeated 10 times by using a different random permutation with replacement to obtain a different sample variance-mean data. The row labelled order shows the most common selected polynomial orders. The error bars are the standard deviation from the 10 repeats.}
+\caption{Forward stepwise selection was used to find suitable polynomial features when fitting a gamma GLM onto the sample variance-mean data of the grey values from the projections in \texttt{AbsFilter} at \ang{30}. The columns of the table represent different shading corrections used on the projections. Forward stepwise selection was repeated 10 times by using a different random permutation with replacement to obtain a different sample variance-mean data. `Order' shows the most commonly selected polynomial orders and `votes' shows the number of times it was selected out of the 10 repeats. The error bars are the standard deviation from the 10 repeats.}
 \label{table:meanVar_glmselect_absfilterdeg30}
 \end{sidewaystable}
 
@@ -177,39 +179,39 @@ Forward stepwise selection was conducted on the datasets \texttt{AbsNoFilter} an
                      & votes      & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg120null_reciprocalvote.txt}      & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg120bw_reciprocalvote.txt}      & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg120linear_reciprocalvote.txt}      \\
                      & criterion  & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg120null_reciprocalcriterion.txt} & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg120bw_reciprocalcriterion.txt} & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg120linear_reciprocalcriterion.txt}     
 \end{tabular}
-\caption{Forward stepwise selection was used to find suitable polynomial orders when fitting a GLM onto the sample variance-mean data of the grey values from the projections in \texttt{AbsFilter} at \ang{30}. The columns of the table represent different shading corrections used on the projections. Forward stepwise selection was repeated 10 times by using a different random permutation with replacement to obtain a different sample variance-mean data. The row labelled order shows the most common selected polynomial orders. The error bars are the standard deviation from the 10 repeats.}
+\caption{Forward stepwise selection was used to find suitable polynomial features when fitting a gamma GLM onto the sample variance-mean data of the grey values from the projections in \texttt{AbsFilter} at \ang{120}. The columns of the table represent different shading corrections used on the projections. Forward stepwise selection was repeated 10 times by using a different random permutation with replacement to obtain a different sample variance-mean data. `Order' shows the most commonly selected polynomial orders and `votes' shows the number of times it was selected out of the 10 repeats. The error bars are the standard deviation from the 10 repeats.}
 \label{table:meanVar_glmselect_absfilterdeg120}
 \end{sidewaystable}
 
-The results are shown in Tables \ref{table:meanVar_glmselect_absnofilterdeg30} and \ref{table:meanVar_glmselect_absnofilterdeg120} for \texttt{AbsNoFilter} and Tables \ref{table:meanVar_glmselect_absfilterdeg30} and \ref{table:meanVar_glmselect_absfilterdeg120} for for \texttt{AbsFilter}. The models selected all have only two terms and are quite simple. Different shading correction or different criteria had no effect on the selected model. The method is quite robust to the variation introduced to the dataset when repeating the experiment because all 10 repeats consistently selected the same model.
+The results are shown in Tables \ref{table:meanVar_glmselect_absnofilterdeg30} and \ref{table:meanVar_glmselect_absnofilterdeg120} for \texttt{AbsNoFilter} and Tables \ref{table:meanVar_glmselect_absfilterdeg30} and \ref{table:meanVar_glmselect_absfilterdeg120} for \texttt{AbsFilter}. The models selected are quite simple and all have two features. Different shading correction or different criteria had no effect on the selected model. The method is quite robust to the variation introduced to the dataset when repeating the experiment because all 10 repeats consistently selected the same model.
 
 There was some variation to the selected models between datasets. For example when using the identity link, \texttt{AbsNoFilter} prefers $\eta(x)=\beta_0+\beta_1 x$ whereas \texttt{AbsFilter} prefers $\eta(x)=\beta_{-1}x^{-1}+\beta_0$. Using the canonical link, both datasets selected $\eta(x)=\beta_{-1}x^{-1}+\beta_0$ which correspond to $\widehat{y}(x)=\left(\beta_{-1}x^{-1}+\beta_0\right)^{-1}$.
 
-Figures \ref{fig:meanVar_varMeanExample_AbsNoFilter} and \ref{fig:meanVar_varMeanExample_AbsFilter} shows the GLM fits for the datasets \texttt{AbsNoFilter} and \texttt{AbsFilter} respectively. The prediction intervals were obtained using the distribution $\widehat{Y}(x)\sim\gammaDist\left(\alpha, \dfrac{\alpha}{g^{-1}\left(\widehat{\eta}(x)\right)}\right)$ where $\widehat{\eta}(x)$ is the fitted systematic component. The fits all looked reasonable except for \texttt{AbsNoFilter} at \ang{120} where the fit did not capture the inflection. The forward stepwise selection may not pick this up because there are a lot of low grey values, causing a leverage towards these low grey values and the inflection does not stand out to the method.
+Figures \ref{fig:meanVar_varMeanExample_AbsNoFilter} and \ref{fig:meanVar_varMeanExample_AbsFilter} shows the GLM fits for the datasets \texttt{AbsNoFilter} and \texttt{AbsFilter} respectively. The prediction intervals were obtained using the distribution $\widehat{Y}(x)\sim\gammaDist\left(\alpha, \dfrac{\alpha}{g^{-1}\left(\widehat{\eta}(x)\right)}\right)$. The fits all looked reasonable except for \texttt{AbsNoFilter} at \ang{120} where the fit did not capture the inflection. The forward stepwise selection may not pick this up because there are a lot of low grey values, causing a leverage towards these low grey values and the inflection does not stand out to the method.
 
 \begin{figure}
   \centering
     \centerline{
     \begin{subfigure}[b]{\subSize}
         \includegraphics[width=\textwidth]{../figures/varmean/varMeanExample_AbsNoFilterDeg30_identity000010.eps}
-        \caption{$\widehat{y}(x)=\beta_0+\beta_1 x$ at \ang{30}}
+        \caption{${y}(x)=\beta_0+\beta_1 x$ at \ang{30}}
     \end{subfigure}
     \begin{subfigure}[b]{\subSize}
         \includegraphics[width=\textwidth]{../figures/varmean/varMeanExample_AbsNoFilterDeg30_reciprocal000100.eps}
-        \caption{$\widehat{y}(x)=(\beta_{-1}x^{-1}\beta_0)^{-1}$ at \ang{30}}
+        \caption{${y}(x)=(\beta_{-1}x^{-1}\beta_0)^{-1}$ at \ang{30}}
     \end{subfigure}
     }
     \centerline{
     \begin{subfigure}[b]{\subSize}
         \includegraphics[width=\textwidth]{../figures/varmean/varMeanExample_AbsNoFilterDeg120_identity000010.eps}
-        \caption{$\widehat{y}(x)=\beta_0+\beta_1 x$ at \ang{120}}
+        \caption{${y}(x)=\beta_0+\beta_1 x$ at \ang{120}}
     \end{subfigure}
     \begin{subfigure}[b]{\subSize}
         \includegraphics[width=\textwidth]{../figures/varmean/varMeanExample_AbsNoFilterDeg120_reciprocal000100.eps}
-        \caption{$\widehat{y}(x)=(\beta_{-1}x^{-1}\beta_0)^{-1}$ at \ang{120}}
+        \caption{${y}(x)=(\beta_{-1}x^{-1}\beta_0)^{-1}$ at \ang{120}}
     \end{subfigure}
     }
-    \caption{Log frequency density histogram of the sample variance-mean data from \texttt{AbsNoFilter} with linear shading correction. The red solid line shows the GLM fit along with $\Phi(\pm 1)$ prediction interval as dashed lines.}
+    \caption{Log frequency density histogram of the sample variance-mean data from \texttt{AbsNoFilter} with linear shading correction. The solid red line shows the GLM fit along with the $\Phi(+1)-\Phi(-1)$ prediction interval as dashed lines.}
     \label{fig:meanVar_varMeanExample_AbsNoFilter}
 \end{figure}
 
@@ -218,24 +220,24 @@ Figures \ref{fig:meanVar_varMeanExample_AbsNoFilter} and \ref{fig:meanVar_varMea
     \centerline{
     \begin{subfigure}[b]{\subSize}
         \includegraphics[width=\textwidth]{../figures/varmean/varMeanExample_AbsFilterDeg30_identity000100.eps}
-        \caption{$\widehat{y}(x)=\beta_{-1}x^{-1}+\beta_0$ at \ang{30}}
+        \caption{${y}(x)=\beta_{-1}x^{-1}+\beta_0$ at \ang{30}}
     \end{subfigure}
     \begin{subfigure}[b]{\subSize}
         \includegraphics[width=\textwidth]{../figures/varmean/varMeanExample_AbsFilterDeg30_reciprocal000100.eps}
-        \caption{$\widehat{y}(x)=(\beta_{-1}x^{-1}+\beta_0)^{-1}$ at \ang{120}}
+        \caption{${y}(x)=(\beta_{-1}x^{-1}+\beta_0)^{-1}$ at \ang{30}}
     \end{subfigure}
     }
     \centerline{
     \begin{subfigure}[b]{\subSize}
         \includegraphics[width=\textwidth]{../figures/varmean/varMeanExample_AbsFilterDeg120_identity000100.eps}
-        \caption{$\widehat{y}(x)=\beta_{-1}x^{-1}+\beta_0$ at \ang{30}}
+        \caption{${y}(x)=\beta_{-1}x^{-1}+\beta_0$ at \ang{120}}
     \end{subfigure}
     \begin{subfigure}[b]{\subSize}
         \includegraphics[width=\textwidth]{../figures/varmean/varMeanExample_AbsFilterDeg120_reciprocal000100.eps}
-        \caption{$\widehat{y}(x)=(\beta_{-1}x^{-1}+\beta_0)^{-1}$ at \ang{120}}
+        \caption{${y}(x)=(\beta_{-1}x^{-1}+\beta_0)^{-1}$ at \ang{120}}
     \end{subfigure}
     }
-    \caption{Log frequency density histogram of the sample variance-mean data from \texttt{AbsFilter} with linear shading correction. The red solid line shows the GLM fit along with $\Phi(\pm 1)$ prediction interval as dashed lines.}
+    \caption{Log frequency density histogram of the sample variance-mean data from \texttt{AbsFilter} with linear shading correction. The solid red line shows the GLM fit along with the $\Phi(+1)-\Phi(-1)$ prediction interval as dashed lines.}
     \label{fig:meanVar_varMeanExample_AbsFilter}
 \end{figure}
 
@@ -308,7 +310,7 @@ and
 \end{equation}
 Because $\alpha=(n-1)/2$, this shows that the number of replicated projections used to obtain the sample variance-mean data has an influence on the mean scaled deviance. This result can be used to estimate $\alpha$ if it is unknown.
 
-Cross validation was performed on the datasets \texttt{AbsNoFilterDeg120} and \texttt{AbsFilterDeg120} with various different shading corrections. The models selected from forward step-wise selection in the previous section were assessed. They are $\widehat{y}(x)=\beta_0+\beta_1 x$ and $\widehat{y}(x)=\beta_{-1}x^{-1}+\beta_0$ using the identity link and $\widehat{y}(x)=(\beta_{-1}x^{-1}+\beta_0)^{-1}$ using the canonical link. The analysis was repeated 100 times by using a random permutation with replacement of the replicated projections to obtain a different sample variance-mean data which introduces some variation to the data.
+Cross validation was performed on the datasets \texttt{AbsNoFilter} and \texttt{AbsFilter} with various shading corrections. The models selected from forward step-wise selection in the previous section were assessed. They are ${y}(x)=\beta_0+\beta_1 x$ and ${y}(x)=\beta_{-1}x^{-1}+\beta_0$ using the identity link and ${y}(x)=(\beta_{-1}x^{-1}+\beta_0)^{-1}$ using the canonical link. The analysis was repeated 100 times by using a random permutation with replacement of the replicated projections to obtain a different sample variance-mean data which introduces some variation to the data.
 
 \begin{figure}
   \centering
@@ -319,7 +321,7 @@ Cross validation was performed on the datasets \texttt{AbsNoFilterDeg120} and \t
   \end{subfigure}
   \begin{subfigure}[b]{\subSize}
       \includegraphics[width=\textwidth]{../figures/varmean/VarMeanCvAbsNoFilterDeg120_testmeanscaleddeviance.eps}
-      \caption{\texttt{AbsFilter} at \ang{120}}
+      \caption{\texttt{AbsNoFilter} at \ang{120}}
   \end{subfigure}
   }
     \centerline{
@@ -336,15 +338,15 @@ Cross validation was performed on the datasets \texttt{AbsNoFilterDeg120} and \t
   \label{fig:meanVar_varMeanCv}
 \end{figure}
 
-The results from the cross validation is shown in Figure \ref{fig:meanVar_varMeanCv}. The performance of the three candidate models were very similar. One exception is the model $\widehat{y}(x)=\beta_{-1}x^{-1}+\beta_0$ fitted onto the \texttt{AbsNoFilterDeg120} dataset, the mean scaled deviance was significantly larger and this is expected from a model not favoured in the forward step-wise selection in the previous section.
+The results from the cross validation is shown in Figure \ref{fig:meanVar_varMeanCv}. The performance of the three candidate models were very similar. One exception is the model ${y}(x)=\beta_{-1}x^{-1}+\beta_0$ fitted onto the \texttt{AbsNoFilter} dataset, the mean scaled deviance was significantly larger and this is expected from a model not favoured in the forward step-wise selection in the previous section.
 
-Shading correction, again, did not had an effect in the analysis.
+Shading correction did not had a significant effect in the analysis.
 
-From these results, it is recommended that the relationship $\widehat{y}(x)=\beta_0+\beta_1 x$ should be used for its simple form, similar performance to other candidate models and connections to the compound Poisson.
+From these results, it is recommended that the relationship ${y}(x)=\beta_0+\beta_1 x$ should be used for its simple form, similar performance to other candidate models and connections to the compound Poisson.
 
 \section{Residual Analysis}
 
-A residual analysis was conducted to look for anything overlooked. The model $\widehat{y}(x)=\beta_0+\beta_1 x$ was looked at here. A residual plot plots $r_i=y_i-\widehat{y}(x_i)$ for all $x_i$ in the dataset. This was done using a 2D histogram. Due to the gamma GLM, higher grey values typically have bigger residuals in magnitude, a predicted residual interval is included in the histogram to aid judging the residuals. This interval was obtained by obtaining the prediction interval and subtracting it from the fit.
+A residual analysis was conducted to look for anything overlooked. The model ${y}(x)=\beta_0+\beta_1 x$ was analysed A residual plot plots $r_i=y_i-\widehat{y}(x_i)$ for all $x_i$ in the dataset. This was done using a 2D histogram. Due to the gamma GLM, higher grey values typically have bigger residuals in magnitude, a predicted residual interval is included in the histogram to aid judging the residuals. This interval was obtained by obtaining the prediction interval and subtracting it from the fit.
 
 \begin{figure}
   \centering
@@ -368,7 +370,7 @@ A residual analysis was conducted to look for anything overlooked. The model $\w
       \caption{\texttt{AbsFilter} at \ang{120}}
   \end{subfigure}
   }
-  \caption{Log frequency density histogram of the residuals given the mean grey value. The residuals are from fitting a gamma GLM of the form $\widehat{y}(x)=\beta_0+\beta_1 x$ onto the sample variance-mean data obtained from the replicated projections. The dashed red line shows the $\Phi(\pm 1)$ predicted residual interval.}
+  \caption{Log frequency density histogram of the residuals given the mean grey value. The residuals are from fitting a gamma GLM of the form ${y}(x)=\beta_0+\beta_1 x$ onto the sample variance-mean data obtained from the replicated projections. The dashed red line shows the $\Phi(+1)-\Phi(-1)$ confidence interval of the predicted residual.}
   \label{fig:meanVar_residualGreyvalue}
 \end{figure}
 
@@ -396,15 +398,15 @@ The residual plots are shown in Figure \ref{fig:meanVar_residualGreyvalue}. The 
       \caption{\texttt{AbsFilter} at \ang{120}}
   \end{subfigure}
   }
-  \caption{Absolute value residuals from fitting a gamma GLM of the form $\widehat{y}(x)=\beta_0+\beta_1 x$ onto the sample variance-mean data obtained from the replicated projections. Highlighted in a red box is an inflection.}
+  \caption{Absolute value residuals from fitting a gamma GLM of the form ${y}(x)=\beta_0+\beta_1 x$ onto the sample variance-mean data obtained from the replicated projections. Highlighted in a red box is an example of an inflection.}
   \label{fig:meanVar_spatialResidual}
 \end{figure}
 
-Because no spatial information was used in modelling the variance, the residuals were plotted on top of the projections to look for any spatial structure, this is shown in Figure \ref{fig:meanVar_spatialResidual}. Because of the geometry of the test sample, lower grey values, thus smaller residuals, are found in the middle of the projection. Similarly higher grey values, thus bigger residuals, are found on the edges of the test sample. Considering that, the residuals do not show any striking spatial structure. Again, the inflection in \texttt{AbsNoFilter} at \ang{120} can be seen more clearly here.
+Because no spatial information was used in modelling the variance, the residuals were plotted on top of the projections to look for any spatial structure, this is shown in Figure \ref{fig:meanVar_spatialResidual}. Because of the geometry of the test sample, lower grey values, thus smaller residuals, are found in the middle of the projection. Similarly, higher grey values, thus bigger residuals, are found on the edges of the test sample. Considering that, the residuals do not show any striking spatial structure. Again, the inflection in \texttt{AbsNoFilter} at \ang{120} can be seen more clearly here.
 
 \section{Conclusion}
 
-Various parametric models were investigated. A gamma GLM with identity and canonical link functions were looked at with different explanatory polynomials. In terms of cross-validation, most of the models looked at have similar prediction performance when predicting the variance given a grey value. Thus the relationship $\widehat{y}(x)=\beta_0+\beta_1 x$ using the identity link is attractive for its simplicity and links with the compound Poisson model.
+Various parametric models were investigated. A gamma GLM with identity and canonical link functions were looked at with different polynomial features. In terms of cross-validation, most of the models looked at have similar prediction performance when predicting the variance given a grey value. Thus the relationship $\widehat{y}(x)=\beta_0+\beta_1 x$ using the identity link is attractive for its simplicity and links with the compound Poisson model.
 
 It was found shading correction had little effect on the variance-mean relationship.
 
@@ -412,4 +414,4 @@ As discussed in the compound Poisson chapter, a linear relationship can be deriv
 
 It was unusual to see an infection in the sample variance-mean data in \texttt{AbsNoFilter} at \ang{120} which was not captured by the GLM. A good explanation was not found but perhaps the absence of an x-ray filter may have contributed to this.
 
-Non-parametric and machine learning methods may be used in the prediction of variance for more flexible models. These models are flexible, however, they are slow and are unnecessary in a low dimensional problem with a large number of data points.
+More flexible models such as non-parametric and machine learning methods may be used, however, they are slow and are unnecessary in a low dimensional problem with a large number of data points.
