@@ -17,10 +17,11 @@
 \usepackage{MnSymbol} %udots
 \usepackage{afterpage} %\afterpage{\clearpage}
 \usepackage{siunitx} %for measurements
-\usepackage{rotating}
+\usepackage[figuresright]{rotating}
 \usepackage{multirow} %for multirow tables
 \usepackage{mathtools} %multlined
 \usepackage{longtable}
+\usepackage{bibentry}
 
 
 \setcounter{tocdepth}{2}
@@ -73,6 +74,7 @@
 \DeclareSIUnit\pixel{px}
 \DeclareSIUnit\adu{ADU}
 
+
 \begin{document}\sloppy
 
 \begin{titlingpage}
@@ -103,11 +105,17 @@ I would like to thank my supervisors Julia Brettschneider and Tom Nichols. I wou
 This work is funded by the EPSRC and MRC Centre for Doctoral Training in Next Generation Statistical Science: The Oxford-Warwick Statistics Programme (EP/L016710/1). I would like to thank my cohort for the friendship and collaboration during the programme: Nathan Cunningham, Giuseppe di Benedetto, Beniamino Hadj-Amar, Jack Jewson, Ella Kaye, Leon Law, Kaspar Martens, Marcin Mider, Xenia Miscouridou, Paul Vanetti and Andi Wang.
 
 \chapter{Declaration}
-This thesis is the author's own work and has not been published at the time of submitting.
+This thesis is submitted to the University of Warwick in support of my application for the degree of Doctor of Philosophy. It has been composed by myself and has not been submitted in any previous application for any degree.
 
-This thesis is a result of collaborative research with Inside-out: Statistical methods for Computed Tomography validation of complex structures in Additive Layer Manufacturing funded by EPSRC (EP/K031066/1).  Greg Gibbons and Jay Warnett, from the Warwick Manufacturing Group, were responsible for the fabrication, x-ray computed tomography acquisition and simulation of test samples used in this thesis. In this thesis, they are referred to as engineers.
+The work presented (including data generated and data analysis) was carried out by the author except in the cases outlined below:
+\begin{itemize}
+  \item The fabrication, x-ray computed tomography acquisition and simulation of test samples were done by Greg Gibbons and Jay Warnett, from the Warwick Manufacturing Group, as part of Inside-out: Statistical methods for Computed Tomography validation of complex structures in Additive Layer Manufacturing funded by EPSRC (EP/K031066/1).
+\end{itemize}
 
-This thesis has not been submitted for a degree at another university.
+Parts of this thesis have been published by the author:
+\begin{itemize}
+  \item\nobibliography*\bibentry{lo2019detection}
+\end{itemize}
 
 \chapter{Abstract}
 X-ray computed tomography (CT) can be used for defect detection in 3D printing. The object is scanned at multiple angles to reconstruct the object in 3D space. The process can be time consuming. The aim of this project was to investigate if it is possible to conduct defect detection in projection space from a single scan to speed up the defect detection procedure. To do this, a 3D printed sample was manufactured with voids to see if they can be detected.
@@ -121,7 +129,6 @@ Software, called \texttt{aRTist}, was used to simulate the scan and it was compa
 \mainmatter
 
 \chapter{Introduction}
-
 
 \chapter{Literature Review}
 \input{chapters/1_literatureReview.tex}
