@@ -45,28 +45,28 @@ function allNullExample(image, name)
   
   %plot the image before filtering
   fig = LatexFigure.sub();
-  imagePlot = ImagescSignificant(image);
+  imagePlot = Imagesc(image);
   imagePlot.setCLim(clim);
   imagePlot.plot();
   saveas(fig,fullfile(directory, strcat(name,'_beforeFilter.eps')),'epsc');
   
   %plot the image after filtering
   fig = LatexFigure.sub();
-  imagePlot = ImagescSignificant(imageFiltered);
+  imagePlot = Imagesc(imageFiltered);
   imagePlot.setCLim(clim);
   imagePlot.plot();
   saveas(fig,fullfile(directory, strcat(name,'_afterFilter.eps')),'epsc');
   
   %empirical null mean plot
   fig = LatexFigure.sub();
-  imagePlot = ImagescSignificant(nullMean);
+  imagePlot = Imagesc(nullMean);
   imagePlot.setCLim(clim);
   imagePlot.plot();
   saveas(fig,fullfile(directory, strcat(name,'_nullMean.eps')),'epsc');
   
   %empirical null std plot
   fig = LatexFigure.sub();
-  imagePlot = ImagescSignificant(nullStd);
+  imagePlot = Imagesc(nullStd);
   imagePlot.setCLim(stdClim);
   imagePlot.plot();
   saveas(fig,fullfile(directory, strcat(name,'_nullStd.eps')),'epsc');

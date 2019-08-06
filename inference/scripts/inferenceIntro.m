@@ -12,7 +12,8 @@ clearvars;
 close all;
 
 %get the x-ray scan, artist and the z image
-[test, artist, zImage] = inferenceExample();
+randStream = RandStream('mt19937ar', 'Seed', uint32(3538096789));
+[zImage, test, artist] = getZImage(AbsFilterDeg120(), randStream);
 %do hypothesis testing on the zimage
 zTester = ZTester(zImage);
 zTester.doTest();

@@ -13,8 +13,7 @@ classdef (Abstract) DefectDetect < Experiment
     zImage; %the unfiltered z image
     scan; %scan object, containing images of the x-ray scan
     radiusArray; %array of kernel radius to investigate
-    trainingIndex; %array of index, points to images use for the variance-mean training
-    testIndex; %index, points to a image use for comparing with aRTist
+    testImage; %test projection
     
     zFilterArray; %array of filtered z images, one for each kernel radius
     nullMeanArray; %array of null mean images, one for each kernel radius
@@ -57,7 +56,7 @@ classdef (Abstract) DefectDetect < Experiment
         
         %plot the test image with the significant pixels
         fig = LatexFigure.sub();
-        positivePlot = Imagesc(this.scan.loadImageStack(this.testIndex));
+        positivePlot = Imagesc(this.testImage);
         positivePlot.addPositivePixels(zTester.positiveImage);
         positivePlot.setDilateSize(2);
         positivePlot.plot();
@@ -118,47 +117,17 @@ classdef (Abstract) DefectDetect < Experiment
       
       %assign member variables
       this.scan = scan;
-      this.scan.addShadingCorrectorBw();
+      this.scan.addShadingCorrectorLinear();
       this.radiusArray = radiusArray;
       this.zFilterArray = nan(scan.height, scan.width, numel(radiusArray));
       this.nullMeanArray = nan(scan.height, scan.width, numel(radiusArray));
       this.nullStdArray = nan(scan.height, scan.width, numel(radiusArray));
       
-      %assign random index for the training images (train the var-mean) and the test image
-      %the test image is compared with aRTist
+      %get the z image
       randStream = RandStream('mt19937ar','Seed',seed);
-      index = randStream.randperm(scan.nSample);
-      nTrain = scan.nSample - 1;
-      this.trainingIndex = index(1:nTrain);
-      this.testIndex = index(end);
-      
-      %get the aRTist image
-      artist = scan.getArtistImageShadingCorrected('ShadingCorrector',[1,scan.whiteIndex]);
-      
-      %get the segmentation image
-      segmentation = scan.getSegmentation();
-      %get the training images
-      trainingStack = scan.loadImageStack(this.trainingIndex);
-      %segment the image
-      trainingStack = reshape(trainingStack, scan.area, nTrain);
-      trainingStack = trainingStack(reshape(segmentation,[],1),:);
-      %get the segmented mean and variance greyvalue
-      trainingMean = mean(trainingStack,2);
-      trainingVar = var(trainingStack,[],2);
-
-      %train glm using the training set mean and variance
-      model = fitglm(trainingMean, trainingVar, 'Distribution', 'gamma', 'Link', 'identity');
-
-      %predict variance given aRTist
-      varPredict = reshape(model.predict(reshape(artist,[],1)),scan.height, scan.width);
-
-      %get the test images
-      test = scan.loadImageStack(this.testIndex);
-
       %get the z statistic
-      this.zImage = (test - artist) ./ sqrt(varPredict);
-      %set non segmented pixels to be nan
-      this.zImage(~segmentation) = nan;
+      [this.zImage, this.testImage] = getZImage(scan, randStream);
+      
     end
     
     %IMPLEMENTED: DO EXPERIMENT
