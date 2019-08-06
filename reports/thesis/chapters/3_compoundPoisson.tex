@@ -91,7 +91,7 @@ Returning back to the compound Poisson with no electronic noise $X|Y = \sum_{i=1
 which agrees with the expectation and variance results in the previous section. The derivation is shown in Appendix \ref{chapter:appendix_compoundPoissonMgf}.
 
 \subsection{Compound Poisson-Gamma}
-
+\label{chapter:compoundPoisson_compoundPoissonGamma}
 A special case of the compound Poisson is when $U\sim\gammaDist\left(\alpha,\beta\right)$ where $\alpha>0$ is the gamma shape parameter and $\beta>0$ is the gamma rate parameter. This was used for example in \cite{xu2009electronic}. This is known as the compound Poisson-gamma distribution. This is denoted by $X\sim\CPoisson(\lambda,\alpha,\beta)$ and has p.d.f.
 \begin{equation}
   p_X(x) = 
@@ -176,15 +176,15 @@ where $1<p<2$. This is derived in Appendix \ref{chapter:appendix_tweedie}. It sh
 
 \subsection{Method of Moments}
 
-The method of moments is a simpler method to estimate the parameters of a compound Poisson-gamma random variable. Suppose $\widehat{\mu}$ is an estimator of $\expectation[X]$ and $\widehat{\mu}_j$ is an estimator of $\expectation\left[\left(X-\expectation[X]\right)^j\right]$ for $j=2,3$. Then the estimators
+The method of moments is a simpler method to estimate the parameters of a compound Poisson-gamma random variable. Suppose $\widehat{\mu}_1$ is an estimator of $\expectation[X]$ and $\widehat{\mu}_j$ is an estimator of $\expectation\left[\left(X-\expectation[X]\right)^j\right]$ for $j=2,3$. Then the estimators
 \begin{equation}
-  \widehat{\lambda}=\frac{\widehat{\mu}^2\widehat{\mu}_2}{\left(2\widehat{\mu}_2^2-\widehat{\mu}_3\widehat{\mu}\right)}
+  \widehat{\lambda}=\frac{\widehat{\mu}_1^2\widehat{\mu}_2}{2\widehat{\mu}_2^2-\widehat{\mu}_1\widehat{\mu}_3}
 \end{equation}
 \begin{equation}
-  \widehat{\alpha}=\frac{\widehat{\mu}_3\widehat{\mu}-2\widehat{\mu}_2^2}{\widehat{\mu}_2^2-\widehat{\mu}\widehat{\mu}_3}
+  \widehat{\alpha}=\frac{2\widehat{\mu}_2^2-\widehat{\mu}_1\widehat{\mu}_3}{\widehat{\mu}_1\widehat{\mu}_3-\widehat{\mu}_2^2}
 \end{equation}
 \begin{equation}
-  \widehat{\beta}=\frac{\widehat{\mu}\widehat{\mu}_2}{\widehat{\mu}\widehat{\mu}_3-\widehat{\mu}_2^2}
+  \widehat{\beta}=\frac{\widehat{\mu}_1\widehat{\mu}_2}{\widehat{\mu}_1\widehat{\mu}_3-\widehat{\mu}_2^2}
 \end{equation}
 are method of moments estimators of $\lambda$, $\alpha$ and $\beta$ respectively \citep{withers2011compound}. These estimators suffer because estimation is not done through the sufficient statistics and can be negative, this is a problem because the parameters do not take non-positive values.
 

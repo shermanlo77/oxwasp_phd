@@ -370,6 +370,87 @@ and using the result from Equation \eqref{eq:appendix_variancePartitionFunction}
 \end{equation}
 shows that the compound Poisson-gamma distribution is in the Tweedie dispersion exponential family with $1<p<2$.
 
+\section{Method of Moments}
+\label{chapter:appendix_methodofmoments}
+Let $X\sim\CPoisson(\lambda,\alpha,\beta)$. Suppose $\widehat{\mu}_1$ is an estimator of $\mu_1=\expectation[X]$ and $\widehat{\mu}_j$ is an estimator of $\mu_j=\expectation\left[\left(X-\expectation[X]\right)^j\right]$ for $j=2,3$. It is given (see Section \ref{chapter:compoundPoisson_compoundPoissonGamma}) that
+\begin{align}
+  \mu_1&=\frac{\alpha\lambda}{\beta}
+  \label{eq:appendix_methodofmoments_mu1}
+  \\
+  \mu_2&=\frac{\alpha(\alpha+1)\lambda}{\beta^2}
+  \label{eq:appendix_methodofmoments_mu2}
+  \\
+  \mu_3&= \frac{\alpha(\alpha+1)(\alpha+2)\lambda}{\beta^3}
+  \label{eq:appendix_methodofmoments_mu3}
+  \ .
+\end{align}
+
+The ratios $\mu_2/\mu_1$ and $\mu_3/\mu_2$ are
+\begin{equation}
+\dfrac{\mu_2}{\mu_1}= \dfrac{\alpha+1}{\beta}
+\label{eq:appendix_methodofmoments_ratio1}
+\end{equation}
+and
+\begin{equation}
+\dfrac{\mu_3}{\mu_2} = \dfrac{\alpha+2}{\beta} \ .
+\label{eq:appendix_methodofmoments_ratio2}
+\end{equation}
+Subtracting $\mu_3/\mu_2$ from $\mu_2/\mu_1$ obtains
+\begin{equation*}
+  \dfrac{\mu_3}{\mu_2}-\dfrac{\mu_2}{\mu_1}=
+  \dfrac{1}{\beta}
+\end{equation*}
+and rearranging
+\begin{align}
+  \beta&=\dfrac{1}{\dfrac{\mu_3}{\mu_2}-\dfrac{\mu_2}{\mu_1}}
+  \nonumber\\
+  \beta&=\dfrac{\mu_1\mu_2}{\mu_1\mu_3-\mu_2^2}
+  \label{eq:appendix_methodofmoments_beta}
+\end{align}
+gets a justification for the estimator
+\begin{equation}
+  \widehat{\beta}=\dfrac{\widehat{\mu}_1\widehat{\mu}_2}{\widehat{\mu}_1\widehat{\mu}_3-\widehat{\mu}_2^2} \ .
+\end{equation}
+
+Rearranging Equation \eqref{eq:appendix_methodofmoments_ratio1}
+\begin{equation}
+\alpha=\dfrac{\mu_2}{\mu_1}\beta - 1
+\end{equation}
+and substituting in Equation \eqref{eq:appendix_methodofmoments_beta}
+\begin{align}
+  \alpha &= \dfrac{\mu_2}{\mu_1}\times\dfrac{\mu_1\mu_2}{\mu_1\mu_3-\mu_2^2} - 1
+  \nonumber \\
+  & = \dfrac{\mu_2^2 - \mu_1\mu_3+\mu_2^2}{\mu_1\mu_3-\mu_2^2}
+  \nonumber \\
+  & = \dfrac{2\mu_2^2 - \mu_1\mu_3}{\mu_1\mu_3-\mu_2^2}
+  \label{eq:appendix_methodofmoments_alpha}
+\end{align}
+obtains the estimator
+\begin{equation}
+  \widehat{\alpha} = 
+  \dfrac{2\widehat{\mu}_2^2 - \widehat{\mu}_1\widehat{\mu}_3}{\widehat{\mu}_1\widehat{\mu}_3-\widehat{\mu}_2^2} \ .
+\end{equation}
+
+Finally, rearranging Equation \eqref{eq:appendix_methodofmoments_mu1}
+\begin{equation*}
+\lambda = \dfrac{\beta\mu_1}{\alpha}
+\end{equation*}
+and substituting in Equations \eqref{eq:appendix_methodofmoments_beta} and \eqref{eq:appendix_methodofmoments_alpha}
+\begin{align}
+\lambda &= 
+  \dfrac{\mu_1\mu_2}{\mu_1\mu_3-\mu_2^2}
+  \times
+  \dfrac{\mu_1\mu_3-\mu_2^2}{2\mu_2^2 - \mu_1\mu_3}
+  \times
+  \mu_1
+  \nonumber \\
+  & = \dfrac{\mu_1^2\mu_2}{2\mu_2^2-\mu_1\mu_3}
+\end{align}
+which leads to
+\begin{equation}
+\widehat{\lambda} = \dfrac{\widehat{\mu}_1^2\widehat{\mu}_2}{2\widehat{\mu}_2^2-\widehat{\mu}_1\widehat{\mu}_3} \ .
+\end{equation}
+
 \section{Normal Approximation}
 \label{chapter:appendix_normalApproximation}
 Let $X\sim\CPoisson(\lambda,\alpha,\beta)$ with m.g.f.~$M_X(\theta)=\exp\left[\lambda\left(\left(\frac{\beta}{\beta-\theta}\right)^{\alpha}-1\right)\right]$. The m.g.f.~in this form is not useful because when considering $\lambda\rightarrow\infty$ or $\alpha\rightarrow\infty$ then $M_X(\theta)\rightarrow\infty$. Also for $\beta\rightarrow\infty$, then $M_X(\theta)\rightarrow 1$ which is not useful either.
