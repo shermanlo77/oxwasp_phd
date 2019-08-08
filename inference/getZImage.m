@@ -49,7 +49,7 @@ function [zImage, test, artist] = getZImage(scan, rng)
 
   %predict variance given aRTist
   XArtist = reshape(artist,[],1);
-  XArtist = XArtist*XStd + XMean;
+  XArtist = (XArtist - XMean) / XStd;
   varPredict = reshape(model.predict(XArtist),scan.height, scan.width) * YStd;
 
   %get the test images
