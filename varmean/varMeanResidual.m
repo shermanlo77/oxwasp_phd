@@ -68,16 +68,15 @@ for iScan = 1:numel(scanArray)
   fig = LatexFigure.sub();
   imagesc = Imagesc(abs(residualSpatial));
   imagesc.setCLim([0,max(upError)]);
-  if (isa(scan,'AbsNoFilterDeg120'))
-    highlight = false(scan.height, scan.width);
-    highlight(130:1860,220) = true;
-    highlight(130:1860,620) = true;
-    highlight(133,220:620) = true;
-    highlight(1860,220:620) = true;
-    imagesc.addPositivePixels(highlight);
-    imagesc.setDilateSize(15);
-  end
   imagesc.plot();
+  if (isa(scan,'AbsNoFilterDeg120'))
+    hold on;
+    axis xy;
+    plot([220,220],[130,1860],'r--');
+    plot([620,620],[130,1860],'r--');
+    plot([220,620],[130,130],'r--');
+    plot([220,620],[1860,1860],'r--');
+  end
   saveas(fig, fullfile(directory,strcat(mfilename,class(scan),'_spatial.eps')), 'epsc');
   
 end
