@@ -94,6 +94,8 @@ classdef ZTester < handle
     function plotHistogram(this)
       hist = Histogram(reshape(this.zImage(),[],1));
       hist.plot();
+      xlabel('z statistic');
+      ylabel('frequency density');
     end
 
     %METHOD: PLOT HISTOGRAM WITH NULL DISTRIBUTION AND CRITICAL BOUNDARY
@@ -120,9 +122,7 @@ classdef ZTester < handle
       %swap the order of the critical and histogram
       ax.Children = flip(ax.Children);
       
-      %label axis and legend
-      xlabel('z statistic');
-      ylabel('frequency density');
+      %legend
       if (wantNull)
         legend(ax.Children(1:(end-1)), 'z statistic', 'null', 'critical');
       else

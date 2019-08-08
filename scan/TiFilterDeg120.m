@@ -7,6 +7,7 @@ classdef TiFilterDeg120 < TiFilter
           '120deg_');
       this.addArtistFile(fullfile('data','titaniumBlock_SnFilter_Dec16','sim','phantom', ...
           '120deg.tif'));
+      this.nSubSegmentation = 7;
     end
     
   end

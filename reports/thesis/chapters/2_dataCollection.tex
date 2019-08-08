@@ -157,7 +157,7 @@ In this section, the shading correction in \cite{seibert1998flat} is presented i
 
 \subsection{Proposed Shading Correction}
 
-Let $S_{x,y}(P)$ be the greyscale projection when exposed to x-rays produced by an x-ray tube with power $P$ for some fixed time exposure $\tau$. $S_{x,y}(P)$ may be averaged over replications. Let $x=1,2,3,\cdots, W$ and $y=1,2,3,\cdots,H$. Let $N_{x,y}$ be the obtained projection of the test sample when exposed to x-rays produced by an x-ray tube with power $P_\text{proj}$ for some fixed time exposure $\tau$. The black and white image can be expressed as $\text{black}_{x,y}=S_{x,y}(0)$ and $\text{white}_{x,y}=S_{x,y}(P_\text{proj})$ respectively.
+Let $S_{x,y}(P)$ be the greyscale projection when exposed to x-rays produced by an x-ray tube with power $P$ for some fixed time exposure $\tau$. $S_{x,y}(P)$ may be averaged over replications. Let $x=1,2,3,\dotsc, W$ and $y=1,2,3,\dotsc,H$. Let $N_{x,y}$ be the obtained projection of the test sample when exposed to x-rays produced by an x-ray tube with power $P_\text{proj}$ for some fixed time exposure $\tau$. The black and white image can be expressed as $\text{black}_{x,y}=S_{x,y}(0)$ and $\text{white}_{x,y}=S_{x,y}(P_\text{proj})$ respectively.
 
 The shading free image is not truly known, but it should expected that the shading corrected greyscale projection should be flat with some noise. In other words, all pixels in a shading corrected greyscale projection should have grey values with the same expectation $\mu_{S}(P)$ and same variance $\sigma_{S}^2(P)$. Suppose $\mu_{S}(P)$ was estimated using the within projection mean
 \begin{equation}
@@ -322,7 +322,7 @@ An experiment was conducted to quantify the performance of the different types o
 
 In each dataset, there are 20 replicated greyscale images for each power. One randomly selected replication from each power was assigned to the training set and used to calibrate the shading correction. The remaining images was assigned to the test set and the shading correction was applied to each image.
 
-For each power, the within and between pixel variance was calculated. Let $U_{x,y}^{(j)}(P)$ be the shading corrected greyscale image in the test set with power $P$ for $j=1,2,\cdots,n$ replicates. The within and between pixel variance are
+For each power, the within and between pixel variance was calculated. Let $U_{x,y}^{(j)}(P)$ be the shading corrected greyscale image in the test set with power $P$ for $j=1,2,\dotsc,n$ replicates. The within and between pixel variance are
 \begin{equation}
 s_\mathrm{w}^2(P)=\dfrac{1}{WH(n-1)}
   \sum_{x=1}^{W}\sum_{y=1}^{H}\sum_{j=1}^{n}

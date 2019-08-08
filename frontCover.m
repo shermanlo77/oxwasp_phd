@@ -1,4 +1,5 @@
-clc;
+%REQUIRES DefectDetectSubRoiAbsFilterDeg120
+
 close all;
 clearvars;
 
@@ -24,6 +25,7 @@ imagesc.setCLim([0,15]);
 projectionImage = imagesc.plot();
 masterImage(:, 1001:end, :) = projectionImage.CData(:, 1001:end, :);
 
-masterImage(isnan(masterImage)) = 0;
+segmentation = repmat(scan.getSegmentation(),1,1,3);
+masterImage(~segmentation) = 1;
 
 imwrite(masterImage,fullfile('reports','figures','frontCover.jpg'));

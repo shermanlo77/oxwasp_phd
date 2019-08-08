@@ -4,7 +4,6 @@
 %Plot empirical null std
 %Plot roc curve before and after contamination
 
-clc;
 clearvars;
 close all;
 

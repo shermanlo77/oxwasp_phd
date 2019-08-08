@@ -4,7 +4,7 @@ In this chapter, generalised linear models \citep{nelder1972generalized, nelder1
 
 \section{Generalised Linear Models}
 
-The sample variance-mean data were obtained from the replicated projections. Let $x_{i,j}^{(r)}$ be the grey value of the pixel at $(i,j)$ from the $r$th replicate projection for $r=1,2,3,\dotdotdot,n$. The pixel sample mean is
+The sample variance-mean data were obtained from the replicated projections. Let $x_{i,j}^{(r)}$ be the grey value of the pixel at $(i,j)$ from the $r$th replicate projection for $r=1,2,3,\dotsc,n$. The pixel sample mean is
 \begin{equation}
     \overline{x}_{i,j}=\frac{1}{n}\sum_{r=1}^n x_{i,j}^{(r)}
 \end{equation}
@@ -20,7 +20,7 @@ and the pixel sample variance is
 \end{equation}
 Only pixels in the region of interest (ROI) were considered here, that is pixels which represent the test sample. The ROI was created by manually segmenting the test sample from the projection.
 
-The aim is to model and predict the grey value variance of a pixel given the pixel's grey value by fitting a model onto the sample variance-mean data. No spatial information was used, thus the variance-mean data is denoted as $(x_1,y_1),(x_2,y_2),\cdots,(x_m,y_m)$ from now on, where $m$ is the area of the ROI or the size of the dataset. Let $Y(x)$ be a random variable and the sample variance given a grey value mean $x$. It was assumed the standard error from estimating the mean was negligible so that the uncertainty is captured by the random variable $Y$. It was assumed that for a given pixel, the grey values are Normal and i.i.d. Let $\sigma^2(x)$ be the variance given a grey value $x$, then it can be shown that
+The aim is to model and predict the grey value variance of a pixel given the pixel's grey value by fitting a model onto the sample variance-mean data. No spatial information was used, thus the variance-mean data is denoted as $(x_1,y_1),(x_2,y_2),\dotsc,(x_m,y_m)$ from now on, where $m$ is the area of the ROI or the size of the dataset. Let $Y(x)$ be a random variable and the sample variance given a grey value mean $x$. It was assumed the standard error from estimating the mean was negligible so that the uncertainty is captured by the random variable $Y$. It was assumed that for a given pixel, the grey values are Normal and i.i.d. Let $\sigma^2(x)$ be the variance given a grey value $x$, then it can be shown that
 \begin{equation}
 \dfrac{(n-1)Y(x)}{\sigma^2(x)}\sim\chi^2_{n-1}
 \end{equation}
@@ -56,7 +56,7 @@ g(y)=g^{-1}(y)=1/y \ .
 \end{equation}
 There is also the log link $g(y)=\ln y$ but $y$ must be a unitless quantity, for example Poisson counts, for it to be comparable. Because $y$ is in units of $\SI{}{\adu^2}$, the log link is not used in this analysis.
 
-An example of a systematic component are polynomial features $\eta(x)=\beta_0+\sum_{j=1}^{p-1}\beta_j x^j$ so that when used with the identity link, for example, $\expectation\left[Y(x)\right] = \beta_0+\sum_{j=1}^{p-1}\beta_j x^j$. Iterative reweighted least squares \citep{friedman2001elements} can be used to estimate the parameters $\beta_0, \beta_1, \cdots, \beta_{p-1}$ given data for the model to fit onto.
+An example of a systematic component are polynomial features $\eta(x)=\beta_0+\sum_{j=1}^{p-1}\beta_j x^j$ so that when used with the identity link, for example, $\expectation\left[Y(x)\right] = \beta_0+\sum_{j=1}^{p-1}\beta_j x^j$. Iterative reweighted least squares \citep{friedman2001elements} can be used to estimate the parameters $\beta_0, \beta_1, \dotsc, \beta_{p-1}$ given data for the model to fit onto.
 
 Once the parameters have been estimated, prediction of the variance given a grey value $x$ is done by using $\widehat{y}(x) = g^{-1}(\widehat{\eta}(x))$ where $\widehat{\eta}(x)$ is the systematic component using the estimated parameters.
 
@@ -415,3 +415,5 @@ As discussed in the compound Poisson chapter, a linear relationship can be deriv
 It was unusual to see an infection in the sample variance-mean data in \texttt{AbsNoFilter} at \ang{120} which was not captured by the GLM. A good explanation was not found but perhaps the absence of an x-ray filter may have contributed to this.
 
 More flexible models such as non-parametric and machine learning methods may be used, however, they are slow and are unnecessary in a low dimensional problem with a large number of data points.
+
+With the ability to predict the variance given a grey value of a pixel, the uncertainty can be quantified. In the next chapter, the projection is compared to a simulated projection under the face of that uncertainty.

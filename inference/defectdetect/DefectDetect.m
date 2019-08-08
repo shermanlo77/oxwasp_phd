@@ -35,6 +35,12 @@ classdef (Abstract) DefectDetect < Experiment
       
       directory = fullfile('reports','figures','inference');
       
+      %plot unfilted z image
+      fig = LatexFigure.sub();
+      imagesc = Imagesc(this.zImage);
+      imagesc.plot();
+      saveas(fig, fullfile(directory, strcat(this.experimentName,'_unfilteredZ.eps')), 'epsc');
+      
       %array of p value images from the filtered z images
       logPArray = zeros(this.scan.height, this.scan.width, numel(this.radiusArray));
       

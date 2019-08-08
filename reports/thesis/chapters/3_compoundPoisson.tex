@@ -1,6 +1,6 @@
 The grey value of each pixel in the detector can be modelled as a random variable, due to the random behaviour of photons being produced, interacting with the test sample and the scintillator in the detector. By modelling using a random variable, the uncertainty can be quantified and considered when conducting inference about any detected defects.
 
-The compound Poisson distribution is studied here because of the compound Poission-like behaviour from the detection of photons \citep{whiting2002signal, elbakri2003efficient, whiting2006properties}. It is defined by defining a latent variable $Y\sim\poisson(\lambda)$ with probability mass function (p.m.f.) $\prob(Y=y)=\euler^{-\lambda}\frac{\lambda^y}{y!}$ for $y=0,1,2,\cdots$, where $\lambda>0$ is the Poisson rate parameter. Let $U_i$ be some independent and identically distributed (i.i.d.) latent random variables with probability density function (p.d.f.) $p_U(u)$ for $i=1,2,3,\cdots$. Let $X$ be a compound Poisson random variable where
+The compound Poisson distribution is studied here because of the compound Poission-like behaviour from the detection of photons \citep{whiting2002signal, elbakri2003efficient, whiting2006properties}. It is defined by defining a latent variable $Y\sim\poisson(\lambda)$ with probability mass function (p.m.f.) $\prob(Y=y)=\euler^{-\lambda}\frac{\lambda^y}{y!}$ for $y=0,1,2,\dotsc$, where $\lambda>0$ is the Poisson rate parameter. Let $U_i$ be some independent and identically distributed (i.i.d.) latent random variables with probability density function (p.d.f.) $p_U(u)$ for $i=1,2,3,\dotsc$. Let $X$ be a compound Poisson random variable where
 \begin{equation}
   X|Y = \sum_{i=1}^{Y}U_i \ .
   \label{eq:compoundPoisson_X|Y}
@@ -26,7 +26,7 @@ This chapter starts with a literature review on the compound Poisson distributio
 
 \subsection{Compound Poisson in X-ray Detection}
 
-In an x-ray tube, photons are emitted as a Poisson process and each photon has some random energy due to bremsstrahlung and characteristic radiation. This shares similarities to the compound Poisson. Let $Y$ be the number of photons emitted for some time exposure $\tau$, then $Y\sim\poisson(\lambda)$. Each photon is assumed to be i.i.d.~with energy $U_i$ for $i=1,2,3,\cdots$. $U_i$ has p.d.f.~$p_U(u)$. The random variables discussed here covers all the latent variables in the compound Poisson.
+In an x-ray tube, photons are emitted as a Poisson process and each photon has some random energy due to bremsstrahlung and characteristic radiation. This shares similarities to the compound Poisson. Let $Y$ be the number of photons emitted for some time exposure $\tau$, then $Y\sim\poisson(\lambda)$. Each photon is assumed to be i.i.d.~with energy $U_i$ for $i=1,2,3,\dotsc$. $U_i$ has p.d.f.~$p_U(u)$. The random variables discussed here covers all the latent variables in the compound Poisson.
 
 Photons emitted from the x-ray tube undergo attenuation when propagating through the test sample. Assuming no beam hardening, some photons are either absorbed or scattered, making them undetectable. Scattered photons may be detected but it is very rare \citep{cantatore2011introduction}. Attenuated photon energy remains unaffected so attenuation decreases the parameter $\lambda$ and the amount it decreases by depends on the attenuation coefficient of the material and the amount of material the x-ray attenuates. The parameters of the random variable $U_i$ remains unchanged because the energy of each photon remains the same after attenuation, assuming no beam hardening.
 
@@ -280,7 +280,7 @@ Simulations of a compound Poisson-gamma random variable were conducted with the 
 
 There were a few technical problems with the histogram because the compound Poisson has probability mass at zero and probability density for positive numbers. To correctly represent the empirical distribution of a compound Poisson random variable, a bar chart was used to show the frequency of a zero and a histogram to show the frequency density of positive numbers. However, the Normal approximation and the saddlepoint approximation does not have support at zero. Therefore, to compare these approximate densities to the empirical distribution fairly, a histogram containing both zero and positive samples was used when appropriate.
 
-The evaluation of the p.d.f.~using the saddlepoint approximate required a bit of caution to avoid over/underflow problems. Suppose realizations of $X$ were simulated $\left\{x_1,x_2,x_3,\cdots,x_n\right\}$. The saddlepoint approximation was computed up to a constant using
+The evaluation of the p.d.f.~using the saddlepoint approximate required a bit of caution to avoid over/underflow problems. Suppose realizations of $X$ were simulated $\left\{x_1,x_2,x_3,\dotsc,x_n\right\}$. The saddlepoint approximation was computed up to a constant using
 \begin{equation}
   p_X(x) \propto
   \exp\left[
@@ -295,7 +295,7 @@ The evaluation of the p.d.f.~using the saddlepoint approximate required a bit of
 for 500 equally spaced points from and including the minimum non-zero simulated value to the maximum simulated value. $k$ is some constant which was chosen to be
 \begin{equation}
   k =
-  \max_{i\in\left\{1,2,3,\cdots,n\right\}}
+  \max_{i\in\left\{1,2,3,\dotsc,n\right\}}
   \left[
     -\frac{\alpha+2}{2(\alpha+1)}
     \ln(x_i)
@@ -320,7 +320,7 @@ and
   \right]
   \ ,
 \end{equation}
-then a Q-Q plot is a parametric plot which plots $\widehat{F}_X^{-1}(p)$ against $F_X^{-1}(p)$ for $p=\frac{0.5}{n},\frac{1.5}{n},\frac{2.5}{n},\cdots,\frac{n-0.5}{n}$. If $F_X(x)$ and $\widehat{F}_X(x)$ are similar, a Q-Q plot should be a straight line with gradient 1, intercepting the origin. For the exact method and the saddlepoint approximate, $F_X(x)$ was found numerically by evaluating the p.d.f.~at $10\,000$ equally spaced points from and including the minimum to the maximum of the simulated samples, and then summing the required trapeziums. $\widehat{F}_X^{-1}(p)$ was then calculated by interpolation. Because the Normal and saddlepoint approximation does not support zero, the Q-Q plot was omitted for small $\lambda$.
+then a Q-Q plot is a parametric plot which plots $\widehat{F}_X^{-1}(p)$ against $F_X^{-1}(p)$ for $p=\frac{0.5}{n},\frac{1.5}{n},\frac{2.5}{n},\dotsc,\frac{n-0.5}{n}$. If $F_X(x)$ and $\widehat{F}_X(x)$ are similar, a Q-Q plot should be a straight line with gradient 1, intercepting the origin. For the exact method and the saddlepoint approximate, $F_X(x)$ was found numerically by evaluating the p.d.f.~at $10\,000$ equally spaced points from and including the minimum to the maximum of the simulated samples, and then summing the required trapeziums. $\widehat{F}_X^{-1}(p)$ was then calculated by interpolation. Because the Normal and saddlepoint approximation does not support zero, the Q-Q plot was omitted for small $\lambda$.
 
 When plotting the probability of obtaining a zero or the p.d.f.~for positive values, confidence intervals were plotted as well. Consider a bin in a histogram, the confidence intervals were obtained by assuming that the frequency in a bin $\sim\poisson(\text{p.d.f.~evaluated at the bin}\times 1\,000 \times \text{bin width})$.
 
@@ -485,7 +485,7 @@ The model may be simplified by omitting the electronic noise, this can be done b
 
 \section{EM Algorithm}
 
-The EM algorithm \citep{dempster1977maximum} is proposed as a method to estimate the parameters of a $X\sim\CPoisson(\lambda,\alpha,\beta)$ random variable given a sample of measurements of it $\left\{x_1,x_2,x_3,\cdots,x_n\right\}$. The use of the EM algorithm here for the compound Poisson is similar to \cite{elbakri2003statistical, xu2009electronic}.
+The EM algorithm \citep{dempster1977maximum} is proposed as a method to estimate the parameters of a $X\sim\CPoisson(\lambda,\alpha,\beta)$ random variable given a sample of measurements of it $\left\{x_1,x_2,x_3,\dotsc,x_n\right\}$. The use of the EM algorithm here for the compound Poisson is similar to \cite{elbakri2003statistical, xu2009electronic}.
 
 Let $\widehat{\lambda}$, $\widehat{\alpha}$ and $\widehat{\beta}$ be estimators of $\lambda$, $\alpha$ and $\beta$ respectively. The log likelihood is defined to be
 \begin{align}
@@ -512,7 +512,7 @@ Let $\widehat{\lambda}$, $\widehat{\alpha}$ and $\widehat{\beta}$ be estimators 
 \end{align}
 $\widehat{\lambda}$, $\widehat{\alpha}$ and $\widehat{\beta}$ are values of $\lambda$, $\alpha$ and $\beta$ which jointly maximises the log likelihood.
 
-The EM algorithm \citep{dempster1977maximum} instead treats $Y\sim\poisson(\lambda)$ as a latent variable. Let $\left\{Y_1,Y_2,Y_3,\cdots, Y_n\right\}$ be realizations of $Y$ and $\left\{x_1,x_2,x_3,\cdots, x_n\right\}$ be the respective measurements of $X|Y$. Define the joint log likelihood to be
+The EM algorithm \citep{dempster1977maximum} instead treats $Y\sim\poisson(\lambda)$ as a latent variable. Let $\left\{Y_1,Y_2,Y_3,\dotsc, Y_n\right\}$ be realizations of $Y$ and $\left\{x_1,x_2,x_3,\dotsc, x_n\right\}$ be the respective measurements of $X|Y$. Define the joint log likelihood to be
 \begin{multline*}
   \ln L(\lambda,\alpha,\beta;X,Y)
   =
@@ -598,7 +598,7 @@ As discussed before, the sum in the denominator can be evaluated using the metho
 
 Let
 \begin{equation}
-  W_y^{(r)} = y^r W_y \quad \text{for }r=1,2,3,\cdots
+  W_y^{(r)} = y^r W_y \quad \text{for }r=1,2,3,\dotsc
 \end{equation}
 so that
 \begin{equation}
@@ -622,12 +622,12 @@ and then taking the derivative with respect to $y$
   \frac{\partial \ln(W_y^{(r)})}{\partial y} = \frac{r}{y } + \frac{\partial \ln(W_y)}{\partial y}
   \ .
 \end{equation}
-Keep in mind that $y=1,2,3,\cdots$ so for large $y$, an approximation can be made $r/y\approx 0$ so that
+Keep in mind that $y=1,2,3,\dotsc$ so for large $y$, an approximation can be made $r/y\approx 0$ so that
 \begin{equation}
   \frac{\partial \ln(W_y^{(r)})}{\partial y} \approx \frac{\partial \ln(W_y)}{\partial y}
   \ .
 \end{equation}
-Therefore the maximum of $W_y^{(r)}$ is located at $y_\text{max}$ for all $r=0,1,2,\cdots$. The same method of evaluating $W_y$ can be used to evaluate $W_y^{(r)}$. For a given $r=0,1,2,\cdots$, the limit of the sum $\sum_{y=y_\text{l}}^{y_\text{u}} W^{(r)}_y$ are chosen such that $W_{y_\text{l}}$ and $W_{y_\text{u}}$ are less than $\epsilon W_{y_\text{max}}^{(r)}$ where $\epsilon$ is some small constant. The limits will be different for different values of $r$.
+Therefore the maximum of $W_y^{(r)}$ is located at $y_\text{max}$ for all $r=0,1,2,\dotsc$. The same method of evaluating $W_y$ can be used to evaluate $W_y^{(r)}$. For a given $r=0,1,2,\dotsc$, the limit of the sum $\sum_{y=y_\text{l}}^{y_\text{u}} W^{(r)}_y$ are chosen such that $W_{y_\text{l}}$ and $W_{y_\text{u}}$ are less than $\epsilon W_{y_\text{max}}^{(r)}$ where $\epsilon$ is some small constant. The limits will be different for different values of $r$.
 
 \subsection{M Step}
 
