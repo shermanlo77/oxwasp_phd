@@ -51,3 +51,4 @@ for iSegmentation = 1:scan.nSubSegmentation
   plot(boundary(:,2), boundary(:,1), 'r:', 'LineWidth', 2.5);
 end
 saveas(fig, fullfile('reports','figures','inference','segment.eps'),'epsc');
+saveas(fig, fullfile('reports','figures','inference','segment.tiff'),'tiff');
