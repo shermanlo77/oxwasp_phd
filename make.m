@@ -42,6 +42,7 @@ allNull;
 defectExample;
 defectSimulation;
 defectDetect;
+inferenceSubRoi;
 
 disp('Front cover');
 frontCover;
