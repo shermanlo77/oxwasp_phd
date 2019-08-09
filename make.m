@@ -42,3 +42,6 @@ allNull;
 defectExample;
 defectSimulation;
 defectDetect;
+
+disp('Front cover');
+frontCover;
