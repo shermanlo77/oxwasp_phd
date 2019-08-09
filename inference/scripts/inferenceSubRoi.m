@@ -12,6 +12,7 @@ close all;
 
 %get z image
 experiment = DefectDetectAbsFilterDeg120();
+experiment.run();
 scan = experiment.scan();
 zImage = experiment.zImage;
 

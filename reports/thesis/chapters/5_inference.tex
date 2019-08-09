@@ -835,7 +835,7 @@ where $b$ and $a$ are parameters to be fitted. This was chosen to establish a si
 
 \begin{figure}
   \centering
-  \includegraphics[width=0.7\textwidth]{../figures/inference/BandwidthSelection2_ruleOfThumb.eps}
+  \includegraphics[width=\mainSize]{../figures/inference/BandwidthSelection2_ruleOfThumb.eps}
   \caption{An identity link gamma GLM was fitted onto the relationship between the optimal bandwidth and $n^{-1/5}$ from the experimental data. The dotted lines shows the 95\% prediction interval.}
   \label{fig:inference_BandwidthSelection2_ruleOfThumb}
 \end{figure}
@@ -965,20 +965,6 @@ To test for robustness, a dataset of $n = \pi r^2$ mixture of Gaussian random va
 
 Returning back to the example at the start of the chapter, the empirical null could be used on the histogram shown in Figure \ref{fig:inference_inferenceIntro_histogram}. The resulting empirical null distribution is shown in Figure \ref{fig:inference_inferenceSubsampleAll}. The empirical null distribution had a very large standard deviation and would test all pixels as negative, this is incorrect.
 
-\begin{figure}
-  \centering
-  \begin{subfigure}[b]{\subSize}
-    \includegraphics[width=\textwidth]{../figures/inference/inferenceSubsampleAll_subimagePositive.eps}
-    \caption{Test statistics}
-  \end{subfigure}
-  \begin{subfigure}[b]{\subSize}
-    \includegraphics[width=\textwidth]{../figures/inference/inferenceSubsampleAll_densityEstimate.eps}
-    \caption{Empirical null fitted onto histogram}
-  \end{subfigure}
-  \caption{The resulting test statistics are shown in a). The density estimate of the statistics is shown in b). The empirical null distribution multiplied by some constant is also plotted in b); this is to illustrate the curvature is the same as the density estimate at the mode.}
-  \label{fig:inference_inferenceSubsampleAll}
-\end{figure}
-
 The problem was that the empirical distribution of all of the test statistics looked like it did not came from a Normal distribution. It appeared that the test statistics varied spatially, suggesting the empirical null varied spatially as well. To account for the spatially variability of the null parameters, one possible extension is to the empirical null is to spilt the $z$ image into a grid and conduct inference in each section separately. There are problems with this though. The first problem is that how the grid is overlaid can be arbitrary, for example the grid can be translated to produce different sections. Secondly, it is not clear how to combine the results from each section together \citep{efron2008simultaneous}.
 
 The empirical null filter extends the empirical null to images. The parameters of the null distribution varies spatially, slowly and smoothly in 2D space. Let the test statistic of the pixel at position $(x,y)$ be
@@ -994,6 +980,20 @@ which are tested against
   H_{1,x,y}:\mu_{x,y}\neq\widehat{\mu}_{0,x,y} \ .
 \end{equation}
  The empirical null filter aims to estimate the parameters $\mu_{0,x,y}$ and $\sigma_{0,x,y}$ for all $x$ and $y$.
+ 
+ \begin{figure}[t]
+  \centering
+  \begin{subfigure}[b]{\subSize}
+    \includegraphics[width=\textwidth]{../figures/inference/inferenceSubsampleAll_subimagePositive.eps}
+    \caption{Test statistics}
+  \end{subfigure}
+  \begin{subfigure}[b]{\subSize}
+    \includegraphics[width=\textwidth]{../figures/inference/inferenceSubsampleAll_densityEstimate.eps}
+    \caption{Empirical null fitted onto histogram}
+  \end{subfigure}
+  \caption{The resulting test statistics are shown in a). The density estimate of the statistics is shown in b). The empirical null distribution multiplied by some constant is also plotted in b); this is to illustrate the curvature is the same as the density estimate at the mode.}
+  \label{fig:inference_inferenceSubsampleAll}
+\end{figure}
 
 The empirical null filter uses the empirical null on neighbouring pixels to estimate the null parameters. To estimate $\mu_{0,x,y}$ and $\sigma_{0,x,y}$, a circular kernel $C_r(x,y)$ of radius $r$ was centred at $(x,y)$. All the pixels captured by the circular kernel and the ROI were used for the empirical null to obtain $\widehat{\mu}_{0,x,y}$ and $\widehat{\sigma}_{0,x,y}$, in other words
 \begin{equation}
@@ -1099,7 +1099,7 @@ As a test, the empirical null filter with $r=5$ was used on a \emph{ImageJ} samp
         \caption{Empirical null standard deviation}
     \end{subfigure}
     }
-    \caption{Various spread filters with kernel radius $r=5$ on the sample image \texttt{bridge.gif}.}
+    \caption{Various dispersion filters with kernel radius $r=5$ on the sample image \texttt{bridge.gif}.}
     \label{fig:inference_fijiStd}
 \end{figure}
 
@@ -1417,7 +1417,7 @@ The kurtosis in Figures \ref{fig:inference_AllNullGaussian_kurtosis} and \ref{fi
 \afterpage{\clearpage}
 \subsection{Detection of Simulated Defects}
 
-In this experiment, the empirical null filter was tested to see if it can detect simulated defects from an image with/without contamination. A \emph{defect} is a pixel which has a value not distributed under the null distribution, but instead an alternative distribution. For example suppose $Z_{x,y}|H_{0,x,y}\sim\normal(0,1)$, then a defect would have a value distributed as $Z_{x,y}|H_{1,x,y}\sim\normal(\mu_{1},1)$ where $\mu_1\neq0$.
+The empirical null filter was tested to see if it can detect simulated defects from an image with/without contamination. A \emph{defect} is a pixel which has a value not distributed under the null distribution, but instead an alternative distribution. For example suppose $Z_{x,y}|H_{0,x,y}\sim\normal(0,1)$, then a defect would have a value distributed as $Z_{x,y}|H_{1,x,y}\sim\normal(\mu_{1},1)$ where $\mu_1\neq0$.
 
 To recap, \emph{contamination} is the result of a linear transform of the test statistics $Z_{x,y}$. For example in this experiment, the image was multiplied by 2 and a gradient was added to it. Suppose the image does contain defects, then an example of a resulting distribution is
 \begin{align}
@@ -1911,7 +1911,7 @@ For good results, the faces of the test sample were segmented. This was necessar
 
 While the empirical null filter performed well for the ABS test sample, it failed in the titanium test sample due to dominating effects on the edges. This could be due to poor face segmentation or poor alignment of the \emph{aRTist} projection with the obtained projection. This demonstrates that the empirical null filter can cater for model misspecification but there becomes a point where model misspecification null statistics cannot be distinguished from non-null statistics.
 
-The main issue with implementing this method onto the production line was how slow the filter was. The main bottleneck is the evaluation of the density estimate, each step in the Newton-Raphson required the evaluation of $\pi r^2$ data points. Perhaps there may be faster methods for density estimation such as fitting a smoothing spline on the histogram \citep{efron2004large}, however that would require tuning the histogram bins as well as the tuning parameters for the spline. On the other hand, the method in \cite{schwartzman2008empirical} which uses the histogram count found that the estimation of the null parameters was insensitive to the histogram binning.
+The main issue with implementing this method onto the production line was how slow the filter was. The main bottleneck is the evaluation of the density estimate, each step in the Newton-Raphson required the evaluation of $\pi r^2$ data points. As a result, increasing the kernel radius slows down the filter. Perhaps there may be faster methods for density estimation such as fitting a smoothing spline on the histogram \citep{efron2004large}, however that would require tuning the histogram bins as well as the tuning parameters for the spline. On the other hand, the method in \cite{schwartzman2008empirical} which uses the histogram count found that the estimation of the null parameters was insensitive to the histogram binning.
 
 There are a few strategies to accelerate the filter. The empirical null filter may be accelerated using GPUs \citep{yang2008parallel, hwu2011gpu, eklund2013medical}, however efforts to implement the filter in \emph{CUDA} and \emph{C++} is fruitless if there may exist a faster method. Instead, accuracy may be sacrificed for speed by only estimating the null parameters for a number of regularly spaced pixels, the remaining pixels then do estimation through interpolation. The problem is that the assumption of a slow varying null parameter is required much more because of the use of interpolation, this may cause bigger problems due to the face to face transition observed in the experiments. It was found that if a bad solution was found for a point, then that solution would spread its bad solution to neighbour pixels due to the interpolation.
 

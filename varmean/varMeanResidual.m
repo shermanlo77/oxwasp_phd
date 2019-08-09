@@ -47,8 +47,8 @@ for iScan = 1:numel(scanArray)
   xPlot = linspace(min(xOriginal), max(xOriginal), 1000)';
   XPlot = (xPlot-xCentre)./xScale;
   yPlot = model.predict(XPlot) * yStd;
-  upError = gaminv(normcdf(1), alpha, yPlot/alpha) - yPlot;
-  downError = gaminv(normcdf(-1), alpha, yPlot/alpha) - yPlot;
+  upError = gaminv(0.975, alpha, yPlot/alpha) - yPlot;
+  downError = gaminv(0.025, alpha, yPlot/alpha) - yPlot;
 
   %plot the heat map of the residual vs grey value
   hist3Heatmap = Hist3Heatmap();

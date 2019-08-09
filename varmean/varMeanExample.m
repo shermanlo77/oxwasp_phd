@@ -56,8 +56,8 @@ function plotExample(scan, termMatrixArray, linkArray)
     yPlot = model.predict(XPlot) * yStd;
     
     %get the 1 sigma error bars
-    upError = gaminv(normcdf(1), alpha, yPlot/alpha);
-    downError = gaminv(normcdf(-1), alpha, yPlot/alpha);
+    upError = gaminv(0.975, alpha, yPlot/alpha);
+    downError = gaminv(0.025, alpha, yPlot/alpha);
     
     %plot the heat map
     hist3Heatmap = Hist3Heatmap();
