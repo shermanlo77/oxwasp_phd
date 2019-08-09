@@ -1,3 +1,6 @@
+close all;
+clearvars;
+
 this = DefectAltDustEmpirical();
 this.run();
 this.printResults();

@@ -1,3 +1,6 @@
+close all;
+clearvars;
+
 experiments = {...
   GlmSelectAicAbsNoFilterDeg30();
   GlmSelectAicAbsNoFilterDeg120();

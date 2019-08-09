@@ -4,7 +4,6 @@
 %Shows the empirical null mean and std image
 %Plots the p values of the post filter greyvalues
 
-clc;
 clearvars;
 close all;
 

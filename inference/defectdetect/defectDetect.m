@@ -1,3 +1,6 @@
+clearvars;
+close all;
+
 this = DefectDetectAbsFilterDeg120();
 this.run();
 this.printResults();

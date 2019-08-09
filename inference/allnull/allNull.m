@@ -1,3 +1,6 @@
+clearvars;
+close all;
+
 this = AllNullGaussianEmpirical();
 this.run();
 this.printResults();

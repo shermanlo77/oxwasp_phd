@@ -1,3 +1,6 @@
+clearvars;
+close all;
+
 experiments = {...
   VarMeanCvAbsNoFilterDeg30();
   VarMeanCvAbsNoFilterDeg120();

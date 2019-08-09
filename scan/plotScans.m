@@ -6,7 +6,6 @@
   %calibration simulations
 %calibration images only go up to the maximum power used in the x-ray acquisition
 
-clc;
 close all;
 clearvars;
 
