@@ -101,7 +101,7 @@
 \listoftables
 
 \chapter{Acknowledgements}
-I would like to thank my supervisors Julia Brettschneider and Tom Nichols. I would also like to thank my calibrators, as part of the Inside-Out group, in Warwick Statistics, Clair Barnes, Wilfred Kendall and Audrey Kueh, and the Warwick Manufacturing Group, Greg Gibbons, Jay Warnett and Mark Williams.
+I would like to thank my supervisors Julia Brettschneider and Tom Nichols for their guidance throughout my PhD. I would also like to thank my calibrators who are part of the Inside-Out group, in Warwick Statistics, Clair Barnes, Wilfred Kendall and Audrey Kueh, and the Warwick Manufacturing Group, Greg Gibbons, Jay Warnett and Mark Williams.
 
 This work is funded by the EPSRC and MRC Centre for Doctoral Training in Next Generation Statistical Science: The Oxford-Warwick Statistics Programme (EP/L016710/1). I would like to thank my cohort for the friendship and collaboration during the programme: Nathan Cunningham, Giuseppe di Benedetto, Beniamino Hadj-Amar, Jack Jewson, Ella Kaye, Leon Law, Kaspar M\"{a}rtens, Marcin Mider, Xenia Miscouridou, Paul Vanetti and Andi Wang.
 
@@ -119,11 +119,13 @@ Parts of this thesis have been published by the author:
 \end{itemize}
 
 \chapter{Abstract}
-X-ray computed tomography (CT) can be used for defect detection in 3D printing. The object is scanned at multiple angles to reconstruct the object in 3D space. The process can be time consuming. The aim of this project was to investigate if it is possible to conduct defect detection in projection space from a single scan to speed up the defect detection procedure. To do this, a 3D printed sample was manufactured with voids to see if they can be detected.
+X-ray computed tomography can be used for defect detection in additive manufacturing. Typically, several x-ray projections of the product at hundreds of angles are used to reconstruct the object in 3D to look for any defects. The process can be time-consuming. This thesis aims to investigate if it is possible to conduct defect detection from a single projection to speed up the process. An additive manufacturing test sample was created with voids to see if they can be detected.
 
-X-ray photons behave randomly. Hence to do defect detection pixel by pixel, uncertainty must be taken into account. A compound Poisson model was used to model the grey valyes in a pixel. It assumed that photon arrivals are a Poisson process with Gamma distributed energy. This resulted in a linear relationship between the mean and variance of the grey value, which was used for variance prediction and to quantify the uncertainty.
+The uncertainty of the projection was modelled using a compound Poisson distribution. This arises from x-ray photon arrivals being a Poisson process and each photon has random energy. This resulted in a linear relationship between the mean and variance of the grey value in the projection, which was used for variance prediction and to quantify the uncertainty. Fitting of the compound Poisson distribution using the expectation-maximisation algorithm was unsuccessful due to identifiability issues with the model.
 
-Software, called \texttt{aRTist}, was used to simulate the scan and it was compared with the x-ray acquisition under the face of uncertainty. However the software, and the information provided to it, was not perfect which led to model misspecification and incorrect inference. The empirical null filter was proposed. It adjust each pixel statistic so that inference was done by comparing each pixel with the majority of its local pixels.
+Software, called \emph{aRTist}, was used to simulate the projection and compared with the obtained projection. The comparison was done under the face of uncertainty by treating each pixel as a hypothesis test.  To overcome the imperfections of the simulation, the empirical null filter was used to cater for the model misspecification so that sensible inference was achieved. Voids with diameters in the order of millimetres were detectable.
+
+This thesis is a contribution to real-time quality control in additive manufacturing.
 
 \newpage
 
@@ -131,20 +133,42 @@ Software, called \texttt{aRTist}, was used to simulate the scan and it was compa
 
 \chapter{Introduction}
 
+Probability and statistics is used throughout in science. In particular, undergraduates are drilled to quote confidence intervals, use an appropriate number of significant figures and plot error bars in their studies. In physics, probability is used to model randomness in quantum mechanics and used to handle millions of particles in statistical mechanics.
+
+In the field of engineering, additive manufacturing is an emerging technology and has uses in producing bespoke products. Because it is a new form of technology, the process is not well understood and tolerances are not as precise as other forms of manufacturing. As a result, there exist methods for quality control of additive manufactured products. Typically, this is done using x-ray computed tomography and requires hundreds of x-ray projections, making this a slow process.
+
+The aim of this thesis is to investigate if it is possible to do quality control of additive manufactured products using only a few x-ray projections to speed up the quality control process. By using fewer x-ray projections, uncertainty is introduced. This is where statistics comes in. It enables the sensible handling of uncertainty from sources of errors such as the random behaviour of x-ray photons to model misspecification of the problem.
+
+The front cover shows the before and after of the statistical analysis. The left hand side shows an x-ray projection of an additive manufactured cuboid. Its edges appeared curved due to spot and panel effects and this can be fixed using shading correction. The right hand side shows the $p$-values of the resulting inference. Lighter colours shows evidence of a defect and they successfully highlighted voids put in there purposefully.
+
+In Chapter \ref{chapter1}, x-ray computed tomography and additive manufacturing is reviewed. Sources of error were looked at and it was investigated to see how they were handled. In Chapter \ref{chapter2}, a test sample was additive manufactured and the chapter describes how experimental x-ray projections were obtained. Shading correction is explained here and it was used to remove sources of systematic errors in the projections. In Chapter \ref{chapter3}, the compound Poisson distribution is studied so that it can be used to model the detection of x-rays. In Chapter \ref{chapter4}, the uncertainty in the projection was quantified using the variance and methods were used to predict it. In Chapter \ref{chapter5}, statistical techniques were employed to look for defects in the test sample under the face of uncertainty. The empirical null filter was used to cater for any model misspecification so that sensible conclusions were made. The thesis ends with an evaluation in Chapter \ref{chapter6}.
+
+Undergraduate level physics and statistics is assumed. The physics and mathematics used can be reviewed in undergraduate textbooks such as \cite{serway2018physics} and \cite{riley2006mathematical} respectively. The statistics can be reviewed in \cite{rice2009mathematical}. Knowledge of generalised linear models \citep{nelder1972generalized,nelder1972generalized_2, mccullagh1984generalized} and analysis of variance (ANOVA) is also assumed.
+
+This thesis can be reproduced using the source code in the \emph{GitHub} repository \url{https://github.com/shermanip/oxwasp_phd}.
+
 \chapter{Literature Review}
+\label{chapter1}
 \input{chapters/1_literatureReview.tex}
 
 \chapter{Data Collection}
+\label{chapter2}
 \input{chapters/2_dataCollection.tex}
 
 \chapter{Compound Poisson}
+\label{chapter3}
 \input{chapters/3_compoundPoisson.tex}
 
 \chapter{Variance Prediction}
+\label{chapter4}
 \input{chapters/4_variancePrediction.tex}
 
 \chapter{Inference}
+\label{chapter5}
 \input{chapters/5_inference.tex}
+
+\chapter{Evaluation}
+\label{chapter6}
 
 \bibliographystyle{apalike}
 \bibliography{../bib}
