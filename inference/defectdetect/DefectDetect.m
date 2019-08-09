@@ -67,48 +67,48 @@ classdef (Abstract) DefectDetect < Experiment
         positivePlot.setDilateSize(2);
         positivePlot.plot();
         ax = fig.Children(1);
-        print(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
-            '_sig.eps')),'-depsc','-loose');
-        print(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
-            '_sig.tif')),'-dtiff');
+        saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
+            '_sig.eps')),'epsc');
+        saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
+            '_sig.tif')),'tiff');
         
         %plot the filtered image
         fig = LatexFigure.sub();
         filteredImagePlot = Imagesc(filteredImage);
         filteredImagePlot.setCLim(zCLim);
         filteredImagePlot.plot();
-        print(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
-            '_z.eps')),'-depsc','-loose');
+        saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
+            '_z.eps')),'epsc');
         
         %plot the null mean
         fig = LatexFigure.sub();
         nullMeanPlot = Imagesc(this.nullMeanArray(:,:,iRadius));
         nullMeanPlot.setCLim(zCLim);
         nullMeanPlot.plot();
-        print(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
-            '_nullMean.eps')),'-depsc','-loose');
-        print(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
-            '_nullMean.tif')),'-dtiff');
+        saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
+            '_nullMean.eps')),'epsc');
+        saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
+            '_nullMean.tif')),'tiff');
         
         %plot the null std
         fig = LatexFigure.sub();
         nullStdPlot = Imagesc(this.nullStdArray(:,:,iRadius));
         nullStdPlot.setCLim(nullStdCLim);
         nullStdPlot.plot();
-        print(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
-            '_nullStd.eps')),'-depsc','-loose');
-        print(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
-            '_nullStd.tif')),'-dtiff');
+        saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
+            '_nullStd.eps')),'epsc');
+        saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
+            '_nullStd.tif')),'tiff');
           
         %plot the -log p values
         fig = LatexFigure.sub();
         pPlot = Imagesc(logPArray(:,:,iRadius));
         pPlot.setCLim([0, logPMax]);
         pPlot.plot();
-        print(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
-            '_logp.eps')),'-depsc','-loose');
-        print(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
-            '_logp.tif')),'-dtiff');
+        saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
+            '_logp.eps')),'epsc');
+        saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
+            '_logp.tif')),'tiff');
         
       end
       
