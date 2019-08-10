@@ -12,9 +12,9 @@
 clearvars;
 close all;
 
-subsampleExample(1:2000, 1:2000, 'inferenceSubsampleAll'); %whole image
-subsampleExample(1100:1299, 400:599, 'inferenceSubsample1'); %subimage with no defect
-subsampleExample(500:699, 500:699, 'inferenceSubsample2'); %subimage with defect
+subsampleExample(1:2000, 1:2000, strcat(mfilename,'All')); %whole image
+subsampleExample(1100:1299, 400:599, strcat(mfilename,'1')); %subimage with no defect
+subsampleExample(500:699, 500:699, strcat(mfilename,'2')); %subimage with defect
 
 
 %PARAMETERS:
