@@ -3,7 +3,6 @@
 %Plot the y profile for a given x for a black image
 %Also plots for even y and odd y
 
-clc;
 close all;
 clearvars;
 
