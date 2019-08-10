@@ -7,7 +7,6 @@
   %histogram with critical boundary
   %p values with critical boundary
 
-clc;
 clearvars;
 close all;
 

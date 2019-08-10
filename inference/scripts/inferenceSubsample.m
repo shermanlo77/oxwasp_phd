@@ -24,7 +24,8 @@ subsampleExample(500:699, 500:699, 'inferenceSubsample2'); %subimage with defect
   %name: prefix used when saving results
 function subsampleExample(rowSubsample, colSubsample, name)
 
-  [~, ~, zImage] = inferenceExample();
+  randStream = RandStream('mt19937ar', 'Seed', uint32(3538096789));
+  [zImage, test, artist] = getZImage(AbsFilterDeg120(), randStream)
 
   %FIGURE
   %Plot the z image with a rectangle highlighting the subsample
