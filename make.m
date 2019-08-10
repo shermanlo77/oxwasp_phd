@@ -2,7 +2,7 @@ clc;
 clearvars;
 close all;
 
-disp('Chapter 3 - Literature Review'); 
+disp('Chapter 3 - Data Collection'); 
 plotScans;
 oddEvenPlot;
 shadingCorrectionExample;
