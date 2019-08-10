@@ -27,7 +27,7 @@ varMeanCv; %parfor possible
 devianceGraph;
 varMeanResidual;
 
-disp('Chapter 6 - Compound Poisson');
+disp('Chapter 6 - Inference');
 inferenceIntro;
 inferenceSubsample;
 this = BandwidthSelection();
