@@ -9,7 +9,6 @@
   %histogram with critical boundary, corrected for empirical null
   %p values with critical boundary
 
-clc;
 clearvars;
 close all;
 
