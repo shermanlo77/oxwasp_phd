@@ -19,9 +19,6 @@ classdef BandwidthSelection < Experiment
     meanArray;
     stdArray;
     
-    iIteration; %number of iterations done
-    nIteration; %number of iterations in the whole experiments
-    
   end
   
   %METHODS
@@ -119,13 +116,13 @@ classdef BandwidthSelection < Experiment
         %dim 3: for each n or each sample size
       this.meanArray = zeros(this.nRepeat, numel(this.kArray), numel(this.nArray) );
       this.stdArray = zeros(this.nRepeat, numel(this.kArray), numel(this.nArray) );
-      %assign other member variables
-      this.iIteration = 0;
-      this.nIteration = this.nRepeat * numel(this.nArray) * numel(this.kArray);
     end
     
     %IMPLEMENTED: DO EXPERIMENT
     function doExperiment(this)
+      
+      %set progress bar
+      this.setNIteration(this.nRepeat * numel(this.nArray) * numel(this.kArray));
       
       %for every n in nArray
       for iN = 1:numel(this.nArray)
@@ -154,9 +151,8 @@ classdef BandwidthSelection < Experiment
             this.meanArray(iRepeat, iK, iN) = empiricalNull.getNullMean();
             this.stdArray(iRepeat, iK, iN) = empiricalNull.getNullStd();
 
-            %update iteartion and progress bar
-            this.iIteration = this.iIteration + 1;
-            this.printProgress(this.iIteration / this.nIteration);
+            %progress bar
+            this.madeProgress();
             
           end
           

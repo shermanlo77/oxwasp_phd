@@ -7,9 +7,9 @@
 %sensitivty analysis is done by varying the parameter of the local quadratic regression
 %
 %Plotted are:
-%ln mean squared error vs kernel width for all n
-%optimal kernel width vs n^(-1/5)
-%gradient and intercept vs smoothness of local quadratic regression
+  %ln mean squared error vs kernel width for all n
+  %optimal kernel width vs n^(-1/5)
+  %gradient and intercept vs smoothness of local quadratic regression
 classdef BandwidthSelection2 < Experiment
   
   %MEMBER VARIABLES
@@ -22,11 +22,8 @@ classdef BandwidthSelection2 < Experiment
     %dim 1: for each n
     errorFit;
     
+    %the glm fit for optimal bandwidth vs n^{-1/5}
     fitter;
-    
-    %progress bar variables
-    iIteration;
-    nIteration;
   end
   
   %METHODS
@@ -118,16 +115,14 @@ classdef BandwidthSelection2 < Experiment
       this.kArray = previous.kArray;
       this.kOptimal = zeros(numel(previous.nArray), 1);
       this.errorFit = cell(numel(previous.nArray), 1);
-      
-      this.iIteration = 0;
-      this.nIteration = numel(previous.nArray);
-      
     end
     
     %IMPLEMENTED: DO EXPERIMENT
     function doExperiment(this)
       %get the results of the previous experiment
       previous = this.getPreviousResult();
+      %set progress bar
+      this.setNIteration(numel(previous.nArray));
 
       %for each n
       for iN = 1:numel(previous.nArray)
@@ -149,8 +144,7 @@ classdef BandwidthSelection2 < Experiment
         this.kOptimal(iN) = fminsearch(spline, 0.9 * previous.nArray(iN)^(-1/5));
 
         %update the progress bar
-        this.iIteration = this.iIteration + 1;
-        this.printProgress(this.iIteration / this.nIteration);
+        this.madeProgres();
 
       end
       
