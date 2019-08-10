@@ -12,20 +12,19 @@
 clearvars;
 close all;
 
-subsampleExample(1:2000, 1:2000, strcat(mfilename,'All')); %whole image
-subsampleExample(1100:1299, 400:599, strcat(mfilename,'1')); %subimage with no defect
-subsampleExample(500:699, 500:699, strcat(mfilename,'2')); %subimage with defect
-
+randStream = RandStream('mt19937ar', 'Seed', uint32(3538096789));
+zImage = getZImage(AbsFilterDeg120(), randStream);
+subsampleExample(zImage, 1:2000, 1:2000, strcat(mfilename,'All')); %whole image
+subsampleExample(zImage, 1100:1299, 400:599, strcat(mfilename,'1')); %subimage with no defect
+subsampleExample(zImage, 500:699, 500:699, strcat(mfilename,'2')); %subimage with defect
 
 %PARAMETERS:
+  %zImage: image of z statistics
   %rowSubsample: vector of indicies of rows which indiciate the position of the subimage
   %colSubsample: vector of indicies of columns which indiciate the position of the subimage
   %name: prefix used when saving results
-function subsampleExample(rowSubsample, colSubsample, name)
-
-  randStream = RandStream('mt19937ar', 'Seed', uint32(3538096789));
-  [zImage, ~, ~] = getZImage(AbsFilterDeg120(), randStream);
-
+function subsampleExample(zImage, rowSubsample, colSubsample, name)
+  
   %FIGURE
   %Plot the z image with a rectangle highlighting the subsample
   fig = LatexFigure.sub();
