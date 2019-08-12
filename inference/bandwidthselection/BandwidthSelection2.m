@@ -144,7 +144,7 @@ classdef BandwidthSelection2 < Experiment
         this.kOptimal(iN) = fminsearch(spline, 0.9 * previous.nArray(iN)^(-1/5));
 
         %update the progress bar
-        this.madeProgres();
+        this.madeProgress();
 
       end
       
