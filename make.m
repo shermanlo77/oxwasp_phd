@@ -36,7 +36,7 @@ this.printResults();
 this = BandwidthSelection2();
 this.run();
 this.printResults();
-nulliid;
+nullIid;
 allNullScript;
 allNull;
 defectExample;
