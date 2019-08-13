@@ -842,7 +842,11 @@ where $b$ and $a$ are parameters to be fitted. This was chosen to establish a si
 
 \begin{table}
   \centering
-  \input{../figures/inference/BandwidthSelection2_bandwidthEstimate.txt}
+  \begin{tabular}{l|l}
+           &Estimate \\ \hline
+  Intercept&\input{../figures/inference/BandwidthSelection2_coeff1.txt}\\
+  Gradient &\input{../figures/inference/BandwidthSelection2_coeff2.txt}
+  \end{tabular}
   \caption{Estimated and standard error of the gradient and intercept from the linear relationship in Figure \ref{fig:inference_BandwidthSelection2_ruleOfThumb}.}
   \label{table:inference_BandwidthSelection2_ruleOfThumb}
 \end{table}

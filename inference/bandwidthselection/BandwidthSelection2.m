@@ -14,7 +14,7 @@ classdef BandwidthSelection2 < Experiment
   
   %MEMBER VARIABLES
   properties (SetAccess = protected)
-    rng; %random number generator
+    
     kArray; %array of values of kernel widths to investigate
     kOptimal; %optimal kernel width for each n
     
@@ -93,9 +93,20 @@ classdef BandwidthSelection2 < Experiment
       %save the intercept and gradient
       coefficients = this.fitter.Coefficients.Estimate;
       standardError = this.fitter.Coefficients.SE;
-      latex_table = LatexTable(coefficients, standardError,{'Intercept','Gradient'} , {'Estimate'});
-      latex_table.print(fullfile('reports','figures','inference', ...
-          strcat(this.experimentName,'_bandwidthEstimate.txt')));
+      
+      %print coefficient 1
+      quote = siUncertainity(coefficients(1), standardError(1), 2);
+      file = fopen(fullfile('reports','figures','inference', ...
+          strcat(this.experimentName, '_coeff1.txt')),'wt');
+      fprintf(file, quote);
+      fclose(file);
+      
+      %print coefficent 2
+      quote = siUncertainity(coefficients(2), standardError(2), 2);
+      file = fopen(fullfile('reports','figures','inference', ...
+          strcat(this.experimentName, '_coeff2.txt')),'wt');
+      fprintf(file, quote);
+      fclose(file);
       
     end
     
