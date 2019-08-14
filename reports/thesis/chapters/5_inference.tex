@@ -1898,22 +1898,13 @@ The resulting inference are shown in Figures \ref{fig:inference_subroiTiFilterDe
 
 \section{Conclusion}
 
-To summarise the proposed method, Figure \ref{fig:inference_flowchart} shows a flowchart of the process of the experiment and defect detection and how the empirical null filter fits in. The CAD model was used as a blueprint for the manufacture of the test sample. Projections of the test sample and the simulated projection were obtained and compared under the face of uncertainty. The uncertainty was modelled using the replicated projections. The test statistics from the comparison were filtered using the empirical null filter and converted to $p$-values. A threshold was used for the $p$-values to classify pixels as positive for defects or not.
-
-\begin{figure}
-  \centering
-  \includegraphics[width=0.65\textwidth]{../figures/flowchart.pdf}
-  \caption{Flowchart showing the process of obtaining and comparing a projection of the test sample with the simulated projection. This results in pixels being highlighted as positive for defects.}
-  \label{fig:inference_flowchart}
-\end{figure}
-
 The empirical null filter demonstrated that it can adjust the null hypotheses according to the data to make sensible inference. In the experiments, it was found that the FDR level is preserved after filtering. In experiments it was found that the empirical null filter outperformed other methods based on quantiles, as suggested by \cite{efron2004large}.
 
 In the experiment, the larger voids of diameter \SI{2.4}{\milli\metre} were detected in the ABS test sample. False positives do occur but this is unavoidable because tests were done at the 5\% FDR level. Typically in the experiments, false positives were isolated single pixels and probably occurred due to random chance. Clusters of positive pixels should raise suspicion. One could create a binary image, assigning a Boolean value whether that pixel was tested positive or not. A binary image filter, such as erode followed by a dilate, can be used to remove isolated positive pixels to emphasise the cluster of positive pixels.
 
 For good results, the faces of the test sample were segmented. This was necessary because the empirical null filter assumes that the null parameters varied spatially smoothly and slowly. Manual segmentation was easy to do because a cuboid has 6 faces. However, segmentation of faces cannot be generalised well to AM samples with complicated geometry and curved surfaces. Automatic segmentation may be possible with geometrical information from the CAD model.
 
-While the empirical null filter performed well for the ABS test sample, it failed in the titanium test sample due to dominating effects on the edges. This could be due to poor face segmentation or poor alignment of the \emph{aRTist} projection with the obtained projection. This demonstrates that the empirical null filter can cater for model misspecification but there becomes a point where model misspecification null statistics cannot be distinguished from non-null statistics.
+While the empirical null filter performed well for the ABS test sample, it failed in the titanium test sample due to dominating effects on the edges. This could be due to poor face segmentation or poor alignment of the \emph{aRTist} projection with the obtained projection. This demonstrates that the empirical null filter can cater for model misspecification but there becomes a point where model misspecified null statistics cannot be distinguished from non-null statistics. Another possible cause for dominating edge effects are metal artifacts such as streaks which are problems observed in XCT of metal parts \citep{deman1998metal, nawaz2014metal}.
 
 The main issue with implementing this method onto the production line was how slow the filter was. The main bottleneck is the evaluation of the density estimate, each step in the Newton-Raphson required the evaluation of $\pi r^2$ data points. As a result, increasing the kernel radius slows down the filter. Perhaps there may be faster methods for density estimation such as fitting a smoothing spline on the histogram \citep{efron2004large}, however that would require tuning the histogram bins as well as the tuning parameters for the spline. On the other hand, the method in \cite{schwartzman2008empirical} which uses the histogram count found that the estimation of the null parameters was insensitive to the histogram binning.
 
