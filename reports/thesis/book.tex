@@ -1,4 +1,8 @@
-\documentclass[12pt, a4paper]{memoir}
+\documentclass[12pt, a4paper, oneside]{memoir}
+%oneside for soft copy
+%twoside for hard final copy
+\setlrmargins{4cm}{*}{*}
+\checkandfixthelayout
 %\documentclass[12pt, a4paper, oldfontcommands]{memoir}
 %\documentclass[12pt, a4paper]{report}
 
@@ -22,7 +26,6 @@
 \usepackage{mathtools} %multlined
 \usepackage{longtable}
 \usepackage{bibentry}
-
 
 \setcounter{tocdepth}{2}
 \setcounter{secnumdepth}{2}
@@ -72,8 +75,7 @@
 
 \DeclareSIUnit\pixel{px}
 \DeclareSIUnit\adu{ADU}
-
-
+\OnehalfSpacing*
 \begin{document}\sloppy
 
 \begin{titlingpage}
@@ -93,11 +95,11 @@
 
 \frontmatter
 
-\newpage
+\cleardoublepage
 \tableofcontents*
-\newpage
+\cleardoublepage
 \listoffigures
-\newpage
+\cleardoublepage
 \listoftables
 
 \chapter{Acknowledgements}
