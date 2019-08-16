@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %SCRIPT: VAR MEAN RESIDUAL
 %Plot the residual vs greyvalue and residual on the projections
 

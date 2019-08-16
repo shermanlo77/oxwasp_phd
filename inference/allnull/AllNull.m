@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %ABSTRACT CLASS: ALL NULL IMAGE EXPERIMENT
 %See how the null filters behaves for images of pure Gaussian noise
 %A image is produced and then filtered using a null filter. The null mean and null std are recorded

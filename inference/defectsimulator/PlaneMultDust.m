@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %CLASS: PLANE MULTIPLY DUST
 %Produces images which are Gaussian (1-p)N(0,1) + pN(mu, sigma^2) where the alt distribution is 
     %described via the member variables altMean and altStd. This is then multiplied by a scalar

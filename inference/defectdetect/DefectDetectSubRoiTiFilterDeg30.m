@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 classdef DefectDetectSubRoiTiFilterDeg30 < DefectDetectSubRoi
   
   methods (Access = public)

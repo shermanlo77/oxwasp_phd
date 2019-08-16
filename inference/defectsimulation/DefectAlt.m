@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %CLASS: EXPERIMENT DEFECT SIMULATION DUST
 %Experiment on a 256 x 256 Gaussian which has been defected with dust and then contaminated by a
     %multiplier and a plane.

@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %CLASS BOXPLOT
 %Custom boxplot class, for plotting box plot given data
 %

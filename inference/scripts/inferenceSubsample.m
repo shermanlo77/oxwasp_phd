@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %SCRIPT: INFERENCE SUB SAMPLE
 %A subimage from the z image is taken, tested using the BH procedure corrected for the empirical
     %null

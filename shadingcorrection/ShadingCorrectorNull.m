@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 classdef ShadingCorrectorNull < ShadingCorrector
     %SHADINGCORRECTOR_NULL Stores an array of refererence scans, does not do
     %shading correction

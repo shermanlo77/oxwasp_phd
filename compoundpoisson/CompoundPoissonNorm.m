@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %COMPOUND POISSON NORMAL APPROXIMATION
 %SEE SUPER CLASS COMPOUND POISSON
 %pdf functions overriden to use normal approximation

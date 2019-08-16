@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %PLOT SCANS
 %Plot for each dataset, for each angle:
   %x-ray scan

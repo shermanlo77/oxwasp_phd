@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %CLASS: EMPIRICAL NULL
 %Wrapper class for the java class EmpiricalNull
 %Does the empirical null analysis on an array of data

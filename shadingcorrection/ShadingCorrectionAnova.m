@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %CLASS: SHADING CORRECTION ANOVA
 %Does ANOVA on the shading corrected grey value in a greyscale projection
 %

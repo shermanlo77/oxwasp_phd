@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 classdef DefectDetectAbsFilterDeg120 < DefectDetect
   
   methods (Access = public)

@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %ODD EVEN PLOT
 %
 %Plot the y profile for a given x for a black image

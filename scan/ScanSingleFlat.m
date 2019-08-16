@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %SCAN SINGLE FLAT
 %See super class Scan_Single and Scan
 %Contains an image of only one greyvalue

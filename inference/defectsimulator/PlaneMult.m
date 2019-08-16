@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %CLASS: PLANE MULTIPLY
 %Produces images which are Gaussian N(0,1) but then multiplied by a scalar followed by an addition
 %of a plane

@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %SHADING CORRECTION EXAMPLE
 %Plots the image with no shading correction, with bw and linear shading correction
 %Plots the gradient image for each shading correction

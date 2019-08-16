@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %SUB ROI SCRIPT
 %REQUIRES: DefectDetectAbsFilterDeg120
 %Provide figures to justify the use of sub roi

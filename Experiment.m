@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %EXPERIMENT (Abstract) Superclass for check pointing experiments and saving results
 %  Objects derived from this class has a name and an indicator if the experiment is completed
 %  In addition, it is recommended the constructor of derived class should have no agurments

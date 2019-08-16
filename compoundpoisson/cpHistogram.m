@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %SCRIPT: COMPOUND POISSON HISTOGRAM AND DENSITY EVALUATION
 %Simulate compound Poisson and plot the histogram along with the density
 

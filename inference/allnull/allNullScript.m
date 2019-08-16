@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %ALL NULL GAUSSIAN SCRIPT
 %Filters a image
 %Shows the image before and after filtering

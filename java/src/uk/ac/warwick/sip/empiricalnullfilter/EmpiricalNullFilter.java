@@ -1,3 +1,6 @@
+//MIT License
+//Copyright (c) 2019 Sherman Lo
+
 /**EDITED RankFilters.java
  * See https://github.com/imagej/ImageJA/blob/master/src/main/java/ij/plugin/filter/RankFilters.java
  */

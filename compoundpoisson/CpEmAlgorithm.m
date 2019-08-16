@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %CLASS: COMPOUND POISSON EM ALGORITHM
 %NOTE: cannot be run in parallel as all threads depend on the same rng
 %Fit the compound Poisson onto simulated data using the EM algorithm

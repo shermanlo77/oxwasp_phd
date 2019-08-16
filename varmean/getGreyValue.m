@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %FUNCTION: GET GRAY VALUE
 %Returns an array of grey values from the ROI of the scan
 function greyValueArray = getGreyValue(scan)

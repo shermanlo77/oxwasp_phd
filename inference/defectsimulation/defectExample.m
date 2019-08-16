@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %SCRIPT: DEFECT DUST
 %Plot Gaussian image with defect with plane contamination
 %Plot empirical null mean

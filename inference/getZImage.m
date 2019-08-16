@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %FUNCTION: GET Z IMAGE
 %Returns the z image given a Scan object
 %

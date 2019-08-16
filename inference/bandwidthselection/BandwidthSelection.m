@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %CLASS: EXPERIMENT Z NULL
 %Experiment for simulating n N(0,1) and storing the emperical null mean and var
 %Different n and parzen kernel width are investigated

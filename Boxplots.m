@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %CLASS: BOXPLOTS
 %Custom box plot class for plotting multiple box plots
 classdef Boxplots < handle

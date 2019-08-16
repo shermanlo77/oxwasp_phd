@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %FUNCTION: SI UNCERTAINITY
 %Convert value and error bar so that it can be used using \num[separate-uncertainty = true] in LaTeX
 %

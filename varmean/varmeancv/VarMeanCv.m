@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %CLASS: VARIANCE MEAN CROSS VALIDATION
 %Experiment to do cross validation to assess the different GLM
 %

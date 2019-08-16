@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %SCRIPT: INFERENCE INTRO
 %The z statistics were tested using BH procedure, no empirical null was used
 %Plots the following:

@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %SCRIPT: DEVIANCE GRAPH
 %Plot the mean scaled deviance (gamma) vs ratio of value/prediction
 %

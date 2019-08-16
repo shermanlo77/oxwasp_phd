@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %ABSTRACT CLASS: DEFECT SIMULATOR
 %Class for adding smooth function and defecting pixels with samples from the alt distribution
 %

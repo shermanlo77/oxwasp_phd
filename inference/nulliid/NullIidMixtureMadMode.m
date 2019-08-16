@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 classdef NullIidMixtureMadMode < NullIidMixture
 
   methods (Access = protected)

@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %CLASS: PLANE MULTIPLY SQUARE
 %Produces images which are Gaussian N(0,1) but a square will be N(mu, sigma^2) where the alt
     %distribution is dvia the member variables altMean and altStd. This is then multiplied by a

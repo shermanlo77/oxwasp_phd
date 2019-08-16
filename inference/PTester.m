@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %P VALUE TESTER
 %Does multiple hypothesis tests on a given image of p values
 %Multiple testing corrected by controlling the FDR

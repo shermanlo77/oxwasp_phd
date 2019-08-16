@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %CLASS: IMAGE SCALE WITH SIGNIFICANT PIXELS
 %Class for plotting an image, with certain pixels coloured in
 %

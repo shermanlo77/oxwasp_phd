@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %CLASS: HISTOGRAM 3D HEATMAP
 %Plots a 2D histogram using a heatmap
 %

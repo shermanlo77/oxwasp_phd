@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %CLASS: EXPERIMENT ALL NULL GAUSSIAN
 %See superclass Experiment_AllNull
 %Experiment with the empirical null filter on a gaussian image

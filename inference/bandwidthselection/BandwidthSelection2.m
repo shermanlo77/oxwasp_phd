@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %CLASS: EXPERIMENT Z NULL MSE
 %Experiment for investigating the performance of the emperical null var
 %ln mean squared error vs kernel width are plotted and fitted using local quadratic regression

@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %CLASS: Z TESTER UNCORRECTED
 classdef ZTesterUncorrected < ZTester
   

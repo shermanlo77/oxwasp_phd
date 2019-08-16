@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %CLASS: LATEX FIGURE
 %Contain functions for creating a figure with a consistent size
 classdef LatexFigure

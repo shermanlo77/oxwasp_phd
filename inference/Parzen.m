@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %CLASS: PARZEN ESTIMATION FOR DENSITY
 %Class for estimating the density given data
 %The method used is to take an average of the Gaussian kernel over all data

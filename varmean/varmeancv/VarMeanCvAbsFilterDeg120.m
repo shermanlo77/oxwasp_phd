@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 classdef VarMeanCvAbsFilterDeg120 < VarMeanCv
   
   methods (Access = protected)

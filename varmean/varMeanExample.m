@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %VARIANCE MEAN EXAMPLE
 %Plots the variance-mean frequency density heatmap
 %Plots the GLM fits

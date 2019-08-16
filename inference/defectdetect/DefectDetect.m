@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %ABSTRACT CLASS: EXPERIMENT DEFECT DETECT
 %Compares a test image with aRTist, where the test image is an x-ray scan and aRTist is a simulation
     %of that scan

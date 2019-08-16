@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %ABSTRCT CLASS: NULL ON IID DATA EXPERIMENT
 %Investigate the null mean and null std on iid N(0,1) data
 %Also investigates the (mean, std, kurtosis) moments of the normalised z statistics, that is let

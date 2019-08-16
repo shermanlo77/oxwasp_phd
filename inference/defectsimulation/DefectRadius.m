@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %ABSTRACT CLASS: DEFECT RADIUS EXPERIMENT
 %Investigate the performance of the empirical null filter with different kernel radius on a defect
     %image pre/post contamination with a plane and a multiplier

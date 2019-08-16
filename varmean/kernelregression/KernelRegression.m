@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %CLASS: KERNEL REGRESSION
 %Does kernel regression given a kernel, bandwidth and a training set
 %Pass the kernel and scale parameter through the contructor

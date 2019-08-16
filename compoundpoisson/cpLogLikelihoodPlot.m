@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %SCRIPT: PLOTTING LOG LIKELIHOOD
 %Plots the log likelihood as a function of alpha and beta for fixed lambda
 

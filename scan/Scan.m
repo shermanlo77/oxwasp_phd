@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %SCAN Class for handling x-ray images
 %matlab.mixin.Heterogeneous allows for subclasses to be stored in an array
 classdef Scan < matlab.mixin.Heterogeneous & handle

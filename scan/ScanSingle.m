@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %SCAN SINGLE CLASS
 %See superclass Scan
 %This is a special case of Scan where there is only one image

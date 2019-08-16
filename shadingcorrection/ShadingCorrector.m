@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %CLASS: SHADING CORRECTOR
 %Shading corrects an image given an array of reference images
 %Reference images are scans of the air

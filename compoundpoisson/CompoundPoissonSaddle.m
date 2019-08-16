@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %COMPOUND POISSON SADDLEPOINT APPROXIMATION
 %SEE SUPER CLASS COMPOUND POISSON
   %overrides pdf methods to use saddlepoint approximation

@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %ABSTRACT CLASS: EXPERIMENT SUB ROI DEFECT DETECT
 %Inference is done in separate segmentated section of the image
 classdef (Abstract) DefectDetectSubRoi < DefectDetect

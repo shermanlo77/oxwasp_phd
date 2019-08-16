@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %CLASS: Z TESTER
 %Does hypothesis test on an image of z statistics
 %Multiple testing corrected using FDR, see:
