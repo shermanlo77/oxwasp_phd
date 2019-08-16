@@ -3,14 +3,16 @@
 *.eps
 *.aux
 *.bbl
+*.bcf
 *.blg
 *.dvi
 *.out
 *.ps
 *.m~
 *.mat
-*.tex_table
 *.png
+*.jpg
+*.tiff
 *.xml
 !pom.xml
 *.tif
