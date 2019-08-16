@@ -1,8 +1,8 @@
 # oxwasp_phd
 
-MIT License - all source code
-No License and copyright- `reports/`
-Copyright (c) 2019 Sherman Lo
+* MIT License - all source code
+* No License and copyright- `reports/`
+* Copyright (c) 2019 Sherman Lo
 
 Contains code to reproduce the thesis Lo, S.E. (2019). *Characterisation of Computed Tomography Noise in Projection Space with Applications to Additive Manufacturing*. PhD thesis, University of Warwick, Department of Statistics
 
@@ -13,7 +13,7 @@ X-ray computed tomography can be used for defect detection in additive manufactu
 
 The uncertainty of the projection was modelled using a compound Poisson distribution. This arises from x-ray photon arrivals being a Poisson process and each photon has random energy. This resulted in a linear relationship between the mean and variance of the grey value in the projection, which was used for variance prediction and to quantify the uncertainty. Fitting of the compound Poisson distribution using the expectation-maximisation algorithm was unsuccessful due to identifiability issues with the model.
 
-Software, called \emph{aRTist}, was used to simulate the projection and compared with the obtained projection. The comparison was done under the face of uncertainty by treating each pixel as a hypothesis test.  To overcome the imperfections of the simulation, the empirical null filter was used to cater for the model misspecification so that sensible inference was achieved. Voids with diameters in the order of millimetres were detectable.
+Software, called *aRTist*, was used to simulate the projection and compared with the obtained projection. The comparison was done under the face of uncertainty by treating each pixel as a hypothesis test.  To overcome the imperfections of the simulation, the empirical null filter was used to cater for the model misspecification so that sensible inference was achieved. Voids with diameters in the order of millimetres were detectable.
 
 This thesis is a contribution to real-time quality control in additive manufacturing.
 
@@ -29,9 +29,9 @@ On startup, *MATLAB* reads in the `.jar` files from the file `javaclasspath.txt`
 The data is stored in `data/`.
 
 The following *MATLAB* products are required:
-*Image Processing Toolbox
-*Optimization Toolbox
-*Statistics and Machine Learning Toolbox
+* Image Processing Toolbox
+* Optimization Toolbox
+* Statistics and Machine Learning Toolbox
 
 Run the file `make.m` to create the figures for the paper, this is an overnight job. 16GB of RAM recommended.
 
