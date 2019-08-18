@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %CLASS: EXPERIMENT DEFECT SIMULATION DUST
 %Experiment on a 256 x 256 Gaussian which has been defected with dust and then contaminated by a
     %multiplier and a plane.
@@ -105,7 +108,7 @@ classdef DefectAlt < Experiment
         label{numel(boxplotLegend)} = 'contaminated';
       end
       xlabel('alt distribution mean');
-      ylabel('ROC area');
+      ylabel('AUC');
       ylim([0.5,1]);
       ax.XLim(1) = this.altMeanArray(1) - offset*2;
       ax.XLim(2) = this.altMeanArray(end) + offset*2;    

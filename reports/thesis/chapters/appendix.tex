@@ -1,3 +1,1016 @@
+\chapter{Abbreviations}
+
+\begin{longtable}{ll}
+3D&Three dimensions\\
+ABS&Acrylonitrile butadiene styrene\\
+AIC&Akaike information criterion\\
+AM&Additive manufacturing\\
+Approx.&Approximate\\
+AUC&Area under the receiver operating characteristic curve\\
+BH&Benjamini and Hochberg\\
+BIC&Bayesian information criterion\\
+BW&Black/white\\
+CAD&Computer-aided design\\
+CC BY&Creative Commons Attribution\\
+$\CPoisson$&Compound Poisson-gamma\\
+EM&Expectation maximisation\\
+Expec.&Expected\\
+FDR&False discovery rate\\
+FWER&Family-wise error rate\\
+Freq.&Frequency\\
+GLM&Generalised linear models\\
+GPU&Graphics processing unit\\
+i.i.d.&Independent and identically distributed\\
+IOP&Institute of Physics\\
+IQR&Interquartile range\\
+MAD&Median absolute deviation\\
+m.g.f.&Moment generating function\\
+Obv.&Observed\\
+PCER&Per comparison error rate\\
+p.d.f.&Probability density function\\
+Q-Q&Quantile-quantile\\
+ROC&Receiver operating characteristic\\
+ROI&Region of interest\\
+Std&Standard deviation\\
+STL&Sterolithography or Standard tessellation language\\
+Var&Variance\\
+XCT&X-ray computed tomography
+\end{longtable}
+
+
+\chapter{Compound Poisson}
+
+\section{Moment Generating Function}
+\label{chapter:appendix_compoundPoissonMgf}
+
+Let $Y\sim\poisson(\lambda)$, $U_1,U_2,U_3,\cdots$ be i.i.d.~random variables and $X|Y=\sum_{i=1}^YU_i$. Let the m.g.f.~of $X$ be $M_X(\theta)=\expectation\left[\euler^{\theta X}\right]$. This can be computed using the result for conditional expectations $M_X(\theta)=\expectation\expectation\left[\euler^{X\theta}|Y\right]$. This results in 
+\begin{align}
+  M_X(\theta)&=\expectation\expectation\left[\exp\left(\theta U_1 + \theta U_2 + \cdots + \theta U_Y\right)|Y\right]
+  \nonumber \\
+  &=\expectation\expectation\left[\euler^{\theta U_1}\cdot\euler^{\theta U_2}\cdot\cdots\cdot\euler^{\theta U_Y}|Y\right]
+  \ .
+\end{align}
+But because $U_i$ for $i=1,2,3,\cdots$ are i.i.d.~and each $U_i$ has a m.g.f.~$M_U(\theta)=\expectation\left[\euler^{U\theta}\right]$, then
+\begin{align}
+  M_X(\theta)&=\expectation\left(
+    \expectation\left[\euler^{\theta U_1}|Y\right]\cdot
+    \expectation\left[\euler^{\theta U_2}|Y\right]\cdot
+    \cdots \cdot
+    \expectation\left[\euler^{\theta U_Y}|Y\right]
+  \right)
+  \nonumber\\
+  &=\expectation\left[\left(M_U(\theta)\right)^Y\right]
+  \nonumber\\
+  &=\expectation\left[\euler^{Y\ln(M_U(\theta))}\right]
+  \nonumber\\
+  & = M_Y\left(\ln(M_U(\theta)\right)
+\end{align}
+where $M_Y(\theta)=\expectation\left[\euler^{Y\theta}\right]$ is the m.g.f.~of $Y$. It can be shown that the m.g.f.~of $Y$ is
+$
+  M_Y(\theta)=
+  \exp
+  \left[
+    \lambda
+    \left(
+      \euler^\theta-1
+    \right)
+  \right]
+$
+hence
+\begin{equation}
+  M_X(\theta)=
+  \exp\left[
+    \lambda
+    \left(
+      M_U(\theta)-1
+    \right)
+  \right]
+  \ .
+\end{equation}
+
+Moments of $X$ can be obtained from the m.g.f.~by differentiating it and setting $\theta$ to zero
+\begin{align}
+  M_X'(\theta)&=\exp\left[\lambda\left(M_U(\theta)-1\right)\right]\cdot\lambda M_U'(\theta)
+  \nonumber\\
+  &=M_X(\theta)\lambda M_U'(\theta)
+  \\
+  M_X'(0)&=\lambda\expectation\left[U\right]
+\end{align}
+which results in
+\begin{equation}
+  \expectation\left[X\right]=\lambda\expectation\left[U\right]
+  \ .
+\end{equation}
+Conducting the same procedure
+\begin{align}
+  M_X''(\theta)&=M_X'(\theta)\lambda M_U'(\theta)+M_X(\theta)\lambda M_U''(\theta)
+  \nonumber\\
+  &=\lambda M_X(\theta)\left[
+    \lambda\left(M_U'(\theta)\right)^2+M_U''(\theta)
+  \right]
+  \\
+  M_X''(0)&=\lambda\left[\lambda\left(\expectation[U]\right)^2+\expectation\left[U^2\right]\right]
+\end{align}
+the variance can be obtained
+\begin{align}
+  \variance\left[X\right]&=M_X''(0)-\left[M_X'(0)\right]^2
+  \nonumber \\
+  &=\lambda\left[\lambda\left(\expectation[U]\right)^2+\expectation\left[U^2\right]\right]-\left[\lambda\expectation\left[U\right]\right]^2
+  \nonumber \\
+  &=\lambda\expectation\left[U^2\right] \ .
+\end{align}
+Differentiating the m.g.f.~one more time
+\begin{align}
+  M_X'''(\theta) &=
+  \begin{multlined}[t]
+    \lambda M_X'(\theta)\left[
+      \lambda\left(M_U'(\theta)\right)^2+M_U''(\theta)
+    \right]
+    \\+
+    \lambda M_X(\theta)\left[
+      2\lambda M_U'(\theta)M_U''(\theta)+M_U'''(\theta)
+    \right]
+  \end{multlined}
+  \nonumber \\
+  &=
+  \begin{multlined}[t]
+    \lambda^2 M_X(\theta)M_U'(\theta)\left[
+      \lambda\left(M_U'(\theta)\right)^2+M_U''(\theta)
+    \right]
+    \\+
+    \lambda M_X(\theta)\left[
+      2\lambda M_U'(\theta)M_U''(\theta)+M_U'''(\theta)
+    \right]
+  \end{multlined}
+  \nonumber \\
+  &=
+  \lambda M_X(\theta)\left[
+    \lambda^2 \left(M_U'(\theta)\right)^3 + 3\lambda M_U'(\theta)M_U''(\theta) + M_U'''(\theta)
+  \right]
+  \\
+  M_X'''(0) &=
+  \lambda \left[
+    \lambda^2 \left(\expectation[U]\right)^3 + 3\lambda \expectation[U]\expectation\left[U^2\right] + \expectation\left[U^3\right]
+  \right]
+\end{align}
+and the third moment about the mean is
+\begin{align}
+  \expectation\left[\left(X-\expectation[X]\right)^3\right] & =
+  M_X'''(0) - 3M_X''(0)M_X'(0) + 2\left(M_X'(0)\right)^3
+  \nonumber\\
+  &=
+  \begin{multlined}[t]
+    \lambda \left[
+      \lambda^2 \left(\expectation[U]\right)^3 + 3\lambda \expectation[U]\expectation\left[U^2\right] + \expectation\left[U^3\right]
+    \right]
+    \\-3\lambda\left[\lambda\left(\expectation[U]\right)^2+\expectation\left[U^2\right]\right]\lambda\expectation[U] + 2\left(\lambda\expectation[U]\right)^3
+  \end{multlined}
+  \nonumber\\
+  &=\lambda\expectation\left[U^3\right] \ .
+\end{align}
+
+\section{Tweedie Dispersion Exponential Family}
+\label{chapter:appendix_tweedie}
+Let $X\sim\CPoisson(\lambda,\alpha,\beta)$ and has p.d.f.
+\begin{equation}
+  p_X(x) = 
+  \begin{cases}
+    \delta(x) \euler^{-\lambda} & \text{ for } x=0 \\ 
+    \displaystyle\sum_{y=1}^{\infty}\dfrac{\beta^{y\alpha}}{\Gamma(y\alpha)}x^{y\alpha-1}\euler^{-\beta x}\euler^{-\lambda}\frac{\lambda^y}{y!} & \text{ for } x>0
+  \end{cases}
+  \ .
+  \label{eq:appendix_compoundPoisson_pdf}
+\end{equation}
+
+\cite{jorgensen1987exponential} uses the following parametrisation: $p=\dfrac{2+\alpha}{1+\alpha}$, $\mu=\dfrac{\lambda\alpha}{\beta}$ and $\phi = \dfrac{\alpha+1}{\beta^{2-p}(\lambda\alpha)^{p-1}}$. The parameters can be rearranged
+\begin{equation}
+  \lambda=\frac{\mu^{2-p}}{\phi(2-p)}
+\end{equation}
+\begin{equation}
+  \alpha=\frac{2-p}{p-1}
+\end{equation}
+\begin{equation}
+  \beta=\frac{1}{\phi(p-1)\mu^{p-1}} \ .
+\end{equation}
+Substituting these parameters into Equation \eqref{eq:appendix_compoundPoisson_pdf}, the p.m.f.~at zero is
+\begin{equation}
+  \prob(X=0) = \exp
+  \left[
+      -\frac{\mu^{2-p}}{\phi(2-p)}
+  \right]
+\end{equation}
+and the p.d.f.~for $x>0$ is
+\begin{align*}
+  p_X(x) &=
+  \begin{multlined}[t]
+    \sum_{y=1}^{\infty}
+    \left[
+      \frac{1}{\phi(p-1)\mu^{p-1}}
+    \right]^{y\alpha}
+    \frac{1}{\Gamma(y\alpha)}
+    x^{y\alpha-1}
+    \exp\left[
+        -\frac{x}{\phi(p-1)\mu^{p-1}}
+    \right]
+    \\
+    \exp\left[
+        -\frac{\mu^{2-p}}{\phi(2-p)}
+    \right]
+    \left[
+      \frac{\mu^{2-p}}{\phi(2-p)}
+    \right]^y
+    \frac{1}{y!}
+  \end{multlined}
+  \\
+  &= 
+  \begin{multlined}[t]
+    \exp\left[
+      \frac{1}{\phi}\left(x\frac{\mu^{1-p}}{1-p}-\frac{\mu^{2-p}}{2-p}\right)
+    \right]
+    \frac{1}{x}
+    \\
+    \sum_{y=1}^{\infty}\frac{x^{y\alpha}\mu^{y[2-p-\alpha(p-1)]}}{\phi^{y(1+\alpha)}(p-1)^{y\alpha}(2-p)^yy!\Gamma(y\alpha)}
+    \ .
+  \end{multlined}
+\end{align*}
+It should be noted that $2-p-\alpha(p-1) = 2-p - \frac{2-p}{p-1}(p-1) =0$ so that
+\begin{equation}
+  p_X(x) = 
+  \exp\left[
+    \frac{1}{\phi}
+    \left(
+      x\frac{\mu^{1-p}}{1-p}-\frac{\mu^{2-p}}{2-p}
+    \right)
+  \right]
+  \frac{1}{x}
+  \sum_{y=1}^{\infty}W_y(x,p,\phi)
+\end{equation}
+where
+\begin{equation}
+  W_y(x,p,\phi)=\frac{x^{y\alpha}}{\phi^{y(1+\alpha)}(p-1)^{y\alpha}(2-p)^yy!\Gamma(y\alpha)}
+  \ .
+\end{equation}
+
+This is in the form of a distribution in the exponential family
+\begin{equation}
+  p_X(x)=\dfrac{\exp\left(x\theta\right)g(x)}{Z(\theta)}
+\end{equation}
+where $Z(\theta)$ is the partition function and $\theta$ is the natural parameter. The partition function has some useful properties. It is a normalisation constant $Z=Z(\theta)=\int_{0}^{\infty}\exp(x\theta)g(x)\diff x$. The derivative of the log partition function is
+\begin{align*}
+  \dfrac{\partial \ln Z}{\partial \theta} &= \dfrac{1}{Z}\dfrac{\partial Z}{\partial \theta}
+  \\
+  & = \dfrac{1}{Z}\dfrac{\partial}{\partial \theta} \int_0^\infty \exp(x\theta) g(x) \diff x
+  \\
+  & = \dfrac{1}{Z}\int_0^\infty x \exp(x\theta) g(x) \diff x
+\end{align*}
+which results in
+\begin{equation}
+\expectation[X] = \dfrac{\partial \ln Z}{\partial \theta} \ .
+\end{equation}
+The second derivative of the log partition function is
+\begin{align*}
+  \dfrac{\partial^2\ln Z}{\partial \theta^2} &=
+  \dfrac{
+    Z\frac{\partial^2 Z}{\partial\theta^2}-\left(\frac{\partial Z}{\partial\theta}\right)^2
+  }{
+    Z^2
+  }
+  \\
+  &=\dfrac{1}{Z}\dfrac{\partial^2 Z}{\partial \theta^2} - \left(\dfrac{1}{Z}\dfrac{\partial Z}{\partial \theta}\right)^2
+  \\
+  &=\dfrac{1}{Z}\dfrac{\partial^2}{\partial \theta^2}\int_0^\infty \exp(x\theta) g(x) \diff x - \left(\expectation\left[X\right]\right)^2
+  \\
+  &=\dfrac{1}{Z}\int_0^\infty x^2\exp(x\theta) g(x) \diff x - \left(\expectation\left[X\right]\right)^2
+  \\
+  &=\expectation\left[X^2\right] - \left(\expectation\left[X\right]\right)^2
+\end{align*}
+thus
+\begin{equation}
+\variance\left[X\right] = \dfrac{\partial^2\ln Z}{\partial \theta^2} \ .
+\label{eq:appendix_variancePartitionFunction}
+\end{equation}
+
+For the compound Poisson-gamma distribution, the natural parameter is
+\begin{equation}
+  \theta = \theta(\mu) = \dfrac{\mu^{1-p}}{\phi(1-p)}
+  \label{eq:appendix_cp_naturalParameter}
+\end{equation}
+and the partition function is
+\begin{equation*}
+  Z(\theta) = 
+  \exp\left[
+    \frac{\mu^{2-p}}{\phi(2-p)}
+  \right]
+  \ .
+\end{equation*}
+Rearranging the natural parameter $\mu=(\theta\phi(1-p))^{1/(1-p)}$, the partition function is
+\begin{equation}
+  Z = \exp\left[
+    \phi^{\frac{1}{1-p}}
+    \cdot
+    \theta^{\frac{2-p}{1-p}}
+    \cdot
+    \dfrac{
+      (1-p)^{\frac{2-p}{1-p}}
+    }{
+      2-p
+    }
+  \right]
+  \ .
+\end{equation}
+The log partition function is
+\begin{equation}
+  \ln Z = \phi^{\frac{1}{1-p}}
+    \cdot
+    \theta^{\frac{2-p}{1-p}}
+    \cdot
+    \dfrac{
+      (1-p)^{\frac{2-p}{1-p}}
+    }{
+      2-p
+    }
+  \ .
+\end{equation}
+Taking the first derivative
+\begin{align}
+  \dfrac{\partial \ln Z}{\partial \theta} &=
+  \phi^{\frac{1}{1-p}}
+  \cdot
+  \dfrac{2-p}{1-p}\cdot\theta^{\frac{2-p}{1-p}-1}
+  \cdot
+  \dfrac{(1-p)^\frac{2-p}{1-p}}{2-p}
+  \nonumber \\
+  &= \phi^{\frac{1}{1-p}} \cdot \theta^{\frac{1}{1-p}} \cdot (1-p)^\frac{1}{1-p} \ .
+\end{align}
+Taking the second derivative
+\begin{align}
+  \dfrac{\partial^2 \ln Z}{\partial \theta^2} &=
+  \phi^{\frac{1}{1-p}}
+  \cdot
+  \dfrac{1}{1-p}\cdot\theta^{\frac{1}{1-p}-1}
+  \cdot
+  (1-p)^\frac{1}{1-p}
+  \nonumber \\
+  &=
+  \phi^{\frac{1}{1-p}}
+  \cdot
+  \theta^{\frac{p}{1-p}}
+  \cdot
+  (1-p)^\frac{p}{1-p} \ .
+\end{align}
+Substitute in Equation \eqref{eq:appendix_cp_naturalParameter}
+\begin{align*}
+  \dfrac{\partial^2 \ln Z}{\partial \theta^2} &=
+  \phi^{\frac{1}{1-p}}
+  \left[\dfrac{\mu^{1-p}}{\phi(1-p)}\right]^{\frac{p}{1-p}}
+  (1-p)^\frac{p}{1-p}
+  \nonumber \\
+  & = \phi \mu^p
+\end{align*}
+and using the result from Equation \eqref{eq:appendix_variancePartitionFunction}
+\begin{equation}
+ \variance[X] = \phi \mu^p
+\end{equation}
+shows that the compound Poisson-gamma distribution is in the Tweedie dispersion exponential family with $1<p<2$.
+
+\section{Method of Moments}
+\label{chapter:appendix_methodofmoments}
+Let $X\sim\CPoisson(\lambda,\alpha,\beta)$. Suppose $\widehat{\mu}_1$ is an estimator of $\mu_1=\expectation[X]$ and $\widehat{\mu}_j$ is an estimator of $\mu_j=\expectation\left[\left(X-\expectation[X]\right)^j\right]$ for $j=2,3$. It is given (see Section \ref{chapter:compoundPoisson_compoundPoissonGamma}) that
+\begin{align}
+  \mu_1&=\frac{\alpha\lambda}{\beta}
+  \label{eq:appendix_methodofmoments_mu1}
+  \\
+  \mu_2&=\frac{\alpha(\alpha+1)\lambda}{\beta^2}
+  \label{eq:appendix_methodofmoments_mu2}
+  \\
+  \mu_3&= \frac{\alpha(\alpha+1)(\alpha+2)\lambda}{\beta^3}
+  \label{eq:appendix_methodofmoments_mu3}
+  \ .
+\end{align}
+
+The ratios $\mu_2/\mu_1$ and $\mu_3/\mu_2$ are
+\begin{equation}
+\dfrac{\mu_2}{\mu_1}= \dfrac{\alpha+1}{\beta}
+\label{eq:appendix_methodofmoments_ratio1}
+\end{equation}
+and
+\begin{equation}
+\dfrac{\mu_3}{\mu_2} = \dfrac{\alpha+2}{\beta} \ .
+\label{eq:appendix_methodofmoments_ratio2}
+\end{equation}
+Subtracting $\mu_3/\mu_2$ from $\mu_2/\mu_1$ obtains
+\begin{equation*}
+  \dfrac{\mu_3}{\mu_2}-\dfrac{\mu_2}{\mu_1}=
+  \dfrac{1}{\beta}
+\end{equation*}
+and rearranging
+\begin{align}
+  \beta&=\dfrac{1}{\dfrac{\mu_3}{\mu_2}-\dfrac{\mu_2}{\mu_1}}
+  \nonumber\\
+  \beta&=\dfrac{\mu_1\mu_2}{\mu_1\mu_3-\mu_2^2}
+  \label{eq:appendix_methodofmoments_beta}
+\end{align}
+gets a justification for the estimator
+\begin{equation}
+  \widehat{\beta}=\dfrac{\widehat{\mu}_1\widehat{\mu}_2}{\widehat{\mu}_1\widehat{\mu}_3-\widehat{\mu}_2^2} \ .
+\end{equation}
+
+Rearranging Equation \eqref{eq:appendix_methodofmoments_ratio1}
+\begin{equation}
+\alpha=\dfrac{\mu_2}{\mu_1}\beta - 1
+\end{equation}
+and substituting in Equation \eqref{eq:appendix_methodofmoments_beta}
+\begin{align}
+  \alpha &= \dfrac{\mu_2}{\mu_1}\times\dfrac{\mu_1\mu_2}{\mu_1\mu_3-\mu_2^2} - 1
+  \nonumber \\
+  & = \dfrac{\mu_2^2 - \mu_1\mu_3+\mu_2^2}{\mu_1\mu_3-\mu_2^2}
+  \nonumber \\
+  & = \dfrac{2\mu_2^2 - \mu_1\mu_3}{\mu_1\mu_3-\mu_2^2}
+  \label{eq:appendix_methodofmoments_alpha}
+\end{align}
+obtains the estimator
+\begin{equation}
+  \widehat{\alpha} = 
+  \dfrac{2\widehat{\mu}_2^2 - \widehat{\mu}_1\widehat{\mu}_3}{\widehat{\mu}_1\widehat{\mu}_3-\widehat{\mu}_2^2} \ .
+\end{equation}
+
+Finally, rearranging Equation \eqref{eq:appendix_methodofmoments_mu1}
+\begin{equation*}
+\lambda = \dfrac{\beta\mu_1}{\alpha}
+\end{equation*}
+and substituting in Equations \eqref{eq:appendix_methodofmoments_beta} and \eqref{eq:appendix_methodofmoments_alpha}
+\begin{align}
+\lambda &= 
+  \dfrac{\mu_1\mu_2}{\mu_1\mu_3-\mu_2^2}
+  \times
+  \dfrac{\mu_1\mu_3-\mu_2^2}{2\mu_2^2 - \mu_1\mu_3}
+  \times
+  \mu_1
+  \nonumber \\
+  & = \dfrac{\mu_1^2\mu_2}{2\mu_2^2-\mu_1\mu_3}
+\end{align}
+which leads to
+\begin{equation}
+\widehat{\lambda} = \dfrac{\widehat{\mu}_1^2\widehat{\mu}_2}{2\widehat{\mu}_2^2-\widehat{\mu}_1\widehat{\mu}_3} \ .
+\end{equation}
+
+\section{Normal Approximation}
+\label{chapter:appendix_normalApproximation}
+Let $X\sim\CPoisson(\lambda,\alpha,\beta)$ with m.g.f.~$M_X(\theta)=\exp\left[\lambda\left(\left(\frac{\beta}{\beta-\theta}\right)^{\alpha}-1\right)\right]$. The m.g.f.~in this form is not useful because when considering $\lambda\rightarrow\infty$ or $\alpha\rightarrow\infty$ then $M_X(\theta)\rightarrow\infty$. Also for $\beta\rightarrow\infty$, then $M_X(\theta)\rightarrow 1$ which is not useful either.
+
+The compound Poisson-gamma random variable $X$ can be standardised to obtain useful limiting results from the m.g.f. Let
+\begin{equation}
+  Z = \frac{X-\expectation[X]}{\sqrt{\variance[X]}}
+\end{equation}
+then in the form of $Z = bX+a$,
+\begin{equation}
+  b = \frac{\beta}{\sqrt{\alpha(\alpha+1)\lambda}}
+\end{equation}
+and
+\begin{equation}
+  a = -\sqrt{\frac{\alpha\lambda}{\alpha+1}}
+  \ .
+\end{equation}
+
+The m.g.f.~of $Z$ is
+\begin{align}
+  M_Z(\theta)&=\expectation\left[\euler^{Z\theta}\right]
+  \nonumber \\
+  &=\expectation\left[\euler^{(bX+a)\theta}\right]
+  \nonumber \\
+  &=\euler^{a\theta}M_X(b\theta)
+  \ .
+\end{align}
+Substituting in $a$ and $b$
+\begin{align}
+  M_Z(\theta)&=
+  \exp\left(
+      -\theta\sqrt{\frac{\alpha\lambda}{\alpha+1}}
+    \right)
+  \exp\left[
+    \lambda
+    \left(
+      \left(
+        \frac{\beta}{\beta-\frac{\beta\theta}{\sqrt{\alpha(\alpha+1)\lambda}}}
+      \right)^\alpha
+      -1
+    \right)
+  \right]
+  \nonumber\\
+  &=
+  \exp\left(
+      -\theta\sqrt{\frac{\alpha\lambda}{\alpha+1}}
+    \right)
+  \exp\left[
+    \lambda
+    \left(
+      \left(
+        \frac{\sqrt{\alpha(\alpha+1)\lambda}}{\sqrt{\alpha(\alpha+1)\lambda}-\theta}
+      \right)^\alpha
+      -1
+    \right)
+  \right]
+  \nonumber\\
+  &=
+  \exp\left(
+      -\theta\sqrt{\frac{\alpha\lambda}{\alpha+1}}
+    \right)
+  \exp\left[
+    \lambda
+    \left(
+      \left(
+        1-\frac{\theta}{\sqrt{\alpha(\alpha+1)\lambda}} 
+      \right)^{-\alpha}
+      -1
+    \right)
+  \right]
+  \ .
+\end{align}
+
+Using the binomial expansion 
+\begin{multline}
+  \left(
+    1-\frac{\theta}{\sqrt{\alpha(\alpha+1)\lambda}}
+  \right)^{-\alpha}
+  =
+  1+
+  \sum_{r=1}^\infty \frac{\theta^r\prod_{s=1}^r(\alpha+s-1)}{(\alpha(\alpha+1)\lambda)^{r/2}r!}
+  \\
+  \text{for }\frac{\|\theta\|}{\sqrt{\alpha(\alpha+1)\lambda}}<1 \ .
+\end{multline}
+obtains
+\begin{equation}
+  M_Z(\theta)=
+  \exp\left(
+      -\theta\sqrt{\frac{\alpha\lambda}{\alpha+1}}
+    \right)
+  \exp\left[
+    \lambda
+    \sum_{r=1}^\infty \frac{\theta^r\prod_{s=1}^r(\alpha+s-1)}{(\alpha(\alpha+1)\lambda)^{r/2}r!}
+  \right]
+  \ .
+\end{equation}
+Writing in full the $r=1,2$ terms
+\begin{multline*}
+  M_Z(\theta)=
+  \exp\left(
+      -\theta\sqrt{\frac{\alpha\lambda}{\alpha+1}}
+    \right)
+  \exp\left[
+    \theta\sqrt{\frac{\alpha\lambda}{\alpha+1}}
+    +\frac{\theta^2}{2}
+  \right.
+  \\
+  \left.
+    +\lambda\sum_{r=3}^\infty \frac{\theta^r\prod_{s=1}^r(\alpha+s-1)}{(\alpha(\alpha+1)\lambda)^{r/2}r!}
+  \right]
+\end{multline*}
+and a term cancels out
+\begin{equation}
+  M_Z(\theta)=
+  \exp\left[
+    \frac{\theta^2}{2}
+    +\sum_{r=3}^\infty
+    \frac
+      {\theta^r\prod_{s=1}^r(\alpha+s-1)}
+      {(\alpha(\alpha+1))^{r/2}r!}
+    \lambda^{1-r/2}
+  \right]
+  \ .
+\end{equation}
+
+For large $\lambda$
+\begin{equation}
+  \lim_{\lambda\rightarrow\infty}M_Z(\theta)=\exp\left[\frac{\theta^2}{2}\right]
+\end{equation}
+which is the same as the m.g.f.~of a standard Normal distribution, therefore
+\begin{equation}
+  \lim_{\lambda\rightarrow\infty}Z\sim\normal(0,1) \ .
+\end{equation}
+This should make sense as for high $\lambda$, the Poisson random variable has a high expectation, increasing the number of gamma random variables in a summation. Increasing the number of terms in a summation will trigger the central limit theorem.
+
+For high $\alpha$
+\begin{align}
+  \lim_{\alpha\rightarrow\infty}
+  \frac{
+    \prod_{s=1}^r(\alpha+s-1)
+  }
+  {
+    \alpha(\alpha+1))^{r/2}
+  }
+  &=
+  \frac{
+    \prod_{s=1}^r\alpha
+  }
+  {
+    \alpha^{r}
+  }
+  \nonumber\\
+  &= 1
+  \ .
+\end{align}
+As a result
+\begin{equation}
+  \lim_{\alpha\rightarrow\infty}
+  M_Z(\theta)=
+  \exp\left[
+    \frac{\theta^2}{2}
+    +\sum_{r=3}^\infty
+    \frac{\theta^r}{r!}
+    \lambda^{1-r/2}
+  \right]
+  \ .
+\end{equation}
+This shows that taking the limit $\alpha\rightarrow\infty$ is not enough to get a Normal limiting distribution. The limit must be accompanied with the limit $\lambda\rightarrow\infty$ to obtain
+\begin{equation}
+  \lim_{\lambda\rightarrow\infty}\lim_{\alpha\rightarrow\infty}Z\sim\normal(0,1)
+  \ .
+\end{equation}
+
+Finally it should be noted that $M_Z(\theta)$ is independent of $\beta$. Thus $\beta$ has no effect on the convergence to a Normal limiting distribution.
+
+The above results justify the use of the approximation
+\begin{equation}
+  X\sim\normal\left(\frac{\lambda\alpha}{\beta},\frac{\lambda\alpha(\alpha+1)}{\beta^2}\right)
+\end{equation}
+for large $\lambda$. The limiting case where $\lambda\rightarrow 0$, $\alpha\rightarrow 0$ and $\beta\rightarrow 0$ will not be discussed here.
+
+\section{Saddlepoint Approximation}
+\label{chapter:appendix_saddlepoint}
+Let $X\sim\CPoisson(\lambda,\alpha,\beta)$ with m.g.f.~$M_X(\theta)=\exp\left[\lambda\left(\left(\frac{\beta}{\beta-\theta}\right)^{\alpha}-1\right)\right]$. Let the cumulant generating function of $X$ be $K_X(\theta)=\ln M_X(\theta)$. The saddlepoint approximation is 
+\begin{equation}
+  p_X(x)\approx\left(2\pi K_X''(s)\right)^{-1/2}\exp\left[K_X(s)-sx\right]
+  \label{eq:appendix_saddlepoint}
+\end{equation}
+where $s=s(x)$ is the solution to the saddle point equation $K_X'(s)=x$.
+
+The cumulant generating function is
+\begin{equation}
+  K_X(\theta) = \lambda
+  \left[
+    \left(\frac{\beta}{\beta-\theta}\right)^\alpha-1
+  \right]
+  \ .
+  \label{eq:appendix_cgf}
+\end{equation}
+Taking the derivative with respect to $\theta$
+\begin{equation}
+  K_X'(\theta)=\frac{\lambda\alpha\beta^\alpha}{(\beta-\theta)^{\alpha+1}}
+\end{equation}
+and this is known as the saddlepoint equation. The quantity $s=s(x)$ is the solution to the equation $K_X'(s)=x$, that is
+\begin{equation*}
+  \frac{\lambda\alpha\beta^\alpha}{(\beta-s)^{\alpha+1}} = x
+\end{equation*}
+with solution
+\begin{equation}
+  s = \beta - \left(\frac{\lambda\alpha\beta^\alpha}{x}\right)^{\frac{1}{\alpha+1}}
+  \ .
+  \label{eq:appendix_saddlepointSolution}
+\end{equation}
+The second derivative of the cumulant generating function is
+\begin{equation}
+  K_X''(\theta)=\frac{\lambda\alpha(\alpha+1)\beta^\alpha}{(\beta-\theta)^{\alpha+2}} \ .
+  \label{eq:appenfix_2nddiffcgf}
+\end{equation}
+
+Substituting Equations \eqref{eq:appendix_cgf} and \eqref{eq:appenfix_2nddiffcgf} into Equation \eqref{eq:appendix_saddlepoint}
+\begin{equation*}
+  p_X(x)\approx
+  \frac{1}{\sqrt{2\pi}}
+  \left[
+    \frac{
+      (\beta-s)^{\alpha+2}
+    }
+    {
+      \lambda\alpha(\alpha+1)\beta^\alpha
+    }
+  \right]^{1/2}
+  \exp\left[
+    \lambda\left(\left(\frac{\beta}{\beta-s}\right)^\alpha-1\right)-sx
+  \right]
+  \ .
+\end{equation*}
+Substituting in Equation \eqref{eq:appendix_saddlepointSolution}
+\begin{multline*}
+  p_X(x)\approx
+  \frac{1}{\sqrt{2\pi}}
+  \left[
+    \frac{\left(\beta-\beta+\left(\frac{\lambda\alpha\beta^\alpha}{x}\right)^{\frac{1}{\alpha+1}}\right)^{\alpha+2}}{\lambda\alpha(\alpha+1)\beta^\alpha}
+  \right]^{1/2}
+  \\
+  \exp\left[
+    \lambda
+    \left(
+      \left(
+        \frac{\beta}{\beta-\beta+\left(\frac{\lambda\alpha\beta^\alpha}{x}\right)^{\frac{1}{\alpha+1}}}
+      \right)^\alpha
+      -1
+    \right)
+    -x\left(
+      \beta-\left(\frac{\lambda\alpha\beta^\alpha}{x}\right)^{\frac{1}{\alpha+1}}
+    \right)
+  \right]
+\end{multline*}
+simplifying further
+\begin{align*}
+  p_X(x)&\approx
+  \begin{multlined}[t]
+    \frac{1}{\sqrt{2\pi}}
+    \left[
+      \frac{
+        \left(\frac{\lambda\alpha\beta^\alpha}{x}\right)^{\frac{\alpha+2}{\alpha+1}}
+      }
+      {
+        \lambda\alpha(\alpha+1)\beta^\alpha
+      }
+    \right]^{1/2}
+    \\
+    \exp\left[
+      \lambda
+      \left(
+        \beta^\alpha
+        \left(\frac{x}{\lambda\alpha\beta^\alpha}\right)^{\frac{\alpha}{\alpha+1}}
+        -1
+      \right)
+      -x\beta
+      +(\lambda\alpha\beta^\alpha)^{\frac{1}{\alpha+1}}x^{1-\frac{1}{\alpha+1}}
+    \right]
+  \end{multlined}
+  \\
+  &\approx
+  \begin{multlined}[t]
+    \frac{1}{\sqrt{2\pi(\alpha+1)}}x^{-\frac{\alpha+2}{2(\alpha+1)}}
+    \left(\lambda\alpha\beta^\alpha\right)^{\left(\frac{\alpha+2}{\alpha+1}-1\right)/2}
+    \\
+    \exp\left[
+      \lambda\left(
+        \beta^\alpha
+        \left(\frac{x}{\lambda\alpha\beta^\alpha}\right)^{\frac{\alpha}{\alpha+1}}
+        -1
+      \right)
+      -x\beta
+      +(\lambda\alpha\beta^\alpha)^{\frac{1}{\alpha+1}}x^{\frac{\alpha}{\alpha+1}}
+    \right]
+  \end{multlined}
+  \\
+  &\approx
+  \begin{multlined}[t]
+    \frac{
+      \left(
+        \lambda\alpha\beta^\alpha
+      \right)^{\frac{1}{2(\alpha+1)}}
+    }
+    {
+      \sqrt{2\pi(\alpha+1)}}x^{-\frac{\alpha+2}{2(\alpha+1)}
+    } 
+    \\
+    \exp\left[
+      -\lambda
+      -x\beta
+      +x^{\frac{\alpha}{\alpha+1}}
+      \left(
+        \frac{
+          \lambda\beta^\alpha
+        }
+        {
+          \left(\lambda\alpha\beta^\alpha\right)^{\frac{\alpha}{\alpha+1}}
+        }
+        +
+        \left(
+          \lambda\alpha\beta^\alpha
+        \right)^{\frac{1}{\alpha+1}}
+      \right)
+    \right]
+  \end{multlined}
+  \\
+  &\approx
+  \begin{multlined}[t]
+    \frac{
+      \left(
+        \lambda\alpha\beta^\alpha
+      \right)^{\frac{1}{2(\alpha+1)}}\euler^{-\lambda}
+    }
+    {
+      \sqrt{2\pi(\alpha+1)}}x^{-\frac{\alpha+2}{2(\alpha+1)}
+    }
+    \euler^{-x\beta}
+    \\
+    \exp\left[
+      x^{\frac{\alpha}{\alpha+1}}
+      \left(
+        (\lambda\beta^\alpha)^{1-\frac{\alpha}{\alpha+1}}\alpha^{-\frac{\alpha}{\alpha+1}}
+        +
+        \left(
+          \lambda\alpha\beta^\alpha
+        \right)^{\frac{1}{\alpha+1}}
+      \right)
+    \right]
+  \end{multlined}
+  \\
+  &\approx
+  \begin{multlined}[t]
+    \frac{
+      \left(\lambda\alpha\beta^\alpha\right)^{\frac{1}{2(\alpha+1)}}\euler^{-\lambda}
+    }
+    {
+      \sqrt{2\pi(\alpha+1)}
+    }
+    x^{-\frac{\alpha+2}{2(\alpha+1)}}\euler^{-x\beta}
+    \\
+    \exp\left[
+      x^{\frac{\alpha}{\alpha+1}}
+      \left(
+        (\lambda\beta^\alpha)^{\frac{1}{\alpha+1}}
+        \alpha^{-\frac{\alpha}{\alpha+1}}
+        +
+        \left(\lambda\alpha\beta^\alpha\right)^{\frac{1}{\alpha+1}}
+      \right)
+    \right]
+  \end{multlined}
+  \\
+  &\approx
+  \begin{multlined}[t]
+    \frac{
+      \left(\lambda\alpha\beta^\alpha\right)^{\frac{1}{2(\alpha+1)}}\euler^{-\lambda}
+    }
+    {
+      \sqrt{2\pi(\alpha+1)}
+    }
+    x^{-\frac{\alpha+2}{2(\alpha+1)}}\euler^{-x\beta}
+    \\
+    \exp\left[
+      x^{\frac{\alpha}{\alpha+1}}(\lambda\beta^\alpha)^{\frac{1}{\alpha+1}}
+      \left(
+        \alpha^{-\frac{\alpha}{\alpha+1}}+\alpha^{\frac{1}{\alpha+1}}
+      \right)
+    \right]
+    \ .
+  \end{multlined}
+\end{align*}
+
+The expression $\alpha^{-\frac{\alpha}{\alpha+1}}+\alpha^{\frac{1}{\alpha+1}}$ can be simplified by putting the two terms over a common denominator
+\begin{align}
+  \alpha^{-\frac{\alpha}{\alpha+1}}+\alpha^{\frac{1}{\alpha+1}}
+  & = \alpha^{\frac{1}{\alpha+1}}+\frac{1}{\alpha^{\frac{\alpha}{\alpha+1}}}
+  \nonumber\\
+  & = \frac{\alpha^{\frac{1}{\alpha+1}}\alpha^{\frac{\alpha}{\alpha+1}}+1}{\alpha^{\frac{\alpha}{\alpha+1}}}
+  \nonumber\\
+  & = \frac{\alpha+1}{\alpha^{\frac{\alpha}{\alpha+1}}}
+\end{align}
+so that the saddlepoint approximation is 
+\begin{equation}
+p_X(x)\approx
+  \frac{
+    \left(\lambda\alpha\beta^\alpha\right)^{\frac{1}{2(\alpha+1)}}\euler^{-\lambda}
+  }
+  {
+    \sqrt{2\pi(\alpha+1)}
+  }
+  x^{-\frac{\alpha+2}{2(\alpha+1)}}
+  \euler^{-x\beta}
+  \exp\left[
+    x^{\frac{\alpha}{\alpha+1}}
+    \frac{(\lambda\beta^\alpha)^{\frac{1}{\alpha+1}}(\alpha+1)}{\alpha^{\frac{\alpha}{\alpha+1}}}
+  \right]
+  \ .
+\end{equation}
+
+\section{Series Evaluation for Compound Poisson-Gamma}
+\label{chapter:appendix_compoundPoissonSeries}
+
+Let $X\sim\CPoisson(\lambda,\alpha,\beta)$ with p.d.f.
+\begin{equation*}
+  p_X(x) = 
+  \begin{cases}
+    \delta(x) \exp
+      \left[
+          -\dfrac{\mu^{2-p}}{\phi(2-p)}
+      \right] 
+    &\text{ for } x=0
+    \\ 
+    \displaystyle
+    \exp\left[
+      \frac{1}{\phi}
+      \left(
+        x\frac{\mu^{1-p}}{1-p}-\frac{\mu^{2-p}}{2-p}
+      \right)
+    \right]
+    \frac{1}{x}
+    \sum_{y=1}^{\infty}W_y(x,p,\phi)
+    &\text{ for } x>0
+  \end{cases}
+\end{equation*}
+where $p=\dfrac{2+\alpha}{1+\alpha}$, $\mu=\dfrac{\lambda\alpha}{\beta}$, $\phi = \dfrac{\alpha+1}{\beta^{2-p}(\lambda\alpha)^{p-1}}$ and
+\begin{equation}
+  W_y = W_y(x,p,\phi)=\frac{x^{y\alpha}}{\phi^{y(1+\alpha)}(p-1)^{y\alpha}(2-p)^yy!\Gamma(y\alpha)}
+  \ .
+\end{equation}
+\cite{dunn2005series} approximated the sum by truncation
+\begin{equation}
+  \sum_{y=1}^\infty W_y \approx \sum_{y=y_\text{l}}^{y_\text{u}}W_y
+\end{equation}
+where $y_\text{l}<y_{\text{max}}<y_\text{u}$ and $y_{\text{max}}$ is the value of $y$ which maximises $W_y$. \cite{dunn2005series} treated $W_y$ as a continuous and differentiable function of $y$.
+
+It is easier to differentiate $\ln(W_y)$ where
+\begin{align}
+  \ln(W_y) &= 
+  \begin{multlined}[t]
+    y\alpha\ln(x)-y(1+\alpha)\ln(\phi)-y\alpha\ln(p-1)\\-y\ln(2-p)-\ln(y!)-\ln\Gamma(y\alpha)
+  \end{multlined}
+  \nonumber\\
+  &=
+  y
+  \ln\left(
+    \frac{x^\alpha}{\phi^{1+\alpha}(p-1)^\alpha(2-p)}
+  \right)
+  -\ln(y!)-\ln\Gamma(y\alpha)
+  \ .
+\end{align}
+Using Stirling's approximation $\ln(n!)\approx\ln\Gamma(n)\approx n\ln(n!)-n$
+\begin{equation}
+  \ln(W_y) \approx
+  y\ln\left(
+    \frac{x^\alpha}{\phi^{1+\alpha}(p-1)^\alpha(2-p)}
+  \right)
+  -y\ln(y)+y-y\alpha\ln(y\alpha) + y\alpha
+  \ .
+\end{equation}
+Taking the derivative with respect to $y$
+\begin{align*}
+  \frac{\partial \ln(W_y)}{\partial y} &\approx
+  \begin{multlined}[t]
+    \ln\left(
+      \frac{x^\alpha}{\phi^{1+\alpha}(p-1)^\alpha(2-p)}
+    \right)
+    -\ln(y)-1+1
+    \\
+    -\alpha\ln(y\alpha)-\alpha+\alpha
+  \end{multlined}
+  \\
+  &\approx
+  \ln\left(
+    \frac{x^\alpha}{\phi^{1+\alpha}(p-1)^\alpha(2-p)}
+  \right)
+  -\ln(y)
+  -\alpha\ln(y\alpha)
+  \ .
+\end{align*}
+
+Setting the derivative to zero
+\begin{equation*}
+  0 \approx \ln\left(
+    \frac{
+      x^\alpha
+    }
+    {
+      \phi^{1+\alpha}(p-1)^\alpha(2-p)y_{\text{max}}^{1+\alpha}\alpha^\alpha
+    }
+  \right)
+\end{equation*}
+\begin{equation*}
+  1 \approx 
+  \frac{x^\alpha}{\phi^{1+\alpha}(p-1)^\alpha(2-p)y_{\text{max}}^{1+\alpha}\alpha^\alpha}
+\end{equation*}
+\begin{equation*}
+  y_{\text{max}}^{1+\alpha} \approx 
+  \frac{x^\alpha}{\phi^{1+\alpha}(p-1)^\alpha(2-p)\alpha^\alpha}
+\end{equation*}
+\begin{equation*}
+  y_{\text{max}} \approx 
+  \frac{1}{\phi}
+  \left(
+    \frac{x}{(p-1)\alpha}
+  \right)^{\frac{\alpha}{1+\alpha}}
+  (2-p)^{\frac{-1}{1+\alpha}}
+  \ .
+\end{equation*}
+This can be simplified using the fact that $\alpha=\frac{2-p}{p-1}$, $\frac{1}{1+\alpha} = p-1$ and $\frac{\alpha}{1+\alpha} = 2-p$ then
+\begin{equation*}
+  y_{\text{max}} \approx 
+  \frac{1}{\phi}
+  \left(
+    \frac{x}{2-p}
+  \right)^{2-p}
+  (2-p)^{1-p}
+\end{equation*}
+and finally
+\begin{equation}
+  y_{\text{max}} \approx \frac{x^{2-p}}{\phi(2-p)}
+  \ .
+\end{equation}
+
+To verify that $y_\text{max}$ is a maximum, the second derivative can be investigated
+\begin{equation}
+  \frac{\partial^2\ln(W_y)}{\partial y^2}
+  \approx
+  -\frac{1}{y}(\alpha+1)
+\end{equation}
+to see that
+\begin{equation}
+  \frac{\partial^2\ln(W_y)}{\partial y^2} < 0 \quad \text{for }y=1,2,3,\cdots
+\end{equation}
+therefore $y_\text{max}$ is a maximum.
+
 \chapter{Expectation of $\widehat{\sigma}^2_0$}
 \label{chapter:appendix_expectationNullStdEstimator}
 

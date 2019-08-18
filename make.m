@@ -1,102 +1,51 @@
-addpath(genpath(fullfile('loadData')));
-addpath(genpath(fullfile('compoundPoisson')));
-addpath(genpath(fullfile('regressor')));
-addpath(genpath(fullfile('shadingCorrector')));
-addpath(genpath(fullfile('meanVar')));
-addpath(genpath(fullfile('inference')));
+%MIT License
+%Copyright (c) 2019 Sherman Lo
 
-% this = Experiment_ReferenceShadingCorrection_Mar16();
-% this.run();
-% 
-% this = Experiment_ReferenceShadingCorrection_July16();
-% this.run();
-% 
-% this = Experiment_ReferenceShadingCorrection_Sep16();
-% this.run();
+clc;
+clearvars;
+close all;
 
-this = Experiment_MeanVarFit_Mar16();
+disp('Chapter 3 - Data Collection'); 
+plotScans;
+oddEvenPlot;
+shadingCorrectionExample;
+this = ShadingCorrectionAnovaAbsNoFilter();
+this.run();
+this.printResults();
+this = ShadingCorrectionAnovaAbsFilter();
 this.run();
 this.printResults();
 
-this = Experiment_MeanVarFit_July16_30deg();
+disp('Chapter 4 - Compound Poisson');
+cpHistogram;
+this = CpEmAlgorithm();
 this.run();
 this.printResults();
+cpLogLikelihoodPlot;
 
-this = Experiment_MeanVarFit_July16_120deg();
+disp('Chapter 5 - Variance Prediction');
+glmSelect; %parfor possible
+varMeanExample;
+varMeanCv; %parfor possible
+devianceGraph;
+varMeanResidual;
+
+disp('Chapter 6 - Inference');
+inferenceIntro;
+inferenceSubsample;
+this = BandwidthSelection();
 this.run();
 this.printResults();
-
-this = Experiment_MeanVarFit_Sep16_30deg();
+this = BandwidthSelection2();
 this.run();
 this.printResults();
+nullIid;
+allNullScript;
+allNull;
+defectExample;
+defectSimulation;
+defectDetect;
+inferenceSubRoi;
 
-this = Experiment_MeanVarFit_Sep16_120deg();
-this.run();
-this.printResults();
-
-
-this = Experiment_GlmMse_Mar16();
-this.run();
-this.printResults();
-
-this = Experiment_GlmMse_July16_30deg();
-this.run();
-this.printResults();
-
-this = Experiment_GlmMse_July16_120deg();
-this.run();
-this.printResults();
-
-this = Experiment_GlmMse_Sep16_30deg();
-this.run();
-this.printResults();
-
-this = Experiment_GlmMse_Sep16_120deg();
-this.run();
-this.printResults();
-
-
-this = Experiment_GlmDeviance_Mar16();
-this.run();
-this.printResults();
-
-this = Experiment_GlmDeviance_July16_30deg();
-this.run();
-this.printResults();
-
-this = Experiment_GlmDeviance_July16_120deg();
-this.run();
-this.printResults();
-
-this = Experiment_GlmDeviance_Sep16_30deg();
-this.run();
-this.printResults();
-
-this = Experiment_GlmDeviance_Sep16_120deg();
-this.run();
-this.printResults();
-
-
-this = Experiment_ZNull();
-this.run();
-this.printResults();
-
-this = Experiment_ZNull_mse();
-this.run();
-this.printResults();
-
-this = Experiment_NoDefect_Plane();
-this.run();
-this.printResults();
-
-this = Experiment_NoDefect_Sinusoid();
-this.run();
-this.printResults();
-
-this = Experiment_SimulateRoc_Squares();
-this.run();
-this.printResults();
-
-this = Experiment_SimulateRoc_Line();
-this.run();
-this.printResults();
+disp('Front cover');
+frontCover;

@@ -1,13 +1,15 @@
+//MIT License
+//Copyright (c) 2019 Sherman Lo
+
 package uk.ac.warwick.sip.empiricalnullfilter;
 
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.random.RandomGenerator;
 
-/**CLASS: MEDIAN IQR NULL FILTER
- * Superclass of EmpiricalNullFilter
- * Replaces the empirical null mean with median
- * Replaces the empirical null std with iqr/1.3490
- * @author sherman
+//CLASS: MEDIAN IQR NULL FILTER
+/**Subclass of EmpiricalNullFilter, replaces the empirical null mean with median, replaces the 
+ *     empirical null std with iqr/1.3490.
+ * @author Sherman Lo
  */
 public class MedianIqrNullFilter extends EmpiricalNullFilter {
   

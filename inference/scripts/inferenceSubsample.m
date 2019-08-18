@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %SCRIPT: INFERENCE SUB SAMPLE
 %A subimage from the z image is taken, tested using the BH procedure corrected for the empirical
     %null
@@ -9,28 +12,29 @@
   %histogram with critical boundary, corrected for empirical null
   %p values with critical boundary
 
-clc;
 clearvars;
 close all;
 
+randStream = RandStream('mt19937ar', 'Seed', uint32(3538096789));
+zImage = getZImage(AbsFilterDeg120(), randStream);
+
 DebugPrint.newFile(mfilename);
 
-subsampleExample(1:2000, 1:2000, 'inferenceSubsampleAll'); %whole image
-subsampleExample(1100:1299, 400:599, 'inferenceSubsample1'); %subimage with no defect
-subsampleExample(500:699, 500:699, 'inferenceSubsample2'); %subimage with defect
+subsampleExample(zImage, 1:2000, 1:2000, strcat(mfilename,'All')); %whole image
+subsampleExample(zImage, 1100:1299, 400:599, strcat(mfilename,'1')); %subimage with no defect
+subsampleExample(zImage, 500:699, 500:699, strcat(mfilename,'2')); %subimage with defect
 
 DebugPrint.close();
 
 %PARAMETERS:
+  %zImage: image of z statistics
   %rowSubsample: vector of indicies of rows which indiciate the position of the subimage
   %colSubsample: vector of indicies of columns which indiciate the position of the subimage
   %name: prefix used when saving results
-function subsampleExample(rowSubsample, colSubsample, name)
-
+function subsampleExample(zImage, rowSubsample, colSubsample, name)
+  
   DebugPrint.write(name);
-
-  [~, ~, zImage] = inferenceExample();
-
+  
   %FIGURE
   %Plot the z image with a rectangle highlighting the subsample
   fig = LatexFigure.sub();

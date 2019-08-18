@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %CLASS: DEFECT EXAMPLE
 %Produce an image with a defect and contamination, use the empirical null filter to recover the
     %image from the contamination. The hypothesis test (or defect detectiong) are compared before

@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %ABSTRACT CLASS: DEFECT RADIUS EXPERIMENT
 %Investigate the performance of the empirical null filter with different kernel radius on a defect
     %image pre/post contamination with a plane and a multiplier
@@ -57,8 +60,8 @@ classdef DefectRadius < Experiment
       plot(ax.XLim, [oracleInterval(1), oracleInterval(1)], 'k--');
       plot(ax.XLim, [oracleInterval(2), oracleInterval(2)], 'k--');
       ax.XLim(2) = ax.XLim(2) + rightOffset;
-      xlabel('kernel radius');
-      ylabel('roc area');
+      xlabel('radius (px)');
+      ylabel('AUC');
       saveas(fig,fullfile(directory, strcat(this.experimentName,'_roc.eps')),'epsc');
       
       %plot type 1 error vs alt mean
@@ -72,7 +75,7 @@ classdef DefectRadius < Experiment
       plot(ax.XLim, [oracleInterval(1), oracleInterval(1)], 'k--');
       plot(ax.XLim, [oracleInterval(2), oracleInterval(2)], 'k--');
       ax.XLim(2) = ax.XLim(2) + rightOffset;
-      xlabel('kernel radius');
+      xlabel('radius (px)');
       ylabel('type 1 error');
       saveas(fig,fullfile(directory, strcat(this.experimentName,'_type1.eps')),'epsc');
       
@@ -87,7 +90,7 @@ classdef DefectRadius < Experiment
       plot(ax.XLim, [oracleInterval(1), oracleInterval(1)], 'k--');
       plot(ax.XLim, [oracleInterval(2), oracleInterval(2)], 'k--');
       ax.XLim(2) = ax.XLim(2) + rightOffset;
-      xlabel('kernel radius');
+      xlabel('radius (px)');
       ylabel('type 2 error');
       saveas(fig,fullfile(directory, strcat(this.experimentName,'_type2.eps')),'epsc');
       
@@ -102,7 +105,7 @@ classdef DefectRadius < Experiment
       plot(ax.XLim, [oracleInterval(1), oracleInterval(1)], 'k--');
       plot(ax.XLim, [oracleInterval(2), oracleInterval(2)], 'k--');
       ax.XLim(2) = ax.XLim(2) + rightOffset;
-      xlabel('kernel radius');
+      xlabel('radius (px)');
       ylabel('fdr');
       saveas(fig,fullfile(directory, strcat(this.experimentName,'_fdr.eps')),'epsc');
       

@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %FUNCTION: ROC (Receiver operating characteristic)
 %Given an image of z statistics and a map of where the null and alt pixels are, return points for
 %the roc curve.

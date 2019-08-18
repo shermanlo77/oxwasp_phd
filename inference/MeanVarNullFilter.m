@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %CLASS: MEAN VARIANCE NULL FILTER
 %See superclass EmpiricalNullFilter
 %Does the empirical null filter, makes use of ImageJ and multiple threads

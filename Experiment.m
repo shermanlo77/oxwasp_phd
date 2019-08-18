@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %EXPERIMENT (Abstract) Superclass for check pointing experiments and saving results
 %  Objects derived from this class has a name and an indicator if the experiment is completed
 %  In addition, it is recommended the constructor of derived class should have no agurments
@@ -19,9 +22,10 @@ classdef Experiment < handle
   
   %MEMBER VARIABLES
   properties (SetAccess = public)
-    directory = fullfile('results','debug'); %where the resuls are saved
     experimentName; %string, name of the experiment and the file name for storing it in a .mat file
     isComplete; %boolean, true if the experiment is completed
+    nIteration; %total of iterations in the experiment
+    iIteration; %number of iterations done so far
   end
   properties (SetAccess = protected, GetAccess = protected)
     nArrow; %number of arrows to be displayed in the progress bar
@@ -38,7 +42,7 @@ classdef Experiment < handle
       %try and load an existing .mat file, then either print and run the experiment
       try
         %load the file
-        load(fullfile(this.directory,strcat(this.experimentName,'.mat')));
+        load(fullfile(getResultsDirectory(),strcat(this.experimentName,'.mat')));
         %catch problems reading the file
       catch
         %assign member variables
@@ -69,8 +73,8 @@ classdef Experiment < handle
     %Delete the .mat file storing the results
     function deleteResults(this)
       if (strcmp(input('Are you sure? ','s'),'yes'))
-        delete(fullfile(this.directory,strcat(this.experimentName,'.mat')));
-        disp(strcat(fullfile(this.directory,strcat(this.experimentName,'.mat')), ' deleted'));
+        delete(fullfile(getResultsDirectory,strcat(this.experimentName,'.mat')));
+        disp(strcat(fullfile(getResultsDirectory,strcat(this.experimentName,'.mat')), ' deleted'));
       else
         disp('not deleted');
       end
@@ -79,15 +83,31 @@ classdef Experiment < handle
     %METHOD: SAVE STATE
     %Save itself in a .mat file
     function save(this)
-      save(fullfile(this.directory,strcat(this.experimentName,'.mat')),'this');
+      save(fullfile(getResultsDirectory,strcat(this.experimentName,'.mat')),'this');
       %print text that the experiment has been saved
-      disp(strcat(fullfile(this.directory,strcat(this.experimentName,'.mat')), ' saved'));
+      disp(strcat(fullfile(getResultsDirectory,strcat(this.experimentName,'.mat')), ' saved'));
     end
     
   end %methods
   
   %PROTECTED METHODS
-  methods (Access = protected)
+  methods (Access = public)
+    
+    %METHOD: SET N ITERATION
+    %Set the number of iterations so that the method madeProgress can called
+    %PARAMETERS:
+      %nIteration: number of iterations in the experiment
+    function setNIteration(this, nIteration)
+      this.nIteration = nIteration;
+      this.iIteration = 0;
+    end
+    
+    %METHOD: MADE PROGRESS
+    %Update the number of iterations made in this experiment and print the progress bar
+    function madeProgress(this)
+      this.iIteration = this.iIteration+1;
+      this.printProgress(this.iIteration / this.nIteration);
+    end
     
     %METHOD: PRINT PROGRESS
     %Displays a progress bar (with resoloution of 20)
@@ -117,7 +137,7 @@ classdef Experiment < handle
         %display time
         time = clock;
         time = time(4:5);
-        progressBar = [progressBar, '  Time:  ', num2str(time)];
+        progressBar = [progressBar, ' ', class(this), ' at time: ', num2str(time)];
         
         %display the progress bar
         disp(progressBar);

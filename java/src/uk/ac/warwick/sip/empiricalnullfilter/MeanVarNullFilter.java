@@ -1,13 +1,15 @@
+//MIT License
+//Copyright (c) 2019 Sherman Lo
+
 package uk.ac.warwick.sip.empiricalnullfilter;
 
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.random.RandomGenerator;
 
-/**CLASS: MEAN VAR NULL FILTER
- * Superclass of EmpiricalNullFilter
- * Replaces the empirical null mean with mean
- * Replaces the empirical null variance with variance
- * @author sherman
+//CLASS: MEAN VAR NULL FILTER
+/**Subclass of EmpiricalNullFilter, replaces the empirical null mean with mean, replaces the 
+ *     empirical null variance with variance.
+ * @author Sherman Lo
  */
 public class MeanVarNullFilter extends EmpiricalNullFilter {
   

@@ -1,0 +1,41 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
+close all;
+clearvars;
+
+this = DefectAltDustEmpirical();
+this.run();
+this.printResults();
+close all;
+
+this = DefectAltDustMadMode();
+this.run();
+this.printResults();
+close all;
+
+this = DefectAltDust0Empirical();
+this.run();
+this.printResults();
+close all;
+
+this = DefectAltDust0MadMode();
+this.run();
+this.printResults();
+close all;
+
+this = DefectAltDust0Baseline();
+this.run();
+
+this = DefectAltDustBaseline();
+this.run();
+
+this = DefectRadiusLine();
+this.run();
+this.printResults();
+close all;
+
+this = DefectRadiusSquare();
+this.run();
+this.printResults();
+close all;

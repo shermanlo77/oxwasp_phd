@@ -1,384 +1,300 @@
-3D printing, formally additive manufacturing \citep{gibson2010additive} \citep{wong2012review}, has recently become state of the art technology which manufactures objects of complicated shapes with very high precision. It was developed in the 1980's \citep{kodama1981automatic} but recently it has been commercialised and is used in medical science \citep{kang20163d} and engineering \citep{wong2012review}. Because of such a wide range of applications, there has been a need for quality control and this can be done by scanning the 3D printed sample using x-ray computed tomography.
-
-\section{X-ray Imaging}
-
-\subsection{X-Ray Production}
-Photons in CT scanning are produced in an X-ray tube. In an X-ray tube, a cathode, consisting of a heated filament, fires projectile electrons through an electric potential to a target which forms the anode \citep{michael2001x}, as shown in Figure \ref{fig:x_ray_tube}. Most of the kinetic energy of the projectile electrons is converted into heat however some is converted into electromagnetic radiation. This depends on how the projectile electrons interact with the atoms in the anode \citep{cantatore2011introduction}.
+One of the first methods of additive manufacturing (AM) is stereolithography \citep{kodama1981automatic, hull1986apparatus, 3d2019our} which involves the curing of a photosensitive resin using an ultraviolet laser. The technology has evolved and AM is capable of manufacturing objects with complicated internal and external geometries, some examples are shown in Figure \ref{fig:literature_3dprint}. However, there is a need for product inspection and in particular assessing the quality of the internal structures.
 
 \begin{figure}
-	\centering
-	\includegraphics[width=0.8\textwidth]{figures/x_ray_tube.png}
-	\caption{An X-ray tube produces photons by firing projectile electrons from a cathode to an anode. \citep{michael2001x}}
-	\label{fig:x_ray_tube}
+  \centering
+  \includegraphics[width=0.9\textwidth]{../figures/literatureReview/literature_3dprint.png}
+  \caption{Examples of additive manufactured parts: a) lattice structure, b) toy, c) chain, d) model of a facial implant, e) spanner, f) ratchet mechanism, g) toy, h) series of rotatable gears, i) lattice structure. Republished with permission of Springer New York, from \cite{gibson2010additive}; permission conveyed through Copyright
+Clearance Center, Inc.}
+  \label{fig:literature_3dprint}
 \end{figure}
 
-Bremsstrahlung is the result of projectile electrons deaccelerating due to the electrostatic field produced by nucleus of the target. The kinetic energy of the projectile electrons is then converted to electromagnetic radiation to produce X-ray radiation. As a result, the photon energies in bremsstrahlung radiation is  a continuous spectrum and can range up to the maximum kinetic energy of the projectile electrons \citep{michael2001x}.
+Imaging using x-rays \citep{rontgen1896on} have been used in the medical field. In x-ray computed tomography \citep{cormack1973reconstruction, hounsfield1973computerized, hounsfield1980computed}, the patient has an x-ray image taken at multiple angles. These x-ray images are used to reconstruct what was taken in 3D in order to make a diagnostic.
 
-Characteristic radiation is due to projectile electrons colliding with electrons in the target atom and ionizing them. This produce vacancies in the electron shell and emits photons when the electrons in the target atom drops down back to the ground state. The energy of the emitted radiation is monoenergetic and depends on the binding energy of the target's atoms \citep{michael2001x}.
+X-ray computed tomography (XCT) can be used as a non-destructive test for AM products, this is the main theme of this thesis. Various reviews on AM exist such as \cite{kruth1991material, kruth1998progress, pham1998comparison, gibson2010additive, wong2012review, ngo2018additive}. For XCT used in manufacturing, there are \cite{cantatore2011introduction, kruth2011computed, sun2012overview}. \cite{thompson2016x} reviewed the applications of XCT on AM.
 
-A typical energy spectrum of photons emitted from an X-ray tube is as shown in Figure \ref{fig:x_ray_spectrum}. The energy spectrum consist of both bremsstrahlung and characteristic radiation \citep{michael2001x}.
+In this chapter, AM is reviewed followed by XCT. The latest research for the use of XCT on AM is reviewed at the end of the chapter.
+
+\section{Additive Manufacturing}
+
+Loosely, AM involves solidifying material onto a moving platform so that the object is manufactured layer by layer. Typically this is a slow and expensive method compared to destructive methods such as computer numerical control (CNC) machining for example. However, this is not the full picture. The set up cost for AM is low, in particular destructive methods requires planning and setting up various apparatus before the manufacturing stage \citep{gibson2010additive}. This is why AM used to be called rapid prototyping \citep{kruth1991material}, it was suitable to manufacture bespoke items.
+
+Various different AM technologies were invented during the advancement of AM. Because of this, there are various applications of AM, for example in medical and biomedical sciences \citep{kang20163d, kourra2018computed}, engineering \citep{cooper2015design}, food engineering \citep{godoi20163d} and art \citep{ornes2013mathematics, grossman2019bathsheba}.
+
+\subsection{Additive Manufacturing Technologies}
+
+The different AM technologies can be classified based on the apparatus, for example liquid based or power based, and/or on the method of manufacturing, for example point by point or layer by layer \citep{kruth1991material}. The liquid based AM technologies presented here are stereolithography \citep{kodama1981automatic, hull1986apparatus, 3d2019our} and fused deposition modelling \citep{crump1991fused, crump1992apparatus, stratasys2019what}. The following power based technologies are presented here: 3D printing \citep{sachs1990three}, selective laser sintering \citep{deckard1989method, dtm1990the, 3d2019our}, electron beam melting \citep{larsson2004arrangement, arcam2019history}, laser engineered net shaping \citep{atwood1998laser}. Illustrations of these technologies are shown in Figure \ref{fig:literature_technologies}.
 
 \begin{figure}
-	\centering
-	\includegraphics[width=0.8\textwidth]{figures/x_ray_spectrum.png}
-	\caption{A typical energy spectrum of photons emitted from an X-ray tube. The continuous spectrum is the result of bremmsstrahlung. The peaks are the result of characteristic radiation. \citep{michael2001x}}
-	\label{fig:x_ray_spectrum}
+  \centering
+  \centerline{
+    \begin{subfigure}[b]{0.59\textwidth}
+      \includegraphics[width=\textwidth]{../figures/literatureReview/literature_technologies_stl.png}
+      \caption{Stereolithography}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.39\textwidth}
+      \includegraphics[width=\textwidth]{../figures/literatureReview/literature_technologies_fdm.png}
+      \caption{Fused deposition modelling}
+    \end{subfigure}
+  }
+  \centerline{
+    \begin{subfigure}[b]{0.7\textwidth}
+      \includegraphics[width=\textwidth]{../figures/literatureReview/literature_technologies_3dp.png}
+      \caption{3D printing}
+    \end{subfigure}
+  }
+  \centerline{
+    \begin{subfigure}[b]{0.7\textwidth}
+      \includegraphics[width=\textwidth]{../figures/literatureReview/literature_technologies_laser.png}
+      \caption{Selective laser sintering}
+    \end{subfigure}
+  }
+  \caption{Diagrams of various AM technologies. Reprinted from \cite{wang20173d}\textsuperscript{\textcopyright}, with permission from Elsevier.}
+  \label{fig:literature_technologies}
 \end{figure}
 
-The voltage and current can be varied in the X-ray tube to produce different energy spectrums and rate of photon production. This can vary the results produced when collecting CT data \citep{cantatore2011introduction}. Another important factor is the focal spot size because smaller spot sizes produce sharper edges. Larger spot sizes produce unsharp results and this is know as the penumbra effect, as shown in Figure \ref{fig:x_ray_penumbra}. However spot sizes too small can produce concentrated heat \citep{welkenhuyzen2009industrial} and can damage the X-ray tube.
+Stereolithography is a liquid based AM technology. It consist of a container containing a liquid photo-hardening monomer or polymer as well as a piston and platform which holds and moves the manufactured product up and down. A laser with a specific wavelength, typically \SIrange{300}{400}{\nano\metre} \citep{kodama1981automatic}, is emitted onto a point of the surface of the liquid and solidifies. The laser is controlled by a computer to solidify specific parts of the liquid surface. The platform is lowered and the cycle repeats, manufacturing the object layer by layer. Laser absorption happens a few tenths of a millimetre which corresponds to the thickness of each layer \citep{kruth1991material, pham1998comparison}.
+
+Fused deposition modelling is another liquid based AM technology. A jetting head, or nozzle, deposit the molten material onto a platform or on top of the previous layer. The material is usually plastic in a form of a thin filament. It is heated to just above its melting points, typically \SI{1}{\degreeCelsius} \citep{crump1992apparatus}, so that it cools down within \SI{0.1}{\second} \citep{kruth1991material}. The platform moves, and controlled by a computer, in the $x-y$ axis, or left to right and front to back, to produce a layer. The jetting head can move in the $z$ axis, or up and down, to manufacture the next layer. In the original patent by \cite{crump1992apparatus}, the thickness can be as thin as 0.000\,1 inches (\SI{0.003}{\milli\metre}).
+
+3D printing is a powder based AM technology. A jetting head deposit a binding agent in droplets onto a bed of powder of ceramic, metal or polymer. The binding agent is cured via evaporation or heating which glues the powder particles together. The jetting head can move in the $x-y$ plane and the object is manufactured layer by layer by moving the platform in the $z$ direction and renewing the powder using a roller. The binding agent must have low viscosity so it can be deposited, it may also be charged so that it can be deflected using an electric field for precise deposition \citep{sachs1990three}. The thickness of each layer is determined by the size of the droplets of the binding agent, which can be as small as \SI{15}{\micro\metre} in diameter \citep{sachs1990three}. \cite{sachs1990three} reported a tolerance of 0.001 inches (\SI{0.03}{\milli\metre}).
+
+Selective laser sintering, electron beam melting and laser engineered net shaping are powder based AM technology. Selective laser sintering is similar to 3D printing but instead a laser is used to sinter or fuse the powder particles together. This is done in a chamber heated just below the melting point of the material \citep{wong2012review}. Various materials such as metals and plastics can be used \citep{wong2012review}. Electron beam melting is similar but instead an electron beam is used instead of a laser and this is done in a high vacuum chamber to avoid oxidation \citep{wong2012review}. In laser engineered net shaping, a powder bed is not used; the powder is deposited on the desired location and then melted using a laser, as shown in Figure \ref{fig:literature_lens}. This is a popular method to manufacture metal objects \citep{gibson2010additive}.
 
 \begin{figure}
-	\centering
-	\includegraphics[width=1\textwidth]{figures/x_ray_penumbra.png}
-	\caption{Larger focal spot sizes produces unsharp results. This is know as the penumbra effect. \emph{Source: F.~Welkenhuyzen et al.~(2009)\citep{welkenhuyzen2009industrial}}}
-	\label{fig:x_ray_penumbra}
+  \centering
+  \includegraphics[width=0.7\textwidth]{../figures/literatureReview/literature_lens.png}
+  \caption{Laser engineered net shaping. Reprinted from \citep{wong2012review} under the CC BY 3.0 license.}
+  \label{fig:literature_lens}
 \end{figure}
 
-\subsection{Photon Interactions}
-Photons emitted by the X-ray tube are projected onto the sample and interacts with it in a number of ways \citep{cantatore2011introduction}.
+There are many more AM technologies but they can be found in numerous review literatures. A comparison of the mentioned AM technologies available at the time were done by \cite{pham1998comparison, kim2008benchmark}. Factors such as material cost, mechanical properties and the resolution of the manufacturing were considered. There are also safety aspects to assess, for example powder in powder based methods can escape into the environment and the liquid used in stereolithography is toxic, sticky and has spilling risk \citep{kim2008benchmark}. This makes fused deposition modelling a popular choice and can be used in an office environment \citep{ngo2018additive}.
 
-The sample can effectively absorb photons via the photoelectric effect or pair production \citep{cantatore2011introduction}. In the photoelectric effect, the photons transfers all its energy to a bounded electron and ejects it from the sample's atom \citep{millikan1916direct}. In pair production, the photons convert into electron-position pairs by interacting with the Coulomb field of the sample's atomic nucleus \citep{hubbell2006electron}. In addition to getting absorbed, photons can be scattered by the sample. This happens when photons collide inelastically with and transfers its energy to the sample's electrons. This process is known as Compton scattering \citep{compton1923quantum}.
+The strength of the manufactured object vary from geometry to geometry but also from direction to direction. Because the manufactured object are made layer by layer, the strength varies if the load was applied in the building direction (vertical) or the scanning direction (horizontal) \citep{kim2008benchmark}. Experimental results shown that fused deposition modelling has superior strength in the scanning direction but weak in the building direction \citep{kim2008benchmark}.
 
-Suppose a mono-energetic X-ray pencil beam attenuating through an object with varying attenuation coefficient in position $\mu=\mu(x)$. The beam starts at $x=0$ and is detected at $x=L$, then the attenuation (decrease in X-ray intensity from $I_0$ to $I_1$) is given as \citep{cantatore2011introduction}
-\begin{equation}
-	I_1 = I_0\exp\left[\int_0^L-\mu(x)\diff x\right].\label{eq:beerLaw}
-\end{equation}
-By comparing the intensity before and after attenuation, the integral of the attenuation coefficient along the path of the X-ray can be calculated. Because of the discrete nature of pixels, the integral is usually replaced by a sum \citep{michael2001x}. 
+The strongest manufactured methods were found to be powder based methods and stereolithography, however they are slow and material costs are high \citep{kim2008benchmark}. Fused deposition modelling has low costs and high speeds but suffers from weak mechanical properties \citep{ngo2018additive}.
 
-However it was shown that the attenuation coefficient does depend on the energy of the photons \citep{elbakri2002statistical}. Thus $\mu=\mu(x,E)$ should be made dependent on the energy of the photons \citep{cantatore2011introduction}. In general low energy photons are more likely to be absorbed than high energy photons, this increases the average energy of the attenuated photons and can be a source of error in CT scanning. This is referred to beam hardening and can cause inaccuracies in Equation \eqref{eq:beerLaw} \citep{michael2001x}. This can be reduced by placing a thin sheet of filter to absorb low energy photons \citep{welkenhuyzen2009industrial} or by correcting it in the data analysis stage \citep{michael2001x}.
+The materials available for each AM technology varies. The materials used in stereolithography is limited because of the use of liquids with photo-hardening properties \citep{ngo2018additive}. Fused deposition modelling is limited to plastics \citep{ngo2018additive}. Selective laser sintering and laser engineered net shaping can manufacture objects using metals such as aluminium alloys, steel, titanium and titanium alloys \citep{herzog2016additive}.
 
-\subsection{Detection}
-Most X-ray detectors are made up of a scintillator material \citep{greskovich1997ceramic} and photodiodes. Firstly the x-ray photons interact with the scintiallator material and produce visible light \citep{rossner1993conversion}. Lastly the visible light is then detected by photodiodes and coverts it into electricical current \citep{michael2001x}. Not all of the visible light photons are detected by the photodiodes, thus not all the x-ray photons are detected. The ratio between the number of x-ray photons detected by the detector and the number of x-ray photons arriving at the detector is called the quantum efficiency \citep{cierniak2011x}.
+\subsection{Pre/Post Processing}
 
-The detection is a two stage process \citep{cierniak2011x}, although there exist equipment which detects x-ray directly such as a xenon gas ionization detector \citep{fuchs2000direct}, solid state CT systems such as sintillator-photodiodes detectors have high quantum efficiency of about 98\% to 99.5\% \citep{hsieh2000investigation}. The detectors used in CT scanning are typically flat bed scanners which consist of an array of panels of photodiodes \citep{cantatore2011introduction}. The electrical signal from the photodiodes are subject to sampling and quantisation to store these signals as an image on a computer \citep{cierniak2011x}.
+The blueprint of the object to be manufactured is called a computer-aided design (CAD) model. For it to be processed by an AM apparatus, the CAD model is converted to a STL file \citep{3d1989sterolithography, 3d2019what} which represent surfaces made up of a series of triangles, an example is shown in Figure \ref{fig:literature_stl}. STL stands for sterolithography but could also be called standard tessellation language \citep{wong2012review}. Some accuracy is lost here as the surface of the CAD model is represented approximately by triangles \citep{gibson2010additive}. The STL file is then sliced into layers \citep{jamieson1995direct, vatani2009enhanced} so that the AM apparatus knows what to build for each layer.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.9\textwidth]{../figures/literatureReview/literature_stl.png}
+  \caption{An example of a CAD model (left) converted to a STL file (right). Republished with permission of Springer New York, from \cite{gibson2010additive}; permission conveyed through Copyright
+Clearance Center, Inc.}
+  \label{fig:literature_stl}
+\end{figure}
+
+When the AM object is manufactured, post processing techniques can be done at this stage. For example sanding may be done to smooth the surfaces \citep{gibson2010additive}. The manufactured object may be inspected for pores or defects by comparing the x-ray image of the object with the CAD model \citep{lee2015compliance, villarraga2015assessing, kim2016inspection}.
+
+As with any apparatus, regular maintenance is required \citep{bell2014maintaining}.
+
+\subsection{Defects and Quality Control}
+
+There are various discontinuities in AM. In FDM, a staircase effect on the surface of the product arises from poor slicing methods of the CAD model \citep{weeren1995quality}. Internal voids can be formed due to insufficient material flow \citep{weeren1995quality}. Other factors which can cause defects include misalignment of the platform or nozzle, depletion of material and lack of adhesion due to low temperatures \citep{gunaydin2018common}. There are also problems in the manufacturing of metal parts \citep{everton2016review}. For example gas can become trapped during the manufacturing process forming gas pores in the manufactured object \citep{thijs2010study, tammas2015xct}, they can be \SIrange{5}{20}{\micro\metre} in diameter \citep{everton2016review}. Layers may not fuse together and form elongated pores, this can be fixed by increasing the energy of the beam but too high will cause evaporation of the AM part \citep{mumtaz2008high}. They can be \SIrange{50}{500}{\micro\metre} in size \citep{everton2016review}. They are observable using a scanning electron microscope as shown in Figure \ref{fig:literature_pores}. Low wetting ability of the melt pool can cause balling, this is where the sintered powder has poor contact on the existing layer causing spherical particles to form on the surface of the AM part \citep{li2012balling, gu2009balling}. The spherical particles can vary in size of \SIrange{10}{500}{\micro\metre} \citep{li2012balling}. Low oxygen content in the environment \citep{niu1999instability} and higher energy beams \citep{gu2009balling} can reduce the balling effect. Some examples are shown in Figure \ref{fig:literature_balling} using an electron scanning microscope. Cracks can form due to extreme temperature changes and gradients \citep{mercelis2006residual, zaeh2010investigations}.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.99\textwidth]{../figures/literatureReview/literature_pores.png}
+  \caption{A scanning electron microscope image of a) pores and b) elongated pores from an electron beam melting manufactured object. Reprinted from \cite{tammas2015xct} under the CC BY 4.0 license.}
+  \label{fig:literature_pores}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.7\textwidth]{../figures/literatureReview/literature_balling.png}
+  \caption{A scanning electron microscope image of balling on a selective laser melting manufactured object. Reprinted by permission from Springer Nature: \cite{li2012balling}\textsuperscript{\textcopyright}.}
+  \label{fig:literature_balling}
+\end{figure}
+
+The manufacturing process can be monitored, this is called online or in-situ process monitoring \citep{everton2016review}. The idea is that problems in the manufacturing are found as soon as possible before the final product is spoiled \citep{cerniglia2015inspection}. Various methods are used for in-situ process monitoring. Most commonly a high speed camera is installed capturing the various wavelengths in the electromagnetic spectrum emitted by the melt pool \citep{berumen2010quality, craeghs2011online, lott2011design}. Various discontinuities and errors can be detected \citep{clijsters2014in} and be used to give feedback to the AM apparatus \citep{herzog2013method}. Other methods include measuring the surface using a laser \citep{cerniglia2015inspection} and using an infrared camera to measure the temperature of the melt pool \citep{rodriguez2012integration}. 
 
 \section{X-ray Computed Tomography}
-Computed tomography (CT) scanning is a 3D imaging technique. It does this by reconstructing the geometry of the sample through a series of 2D X-ray images of the sample. The sample rotates after each image taken \citep{cantatore2011introduction}.
 
-Figure \ref{fig:x_ray_ct} shows a diagram on how CT scanning works. A 2D image is taken by projecting X-ray photons onto the stationary sample. The photons are then scattered or absobred by the sample.  Some of these photons are then detected by an X-ray detector on the other side of the sample, which produces an image. After an image has been taken, the object rotates and another image is taken. Finally after a number of images, a 3D reconstruction of the object can be estimated \citep{cantatore2011introduction}.
+XCT started its use in the medical field but advancement of the technology saw its use in manufacturing and metrology, the science of measurement. Applications of XCT include the examination of acetabular hip prosthesis cups \citep{kourra2018computed}, skeletons \citep{appleby2014scoliosis}, batteries \citep{taiwo2017investigating} and materials \citep{zhang2016x, wang2017x}. Reverse engineering is possible when XCT is combined with AM, for example it was used for improving existing hollow engine valves \citep{cooper2015design}. However the use of XCT in metrology is not yet firmly established compared to other methods of measurement \citep{thompson2016x}. This is because there is a lot of inconsistent in the setup of XCT apparatuses and on controlling the sources of error.
+
+\subsection{Concepts from the Medical Field}
+
+The setup of XCT \citep{cormack1973reconstruction, hounsfield1973computerized, hounsfield1980computed} in the medical field involves the patient laying on a bed. An x-ray source and x-ray detector pair rotate around and translate along the patient to get readings of the x-rays after attenuating through the patient using different paths. X-ray beams were pencil beams in the early versions of XCT \citep{michael2001x}. To reduce scanning times, fan shaped beams and arrays of detectors were used and they can move in a spiral fashion along and around the patient \citep{cierniak2011x}. These multiple x-ray readings can be used to reconstruct a representation of the patient in 3D \citep{zeng2010medical}. This is illustrated in Figure \ref{fig:literature_medicalct}.
 
 \begin{figure}
-	\centering
-	\includegraphics[width=0.7\textwidth]{figures/x_ray_ct.png}
-	\caption{X-ray computed tomography reconstructs the sample by projecting photons onto a rotating sample. The photons are then detected by the detector. \emph{Source: \url{http://www.phoenix-xray.com/}}}
-	\label{fig:x_ray_ct}
+  \centering
+  \includegraphics[width=0.99\textwidth]{../figures/literatureReview/literature_medicalct.png}
+  \caption{In medical XCT, a fan shaped x-ray beam is emitted and attenuate through the patient and detected by a detector. The x-ray source and detector rotate around and translate along the patient. By collecting readings at different angles, the image of the patient can be reconstructed. Reprinted from \cite{michael2001x}. \textcopyright\ IOP Publishing. Reproduced with permission. All rights reserved.}
+  \label{fig:literature_medicalct}
 \end{figure}
 
-CT was solved theoretically by \cite{cormack1973reconstruction} and implemented by \cite{hounsfield1973computerized} \citep{hounsfield1980computed}. It was mainly used for medical imaging. The setup for CT scanning is different when scanning patients because the detector and X-ray source rotates around the patient \citep{cantatore2011introduction}. Recently CT has been used industrially for non-destructive testing in manufacturing \citep{cantatore2011introduction}. One possible application would be inspecting 3D printed samples \citep{villarraga2015assessing}. Other uses in science include the investigation of batteries \citep{o2017investigating} and materials \citep{wang2017x} \citep{zhang2016x}.
+The patient cannot be exposed to too much radiation, therefore the x-rays used are of low power. This can cause noisy readings from the detector. The sources of noise are from the behaviour of the x-rays and from the electronics in the detector \citep{yang2010noise}. In this realm of low signal to noise ratio, the noise has a compound Poisson element to it \citep{whiting2002signal, whiting2006properties}. Many reconstruction algorithms have been proposed to take the compound Poisson noise into consideration \citep{elbakri2002statistical, elbakri2003efficient, elbakri2003statistical, lasio2007statistical, xie2008x}.
 
-Methods used to reconstruct the 3D surface of the sample are available such as filtered back-projection \citep{brooks1976principles} and the FDK algorithm \citep{feldkamp1984practical}. There exist software such as \emph{VGStudio MAX} \citep{reinhart2008industrial} which automatically aligns and scales the 3D reconstruction with the computed aided design and compares them.
+\subsection{Acquisition Process}
 
-Studies have been done to use x-ray CT to do defection detection on 3D printing \citep{kim2016inspection} \citep{villarraga2015assessing}. This was done by investigating the variation of the material thickness and the distribution of the volume of voids \citep{villarraga2015assessing}. Voids then can be classified as defects if the voids are larger than some volume threshold. This threshold controls the probability of the detection of defects \citep{amrhein2014characterization} \citep{gandossi2010probability}.
+High power x-rays can be used in XCT for the purpose of manufacturing and metrology because there is no consequence of the manufactured object absorbing the radiation. The XCT setup is different, the object is held by foam on a turntable and placed between an x-ray source and an x-ray detector. X-ray projections are taken while the object rotates. Typically the x-ray is a cone beam \citep{kruth2011computed}. This is illustrated in Figure \ref{fig:literature_xct}.
 
-Full 3D x-ray CT scans can be slow and may not generalised well in production lines. However there is potential to bring in methods such as those used in airport luggage inspection to speed up to process \citep{warnett2016towards}.
+\begin{figure}
+  \centering
+  \includegraphics[width=0.75\textwidth]{../figures/literatureReview/literature_xct.png}
+  \caption{The setup of XCT used in metrology. Reprinted from \cite{warnett2016towards} under the CC BY 3.0 license.}
+  \label{fig:literature_xct}
+\end{figure}
 
-There are many sources of error in CT scanning \citep{cantatore2011introduction} and this can cause problems when reconstructing the geometry of the sample. Sources of error include: dead pixels in the detector \citep{brettschneider2014spatial}, use of cone beams \citep{sun2016applications}, beam hardening and the orientation of the sample \citep{corcoran2016observations}.
+The acquisition process consist of the production of x-rays, x-rays attenuating the object, the detection of x-rays and the reconstruction process.
 
-The scale of the 2D images can be calibrated with the use of reference standards \citep{bartscher2007enhancement} \citep{lifton2013application}.
+X-rays \citep{rontgen1896on} are produced in an x-ray tube, a diagram shown in Figure \ref{fig:literature_tube}. It consist of a vacuum tube containing a cathode and an anode. Electrons are fired from the cathode to the anode due to an electric potential. The cathode is usually tungsten and the anode contains a small amount of tungsten, molybdenum or copper \citep{sun2012overview}.
 
-\section{Compound Poisson}
+\begin{figure}
+  \centering
+  \includegraphics[width=0.8\textwidth]{../figures/literatureReview/literature_tube.png}
+  \caption{An x-ray tube. Reprinted from \cite{michael2001x}. \textcopyright\ IOP Publishing. Reproduced with permission. All rights reserved.}
+  \label{fig:literature_tube}
+\end{figure}
 
-The greyvalues of each pixel in the detector can be modelled as a random variable, due to the random behaviour of photons being produced, interacting with the phantom and interacting with the scintillator in the detector. When the photons interact with the scintillator, they are converted into visible light. The visible light photons are then detected and converted into a greyvalue. How the detected visible light is converted is important in modelling the greyvalue.
+The electrons can interact with the anode in a number of ways. The electrons can be deflected or decelerated due to the electric field from the nucleus of the target anode material. The energy lost by the electrons is emitted as bremsstrahlung radiation. It depends on the potential difference in the x-ray tube, as this determines the energy of the fired electrons, and also the proton number of the anode target because this affects the electric field produced by the nucleus in the anode target \citep{sun2012overview}. Another interaction is when the electrons may collide with the nucleus in the anode target, exciting an inner shell electron and ionizing it. This produce a vacancy in the electron shell and emits a photon when the excited electron drops down back to the ground state. This is known as characteristic radiation and the energy emitted is discrete and depends on the material in the anode target \citep{sun2012overview}.
 
-Should the greyvalue be proportional to the number of photons detected, the detector is known as a quantum counter and the greyvalue is a Poisson random variable, up to a constant \citep{whiting2006properties}. However if the greyvalue records the signal strength, proportional to the energy detected, then the detector is an energy integrating detector. The greyvalue has the compound Poisson distribution, again up to a constant \citep{whiting2006properties}. There are other types of detection schemes \citep{whiting2006properties} but it shall be not be considered here.
+The efficiency of an x-ray tube is poor, 99\% of the energy from electrons is converted to heat, the rest to x-rays \citep{kruth2011computed}.
 
-Many reconstruction algorithms have been proposed considering the compound Poisson nature of the detector \citep{elbakri2002statistical} \citep{elbakri2003statistical} \citep{lasio2007statistical} \citep{xie2008x} and with beam hardening correction \citep{elbakri2003efficient}. These will not be discussed here as they are beyond the scope of this thesis.
+Photons, making up the radiation, are emitted from the x-ray tube as a Poisson process \citep{cierniak2011x}. The rate of x-ray emission depends on the current, that is the rate of charge between the cathode and anode. The energy of each photon are from bremsstrahlung radiation and characteristic radiation, making the distribution of x-ray photons energy a mix of continuous and discrete energies \citep{sun2012overview}. An example is shown in Figure \ref{fig:literature_spectrum}.
 
-Experiments have been done to verify the compound Poisson nature of the detector. This was done by investigating the variance of radiographs of air \citep{hsieh2015compound} and a polyethylene cylinder \citep{yang2009evaluation} \citep{yang2010noise} at different voltages and powers. It was found there were 2 components in the noise, one was signal dependent and comes from the compound Poisson, the other was signal independent and may be electronic noise. The electronic noise can be modelled as Normally distributed \citep{xu2009electronic}.
+\begin{figure}
+  \centering
+  \includegraphics[width=0.65\textwidth]{../figures/literatureReview/literature_spectrum.png}
+  \caption{An example of the distribution of energies a photon can have emitted from an x-ray tube. Bremsstrahlung and characteristic radiation contribute to the continuous and discrete components of the distribution. Reprinted from \cite{michael2001x}. \textcopyright\ IOP Publishing. Reproduced with permission. All rights reserved.}
+  \label{fig:literature_spectrum}
+\end{figure}
 
-The compound Poisson can be formally written. Let $Y$ be the number of photons detected in a pixel for some time exposure $\tau$,
-\begin{equation*}
-	Y\sim\poisson(\lambda)
-\end{equation*}
-that is
-\begin{equation*}
-	\prob(Y=y)=\euler^{-\lambda}\frac{\lambda^y}{y!} \quad \text{for }y=0,1,2,\dotdotdot
-\end{equation*}
-where $\lambda>0$ is the Poisson rate parameter. Let $U_i$ be the energy of the $i$th photon in a pixel for i.i.d.~$i=1,2,3,\dotdotdot$ with p.d.f.~$p_U(u)$. Let $X$ be the greyvalue of a pixel and is an energy integrating detector, then
-\begin{equation}
-	X|Y = \sum_{i=1}^{Y}U_i+\kappa
-	\label{eq:compoundPoisson_X|Y}
-\end{equation}
-where $\kappa$ is some offset. For now let $\kappa=0$, then the marginal $X$ has the compound Poisson distribution. The p.d.f.~of $X$ can be obtained by marginalising the joint p.d.f.
-\begin{equation*}
-	p_X(x)=\sum_{y=0}^\infty p_{X|Y}(x|y)\prob(Y=y) \quad\text{for }x\geqslant 0
-	\ .
-\end{equation*}
-However it should be noted that $X=0$ if and only if $Y=0$ with probability
-\begin{equation*}
-	\prob(X=0)=\euler^{-\lambda} \ .
-\end{equation*}
-Formally $X$ has probability mass at $X=0$ and probability density at $X>0$, then 
-\begin{equation}
-	p_X(x) = 
-	\begin{cases}
-		\delta(x) \euler^{-\lambda}  & \text{ for } x=0 \\ 
-		\sum_{y=1}^\infty p_{X|Y}(x|y)\euler^{-\lambda}\frac{\lambda^y}{y!} \quad\text{for } & \text{ for } x>0
-	\end{cases}
-\end{equation}
-where $\delta(x)$ is the Dirac delta function. It is quite often the case this cannot be written in closed form.
+The scanned object are exposed to x-ray photons which undergoes attenuation when interacting with the object in a number of ways \citep{cantatore2011introduction}. The object can absorb the photons via the photoelectric effect. In the photoelectric effect, the photons transfers all its energy to a bounded electron and ejects it from the object's atom \citep{millikan1916direct}. Photons can be scattered by the object by colliding inelastically with and transfers its energy to an electron. This process is known as Compton scattering \citep{compton1923quantum}. The photoelectric effect and Compton scattering make a number of photons undetectable. However if some of the photons avoid these processes, they are detected and their energy is left unaffected.
 
-The m.g.f.~of $X$ has a nicer form however. Let the m.g.f.~of $X$ be
-\begin{equation*}
-	M_X(\theta)=\expectation\left[\euler^{X\theta}\right]
-	\ .
-\end{equation*}
-This can be computed using the result for conditional expectations
-\begin{equation*}
-	M_X(\theta)=\expectation\expectation\left[\euler^{X\theta}|Y\right]
-	\ .
-\end{equation*}
-Using the definition of $X|Y$ in Equation \eqref{eq:compoundPoisson_X|Y}, then
-\begin{equation*}
-	M_X(\theta)=\expectation\expectation\left[\exp\left(\theta U_1 + \theta U_2 + \dotdotdot + \theta U_Y\right)|Y\right]
-\end{equation*}
-\begin{equation*}
-	M_X(\theta)=\expectation\expectation\left[\euler^{\theta U_1}\cdot\euler^{\theta U_2}\cdot\dotdotdot\cdot\euler^{\theta U_Y}|Y\right]
-	\ .
-\end{equation*}
-But because $U_i$ for $i=1,2,3,\dotdotdot$ are i.i.d., then each $U_i$ has a common m.g.f.
-\begin{equation*}
-	M_U(\theta)=\expectation\left[\euler^{U\theta}\right]
-	\ ,
-\end{equation*}
-then
-\begin{equation*}
-	M_X(\theta)=\expectation\left(
-		\expectation\left[\euler^{\theta U_1}|Y\right]\cdot
-		\expectation\left[\euler^{\theta U_2}|Y\right]\cdot
-		\dotdotdot \cdot
-		\expectation\left[\euler^{\theta U_Y}|Y\right]
-	\right)
-\end{equation*}
-\begin{equation*}
-	M_X(\theta)=\expectation\left[\left(M_U(\theta)\right)^Y\right]
-\end{equation*}
-\begin{equation*}
-	M_X(\theta)=\expectation\left[\euler^{Y\ln(M_U(\theta))}\right]
-\end{equation*}
-\begin{equation*}
-	M_X(\theta) = M_Y\left(\ln(M_U(\theta)\right)
-\end{equation*}
-where $M_Y(\theta)$ is the m.g.f.~of $Y$. It can be shown that the m.g.f.~of $Y$ is
+Beer's law simplifies these quantum mechanistic process. Suppose the x-ray beam with rate of emission $I_0$ is mono-energetic and travels in a straight line in the $x$-axis. Let $\mu(x)$ be the attenuation coefficient of the object and the x-ray beam has rate of emission $I$ after attenuation. A differential equation can be set up to model the decay of photons as it attenuate through the object such that
 \begin{equation}
-	M_Y(\theta)=\expectation\left[\euler^{Y\theta}\right]=
-	\exp
-	\left[
-		\lambda
-		\left(
-		  \euler^\theta-1
-		\right)
-	\right]
+\dfrac{\diff I}{\diff x} = -I\mu(x)
 \end{equation}
-then
+which can be solved
 \begin{equation}
-	M_X(\theta)=
-	\exp\left[
-		\lambda
-		\left(
-			M_U(\theta)-1
-		\right)
-	\right]
-	\ .
+I = I_0\exp\left[\int_{x \in \text{path of photon}}-\mu(u)\diff u\right] \ .
+\label{eq:beerLaw}
 \end{equation}
-As long as the m.g.f.~of $U$ is known, then m.g.f.~of $X$ can be written in closed form.
+However, the photoelectric effect and Compton scattering, thus the attenuation coefficient as well, depends on the energy of the photons \citep{elbakri2002statistical}. Therefore $\mu(x,E)$ should be made dependent on the energy of the photons \citep{cantatore2011introduction} and can cause some inaccuracies in Beer's law. In general low energy photons are more likely to be absorbed and scattered than high energy photons, this increases the average energy of the detected photons \citep{sun2012overview}. This is called beam hardening.
 
-Moments of $X$ can be obtained from the m.g.f.~by differentiating it and setting it to zero
-\begin{align*}
-	M_X'(\theta)&=\exp\left[\lambda\left(M_U(\theta)-1\right)\right]\cdot\lambda M_U'(\theta) \\
-	M_X'(\theta)&=M_X(\theta)\lambda M_U'(\theta)
-\end{align*}
-then
-\begin{equation}
-	\expectation\left[X\right]=\lambda\expectation\left[U\right]
-	\ .
-\end{equation}
-Conducting the same procedure
-\begin{equation*}
-	M_X''(\theta)=M_X'(\theta)\lambda M_U'(\theta)+M_X(\theta)\lambda M_U''(\theta)
-	\ ,
-\end{equation*}
-the variance can be obtained
-\begin{equation*}
-	\variance\left[X\right]=M_X''(0)-\left[M_X'(0)\right]^2
-\end{equation*}
-\begin{equation*}
-	\variance\left[X\right]=M_X'(0)\lambda M_U'(0)+M_X(0)\lambda M_U''(0)-\left[\lambda\expectation\left[U\right]\right]^2
-\end{equation*}
-\begin{equation*}
-	\variance\left[X\right]=\lambda^2 \left(\expectation\left[U\right]\right)^2+\lambda \expectation\left[U^2\right]-\left[\lambda\expectation\left[U\right]\right]^2
-\end{equation*}
-resulting in
-\begin{equation}
-	\variance\left[X\right] = \lambda\expectation\left[U^2\right]
-	\ .
-\end{equation}
-This can be extended for higher moments.
+After attenuation, the x-ray photons are detected by the x-ray detector. The detectors used in XCT are typically flat bed scanners made up of a scintillator material \citep{curran1953luminescence, greskovich1997ceramic} and photodiodes. The x-ray photons interact with the scintiallator material and produce visible light pluses \citep{rossner1993conversion}. These pulses are detected by photodiodes and converted into an electrical signal \citep{nikl2006scintillation, ren2018tutorial}. The electrical signal can be a quantum counter, counting the number of photons detected, or an energy integrating detector, adding up all of the energies of each detected photon \citep{nikl2006scintillation, whiting2006properties, kruth2011computed, ren2018tutorial}. The electrical signals are subject to sampling and quantisation to store these signals as an image \citep{cierniak2011x}. This image is known as a projection.
 
-Because the m.g.f.~can be written down in closed form, so is the characterisation function or Fourier transform of the p.d.f.~of $X$. By obtaining an empirical version of $p_U(u)$, moments of $X$ can be estimated using the m.g.f.~and the p.d.f.~can be estimated by using fast Fourier transform on the empirical characteristic function \citep{whiting2006properties}.
+Not all of the visible light pulses are detected by the photodiodes, thus not all the x-ray photons are detected. The ratio between the number of x-ray photons detected by the detector and the number of x-ray photons arriving at the detector is called the quantum efficiency \citep{cierniak2011x, ren2018tutorial}. The detection is a two stage process \citep{cierniak2011x}, although there exist equipment which detects x-ray directly such as a xenon gas ionization detector \citep{fuchs2000direct}, solid state CT systems such as sintillator-photodiodes detectors have high quantum efficiency of about 98\% to 99.5\% \citep{hsieh2000investigation}.
 
-If the distribution of $U$ cannot be obtained or estimated, then one can guess that distribution. \cite{xu2009electronic} for example used a Gamma distribution
-\begin{equation}
-	U\sim\gammaDist\left(\alpha,\beta\right)
-\end{equation}
-where $\alpha>0$ is the Gamma shape parameter and $\beta>0$ is the Gamma rate parameter. This is a special case of the compound Poisson called the compound Poisson-Gamma model and one can write
-\begin{equation}
-	X\sim\CPoisson(\lambda,\alpha,\beta)
-	\ .
-\end{equation}
-The conditional distribution can be shown to be
-\begin{equation}
-	X|Y\sim\gammaDist\left(Y\alpha,\beta\right)
-	\ .
-\end{equation}
+Once multiple projections of the object have been acquired at multiple angles, the reconstruction process can start. The objective of reconstruction is to estimate the attenuation coefficient of the object at each point in space $\mu(x,y,z)$ using the x-ray projections. This is done using the fact that the projections are based on the line integral of the attenuation coefficient along the path of photons. This problem was formed by \cite{radon1986on} as the `determination of functions from their integral values along certain manifolds'.
 
-Using results derived earlier, the m.g.f.~of the of $X$ is
-\begin{equation}
-	M_X(\theta)=\exp\left[\lambda\left(\left(\frac{\beta}{\beta-\theta}\right)^{\alpha}-1\right)\right]
-\end{equation}
-and moments can be obtained from it such as
-\begin{equation}
-	\expectation\left[X\right]=\frac{\alpha\lambda}{\beta}
-\end{equation}
-\begin{equation}
-	\variance\left[X\right]=\frac{\alpha(\alpha+1)\lambda}{\beta^2}
-	\label{eq:compoundPoisson_variance}
-\end{equation}
-and
-\begin{equation}
-	\expectation\left[(X-\expectation[X])^3\right] = \frac{\alpha(\alpha+1)(\alpha+2)\lambda}{\beta^3}
-	\ .
-\end{equation}
+There exist many reconstruction algorithms in XCT \citep{smith1990cone} such as the filtered back-projection \citep{brooks1976principles} and the FDK algorithm \citep{feldkamp1984practical}. Once the reconstruction has been done, the shape or surface can be extracted by use of thresholding \citep{kruth2011computed}. There exist many software for the reconstruction stage of XCT \citep{reinhart2008industrial, sun2012overview}.
 
-The p.d.f.~can be shown to be
-\begin{equation}
-	p_X(x) = 
-	\begin{cases}
-		\delta(x) \euler^{-\lambda} & \text{ for } x=0 \\ 
-		\sum_{y=1}^{\infty}\frac{\beta^{y\alpha}}{\Gamma(y\alpha)}x^{y\alpha-1}\euler^{-\beta x}\euler^{-\lambda}\frac{\lambda^y}{y!} & \text{ for } x>0
-	\end{cases}
-	\label{eq:compoundPoisson_pdf}
-\end{equation}
-and it is well known the infinite sum cannot be written in closed form. There are a number of approximations or computational methods to evaluate the p.d.f.~such as Fourier inverting the characteristic function \citep{dunn2008evaluation}, using the saddlepoint approximation \citep{daniels1954saddlepoint} or cleverly sum over certain terms in the infinite sum \citep{dunn2005series}. Of course direct simulation of a compound Poisson-Gamma random variable is incredibly easy if $U$ can be simulated. The p.d.f.~then can be estimated using these simulated samples.
+\subsection{Metrology in Practice}
 
-For a given i.i.d.~random sample of a compound Poisson-Gamma random variable, parameter estimation can be difficult. Maximum likelihood estimation is very complicated \citep{withers2011compound}. It can be made simpler by fixing $\alpha$ to be known \citep{withers2011compound} but this is not useful in this context.
+XCT can be used to measure the length of the object, making it useful for measuring AM objects internally and externally. \emph{Nikon} offer products and services for XCT including features such as direct comparison to the CAD model \citep{nikon2015microfocus, nikon2018mct225} and automated production line inspection \citep{nikon2015inline, nikon2018automated}.
 
-Because the moments of a compound Poisson-Gamma random variable can be obtained easily, method of moments estimators can be obtained. Suppose $\widehat{\mu}$ is an estimator of $\expectation[X]$ and $\widehat{\mu}_j$ is an estimator of $\expectation\left[\left(X-\expectation[X]\right)^j\right]$ for $j=2,3$. Then the estimators
-\begin{equation}
-	\widehat{\lambda}=\frac{\widehat{\mu}^2\widehat{\mu}_2}{\left(2\widehat{\mu}_2^2-\widehat{\mu}_3\widehat{\mu}\right)}
-\end{equation}
-\begin{equation}
-	\widehat{\alpha}=\frac{\widehat{\mu}_3\widehat{\mu}-2\widehat{\mu}_2^2}{\widehat{\mu}_2^2-\widehat{\mu}\widehat{\mu}_3}
-\end{equation}
-\begin{equation}
-	\widehat{\beta}=\frac{\widehat{\mu}\widehat{\mu}_2}{\widehat{\mu}\widehat{\mu}_3-\widehat{\mu}_2^2}
-\end{equation}
-are method of moments estimators of $\lambda$, $\alpha$ and $\beta$ respectively \citep{withers2011compound}. These estimators suffer because estimation is not done through the sufficient statistics and can be negative, this is a problem because the parameters do not take non-positive values.
+As with a lot of measurement apparatus, calibration is required. In XCT, the scale of each voxel in the reconstruction can be obtained by using XCT on an object with pre-determined lengths, these are known as reference standards \citep{bartscher2007enhancement} but can have similar names. Reference standards can vary in geometry such as a sphere on a cylinder \citep{lifton2013application}, two spheres on a cylinder \citep{sun2016reference}, a cube with cut outs \citep{kiekens2011test}, a hollow cylinder, a step-cylinder and a ball-bar \citep{bartscher2007enhancement}; the latter three are shown in Figure \ref{fig:literature_referenceStandards}.
 
-However, parameter estimation can be made easier once it can be realised that the compound Poisson-Gamma distribution is in the exponential family for fixed $\alpha$ \citep{jorgensen1987exponential}. To show this, it is particular useful to reparametrize the compound Poisson-Gamma distribution using the following:
-\begin{equation}
-	p=\frac{2+\alpha}{1+\alpha}
-	\ ,
-\end{equation}
-\begin{equation}
-	\mu=\frac{\lambda\alpha}{\beta}
-	\ ,
-\end{equation}
-\begin{equation}
-	\phi = \frac{\alpha+1}{\beta^{2-p}(\lambda\alpha)^{p-1}}
-	\ .
-\end{equation}
-The parameters $p$, $\mu$ and $\phi$ are called the index, mean and dispersion parameters respectively. It can be shown that $1<p<2$, $\mu>0$ and $\phi>0$.
+\begin{figure}
+  \centering
+  \centerline{
+    \begin{subfigure}[b]{0.49\textwidth}
+      \includegraphics[width=\textwidth]{../figures/literatureReview/literature_test1.png}
+      \caption{Hollow cylinder}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+      \includegraphics[width=\textwidth]{../figures/literatureReview/literature_test2.png}
+      \caption{Step-cylinder}
+    \end{subfigure}
+  }
+  \begin{subfigure}[b]{0.6\textwidth}
+    \includegraphics[width=\textwidth]{../figures/literatureReview/literature_test3.png}
+    \caption{Ball-bar}
+  \end{subfigure}
+  \caption{Various reference standards: a) aluminium hollow cylinder, outer diameters \SI{30}{\milli\metre} and \SI{20}{\milli\metre}, b) aluminium step-cylinder with diameter \SI{300}{\milli\metre}, c) ceramic balls of diameter \SI{30}{\milli\metre} on a carbon fibre rod, the balls are separated by \SI{100}{\milli\metre}. Reprinted from \cite{bartscher2007enhancement}\textsuperscript{\textcopyright} with permission from Elsevier.}
+  \label{fig:literature_referenceStandards}
+\end{figure}
 
-By rearranging the parameters to get
-\begin{equation}
-	\lambda=\frac{\mu^{2-p}}{\phi(2-p)}
-\end{equation}
-\begin{equation}
-	\alpha=\frac{2-p}{p-1}
-\end{equation}
-\begin{equation}
-	beta=\frac{1}{\phi(p-1)\mu^{p-1}}
-\end{equation}
-and substituting it into Equation \eqref{eq:compoundPoisson_pdf}, the p.m.f.~at zero can be shown to be
-\begin{equation}
-	\prob(X=0) = \exp
-	\left[
-	    -\frac{\mu^{2-p}}{\phi(2-p)}
-	\right]
-\end{equation}
-and the p.d.f.~for $x>0$ is
-\begin{multline*}
-	p_X(x) = \sum_{y=1}^{\infty}
-	\left[
-		\frac{1}{\phi(p-1)\mu^{p-1}}
-	\right]^{y\alpha}
-	\frac{1}{\Gamma(y\alpha)}
-	x^{y\alpha-1}
-	\exp\left[
-	    -\frac{x}{\phi(p-1)\mu^{p-1}}
-	\right]
-	\\
-	\exp\left[
-	    -\frac{\mu^{2-p}}{\phi(2-p)}
-	\right]
-	\left[
-		\frac{\mu^{2-p}}{\phi(2-p)}
-	\right]^y
-	\frac{1}{y!}
-	\ .
-\end{multline*}
-Tidying up the equation
-\begin{multline*}
-	p_X(x) = 
-	\exp\left[
-		\frac{1}{\phi}\left(x\frac{\mu^{1-p}}{1-p}-\frac{\mu^{2-p}}{2-p}\right)
-	\right]
-	\frac{1}{x}
-	\\
-	\sum_{y=1}^{\infty}\frac{x^{y\alpha}\mu^{y[2-p-\alpha(p-1)]}}{\phi^{y(1+\alpha)}(p-1)^{y\alpha}(2-p)^yy!\Gamma(y\alpha)}
-	\ .
-\end{multline*}
-To simplify further, it should be noted that
-\begin{align*}
-	2-p-\alpha(p-1) &= 2-p - \frac{2-p}{p-1}(p-1)
-	\\&=0
-\end{align*}
-so that
-\begin{equation}
-	p_X(x) = 
-	\exp\left[
-		\frac{1}{\phi}
-		\left(
-			x\frac{\mu^{1-p}}{1-p}-\frac{\mu^{2-p}}{2-p}
-		\right)
-	\right]
-	\frac{1}{x}
-	\sum_{y=1}^{\infty}W_y(x,p,\phi)
-\end{equation}
-where
-\begin{equation}
-	W_y(x,p,\phi)=\frac{x^{y\alpha}}{\phi^{y(1+\alpha)}(p-1)^{y\alpha}(2-p)^yy!\Gamma(y\alpha)}
-	\ .
-\end{equation}
+There are many variables in XCT and a lot of them have to be controlled. For example XCT should be done in room temperature to avoid any thermal variation \citep{bryan1990international}, however this can be hard to do when the x-ray tube is a heat source \citep{kruth2011computed}.
 
-Those familiar with generalised linear models \citep{nelder1972generalized} \citep{mccullagh1984generalized} will notice that for fixed $p$ or $\alpha$, the above is in the form of a distribution in the dispersive exponential family. Parameter estimation then can be done via the generalised linear model framework and can be extended to include linear mixed models \citep{zhang2013likelihood}. These has applications in for example insurance claim data \citep{jorgensen1994fitting} \citep{smyth2002fitting}.
+The set up of XCT has a number of variables. The potential difference and current of the x-ray tube can be adjusted to control the contrast and brightness of the x-ray projection. The exposure time is also a factor. These settings should be set high enough to avoid beam extinction but low enough that there is contrast where less material is present \citep{kruth2011computed}. The magnification can be adjusted by adjusting the distances between the x-ray tube, the object and the x-ray detector. Increasing the magnification increases the image resolution but can cause blurry images, this is the result from using an x-ray source with a finite spot size as shown in Figure \ref{fig:literature_magnification} \citep{kruth2011computed}. Larger spot sizes cause more blurry results, this is known as the penumbra effect \citep{kueh2016modelling}. However, spot sizes too small can produce concentrated heat \citep{welkenhuyzen2009industrial} and can damage the x-ray tube.
 
-Estimating $p$ is difficult and various methods were discussed by \cite{zhang2013likelihood}. One easy way is to estimate $\mu$ and $\phi$ on a grid of $p$'s and then select the $p$ which maximises the likelihood \citep{dunn2005series}.
+\begin{figure}
+  \centering
+  \includegraphics[width=0.7\textwidth]{../figures/literatureReview/literature_magnification.png}
+  \caption{The magnification can be adjusted by adjusting the distances between the x-ray source, the object and the x-ray detector. Because of a finite x-ray spot size, blurry effects are produced using a magnification too large. Reprinted from \cite{kruth2011computed}\textsuperscript{\textcopyright} with permission from Elsevier.}
+  \label{fig:literature_magnification}
+\end{figure}
 
-One special property of the compound Poisson-Gamma distribution is that it is in the Tweedie dispersion exponential family \citep{jorgensen1987exponential}. It has a special variance mean relationship
-\begin{equation}
-	\variance[X] = \phi \mu^p
-\end{equation}
-where, as a reminder, $1<p<2$. This can be derived using Equation \eqref{eq:compoundPoisson_variance} or via the partition function $Z$. That is let
-\begin{equation}
-	\theta = \frac{\mu^{1-p}}{1-p}
-\end{equation}
-and
-\begin{equation}
-	\ln Z = \frac{1}{\phi(2-p)\theta^\alpha(1-p)^\alpha} \ ,
-\end{equation}
-then
-\begin{equation}
-	\variance[X] = \phi^2 \frac{\partial^2\ln Z}{\partial\theta^2} \ .
-\end{equation}
+There is also the question on how to orient the object on the turntable \citep{corcoran2016observations} as well as how many angles to use \citep{kruth2011computed}. More angles produce a more accurate reconstruction but requires more acquisition time. Figure \ref{fig:literature_angles} shows an example of a reconstruction using various number of angles.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.7\textwidth]{../figures/literatureReview/literature_angles.png}
+  \caption{A reconstruction when scanning three aligned balls using a different number angular projections. Reprinted from \cite{kruth2011computed}\textsuperscript{\textcopyright} with permission from Elsevier.}
+  \label{fig:literature_angles}
+\end{figure}
+
+All of the parameters of XCT discussed can be determined before the XCT process by use of simulations \citep{reisinger2011simulation, reiter2011simulation}, however there may be inconsistencies. For example even though the target material of the anode and power is specified, the energy spectrum can still vary \citep{stumbo2004direct}.
+
+Problems can occur in the detector. For examples pixels in the acquired projection can be defected or dead \citep{brettschneider2014spatial} and the panel structure of the detector can be observed \citep{yang2009evaluation}. Spatially correlated noise within a projection can be observed \citep{sun2016characterisation} as well as correlation between acquisitions, this is known as image lag \citep{yang2009evaluation}. Precautions can be taken reduce the impact from image lag such as waiting for 20 minutes between acquisitions \citep{yang2010noise}.
+
+Errors due to beam hardening can occur. Low energy photons are more likely to be absorbed or scattered, this causes a few millimetres of the surface of the object to absorb or scatter more photons than the interior. This can cause flat surfaces to be barrelled and edges rounded off \citep{kruth2011computed} as well as artefacts \citep{sun2016applications}. Beam hardening can be tackled by eliminating the low energy photons by placing a thin metal plate, called a filter, in front of the x-ray tube \citep{welkenhuyzen2009industrial}, for example copper. Figure \ref{fig:literature_hardening} shows an example of a reconstruction with and without a filter, without the filter the outer perimeter appears less dense than it should be.  A filter reduces the rate of photon emission but this can be compensated by increasing the exposure time \citep{kruth2011computed}. Early reconstruction algorithms assumed no beam hardening but it can be corrected using modern methods \citep{elbakri2001statistical, sun2016applications}.
+
+\begin{figure}
+  \centering
+    \begin{subfigure}[b]{0.4\textwidth}
+      \includegraphics[width=\textwidth]{../figures/literatureReview/literature_hardening_noFilter.png}
+      \caption{No filter}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.4\textwidth}
+      \includegraphics[width=\textwidth]{../figures/literatureReview/literature_hardening_filter.png}
+      \caption{Al/Cu filter}
+    \end{subfigure}
+  \caption{A reconstruction of a hollow cylinder, outer diameter \SI{6.0}{\milli\metre} and inner diameter \SI{0.6}{\milli\metre}. In a), no filter was used. In b) a filter was placed in front of the x-ray tube. Reprinted from \citep{kruth2011computed}\textsuperscript{\textcopyright} with permission from Elsevier}
+  \label{fig:literature_hardening}
+\end{figure}
+
+The most common reconstruction method is the FDK \citep{feldkamp1984practical} algorithm as it caters for cone beams. However it assumes a circular trajectory from the source which can cause artefacts if assumptions are not met \citep{sun2016applications}.
+
+\subsection{Latest Research}
+
+The most common use of XCT in AM is the investigation of pores in the manufactured object \citep{thompson2016x}. Pores can be classified as defects if the pores are larger than some volume threshold. This threshold controls the probability of the detection of defects \citep{gandossi2010probability, amrhein2014characterization}. The porosity can be estimated by dividing the volume of all of the pores by the volume of solid material in the XCT scan \citep{taud2005porosity}. Accurate methods of measuring the porosity can be done using Archimedes' method \citep{spierings2011comparison}.
+
+An advantage of XCT is that the location of the pores can be visualised, for example in Figure \ref{fig:literature_pores3D}, and compared to the CAD model \citep{lee2015compliance, villarraga2015assessing, kim2016inspection}. Studies have been done to link porosity to stress concentration \citep{leuders2015fatigue, siddique2015computed, carlton2016damage}. The location of the pores is a good predictor of fatigue strength \citep{leuders2015fatigue}. In addition to pores, any surface deviation can be measured by aligning the reconstruction with the CAD model and measuring any discrepancies \citep{lee2015compliance, villarraga2015assessing, kim2016inspection}, an example is shown in Figure \ref{fig:literature_warnett}.
+
+\begin{figure}
+  \centering
+      \begin{subfigure}[b]{0.49\textwidth}
+      \includegraphics[width=\textwidth]{../figures/literatureReview/literature_pores3D1.png}
+      \caption{Reconstruction}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+      \includegraphics[width=\textwidth]{../figures/literatureReview/literature_pores3D2.png}
+      \caption{Sample from the reconstruction}
+    \end{subfigure}
+    \caption{The reconstruction can show pores in the manufactured object. b) shows the reconstructed samples from the blue cubes in a). Reprinted from \cite{tammas2015xct} under the CC BY 4.0 license.}
+    \label{fig:literature_pores3D}
+\end{figure}
+
+\begin{figure}
+  \centering
+      \begin{subfigure}[b]{0.49\textwidth}
+      \includegraphics[width=\textwidth]{../figures/literatureReview/literature_warnett1.png}
+      \caption{External}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+      \includegraphics[width=\textwidth]{../figures/literatureReview/literature_warnett2.png}
+      \caption{Internal}
+    \end{subfigure}
+    \caption{The reconstruction was aligned and compared to the CAD model. The surface heat map shows the surface deviation (or `variance' in the literature) externally (a) and internally (b). Reprinted from \cite{warnett2016towards} under the CC BY 3.0 license.}
+    \label{fig:literature_warnett}
+\end{figure}
+
+One of the disadvantages of XCT is that it is a slow process. XCT is not an instantaneous process so progress bars are usually featured in XCT marketing such as \cite{nikon2015inline}'s inline quality control. The reconstruction can take between 5 minutes to a number of hours \citep{warnett2016towards} however more images would improve the accuracy of the reconstruction \citep{kruth2011computed}. \cite{warnett2016towards} improved the speed of XCT by sacrificing accuracy of the reconstruction. This was done by placing the object to scan on a conveyor belt surrounded by multiple x-ray source and detector pairs as shown in Figure \ref{fig:literature_conveyor}. Fewer angular projections were taken but they can be obtained in one go, speeding up the process.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.7\textwidth]{../figures/literatureReview/literature_conveyor.png}
+  \caption{XCT can be done on a conveyor belt surrounded by x-ray source and detector pairs. Reprinted from \cite{warnett2016towards} under the CC BY 3.0 license.}
+  \label{fig:literature_conveyor}
+\end{figure}
+
+Instead of reconstructing the object, the analysis can be done on the projections itself, or in projection space, by comparing it to a simulated projection produced by software called \emph{aRTist} \citep{bellon2007artist, jaenisch2008artist, bellon2012radiographic}. \cite{brierley2018optimized} developed an algorithm to adjust the parameters of the simulation as well as aligning it so that it fits with the x-ray acquisition. It is however very complicated as it is optimising over a very large dimensional space. \cite{brierley2018optimized} also demonstrated that detection of defects is possible in projection space by comparing two simulated projections with each other, one with defects and the other without. Another method is to use machine learning methods to classify defects from a projection \citep{rale2009comparison}.
+
+It is however inevitable that accuracy is lost from the jump from reconstruction space to projection space, for example, a CT scan has superior performance in the diagnostic of pneumonia compared to a chest radiograph \citep{hayden2009chest}.

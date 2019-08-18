@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %SCRIPT: INFERENCE INTRO
 %The z statistics were tested using BH procedure, no empirical null was used
 %Plots the following:
@@ -7,12 +10,12 @@
   %histogram with critical boundary
   %p values with critical boundary
 
-clc;
 clearvars;
 close all;
 
 %get the x-ray scan, artist and the z image
-[test, artist, zImage] = inferenceExample();
+randStream = RandStream('mt19937ar', 'Seed', uint32(3538096789));
+[zImage, test, artist] = getZImage(AbsFilterDeg120(), randStream);
 %do hypothesis testing on the zimage
 zTester = ZTester(zImage);
 zTester.doTest();

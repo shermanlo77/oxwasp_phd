@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %CLASS: EMPIRICAL NULL FILTER
 %Does the empirical null filter, makes use of ImageJ and multiple threads
 %HOW TO USE:

@@ -1,30 +1,21 @@
+//MIT License
+//Copyright (c) 2019 Sherman Lo
+
 package uk.ac.warwick.sip.empiricalnullfilter;
 
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.random.RandomGenerator;
 
+//CLASS: MAD MODE NULL FILTER
+/**Subclass of EmpiricalNullFilter, replaces the empirical null std with median around the mode.
+ * @author Sherman Lo
+ */
 public class MadModeNullFilter extends EmpiricalNullFilter {
   
   public MadModeNullFilter() {
     super();
   }
   
-  /**METHOD: GET NULL MEAN STD
-   * Returns the null mean and null std
-   * @param values array of float [] for output values to be stored
-   * @param cache contains pixels of the pre-filter image
-   * @param x position
-   * @param cachePointers pointers used by the kernel
-   * @param cacheLineP pointer for the current y line in the cache
-   * @param initialValue for the Newton-Raphson method
-   * @param quartiles 3-vector
-   * @param mean (not used)
-   * @param std
-   * @param nData number of non-nan data
-   * @param normal
-   * @param rng
-   * @return 2-vector, [null mean, null std]
-   */
   @Override
   protected float[] getNullMeanStd(float initialValue, Cache cache, Kernel kernel,
       NormalDistribution normal, RandomGenerator rng) throws ConvergenceException{

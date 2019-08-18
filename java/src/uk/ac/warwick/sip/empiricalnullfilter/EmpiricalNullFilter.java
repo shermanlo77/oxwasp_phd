@@ -1,3 +1,6 @@
+//MIT License
+//Copyright (c) 2019 Sherman Lo
+
 /**EDITED RankFilters.java
  * See https://github.com/imagej/ImageJA/blob/master/src/main/java/ij/plugin/filter/RankFilters.java
  */
@@ -31,87 +34,135 @@ import java.util.Arrays;
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.random.MersenneTwister;
 import org.apache.commons.math3.random.RandomGenerator;
-import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
 
-/**CLASS: EMPIRICAL NULL FILTER
- * Implementation of the empirical null filter
- * @author Sherman Ip
+//CLASS: EMPIRICAL NULL FILTER
+/**Locally normalise the grey values using the empirical null  mean (mode) and the empirical null
+ *     std.
+ * 
+ * <p>The method filter is overloaded but all are directed to filter() with no parameters. The
+ *     filter() with no parameter is used directly by ImageJ because the image is passed through the
+ *     methods setup and run. The methods filter(float [][] image) and
+ *     filter(float [][] image, String roiPath) are required to pass the image when used by MATLAB.
+ * 
+ * <p>How to use:
+ *   <ul><li>Compile to a .jar file and use ImageJ or Fiji</li></ul>
+ * 
+ * <p>For use outside ImageJ such as MATLAB:
+ *   <ul>
+ *     <li>Use the empty constructor</li>
+ *     <li>Set the radius using the method setRadius(double)</li>
+ *     <li>Call the method setNPasses(1)</li>
+ *     <li>Call the method filter(float [][] image) or filter(float [][] image, String roiPath)</li>
+ *     <li>Call the method getFilteredImage() to get the filtered image</li>
+ *     <li>Call the method getOutputImage(int outputImagePointer) to get any other images</li>
+ *   </ul>
+ * 
+ * <p>Based on
+ *     <a href=https://github.com/imagej/ImageJA/blob/7f965b866c9db364b0b47140caeef4f62d5d8c15/src/main/java/ij/plugin/filter/RankFilters.java>
+ *     RankFilters.java</a>
+ * 
+ * @author Sherman Lo
  */
 public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener {
   
   //STATIC FINAL VARIABLES
   
-  //the filter can output the std and quantiles filter
-  //the static int are options for what output images to show
-  //to combine the options, either add them together or use the OR operator
+  //
+  /**Options for what output images to show. To combine the options, either add them together or use
+   *     the OR operator.
+   */
   public static final int NULL_MEAN = 1, NULL_STD = 2, STD = 4, Q1 = 8, Q2 = 16, Q3 = 32;
-  public static final int N_IMAGE_OUTPUT = 6; //number of output images which can be shown
-  //name of each output image
+  /**number of output images which can be shown*/
+  public static final int N_IMAGE_OUTPUT = 6;
+  /**name of each output image*/
   public static final String[] OUTPUT_NAME = {"null mean", "null std", "standard deviation",
       "quantile 1", "median", "quantile 3"};
-  //this filter only works on 32-bit images, this is indicated in FLAGS
+  /**this filter only works on 32-bit images, this is indicated in FLAGS*/
   private static final int FLAGS = DOES_32;
   
   //STATIC VARIABLES
+  /**values used in the previous filtering*/
   private static double lastRadius = 0;
+  /**values used in the previous filtering*/
   private static int lastNInitial = EmpiricalNull.N_INITIAL;
+  /**values used in the previous filtering*/
   private static int lastNStep = EmpiricalNull.N_STEP;
+  /**values used in the previous filtering*/
   private static float lastLog10Tolerance = EmpiricalNull.LOG_10_TOLERANCE;
+  /**values used in the previous filtering*/
   private static float lastBandwidthParameterA = EmpiricalNull.BANDWIDTH_PARAMETER_A;
+  /**values used in the previous filtering*/
   private static float lastBandwidthParameterB = EmpiricalNull.BANDWIDTH_PARAMETER_B;
+  /**values used in the previous filtering*/
   private static int lastOutputImagePointer = -1;
   
   //MEMBER VARIABLES
   
-  //which output images to show
+  /**which output images to show*/
   private int outputImagePointer = NULL_MEAN + NULL_STD;
-  //array of float processors which contains images (or statistics) which are obtained from the
-  //filter itself, eg null mean, null std, std, q1, q2, q3
+  /**array of float processors which contains images (or statistics) which are obtained from the 
+   *     filter itself, eg null mean, null std, std, q1, q2, q3
+   */
   private FloatProcessor [] outputImageArray = new FloatProcessor[N_IMAGE_OUTPUT];
-  private double radius = 20; //radius of the kernel
+  /** radius of the kernel*/
+  private double radius = 20;
   
-  private ImageProcessor imageProcessor; //the image to be filtered
-  private Roi roi; //region of interest
-  //used by showDialog, unused but needed in case deleted by automatic garbage collection
+  /**the image to be filtered*/
+  private ImageProcessor imageProcessor;
+  /**region of interest*/
+  private Roi roi;
+  /**used by showDialog, unused but needed in case deleted by automatic garbage collection*/
   private PlugInFilterRunner pfr;
   private boolean isShowProgressBar = false;
-  protected int nPasses = 1; // The number of passes (color channels * stack slices)
+  /**The number of passes (color channels * stack slices)*/
+  protected int nPasses = 1;
   protected int pass;
   
   //EMPIRICAL NULL RELATED
+  /**number of initial values for newton-raphson*/
   protected int nInitial = lastNInitial;
+  /**number of steps in newton-raphson*/
   protected int nStep = lastNStep;
+  /**stopping condition tolerance for newton-raphson*/
   protected float log10Tolerance = lastLog10Tolerance;
+  /**the bandwidth parameter A where the bandwidth for the density estimate is
+   *     (B x n^{-1/5} + A) * std
+   */
   protected float bandwidthParameterA = lastBandwidthParameterA;
+  /**the bandwidth parameter B where the bandwidth for the density estimate is
+   *     (B x n^{-1/5} + A) * std
+   */
   protected float bandwidthParameterB = lastBandwidthParameterB;
   
-  //indicate if pixels in the kernel need to be copied to a float[]
+  /**indicate if pixels in the kernel need to be copied to a float[]*/
   protected boolean isKernelCopy = true;
-  //indicate if the kernel mean and var is required
+  /**indicate if the kernel mean and var is required*/
   protected boolean isKernelMeanVar = true;
-  //indicate if the kernel quartiles is required
+  /**indicate if the kernel quartiles is required*/
   protected boolean isKernelQuartile = true;
   
-  //seed for the rng
+  /**seed for the rng*/
   private int seed = 1742863098;
   
   //MULTITHREADING RELATED
+  /**number of threads*/
   private int numThreads = Prefs.getThreads();
-  // Current state of processing is in class variables. Thus, stack parallelization must be done
-  // ONLY with one thread for the image (not using these class variables):
+  /**Current state of processing is in class variables. Thus, stack parallelization must be done 
+   *     ONLY with one thread for the image
+   */
   private boolean threadWaiting; // a thread waits until it may read data
   
-  /**CONSTRUCTOR
-   * Empty constructor, used by ImageJ
+  //CONSTRUCTOR
+  /**Empty constructor, used by ImageJ
    */
   public EmpiricalNullFilter() {
   }
   
-  /**IMPLEMENTED: SETUP
-   * Setup of the PlugInFilter. Returns the flags specifying the capabilities and needs
+  //IMPLEMENTED: SETUP
+  /**Setup of the PlugInFilter. Returns the flags specifying the capabilities and needs
    * of the filter.
    * @param arg not used
-   * @param imp not used
+   * @param ip not used
    * @return Flags specifying further action of the PlugInFilterRunner
    */
   @Override
@@ -128,9 +179,8 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     return FLAGS;
   }
   
-  /**IMPLEMENTED: RUN
-   * For the use of ExtendedPlugInFilter
-   * Do the filtering
+  //IMPLEMENTED: RUN
+  /**For the use of ExtendedPlugInFilter. Do the filtering.
    * @param ip image to be filtered
    */
   @Override
@@ -153,8 +203,8 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     }
   }
   
-  /**IMPLEMENTED: SHOW DIALOG
-   * Dialog box for setting the radius and which output images to show
+  //IMPLEMENTED: SHOW DIALOG
+  /**Dialog box for setting the radius and which output images to show
    * @param imp image to apply the filter on
    * @param command name of this command
    * @param pfr
@@ -220,9 +270,9 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     return FLAGS;
   }
   
-  /**IMPLEMENTED: DIALOG ITEM CHANGED
-   * Called on user input
-   * Update the radius and outputImagePointer
+  //IMPLEMENTED: DIALOG ITEM CHANGED
+  /**Called on user input and update the radius and outputImagePointer.
+   * @parm gd GUI
    */
   @Override
   public boolean dialogItemChanged(GenericDialog gd, AWTEvent e) {
@@ -249,36 +299,36 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
       this.setLog10Tolerance((float)gd.getNextNumber());
       this.setBandwidthA((float)gd.getNextNumber());
       this.setBandwidthB((float)gd.getNextNumber());
-    } catch (InvalidValue exception) {
+    } catch (InvalidValueException exception) {
       return false;
     }
     
     return true;
   }
   
-  /**METHOD: GET RADIUS
-   * @return the radius of the kernel
+  //METHOD: GET RADIUS
+  /**@return the radius of the kernel
    */
   public double getRadius() {
     return this.radius;
   }
   
-  /**METHOD: SET RADIUS
-   * @param radius The radius of the kernel
+  //METHOD: SET RADIUS
+  /**@param radius The radius of the kernel
    */
   public void setRadius(double radius) {
     this.radius = radius;
   }
   
-  /**METHOD: GET FILTERED IMAGE
-   * @return array of pixels of the filtered image
+  //METHOD: GET FILTERED IMAGE
+  /**@return array of pixels of the filtered image
    */
   public float [] getFilteredImage() {
     return (float []) this.imageProcessor.getPixels();
   }
   
-  /**METHOD: GET OUTPUT IMAGE
-   * Returns an array of pixels from one of the requested output images
+  //METHOD: GET OUTPUT IMAGE
+  /**Returns an array of pixels from one of the requested output images
    * @param outputImagePointer e.g. NULL_MEAN, NULL_STD
    * @return float array containing the value of each pixel of a requested output image
    */
@@ -293,16 +343,16 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     return null;
   }
   
-  /**METHOD: SET OUTPUT IMAGE
-   * Set outputImagePointer, this indicate which output images to show
+  //METHOD: SET OUTPUT IMAGE
+  /**Set outputImagePointer, this indicate which output images to show
    * @param pointer which output images to show, use the static int variable, e.g. NULL_MEAN
    */
   public void setOutputImage(int pointer) {
     this.outputImagePointer = pointer;
   }
   
-  /**METHOD: FILTER
-   * Call the method filter using the image passed in the parameter
+  //METHOD: FILTER
+  /**Call the method filter() using the image passed in the parameter
    * @param image image to be filtered
    */
   public void filter(float [][] image) {
@@ -311,8 +361,8 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     this.filter();
   }
   
-  /**METHOD: FILTER
-   * Call the method filter using the image and ROI passed in the parameter
+  //METHOD: FILTER
+  /**Call the method filter() using the image and ROI passed in the parameter
    * @param image image to be filtered
    * @param roiPath path to the roi file
    * @throws IOException throws exception if opener.openRoi fails and returns a null
@@ -329,13 +379,14 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     this.filter();
   }
   
-  /**METHOD: FILTER
-   * Do the empirical null filter using several threads
-   * Implementation: each thread uses the same input buffer (cache), always works on the next
-   * unfiltered line
-   * Usually, one thread reads reads several lines into the cache,
-   * while the others are processing the data.
-   * 'aborted[0]' is set if the main thread has been interrupted (during preview) or ESC pressed.
+  //METHOD: FILTER
+  /**Do the empirical null filter using several threads.
+   * 
+   * <p>Implementation: each thread uses the same input buffer (cache), always works on the next
+   *     unfiltered line. Usually, one thread reads reads several lines into the cache, while the
+   *     others are processing the data.
+   *     
+   * <p>'aborted[0]' is set if the main thread has been interrupted (during preview) or ESC pressed.
    * 'aborted' must not be a class variable because it signals the other threads to stop;
    * and this may be caused by an interrupted preview thread after the main calculation has been
    * started.
@@ -417,12 +468,13 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     pass++;
   }
   
-  /**METHOD: THREAD FILTER
-   * Empirical null filter a grayscale image for a given thread
-   * Synchronization: unless a thread is waiting, we avoid the overhead of 'synchronized'
+  //METHOD: THREAD FILTER
+  /**Empirical null filter a grayscale image for a given thread.
+   * 
+   * <p>Synchronization: unless a thread is waiting, we avoid the overhead of 'synchronized'
    * statements. That's because a thread waiting for another one should be rare.
    *
-   * Data handling: The area needed for processing a line is written into the array 'cache'.
+   * <p>Data handling: The area needed for processing a line is written into the array 'cache'.
    * This is a stripe of sufficient width for all threads to have each thread processing one
    * line, and some extra space if one thread is finished to start the next line.
    * This array is padded at the edges of the image so that a surrounding with radius kRadius
@@ -431,19 +483,15 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
    * 'cache' are not shifted but rather the smaller array with the start and end pointers of the
    * kernel area is modified to point at the addresses for the next line.
    *
-   * Notes: For mean and variance, except for very small radius, usually do not calculate the
+   * <p>Notes: For mean and variance, except for very small radius, usually do not calculate the
    * sum over all pixels. This sum is calculated for the first pixel of every line only. For the
    * following pixels, add the new values and subtract those that are not in the sum any more.
    * 
-   * @param ip the image to be filtered
-   * @param lineRadii pointer used by the kernel, see method makeLineRadii
    * @param cache pointer to the cache
-   * @param cacheWidth
-   * @param cacheHeight
    * @param yForThread array indicating which y a thread is filtering
-   * @param threadNumber
-   * @param seed seed for rng
-   * @param aborted
+   * @param threadNumber id for this thread
+   * @param seeds seeds for rng
+   * @param aborted pointer to a boolean
    */
   private void threadFilter(Cache cache, int [] yForThread, int threadNumber, int[] seeds,
       boolean[] aborted) {
@@ -555,9 +603,9 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     }// end while (!aborted[0]); loops over y (lines)
   }
   
-  /**METHOD: ARRAY MAX
-   * Used by thread control in threadFilter
-   * @param array
+  //METHOD: ARRAY MAX
+  /**Used by thread control in threadFilter
+   * @param array array of ints
    * @return maximum in array
    */
   private int arrayMax(int[] array) {
@@ -570,9 +618,9 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     return max;
   }
   
-  /**METHOD: ARRAY MIN NON NEGATIVE
-   * Used by thread control in threadFilter
-   * @param array
+  //METHOD: ARRAY MIN NON NEGATIVE
+  /**Used by thread control in threadFilter
+   * @param array array of ints
    * @return the minimum of the array, but not less than 0
    */
   private int arrayMinNonNegative(int[] array) {
@@ -585,22 +633,13 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     return min<0 ? 0 : min;
   }
   
-  /**METHOD: FILTER LINE
-   * Empirical null filter a line
+  //METHOD: FILTER LINE
+  /**Empirical null filter a line
    * @param values array of float [] for output values to be stored
-   * @param width width of the image
    * @param cache contains pixels of the pre-filter image
-   * @param cachePointers pointers used by the kernel
-   * @param kNPoints number of points a kernel contains
-   * @param cacheLineP pointer for the current y line in the cache
-   * @param roiRectangle
    * @param y current row
-   * @param sums stores sum calculations in a kernel (size 2)
-   * @param quartileBuf stores greyvalues in a kernel (size kNPoints)
-   * @param quartiles stores quartiles in a kernel (size 3)
    * @param normal normal distribution to evaluate the normal pdf
    * @param rng random number generator, used for trying out different initial values
-   * @param smallKernel indicate if this kernel is small or not
    */
   private void filterLine(float[][] values, Cache cache, Kernel kernel, int y,
       NormalDistribution normal, RandomGenerator rng) {
@@ -674,6 +713,17 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     } while(kernel.moveRight());
   }
   
+  //METHOD: GET NULL MEAN STD
+  /**Perform the Newton-Raphson on the kernel density estimate to get the empirical null mean and 
+   *     the empirical null std
+   * @param initialValue starting value for the Newton-Raphson
+   * @param cache
+   * @param kernel
+   * @param normal
+   * @param rng random number generator for producing new initial values
+   * @return empirical null mean and empirical null std
+   * @throws ConvergenceException thrown when newton-raphson struggled to converge
+   */
   protected float[] getNullMeanStd(float initialValue, Cache cache, Kernel kernel,
       NormalDistribution normal, RandomGenerator rng) throws ConvergenceException{
     //declare 2 vector to store the null mean and null std
@@ -717,46 +767,46 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   
   //=====STATIC FUNCTIONS AND PROCEDURES=====
   
-  /**PROCEDURE: SET NUMBER OF INITIAL POINTS
-   * @param nInitial must be 1 or bigger
-   * @throws InvalidValue
+  //PROCEDURE: SET NUMBER OF INITIAL POINTS
+  /**@param nInitial must be 1 or bigger
+   * @throws InvalidValueException
    */
-  public void setNInitial(int nInitial) throws InvalidValue {
+  public void setNInitial(int nInitial) throws InvalidValueException {
     if (nInitial>0) {
       this.nInitial = nInitial;
     } else {
-      throw new InvalidValue("number of initial points must be positive");
+      throw new InvalidValueException("number of initial points must be positive");
     }
   }
   
-  /**FUNCTION: GET N INITIAL
-   * @return number of initial points to try out in newton-raphson
+  //FUNCTION: GET N INITIAL
+  /**@return number of initial points to try out in newton-raphson
    */
   public int getNInitial() {
     return this.nInitial;
   }
   
-  /**PROCEDURE: SET NUMBER OF STEPS
-   * @param nStep
-   * @throws InvalidValue
+  //PROCEDURE: SET NUMBER OF STEPS
+  /**@param nStep
+   * @throws InvalidValueException
    */
-  public void setNStep(int nStep) throws InvalidValue {
+  public void setNStep(int nStep) throws InvalidValueException {
     if (nStep>0) {
       this.nStep = nStep;
     } else {
-      throw new InvalidValue("number of steps must be positive");
+      throw new InvalidValueException("number of steps must be positive");
     }
   }
   
-  /**FUNCTION: GET N STEP
-   * @return number of steps to do in newton-raphson
+  //FUNCTION: GET N STEP
+  /**@return number of steps to do in newton-raphson
    */
   public int getNStep() {
     return this.nStep;
   }
   
-  /**PROCEDURE: SET LOG 10  TOLERANCE
-   * Stops the newton-raphson algorithm when (Math.abs(dxLnF[1])<tolerance)
+  //PROCEDURE: SET LOG 10  TOLERANCE
+  /**Stops the newton-raphson algorithm when (Math.abs(dxLnF[1])&lt;tolerance)
    * where dxLnF is the first diff of the log density
    * @param log10Tolerance
    */
@@ -764,31 +814,31 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     this.log10Tolerance = log10Tolerance;
   }
   
-  /**METHOD: GET LOG 10 TOLERANCE
-   * @return log10 tolerance when doing newton-raphson
+  //METHOD: GET LOG 10 TOLERANCE
+  /**@return log10 tolerance when doing newton-raphson
    */
   public float getLog10Tolerance() {
     return this.log10Tolerance;
   }
   
-  /**PROCEDURE: SET BANDWIDTH A
-   * The bandwidth for the density estimate is
+  //PROCEDURE: SET BANDWIDTH A
+  /**The bandwidth for the density estimate is
    * bandwidthParameterB * Math.min(dataStd, iqr/1.34f)
         * ((float) Math.pow((double) this.n, -0.2))
         + bandwidthParameterA;
    * @param bandwidthParameterA
-   * @throws InvalidValue if the parameter is not positive
+   * @throws InvalidValueException if the parameter is not positive
    */
-  public void setBandwidthA(float bandwidthParameterA) throws InvalidValue{
+  public void setBandwidthA(float bandwidthParameterA) throws InvalidValueException{
     if (bandwidthParameterA >= 0) {
       this.bandwidthParameterA = bandwidthParameterA;
     } else {
-      throw new InvalidValue("bandwidthParameterA must be non-negative");
+      throw new InvalidValueException("bandwidthParameterA must be non-negative");
     }
   }
   
-  /**FUNCTION: GET BANDWIDTH A
-   * The bandwidth for the density estimate is
+  //FUNCTION: GET BANDWIDTH A
+  /**The bandwidth for the density estimate is
    * bandwidthParameterB * Math.min(dataStd, iqr/1.34f)
         * ((float) Math.pow((double) this.n, -0.2))
         + bandwidthParameterA;
@@ -798,23 +848,23 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     return this.bandwidthParameterA;
   }
   
-  /**METHOD: SET BANDWIDTH B
-   * The bandwidth for the density estimate is
+  //METHOD: SET BANDWIDTH B
+  /**The bandwidth for the density estimate is
    * bandwidthParameterB * Math.min(dataStd, iqr/1.34f)
         * ((float) Math.pow((double) this.n, -0.2))
         + bandwidthParameterA;
    * @param bandwidthParameterB
    */
-  public void setBandwidthB(float bandwidthParameterB) throws InvalidValue{
+  public void setBandwidthB(float bandwidthParameterB) throws InvalidValueException{
     if (bandwidthParameterB >= 0) {
       this.bandwidthParameterB = bandwidthParameterB;
     } else {
-      throw new InvalidValue("bandwidthParameterB must be non-negative");
+      throw new InvalidValueException("bandwidthParameterB must be non-negative");
     }
   }
   
-  /**FUNCTION: GET BANDWIDTH B
-   * The bandwidth for the density estimate is
+  //FUNCTION: GET BANDWIDTH B
+  /**The bandwidth for the density estimate is
    * bandwidthParameterB * Math.min(dataStd, iqr/1.34f)
         * ((float) Math.pow((double) this.n, -0.2))
         + bandwidthParameterA;
@@ -824,16 +874,16 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     return this.bandwidthParameterB;
   }
   
-  /**FUNCTION: SET SEED
-   * Set the seed for the rng used to give seeds for each row
+  //FUNCTION: SET SEED
+  /**Set the seed for the rng used to give seeds for each row
    * @param seed
    */
   public void setSeed(int seed) {
     this.seed = seed;
   }
   
-  /**METHOD: SHOW MASKS
-   * Show the kernel
+  //METHOD: SHOW MASKS
+  /**Show the kernel
    */
   void showMasks() {
     int w=150, h=150;
@@ -851,8 +901,8 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     new ImagePlus("Masks", stack).show();
   }
   
-  /**METHOD: SET N PASSES
-   * This method is called by ImageJ to set the number of calls to run(ip)
+  //METHOD: SET N PASSES
+  /**This method is called by ImageJ to set the number of calls to run(ip)
    * corresponding to 100% of the progress bar
    */
   @Override
@@ -861,8 +911,8 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     pass = 0;
   }
   
-  /**METHOD: SHOW PROGRESS
-   * @param percent
+  //METHOD: SHOW PROGRESS
+  /**@param percent
    */
   protected void showProgress(double percent) {
     if (this.isShowProgressBar) {
@@ -883,8 +933,8 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     }
   }
   
-  /**METHOD: SET PROGRESS BAR
-   * Turn the progress bar on or off
+  //METHOD: SET PROGRESS BAR
+  /**Turn the progress bar on or off
    * @param isShowProgressBar true to show the progress bar
    */
   public void setProgress(boolean isShowProgressBar) {

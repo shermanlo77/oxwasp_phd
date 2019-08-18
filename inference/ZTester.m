@@ -1,3 +1,6 @@
+%MIT License
+%Copyright (c) 2019 Sherman Lo
+
 %CLASS: Z TESTER
 %Does hypothesis test on an image of z statistics
 %Multiple testing corrected using FDR, see:
@@ -92,7 +95,10 @@ classdef ZTester < handle
     %METHOD: PLOT HISTOGRAM
     %Plot histogram of z statistics
     function plotHistogram(this)
-      histogramCustom(reshape(this.zImage(),[],1));
+      hist = Histogram(reshape(this.zImage(),[],1));
+      hist.plot();
+      xlabel('z statistic');
+      ylabel('frequency density');
     end
 
     %METHOD: PLOT HISTOGRAM WITH NULL DISTRIBUTION AND CRITICAL BOUNDARY
@@ -119,9 +125,7 @@ classdef ZTester < handle
       %swap the order of the critical and histogram
       ax.Children = flip(ax.Children);
       
-      %label axis and legend
-      xlabel('z statistic');
-      ylabel('frequency density');
+      %legend
       if (wantNull)
         legend(ax.Children(1:(end-1)), 'z statistic', 'null', 'critical');
       else

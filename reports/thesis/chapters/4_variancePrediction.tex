@@ -1,474 +1,419 @@
-In the previous chapter, it was found that it is very hard to fit a compound Poisson random variable onto the grey values directly itself. It is not totally useless however. The compound Poisson model showed that the variance of the grey value has a linear relationship with the mean grey value. Given this, it would be possible to predict the variance of the grey value, given the grey value. This opens up new ways to predict the uncertainty of each individual pixel in an x-ray scan.
+In the previous chapter, it was found that it was hard to fit a compound Poisson distribution onto the grey values. Results did show that the variance of the grey value has a linear relationship with the mean grey value. As a result, it would be possible to predict the variance of the grey value, given the grey value. This opens up new ways to predict the uncertainty of each individual pixel in an x-ray projection.
 
-In this chapter, different types of regressions were tested to see if they perform well in predicting grey value variance given the grey value. Two types of regressions were used. Generalised linear models \citep{nelder1972generalized} \citep{nelder1972generalized_2} \citep{mccullagh1984generalized} (GLM) is a parametric regression which models the response variable as a random variable in the exponential family. In this project, a Gamma distributed random variable was chosen as the response variable. A non-parametric regression was also considered, here there kernel regression \citep{friedman2001elements} was used.
+In this chapter, generalised linear models \citep{nelder1972generalized, nelder1972generalized_2, mccullagh1984generalized} with different link functions and polynomial features were selected using forward step-wise selection. These selected models were compared using cross validation to find the best model and verified using residual analysis.
 
-Using the replicated x-ray images, the within individual pixel sample mean and sample variance were obtained. The sample variance-mean data were then used for the regressions to be fitted on. The deviance was investigated as a method of model selection. The regression was also used to test it's prediction performance on held out images.
+\section{Generalised Linear Models}
 
-In the end, a GLM with a linear relationship between the variance and the mean was good enough. Its performance is similar to other complicated models and its simple form attracts those who follows Occam's razor, that the simpler models are usually better. The linear relationship is also justified by the compound Poisson model.
-
-\section{Variance-Mean Relationship}
-
-The sample variance-mean data were obtained from the replicated x-ray images, assuming each image are i.i.d.
-
-Let $x_{i,j}^{(r)}$ be the grey value of the pixel in the $i$th row and $j$th column in the $r$th image for $r=1,2,3,\dotdotdot,n$. The within individual pixel sample mean is
+The sample variance-mean data were obtained from the replicated projections. Let $x_{i,j}^{(r)}$ be the grey value of the pixel at $(i,j)$ from the $r$th replicate projection for $r=1,2,3,\dotsc,n$. The pixel sample mean is
 \begin{equation}
-    \bar{x}_{i,j}=\frac{1}{n}\sum_{r=1}^n x_{i,j}^{(r)}
+    \overline{x}_{i,j}=\frac{1}{n}\sum_{r=1}^n x_{i,j}^{(r)}
 \end{equation}
-and the within individual pixel sample variance is
+and the pixel sample variance is
 \begin{equation}
     y_{i,j} =
     \frac{1}{n-1}
     \sum_{r=1}^n
         \left(
-            x_{i,j}^{(r)} - \bar{x}_{i,j}
+            x_{i,j}^{(r)} - \overline{x}_{i,j}
         \right)^2
     \ .
 \end{equation}
+Only pixels in the region of interest (ROI) were considered here, that is pixels which represent the test sample. The ROI was created by manually segmenting the test sample from the projection.
 
-Only the masked pixels will be considered here as this is the region of interest (ROI). The sample variance-mean data can be obtained by calculating the within individual pixel sample mean and variance for all ROI pixels and can be plotted as a histogram. For example, the sample variance-mean data for \texttt{Mar16} can be seen in Figure \ref{fig:meanvar_mar16_100}.
-
-\subsection{Generalised Linear Models}
-By making some assumptions, some useful and simple results can be obtained. Firstly, it was assumed the standard error from estimating the mean was negligible. Secondly, it was assumed for a given pixel, the grey value from each each were Normal i.i.d. Following from these assumptions, the sample variance is Gamma distributed with shape parameter $(n-1)/2$. Furthermore the standard error of the sample variance is proportional to $(n-1)^{-1/2}$, meaning the sample variance is more precise when more and more images were used to estimate the variance. This was experimentally shown in Figure \ref{fig:meanvar_mar16_differentn}, the spread of the sample variance decreased as $n$ increased.
-
-\begin{figure}
-	\centering
-    \centerline{
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/sample_size_25.eps}
-        \caption{$n=25$}
-    \end{subfigure}
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/sample_size_50.eps}
-        \caption{$n=50$}
-    \end{subfigure}
-    }
-    \centerline{
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/sample_size_75.eps}
-        \caption{$n=75$}
-    \end{subfigure}
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/sample_size_100.eps}
-        \caption{$n=100$}
-        \label{fig:meanvar_mar16_100}
-    \end{subfigure}
-    }
-    \caption{Log frequency density of the within pixel variance-mean data from \texttt{Mar16} using $n$ of the images. Fitted is a Gamma GLM with identity link. Error bars represent the $\Phi(\pm1)$ quantile.}
-    \label{fig:meanvar_mar16_differentn}
-\end{figure}
-
-A GLM \citep{nelder1972generalized} \citep{nelder1972generalized_2} \citep{mccullagh1984generalized}, with Gamma distributed response, would then be an appropriate regression to be used. Let $Y$ be the grey value sample variance and $X$ be the grey value, then a GLM models $Y$ via the following
+The aim is to model and predict the grey value variance of a pixel given the pixel's grey value by fitting a model onto the sample variance-mean data. No spatial information was used, thus the variance-mean data is denoted as $(x_1,y_1),(x_2,y_2),\dotsc,(x_m,y_m)$ from now on, where $m$ is the area of the ROI or the size of the dataset. Let $Y(x)$ be a random variable and the sample variance given a grey value mean $x$. It was assumed the standard error from estimating the mean was negligible so that the uncertainty is captured by the random variable $Y$. It was assumed that for a given pixel, the grey values are Normal and i.i.d. Let $\sigma^2(x)$ be the variance given a grey value $x$, then it can be shown that
 \begin{equation}
-    Y|X \sim 
-    \gammaDist\left(
-        \frac{n-1}{2},
-        f(X)
-    \right)
+\dfrac{(n-1)Y(x)}{\sigma^2(x)}\sim\chi^2_{n-1}
 \end{equation}
-where $f(X)$ is some user specified function. Conventionally it is useful for the specified function to be a parameter of the conditional mean $Y|X$. This function is known as the link function and can be expressed as
+which results in
 \begin{equation}
-g(\mu_X) = \eta(X)
+Y(x)\sim\gammaDist\left(\alpha,\dfrac{\alpha}{\sigma^2(x)}\right)
 \end{equation}
-where $\mu_X=\expectation\left[Y|X\right]$ and $\eta(X)$ is a linear function of $X$, for example
+where $\alpha=(n-1)/2$ is the shape parameter. The expectation and variance are
 \begin{equation}
-\eta(X) = \beta_0 + \beta_1 X^p \ .
+\expectation\left[Y(x)\right]=\sigma^2(x)
 \end{equation}
-For a specified link function and $p$, the GLM is fitted onto the data by estimating the parameters $\beta_0$ and $\beta_1$.
-
-In this project, the identity, inverse and log link functions were investigated for a selected few integer values of $p$. These link functions are shown in Table \ref{table:meanvar_linkfunctions}. They are fitted on the variance-mean data from \texttt{Mar16} as shown in Figure \ref{fig:meanvar_mar16}.
-
-\begin{table}
-    \centering
-    \begin{tabular}{c|c|c|c}
-    &\multicolumn{3}{c}{Link functions}\\
-    &Identity&Inverse&Log\\
-    \hline
-    $g(\mu)$&$\mu$&$1/\mu$&$\ln(\mu)$\\
-    \hline
-    $\expectation[Y|X=x]$&$\beta_0 + \beta_1 x^p$&$\left[\beta_0 + \beta_1 x^p\right]^{-1}$&$\exp\left[\beta_0 + \beta_1 x^p\right]$
-    \end{tabular}
-    \caption{Link functions}
-    \label{table:meanvar_linkfunctions}
-\end{table}
-
-\begin{figure}
-	\centering
-    \centerline{
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/MeanVarFit_Mar16_iShad1_iGlm2.eps}
-        \caption{Inverse link, $p=-1$}
-    \end{subfigure}
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/MeanVarFit_Mar16_iShad1_iGlm3.eps}
-        \caption{Inverse link, $p=-2$}
-    \end{subfigure}
-    }
-    \centering
-    \centerline{
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/MeanVarFit_Mar16_iShad1_iGlm4.eps}
-        \caption{Log link, $p=1$}
-    \end{subfigure}
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/MeanVarFit_Mar16_iShad1_iGlm5.eps}
-        \caption{Log link, $p=-1$}
-    \end{subfigure}
-    }
-    \caption{Log frequency density of the variance-mean data from \texttt{Mar16}. Fitted are Gamma GLM with different link functions polynomial features. Error bars represent the $\Phi(\pm1)$ quantile.}
-    \label{fig:meanvar_mar16}
-\end{figure}
-
-\subsection{Kernel Regression}
-
-Kernel regression \citep{friedman2001elements} is a type of non-parametric regression and its prediction is done using a weighted sum of the data rather then fitting a parametric model. Suppose a collection of variance-mean data were collected $\{(y_1,x_1),(y_2,x_2),\dotdotdot,(y_m,x_m)\}$, then the kernel regression is
+and
 \begin{equation}
-    \widehat{y}(x)=
-    \dfrac{
-        \sum_{i=1}^m k\left(\dfrac{x-x_i}{\lambda}\right) y_i
-    }
-    {
-        \sum_{i=1}^m k\left(\dfrac{x-x_i}{\lambda}\right)
-    }
+\variance\left[Y(x)\right]=\dfrac{\sigma^2(x)}{\alpha}
 \end{equation}
-where $k(x)$ is a specified kernel function and $\lambda$ is called the bandwidth. Popular choices for the kernel include the Gaussian kernel \citep{friedman2001elements}
+respectively.
+
+This framework allows the use of generalised linear models (GLM) \citep{nelder1972generalized,nelder1972generalized_2, mccullagh1984generalized}. In the gamma distribution case, GLM can be used to model
 \begin{equation}
-    k(x)=\phi(x)
+Y(x)\sim\gammaDist\left(\alpha,\dfrac{\alpha}{g^{-1}(\eta(x))}\right)
 \end{equation}
-and the Epanechnikov kernel \citep{friedman2001elements}
+where $g(y)$ is the link function and $\eta(x)$ is a linear function called the systematic component. It should be noted that
 \begin{equation}
-    k(x) = 
-    \begin{cases}
-        \frac{3}{4}\left(1-x^2\right)& \text{ for } -1<x<1 \\ 
-        0 & \text{ otherwise } 
-    \end{cases}
-    \ .
+  \expectation\left[Y(x)\right]=g^{-1}(\eta(x))
 \end{equation}
+which shows how the link function and systematic component work together. Examples of link functions are the identity link
+\begin{equation}
+g(y)=g^{-1}(y)=y
+\end{equation}
+and, for the gamma distribution case, the canonical link
+\begin{equation}
+g(y)=g^{-1}(y)=1/y \ .
+\end{equation}
+There is also the log link $g(y)=\ln y$ but $y$ must be a unitless quantity, for example Poisson counts, for it to be comparable. Because $y$ is in units of $\SI{}{\adu^2}$, the log link is not used in this analysis.
 
-An example of the kernel regression using the Epanechnikov kernel is shown in Figure \ref{fig:meanvar_epanechnikov}. It shows the kernel regression fitted onto the \texttt{Mar16} variance-mean data for different values of $\lambda$. The bandwidth controls how smooth the kernel regression is. Just by observation, $\lambda=1$ is too small because it is capturing the noise whereas $\lambda=10^4$ is too large as it did not captured the general shape of the variance-mean relationship.
+An example of a systematic component are polynomial features $\eta(x)=\beta_0+\sum_{j=1}^{p-1}\beta_j x^j$ so that when used with the identity link, for example, $\expectation\left[Y(x)\right] = \beta_0+\sum_{j=1}^{p-1}\beta_j x^j$. Iterative reweighted least squares \citep{friedman2001elements} can be used to estimate the parameters $\beta_0, \beta_1, \dotsc, \beta_{p-1}$ given data for the model to fit onto.
 
-\begin{figure}
-	\centering
-    \centerline{
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/MeanVarFit_Mar16_iShad1_iGlm6.eps}
-        \caption{$\lambda=10^0$}
-    \end{subfigure}
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/MeanVarFit_Mar16_iShad1_iGlm8.eps}
-        \caption{$\lambda=10^2$}
-    \end{subfigure}
-    }
-    \centering
-    \centerline{
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/MeanVarFit_Mar16_iShad1_iGlm9.eps}
-        \caption{$\lambda=10^3$}
-    \end{subfigure}
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/MeanVarFit_Mar16_iShad1_iGlm10.eps}
-        \caption{$\lambda=10^4$}
-    \end{subfigure}
-    }
-    \caption{Epanechnikov kernel regression, with bandwidth $\lambda$, fitted on the variance-mean data from \texttt{Mar16}.}
-    \label{fig:meanvar_epanechnikov}
-\end{figure}
-
-Choosing a good bandwidth can be done using cross validation methods \citep{friedman2001elements} but this can be computationally expensive thus time consuming. By eyeballing the figure and choosing a bandwidth which captures a smooth variance-mean relationship, a value of $\lambda=10^3$ was chosen.
+Once the parameters have been estimated, prediction of the variance given a grey value $x$ is done by using $\widehat{y}(x) = g^{-1}(\widehat{\eta}(x))$ where $\widehat{\eta}(x)$ is the systematic component using the estimated parameters.
 
 \section{Model Selection}
 
-In the previous section, several models for the variance-mean relationship have been described. This section will use model selection techniques to access the goodness of fit and prediction performance for each model. 
+This section describes how forward stepwise selection \citep{friedman2001elements} was used to select which polynomial features to use in the systematic component.
 
-\subsection{Deviance}
-The deviance is one way to assess the goodness of fit of the regression on the variance-mean data. The deviance is defined to be
+In summary, forward stepwise selection fits a basic model to the data initially. A feature is added to make the model more complicated at each step to improve the fit onto the data. This is continued until the model cannot be improved subject to overfitting. The Akaike information criterion (AIC) \citep{friedman2001elements} and the Bayesian information criterion (BIC) \citep{friedman2001elements} are criteria which can be used to assess the fit of the model at each step without overfitting to the data too much.
+
+The AIC and BIC are given as
 \begin{equation}
-    D = 2\left(
-        \ln L_s - \ln L    
-    \right)
+\AIC = 2p-2\ln L
 \end{equation}
-where $L$ and $L_s$ are the likelihood and saturated likelihood respectively. 
-
-Let $\alpha=(n-1)/2$ be the shape parameter. Suppose the variance-mean data consist of the following values $\{(y_1,x_1),(y_2,x_2),\dotdotdot,(y_m,x_m)\}$ and $\widehat{y}_i$ is the predicted $Y$ given $x_i$, then the log likelihood is
+and
 \begin{equation}
-    \ln L = \sum_{i=1}^m \left[
-        \alpha\ln\alpha
-        -\alpha\ln \widehat{y_i}
-        -\ln\Gamma(\alpha)
-        +(\alpha-1)\ln y_i
-        -\frac{\alpha y_i}{\widehat{y}_i}
-    \right]
-    \ .
+\BIC = p\ln m - 2\ln L
 \end{equation}
-The log saturated likelihood is obtained by replacing all $\widehat{y}_i$ with $y_i$ so that
+respectively where $p$ is the number of features in the systematic component and $\ln L$ is the log likelihood of the GLM. The model with the lowest AIC or BIC is preferred. GLM aims to maximise the log likelihood but the additional terms in the criteria penalise models with too many terms. The log likelihood is given as
 \begin{equation}
-    \ln L_s = \sum_{i=1}^m \left[
-        \alpha\ln\alpha
-        -\alpha\ln{y_i}
-        -\ln\Gamma(\alpha)
-        +(\alpha-1)\ln y_i
-        -\alpha
-    \right]
-    \ .
+  \ln L = \sum_{i=1}^m \left[
+    \alpha\ln\alpha
+    -\ln\Gamma(\alpha)
+    -\alpha\ln \widehat{y}_i
+    +(\alpha-1)\ln y_i
+    -\frac{\alpha y_i}{\widehat{y}_i}
+  \right]
+  \ .
 \end{equation}
-Following from this, the deviance is then
-\begin{equation}
-    D = 2\alpha
-    \sum_{i=1}^m\left[
-        \dfrac{
-            y_i-\widehat{y}_i
-        }
-        {
-            \widehat{y}_i
-        }
-        - \ln\left(\dfrac{y_i}{\widehat{y}_i}\right)
-    \right]
-    \ .
-\end{equation}
-The scaled deviance can be obtained by removing the factor of $\alpha$ to get
-\begin{equation}
-    D^* = 2
-    \sum_{i=1}^m\left[
-        \dfrac{
-            y_i-\widehat{y}_i
-        }
-        {
-            \widehat{y}_i
-        }
-        - \ln\left(\dfrac{y_i}{\widehat{y}_i}\right)
-    \right]
-    \ .
-\end{equation}
-It is given that $D\sim\chi_{m-2}^2$ which implies that $\expectation\left[D\right]=m-2$. Because the GLMs considered here all have 2 parameters with known $\alpha$, the best model is the model with the lowest scaled deviance.
+where $\widehat{y}_i=\widehat{y}(x_i)$. It should be reminded that $\alpha=(n-1)/2$ was assumed to be known and does not need to be estimated.
 
-The analysis on the deviance was conducted by fitting GLMs with different link functions and polynomial orders $p$ onto the variance-mean data using all $n=100$ images from \texttt{Mar16}. The deviance was then calculated. This procedure was done using multiple bootstrap samples \citep{efron1992bootstrap} of the $m$ images to get a sample of scaled deviance.
+The procedure is as follows. A criterion and a link function is chosen beforehand. In the initial step, a GLM with systematic component $\eta(x)=\beta_0$ is fitted and the criterion is recorded. In the next step, a polynomial feature with one order higher is added to the systematic component $\eta(x)=\beta_0+\beta_1 x$, fitted and the criterion recorded. In addition, a polynomial feature with one order lower is added $\beta(x)=\beta_{-1}x^{-1}+\beta_0$ and fitted separately with the criterion recorded. The model which decreases the criterion the most is accepted. Adding higher and lower order polynomials to the systematic component is repeated, for example after accepting $\eta(x)=\beta_0+\beta_1 x$, the following systematic components $\eta(x)=\beta_0+\beta_1 x+\beta_2x^2$ and $\eta(x)=\beta_{-1}x^{-1}+\beta_0+\beta_1 x$ are fitted and assessed. The fitted parameters $\beta_0$ and $\beta_1$ may change when adding more terms. This is repeated until the criterion cannot be decreased and the procedure is left with the final model.
 
-The resulting 100 bootstrapped scaled deviance are shown in Figure \ref{fig:meanvar_deviance_mar16}. The kernel regression was also included. The scaled deviance does not vary much from model to model and suggests that the goodness of fit are all very similar.
+Forward stepwise selection was conducted on the datasets \texttt{AbsNoFilter} and \texttt{AbsFilter}. The procedure was repeated 10 times by using a random permutation with replacement of the replicated projections to obtain a different sample variance-mean data which introduces some variation to the data. The procedure was also repeated using various shading corrections to investigate the effects of shading correction on the variance-mean relationship.
 
-\begin{figure}
-    \centering
-    \includegraphics[width=0.49\textwidth]{../figures/meanVar/GlmDeviance_Mar16_scaled_deviance.eps}
-    \caption{Scaled deviance when fitting Gamma GLM on the variance-mean data from \texttt{Mar16}.}
-    \label{fig:meanvar_deviance_mar16}
-\end{figure}
-
-In this particular example, $m\approx 1.3\times 10^6$ and $n=100$. Then one would expect the scaled deviance to have values
-\begin{align*}
-    \expectation\left[D^*\right]&=\frac{1}{\alpha}\expectation\left[D\right]
-    \\
-    &=\frac{2}{n-1}\times (m-2)
-    \\
-    &\approx \frac{2}{100-1}\times (1.3\times 10^6-2)
-    \\
-    &\approx 2.6 \times 10^4
-\end{align*}
-which is similar in magnitude but lower compared to the scaled deviances obtained from the bootstrap samples. This suggests the shape parameter $\alpha=(n-1)/2$ is too big and perhaps should be smaller. The estimation of the shape parameter here is however not too important as it is not used to further calculations.
-
-\subsection{Cross Validation}
-
-Another way to do model selection is cross validation \cite{friedman2001elements}. In the \texttt{Mar16} dataset, the 100 images were spilt into 2 equally sized sets called the training set and the test set. This produced 2 variance-mean data, one from each set. The regression was fitted onto the training set and the training set only.
-
-Prediction using the fitted regression can be accessed. This was done by calculating the mean squared error of the prediction of the training set, known as the training error, or the test set, known as the test error.
-
-20 samples of training and test errors were obtained by repeating the analysis using another random allocation of the training and test set. The results are shown in Figure \ref{fig:meanvar_mar16mse}. Each of the regressions considered all have similar prediction ability with the exception of GLM with log link and $p=1$ which performed significantly worse.
-
-\begin{figure}
-	\centering
-    \centerline{
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/GlmMse_Mar16_training_MSE.eps}
-        \caption{Training error}
-    \end{subfigure}
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/GlmMse_Mar16_test_MSE.eps}
-        \caption{Test error}
-    \end{subfigure}
-    }
-    \caption{Mean squared error in variance prediction using different regressions on the variance-mean data from \texttt{Mar16}.}
-    \label{fig:meanvar_mar16mse}
-\end{figure}
-
-\subsection{Shading Correction}
-
-%\begin{figure}
-%	\centering
-%    \centerline{
-%    \begin{subfigure}[b]{0.49\textwidth}
-%        \includegraphics[width=\textwidth]{../figures/meanVar/meanVarAbsBlock_July16_30deg.eps}
-%        \caption{30 deg}
-%    \end{subfigure}
-%    \begin{subfigure}[b]{0.49\textwidth}
-%        \includegraphics[width=\textwidth]{../figures/meanVar/meanVarAbsBlock_July16_120deg.eps}
-%        \caption{120 deg}
-%    \end{subfigure}
-%    }
-%    \caption{Log frequency density of the within pixel variance-mean data from \texttt{July16}. The error bars represent the variance-mean quartiles from the reference images.}
-%\end{figure}
-%
-%\begin{figure}
-%	\centering
-%    \centerline{
-%    \begin{subfigure}[b]{0.49\textwidth}
-%        \includegraphics[width=\textwidth]{../figures/meanVar/meanVarAbsBlock_Sep16_30deg.eps}
-%        \caption{30 deg}
-%    \end{subfigure}
-%    \begin{subfigure}[b]{0.49\textwidth}
-%        \includegraphics[width=\textwidth]{../figures/meanVar/meanVarAbsBlock_Sep16_120deg.eps}
-%        \caption{120 deg}
-%    \end{subfigure}
-%    }
-%    \caption{Log frequency density of the within pixel variance-mean data from \texttt{Sep16}. The error bars represent the variance-mean quartiles from the reference images.}
-%\end{figure}
-
-It was investigated how shading correction affects the variance-mean relationship. Figure \ref{fig:meanvar_shadingcorrection_july16_30deg} shows the sample variance-mean for the \texttt{July16 30deg} data with different types of shading correction applied. At a quick glance, it appeared the shading correction did not do much to the sample variance-mean data. However a closer look at low means showed that shading correction had a particular effect and formed a tighter cluster in the bottom-left of the variance-mean histogram. This implied that shading correction made more dark pixels have similar grey values.
-
-\begin{figure}
-	\centering
-    \centerline{
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/MeanVarFit_July16_30deg_iShad1_iGlm1.eps}
-        \caption{No shading correction}
-    \end{subfigure}
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/MeanVarFit_July16_30deg_iShad2_iGlm1.eps}
-        \caption{BW shading correction}
-    \end{subfigure}
-    }
-    \centerline{
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/MeanVarFit_July16_30deg_iShad3_iGlm1.eps}
-        \caption{Linear shading correction}
-    \end{subfigure}
-    }
-    \caption{Log frequency density of the within pixel variance-mean data from \texttt{July16 30deg} using different shading corrections. Fitted is a Gamma GLM with identity link. Error bars represent the $\Phi(\pm1)$ quantile.}
-    \label{fig:meanvar_shadingcorrection_july16_30deg}
-\end{figure}
-
-In this section, the datasets \texttt{July16 30deg}, \texttt{July16 120deg}, \texttt{Sep16 30deg} and \texttt{Sep16 120deg} were considered. These are the only datasets with black, grey and white images which are used in shading correction.
-
-A regression was fitted using all images in each dataset to get the sample variance-mean data. The scaled deviance was calculated and repeated using bootstrapped samples of the images to get 100 samples of the scaled deviance. These are shown in Figures \ref{fig:meanvar_deviance_july16} and \ref{fig:meanvar_deviance_sep16} for the datasets \texttt{July16} and \texttt{Sep16} respectively.
-
-\begin{figure}
-	\centering
-    \centerline{
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/GlmDeviance_July16_30deg_scaled_deviance.eps}
-        \caption{30 deg}
-    \end{subfigure}
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/GlmDeviance_July16_120deg_scaled_deviance.eps}
-        \caption{120 deg}
-    \end{subfigure}
-    }
-    \caption{Scaled deviance when fitting Gamma GLM on the within pixel variance-mean data from \texttt{July16}.}
-    \label{fig:meanvar_deviance_july16}
-\end{figure}
-
-\begin{figure}
-	\centering
-    \centerline{
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/GlmDeviance_Sep16_30deg_scaled_deviance.eps}
-        \caption{30 deg}
-    \end{subfigure}
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/GlmDeviance_Sep16_120deg_scaled_deviance.eps}
-        \caption{120 deg}
-    \end{subfigure}
-    }
-    \caption{Scaled deviance when fitting Gamma GLM on the within pixel variance-mean data from \texttt{Sep16}.}
-    \label{fig:meanvar_deviance_sep16}
-\end{figure}
-
-The scaled deviance did not vary much from model to model and shading correction to another. However there was one notable exception in \texttt{July16 120deg} where it appeared the scaled deviance preferred the log link with $p=-2$. Figure \ref{fig:meanvar_july16_glm} shows how the curvature of the log link captured the sample variance-mean data.
-
-\begin{figure}
-	\centering
-    \centerline{
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/MeanVarFit_July16_120deg_iShad1_iGlm1.eps}
-        \caption{Identity link, $p=1$}
-    \end{subfigure}
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/MeanVarFit_July16_120deg_iShad1_iGlm3.eps}
-        \caption{Log link, $p=-2$}
-    \end{subfigure}
-    }
-    \caption{Log frequency density graph of the sample variance-mean data from the \texttt{July16 120deg} dataset.}
-    \label{fig:meanvar_july16_glm}
-\end{figure}
-
-Worryingly there appeared to be a significant change in the scaled deviance at different angles in the \texttt{July 16} dataset. This is unexplained.
-
-Another analysis was done by holding out half of the images and assigned it as the test set. The remaining images were assigned to be the training set and was used to train different types of regressions. The training and test MSE are shown in Figures \ref{fig:meanvar_mse_july16_30deg}, \ref{fig:meanvar_mse_july16_120deg}, \ref{fig:meanvar_mse_sep16_30deg} \& \ref{fig:meanvar_mse_sep16_120deg} for the datasets \texttt{July16 30deg}, \texttt{July16 120deg}, \texttt{Sep16 30deg} and \texttt{Sep16 120deg} respectively.
-
-What is remarkable is how much shading correction improved the training and test MSE, in particular in the \texttt{Sep16} dataset.
-
-\begin{figure}
+\begin{sidewaystable}
 \centering
+\begin{tabular}{cc|ccc}
+\multicolumn{2}{c|}{Identity Link}& null & bw & linear \\ \hline
+\multirow{3}{*}{AIC} & order     & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg30null_identityorder.txt}     & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg30bw_identityorder.txt}     & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg30linear_identityorder.txt}     \\
+                     & votes     & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg30null_identityvote.txt}      & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg30bw_identityvote.txt}      & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg30linear_identityvote.txt}      \\
+                     & criterion & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg30null_identitycriterion.txt} & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg30bw_identitycriterion.txt} & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg30linear_identitycriterion.txt} \\ \hline
+\multirow{3}{*}{BIC} & order     & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg30null_identityorder.txt}     & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg30bw_identityorder.txt}     & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg30linear_identityorder.txt}     \\
+                     & votes     & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg30null_identityvote.txt}      & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg30bw_identityvote.txt}       & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg30linear_identityvote.txt}      \\
+                     & criterion & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg30null_identitycriterion.txt} & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg30bw_identitycriterion.txt} & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg30linear_identitycriterion.txt} \\
+\\
+\multicolumn{2}{c|}{Canonical Link}& null & bw & linear \\ \hline
+\multirow{3}{*}{AIC} & order      & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg30null_reciprocalorder.txt}     & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg30bw_reciprocalorder.txt}     & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg30linear_reciprocalorder.txt}     \\
+                     & votes      & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg30null_reciprocalvote.txt}      & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg30bw_reciprocalvote.txt}      & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg30linear_reciprocalvote.txt}      \\
+                     & criterion  & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg30null_reciprocalcriterion.txt} & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg30bw_reciprocalcriterion.txt} & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg30linear_reciprocalcriterion.txt} \\ \hline
+\multirow{3}{*}{BIC} & order      & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg30null_reciprocalorder.txt}     & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg30bw_reciprocalorder.txt}     & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg30linear_reciprocalorder.txt}     \\
+                     & votes      & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg30null_reciprocalvote.txt}      & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg30bw_reciprocalvote.txt}      & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg30linear_reciprocalvote.txt}      \\
+                     & criterion  & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg30null_reciprocalcriterion.txt} & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg30bw_reciprocalcriterion.txt} & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg30linear_reciprocalcriterion.txt}     
+\end{tabular}
+\caption{Forward stepwise selection was used to find suitable polynomial features when fitting a gamma GLM onto the sample variance-mean data of the grey values from the projections in \texttt{AbsNoFilter} at \ang{30}. The columns of the table represent different shading corrections used on the projections. Forward stepwise selection was repeated 10 times by using a different random permutation with replacement to obtain a different sample variance-mean data. `Order' shows the most commonly selected polynomial orders and `votes' shows the number of times it was selected out of the 10 repeats. The error bars are the standard deviation from the 10 repeats.}
+\label{table:meanVar_glmselect_absnofilterdeg30}
+\end{sidewaystable}
+
+\begin{sidewaystable}
+\centering
+\begin{tabular}{cc|ccc}
+\multicolumn{2}{c|}{Identity Link}& null & bw & linear \\ \hline
+\multirow{3}{*}{AIC} & order     & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg120null_identityorder.txt}     & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg120bw_identityorder.txt}     & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg120linear_identityorder.txt}     \\
+                     & votes     & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg120null_identityvote.txt}      & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg120bw_identityvote.txt}      & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg120linear_identityvote.txt}      \\
+                     & criterion & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg120null_identitycriterion.txt} & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg120bw_identitycriterion.txt} & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg120linear_identitycriterion.txt} \\ \hline
+\multirow{3}{*}{BIC} & order     & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg120null_identityorder.txt}     & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg120bw_identityorder.txt}     & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg120linear_identityorder.txt}     \\
+                     & votes     & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg120null_identityvote.txt}      & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg120bw_identityvote.txt}       & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg120linear_identityvote.txt}      \\
+                     & criterion & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg120null_identitycriterion.txt} & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg120bw_identitycriterion.txt} & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg120linear_identitycriterion.txt} \\
+\\
+\multicolumn{2}{c|}{Canonical Link}& null & bw & linear \\ \hline
+\multirow{3}{*}{AIC} & order      & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg120null_reciprocalorder.txt}     & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg120bw_reciprocalorder.txt}     & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg120linear_reciprocalorder.txt}     \\
+                     & votes      & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg120null_reciprocalvote.txt}      & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg120bw_reciprocalvote.txt}      & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg120linear_reciprocalvote.txt}      \\
+                     & criterion  & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg120null_reciprocalcriterion.txt} & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg120bw_reciprocalcriterion.txt} & \inputNumber{../figures/varmean/GlmSelectAicAbsNoFilterDeg120linear_reciprocalcriterion.txt} \\ \hline
+\multirow{3}{*}{BIC} & order      & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg120null_reciprocalorder.txt}     & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg120bw_reciprocalorder.txt}     & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg120linear_reciprocalorder.txt}     \\
+                     & votes      & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg120null_reciprocalvote.txt}      & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg120bw_reciprocalvote.txt}      & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg120linear_reciprocalvote.txt}      \\
+                     & criterion  & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg120null_reciprocalcriterion.txt} & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg120bw_reciprocalcriterion.txt} & \inputNumber{../figures/varmean/GlmSelectBicAbsNoFilterDeg120linear_reciprocalcriterion.txt}     
+\end{tabular}
+\caption{Forward stepwise selection was used to find suitable polynomial features when fitting a gamma GLM onto the sample variance-mean data of the grey values from the projections in \texttt{AbsNoFilter} at \ang{120}. The columns of the table represent different shading corrections used on the projections. Forward stepwise selection was repeated 10 times by using a different random permutation with replacement to obtain a different sample variance-mean data. `Order' shows the most commonly selected polynomial orders and `votes' shows the number of times it was selected out of the 10 repeats. The error bars are the standard deviation from the 10 repeats.}
+\label{table:meanVar_glmselect_absnofilterdeg120}
+\end{sidewaystable}
+
+\begin{sidewaystable}
+\centering
+\begin{tabular}{cc|ccc}
+\multicolumn{2}{c|}{Identity Link}& null & bw & linear \\ \hline
+\multirow{3}{*}{AIC} & order     & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg30null_identityorder.txt}     & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg30bw_identityorder.txt}     & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg30linear_identityorder.txt}     \\
+                     & votes     & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg30null_identityvote.txt}      & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg30bw_identityvote.txt}      & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg30linear_identityvote.txt}      \\
+                     & criterion & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg30null_identitycriterion.txt} & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg30bw_identitycriterion.txt} & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg30linear_identitycriterion.txt} \\ \hline
+\multirow{3}{*}{BIC} & order     & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg30null_identityorder.txt}     & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg30bw_identityorder.txt}     & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg30linear_identityorder.txt}     \\
+                     & votes     & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg30null_identityvote.txt}      & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg30bw_identityvote.txt}       & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg30linear_identityvote.txt}      \\
+                     & criterion & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg30null_identitycriterion.txt} & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg30bw_identitycriterion.txt} & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg30linear_identitycriterion.txt} \\
+\\
+\multicolumn{2}{c|}{Canonical Link}& null & bw & linear \\ \hline
+\multirow{3}{*}{AIC} & order      & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg30null_reciprocalorder.txt}     & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg30bw_reciprocalorder.txt}     & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg30linear_reciprocalorder.txt}     \\
+                     & votes      & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg30null_reciprocalvote.txt}      & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg30bw_reciprocalvote.txt}      & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg30linear_reciprocalvote.txt}      \\
+                     & criterion  & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg30null_reciprocalcriterion.txt} & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg30bw_reciprocalcriterion.txt} & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg30linear_reciprocalcriterion.txt} \\ \hline
+\multirow{3}{*}{BIC} & order      & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg30null_reciprocalorder.txt}     & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg30bw_reciprocalorder.txt}     & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg30linear_reciprocalorder.txt}     \\
+                     & votes      & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg30null_reciprocalvote.txt}      & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg30bw_reciprocalvote.txt}      & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg30linear_reciprocalvote.txt}      \\
+                     & criterion  & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg30null_reciprocalcriterion.txt} & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg30bw_reciprocalcriterion.txt} & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg30linear_reciprocalcriterion.txt}     
+\end{tabular}
+\caption{Forward stepwise selection was used to find suitable polynomial features when fitting a gamma GLM onto the sample variance-mean data of the grey values from the projections in \texttt{AbsFilter} at \ang{30}. The columns of the table represent different shading corrections used on the projections. Forward stepwise selection was repeated 10 times by using a different random permutation with replacement to obtain a different sample variance-mean data. `Order' shows the most commonly selected polynomial orders and `votes' shows the number of times it was selected out of the 10 repeats. The error bars are the standard deviation from the 10 repeats.}
+\label{table:meanVar_glmselect_absfilterdeg30}
+\end{sidewaystable}
+
+\begin{sidewaystable}
+\centering
+\begin{tabular}{cc|ccc}
+\multicolumn{2}{c|}{Identity Link}& null & bw & linear \\ \hline
+\multirow{3}{*}{AIC} & order     & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg120null_identityorder.txt}     & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg120bw_identityorder.txt}     & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg120linear_identityorder.txt}     \\
+                     & votes     & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg120null_identityvote.txt}      & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg120bw_identityvote.txt}      & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg120linear_identityvote.txt}      \\
+                     & criterion & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg120null_identitycriterion.txt} & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg120bw_identitycriterion.txt} & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg120linear_identitycriterion.txt} \\ \hline
+\multirow{3}{*}{BIC} & order     & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg120null_identityorder.txt}     & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg120bw_identityorder.txt}     & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg120linear_identityorder.txt}     \\
+                     & votes     & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg120null_identityvote.txt}      & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg120bw_identityvote.txt}       & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg120linear_identityvote.txt}      \\
+                     & criterion & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg120null_identitycriterion.txt} & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg120bw_identitycriterion.txt} & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg120linear_identitycriterion.txt} \\
+\\
+\multicolumn{2}{c|}{Canonical Link}& null & bw & linear \\ \hline
+\multirow{3}{*}{AIC} & order      & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg120null_reciprocalorder.txt}     & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg120bw_reciprocalorder.txt}     & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg120linear_reciprocalorder.txt}     \\
+                     & votes      & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg120null_reciprocalvote.txt}      & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg120bw_reciprocalvote.txt}      & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg120linear_reciprocalvote.txt}      \\
+                     & criterion  & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg120null_reciprocalcriterion.txt} & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg120bw_reciprocalcriterion.txt} & \inputNumber{../figures/varmean/GlmSelectAicAbsFilterDeg120linear_reciprocalcriterion.txt} \\ \hline
+\multirow{3}{*}{BIC} & order      & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg120null_reciprocalorder.txt}     & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg120bw_reciprocalorder.txt}     & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg120linear_reciprocalorder.txt}     \\
+                     & votes      & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg120null_reciprocalvote.txt}      & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg120bw_reciprocalvote.txt}      & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg120linear_reciprocalvote.txt}      \\
+                     & criterion  & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg120null_reciprocalcriterion.txt} & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg120bw_reciprocalcriterion.txt} & \inputNumber{../figures/varmean/GlmSelectBicAbsFilterDeg120linear_reciprocalcriterion.txt}     
+\end{tabular}
+\caption{Forward stepwise selection was used to find suitable polynomial features when fitting a gamma GLM onto the sample variance-mean data of the grey values from the projections in \texttt{AbsFilter} at \ang{120}. The columns of the table represent different shading corrections used on the projections. Forward stepwise selection was repeated 10 times by using a different random permutation with replacement to obtain a different sample variance-mean data. `Order' shows the most commonly selected polynomial orders and `votes' shows the number of times it was selected out of the 10 repeats. The error bars are the standard deviation from the 10 repeats.}
+\label{table:meanVar_glmselect_absfilterdeg120}
+\end{sidewaystable}
+
+The results are shown in Tables \ref{table:meanVar_glmselect_absnofilterdeg30} and \ref{table:meanVar_glmselect_absnofilterdeg120} for \texttt{AbsNoFilter} and Tables \ref{table:meanVar_glmselect_absfilterdeg30} and \ref{table:meanVar_glmselect_absfilterdeg120} for \texttt{AbsFilter}. The models selected are quite simple and all have two features. Different shading correction or different criteria had no effect on the selected model. The method is quite robust to the variation introduced to the dataset when repeating the experiment because all 10 repeats consistently selected the same model.
+
+There was some variation to the selected models between datasets. For example when using the identity link, \texttt{AbsNoFilter} prefers $\eta(x)=\beta_0+\beta_1 x$ whereas \texttt{AbsFilter} prefers $\eta(x)=\beta_{-1}x^{-1}+\beta_0$. Using the canonical link, both datasets selected $\eta(x)=\beta_{-1}x^{-1}+\beta_0$ which correspond to $\widehat{y}(x)=\left(\beta_{-1}x^{-1}+\beta_0\right)^{-1}$.
+
+Figures \ref{fig:meanVar_varMeanExample_AbsNoFilter} and \ref{fig:meanVar_varMeanExample_AbsFilter} shows the GLM fits for the datasets \texttt{AbsNoFilter} and \texttt{AbsFilter} respectively. The prediction intervals were obtained using the distribution $\widehat{Y}(x)\sim\gammaDist\left(\alpha, \dfrac{\alpha}{g^{-1}\left(\widehat{\eta}(x)\right)}\right)$. The fits all looked reasonable except for \texttt{AbsNoFilter} at \ang{120} where the fit did not capture the inflection. The forward stepwise selection may not pick this up because there are a lot of low grey values, causing a leverage towards these low grey values and the inflection does not stand out to the method.
+
+\begin{figure}
+  \centering
     \centerline{
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/GlmMse_July16_30deg_training_MSE.eps}
-        \caption{Training error}
+    \begin{subfigure}[b]{\subSize}
+        \includegraphics[width=\textwidth]{../figures/varmean/varMeanExample_AbsNoFilterDeg30_identity000010.eps}
+        \caption{${y}(x)=\beta_0+\beta_1 x$ at \ang{30}}
     \end{subfigure}
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/GlmMse_July16_30deg_test_MSE.eps}
-        \caption{Test error}
+    \begin{subfigure}[b]{\subSize}
+        \includegraphics[width=\textwidth]{../figures/varmean/varMeanExample_AbsNoFilterDeg30_reciprocal000100.eps}
+        \caption{${y}(x)=(\beta_{-1}x^{-1}\beta_0)^{-1}$ at \ang{30}}
     \end{subfigure}
     }
-    \caption{Mean squared error in variance prediction using different regressions on the variance-mean data from \texttt{July16 30deg}.}
-    \label{fig:meanvar_mse_july16_30deg}
+    \centerline{
+    \begin{subfigure}[b]{\subSize}
+        \includegraphics[width=\textwidth]{../figures/varmean/varMeanExample_AbsNoFilterDeg120_identity000010.eps}
+        \caption{${y}(x)=\beta_0+\beta_1 x$ at \ang{120}}
+    \end{subfigure}
+    \begin{subfigure}[b]{\subSize}
+        \includegraphics[width=\textwidth]{../figures/varmean/varMeanExample_AbsNoFilterDeg120_reciprocal000100.eps}
+        \caption{${y}(x)=(\beta_{-1}x^{-1}\beta_0)^{-1}$ at \ang{120}}
+    \end{subfigure}
+    }
+    \caption{Log frequency density histogram of the sample variance-mean data from \texttt{AbsNoFilter} with linear shading correction. The solid red line shows the GLM fit along with the 95\% prediction interval as dashed lines.}
+    \label{fig:meanVar_varMeanExample_AbsNoFilter}
 \end{figure}
 
 \begin{figure}
-	\centering
+  \centering
     \centerline{
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/GlmMse_July16_120deg_training_MSE.eps}
-        \caption{Training error}
+    \begin{subfigure}[b]{\subSize}
+        \includegraphics[width=\textwidth]{../figures/varmean/varMeanExample_AbsFilterDeg30_identity000100.eps}
+        \caption{${y}(x)=\beta_{-1}x^{-1}+\beta_0$ at \ang{30}}
     \end{subfigure}
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/GlmMse_July16_120deg_test_MSE.eps}
-        \caption{Test error}
+    \begin{subfigure}[b]{\subSize}
+        \includegraphics[width=\textwidth]{../figures/varmean/varMeanExample_AbsFilterDeg30_reciprocal000100.eps}
+        \caption{${y}(x)=(\beta_{-1}x^{-1}+\beta_0)^{-1}$ at \ang{30}}
     \end{subfigure}
     }
-    \caption{Mean squared error in variance prediction using different regressions on the variance-mean data from \texttt{July16 120deg}.}
-    \label{fig:meanvar_mse_july16_120deg}
+    \centerline{
+    \begin{subfigure}[b]{\subSize}
+        \includegraphics[width=\textwidth]{../figures/varmean/varMeanExample_AbsFilterDeg120_identity000100.eps}
+        \caption{${y}(x)=\beta_{-1}x^{-1}+\beta_0$ at \ang{120}}
+    \end{subfigure}
+    \begin{subfigure}[b]{\subSize}
+        \includegraphics[width=\textwidth]{../figures/varmean/varMeanExample_AbsFilterDeg120_reciprocal000100.eps}
+        \caption{${y}(x)=(\beta_{-1}x^{-1}+\beta_0)^{-1}$ at \ang{120}}
+    \end{subfigure}
+    }
+    \caption{Log frequency density histogram of the sample variance-mean data from \texttt{AbsFilter} with linear shading correction. The solid red line shows the GLM fit along with the 95\% prediction interval as dashed lines.}
+    \label{fig:meanVar_varMeanExample_AbsFilter}
 \end{figure}
+
+\section{Cross Validation}
+
+Instead of assessing the model fit using the AIC and BIC, the performance on predicting the variance given a grey value can be assessed using cross validation \citep{friedman2001elements}. Cross validation assess the model to make predictions on data it has not seen before. This is done by randomly splitting the $m$ data points into two disjoint sets, the training set and the test set. It was chosen that the training and test set are of the same size. The model is fitted onto the training set. Afterwards, the fitted model predict the variances given the grey values in the test set which are compared to the actual variances. 
+
+The mean scaled deviance was used to assess the performance of variance prediction. The deviance is defined to be
+\begin{equation}
+  D = 2\left(
+    \ln L_\mathrm{s} - \ln L    
+  \right)
+\end{equation}
+where $L$ and $L_\mathrm{s}$ are the likelihood and saturated likelihood respectively.  The saturated likelihood is obtained by replacing all $\widehat{y}_i$ with $y_i$ in the likelihood so that
+\begin{equation}
+  \ln L_\mathrm{s} = \sum_{i=1}^m \left[
+    \alpha\ln\alpha
+    -\ln\Gamma(\alpha)
+    -\alpha\ln{y_i}
+    +(\alpha-1)\ln y_i
+    -\alpha
+  \right]
+  \ .
+\end{equation}
+Following from this, the deviance is
+\begin{equation}
+  D = 2\alpha
+  \sum_{i=1}^m\left[
+      \dfrac{
+          y_i-\widehat{y}_i
+      }
+      {
+          \widehat{y}_i
+      }
+      - \ln\left(\dfrac{y_i}{\widehat{y}_i}\right)
+  \right]
+  \ .
+\end{equation}
+The mean scaled deviance is obtained by removing the factor of $\alpha$ and dividing by $m$ to get
+\begin{equation}
+    D_\mathrm{s} = \dfrac{2}{m}
+    \sum_{i=1}^m\left[
+        \dfrac{
+            y_i-\widehat{y}_i
+        }
+        {
+            \widehat{y}_i
+        }
+        - \ln\left(\dfrac{y_i}{\widehat{y}_i}\right)
+    \right]
+    \ .
+\end{equation}
 
 \begin{figure}
-	\centering
-    \centerline{
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/GlmMse_Sep16_30deg_training_MSE.eps}
-        \caption{Training error}
-    \end{subfigure}
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/GlmMse_Sep16_30deg_test_MSE.eps}
-        \caption{Test error}
-    \end{subfigure}
-    }
-    \caption{Mean squared error in variance prediction using different regressions on the variance-mean data from \texttt{Sep16 30deg}.}
-    \label{fig:meanvar_mse_sep16_30deg}
+  \centering
+  \includegraphics[width=\subSize]{../figures/varmean/devianceGraph.eps}
+  \caption{Scaled deviance loss function}
+  \label{fig:meanVar_deviance}
 \end{figure}
+
+The mean scaled deviance is a loss function which increases as $y_i/\widehat{y}_i$ deviates from one, this is shown in Figure \ref{fig:meanVar_deviance} and it should be noted the $x$-axis is in log scale. Another way to show this is by letting $r_i = y_i/\widehat{y}_i$ and $d_i = 2\left[r-1-\ln r\right]$ be an element from the sum in the deviance. For $r_i\approx 1$, $\ln(r)\approx(r-1)-(r-1)^2/2$ which implies $d_i\approx (r-1)^2$ with minimum at one. For $r_i$ deviate greatly from one, the loss function is asymmetric. For example a ratio of $r_i=10^1$ has a greater penalty than $r_i=10^{-1}$. This means in extreme cases, overestimates are penalised less than underestimates relative to $y_i$. 
+
+Assuming the model is correct, it is given that $D\sim\chi_{m-p}^2$ which implies that for large $m$,
+\begin{equation}
+\expectation\left[D_\mathrm{s}\right] = \dfrac{1}{\alpha}
+\end{equation}
+and
+\begin{equation}
+\variance\left[D_\mathrm{s}\right] = \dfrac{2}{\alpha^2 m} \ .
+\end{equation}
+Because $\alpha=(n-1)/2$, this shows that the number of replicated projections used to obtain the sample variance-mean data has an influence on the mean scaled deviance. This result can be used to estimate $\alpha$ if it is unknown.
+
+Cross validation was performed on the datasets \texttt{AbsNoFilter} and \texttt{AbsFilter} with various shading corrections. The models selected from forward step-wise selection in the previous section were assessed. They are ${y}(x)=\beta_0+\beta_1 x$ and ${y}(x)=\beta_{-1}x^{-1}+\beta_0$ using the identity link and ${y}(x)=(\beta_{-1}x^{-1}+\beta_0)^{-1}$ using the canonical link. The analysis was repeated 100 times by using a random permutation with replacement of the replicated projections to obtain a different sample variance-mean data which introduces some variation to the data.
 
 \begin{figure}
-	\centering
+  \centering
+  \centerline{
+  \begin{subfigure}[b]{\subSize}
+      \includegraphics[width=\textwidth]{../figures/varmean/VarMeanCvAbsNoFilterDeg30_testmeanscaleddeviance.eps}
+      \caption{\texttt{AbsNoFilter} at \ang{30}}
+  \end{subfigure}
+  \begin{subfigure}[b]{\subSize}
+      \includegraphics[width=\textwidth]{../figures/varmean/VarMeanCvAbsNoFilterDeg120_testmeanscaleddeviance.eps}
+      \caption{\texttt{AbsNoFilter} at \ang{120}}
+  \end{subfigure}
+  }
     \centerline{
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/GlmMse_Sep16_120deg_training_MSE.eps}
-        \caption{Training error}
-    \end{subfigure}
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/meanVar/GlmMse_Sep16_120deg_test_MSE.eps}
-        \caption{Test error}
-    \end{subfigure}
-    }
-    \caption{Mean squared error in variance prediction using different regressions on the variance-mean data from \texttt{Sep16 120deg}.}
-    \label{fig:meanvar_mse_sep16_120deg}
+  \begin{subfigure}[b]{\subSize}
+      \includegraphics[width=\textwidth]{../figures/varmean/VarMeanCvAbsFilterDeg30_testmeanscaleddeviance.eps}
+      \caption{\texttt{AbsFilter} at \ang{30}}
+  \end{subfigure}
+  \begin{subfigure}[b]{\subSize}
+      \includegraphics[width=\textwidth]{../figures/varmean/VarMeanCvAbsFilterDeg120_testmeanscaleddeviance.eps}
+      \caption{\texttt{AbsFilter} at \ang{120}}
+  \end{subfigure}
+  }
+  \caption{Test mean scaled deviance from predicting variances in a test set using a GLM fitted onto a training set. The box plot represent the 100 repeats of the analysis by by using a random permutation with replacement of the replicated projections to work out a different sample variance-mean data.}
+  \label{fig:meanVar_varMeanCv}
 \end{figure}
 
+The results from the cross validation is shown in Figure \ref{fig:meanVar_varMeanCv}. The performance of the three candidate models were very similar. One exception is the model ${y}(x)=\beta_{-1}x^{-1}+\beta_0$ fitted onto the \texttt{AbsNoFilter} dataset, the mean scaled deviance was significantly larger and this is expected from a model not favoured in the forward step-wise selection in the previous section.
+
+Shading correction did not had a significant effect in the analysis.
+
+From these results, it is recommended that the relationship ${y}(x)=\beta_0+\beta_1 x$ should be used for its simple form, similar performance to other candidate models and connections to the compound Poisson.
+
+\section{Residual Analysis}
+
+A residual analysis was conducted to look for anything overlooked. The model ${y}(x)=\beta_0+\beta_1 x$ was analysed A residual plot plots $r_i=y_i-\widehat{y}(x_i)$ for all $x_i$ in the dataset. This was done using a 2D histogram. Due to the gamma GLM, higher grey values typically have bigger residuals in magnitude, a predicted residual interval is included in the histogram to aid judging the residuals. This interval was obtained by obtaining the prediction interval and subtracting it from the fit.
+
+\begin{figure}
+  \centering
+  \centerline{
+  \begin{subfigure}[b]{\subSize}
+      \includegraphics[width=\textwidth]{../figures/varmean/varMeanResidualAbsNoFilterDeg30_vsgreyvalue.eps}
+      \caption{\texttt{AbsNoFilter} at \ang{30}}
+  \end{subfigure}
+  \begin{subfigure}[b]{\subSize}
+      \includegraphics[width=\textwidth]{../figures/varmean/varMeanResidualAbsNoFilterDeg120_vsgreyvalue.eps}
+      \caption{\texttt{AbsFilter} at \ang{120}}
+  \end{subfigure}
+  }
+  \centerline{
+  \begin{subfigure}[b]{\subSize}
+      \includegraphics[width=\textwidth]{../figures/varmean/varMeanResidualAbsFilterDeg30_vsgreyvalue.eps}
+      \caption{\texttt{AbsFilter} at \ang{30}}
+  \end{subfigure}
+  \begin{subfigure}[b]{\subSize}
+      \includegraphics[width=\textwidth]{../figures/varmean/varMeanResidualAbsFilterDeg120_vsgreyvalue.eps}
+      \caption{\texttt{AbsFilter} at \ang{120}}
+  \end{subfigure}
+  }
+  \caption{Log frequency density histogram of the residuals given the mean grey value. The residuals are from fitting a gamma GLM of the form ${y}(x)=\beta_0+\beta_1 x$ onto the sample variance-mean data obtained from the replicated projections. The dashed red line shows the 95\% confidence interval of the predicted residual.}
+  \label{fig:meanVar_residualGreyvalue}
+\end{figure}
+
+The residual plots are shown in Figure \ref{fig:meanVar_residualGreyvalue}. The residuals are all sensible and increase in size with grey value which is captured by the predicted residual interval. The inflection in \texttt{AbsNoFilter} at \ang{120}, as discussed previously, can be seen more clearly here.
+
+\begin{figure}
+  \centering
+  \centerline{
+  \begin{subfigure}[b]{\subSize}
+      \includegraphics[width=\textwidth]{../figures/varmean/varMeanResidualAbsNoFilterDeg30_spatial.eps}
+      \caption{\texttt{AbsNoFilter} at \ang{30}}
+  \end{subfigure}
+  \begin{subfigure}[b]{\subSize}
+      \includegraphics[width=\textwidth]{../figures/varmean/varMeanResidualAbsNoFilterDeg120_spatial.eps}
+      \caption{\texttt{AbsNoFilter} at \ang{120}}
+  \end{subfigure}
+  }
+  \centerline{
+  \begin{subfigure}[b]{\subSize}
+      \includegraphics[width=\textwidth]{../figures/varmean/varMeanResidualAbsFilterDeg30_spatial.eps}
+      \caption{\texttt{AbsFilter} at \ang{30}}
+  \end{subfigure}
+  \begin{subfigure}[b]{\subSize}
+      \includegraphics[width=\textwidth]{../figures/varmean/varMeanResidualAbsFilterDeg120_spatial.eps}
+      \caption{\texttt{AbsFilter} at \ang{120}}
+  \end{subfigure}
+  }
+  \caption{Absolute value residuals from fitting a gamma GLM of the form ${y}(x)=\beta_0+\beta_1 x$ onto the sample variance-mean data obtained from the replicated projections. Highlighted in a red box is an example of an inflection.}
+  \label{fig:meanVar_spatialResidual}
+\end{figure}
+
+Because no spatial information was used in modelling the variance, the residuals were plotted on top of the projections to look for any spatial structure, this is shown in Figure \ref{fig:meanVar_spatialResidual}. Because of the geometry of the test sample, lower grey values, thus smaller residuals, are found in the middle of the projection. Similarly, higher grey values, thus bigger residuals, are found on the edges of the test sample. Considering that, the residuals do not show any striking spatial structure. Again, the inflection in \texttt{AbsNoFilter} at \ang{120} can be seen more clearly here.
 
 \section{Conclusion}
-Experimentally it was found that a Gamma GLM with identity link and $p=1$ performed just as well with other GLM with different link functions and non-parametric regressions. A Gamma GLM with identity link and $p=1$ is essentially a simple linear regression. The simple linear regression is attractive as the linear relationship between the variance and mean is backed up by the compound Poisson model of x-ray photon behaviour. The simple linear regression is also a good candidate for the variance-mean model to those who prefer simpler models and follows Occam’s razor.
 
-It was also found that shading correction aid in variance prediction. This highlights the important of shading correction and should be applied to images whenever possible.
+Various parametric models were investigated. A gamma GLM with identity and canonical link functions were looked at with different polynomial features. In terms of cross-validation, most of the models looked at have similar prediction performance when predicting the variance given a grey value. Thus the relationship $\widehat{y}(x)=\beta_0+\beta_1 x$ using the identity link is attractive for its simplicity and links with the compound Poisson model.
+
+It was found shading correction had little effect on the variance-mean relationship.
+
+As discussed in the compound Poisson chapter, a linear relationship can be derived by assuming no beam hardening. Then it should be expected that a linear relationship is observed in the dataset \texttt{AbsFilter}. In the forward stepwise selection, \texttt{AbsNoFilter} consistently selected the linear model, given the identity link function. \texttt{AbsFilter} did not select the linear model but in terms of cross-validation prediction performance, the linear model was just as good as the other models.
+
+It was unusual to see an infection in the sample variance-mean data in \texttt{AbsNoFilter} at \ang{120} which was not captured by the GLM. A good explanation was not found but perhaps the absence of an x-ray filter may have contributed to this.
+
+More flexible models such as non-parametric and machine learning methods may be used, however, they are slow and are unnecessary in a low dimensional problem with a large number of data points.
+
+With the ability to predict the variance given a grey value of a pixel, the uncertainty can be quantified. In the next chapter, the projection is compared to a simulated projection under the face of that uncertainty.

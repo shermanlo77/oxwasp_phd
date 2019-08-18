@@ -1,4 +1,8 @@
-\documentclass[12pt, a4paper]{memoir}
+\documentclass[12pt, a4paper, oneside]{memoir}
+%oneside for soft copy
+%twoside for hard final copy
+\setlrmargins{4cm}{*}{*}
+\checkandfixthelayout
 %\documentclass[12pt, a4paper, oldfontcommands]{memoir}
 %\documentclass[12pt, a4paper]{report}
 
@@ -16,6 +20,12 @@
 \usepackage{pdfpages}
 \usepackage{MnSymbol} %udots
 \usepackage{afterpage} %\afterpage{\clearpage}
+\usepackage{siunitx} %for measurements
+\usepackage[figuresright]{rotating}
+\usepackage{multirow} %for multirow tables
+\usepackage{mathtools} %multlined
+\usepackage{longtable}
+\usepackage{bibentry}
 
 \setcounter{tocdepth}{2}
 \setcounter{secnumdepth}{2}
@@ -50,8 +60,11 @@
 \newcommand{\euler}{\mathrm{e}}
 \newcommand{\diff}{\mathrm{d}}
 \newcommand{\T}{^\textup{T}}
-\newcommand{\dotdotdot}{_{\phantom{.}\cdots}}
-\newcommand{\BIC}{\textup{BIC}}
+\newcommand{\BIC}{\mathrm{BIC}}
+\newcommand{\AIC}{\mathrm{AIC}}
+
+\newcommand{\subSize}{0.49\textwidth}
+\newcommand{\mainSize}{0.8\textwidth}
 
 \newcommand{\vect}[1]{\mathbf{#1}}
 \newcommand{\vectGreek}[1]{\boldsymbol{#1}}
@@ -60,52 +73,126 @@
 \newcommand{\addNumber}[1]{\protect\input{#1}\unskip}
 \newcommand{\inputNumber}[1]{\protect\input{#1}\unskip}
 
+\DeclareSIUnit\pixel{px}
+\DeclareSIUnit\adu{ADU}
+\OnehalfSpacing*
 \begin{document}\sloppy
 
-\includepdf{title.pdf}
+\begin{titlingpage}
+\centering
+{\LARGE Characterisation of Computed Tomography Noise in Projection Space with Applications to Additive Manufacturing \par}
+\vspace{1cm}
+{\Large Sherman E.~Lo\par}
+{\Large Doctor of Philosophy in Statistics\par}
+\vfill
+\includegraphics[width = 0.75\textwidth]{../figures/frontCover.jpg}
+\vfill
+{\Large University of Warwick\par}
+{\Large Department of Statistics\par}
+{\Large September 2019\par}
+\end{titlingpage}
+
 
 \frontmatter
-\section*{Abstract}
-X-ray computed tomography (CT) can be used for defect detection in 3D printing. The object is scanned at multiple angles to reconstruct the object in 3D space. The process can be time consuming. The aim of this project was to investigate if it is possible to conduct defect detection in projection space from a single scan to speed up the defect detection procedure. To do this, a 3D printed sample was manufactured with voids to see if they can be detected.
 
-X-ray photons behave randomly. Hence to do defect detection pixel by pixel, uncertainty must be taken into account. A compound Poisson model was used to model the grey valyes in a pixel. It assumed that photon arrivals are a Poisson process with Gamma distributed energy. This resulted in a linear relationship between the mean and variance of the grey value, which was used for variance prediction and to quantify the uncertainty.
+\cleardoublepage
+\tableofcontents*
+\cleardoublepage
+\listoffigures
+\cleardoublepage
+\listoftables
 
-Software, called \texttt{aRTist}, was used to simulate the scan and it was compared with the x-ray acquisition under the face of uncertainty. However the software, and the information provided to it, was not perfect which led to model misspecification and incorrect inference. The empirical null filter was proposed. It adjust each pixel statistic so that inference was done by comparing each pixel with the majority of its local pixels.
+\chapter{Acknowledgements}
+I would like to thank my supervisors Julia Brettschneider and Tom Nichols for their guidance throughout my PhD. I would also like to thank my calibrators who are part of the Inside-Out group, in Warwick Statistics, Clair Barnes, Wilfred Kendall and Audrey Kueh, and the Warwick Manufacturing Group, Greg Gibbons, Jay Warnett and Mark Williams.
 
-\newpage
+This work is funded by the EPSRC and MRC Centre for Doctoral Training in Next Generation Statistical Science: The Oxford-Warwick Statistics Programme (EP/L016710/1). I would like to thank my cohort for the friendship and collaboration during the programme: Nathan Cunningham, Giuseppe di Benedetto, Beniamino Hadj-Amar, Jack Jewson, Ella Kaye, Leon Law, Kaspar M\"{a}rtens, Marcin Mider, Xenia Miscouridou, Paul Vanetti and Andi Wang.
 
-\section*{Acknowledgements}
+\chapter{Declaration}
+This thesis is submitted to the University of Warwick in support of my application for the degree of Doctor of Philosophy. It has been composed by myself and has not been submitted in any previous application for any degree.
+
+The work presented (including data generated and data analysis) was carried out by the author except in the cases outlined below:
 \begin{itemize}
-	\item Supervisors: Julia Brettschneider and Tom Nichols
-	\item Inside Out Team: Wilfrid Kendall, Audrey Kueh, Jay Warnett and Clair Barnes
-	\item EPSRC Funding: EP/L016710/1
+  \item The fabrication, x-ray computed tomography acquisition and simulation of test samples were done by Greg Gibbons and Jay Warnett, from the Warwick Manufacturing Group, as part of Inside-out: Statistical methods for Computed Tomography validation of complex structures in Additive Layer Manufacturing funded by EPSRC (EP/K031066/1).
 \end{itemize}
 
+Parts of this thesis have been published by the author:
+\begin{itemize}
+  \item\nobibliography*\bibentry{lo2019detection}
+\end{itemize}
+
+\chapter{Abstract}
+X-ray computed tomography can be used for defect detection in additive manufacturing. Typically, several x-ray projections of the product at hundreds of angles are used to reconstruct the object in 3D to look for any defects. The process can be time-consuming. This thesis aims to investigate if it is possible to conduct defect detection from a single projection to speed up the process. An additive manufacturing test sample was created with voids to see if they can be detected.
+
+The uncertainty of the projection was modelled using a compound Poisson distribution. This arises from x-ray photon arrivals being a Poisson process and each photon has random energy. This resulted in a linear relationship between the mean and variance of the grey value in the projection, which was used for variance prediction and to quantify the uncertainty. Fitting of the compound Poisson distribution using the expectation-maximisation algorithm was unsuccessful due to identifiability issues with the model.
+
+Software, called \emph{aRTist}, was used to simulate the projection and compared with the obtained projection. The comparison was done under the face of uncertainty by treating each pixel as a hypothesis test.  To overcome the imperfections of the simulation, the empirical null filter was used to cater for the model misspecification so that sensible inference was achieved. Voids with diameters in the order of millimetres were detectable.
+
+This thesis is a contribution to real-time quality control in additive manufacturing.
+
 \newpage
-\tableofcontents*
-\newpage
-\listoffigures
-\newpage
-\listoftables
 
 \mainmatter
 
 \chapter{Introduction}
 
+Probability and statistics is used throughout in science to handle data and uncertainty. In particular, undergraduates are drilled to quote confidence intervals, use an appropriate number of significant figures and plot error bars in their studies. In physics, probability is used to model randomness in quantum mechanics and used to handle millions of particles in statistical mechanics. Uncertainty is a daily occurrence.
+
+In the field of engineering, additive manufacturing is an emerging technology and has uses in producing bespoke products. Because it is a new form of technology, the process is not well understood and tolerances are not as precise as other forms of manufacturing. As a result, there exist methods for quality control of additive manufactured products. Typically, this is done using x-ray computed tomography and requires hundreds of x-ray projections, making this a slow process.
+
+The aim of this thesis is to investigate if it is possible to do quality control of additive manufactured products using only a few x-ray projections to speed up the quality control process. By using fewer x-ray projections, uncertainty is introduced. This is where statistics comes in. It enables the sensible handling of uncertainty from sources of errors such as from the random behaviour of x-ray photons or from the model misspecification of the problem.
+
+The front cover shows the before and after of the statistical analysis. The left hand side shows an x-ray projection of an additive manufactured cuboid. Its edges appeared curved due to spot and panel effects and this can be fixed using shading correction. The right hand side shows the $p$-values of the resulting inference. Lighter colours show evidence of a defect and they successfully highlighted voids put in there purposefully.
+
+In Chapter \ref{chapter1}, x-ray computed tomography and additive manufacturing is reviewed. Sources of error were looked at and it was investigated to see how they were handled. In Chapter \ref{chapter2}, a test sample was additive manufactured and the chapter describes how experimental x-ray projections were obtained. Shading correction is explained here and it was used to remove sources of systematic errors in the projections. In Chapter \ref{chapter3}, the compound Poisson distribution is studied so that it can be used to model the detection of x-rays. In Chapter \ref{chapter4}, the uncertainty in the projection was quantified using the variance and generalised linear models were used to predict it. In Chapter \ref{chapter5}, statistical techniques were employed to look for defects in the test sample under the face of uncertainty. The empirical null filter was used to cater for any model misspecification so that sensible conclusions were made. The thesis ends with an evaluation in Chapter \ref{chapter6}.
+
+Undergraduate level physics and statistics is assumed. The physics and mathematics used can be reviewed in undergraduate textbooks such as \cite{serway2018physics} and \cite{riley2006mathematical} respectively. The statistics can be reviewed in \cite{rice2009mathematical}. Knowledge of generalised linear models \citep{nelder1972generalized,nelder1972generalized_2, mccullagh1984generalized} and analysis of variance (ANOVA) is also assumed.
+
+This thesis can be reproduced using the source code in the \emph{GitHub} repository \url{https://github.com/shermanip/oxwasp_phd}.
 
 \chapter{Literature Review}
+\label{chapter1}
 \input{chapters/1_literatureReview.tex}
 
 \chapter{Data Collection}
+\label{chapter2}
+\input{chapters/2_dataCollection.tex}
 
 \chapter{Compound Poisson}
+\label{chapter3}
 \input{chapters/3_compoundPoisson.tex}
 
 \chapter{Variance Prediction}
+\label{chapter4}
 \input{chapters/4_variancePrediction.tex}
 
 \chapter{Inference}
+\label{chapter5}
 \input{chapters/5_inference.tex}
+
+\chapter{Conclusion}
+\label{chapter6}
+To summarise the thesis, Figure \ref{fig:evaluation_flowchart} shows a flowchart of the process of the experiment. A test sample was designed using a CAD model and was manufactured with purposefully designed voids. Replicate x-ray projections were taken of the test sample with voids as well as a simulation of that projection without the voids using \emph{aRTist}. The obtained projections was used to help align the simulated projection. The aim of the experiment was to develop a statistical method to detect these designed voids.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.65\textwidth]{../figures/flowchart.pdf}
+  \caption{Flowchart showing the process of obtaining and comparing a projection of the test sample with the simulated projection. This results in pixels being highlighted as positive for defects.}
+  \label{fig:evaluation_flowchart}
+\end{figure}
+
+Shading correction was required to remove spot and panel effects from the obtained projections. This was done by using the greyscale projections from a number of powers of the x-ray tube. By assuming each pixel has a linear response to the power, a linear regression was used. This is discussed in Chapter \ref{chapter2}.
+
+In Chapter \ref{chapter3}, it was attempted to fit a compound Poisson distributed onto the grey values of a projection to quantify the noise. Unfortunately, the model suffered from identifiability issues for high photon counts. However, it was found that the grey value variance has a linear relationship with the grey value. In Chapter \ref{chapter4}, various GLM were fitted onto the variance-mean data and it was verified a linear relationship is a good model. The model was used as a tool to predict the variance of a grey value.
+
+In Chapter \ref{chapter5}, the replicated projections were split into two. 19 randomly selected projections were used for the variance-mean model to fit onto. The remaining projection was compared with the simulated projection under the face of uncertainty. The uncertainty was predicted using the variance-mean model. Inference was done on the test statistics, one for each pixel in a projection. Unfortunately, the simulation was not perfect which led to model misspecification, thus false positives. The empirical null filter was developed and used to smooth the test statistics. This allows the inference to pick out areas which are unusual and unlike its neighbours. The filtered test statistics were converted to $p$-values so that hypothesis testing can be done to detect the voids.
+
+In the ABS test sample, voids of the order of millimetres were detectable using this method. However, for the titanium test sample, the voids were undetectable due to dominating edge effects. The reason for this is unknown. It was speculated that the main source of error was from the simulated projection not being quite pixel-perfect aligned causing model misspecification at the edges. Therefore, the method was unable to distinguish disagreement due to model misspecification or a void. This method could be improved if \emph{aRTist} was integrated into it. For example, the simulated projection could be realigned to minimise the number of positives. This will help eliminate sources of error due to \emph{aRTist}. A problem with this suggestion is that aligning the simulated projection is a high dimensional problem \citep{brierley2018optimized}.
+
+Two angular projections were looked at in this thesis. The angles were selected by the engineers, in calibration with this experiment, so that all of the voids were visible in a single projection. Repeating the experiment using difficult angles may indicate weaknesses from using a singular angle. Perhaps this method could be extended by analysing more angular projections independently to pick up voids which may be hidden at a particular projection angle.
+
+The experiment could be improved if the location of the defects were known in the projection. This would allow identifying which positives are true and false positives so that the analysis can be quantified using a ROC curve.
+
+This thesis is a contribution to real-time quality control for additive manufacturing. A powerful multi-core computer could be used to conduct the statistical analysis on a few x-ray projections of AM products on a conveyor belt. By using fewer projections, quality control can be faster which advances the development and increase the scope of applications of additive manufacturing.
 
 \bibliographystyle{apalike}
 \bibliography{../bib}
