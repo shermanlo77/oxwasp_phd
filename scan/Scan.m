@@ -66,7 +66,7 @@ classdef Scan < matlab.mixin.Heterogeneous & handle
       %slice: height x width image
     function slice = loadImage(this, index)
       %file name is appended with the index
-      slice = imread( fullfile( ...
+      slice = imread( fullfile( getDataDirectory(), ...
           this.folderLocation, strcat( this.fileName, num2str(index), '.tif') ) );
       slice = this.shadingCorrect(double(slice));
     end
@@ -203,7 +203,7 @@ classdef Scan < matlab.mixin.Heterogeneous & handle
 
     %METHOD: GET ARTIST IMAGE
     function slice = getArtistImage(this)
-      slice = double(imread(this.artistFile));
+      slice = double(imread(fullfile(getDataDirectory(), this.artistFile)));
     end
     
     %METHOD: GET N CALIBRATION
@@ -297,13 +297,14 @@ classdef Scan < matlab.mixin.Heterogeneous & handle
     %METHOD: GET ROI PATH
     %Returns the path of the region of interst file
     function roiPath = getRoiPath(this)
-      roiPath = fullfile(this.folderLocation,'segmentation.roi');
+      roiPath = fullfile(getDataDirectory(), this.folderLocation,'segmentation.roi');
     end
     
     %METHOD: GET SUB ROI PATH
     %Returns the path of the sub region of interst file
     function roiPath = getSubRoiPath(this, index)
-      roiPath = fullfile(this.folderLocation,strcat('segmentation',num2str(index),'.roi'));
+      roiPath = fullfile(getDataDirectory(), this.folderLocation, ...
+          strcat('segmentation',num2str(index),'.roi'));
     end
     
   end

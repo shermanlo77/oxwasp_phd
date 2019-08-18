@@ -22,7 +22,7 @@ classdef Experiment < handle
   
   %MEMBER VARIABLES
   properties (SetAccess = public)
-    directory = fullfile('results'); %where the resuls are saved
+    directory; %UNUSED
     experimentName; %string, name of the experiment and the file name for storing it in a .mat file
     isComplete; %boolean, true if the experiment is completed
     nIteration; %total of iterations in the experiment
@@ -43,7 +43,7 @@ classdef Experiment < handle
       %try and load an existing .mat file, then either print and run the experiment
       try
         %load the file
-        load(fullfile(this.directory,strcat(this.experimentName,'.mat')));
+        load(fullfile(getResultsDirectory(),strcat(this.experimentName,'.mat')));
         %catch problems reading the file
       catch
         %assign member variables
@@ -74,8 +74,8 @@ classdef Experiment < handle
     %Delete the .mat file storing the results
     function deleteResults(this)
       if (strcmp(input('Are you sure? ','s'),'yes'))
-        delete(fullfile(this.directory,strcat(this.experimentName,'.mat')));
-        disp(strcat(fullfile(this.directory,strcat(this.experimentName,'.mat')), ' deleted'));
+        delete(fullfile(getResultsDirectory,strcat(this.experimentName,'.mat')));
+        disp(strcat(fullfile(getResultsDirectory,strcat(this.experimentName,'.mat')), ' deleted'));
       else
         disp('not deleted');
       end
@@ -84,9 +84,9 @@ classdef Experiment < handle
     %METHOD: SAVE STATE
     %Save itself in a .mat file
     function save(this)
-      save(fullfile(this.directory,strcat(this.experimentName,'.mat')),'this');
+      save(fullfile(getResultsDirectory,strcat(this.experimentName,'.mat')),'this');
       %print text that the experiment has been saved
-      disp(strcat(fullfile(this.directory,strcat(this.experimentName,'.mat')), ' saved'));
+      disp(strcat(fullfile(getResultsDirectory,strcat(this.experimentName,'.mat')), ' saved'));
     end
     
   end %methods
