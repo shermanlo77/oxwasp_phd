@@ -47,16 +47,18 @@ classdef DefectAlt < Experiment
     end
     
     %IMPLEMENTED: PRINT RESULTS
-    %Plots type 1, type 2, area of ROC vs alternative mean
+    %Plots type 1, type 2, fdr, area of ROC vs alternative mean
     %Plot in addition the no contamination and contamination ROC area, these are supplied by passing
-        %the respective DefectAlt experiments
+        %the respective experiments by overriding the methods getBaseline() and getBaseline0()
     %Plot in addition the no contamination quantiles for the errors, again, supplied by passing the
-        %respective DefectAlt experiment baseline0
-    %How to use:
-      %Override with a printResult with no parameters
-    function printResults(this, baseline0, baseline)
+        %respective experiments by overriding the methods getBaseline() and getBaseline0()
+    function printResults(this)
       
       directory = fullfile('reports','figures','inference');
+      
+      %get any baseline experiment results
+      baseline0 = this.getBaseline0();
+      baseline = this.getBaseline();
       
       %print radius
       fildId = fopen(fullfile(directory,strcat(this.experimentName,'_radius.txt')),'w');
@@ -196,6 +198,9 @@ classdef DefectAlt < Experiment
     %METHOD: DO EXPERIMENT
     function doExperiment(this)
       
+      %run any required experiments
+      this.runPrerequisite();
+      
       %for each alt mean
       for iMu = 1:numel(this.altMeanArray)
         
@@ -250,6 +255,32 @@ classdef DefectAlt < Experiment
       filter.setNInitial(this.nIntial);
       filter.filter(imageContaminated);
       imageFiltered = filter.getFilteredImage();
+    end
+    
+    %METHOD: RUN PREREQUISITE EXPERIMENTS
+    %Run any experiments if required, to be implemented for subclasses
+    %This method is called at the start of do experiment
+    function runPrerequisite(this)
+      baseline0 = this.getBaseline0();
+      if (~isempty(baseline0))
+        baseline0.run();
+      end
+      baseline = this.getBaseline();
+      if (~isempty(baseline))
+        baseline.run();
+      end
+    end
+    
+    %METHOD (TO BE OVERRIDEN): GET BASELINE 0
+    %Return the same experiment with no filter and no cotamination
+    function baseline0 = getBaseline0(this)
+      baseline0 = [];
+    end
+    
+    %METHOD (TO BE OVERRIDEN): GET BASELINE
+    %Return the same experiment with no filter and with cotamination
+    function baseline = getBaseline(this)
+      baseline = [];
     end
     
   end
