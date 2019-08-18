@@ -22,7 +22,6 @@ classdef Experiment < handle
   
   %MEMBER VARIABLES
   properties (SetAccess = public)
-    directory; %UNUSED
     experimentName; %string, name of the experiment and the file name for storing it in a .mat file
     isComplete; %boolean, true if the experiment is completed
     nIteration; %total of iterations in the experiment

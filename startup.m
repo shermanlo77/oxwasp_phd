@@ -2,9 +2,7 @@
 %Copyright (c) 2019 Sherman Lo
 
 directoryList = {
-  fullfile('results')
-  fullfile('results','paper')
-  fullfile('results','debug')
+  fullfile(getResultsDirectory())
   fullfile('reports')
   fullfile('reports','figures')
   fullfile('reports','figures','data')
