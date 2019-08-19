@@ -78,43 +78,23 @@ classdef DefectAlt < Experiment
       %plot roc area vs alt mean
       fig = LatexFigure.sub();
       ax = gca;
-      
       boxplotFiltered = Boxplots(this.rocAreaArray, true);
       boxplotFiltered.setPosition(this.altMeanArray);
       boxplotFiltered.setColour(ax.ColorOrder(1,:));
-      boxplotFiltered.setWantMedian(false);
-      boxplotFiltered.setWantTrend(true);
       boxplotFiltered.plot();
-      boxplotLegend = boxplotFiltered.getLegendAx();
-      label = {'filtered'};
       if (~isempty(baseline0))
         hold on;
-        boxplotPreCont = Boxplots(baseline0.rocAreaArray, true);
-        boxplotPreCont.setPosition(baseline0.altMeanArray);
-        boxplotPreCont.setColour(ax.ColorOrder(2,:));
-        boxplotPreCont.setWantMedian(false);
-        boxplotPreCont.setWantTrend(true);
-        boxplotPreCont.plot();
-        boxplotLegend = [boxplotLegend, boxplotPreCont.getLegendAx()];
-        label{numel(boxplotLegend)} = 'no contamination';
+        plot(baseline0.altMeanArray, mean(baseline0.rocAreaArray), 'k-.');
       end
       if (~isempty(baseline))
         hold on;
-        boxplotPostCont = Boxplots(baseline.rocAreaArray, true);
-        boxplotPostCont.setPosition(baseline.altMeanArray);
-        boxplotPostCont.setColour(ax.ColorOrder(3,:));
-        boxplotPostCont.setWantMedian(false);
-        boxplotPostCont.setWantTrend(true);
-        boxplotPostCont.plot();
-        boxplotLegend = [boxplotLegend, boxplotPostCont.getLegendAx()];
-        label{numel(boxplotLegend)} = 'contaminated';
+        plot(baseline.altMeanArray, mean(baseline.rocAreaArray), 'k-.');
       end
       xlabel('alt distribution mean');
       ylabel('AUC');
       ylim([0.5,1]);
       ax.XLim(1) = this.altMeanArray(1) - offset*2;
       ax.XLim(2) = this.altMeanArray(end) + offset*2;    
-      legend(boxplotLegend, label, 'Location', 'southeast');
       saveas(fig,fullfile(directory, strcat(this.experimentName,'_roc.eps')),'epsc');
       
       %plot type 1 error vs alt mean
