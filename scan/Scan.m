@@ -90,14 +90,6 @@ classdef Scan < matlab.mixin.Heterogeneous & handle
       end
     end
     
-    %METHOD: SHADING CORRECTION
-    %if wantShadingCorrection, does shading correction on the provided image and returns it
-    function slice = shadingCorrect(this, slice)
-      if this.wantShadingCorrection
-        slice = this.shadingCorrector.shadingCorrect(slice);
-      end
-    end
-    
     %METHOD: ADD BLACK WHITE SHADING CORRECTOR
     %Add bw shading corrector, using 0 power and the white power
     %PARAMETERS:
@@ -254,17 +246,17 @@ classdef Scan < matlab.mixin.Heterogeneous & handle
       %get the folder location and file name of the artist image
       [artistLocation, artistName, ~] = fileparts(this.artistFile);
       %instantise a Scan object containing the aRTist image
-      aRTist = ScanSingle(artistLocation, artistName, this.width, this.height, this.voltage, ...
+      artist = ScanSingle(artistLocation, artistName, this.width, this.height, this.voltage, ...
           this.power, this.timeExposure);
       %instantise an array of Scan objects, storing aRTist calibration images
       %store the array in the aRTist member variable calibrationScanArray
       artistCalibrationArray(this.getNCalibration()) = Scan();
-      aRTist.calibrationScanArray = artistCalibrationArray;
+      artist.calibrationScanArray = artistCalibrationArray;
       
       %use the mean of the black image for the artist simulation of the black image
       calibrationScan = this.calibrationScanArray(1);
       greyvalue = mean(reshape(calibrationScan.loadImageStack(),[],1));
-      aRTist.calibrationScanArray(1) = ScanSingleFlat(this.width, this.height, this.voltage, ...
+      artist.calibrationScanArray(1) = ScanSingleFlat(this.width, this.height, this.voltage, ...
           calibrationScan.power, this.timeExposure, greyvalue);
       
       %for each calibration scan, except for black
@@ -274,14 +266,14 @@ classdef Scan < matlab.mixin.Heterogeneous & handle
         %get the file location and file name of the aRTist calibration image
         [artistLocation, artistName, ~] = fileparts(calibrationScan.artistFile);
         %instantise a Scan object for that aRTist calibration image
-        aRTist.calibrationScanArray(i) = ScanSingle(artistLocation, artistName, this.width, ...
+        artist.calibrationScanArray(i) = ScanSingle(artistLocation, artistName, this.width, ...
             this.height, this.voltage, calibrationScan.power, this.timeExposure);
       end
       
-      aRTist.whiteIndex = this.whiteIndex;
+      artist.whiteIndex = this.whiteIndex;
       %add shading correction and get the shading corrected aRTist image
-      aRTist.addShadingCorrector(shadingCorrectorArtist, calibrationIndex);
-      slice = aRTist.loadImage();
+      artist.addShadingCorrector(shadingCorrectorArtist, calibrationIndex);
+      slice = artist.loadImage();
     end
     
     %METHOD: GET SHADING CORRECTOR STATUS
@@ -291,6 +283,23 @@ classdef Scan < matlab.mixin.Heterogeneous & handle
         name = this.shadingCorrector.getName();
       else
         name = 'null';
+      end
+    end
+    
+  end
+  
+  methods (Access = protected)
+    
+    %METHOD: ADD ARTIST FILE
+    function addArtistFile(this, artistFile)
+      this.artistFile = artistFile;
+    end
+    
+    %METHOD: SHADING CORRECTION
+    %if wantShadingCorrection, does shading correction on the provided image and returns it
+    function slice = shadingCorrect(this, slice)
+      if this.wantShadingCorrection
+        slice = this.shadingCorrector.shadingCorrect(slice);
       end
     end
     
@@ -305,15 +314,6 @@ classdef Scan < matlab.mixin.Heterogeneous & handle
     function roiPath = getSubRoiPath(this, index)
       roiPath = fullfile(getDataDirectory(), this.folderLocation, ...
           strcat('segmentation',num2str(index),'.roi'));
-    end
-    
-  end
-  
-  methods (Access = protected)
-    
-    %METHOD: ADD ARTIST FILE
-    function addArtistFile(this, artistFile)
-      this.artistFile = artistFile;
     end
     
     %METHOD: GET ROI

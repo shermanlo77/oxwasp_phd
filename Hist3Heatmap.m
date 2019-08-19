@@ -74,8 +74,8 @@ classdef Hist3Heatmap < handle
       else
         z = N/( (c{2}(2)-c{2}(1))*(c{1}(2)-c{1}(1)));
       end
-      [x_grid,y_grid] = meshgrid(x,y);
-      z = interp2(cell2mat(c(2)),cell2mat(c(1)),z,x_grid,y_grid,'nearest');
+      [xGrid,yGrid] = meshgrid(x,y);
+      z = interp2(cell2mat(c(2)),cell2mat(c(1)),z,xGrid,yGrid,'nearest');
       ax = this.plotMap(x,y,z);
     end
     
