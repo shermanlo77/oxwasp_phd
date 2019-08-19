@@ -229,6 +229,20 @@ classdef Scan < matlab.mixin.Heterogeneous & handle
     function segmentation = getSubSegmentation(this, index)
       segmentation = this.getRoi(this.getSubRoiPath(index));
     end
+    
+    %METHOD: GET ROI PATH
+    %Returns the path of the region of interst file
+    function roiPath = getRoiPath(this)
+      roiPath = fullfile(getDataDirectory(), this.folderLocation,'segmentation.roi');
+    end
+    
+    %METHOD: GET SUB ROI PATH
+    %Made public because it is used by empiricalNullFilter.filterRoi
+    %Returns the path of the sub region of interst file
+    function roiPath = getSubRoiPath(this, index)
+      roiPath = fullfile(getDataDirectory(), this.folderLocation, ...
+          strcat('segmentation',num2str(index),'.roi'));
+    end
 
     %METHOD: GET SHADING CORRECTED ARTIST IMAGE
     %Returns the aRTist image, shading corrected
@@ -301,19 +315,6 @@ classdef Scan < matlab.mixin.Heterogeneous & handle
       if this.wantShadingCorrection
         slice = this.shadingCorrector.shadingCorrect(slice);
       end
-    end
-    
-    %METHOD: GET ROI PATH
-    %Returns the path of the region of interst file
-    function roiPath = getRoiPath(this)
-      roiPath = fullfile(getDataDirectory(), this.folderLocation,'segmentation.roi');
-    end
-    
-    %METHOD: GET SUB ROI PATH
-    %Returns the path of the sub region of interst file
-    function roiPath = getSubRoiPath(this, index)
-      roiPath = fullfile(getDataDirectory(), this.folderLocation, ...
-          strcat('segmentation',num2str(index),'.roi'));
     end
     
     %METHOD: GET ROI
