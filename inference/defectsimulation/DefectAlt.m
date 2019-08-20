@@ -72,8 +72,7 @@ classdef DefectAlt < Experiment
       
       %Plots pre/post contamination results on the same graph, so offset them
       offset = 0.06;
-      baseLineConfidence = 0.95;
-      baseLineQuantile = (1 - baseLineConfidence)/2;
+      baseLineQuantile = normcdf(-1);
       
       %plot roc area vs alt mean
       fig = LatexFigure.sub();

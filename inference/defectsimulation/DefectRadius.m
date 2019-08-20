@@ -56,7 +56,7 @@ classdef DefectRadius < Experiment
       boxplot.setPosition(this.radiusArray);
       boxplot.plot();
       hold on;
-      oracleInterval = quantile(reshape(this.rocAreaArray(:,:,1),[],1), [0.025, 0.975]);
+      oracleInterval = quantile(reshape(this.rocAreaArray(:,:,1),[],1), normcdf([-1,1]));
       plot(ax.XLim, [oracleInterval(1), oracleInterval(1)], 'k--');
       plot(ax.XLim, [oracleInterval(2), oracleInterval(2)], 'k--');
       ax.XLim(2) = ax.XLim(2) + rightOffset;
@@ -71,7 +71,7 @@ classdef DefectRadius < Experiment
       boxplot.setPosition(this.radiusArray);
       boxplot.plot();
       hold on;
-      oracleInterval = quantile(reshape(this.type1ErrorArray(:,:,1),[],1), [0.025, 0.975]);
+      oracleInterval = quantile(reshape(this.type1ErrorArray(:,:,1),[],1), normcdf([-1,1]));
       plot(ax.XLim, [oracleInterval(1), oracleInterval(1)], 'k--');
       plot(ax.XLim, [oracleInterval(2), oracleInterval(2)], 'k--');
       ax.XLim(2) = ax.XLim(2) + rightOffset;
@@ -86,7 +86,7 @@ classdef DefectRadius < Experiment
       boxplot.setPosition(this.radiusArray);
       boxplot.plot();
       hold on;
-      oracleInterval = quantile(reshape(this.type2ErrorArray(:,:,1),[],1), [0.025, 0.975]);
+      oracleInterval = quantile(reshape(this.type2ErrorArray(:,:,1),[],1), normcdf([-1,1]));
       plot(ax.XLim, [oracleInterval(1), oracleInterval(1)], 'k--');
       plot(ax.XLim, [oracleInterval(2), oracleInterval(2)], 'k--');
       ax.XLim(2) = ax.XLim(2) + rightOffset;
@@ -101,7 +101,7 @@ classdef DefectRadius < Experiment
       boxplot.setPosition(this.radiusArray);
       boxplot.plot();
       hold on;
-      oracleInterval = quantile(reshape(this.fdrArray(:,:,1),[],1), [0.025, 0.975]);
+      oracleInterval = quantile(reshape(this.fdrArray(:,:,1),[],1), normcdf([-1,1]));
       plot(ax.XLim, [oracleInterval(1), oracleInterval(1)], 'k--');
       plot(ax.XLim, [oracleInterval(2), oracleInterval(2)], 'k--');
       ax.XLim(2) = ax.XLim(2) + rightOffset;

@@ -93,7 +93,7 @@ classdef AllNull < Experiment
       fclose(fildId);
       
       %show critical region for mean and variance
-      alpha = 0.05; %significant level
+      alpha = 2*(1-normcdf(1)); %significant level
       n = this.imageSize(1) * this.imageSize(2); %get number of pixels in the image
       
       %plot null mean

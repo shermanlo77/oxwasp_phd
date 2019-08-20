@@ -836,7 +836,7 @@ where $b$ and $a$ are parameters to be fitted. This was chosen to establish a si
 \begin{figure}
   \centering
   \includegraphics[width=\mainSize]{../figures/inference/BandwidthSelection2_ruleOfThumb.eps}
-  \caption{An identity link gamma GLM was fitted onto the relationship between the optimal bandwidth and $n^{-1/5}$ from the experimental data. The dotted lines shows the 95\% prediction interval.}
+  \caption{An identity link gamma GLM was fitted onto the relationship between the optimal bandwidth and $n^{-1/5}$ from the experimental data. The dotted lines shows the 68\% prediction interval.}
   \label{fig:inference_BandwidthSelection2_ruleOfThumb}
 \end{figure}
 
@@ -886,7 +886,7 @@ To test for robustness, a dataset of $n = \pi r^2$ mixture of Gaussian random va
         \caption{Mean}
       \end{subfigure}
     }
-  \caption{Different types of central tendency estimators were used on $\pi r^2$ standard Normal random variables. Shown are the sampling distributions from 100 repeats. The dotted lines show the 95\% confidence interval for the sample mean.}
+  \caption{Different types of central tendency estimators were used on $\pi r^2$ standard Normal random variables. Shown are the sampling distributions from 100 repeats. The dotted lines show the 68\% confidence interval for the sample mean.}
   \label{fig:inference_NullIidMean}
 \end{figure}
 
@@ -912,7 +912,7 @@ To test for robustness, a dataset of $n = \pi r^2$ mixture of Gaussian random va
         \caption{Standard deviation}
       \end{subfigure}
     }
-  \caption{Different types of statistical dispersion estimators were used on $\pi r^2$ standard Normal random variables. Shown are the sampling distributions from 100 repeats. The dotted lines show the 95\% confidence interval for the sample variance.}
+  \caption{Different types of statistical dispersion estimators were used on $\pi r^2$ standard Normal random variables. Shown are the sampling distributions from 100 repeats. The dotted lines show the 68\% confidence interval for the sample variance.}
   \label{fig:inference_NullIidStd}
 \end{figure}
 
@@ -934,7 +934,7 @@ To test for robustness, a dataset of $n = \pi r^2$ mixture of Gaussian random va
         \caption{Mean}
       \end{subfigure}
     }
-  \caption{Different types of central tendency estimators were used on $\pi r^2$ mixture of Gaussian random variables. The random variable has distribution $\normal(0,1)$ with probability $0.9$ and $\normal(3,1)$ with probability $0.1$. Shown are the sampling distributions from 100 repeats. The dotted lines show the 95\% confidence interval for the sample mean.}
+  \caption{Different types of central tendency estimators were used on $\pi r^2$ mixture of Gaussian random variables. The random variable has distribution $\normal(0,1)$ with probability $0.9$ and $\normal(3,1)$ with probability $0.1$. Shown are the sampling distributions from 100 repeats. The dotted lines show the 68\% confidence interval for the sample mean.}
   \label{fig:inference_NullIidMixtureMean}
 \end{figure}
 
@@ -960,7 +960,7 @@ To test for robustness, a dataset of $n = \pi r^2$ mixture of Gaussian random va
         \caption{Standard deviation}
       \end{subfigure}
     }
-  \caption{Different types of statistical dispersion estimators were used on $\pi r^2$ mixture of Gaussian random variables. The random variable has distribution $\normal(0,1)$ with probability $0.9$ and $\normal(3,1)$ with probability $0.1$. Shown are the sampling distributions from 100 repeats. The dotted lines show the 95\% confidence interval for the sample variance.}
+  \caption{Different types of statistical dispersion estimators were used on $\pi r^2$ mixture of Gaussian random variables. The random variable has distribution $\normal(0,1)$ with probability $0.9$ and $\normal(3,1)$ with probability $0.1$. Shown are the sampling distributions from 100 repeats. The dotted lines show the 68\% confidence interval for the sample variance.}
   \label{fig:inference_NullIidMixtureStd}
 \end{figure}
 
@@ -1278,7 +1278,7 @@ For a given kernel radius $r$, 100 different Gaussian images were filtered to in
     \caption{Mean Var Null}
   \end{subfigure}
   }
-  \caption{The within image sample \emph{mean} of the test statistics in a filtered Gaussian image of size $256\times256$. The box plots summarise the 100 repeats of the experiment. The dashed lines show the 95\% confidence interval using standard tests, assuming independence.}
+  \caption{The within image sample \emph{mean} of the test statistics in a filtered Gaussian image of size $256\times256$. The box plots summarise the 100 repeats of the experiment. The dashed lines show the 68\% confidence interval using standard tests, assuming independence.}
   \label{fig:inference_AllNullGaussian_mean}
 \end{figure}
 
@@ -1304,7 +1304,7 @@ For a given kernel radius $r$, 100 different Gaussian images were filtered to in
     \caption{Mean Var Null}
   \end{subfigure}
   }
-  \caption{The within image sample \emph{standard deviation} of the test statistics in a filtered Gaussian image of size $256\times256$. The box plots summarise the 100 repeats of the experiment. The dashed lines show the 95\% confidence interval using standard tests, assuming independence.}
+  \caption{The within image sample \emph{standard deviation} of the test statistics in a filtered Gaussian image of size $256\times256$. The box plots summarise the 100 repeats of the experiment. The dashed lines show the 68\% confidence interval using standard tests, assuming independence.}
   \label{fig:inference_AllNullGaussian_var}
 \end{figure}
 
@@ -1330,7 +1330,7 @@ For a given kernel radius $r$, 100 different Gaussian images were filtered to in
     \caption{Mean Var Null}
   \end{subfigure}
   }
-  \caption{The within image sample \emph{kurtosis} of the test statistics in a filtered Gaussian image of size $256\times256$. The box plots summarise the 100 repeats of the experiment. The dashed lines show the 95\% confidence interval using standard tests, assuming independence.}
+  \caption{The within image sample \emph{kurtosis} of the test statistics in a filtered Gaussian image of size $256\times256$. The box plots summarise the 100 repeats of the experiment. The dashed lines show the 68\% confidence interval using standard tests, assuming independence.}
   \label{fig:inference_AllNullGaussian_kurtosis}
 \end{figure}
 
@@ -1356,7 +1356,7 @@ For a given kernel radius $r$, 100 different Gaussian images were filtered to in
     \caption{Mean Var Null}
   \end{subfigure}
   }
-  \caption{The within image sample \emph{mean} of the test statistics in a filtered \emph{contaminated} Gaussian image of size $256\times256$. The box plots summarise the 100 repeats of the experiment. The dashed lines show the 95\% confidence interval using standard tests, assuming independence.}
+  \caption{The within image sample \emph{mean} of the test statistics in a filtered \emph{contaminated} Gaussian image of size $256\times256$. The box plots summarise the 100 repeats of the experiment. The dashed lines show the 68\% confidence interval using standard tests, assuming independence.}
   \label{fig:inference_AllNullPlane_mean}
 \end{figure}
 
@@ -1382,7 +1382,7 @@ For a given kernel radius $r$, 100 different Gaussian images were filtered to in
     \caption{Mean Var Null}
   \end{subfigure}
   }
-  \caption{The within image sample \emph{standard deviation} of the test statistics in a filtered \emph{contaminated} Gaussian image of size $256\times256$. The box plots summarise the 100 repeats of the experiment. The dashed lines show the 95\% confidence interval using standard tests, assuming independence.}
+  \caption{The within image sample \emph{standard deviation} of the test statistics in a filtered \emph{contaminated} Gaussian image of size $256\times256$. The box plots summarise the 100 repeats of the experiment. The dashed lines show the 68\% confidence interval using standard tests, assuming independence.}
   \label{fig:inference_AllNullPlane_var}
 \end{figure}
 
@@ -1408,7 +1408,7 @@ For a given kernel radius $r$, 100 different Gaussian images were filtered to in
     \caption{Mean Var Null}
   \end{subfigure}
   }
-  \caption{The within image sample \emph{kurtosis} of the test statistics in a filtered \emph{contaminated} Gaussian image of size $256\times256$. The box plots summarise the 100 repeats of the experiment. The dashed lines show the 95\% confidence interval using standard tests, assuming independence.}
+  \caption{The within image sample \emph{kurtosis} of the test statistics in a filtered \emph{contaminated} Gaussian image of size $256\times256$. The box plots summarise the 100 repeats of the experiment. The dashed lines show the 68\% confidence interval using standard tests, assuming independence.}
   \label{fig:inference_AllNullPlane_kurtosis}
 \end{figure}
 
@@ -1605,7 +1605,7 @@ An experiment was conducted to investigate the specificity of the test before an
         \label{fig:inference_DefectSimulationDust_fdr}
       \end{subfigure}
     }
-  \caption{AUC and various errors obtained when conducting hypothesis test on a \emph{empirical null} filtered contaminated image of a $256 \times 256$ salt defected Gaussian image. In a), the upper/lower dot dashed line shows the resulting mean AUC when testing on a defected image before/after contamination respectively. In b) c) d) the dashed lines shows the 95\% empirical confidence interval of the resulting error when testing the defected image before contamination. The filter used a kernel radius of 20. Defected pixels have the distribution $\normal(\mu_1,1)$ where $\mu_1$ was varied in this experiment. The salt defect has density $\pi_1 = 0.1$. The contamination is such that the null distribution is $Z_{x,y}|H_{0,x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$. The test was done at the 5\% FDR level. The box plot summarise the 100 repeats of the experiment.}
+  \caption{AUC and various errors obtained when conducting hypothesis test on a \emph{empirical null} filtered contaminated image of a $256 \times 256$ salt defected Gaussian image. In a), the upper/lower dot dashed line shows the resulting mean AUC when testing on a defected image before/after contamination respectively. In b) c) d) the dashed lines shows the 68\% empirical confidence interval of the resulting error when testing the defected image before contamination. The filter used a kernel radius of 20. Defected pixels have the distribution $\normal(\mu_1,1)$ where $\mu_1$ was varied in this experiment. The salt defect has density $\pi_1 = 0.1$. The contamination is such that the null distribution is $Z_{x,y}|H_{0,x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$. The test was done at the 5\% FDR level. The box plot summarise the 100 repeats of the experiment.}
   \label{fig:inference_DefectSimulationDust}
 \end{figure}
 
@@ -1642,7 +1642,7 @@ In the example of $d=30$, this is about $r>54$. For the line defect with thickne
         \caption{FDR}
       \end{subfigure}
     }
-  \caption{AUC and various errors obtained when conducting hypothesis test on the filtered contaminated image of a $256 \times 256$ line defected Gaussian image using various kernel radiuses. The dashed lines show the resulting 95\% empirical confidence interval when the hypothesis test was done on the uncontaminated image. Defected pixels have the distribution $\normal(3,1)$. The line defect is 5 pixels thick. The contamination is such that the null distribution is $Z_{x,y}|H_{0,x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$. The test was done at the 5\% FDR level. The box plot summarise the 100 repeats of the experiment.}
+  \caption{AUC and various errors obtained when conducting hypothesis test on the filtered contaminated image of a $256 \times 256$ line defected Gaussian image using various kernel radiuses. The dashed lines show the resulting 68\% empirical confidence interval when the hypothesis test was done on the uncontaminated image. Defected pixels have the distribution $\normal(3,1)$. The line defect is 5 pixels thick. The contamination is such that the null distribution is $Z_{x,y}|H_{0,x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$. The test was done at the 5\% FDR level. The box plot summarise the 100 repeats of the experiment.}
   \label{fig:inference_Experiment_DefectRadiusLine}
 \end{figure}
 
@@ -1668,7 +1668,7 @@ In the example of $d=30$, this is about $r>54$. For the line defect with thickne
         \caption{FDR}
       \end{subfigure}
     }
-  \caption{AUC and various errors obtained when conducting hypothesis test on the filtered contaminated image of a $256 \times 256$ square defected Gaussian image using various kernel radiuses. The dashed lines show the resulting 95\% empirical confidence interval when the hypothesis test was done on the uncontaminated image. Defected pixels have the distribution $\normal(3,1)$. The square defect is $30\times 30$ pixels in size. The contamination is such that the null distribution is $Z_{x,y}|H_{0,x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$. The test was done at the 5\% FDR level. The box plot summarise the 100 repeats of the experiment.}
+  \caption{AUC and various errors obtained when conducting hypothesis test on the filtered contaminated image of a $256 \times 256$ square defected Gaussian image using various kernel radiuses. The dashed lines show the resulting 68\% empirical confidence interval when the hypothesis test was done on the uncontaminated image. Defected pixels have the distribution $\normal(3,1)$. The square defect is $30\times 30$ pixels in size. The contamination is such that the null distribution is $Z_{x,y}|H_{0,x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$. The test was done at the 5\% FDR level. The box plot summarise the 100 repeats of the experiment.}
   \label{fig:inference_Experiment_DefectRadiusSquare}
 \end{figure}
 

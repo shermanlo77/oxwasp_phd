@@ -84,8 +84,8 @@ classdef BandwidthSelection2 < Experiment
       scatter(x, this.kOptimal, 'x');
       hold on;
       plot(x, y, 'Color', colour2);
-      plot(x, gaminv(0.975, shapeParameter, gammaScale), 'Color', colour2, 'LineStyle',':');
-      plot(x, gaminv(0.025, shapeParameter, gammaScale), 'Color', colour2, 'LineStyle',':');
+      plot(x, gaminv(normcdf(1), shapeParameter, gammaScale), 'Color', colour2, 'LineStyle',':');
+      plot(x, gaminv(normcdf(-1), shapeParameter, gammaScale), 'Color', colour2, 'LineStyle',':');
       xlabel('n^{-1/5}');
       ylabel('optimal bandwidth');
       ax = gca;
