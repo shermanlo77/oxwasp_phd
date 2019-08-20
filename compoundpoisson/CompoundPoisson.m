@@ -288,8 +288,6 @@ classdef CompoundPoisson < handle
     %PARAMETERS:
       %x: scalar, compound poisson variable
       %y: positive integer, term index of the compound Poisson sum
-      %phi: dispersion parameter
-      %p: power index
     %RETURN:
       %lnWy: log compopund Poisson term
     function lnWy = lnWy(this, x, y)
@@ -341,7 +339,9 @@ classdef CompoundPoisson < handle
       yL = yMax;
       yU = yMax;
       
-      %declare a counter which counts the number of compound Poisson terms stored in the array terms
+      %declare a pointer which points to an empty element in the array terms
+      %can be used to counts the number of compound Poisson terms (counter - 1)
+      %the counter starts at 2 because the 1st terms has been set at yMax
       counter = 2;
       
       %calculate the compound poisson terms starting at yL and working downwards
@@ -406,7 +406,8 @@ classdef CompoundPoisson < handle
         end
       end
       
-      %lower the counter by 1
+      %lower the counter by 1 because it points at an empty element
+      %1:counter covers allocated values
       counter = counter - 1;
       %work out the compound Poisson sum using non-zero terms
       lnSumW = lnWMax + log(sum(terms(1:counter)));
@@ -453,22 +454,31 @@ classdef CompoundPoisson < handle
         cdfArray(i) = cdfArray(i-1) + 0.5*h*(pdfArray(i)+pdfArray(i-1));
       end
       
-      %declare array of compound poisson variables
-      %one for each element in pArray
+      %declare array of compound poisson variables one for each element in pArray
+      %inverse cdf are saved here
       x = zeros(numel(pArray),1);
       
       %declare a variable for counting the number of inverse cdf calculated
       %this corresponds to the pointer for the array x
       counter = 1;
       
-      %for each trapezium
+      %calculation of inverse cdf
+      %note: cdfArray(1) > 0 if a = 0
+      %note: cdfArray(1) = 0 if a > 0
+      %search through cdfArray(i) until for an i such that
+          %cdfArray(i-1) < pArray(counter) < cdfArray(i) and the inverse cdf can be approximated
+          %using interpolation
+      %increment counter for every successful i found
+      %if pArray(counter) < cdfArray(1) found, don't have much to go on, use a = xArray(1) 
+      %
+      %for each evaluation point
       for i = 1:n
         
-        %while the current probability in pArray is less than the cdf of the current trapezium
-        %then the inverse cdf can be calculated using interpolation
+        %while the current probability in pArray is less than the cdf of the current point
+            %then the inverse cdf can be calculated using interpolation
         while pArray(counter) < cdfArray(i)
           
-          %if this is the first trapezium
+          %if this is the first evaluation point
           %then the inverse cdf is the lower limit of the integration
           if i == 1
             x(counter) = xArray(i);
