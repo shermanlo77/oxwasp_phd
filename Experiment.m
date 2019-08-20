@@ -8,6 +8,10 @@
 %  The instantised object is saved in a .mat file in the results folder, with the class name.
 %  Call the method run() to run the experiment
 %
+%  IMPORTANT: Should the experiment terminate for whatever reason, re-instantiate the experiment and
+%  ressume the experiment. This is so that all member variables are reset to its initial values or
+%  since its last checkpoint.
+%
 %  The constructor is designed to be run differently depending if the file exist
 %  1. if there is no file, the constructor will call the method setup() save the instantised itself
 %      to a .mat file
@@ -42,7 +46,8 @@ classdef Experiment < handle
       %try and load an existing .mat file, then either print and run the experiment
       try
         %load the file
-        load(fullfile(getResultsDirectory(),strcat(this.experimentName,'.mat')));
+        loadThis = load(fullfile(getResultsDirectory(),strcat(this.experimentName,'.mat')));
+        this = loadThis.this;
         %catch problems reading the file
       catch
         %assign member variables
@@ -60,7 +65,7 @@ classdef Experiment < handle
     function run(this)
       %if the experiment is completed, throw an error
       if this.isComplete
-        disp(cell2mat({this.experimentName,' already completed'}));
+        disp(cell2mat({this.experimentName,' already complete'}));
       %else, do the experiment, set isComplete to be true and save it
       else
         this.doExperiment();

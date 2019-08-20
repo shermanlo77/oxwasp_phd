@@ -162,6 +162,21 @@ classdef DefectAlt < Experiment
       
     end
     
+    %OVERRIDE: DELETE RESULTS
+    %Delete the .mat file storing the results and all prerequsites
+    function deleteResults(this)
+      disp(strcat(cell2mat({'Delete ',this.experimentName})));
+      this.deleteResults@Experiment();
+      baseline0 = this.getBaseline0();
+      if (~isempty(baseline0))
+        baseline0.deleteResults();
+      end
+      baseline = this.getBaseline();
+      if (~isempty(baseline))
+        baseline.deleteResults();
+      end
+    end
+    
   end
   
   methods (Access = protected)
