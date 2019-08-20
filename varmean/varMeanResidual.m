@@ -72,6 +72,7 @@ for iScan = 1:numel(scanArray)
   imagesc = Imagesc(abs(residualSpatial));
   imagesc.setCLim([0,max(upError)]);
   imagesc.plot();
+  %for AbsNoFilterDeg120, highlight where the inflection is
   if (isa(scan,'AbsNoFilterDeg120'))
     hold on;
     axis xy;

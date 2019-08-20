@@ -3,8 +3,9 @@
 
 %ODD EVEN PLOT
 %
-%Plot the y profile for a given x for a black image
-%Also plots for even y and odd y
+%For different shading corrections:
+  %Plot the y profile for a given x for a black image
+  %Also plots for even y and odd y
 
 close all;
 clearvars;

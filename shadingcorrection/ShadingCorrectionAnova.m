@@ -10,7 +10,7 @@
     %looked at for each power. The experiment is repeated by reallocating the training and test set
 classdef (Abstract) ShadingCorrectionAnova < Experiment
   
-  properties (SetAccess = public)
+  properties (SetAccess = protected)
     
     scan; %scan object to get the calibration images from
     nRepeat = 100; %number of times to repeat the experiment

@@ -16,7 +16,7 @@
 %Different shading corrections were investigated: null, bw, linear
 classdef VarMeanCv < Experiment
   
-  properties (SetAccess = public)
+  properties (SetAccess = protected)
     
     %list of models
     %the use of unicode so that it renders properly in .eps output
@@ -90,23 +90,6 @@ classdef VarMeanCv < Experiment
         fileName(fileName == ' ') = [];
         saveas(fig,fileName,'epsc');
       end
-    end
-    
-    
-    %METHOD: GET BOXPLOT
-    %Return and plot box plot for the training or test deviance
-    %PARAMETERS:
-      %xOffset: shift the box plot x
-      %isTraining: true if want training error, else test error
-      %iShadingCorrection: which shading correction to plot
-    function boxplots = getBoxplot(this, xOffset, isTraining, iShadingCorrection)
-      if (isTraining)
-        boxplots = Boxplots(this.devianceTrainingArray(:,:,iShadingCorrection));
-      else
-        boxplots = Boxplots(this.devianceTestArray(:,:,iShadingCorrection));
-      end
-      boxplots.setPosition((1:numel(this.modelArray))+xOffset);
-      boxplots.plot();
     end
     
   end
@@ -231,6 +214,23 @@ classdef VarMeanCv < Experiment
       else
         error('Model is of unknown class');
       end
+    end
+    
+    %METHOD: GET BOXPLOT
+    %Used by printResults
+    %Return and plot box plot for the training or test deviance
+    %PARAMETERS:
+      %xOffset: shift the box plot x
+      %isTraining: true if want training error, else test error
+      %iShadingCorrection: which shading correction to plot
+    function boxplots = getBoxplot(this, xOffset, isTraining, iShadingCorrection)
+      if (isTraining)
+        boxplots = Boxplots(this.devianceTrainingArray(:,:,iShadingCorrection));
+      else
+        boxplots = Boxplots(this.devianceTestArray(:,:,iShadingCorrection));
+      end
+      boxplots.setPosition((1:numel(this.modelArray))+xOffset);
+      boxplots.plot();
     end
     
   end

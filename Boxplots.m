@@ -17,7 +17,7 @@ classdef Boxplots < handle
     
     %CONSTRUCTOR
     %PARAMETERS:
-    %X: matrix, dim 1: for each obversation, dim 2: for each group or boxplot
+      %X: matrix, dim 1: for each obversation, dim 2: for each group or boxplot
     function this = Boxplots(X, ~)
       %get the number of boxplots
       [~,this.nBoxplot] = size(X);

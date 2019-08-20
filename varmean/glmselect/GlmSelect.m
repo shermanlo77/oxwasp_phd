@@ -232,18 +232,6 @@ classdef GlmSelect < Experiment
       
     end
     
-  end
-  
-  methods (Abstract, Access = protected)
-    
-    %ABSTRACT METHOD: GET CRITERION
-    %Return the criterion, eg AIC and BIC
-    aic = getCriterion(this, glm)
-    
-  end
-  
-  methods (Access = public)
-    
     %METHOD: LOG LIKELIHOOD
     %Evaluate the log likelihood with KNOWN shape parameter
     function lnL = getLogLikelihood(this, glm)
@@ -253,6 +241,14 @@ classdef GlmSelect < Experiment
       lnL = sum((alpha*log(alpha) - gammaln(alpha)) - alpha*log(yHat)  + (alpha-1)*log(y) ...
           - alpha*(y./yHat));
     end
+    
+  end
+  
+  methods (Abstract, Access = protected)
+    
+    %ABSTRACT METHOD: GET CRITERION
+    %Return the criterion, eg AIC and BIC
+    aic = getCriterion(this, glm)
     
   end
   

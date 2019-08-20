@@ -4,27 +4,43 @@
 close all;
 clearvars;
 
-experiments = {...
-  GlmSelectAicAbsNoFilterDeg30();
-  GlmSelectAicAbsNoFilterDeg120();
-  GlmSelectBicAbsNoFilterDeg30();
-  GlmSelectBicAbsNoFilterDeg120();
-};
+this = GlmSelectAicAbsNoFilterDeg30();
+this.run();
+this.printResults();
+close all;
 
-for i = 1:numel(experiments)
-  experiments{i}.run();
-  experiments{i}.printResults();
-end
+this = GlmSelectAicAbsNoFilterDeg120();
+this.run();
+this.printResults();
+close all;
 
-experiments = {...
-  GlmSelectAicAbsFilterDeg30();
-  GlmSelectAicAbsFilterDeg120();
-  GlmSelectBicAbsFilterDeg30();
-  GlmSelectBicAbsFilterDeg120();
-};
+this = GlmSelectBicAbsNoFilterDeg30();
+this.run();
+this.printResults();
+close all;
 
-for i = 1:numel(experiments)
-  experiments{i}.run();
-  experiments{i}.printResults();
-end
+this = GlmSelectBicAbsNoFilterDeg120();
+this.run();
+this.printResults();
+close all;
 
+
+this = GlmSelectAicAbsFilterDeg30();
+this.run();
+this.printResults();
+close all;
+
+this = GlmSelectAicAbsFilterDeg120();
+this.run();
+this.printResults();
+close all;
+
+this = GlmSelectBicAbsFilterDeg30();
+this.run();
+this.printResults();
+close all;
+
+this = GlmSelectBicAbsFilterDeg120();
+this.run();
+this.printResults();
+close all;

@@ -2,14 +2,17 @@
 %Copyright (c) 2019 Sherman Lo
 
 %SHADING CORRECTION EXAMPLE
-%Plots the image with no shading correction, with bw and linear shading correction
-%Plots the gradient image for each shading correction
-%Plots the interpolation used in shading correction, that is:
-  %y axis: within image mean
-  %x axis: grey value
-  %for a given pixel varying the current used to obtained the calibration images
-  %plots best line of fit
-  %this is repeated using a different colour and a differen pixel
+%For each shading correction (no shading correction, bw and linear shading correction)
+  %Plot a projection
+  %Plot a black and white image
+  %Plot FFT of the black and white image
+  %Plots the gradient image for each shading correction
+  %Plots the interpolation used in shading correction, that is:
+    %y axis: within image mean
+    %x axis: grey value
+    %for a given pixel, vary the current used to obtained the calibration images
+    %plots best line of fit
+    %this is repeated using a different colour and a different pixel
 
 clearvars;
 close all;

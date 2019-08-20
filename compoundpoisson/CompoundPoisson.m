@@ -1,6 +1,21 @@
 %MIT License
 %Copyright (c) 2019 Sherman Lo
 
+%CLASS: COMPOUND POISSON
+%For EM algorithm estimating for compound poisson-gamma data. Also has other useful methods
+%
+%For EM algorithm estimation:
+  %call addData(X) to add data
+  %set initial values using the method setParameters(lambda,alpha,beta)
+  %call method initaliseEM()
+  %call method EStep() and MStep() repeatedly
+%
+%The static function CompoundPoisson.simulate(n,lambda,alpha,beta) can be used to simulate compound
+    %poisson-gamma data
+%
+%For Q-Q plot, the method getInvCdf can be used to get the (approximate) inverse cdf
+%
+%Other use methods: getPdf, getLnPdf, getMarginallnL, getFisherInformation
 classdef CompoundPoisson < handle
   
   %MEMBER VARIABLES
