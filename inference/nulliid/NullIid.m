@@ -53,7 +53,7 @@ classdef (Abstract) NullIid < Experiment
       boxplot.setPosition(radiusPlot);
       boxplot.plot();
       hold on;
-      zCritical = 1;
+      zCritical = 2;
       plot(radiusPlot, zCritical./sqrt(this.nArray), 'k--');
       plot(radiusPlot, -zCritical./sqrt(this.nArray), 'k--');
       ax = fig.Children(1);
@@ -69,8 +69,8 @@ classdef (Abstract) NullIid < Experiment
       boxplot.setPosition(radiusPlot);
       boxplot.plot();
       hold on;
-      plot(radiusPlot, sqrt(chi2inv(normcdf(1),this.nArray - 1)./(this.nArray-1)), 'k--');
-      plot(radiusPlot, sqrt(chi2inv(normcdf(-1),this.nArray - 1)./(this.nArray-1)), 'k--');
+      plot(radiusPlot, sqrt(chi2inv(normcdf(2),this.nArray - 1)./(this.nArray-1)), 'k--');
+      plot(radiusPlot, sqrt(chi2inv(normcdf(-2),this.nArray - 1)./(this.nArray-1)), 'k--');
       ax = fig.Children(1);
       ax.XLabel.String = 'r';
       ax.YLabel.String = 'null std';
@@ -84,7 +84,7 @@ classdef (Abstract) NullIid < Experiment
       boxplot.setPosition(radiusPlot);
       boxplot.plot();
       hold on;
-      zCritical = 1;
+      zCritical = 2;
       plot(radiusPlot, zCritical./sqrt(this.nArray), 'k--');
       plot(radiusPlot, -zCritical./sqrt(this.nArray), 'k--');
       ax = fig.Children(1);
@@ -100,8 +100,8 @@ classdef (Abstract) NullIid < Experiment
       boxplot.setPosition(radiusPlot);
       boxplot.plot();
       hold on;
-      plot(radiusPlot, sqrt(chi2inv(normcdf(1),this.nArray - 1)./(this.nArray-1)), 'k--');
-      plot(radiusPlot, sqrt(chi2inv(normcdf(-1),this.nArray - 1)./(this.nArray-1)), 'k--');
+      plot(radiusPlot, sqrt(chi2inv(normcdf(2),this.nArray - 1)./(this.nArray-1)), 'k--');
+      plot(radiusPlot, sqrt(chi2inv(normcdf(-2),this.nArray - 1)./(this.nArray-1)), 'k--');
       ax = fig.Children(1);
       ax.XLabel.String = 'r';
       ax.YLabel.String = 'std corrected z';
