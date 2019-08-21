@@ -1,6 +1,10 @@
 %MIT License
 %Copyright (c) 2019 Sherman Lo
 
+%CLASS: MAD MODE NULL
+%Wrapper class for the java class MadModeNull
+%
+%Same as EmpiricalNull but uses median around the mode for the null std
 classdef MadModeNull < EmpiricalNull
   
   properties

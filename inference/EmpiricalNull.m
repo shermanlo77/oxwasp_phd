@@ -4,8 +4,12 @@
 %CLASS: EMPIRICAL NULL
 %Wrapper class for the java class EmpiricalNull
 %Does the empirical null analysis on an array of data
+%See:
+  %Efron, B. (2004). Large-scale simultaneous hypothesis testing: The choice of a null hypothesis.
+      %Journal of the American Statistical Association, 99(465):96.
 %HOW TO USE:
-  %Pass the data to the constructor, set initial value for Newton Raphson
+  %Pass the data to the constructor, set 1st initial value and seed for future initial values in the
+      %Newton Raphson
   %Call the method estimateNull()
   %Call the method getNullMean() and getNullStd() to get the empirical null parameters
 %Various setter methods to set the options for the empirical null

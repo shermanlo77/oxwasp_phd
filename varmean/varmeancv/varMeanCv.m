@@ -4,14 +4,22 @@
 clearvars;
 close all;
 
-experiments = {...
-  VarMeanCvAbsNoFilterDeg30();
-  VarMeanCvAbsNoFilterDeg120();
-  VarMeanCvAbsFilterDeg30();
-  VarMeanCvAbsFilterDeg120();
-};
+this = VarMeanCvAbsNoFilterDeg30();
+this.run();
+this.printResults();
+close all;
 
-for i = 1:numel(experiments)
-  experiments{i}.run();
-  experiments{i}.printResults();
-end
+this = VarMeanCvAbsNoFilterDeg120();
+this.run();
+this.printResults();
+close all;
+
+this = VarMeanCvAbsFilterDeg30();
+this.run();
+this.printResults();
+close all;
+
+this = VarMeanCvAbsFilterDeg120();
+this.run();
+this.printResults();
+close all;
