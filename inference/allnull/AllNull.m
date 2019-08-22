@@ -38,17 +38,6 @@ classdef AllNull < Experiment
     kurtosisArray; %kurtosis over all pixels
     timeArray; %time to filter the image in seconds
     
-    %array to store the normalised statistics (or image) for one repeat: uncontaminated image,
-        %filtered image, null mean and null std
-        %one for each kernel radius
-      %dim 1: y axis of image
-      %dim 2: x axis of image
-      %dim 3: for each kernel radius
-    zUnfilteredArray;
-    zFilteredArray;
-    nullMeanArray;
-    nullStdArray;
-    
     imageSize = [256, 256]; %size of the gaussian image
     
     randStream; %rng
@@ -71,32 +60,6 @@ classdef AllNull < Experiment
       %show critical region for mean and variance
       alpha = 2*(1-normcdf(2)); %significant level
       n = this.imageSize(1) * this.imageSize(2); %get number of pixels in the image
-      
-      %plot null mean
-      fig = LatexFigure.sub();
-      nullMeanPlot = Boxplots(reshape(this.nullMeanArray,[],numel(this.radiusArray)));
-      nullMeanPlot.setPosition(this.radiusArray);
-      nullMeanPlot.setWantOutlier(false);
-      nullMeanPlot.plot();
-      ylabel('null mean');
-      xlabel('radius (pixel)');
-      if (~isempty(this.getYLim(1)))
-        ylim(this.getYLim(1));
-      end
-      saveas(fig,fullfile(directory, strcat(this.experimentName,'_nullMean.eps')),'epsc');
-      
-      %plot null var
-      fig = LatexFigure.sub();
-      nullVarPlot = Boxplots(reshape(this.nullStdArray,[],numel(this.radiusArray)));
-      nullVarPlot.setPosition(this.radiusArray);
-      nullVarPlot.setWantOutlier(false);
-      nullVarPlot.plot();
-      ylabel('null std');
-      xlabel('radius (px)');
-      if (~isempty(this.getYLim(2)))
-        ylim(this.getYLim(2));
-      end
-      saveas(fig,fullfile(directory, strcat(this.experimentName,'_nullStd.eps')),'epsc');
       
       %plot post filter mean vs radius
       fig = LatexFigure.sub();
@@ -186,11 +149,6 @@ classdef AllNull < Experiment
       this.kurtosisArray = zeros(this.nRepeat, numel(this.radiusArray));
       %time to filter the image in seconds
       this.timeArray = zeros(this.nRepeat, numel(this.radiusArray));
-      %array of normalised statistics and null statistics
-      this.zUnfilteredArray = zeros(this.imageSize(1), this.imageSize(2), numel(this.radiusArray));
-      this.zFilteredArray = zeros(this.imageSize(1), this.imageSize(2), numel(this.radiusArray));
-      this.nullMeanArray = zeros(this.imageSize(1), this.imageSize(2), numel(this.radiusArray));
-      this.nullStdArray = zeros(this.imageSize(1), this.imageSize(2), numel(this.radiusArray));
       %set the rng
       this.randStream = RandStream('mt19937ar','Seed', seed);
     end
@@ -213,10 +171,6 @@ classdef AllNull < Experiment
           
           %produce a gaussian image
           image = this.getImage();
-          %if this is the 1st repeat, save the image
-          if (iRepeat == 1)
-            this.zUnfilteredArray(:,:,iRadius) = image;
-          end
           
           %filter the image and time it
           tic;
@@ -225,13 +179,6 @@ classdef AllNull < Experiment
           
           %get the filtered image
           image = filter.getFilteredImage();
-          
-          %for the first repeat, save the normalised image, null mean and null std
-          if (iRepeat == 1)
-            this.nullMeanArray(:,:,iRadius) = filter.getNullMean();
-            this.nullStdArray(:,:,iRadius) = filter.getNullStd();
-            this.zFilteredArray(:,:,iRadius) = image;
-          end
           
           %save the normalised statistics mean, var and kurtosis
           image = reshape(image,[],1);
