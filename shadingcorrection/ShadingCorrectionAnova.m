@@ -1,7 +1,7 @@
 %MIT License
 %Copyright (c) 2019 Sherman Lo
 
-%CLASS: SHADING CORRECTION ANOVA
+%ABSTRACT CLASS: SHADING CORRECTION ANOVA
 %Does ANOVA on the shading corrected grey value in a greyscale projection
 %
 %One randomly selected replication from each power is assigned to the training set which trains the

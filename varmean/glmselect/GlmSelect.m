@@ -1,7 +1,7 @@
 %MIT License
 %Copyright (c) 2019 Sherman Lo
 
-%CLASS: GLM SELECT EXPERIMENT
+%ABSTRACT CLASS: GLM SELECT EXPERIMENT
 %Does forward stepwise regression to select a GLM model for the var-mean data
 %
 %The following was chosen:

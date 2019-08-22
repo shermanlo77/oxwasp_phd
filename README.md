@@ -8,6 +8,8 @@ Contains code to reproduce the thesis Lo, S.E. (2019). *Characterisation of Comp
 
 The *Java* source code for the empirical null filter *ImageJ* plugin is in the directory `java/src` and the *Maven* project file is in `java/pom.xml`.
 
+*MATLAB* R2019a was used.
+
 ## Abstract
 X-ray computed tomography can be used for defect detection in additive manufacturing. Typically, several x-ray projections of the product at hundreds of angles are used to reconstruct the object in 3D to look for any defects. The process can be time-consuming. This thesis aims to investigate if it is possible to conduct defect detection from a single projection to speed up the process. An additive manufacturing test sample was created with voids to see if they can be detected.
 

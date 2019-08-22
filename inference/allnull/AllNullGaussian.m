@@ -2,7 +2,7 @@
 %Copyright (c) 2019 Sherman Lo
 
 %CLASS: EXPERIMENT ALL NULL GAUSSIAN
-%See superclass Experiment_AllNull
+%See superclass AllNull
 %Experiment with the empirical null filter on a gaussian image
 classdef AllNullGaussian < AllNull
   

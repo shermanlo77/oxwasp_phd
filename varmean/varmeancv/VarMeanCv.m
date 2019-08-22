@@ -1,7 +1,7 @@
 %MIT License
 %Copyright (c) 2019 Sherman Lo
 
-%CLASS: VARIANCE MEAN CROSS VALIDATION
+%ABSTRACT CLASS: VARIANCE MEAN CROSS VALIDATION
 %Experiment to do cross validation to assess the different GLM
 %
 %Random images (that is selecting which replicate projections to use with replacement) were selected

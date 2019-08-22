@@ -2,12 +2,14 @@
 %Copyright (c) 2019 Sherman Lo
 
 %CLASS: EXPERIMENT Z NULL MSE
-%Experiment for investigating the performance of the emperical null var
-%ln mean squared error vs kernel width are plotted and fitted using local quadratic regression
+%Experiment for finding the best bandwidth for the empirical null
+%Requires the experiment BandwidthSelection
+%
+%For a each n:
+%ln mean squared error vs kernel width are plotted and fitted using smoothing spline
 %the optimal kernel width is found using the minimum of the fitted curve
+%
 %optimal kernel width vs n^(-1/5) is plotted and straight line is plotted
-%boxplot is plotted by bootstraping the ln mean squared error vs kernel width data
-%sensitivty analysis is done by varying the parameter of the local quadratic regression
 %
 %Plotted are:
   %ln mean squared error vs kernel width for all n
@@ -61,9 +63,10 @@ classdef BandwidthSelection2 < Experiment
         boxPlot.setPosition(previous.kArray);
         boxPlot.plot();
         hold on;
-        %plot the local quadratic regression
+        %plot the spline
         kPlot = linspace(this.kArray(1), this.kArray(end), numel(this.kArray)*nPlot);
         plot(kPlot,feval(this.errorFit{iN},kPlot));
+        %plot as a verticle line the minimum
         plot(this.kOptimal(iN)*ones(1,2), yLim, '--'); 
         %label axis and graph
         ylabel('ln squared error');
@@ -74,15 +77,19 @@ classdef BandwidthSelection2 < Experiment
             strcat(this.experimentName,'_plot',num2str(iN),'.eps')),'epsc');
       end
       
-      %see random method in classreg.regr.CompactGeneralizedLinearModel
+      %get the glm fit for optimal bandwidth vs n^(-1/5)
+      %see method in classreg.regr.CompactGeneralizedLinearModel for further information on the
+          %MATLAB's implementation of GLM
       x = (previous.nArray).^(-1/5);
       y = this.fitter.predict(x);
       shapeParameter = 1/this.fitter.Dispersion;
       gammaScale = y/shapeParameter;
-            
+      
+      %scatter plot the optimal bandwidth vs n^(-1/5)
       fig = LatexFigure.main();
       scatter(x, this.kOptimal, 'x');
       hold on;
+      %plot the glm fit and the error bar
       plot(x, y, 'Color', colour2);
       plot(x, gaminv(normcdf(1), shapeParameter, gammaScale), 'Color', colour2, 'LineStyle',':');
       plot(x, gaminv(normcdf(-1), shapeParameter, gammaScale), 'Color', colour2, 'LineStyle',':');
@@ -142,7 +149,7 @@ classdef BandwidthSelection2 < Experiment
       for iN = 1:numel(previous.nArray)
         %get the ln mse
         lnMse = this.getObjective(previous.stdArray(:,:,iN));
-        %declare array of kernel widths, taking into account the n_repeat in the previous experiment
+        %declare array of kernel widths, taking into account the nRepeat in the previous experiment
         x = repmat(previous.kArray, previous.nRepeat, 1);
         %declare array of ln_mse
         y = reshape(lnMse',[],1);
