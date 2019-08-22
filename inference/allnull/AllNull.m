@@ -4,13 +4,11 @@
 %ABSTRACT CLASS: ALL NULL IMAGE EXPERIMENT
 %See how the null filters behaves for images which has no defects
 %
-%An image is produced and then filtered using a null filter. The null mean and null std are recorded
-    %for each kernel radius only for the first repeat. Various properties of the post-filtered image
-    %are recorded such as the mean, variance, kurtosis and the time it took to filter the image.
+%An image is produced and then filtered using a null filter. Various properties of the post-filtered
+    %image are recorded such as the mean, variance, kurtosis and the time it took to filter the
+    %image.
 %This is repeated nRepeat times for various kernel radius
 %Plots the following:
-%  null mean (for all pixels in one repeat) vs radius
-%  null std (for all pixels in one repeat) vs radius
 %  post-filter mean vs radius
 %  post-filter variance vs radius
 %  post-filter kurtosis vs radius

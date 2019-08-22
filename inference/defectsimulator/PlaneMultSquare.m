@@ -35,9 +35,9 @@ classdef PlaneMultSquare < PlaneMult
     %PARAMETER:
       %size: 2 row vector [height, width]
     %RETURN:
-      %image: a defected image
+      %image: a defected Gaussian image
       %isNonNullImage: boolean map, true if that pixel is a defect
-      %imagePreBias: defected Gaussian image without the smooth function added
+      %imageNoContamination: image with defect but no contamination
     function [imageContaminated, isNonNullImage, imageNoContamination] = ...
           getDefectedImage(this, size)
       [imageNoContamination, isNonNullImage] = this.getDefectedImage@DefectSimulator(size);
