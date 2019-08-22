@@ -488,15 +488,16 @@ The model may be simplified by omitting the electronic noise, this can be done b
 The EM algorithm \citep{dempster1977maximum} is proposed as a method to estimate the parameters of a $X\sim\CPoisson(\lambda,\alpha,\beta)$ random variable given a sample of measurements of it $\left\{x_1,x_2,x_3,\dotsc,x_n\right\}$. The use of the EM algorithm here for the compound Poisson is similar to \cite{elbakri2003statistical, xu2009electronic}.
 
 Let $\widehat{\lambda}$, $\widehat{\alpha}$ and $\widehat{\beta}$ be estimators of $\lambda$, $\alpha$ and $\beta$ respectively. The log likelihood is defined to be
-\begin{align}
-  \ln L(\lambda,\alpha,\beta;X) &= \sum_{i=1}^n
+\begin{equation*}
+  \ln L(\lambda,\alpha,\beta;X) = \sum_{i=1}^n
   \left[
     \mathbb{I}(x_i=0)\ln \prob(X=x_i)
     +\mathbb{I}(x_i>0)\ln p_X(x_i)
   \right]
-  \nonumber \\
-  &\!\begin{multlined}[b]
-  =
+\end{equation*}
+and using the results in Appendix \ref{chapter:appendix_tweedie}
+\begin{equation}
+  \ln L(\lambda,\alpha,\beta;X) =
     \sum_{i=1}^n
     \left[
       -\mathbb{I}(x_i=0)\lambda
@@ -508,8 +509,7 @@ Let $\widehat{\lambda}$, $\widehat{\alpha}$ and $\widehat{\beta}$ be estimators 
       -\beta x_i-\lambda-\ln x +\ln\sum_{y=1}^\infty W_y
       \right)
     \right] \ .
-  \end{multlined}
-\end{align}
+\end{equation}
 Maximum likelihood estimators are values of $\lambda$, $\alpha$ and $\beta$ which jointly maximises the log likelihood.
 
 The EM algorithm \citep{dempster1977maximum} instead treats $Y\sim\poisson(\lambda)$ as a latent variable. Let $\left\{Y_1,Y_2,Y_3,\dotsc, Y_n\right\}$ be realizations of $Y$ and $\left\{x_1,x_2,x_3,\dotsc, x_n\right\}$ be the respective measurements of $X|Y$. Define the joint log likelihood to be
