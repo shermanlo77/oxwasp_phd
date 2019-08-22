@@ -1439,21 +1439,21 @@ Various defects were investigated. Speckle defect with density $\pi_1$ assign al
   \centering
     \centerline{
       \begin{subfigure}{\subSize}
-        \includegraphics[width=\textwidth]{../figures/inference/defectDustExample_imagePreContaminated.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/DefectExampleDust_imageClean.eps}
         \caption{Uncontaminated}
       \end{subfigure}
       \begin{subfigure}{\subSize}
-        \includegraphics[width=\textwidth]{../figures/inference/defectDustExample_imageContaminated.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/DefectExampleDust_imageContaminated.eps}
         \caption{Contaminated}
       \end{subfigure}
     }
     \centerline{
       \begin{subfigure}{\subSize}
-        \includegraphics[width=\textwidth]{../figures/inference/defectDustExample_imageFiltered.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/DefectExampleDust_EmpiricalNullFilterimageFiltered.eps}
         \caption{Filtered}
       \end{subfigure}
       \begin{subfigure}{\subSize}
-        \includegraphics[width=\textwidth]{../figures/inference/defectDustExample_nullStd.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/DefectExampleDust_EmpiricalNullFilternullStd.eps}
         \caption{Empirical null std}
       \end{subfigure}
     }
@@ -1465,21 +1465,21 @@ Various defects were investigated. Speckle defect with density $\pi_1$ assign al
   \centering
     \centerline{
       \begin{subfigure}{\subSize}
-        \includegraphics[width=\textwidth]{../figures/inference/defectLineExample_imagePreContaminated.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/DefectExampleLine_imageClean.eps}
         \caption{Uncontaminated}
       \end{subfigure}
       \begin{subfigure}{\subSize}
-        \includegraphics[width=\textwidth]{../figures/inference/defectLineExample_imageContaminated.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/DefectExampleLine_imageContaminated.eps}
         \caption{Contaminated}
       \end{subfigure}
     }
     \centerline{
       \begin{subfigure}{\subSize}
-        \includegraphics[width=\textwidth]{../figures/inference/defectLineExample_imageFiltered.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/DefectExampleLine_EmpiricalNullFilterimageFiltered.eps}
         \caption{Filtered}
       \end{subfigure}
       \begin{subfigure}{\subSize}
-        \includegraphics[width=\textwidth]{../figures/inference/defectLineExample_nullStd.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/DefectExampleLine_EmpiricalNullFilternullStd.eps}
         \caption{Empirical null std}
       \end{subfigure}
     }
@@ -1491,21 +1491,21 @@ Various defects were investigated. Speckle defect with density $\pi_1$ assign al
   \centering
     \centerline{
       \begin{subfigure}{\subSize}
-        \includegraphics[width=\textwidth]{../figures/inference/defectSquareExample_imagePreContaminated.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/DefectExampleSquare20_imageClean.eps}
         \caption{Uncontaminated}
       \end{subfigure}
       \begin{subfigure}{\subSize}
-        \includegraphics[width=\textwidth]{../figures/inference/defectSquareExample_imageContaminated.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/DefectExampleSquare20_imageContaminated.eps}
         \caption{Contaminated}
       \end{subfigure}
     }
     \centerline{
       \begin{subfigure}{\subSize}
-        \includegraphics[width=\textwidth]{../figures/inference/defectSquareExample_imageFiltered.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/DefectExampleSquare20_EmpiricalNullFilterimageFiltered.eps}
         \caption{Filtered}
       \end{subfigure}
       \begin{subfigure}{\subSize}
-        \includegraphics[width=\textwidth]{../figures/inference/defectSquareExample_nullMean.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/DefectExampleSquare20_EmpiricalNullFilternullMean.eps}
         \caption{Empirical null mean}
       \end{subfigure}
     }
@@ -1517,32 +1517,59 @@ Various defects were investigated. Speckle defect with density $\pi_1$ assign al
   \centering
     \centerline{
       \begin{subfigure}{\subSize}
-        \includegraphics[width=\textwidth]{../figures/inference/defectSquare2Example_imagePreContaminated.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/DefectExampleSquare40_imageClean.eps}
         \caption{Uncontaminated}
       \end{subfigure}
       \begin{subfigure}{\subSize}
-        \includegraphics[width=\textwidth]{../figures/inference/defectSquare2Example_imageContaminated.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/DefectExampleSquare40_imageContaminated.eps}
         \caption{Contaminated}
       \end{subfigure}
     }
     \centerline{
       \begin{subfigure}{\subSize}
-        \includegraphics[width=\textwidth]{../figures/inference/defectSquare2Example_imageFiltered.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/DefectExampleSquare40_EmpiricalNullFilternullStd.eps}
         \caption{Filtered}
       \end{subfigure}
       \begin{subfigure}{\subSize}
-        \includegraphics[width=\textwidth]{../figures/inference/defectSquare2Example_nullMean.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/DefectExampleSquare40_EmpiricalNullFilternullMean.eps}
         \caption{Empirical null mean}
       \end{subfigure}
     }
-  \caption{A $256 \times 256$ Gaussian image with a \emph{square} defect is shown in a). The image was contaminated in b) and then filtered with kernel radius \emph{40} in c). Defected pixels have the distribution $\normal(3,1)$. The square defect is $30\times 30$ pixels in size. The contamination is such that the null distribution is $Z_{x,y}|H_{0,x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$. In a) and c), 
-  highlighted in red are pixels tested as positive at the 5\% FDR level.}
+  \caption{A $256 \times 256$ Gaussian image with a \emph{square} defect is shown in a). The image was contaminated in b) and then filtered with kernel radius \emph{40} in c). Defected pixels have the distribution $\normal(3,1)$. The speckle defect has density $\pi_1 = 0.1$. The line defect is 5 pixels thick. The square defect is $30\times 30$ pixels in size. The contamination is such that the null distribution is $Z_{x,y}|H_{0,x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$. In a) and c), highlighted in red are pixels tested as positive at the 5\% FDR level.}
   \label{fig:inference_defectSquare2Example}
+\end{figure}
+
+\begin{figure}[p]
+  \centering
+    \centerline{
+      \begin{subfigure}{\subSize}
+        \includegraphics[width=\textwidth]{../figures/inference/DefectExampleDust_EmpiricalNullFilterpValueFiltered.eps}
+        \caption{Dust defect, $r=20$}
+      \end{subfigure}
+      \begin{subfigure}{\subSize}
+        \includegraphics[width=\textwidth]{../figures/inference/DefectExampleLine_EmpiricalNullFilterpValueFiltered.eps}
+        \caption{Line defect, $r=20$}
+      \end{subfigure}
+    }
+    \centerline{
+      \begin{subfigure}{\subSize}
+        \includegraphics[width=\textwidth]{../figures/inference/DefectExampleSquare20_EmpiricalNullFilterpValueFiltered}
+        \caption{Square defect, $r=20$}
+      \end{subfigure}
+      \begin{subfigure}{\subSize}
+        \includegraphics[width=\textwidth]{../figures/inference/DefectExampleSquare40_EmpiricalNullFilterpValueFiltered}
+        \caption{Square defect, $r=40$}
+      \end{subfigure}
+    }
+  \caption{A $256 \times 256$ contamined defected Gaussian image was filtered using the empirical null filter with kernel radius $r$. Shown are the values of the image converted to $p$-values. Defected pixels have the distribution $\normal(3,1)$. The square defect is $30\times 30$ pixels in size. The contamination is such that the null distribution is $Z_{x,y}|H_{0,x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$. The critical region is for testing at the 5\% FDR level.}
+  \label{fig:inference_defectExamplePValue}
 \end{figure}
 
 An example of a speckle defected image is shown in Figure \ref{fig:inference_defectDustExample}, the figure also shows the image contaminated and then filtered. Without filtering, the top-left and bottom-right of the contaminated image have large, in magnitude, test statistics. In these areas, a lot of pixels would be detected as falsely positive. By using the empirical null filter, the resulting filtered image reassemble the uncontaminated image and appropriate inference can be done on the filtered image. However, some statistical power was lost when conducting inference on the filtered image because in areas of high empirical null standard deviation, the normalised statistics became too small which then decreased the detection power. This cannot be avoided as areas of high empirical null standard deviation was due to the sampling error. Similar comments can be made for the line defect as shown in Figure \ref{fig:inference_defectLineExample}.
 
 The square defected images, including the contaminated ones, are shown in Figures \ref{fig:inference_defectSquareExample} and \ref{fig:inference_defectSquare2Example}. Figure \ref{fig:inference_defectSquareExample} filtered the contaminated image using a kernel radius of $r=20$, while Figure \ref{fig:inference_defectSquare2Example} used a kernel radius of $r=40$. With $r=20$, the kernel is smaller than the square defect, therefore the defect was treated as the null. This is evident because the empirical null mean captured the defect. This resulted in difficulty detecting the defect. With $r=40$, the kernel is bigger than the defect and treated the defect as non-null. In this scenario, the empirical null filter recovered the gradient in the empirical null which was then used for normalisation.
+
+Figure \ref{fig:inference_defectExamplePValue} shows the $p$-values after filtering a contaminated defected image. The FDR can be estimated in these figures by dividing the number of null statistics in the critical region by the number of statistics in the critical region. With a sensible kernel radius, some of the defects can be detected. False negatives do appear but this is inevitable in order to control for the FDR. The figure shows that using a kernel radius of $r=20$ for the square defect detected no pixels for defects. This, again, emphasise the importance of a good kernel radius. 
 
 The receiver operating characteristic (ROC) curves \citep{green1966signal, metz1978basic, hanley1982meaning, friedman2001elements, cook2007use} are shown in Figure \ref{fig:inference_defectSimulationRoc} for the various defects and filters. The ROC curve is a parametric plot, plotting the true positive rate (sensitivity) against the false positive rate ($1-\text{specificity}$) for varying thresholds. The area under the ROC curve (AUC) is a commonly used statistic to quantify the performance of the test \citep{friedman2001elements}. Interpretations of the area do exist \citep{metz1978basic,hanley1982meaning} and discussed thoroughly in \cite{cook2007use}.
 

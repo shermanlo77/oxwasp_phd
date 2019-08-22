@@ -23,7 +23,7 @@ classdef DefectRadiusLine < DefectRadius
     
     function defectSimulator = getDefectSimulator(this)
       defectSimulator = PlaneMultLine(this.randStream, this.gradContamination, ...
-          this.multContamination, this.altMean, this.altStd, this.lineThickness);
+          this.multContamination, this.lineThickness, this.altMean, this.altStd);
     end
     
   end

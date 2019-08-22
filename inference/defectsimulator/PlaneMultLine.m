@@ -21,10 +21,10 @@ classdef PlaneMultLine < PlaneMult
       %randStream: rng
       %grad: 2 row vector, gradient of the plane
       %multiplier: scale all pixels by this
+      %lineThickness: how thick the defect line is
       %altMean: alt distribution mean
       %altStd: alt distribution std
-      %lineThickness: how thick the defect line is
-    function this = PlaneMultLine(randStream, grad, multiplier, altMean, altStd, lineThickness)
+    function this = PlaneMultLine(randStream, grad, multiplier, lineThickness, altMean, altStd)
       this@PlaneMult(randStream, grad, multiplier);
       this.altMean = altMean;
       this.altStd = altStd;

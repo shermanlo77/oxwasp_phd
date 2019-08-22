@@ -88,7 +88,10 @@ classdef Experiment < handle
     %METHOD: SAVE STATE
     %Save itself in a .mat file
     function save(this)
+      %turn off warning for saving java member variables
+      warning('off','MATLAB:Java:ConvertFromOpaque');
       save(fullfile(getResultsDirectory,strcat(this.experimentName,'.mat')),'this');
+      warning('on','MATLAB:Java:ConvertFromOpaque');
       %print text that the experiment has been saved
       disp(strcat(fullfile(getResultsDirectory,strcat(this.experimentName,'.mat')), ' saved'));
     end

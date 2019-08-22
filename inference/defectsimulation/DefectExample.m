@@ -2,190 +2,184 @@
 %Copyright (c) 2019 Sherman Lo
 
 %CLASS: DEFECT EXAMPLE
-%Produce an image with a defect and contamination, use the empirical null filter to recover the
-    %image from the contamination. The hypothesis test (or defect detectiong) are compared before
-    %and after contamination.
-%Plot the z image before contamination
+%Save an image with a defect without contamination, with contamination and then filtered after
+    %contamination. Also saves any ROC properties
+%
+%Plot the z image before contamination (with positive pixels)
 %Plot the z image after contamination
-%Plot the z image after filtering
+%Plot the z image after filtering (with positive pixels)
+%Plot p values after filtering
 %Plot the empirical null mean image
-%Plot the empirical null std image
+%Plot the empirical null std image (with positive pixels)
 %Plot the ROC before contamination, after contamination, after filtering
-%PARAMETERS:
-  %defectSimulator: simulate a defected and contaminated image
-  %imageSize: size of the image
-  %radius: radius of the kernel
-  %directory: where to save the figures
-  %prefix: what to prepend the file names with
-%HOW TO USE:
-  %call the method plotExample
-  %options available via methods
-classdef DefectExample < handle
+classdef DefectExample < Experiment
   
   properties (SetAccess = private)
     
-    cLim; %cLim for null mean plot
-    plotDefectNullStd = false; %boolean, plot significant pixels on null std plot if true
-    nInitial; %number of initial points for Newton-Raphson in empirical null filter
-    nRoc = 1000;
-    randStream;
+    nFilter = 4; %number of filters to be investigated
+    filterArray; %cell array of filters
+    nRoc = 1000; %for roc function
+    
+    %z statistics (images)
+    imageClean; %before contamination
+    imageContaminated; %after contamination
+    
+    isNonNullImage; %boolean image, true if this pixel is a defect (non-null)
+    
+    %array of false and true negatives (column vector)
+    falsePositiveClean;
+    truePositiveClean;
+    falsePositiveContaminated;
+    truePositiveContaminated;
+    falsePositiveFilter; %dim 2: for each filter
+    truePositiveFilter; %dim 2: for each filter
+    
+    defectSimulator; %DefectSimulator object
+    imageSize; %size of image (2-vector)
+    radius; %radius of filter kernel radius
+    randStream; %use for seeding the empirical null filter
     
   end
   
-  methods
+  methods (Access = public)
     
     %CONSTRUCTOR
-    function this = DefectExample(randStream)
-      this.randStream = randStream;
+    function this = DefectExample()
+      this@Experiment();
     end
     
     %METHOD: DEFECT EXAMPLE
-    function plotExample(this, defectSimulator, imageSize, radius, directory, prefix)
-
-      %get the defected image
-      [imageContaminated, isNonNullImage, imagePreContaminated] = ...
-          defectSimulator.getDefectedImage([imageSize, imageSize]);
-
-      filter = EmpiricalNullFilter(radius); %filter it
-      filter.setSeed(this.randStream.randi([intmin('int32'),intmax('int32')],'int32'));
-      if (~isempty(this.nInitial))
-        filter.setNInitial(this.nInitial);
-      end
-      filter.filter(imageContaminated);
-
-      %get the empirical null and the filtered image
-      imageFiltered = filter.getFilteredImage();
-      nullMean = filter.getNullMean();
-      nullStd = filter.getNullStd();
-
-      %get the image pre/post contamination and filtered with significant pixels highlighted
+    function printResults(this)
       
-      zTesterPreContaminated = ZTester(imagePreContaminated);
-      zTesterPreContaminated.doTest();
+      directory = fullfile('reports','figures','inference');
+
+      %plot the z images with positive pixels (before contamination)
       fig = LatexFigure.sub();
-      zTesterPreContaminated.plotPValues2(~isNonNullImage);
-      fig.CurrentAxes.XTick = 10.^(0:4);
-      saveas(fig,fullfile(directory, strcat(prefix,'_pValuePreContaminated.eps')),'epsc');
+      imageCleanPlot = Imagesc(this.imageClean);
+      zCleanTester = ZTester(this.imageClean);
+      zCleanTester.doTest();
+      imageCleanPlot.addPositivePixels(zCleanTester.positiveImage);
+      imageCleanPlot.plot();
+      saveas(fig,fullfile(directory, strcat(this.experimentName,'_imageClean.eps')),'epsc');
       
-      zTesterContaminated = ZTester(imageContaminated);
-      zTesterContaminated.doTest();
+      %plot z image with contamination, no positive pixels
+      fig = LatexFigure.sub();
+      imageContaminatedPlot = Imagesc(this.imageContaminated);
+      imageContaminatedPlot.setCLim(imageCleanPlot.clim);
+      imageContaminatedPlot.plot();
+      saveas(fig,fullfile(directory, strcat(this.experimentName,'_imageContaminated.eps')),'epsc');
       
-      zTesterFiltered = ZTester(imageFiltered);
-      zTesterFiltered.doTest();
-      fig = LatexFigure.sub();
-      zTesterFiltered.plotPValues2(~isNonNullImage);
-      fig.CurrentAxes.XTick = 10.^(0:4);
-      saveas(fig,fullfile(directory, strcat(prefix,'_pValueFiltered.eps')),'epsc');
-
-      %plot the z images
-      fig = LatexFigure.sub();
-      imagePlot = Imagesc(imagePreContaminated);
-      imagePlot.addPositivePixels(zTesterPreContaminated.positiveImage);
-      climOriginal = imagePlot.clim;
-      if (~isempty(this.cLim))
-        imagePlot.setCLim(this.cLim);
-      end
-      imagePlot.plot();
-      saveas(fig,fullfile(directory, strcat(prefix,'_imagePreContaminated.eps')),'epsc');
-
-      fig = LatexFigure.sub();
-      imagePlot = Imagesc(imageContaminated);
-      %imagePlot.addPositivePixels(zTesterContaminated.positiveImage);
-      imagePlot.plot();
-      saveas(fig,fullfile(directory, strcat(prefix,'_imageContaminated.eps')),'epsc');
-
-      fig = LatexFigure.sub();
-      imagePlot = Imagesc(imageFiltered);
-      imagePlot.addPositivePixels(zTesterFiltered.positiveImage);
-      if (~isempty(this.cLim))
-        imagePlot.setCLim(this.cLim);
-      else
-        imagePlot.setCLim(climOriginal);
-      end
-      imagePlot.plot();
-      saveas(fig,fullfile(directory, strcat(prefix,'_imageFiltered.eps')),'epsc');
-
-      %empirical null mean plot
-      fig = LatexFigure.sub();
-      imagePlot = Imagesc(nullMean);
-      if (~isempty(this.cLim))
-        imagePlot.setCLim(this.cLim);
-      else
-        imagePlot.setCLim(climOriginal);
-      end
-      imagePlot.plot();
-      saveas(fig,fullfile(directory, strcat(prefix,'_nullMean.eps')),'epsc');
-      
-      %empirical null std plot
-      fig = LatexFigure.sub();
-      imagePlot = Imagesc(nullStd);
-      imagePlot.setCLim([0,climOriginal(2)]);
-      if (this.plotDefectNullStd)
-        imagePlot.addPositivePixels(zTesterFiltered.positiveImage);
-      end
-      imagePlot.plot();
-      saveas(fig,fullfile(directory, strcat(prefix,'_nullStd.eps')),'epsc');
-
-      %work out true and false positive, plot ROC
-      [falsePositivePreContamination, truePositivePreContamination, ~] = ...
-          roc(imagePreContaminated, isNonNullImage, this.nRoc);
-      [falsePositiveContamination, truePositiveContamination, ~] = ...
-          roc(imageContaminated, isNonNullImage, this.nRoc);
-      %[falsePositiveFiltered, truePositiveFiltered, ~] = ...
-          %roc(imageFiltered, isAltImage, this.nRoc);
-      fig = LatexFigure.sub();
-      
-      for i=1:4
-        switch i
-          case 1
-            filter = EmpiricalNullFilter(radius); %filter it
-          case 2
-            filter = MadModeNullFilter(radius); %filter it
-          case 3
-            filter = MedianIqrNullFilter(radius);
-          case 4
-            filter = MeanVarNullFilter(radius);
-        end
+      %for each filter, plot image filtered with positive pixels, p value, empirical null mean, and
+          %empricial null std with positive pixels
+      for iFilter = 1:this.nFilter
+        filter = this.filterArray{iFilter};
+        imageFilter = filter.getFilteredImage();
+        fig = LatexFigure.sub();
+        imageFilterPlot = Imagesc(imageFilter);
+        zFilterTester = ZTester(imageFilter);
+        zFilterTester.doTest();
+        imageFilterPlot.addPositivePixels(zFilterTester.positiveImage);
+        imageFilterPlot.setCLim(imageCleanPlot.clim);
+        imageFilterPlot.plot();
+        saveas(fig,fullfile(directory, strcat(this.experimentName,'_',class(filter), ...
+            'imageFiltered.eps')),'epsc');
         
-        if (~isempty(this.nInitial))
-          filter.setNInitial(this.nInitial);
-        end
-        filter.filter(imageContaminated);
-        %get the empirical null and the filtered image
-        imageFiltered = filter.getFilteredImage();
-        [falsePositiveFiltered, truePositiveFiltered, ~] = ...
-            roc(imageFiltered, isNonNullImage, this.nRoc);
-        plot(falsePositiveFiltered, truePositiveFiltered);
+        %p values
+        fig = LatexFigure.sub();
+        zFilterTester.plotPValues2(~this.isNonNullImage);
+        fig.CurrentAxes.XTick = 10.^(0:4);
+        saveas(fig,fullfile(directory, strcat(this.experimentName,'_',class(filter), ...
+            'pValueFiltered.eps')),'epsc');
+        
+        %empirical null mean plot
+        fig = LatexFigure.sub();
+        imageNullMeanPlot = Imagesc(filter.getNullMean());
+        imageNullMeanPlot.setCLim(imageCleanPlot.clim);
+        imageNullMeanPlot.plot();
+        saveas(fig,fullfile(directory, strcat(this.experimentName,'_',class(filter), ...
+            'nullMean.eps')),'epsc');
+              
+        %empirical null std plot with positive pixels
+        fig = LatexFigure.sub();
+        imageNullStdPlot = Imagesc(filter.getNullStd());
+        imageNullStdPlot.setCLim([0,imageCleanPlot.clim(2)]);
+        imageNullStdPlot.addPositivePixels(zFilterTester.positiveImage);
+        imageNullStdPlot.plot();
+        saveas(fig,fullfile(directory, strcat(this.experimentName,'_',class(filter), ...
+            'nullStd.eps')),'epsc');
+      end
+      
+      
+      %plot ROC
+      fig = LatexFigure.sub();
+      for iFilter = 1:this.nFilter
+        plot(this.falsePositiveFilter(:,iFilter), this.truePositiveFilter(:,iFilter));
         hold on;
       end
-      plot(falsePositivePreContamination, truePositivePreContamination, 'k--');
+      plot(this.falsePositiveClean, this.truePositiveClean, 'k--');
       hold on;
-      plot(falsePositiveContamination, truePositiveContamination, 'k--');
-      
+      plot(this.falsePositiveContaminated, this.truePositiveContaminated, 'k--');
       plot([0,1],[0,1],'k:');
       xlabel('false positive rate');
       ylabel('true positive rate');
       legend('empirical','mad mode','meadian iqr','mean var','Location','southeast');
-      saveas(fig,fullfile(directory, strcat(prefix,'_roc.eps')),'epsc');
+      saveas(fig,fullfile(directory, strcat(this.experimentName,'_roc.eps')),'epsc');
 
     end
+    
+  end
+  
+  methods (Access = protected)
+    
+    %IMPLEMENTED: SETUP
+    function setup(this, defectSimulator, imageSize, radius)
+      this.filterArray = cell(this.nFilter, 1);
+      this.defectSimulator = defectSimulator;
+      this.imageSize = imageSize;
+      this.radius = radius;
+      this.randStream = this.defectSimulator.randStream;
+      this.falsePositiveFilter = zeros(this.nRoc, this.nFilter);
+      this.truePositiveFilter = zeros(this.nRoc, this.nFilter);
+    end
+    
+    %IMPLEMENTED: DO EXPERIMENT
+    function doExperiment(this)
+      
+      %get the defected image
+      [this.imageContaminated, this.isNonNullImage, this.imageClean] = ...
+          this.defectSimulator.getDefectedImage(this.imageSize);
+      %work out true and false positive without filtering, before and after contamination
+      [this.falsePositiveClean, this.truePositiveClean, ~] = ...
+          roc(this.imageClean, this.isNonNullImage, this.nRoc);
+      [this.falsePositiveContaminated, this.truePositiveContaminated, ~] = ...
+          roc(this.imageContaminated, this.isNonNullImage, this.nRoc);
+         
+      %for each filter
+      for iFilter = 1:this.nFilter
+        %get the filter
+        switch iFilter
+          case 1
+            filter = EmpiricalNullFilter(this.radius);
+            filter.setSeed(this.randStream.randi([intmin('int32'),intmax('int32')],'int32'));
+          case 2
+            filter = MadModeNullFilter(this.radius);
+            filter.setSeed(this.randStream.randi([intmin('int32'),intmax('int32')],'int32'));
+          case 3
+            filter = MedianIqrNullFilter(this.radius);
+          case 4
+            filter = MeanVarNullFilter(this.radius);
+        end
+        %filter the image and save the filter
+        filter.filter(this.imageContaminated);
+        this.filterArray{iFilter} = filter;
+        %get the roc properties
+        [this.falsePositiveFilter(:, iFilter), this.truePositiveFilter(:, iFilter), ~] = ...
+            roc(filter.getFilteredImage(), this.isNonNullImage, this.nRoc);
+        
+        %progress bar
+        this.printProgress(iFilter / this.nFilter);
+      end
 
-    %METHOD: SET N INITIAL
-    %number of initial points for Newton-Raphson in empirical null filter
-    function setNInitial(this, nInitial)
-      this.nInitial = nInitial;
-    end
-    
-    %METHOD: SET CLIM
-    %cLim
-    function setCLim(this, cLim)
-      this.cLim = cLim;
-    end
-    
-    %METHOD: SET PLOT DEFECT NULL STD
-    %boolean, plot significant pixels on null std plot if true
-    function setPlotDefectNullStd(this, plotDefectNullStd)
-      this.plotDefectNullStd = plotDefectNullStd;
     end
     
   end
