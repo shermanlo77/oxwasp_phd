@@ -44,7 +44,9 @@ class Kernel {
   private final double[] sums;
   /**array of pixel greyvalues in the kernel*/
   private final float[] pixels;
+  /**mean greyvalue of pixels in kernel*/
   private float mean;
+  /**std greyvalue of pixels in kernel*/
   private float std;
   /**[0,1,2] 1st 2nd and 3rd quartiles greyvalues of pixels in the kernel*/
   private float[] quartiles;
@@ -68,12 +70,12 @@ class Kernel {
   /**indicate if to do quartile calculations*/
   private boolean isQuartile;
   
-  /**contains copy of pixels of the orginial image*/
+  /**pointer to pixels of the original image*/
   private final Cache cache;
   /**pairs of integers which points to the cache according to the shape of the kernel*/
   private final int[] cachePointers;
   /**region of interest*/
-  Roi roi;
+  private final Roi roi;
   
   //CONTRUCTOR
   /**@param cache The kernel is placed on this Cache
@@ -238,7 +240,7 @@ class Kernel {
    */
   private void sumSides() {
     //for each row
-    for (int kk=0; kk<this.cachePointers.length; /*k++;k++ below*/) {
+    for (int kk=0; kk<this.cachePointers.length; /*kk++ below*/) {
       //this value is not in the kernel area any more
       double greyvalue = this.cache.getCache()[this.cachePointers[kk++]+(this.x-1)];
       if (!Double.isNaN(greyvalue)) {
