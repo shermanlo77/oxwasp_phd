@@ -2,19 +2,20 @@
 %Copyright (c) 2019 Sherman Lo
 
 %ABSTRACT CLASS: EXPERIMENT DEFECT DETECT
-%Compares a test image with aRTist, where the test image is an x-ray scan and aRTist is a simulation
-    %of that scan
-%In detail: nSample of x-ray images were obtained, all but one are used to train the variance-mean
-    %relationship. The remaining image is compared with aRTist, a z image is obtained by subtracting
-    %the 2 images and dividing by the sqrt predicted variance given aRTist. The z image is filtered
-    %using the empirical null filter. Various kernel radius are investigated in this experiment. The
-    %filtered image along with the empirical null mean and std are recorded
+%Compares a test image with aRTist, where the test image is an x-ray projection and aRTist is a 
+    %simulation of that projection
+%In detail: nSample of x-ray projections were obtained, all but one are used to train the
+    %variance-mean relationship. The remaining projection is compared with aRTist, a z image is
+    %obtained by subtracting the 2 projections and dividing by the sqrt predicted variance given
+    %aRTist. The z image is filtered using the empirical null filter. Various kernel radius are
+    %investigated in this experiment. The filtered image along with the empirical null mean and std
+    %are recorded
 classdef (Abstract) DefectDetect < Experiment
   
   properties (SetAccess = protected)
     
     zImage; %the unfiltered z image
-    scan; %scan object, containing images of the x-ray scan
+    scan; %scan object, containing images of the x-ray projection
     radiusArray; %array of kernel radius to investigate
     testImage; %test projection
     

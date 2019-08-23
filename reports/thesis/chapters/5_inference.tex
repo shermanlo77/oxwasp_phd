@@ -1608,7 +1608,7 @@ In terms of AUC, the empirical null filter improved the performance over using t
 
 The ROC curves considers all thresholds or specificities used in the hypothesis testing. In the previous experiment, it was found there was some variance mismatch before and after filtering with regards to the test statistics. As a result, for a given threshold such as the 5\% FDR level, the specificity may change ever so slightly after filtering.
 
-An experiment was conducted to investigate the specificity of the test before and after filtering. A $256\times 256$ Gaussian image with speckle defect with density $\pi_1=0.1$ and various values of $\mu_1$ were investigated. The AUC, type 1 error, type 2 error and FDR were measured when testing on an image with a defect before and after contamination and then after filtering with the contamination. A kernel radius of $r=20$ was used and was repeated 100 times by simulating another image.
+An experiment was conducted to investigate the specificity of the test before and after filtering. A $256\times 256$ Gaussian image with speckle defect with density $\pi_1=0.1$ and various values of $\mu_1$ were investigated. The AUC, type 1 error, type 2 error and FDR were measured when testing on an image with a defect before and after contamination and then after filtering with the contamination. The AUC was obtained by numerically integrating the ROC curve using the trapezium rule with 1000 trapeziums. A kernel radius of $r=20$ was used and was repeated 100 times by simulating another image.
 
 \begin{figure}
   \centering
@@ -1701,7 +1701,7 @@ In the example of $d=30$, this is about $r>54$. For the line defect with thickne
   \label{fig:inference_Experiment_DefectRadiusSquare}
 \end{figure}
 
-An experiment was conducted where the contaminated defected image were filtered for various kernel radiuses for a fixed alternative distribution $\normal(3,1)$. Hypothesis testing was done on the uncontaminated and filtered contaminated image and the AUC and various errors were recorded, this was repeated 100 times. The results of the uncontaminated image were all pooled together to obtain the empirical distribution of the AUC and errors without contamination. Results for the line and square defect are shown in Figures \ref{fig:inference_Experiment_DefectRadiusLine} and \ref{fig:inference_Experiment_DefectRadiusSquare} respectively.
+An experiment was conducted where the contaminated defected image were filtered for various kernel radiuses for a fixed alternative distribution $\normal(3,1)$. Hypothesis testing was done on the uncontaminated and filtered contaminated image and the AUC and various errors were recorded, this was repeated 100 times. The AUC was obtained by numerically integrating the ROC curve using the trapezium rule with 1000 trapeziums. The results of the uncontaminated image were all pooled together to obtain the empirical distribution of the AUC and errors without contamination. Results for the line and square defect are shown in Figures \ref{fig:inference_Experiment_DefectRadiusLine} and \ref{fig:inference_Experiment_DefectRadiusSquare} respectively.
 
 The results showed that the AUC increased with kernel radius. This highlighted that a kernel with a good radius can performance almost as though there was no contamination. It also appeared that the optimal AUC was achieved when using the kernel radius from the rule of thumb, making these results consistent with literature.
 

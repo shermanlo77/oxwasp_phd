@@ -12,6 +12,7 @@ classdef DefectRadius < Experiment
 
   properties (SetAccess = protected)
     
+    nRoc = 1000; %for roc function
     nRepeat = 100; %number of times to repeat the experiment
     imageSize = 256; %dimension of the image
     radiusArray = 10:10:100; %radius of the empirical null filter kernel
@@ -47,7 +48,7 @@ classdef DefectRadius < Experiment
     function printResults(this)
       
       directory = fullfile('reports','figures','inference');
-      rightOffset = 10;
+      offset = 10;
       
       %plot roc area vs alt mean
       fig = LatexFigure.sub();
@@ -57,9 +58,10 @@ classdef DefectRadius < Experiment
       boxplot.plot();
       hold on;
       oracleInterval = quantile(reshape(this.rocAreaArray(:,:,1),[],1), normcdf([-2,2]));
+      ax.XLim(1) = min(this.radiusArray) - offset;
+      ax.XLim(2) = max(this.radiusArray) + offset;
       plot(ax.XLim, [oracleInterval(1), oracleInterval(1)], 'k--');
       plot(ax.XLim, [oracleInterval(2), oracleInterval(2)], 'k--');
-      ax.XLim(2) = ax.XLim(2) + rightOffset;
       xlabel('radius (px)');
       ylabel('AUC');
       saveas(fig,fullfile(directory, strcat(this.experimentName,'_roc.eps')),'epsc');
@@ -72,9 +74,10 @@ classdef DefectRadius < Experiment
       boxplot.plot();
       hold on;
       oracleInterval = quantile(reshape(this.type1ErrorArray(:,:,1),[],1), normcdf([-2,2]));
+      ax.XLim(1) = min(this.radiusArray) - offset;
+      ax.XLim(2) = max(this.radiusArray) + offset;
       plot(ax.XLim, [oracleInterval(1), oracleInterval(1)], 'k--');
       plot(ax.XLim, [oracleInterval(2), oracleInterval(2)], 'k--');
-      ax.XLim(2) = ax.XLim(2) + rightOffset;
       xlabel('radius (px)');
       ylabel('type 1 error');
       saveas(fig,fullfile(directory, strcat(this.experimentName,'_type1.eps')),'epsc');
@@ -87,9 +90,10 @@ classdef DefectRadius < Experiment
       boxplot.plot();
       hold on;
       oracleInterval = quantile(reshape(this.type2ErrorArray(:,:,1),[],1), normcdf([-2,2]));
+      ax.XLim(1) = min(this.radiusArray) - offset;
+      ax.XLim(2) = max(this.radiusArray) + offset;
       plot(ax.XLim, [oracleInterval(1), oracleInterval(1)], 'k--');
       plot(ax.XLim, [oracleInterval(2), oracleInterval(2)], 'k--');
-      ax.XLim(2) = ax.XLim(2) + rightOffset;
       xlabel('radius (px)');
       ylabel('type 2 error');
       saveas(fig,fullfile(directory, strcat(this.experimentName,'_type2.eps')),'epsc');
@@ -102,9 +106,10 @@ classdef DefectRadius < Experiment
       boxplot.plot();
       hold on;
       oracleInterval = quantile(reshape(this.fdrArray(:,:,1),[],1), normcdf([-2,2]));
+      ax.XLim(1) = min(this.radiusArray) - offset;
+      ax.XLim(2) = max(this.radiusArray) + offset;
       plot(ax.XLim, [oracleInterval(1), oracleInterval(1)], 'k--');
       plot(ax.XLim, [oracleInterval(2), oracleInterval(2)], 'k--');
-      ax.XLim(2) = ax.XLim(2) + rightOffset;
       xlabel('radius (px)');
       ylabel('fdr');
       saveas(fig,fullfile(directory, strcat(this.experimentName,'_fdr.eps')),'epsc');
@@ -117,21 +122,21 @@ classdef DefectRadius < Experiment
     
     %METHOD: SETUP
     function setup(this, seed)
-      this.type1ErrorArray = zeros(this.nRepeat, numel(this.radiusArray));
-      this.type2ErrorArray = zeros(this.nRepeat, numel(this.radiusArray));
-      this.fdrArray = zeros(this.nRepeat, numel(this.radiusArray));
-      this.rocAreaArray = zeros(this.nRepeat, numel(this.radiusArray));
+      this.type1ErrorArray = zeros(this.nRepeat, numel(this.radiusArray), 2);
+      this.type2ErrorArray = zeros(this.nRepeat, numel(this.radiusArray), 2);
+      this.fdrArray = zeros(this.nRepeat, numel(this.radiusArray), 2);
+      this.rocAreaArray = zeros(this.nRepeat, numel(this.radiusArray), 2);
       this.randStream = RandStream('mt19937ar','Seed', seed);
     end
     
     %METHOD: DO EXPERIMENT
     function doExperiment(this)
       
-      %for each alt mean
+      %set up the contamination
+      defectSimulator = this.getDefectSimulator();
+      
+      %for each kernel radius
       for iRadius = 1:numel(this.radiusArray)
-        
-        %get up the contamination
-        defectSimulator = this.getDefectSimulator();
         
         %repeat nRepeat times
         for iRepeat = 1:this.nRepeat
@@ -152,24 +157,26 @@ classdef DefectRadius < Experiment
           %get the image pre/post bias with significant pixels highlighted
           zTesterPreCont = ZTester(imagePreCont);
           zTesterPreCont.doTest();
-          zTesterPostCont = ZTester(imageFiltered);
-          zTesterPostCont.doTest();
+          zTesterFiltered = ZTester(imageFiltered);
+          zTesterFiltered.doTest();
 
           %get the roc area
-          [~, ~, this.rocAreaArray(iRepeat, iRadius, 1)] = roc(imagePreCont, isNonNullImage, 100);
-          [~, ~, this.rocAreaArray(iRepeat, iRadius, 2)] = roc(imageFiltered, isNonNullImage, 100);
+          [~, ~, this.rocAreaArray(iRepeat, iRadius, 1)] = roc(imagePreCont, isNonNullImage, ...
+              this.nRoc);
+          [~, ~, this.rocAreaArray(iRepeat, iRadius, 2)] = roc(imageFiltered, isNonNullImage, ...
+              this.nRoc);
           
           %get the error rates fdrArray
           
           this.type1ErrorArray(iRepeat, iRadius, 1) = ...
               sum(zTesterPreCont.positiveImage(~isNonNullImage)) / sum(sum(~isNonNullImage));
           this.type1ErrorArray(iRepeat, iRadius, 2) = ...
-              sum(zTesterPostCont.positiveImage(~isNonNullImage)) / sum(sum(~isNonNullImage));
+              sum(zTesterFiltered.positiveImage(~isNonNullImage)) / sum(sum(~isNonNullImage));
             
           this.type2ErrorArray(iRepeat, iRadius, 1) = ...
               sum(~(zTesterPreCont.positiveImage(isNonNullImage))) / sum(sum(isNonNullImage));
           this.type2ErrorArray(iRepeat, iRadius, 2) = ...
-              sum(~(zTesterPostCont.positiveImage(isNonNullImage))) / sum(sum(isNonNullImage));
+              sum(~(zTesterFiltered.positiveImage(isNonNullImage))) / sum(sum(isNonNullImage));
             
           nPositive = sum(sum(zTesterPreCont.positiveImage));
           if nPositive == 0
@@ -179,11 +186,11 @@ classdef DefectRadius < Experiment
           end
           this.fdrArray(iRepeat, iRadius, 1) = fdr;
           
-          nPositive = sum(sum(zTesterPostCont.positiveImage));
+          nPositive = sum(sum(zTesterFiltered.positiveImage));
           if nPositive == 0
             fdr = 0;
           else
-            fdr = sum(sum(zTesterPostCont.positiveImage(~isNonNullImage))) / nPositive;
+            fdr = sum(sum(zTesterFiltered.positiveImage(~isNonNullImage))) / nPositive;
           end
           this.fdrArray(iRepeat, iRadius, 2) = fdr;
 
