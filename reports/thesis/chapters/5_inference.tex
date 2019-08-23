@@ -1527,7 +1527,7 @@ Various defects were investigated. Speckle defect with density $\pi_1$ assign al
     }
     \centerline{
       \begin{subfigure}{\subSize}
-        \includegraphics[width=\textwidth]{../figures/inference/DefectExampleSquare40_EmpiricalNullFilternullStd.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/DefectExampleSquare40_EmpiricalNullFilterimageFiltered.eps}
         \caption{Filtered}
       \end{subfigure}
       \begin{subfigure}{\subSize}
@@ -1568,6 +1568,8 @@ Various defects were investigated. Speckle defect with density $\pi_1$ assign al
 An example of a speckle defected image is shown in Figure \ref{fig:inference_defectDustExample}, the figure also shows the image contaminated and then filtered. Without filtering, the top-left and bottom-right of the contaminated image have large, in magnitude, test statistics. In these areas, a lot of pixels would be detected as falsely positive. By using the empirical null filter, the resulting filtered image reassemble the uncontaminated image and appropriate inference can be done on the filtered image. However, some statistical power was lost when conducting inference on the filtered image because in areas of high empirical null standard deviation, the normalised statistics became too small which then decreased the detection power. This cannot be avoided as areas of high empirical null standard deviation was due to the sampling error. Similar comments can be made for the line defect as shown in Figure \ref{fig:inference_defectLineExample}.
 
 The square defected images, including the contaminated ones, are shown in Figures \ref{fig:inference_defectSquareExample} and \ref{fig:inference_defectSquare2Example}. Figure \ref{fig:inference_defectSquareExample} filtered the contaminated image using a kernel radius of $r=20$, while Figure \ref{fig:inference_defectSquare2Example} used a kernel radius of $r=40$. With $r=20$, the kernel is smaller than the square defect, therefore the defect was treated as the null. This is evident because the empirical null mean captured the defect. This resulted in difficulty detecting the defect. With $r=40$, the kernel is bigger than the defect and treated the defect as non-null. In this scenario, the empirical null filter recovered the gradient in the empirical null which was then used for normalisation.
+
+The empirical null mean in Figure \ref{fig:inference_defectSquareExample} demonstrates the multi-thread nature of the implementation of the empirical null filter. It can be seen that there are horizontal streaks where the defect is. This is the result of each thread filtering a row each and jumping from one mode, the null, to the other, the non-null, at different times. The horizontal streaks can be removed by using more initial values so that the Newton-Raphson method can pin point which mode is greater.
 
 Figure \ref{fig:inference_defectExamplePValue} shows the $p$-values after filtering a contaminated defected image. The FDR can be estimated in these figures by dividing the number of null statistics in the critical region by the number of statistics in the critical region. With a sensible kernel radius, some of the defects can be detected. False negatives do appear but this is inevitable in order to control for the FDR. The figure shows that using a kernel radius of $r=20$ for the square defect detected no pixels for defects. This, again, emphasise the importance of a good kernel radius. 
 
