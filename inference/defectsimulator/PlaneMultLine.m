@@ -21,10 +21,10 @@ classdef PlaneMultLine < PlaneMult
       %randStream: rng
       %grad: 2 row vector, gradient of the plane
       %multiplier: scale all pixels by this
+      %lineThickness: how thick the defect line is
       %altMean: alt distribution mean
       %altStd: alt distribution std
-      %lineThickness: how thick the defect line is
-    function this = PlaneMultLine(randStream, grad, multiplier, altMean, altStd, lineThickness)
+    function this = PlaneMultLine(randStream, grad, multiplier, lineThickness, altMean, altStd)
       this@PlaneMult(randStream, grad, multiplier);
       this.altMean = altMean;
       this.altStd = altStd;
@@ -35,9 +35,9 @@ classdef PlaneMultLine < PlaneMult
     %PARAMETER:
       %size: 2 row vector [height, width]
     %RETURN:
-      %image: a defected image
+      %image: a defected Gaussian image
       %isNonNullImage: boolean map, true if that pixel is a defect
-      %imagePreBias: defected Gaussian image without the smooth function added
+      %imageNoContamination: image with defect but no contamination
     function [imageContaminated, isNonNullImage, imageNoContamination] = ...
           getDefectedImage(this, size)
       [imageNoContamination, isNonNullImage] = this.getDefectedImage@DefectSimulator(size);

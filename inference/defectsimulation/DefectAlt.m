@@ -47,16 +47,18 @@ classdef DefectAlt < Experiment
     end
     
     %IMPLEMENTED: PRINT RESULTS
-    %Plots type 1, type 2, area of ROC vs alternative mean
+    %Plots type 1, type 2, fdr, area of ROC vs alternative mean
     %Plot in addition the no contamination and contamination ROC area, these are supplied by passing
-        %the respective DefectAlt experiments
+        %the respective experiments by overriding the methods getBaseline() and getBaseline0()
     %Plot in addition the no contamination quantiles for the errors, again, supplied by passing the
-        %respective DefectAlt experiment baseline0
-    %How to use:
-      %Override with a printResult with no parameters
-    function printResults(this, baseline0, baseline)
+        %respective experiments by overriding the methods getBaseline() and getBaseline0()
+    function printResults(this)
       
       directory = fullfile('reports','figures','inference');
+      
+      %get any baseline experiment results
+      baseline0 = this.getBaseline0();
+      baseline = this.getBaseline();
       
       %print radius
       fildId = fopen(fullfile(directory,strcat(this.experimentName,'_radius.txt')),'w');
@@ -70,49 +72,28 @@ classdef DefectAlt < Experiment
       
       %Plots pre/post contamination results on the same graph, so offset them
       offset = 0.06;
-      baseLineConfidence = 0.95;
-      baseLineQuantile = (1 - baseLineConfidence)/2;
+      baseLineQuantile = normcdf(-2);
       
       %plot roc area vs alt mean
       fig = LatexFigure.sub();
       ax = gca;
-      
       boxplotFiltered = Boxplots(this.rocAreaArray, true);
       boxplotFiltered.setPosition(this.altMeanArray);
       boxplotFiltered.setColour(ax.ColorOrder(1,:));
-      boxplotFiltered.setWantMedian(false);
-      boxplotFiltered.setWantTrend(true);
       boxplotFiltered.plot();
-      boxplotLegend = boxplotFiltered.getLegendAx();
-      label = {'filtered'};
       if (~isempty(baseline0))
         hold on;
-        boxplotPreCont = Boxplots(baseline0.rocAreaArray, true);
-        boxplotPreCont.setPosition(baseline0.altMeanArray);
-        boxplotPreCont.setColour(ax.ColorOrder(2,:));
-        boxplotPreCont.setWantMedian(false);
-        boxplotPreCont.setWantTrend(true);
-        boxplotPreCont.plot();
-        boxplotLegend = [boxplotLegend, boxplotPreCont.getLegendAx()];
-        label{numel(boxplotLegend)} = 'no contamination';
+        plot(baseline0.altMeanArray, mean(baseline0.rocAreaArray), 'k-.');
       end
       if (~isempty(baseline))
         hold on;
-        boxplotPostCont = Boxplots(baseline.rocAreaArray, true);
-        boxplotPostCont.setPosition(baseline.altMeanArray);
-        boxplotPostCont.setColour(ax.ColorOrder(3,:));
-        boxplotPostCont.setWantMedian(false);
-        boxplotPostCont.setWantTrend(true);
-        boxplotPostCont.plot();
-        boxplotLegend = [boxplotLegend, boxplotPostCont.getLegendAx()];
-        label{numel(boxplotLegend)} = 'contaminated';
+        plot(baseline.altMeanArray, mean(baseline.rocAreaArray), 'k-.');
       end
       xlabel('alt distribution mean');
       ylabel('AUC');
       ylim([0.5,1]);
       ax.XLim(1) = this.altMeanArray(1) - offset*2;
       ax.XLim(2) = this.altMeanArray(end) + offset*2;    
-      legend(boxplotLegend, label, 'Location', 'southeast');
       saveas(fig,fullfile(directory, strcat(this.experimentName,'_roc.eps')),'epsc');
       
       %plot type 1 error vs alt mean
@@ -180,6 +161,21 @@ classdef DefectAlt < Experiment
       
     end
     
+    %OVERRIDE: DELETE RESULTS
+    %Delete the .mat file storing the results and all prerequsites
+    function deleteResults(this)
+      disp(strcat(cell2mat({'Delete ',this.experimentName})));
+      this.deleteResults@Experiment();
+      baseline0 = this.getBaseline0();
+      if (~isempty(baseline0))
+        baseline0.deleteResults();
+      end
+      baseline = this.getBaseline();
+      if (~isempty(baseline))
+        baseline.deleteResults();
+      end
+    end
+    
   end
   
   methods (Access = protected)
@@ -196,7 +192,9 @@ classdef DefectAlt < Experiment
     %METHOD: DO EXPERIMENT
     function doExperiment(this)
       
-      DebugPrint.newFile(this.experiment_name);
+      DebugPrint.newFile(this.experimentName);
+      %run any required experiments
+      this.runPrerequisite();
       
       %for each alt mean
       for iMu = 1:numel(this.altMeanArray)
@@ -256,6 +254,32 @@ classdef DefectAlt < Experiment
       filter.setNInitial(this.nIntial);
       filter.filter(imageContaminated);
       imageFiltered = filter.getFilteredImage();
+    end
+    
+    %METHOD: RUN PREREQUISITE EXPERIMENTS
+    %Run any experiments if required, to be implemented for subclasses
+    %This method is called at the start of do experiment
+    function runPrerequisite(this)
+      baseline0 = this.getBaseline0();
+      if (~isempty(baseline0))
+        baseline0.run();
+      end
+      baseline = this.getBaseline();
+      if (~isempty(baseline))
+        baseline.run();
+      end
+    end
+    
+    %METHOD (TO BE OVERRIDEN): GET BASELINE 0
+    %Return the same experiment with no filter and no cotamination
+    function baseline0 = getBaseline0(this)
+      baseline0 = [];
+    end
+    
+    %METHOD (TO BE OVERRIDEN): GET BASELINE
+    %Return the same experiment with no filter and with cotamination
+    function baseline = getBaseline(this)
+      baseline = [];
     end
     
   end

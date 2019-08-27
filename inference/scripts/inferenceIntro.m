@@ -4,7 +4,7 @@
 %SCRIPT: INFERENCE INTRO
 %The z statistics were tested using BH procedure, no empirical null was used
 %Plots the following:
-  %x ray scan and the aRTist simulation
+  %x ray projection and the aRTist simulation
   %-log10 p values as an image
   %x ray scan with positive pixels
   %histogram with critical boundary
@@ -13,16 +13,16 @@
 clearvars;
 close all;
 
-%get the x-ray scan, artist and the z image
+%get the x-ray projection, artist and the z image
 randStream = RandStream('mt19937ar', 'Seed', uint32(3538096789));
 [zImage, test, artist] = getZImage(AbsFilterDeg120(), randStream);
-%do hypothesis testing on the zimage
+%do hypothesis testing on the zimage (without empirical null filter)
 zTester = ZTester(zImage);
 zTester.doTest();
 
 clim = [2.2E4,5.5E4]; %set the clim of the imagesc plots of the x-ray and artist
     
-%plot the x ray scan
+%plot the x ray projection
 fig = LatexFigure.sub();
 testPlot = Imagesc(test);
 testPlot.plot();
@@ -44,7 +44,7 @@ image_plot = Imagesc(-log10(zTester.pImage));
 image_plot.plot();
 saveas(fig,fullfile('reports','figures','inference',strcat(mfilename,'_logp.eps')),'epsc');
 
-%plot the x-ray scan with critical pixels highlighted
+%plot the x-ray projection with critical pixels highlighted
 fig = LatexFigure.sub();
 image_plot = Imagesc(test);
 image_plot.addPositivePixels(zTester.positiveImage);

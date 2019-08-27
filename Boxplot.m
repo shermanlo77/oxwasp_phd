@@ -1,7 +1,7 @@
 %MIT License
 %Copyright (c) 2019 Sherman Lo
 
-%CLASS BOXPLOT
+%CLASS: BOXPLOT
 %Custom boxplot class, for plotting box plot given data
 %
 %Draws a thick line between the quartiles
@@ -23,8 +23,8 @@ classdef Boxplot < handle
     
     wantOutlier = true;
     wantMedian = true;
-    hasUpperOutlier;
-    hasLowerOutlier;
+    hasUpperOutlier; %boolean, true if has outliers bigger than the upper whisker
+    hasLowerOutlier; %boolean, ture if has outliers smaller than the lower whisker
     whiskerCapSize = 6; %size of the whisker cap
     
     outlierMark = 'x'; %mark of outlier
@@ -37,6 +37,8 @@ classdef Boxplot < handle
   methods (Access = public)
     
     %CONSTURCTOR
+    %PARAMETERS:
+      %X: column vector of data
     function this = Boxplot(X)
       %assign member variables
       this.X = X;

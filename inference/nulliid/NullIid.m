@@ -7,7 +7,9 @@
     %Z~N(0,1), the normalised z statistics is (z - null mean) / null std.
 %For a given n, n x N(0,1) are simulated, the null mean and null std are estimated using these
     %simulated data. The null parameters are recorded. The null parameters are then used normalise
-    %the simulated data. The mean, variance and kurtosis of the normalised statistics are recorded
+    %the simulated data. The mean, variance and kurtosis of the normalised statistics are recorded.
+    %This is repeated by simulating another data set.
+%Various n are investigated
 %METHODS TO BE IMPLEMENTED;
   %[nullMean, nullStd] = getNull(this, z)
     %given an array of data z, return the nullMean and nullStd
@@ -53,7 +55,7 @@ classdef (Abstract) NullIid < Experiment
       boxplot.setPosition(radiusPlot);
       boxplot.plot();
       hold on;
-      zCritical = norminv(0.975);
+      zCritical = 2;
       plot(radiusPlot, zCritical./sqrt(this.nArray), 'k--');
       plot(radiusPlot, -zCritical./sqrt(this.nArray), 'k--');
       ax = fig.Children(1);
@@ -69,8 +71,8 @@ classdef (Abstract) NullIid < Experiment
       boxplot.setPosition(radiusPlot);
       boxplot.plot();
       hold on;
-      plot(radiusPlot, sqrt(chi2inv(0.975,this.nArray - 1)./(this.nArray-1)), 'k--');
-      plot(radiusPlot, sqrt(chi2inv(0.025,this.nArray - 1)./(this.nArray-1)), 'k--');
+      plot(radiusPlot, sqrt(chi2inv(normcdf(2),this.nArray - 1)./(this.nArray-1)), 'k--');
+      plot(radiusPlot, sqrt(chi2inv(normcdf(-2),this.nArray - 1)./(this.nArray-1)), 'k--');
       ax = fig.Children(1);
       ax.XLabel.String = 'r';
       ax.YLabel.String = 'null std';
@@ -84,7 +86,7 @@ classdef (Abstract) NullIid < Experiment
       boxplot.setPosition(radiusPlot);
       boxplot.plot();
       hold on;
-      zCritical = norminv(0.975);
+      zCritical = 2;
       plot(radiusPlot, zCritical./sqrt(this.nArray), 'k--');
       plot(radiusPlot, -zCritical./sqrt(this.nArray), 'k--');
       ax = fig.Children(1);
@@ -100,8 +102,8 @@ classdef (Abstract) NullIid < Experiment
       boxplot.setPosition(radiusPlot);
       boxplot.plot();
       hold on;
-      plot(radiusPlot, sqrt(chi2inv(0.975,this.nArray - 1)./(this.nArray-1)), 'k--');
-      plot(radiusPlot, sqrt(chi2inv(0.025,this.nArray - 1)./(this.nArray-1)), 'k--');
+      plot(radiusPlot, sqrt(chi2inv(normcdf(2),this.nArray - 1)./(this.nArray-1)), 'k--');
+      plot(radiusPlot, sqrt(chi2inv(normcdf(-2),this.nArray - 1)./(this.nArray-1)), 'k--');
       ax = fig.Children(1);
       ax.XLabel.String = 'r';
       ax.YLabel.String = 'std corrected z';

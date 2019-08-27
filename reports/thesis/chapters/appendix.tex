@@ -176,7 +176,8 @@ Let $X\sim\CPoisson(\lambda,\alpha,\beta)$ and has p.d.f.
   p_X(x) = 
   \begin{cases}
     \delta(x) \euler^{-\lambda} & \text{ for } x=0 \\ 
-    \displaystyle\sum_{y=1}^{\infty}\dfrac{\beta^{y\alpha}}{\Gamma(y\alpha)}x^{y\alpha-1}\euler^{-\beta x}\euler^{-\lambda}\frac{\lambda^y}{y!} & \text{ for } x>0
+    \dfrac{\euler^{-x\beta-\lambda}}{x}
+    \displaystyle\sum_{y=1}^{\infty}\dfrac{\beta^{y\alpha}}{\Gamma(y\alpha)}x^{y\alpha}\frac{\lambda^y}{y!} & \text{ for } x>0
   \end{cases}
   \ .
   \label{eq:appendix_compoundPoisson_pdf}
@@ -203,19 +204,18 @@ and the p.d.f.~for $x>0$ is
 \begin{align*}
   p_X(x) &=
   \begin{multlined}[t]
+    \exp\left[
+        \frac{-x}{\phi(p-1)\mu^{p-1}}
+        -\frac{\mu^{2-p}}{\phi(2-p)}
+    \right]
+    \dfrac{1}{x}
+    \\
     \sum_{y=1}^{\infty}
     \left[
       \frac{1}{\phi(p-1)\mu^{p-1}}
     \right]^{y\alpha}
     \frac{1}{\Gamma(y\alpha)}
-    x^{y\alpha-1}
-    \exp\left[
-        -\frac{x}{\phi(p-1)\mu^{p-1}}
-    \right]
-    \\
-    \exp\left[
-        -\frac{\mu^{2-p}}{\phi(2-p)}
-    \right]
+    x^{y\alpha}
     \left[
       \frac{\mu^{2-p}}{\phi(2-p)}
     \right]^y

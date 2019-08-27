@@ -8,6 +8,8 @@ Contains code to reproduce the thesis Lo, S.E. (2019). *Characterisation of Comp
 
 The *Java* source code for the empirical null filter *ImageJ* plugin is in the directory `java/src` and the *Maven* project file is in `java/pom.xml`.
 
+*MATLAB* R2019a was used.
+
 ## Abstract
 X-ray computed tomography can be used for defect detection in additive manufacturing. Typically, several x-ray projections of the product at hundreds of angles are used to reconstruct the object in 3D to look for any defects. The process can be time-consuming. This thesis aims to investigate if it is possible to conduct defect detection from a single projection to speed up the process. An additive manufacturing test sample was created with voids to see if they can be detected.
 
@@ -22,13 +24,14 @@ Requires *Maven*. Run the command
 ```
 mvn -f java package
 ```
-to compile the *Java* code. The compiled `.jar` file should be stored in `java/target/Empirical_Null_Filter-1.0.jar` and can be used as an *ImageJ* plugin. Copies of libraries should be stored as `java/target/libs`. This step can be done using *Eclipse* instead.
+to compile the *Java* code. The compiled `.jar` file is stored in `java/target/Empirical_Null_Filter-1.0.jar` and can be used as an *ImageJ* plugin. Copies of libraries are stored in `java/target/libs/`. This above steps can be done using *Eclipse* instead.
 
-Download the data from *Figshare* at https://figshare.com/s/d7371af48d950eeec592. Unzip the zip file and the data is stored in `data/`.
+Download the data from *Figshare* at https://figshare.com/s/d7371af48d950eeec592 and unzip the zip file. The data is stored in the directory `data/`. The `data/` directory can be stored elsewhere by specifying where is is in the *MATLAB* script `getDataDirectory.m`.
 
 On startup, *MATLAB* reads in the `.jar` files from the file `javaclasspath.txt`.
 
 The following *MATLAB* products are required:
+* Curve Fitting Toolbox
 * Image Processing Toolbox
 * Optimization Toolbox
 * Statistics and Machine Learning Toolbox

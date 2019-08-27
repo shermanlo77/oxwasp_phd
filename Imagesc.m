@@ -6,17 +6,17 @@
 %
 %HOW TO USE:
   %pass the image through the constructor
-  %pass a boolean image through the method addSigPixels
-  %use the method plot() to plot the image with coloured in significant pixels
+  %pass a boolean image through the method addPositivePixels(positiveImage)
+  %use the method plot() to plot the image with coloured in positive pixels
 classdef Imagesc < handle
   
   %MEMBER VARIABLES
   properties (SetAccess = private)
     image; %image
     clim; %2 column vector, limit of the image values
-    dilateSize = 1; %scalar, how much to dilate the boolean significant image
+    dilateSize = 1; %scalar, how much to dilate the boolean positive image
     positiveImage; %image of booleans, true if want that pixel to be coloured in
-    %3 row vector, contain numbers between 0 and 1, define the colour of the significant pixels
+    %3 row vector, contain numbers between 0 and 1, define the colour of the positive pixels
     positiveColour = [1,0,0];
     posterScale = 5;
     isPoster = false;
@@ -27,7 +27,7 @@ classdef Imagesc < handle
     
     %CONSTRUCTOR
     %PARAMETERS:
-      %image: image to be plotted
+      %image: image to be plotted (matrix)
     function this = Imagesc(image)
       %assign member variables
       this.image = image;

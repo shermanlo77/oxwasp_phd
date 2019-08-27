@@ -1,13 +1,13 @@
 %MIT License
 %Copyright (c) 2019 Sherman Lo
 
-%P VALUE TESTER
+%CLASS: P VALUE TESTER
 %Does multiple hypothesis tests on a given image of p values
 %Multiple testing corrected by controlling the FDR
 %See:
-  %Benjamini, Y. and Hochberg, Y. 1995
-  %Controlling the false discovery rate: a practical and powerful approach to multiple testing
-  %Journal of the royal statistical society
+  %Benjamini, Y. and Hochberg, Y. (1995). Controlling the false discovery rate: A practical and
+      %powerful approach to multiple testing. Journal of the Royal Statistical Society: Series B
+      %(Methodological), 57(1):289–300.
 %How to use:
   %pass p values (can be 2D array) into the constructor along with the fdr threshold
   %call method doTest

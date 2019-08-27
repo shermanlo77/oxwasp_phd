@@ -8,9 +8,13 @@
 %  The instantised object is saved in a .mat file in the results folder, with the class name.
 %  Call the method run() to run the experiment
 %
+%  IMPORTANT: Should the experiment terminate for whatever reason, re-instantiate the experiment and
+%  ressume the experiment. This is so that all member variables are reset to its initial values or
+%  since its last checkpoint.
+%
 %  The constructor is designed to be run differently depending if the file exist
-%  1. if there is no file, the constructor will call the method setup() save the instantised itself
-%      to a .mat file
+%  1. if there is no file, the constructor will instantise itself and save itself to a .mat file.
+%      The method run() can be called to do the experiment
 %  2. if the .mat file can be loaded, the member variables are read from that and instantised with
 %      these member variables
 %
@@ -24,10 +28,10 @@ classdef Experiment < handle
   properties (SetAccess = public)
     experimentName; %string, name of the experiment and the file name for storing it in a .mat file
     isComplete; %boolean, true if the experiment is completed
-    nIteration; %total of iterations in the experiment
-    iIteration; %number of iterations done so far
   end
   properties (SetAccess = protected, GetAccess = protected)
+    nIteration; %total of iterations in the experiment
+    iIteration; %number of iterations done so far
     nArrow; %number of arrows to be displayed in the progress bar
   end
   
@@ -42,7 +46,8 @@ classdef Experiment < handle
       %try and load an existing .mat file, then either print and run the experiment
       try
         %load the file
-        load(fullfile(getResultsDirectory(),strcat(this.experimentName,'.mat')));
+        loadThis = load(fullfile(getResultsDirectory(),strcat(this.experimentName,'.mat')));
+        this = loadThis.this;
         %catch problems reading the file
       catch
         %assign member variables
@@ -58,9 +63,9 @@ classdef Experiment < handle
     %METHOD: RUN EXPERIMENT
     %Does the experiment if the experiment is not completed
     function run(this)
-      %if the experiment is completed, throw an error
+      %if the experiment is completed, show a message
       if this.isComplete
-        disp(cell2mat({this.experimentName,' already completed'}));
+        disp(cell2mat({this.experimentName,' already complete'}));
       %else, do the experiment, set isComplete to be true and save it
       else
         this.doExperiment();
@@ -83,7 +88,10 @@ classdef Experiment < handle
     %METHOD: SAVE STATE
     %Save itself in a .mat file
     function save(this)
+      %turn off warning for saving java member variables
+      warning('off','MATLAB:Java:ConvertFromOpaque');
       save(fullfile(getResultsDirectory,strcat(this.experimentName,'.mat')),'this');
+      warning('on','MATLAB:Java:ConvertFromOpaque');
       %print text that the experiment has been saved
       disp(strcat(fullfile(getResultsDirectory,strcat(this.experimentName,'.mat')), ' saved'));
     end
@@ -91,7 +99,7 @@ classdef Experiment < handle
   end %methods
   
   %PROTECTED METHODS
-  methods (Access = public)
+  methods (Access = protected)
     
     %METHOD: SET N ITERATION
     %Set the number of iterations so that the method madeProgress can called

@@ -4,31 +4,30 @@
 close all;
 clearvars;
 
+this = DefectExampleDust();
+this.run();
+this.printResults();
+close all;
+
+this = DefectExampleLine();
+this.run();
+this.printResults();
+close all;
+
+this = DefectExampleSquare20();
+this.run();
+this.printResults();
+close all;
+
+this = DefectExampleSquare40();
+this.run();
+this.printResults();
+close all;
+
 this = DefectAltDustEmpirical();
 this.run();
 this.printResults();
 close all;
-
-this = DefectAltDustMadMode();
-this.run();
-this.printResults();
-close all;
-
-this = DefectAltDust0Empirical();
-this.run();
-this.printResults();
-close all;
-
-this = DefectAltDust0MadMode();
-this.run();
-this.printResults();
-close all;
-
-this = DefectAltDust0Baseline();
-this.run();
-
-this = DefectAltDustBaseline();
-this.run();
 
 this = DefectRadiusLine();
 this.run();

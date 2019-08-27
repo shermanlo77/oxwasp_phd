@@ -1,6 +1,21 @@
 %MIT License
 %Copyright (c) 2019 Sherman Lo
 
+%CLASS: COMPOUND POISSON
+%For EM algorithm estimating for compound poisson-gamma data. Also has other useful methods
+%
+%For EM algorithm estimation:
+  %call addData(X) to add data
+  %set initial values using the method setParameters(lambda,alpha,beta)
+  %call method initaliseEM()
+  %call method EStep() and MStep() repeatedly
+%
+%The static function CompoundPoisson.simulate(n,lambda,alpha,beta) can be used to simulate compound
+    %poisson-gamma data
+%
+%For Q-Q plot, the method getInvCdf can be used to get the (approximate) inverse cdf
+%
+%Other use methods: getPdf, getLnPdf, getMarginallnL, getFisherInformation
 classdef CompoundPoisson < handle
   
   %MEMBER VARIABLES
@@ -161,6 +176,7 @@ classdef CompoundPoisson < handle
         %get the observable and latent variable
         x = this.X(i);
         y = this.Y(i);
+        yVar = this.YVar(i);
         %if x is bigger than 0
         if x > 0
           %add conditional expectation terms
@@ -168,7 +184,7 @@ classdef CompoundPoisson < handle
           T(2,i) = -gammaln(y*this.alpha);
           T(3,i) = y*this.alpha*log(x);
           T(4,i) = -x*this.beta;
-          T(7,i) = -0.5*y*this.alpha^2*psi(1,y*this.alpha);
+          T(7,i) = -0.5*yVar*this.alpha^2*psi(1,y*this.alpha);
         end
         %add poisson terms
         T(5,i) = y*log(this.lambda);
@@ -189,7 +205,7 @@ classdef CompoundPoisson < handle
         %if the observable is 0, then y is 0
         if x == 0
           y = 0;
-          var = nan;
+          yVar = nan;
           %else estimate the mean and variance
         else
           %work out the normalisation constant for expectations
@@ -197,11 +213,11 @@ classdef CompoundPoisson < handle
           %work out the expectation
           y = exp(this.lnSumW(x, 1) - normalisationConstant);
           %work out the variance
-          var = exp(this.lnSumW(x, 2) - normalisationConstant) - y^2;
+          yVar = exp(this.lnSumW(x, 2) - normalisationConstant) - y^2;
         end
         %assign the expectation and variance
         this.Y(i) = y;
-        this.YVar(i) = var;
+        this.YVar(i) = yVar;
       end
     end
     
@@ -210,7 +226,7 @@ classdef CompoundPoisson < handle
     function MStep(this)
       
       %update the poisson variable
-      YMean = mean(this.Y);
+      yMean = mean(this.Y);
       
       %get non zero variables
       X0 = this.X(this.X~=0);
@@ -218,27 +234,26 @@ classdef CompoundPoisson < handle
       var0 = this.YVar(~isnan(this.YVar));
       
       %work out the gradient
-      dAlphaLnL = sum( ...
+      dAlphaT = sum( ...
           Y0*log(this.beta)...
           -Y0.*psi(this.alpha*Y0)...
           + Y0.*log(X0)...
           - (0.5*this.alpha^2).*var0.*Y0.*psi(2,Y0*this.alpha)...
           - this.alpha*var0.*psi(1,Y0*this.alpha));
-      dBetaLnL = sum(Y0*this.alpha/this.beta - X0);
+      dBetaT = sum(Y0*this.alpha/this.beta - X0);
       
       %work out the Hessian
-      dAlphaBetaLnL = sum(Y0/this.beta);
-      dAlphaAlphaLnL = -sum(...
-          Y0.^2.*psi(1,this.alpha*Y0)...
-          + var0.*psi(1,this.alpha*Y0)...
+      dAlphaBetaT = sum(Y0/this.beta);
+      dAlphaAlphaT = -sum(...
+          (Y0.^2+var0).*psi(1,this.alpha*Y0)...
           + (2*this.alpha).*var0.*Y0.*psi(2,this.alpha*Y0)...
           + (0.5*this.alpha^2).*var0.*Y0.^2.*psi(3,Y0*this.alpha));
-      dBetaBetaLnL = -sum(Y0*this.alpha/(this.beta^2));
+      dBetaBetaT = -sum(Y0*this.alpha/(this.beta^2));
       
       %put all the variables together in vector and matrix form
       theta = [this.alpha; this.beta]; %parameter matrix
-      delLnL = [dAlphaLnL; dBetaLnL]; %gradient
-      H = [dAlphaAlphaLnL, dAlphaBetaLnL; dAlphaBetaLnL, dBetaBetaLnL]; %Hessian
+      delLnL = [dAlphaT; dBetaT]; %gradient
+      H = [dAlphaAlphaT, dAlphaBetaT; dAlphaBetaT, dBetaBetaT]; %Hessian
       
       %do a newton step
       theta = theta - H\delLnL;
@@ -249,7 +264,7 @@ classdef CompoundPoisson < handle
       end
       
       %update the parameters
-      this.setParameters(YMean, theta(1), theta(2));
+      this.setParameters(yMean, theta(1), theta(2));
       
     end
     
@@ -273,8 +288,6 @@ classdef CompoundPoisson < handle
     %PARAMETERS:
       %x: scalar, compound poisson variable
       %y: positive integer, term index of the compound Poisson sum
-      %phi: dispersion parameter
-      %p: power index
     %RETURN:
       %lnWy: log compopund Poisson term
     function lnWy = lnWy(this, x, y)
@@ -313,7 +326,7 @@ classdef CompoundPoisson < handle
       %declare array of compound poisson terms
       %each term is a ratio of the compound poisson term with the maximum compound poisson term
       terms = zeros(1,this.nCompoundPoissonTerm);
-      %the first term is 1
+      %the first term is 1, that is exp[ln(W_ymax)-ln(W_ymax)] = 1;
       terms(1) = 1;
       
       %declare booleans isGotYL and isGotYU
@@ -326,7 +339,9 @@ classdef CompoundPoisson < handle
       yL = yMax;
       yU = yMax;
       
-      %declare a counter which counts the number of compound Poisson terms stored in the array terms
+      %declare a pointer which points to an empty element in the array terms
+      %can be used to counts the number of compound Poisson terms (counter - 1)
+      %the counter starts at 2 because the 1st terms has been set at yMax
       counter = 2;
       
       %calculate the compound poisson terms starting at yL and working downwards
@@ -391,7 +406,8 @@ classdef CompoundPoisson < handle
         end
       end
       
-      %lower the counter by 1
+      %lower the counter by 1 because it points at an empty element
+      %1:counter covers allocated values
       counter = counter - 1;
       %work out the compound Poisson sum using non-zero terms
       lnSumW = lnWMax + log(sum(terms(1:counter)));
@@ -438,22 +454,31 @@ classdef CompoundPoisson < handle
         cdfArray(i) = cdfArray(i-1) + 0.5*h*(pdfArray(i)+pdfArray(i-1));
       end
       
-      %declare array of compound poisson variables
-      %one for each element in pArray
+      %declare array of compound poisson variables one for each element in pArray
+      %inverse cdf are saved here
       x = zeros(numel(pArray),1);
       
       %declare a variable for counting the number of inverse cdf calculated
       %this corresponds to the pointer for the array x
       counter = 1;
       
-      %for each trapezium
+      %calculation of inverse cdf
+      %note: cdfArray(1) > 0 if a = 0
+      %note: cdfArray(1) = 0 if a > 0
+      %search through cdfArray(i) until for an i such that
+          %cdfArray(i-1) < pArray(counter) < cdfArray(i) and the inverse cdf can be approximated
+          %using interpolation
+      %increment counter for every successful i found
+      %if pArray(counter) < cdfArray(1) found, don't have much to go on, use a = xArray(1) 
+      %
+      %for each evaluation point
       for i = 1:n
         
-        %while the current probability in pArray is less than the cdf of the current trapezium
-        %then the inverse cdf can be calculated using interpolation
+        %while the current probability in pArray is less than the cdf of the current point
+            %then the inverse cdf can be calculated using interpolation
         while pArray(counter) < cdfArray(i)
           
-          %if this is the first trapezium
+          %if this is the first evaluation point
           %then the inverse cdf is the lower limit of the integration
           if i == 1
             x(counter) = xArray(i);

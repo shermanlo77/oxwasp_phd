@@ -1,16 +1,13 @@
 %MIT License
 %Copyright (c) 2019 Sherman Lo
-
+%
+%0 subclass means add defect BUT NO contamination
 classdef DefectAltDust0 < DefectAlt
   
   methods (Access = public)
     
     function this = DefectAltDust0()
       this@DefectAlt();
-    end
-    
-    function printResults(this)
-      this.printResults@DefectAlt(DefectAltDust0Baseline(), []);
     end
     
   end

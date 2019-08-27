@@ -39,7 +39,7 @@ import org.apache.commons.math3.random.RandomGenerator;
 /**Locally normalise the grey values using the empirical null  mean (mode) and the empirical null
  *     std.
  * 
- * <p>The method filter is overloaded but all are directed to filter() with no parameters. The
+ * <p>The method filter is overloaded but all are directed to filter() with no parameters.
  *     filter() with no parameter is used directly by ImageJ because the image is passed through the
  *     methods setup and run. The methods filter(float [][] image) and
  *     filter(float [][] image, String roiPath) are required to pass the image when used by MATLAB.
@@ -273,6 +273,8 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   //IMPLEMENTED: DIALOG ITEM CHANGED
   /**Called on user input and update the radius and outputImagePointer.
    * @parm gd GUI
+   * @parm e Not used
+   * @return true if input values are valid, else false
    */
   @Override
   public boolean dialogItemChanged(GenericDialog gd, AWTEvent e) {
@@ -345,7 +347,8 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   
   //METHOD: SET OUTPUT IMAGE
   /**Set outputImagePointer, this indicate which output images to show
-   * @param pointer which output images to show, use the static int variable, e.g. NULL_MEAN
+   * @param pointer which output images to show, use and the static int variables,
+   *     e.g. NULL_MEAN + NULL_STD
    */
   public void setOutputImage(int pointer) {
     this.outputImagePointer = pointer;
@@ -387,9 +390,9 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
    *     others are processing the data.
    *     
    * <p>'aborted[0]' is set if the main thread has been interrupted (during preview) or ESC pressed.
-   * 'aborted' must not be a class variable because it signals the other threads to stop;
-   * and this may be caused by an interrupted preview thread after the main calculation has been
-   * started.
+   *     'aborted' must not be a class variable because it signals the other threads to stop;
+   *     and this may be caused by an interrupted preview thread after the main calculation has been
+   *     started.
    */
   public void filter() {
     
@@ -472,28 +475,28 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   /**Empirical null filter a grayscale image for a given thread.
    * 
    * <p>Synchronization: unless a thread is waiting, we avoid the overhead of 'synchronized'
-   * statements. That's because a thread waiting for another one should be rare.
+   *     statements. That's because a thread waiting for another one should be rare.
    *
    * <p>Data handling: The area needed for processing a line is written into the array 'cache'.
-   * This is a stripe of sufficient width for all threads to have each thread processing one
-   * line, and some extra space if one thread is finished to start the next line.
-   * This array is padded at the edges of the image so that a surrounding with radius kRadius
-   * for each pixel processed is within 'cache'. Out-of-image
-   * pixels are set to the value of the nearest edge pixel. When adding a new line, the lines in
-   * 'cache' are not shifted but rather the smaller array with the start and end pointers of the
-   * kernel area is modified to point at the addresses for the next line.
+   *     This is a strip of sufficient height for all threads to have each thread processing one
+   *     line, and some extra space if one thread is finished to start the next line.
+   *     This array is padded at the edges of the image so that a surrounding with radius kRadius
+   *     for each pixel processed is within 'cache'. Out-of-image pixels are set to NaN. When adding
+   *     a new line, the lines in 'cache' are not shifted but rather the smaller array with the
+   *     start and end pointers of the kernel area is modified to point at the addresses for the
+   *     next line.
    *
    * <p>Notes: For mean and variance, except for very small radius, usually do not calculate the
-   * sum over all pixels. This sum is calculated for the first pixel of every line only. For the
-   * following pixels, add the new values and subtract those that are not in the sum any more.
+   *     sum over all pixels. This sum is calculated for the first pixel of every line only. For the
+   *     following pixels, add the new values and subtract those that are not in the sum any more.
    * 
    * @param cache pointer to the cache
    * @param yForThread array indicating which y a thread is filtering
    * @param threadNumber id for this thread
-   * @param seeds seeds for rng
+   * @param seeds seeds for rng, one for each row
    * @param aborted pointer to a boolean
    */
-  private void threadFilter(Cache cache, int [] yForThread, int threadNumber, int[] seeds,
+  private void threadFilter(Cache cache, int [] yForThread, int threadNumber,int[] seeds,
       boolean[] aborted) {
     
     //get properties of this image
@@ -591,13 +594,13 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
         }
       }
       
-      //=====READ INTO CACHE===== (untouched from original source code)
+      //=====READ INTO CACHE=====
       
       cache.readIntoCache(yForThread, kernel);
       
       //=====FILTER A LINE=====
       
-      //points to pixel (roiRectangle.x, y)
+      //set rng for this line and filter this line
       rng.setSeed(seeds[y - roiRectangle.y]);
       this.filterLine(values, cache, kernel, y, normal, rng);
     }// end while (!aborted[0]); loops over y (lines)
@@ -637,6 +640,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   /**Empirical null filter a line
    * @param values array of float [] for output values to be stored
    * @param cache contains pixels of the pre-filter image
+   * @param kernel contains pixels in the kernel and its statistics
    * @param y current row
    * @param normal normal distribution to evaluate the normal pdf
    * @param rng random number generator, used for trying out different initial values
@@ -650,6 +654,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     float initialValue = Float.NaN; //initial value to be used for the newton-raphson method
     kernel.moveToNewLine(y);
     boolean isPreviousFinite = false; //boolean to indicate if the previous pixel is finite
+    //do the filter while moving the kernel to the right
     do {
       if (kernel.isFinite()) {
         
@@ -700,6 +705,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
               }
             }
           }
+        //if there are problems with the Newton-Raphson, then abort
         } catch (ConvergenceException exception) {
           //=====DEBUG=====
           DebugPrint.write("ConvergenceException caught at ("+kernel.getX()+","+y+")");
@@ -717,9 +723,9 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   /**Perform the Newton-Raphson on the kernel density estimate to get the empirical null mean and 
    *     the empirical null std
    * @param initialValue starting value for the Newton-Raphson
-   * @param cache
-   * @param kernel
-   * @param normal
+   * @param cache contains pixels of the pre-filter image
+   * @param kernel contains pixels in the kernel and its statistics
+   * @param normal normal distribution to evaluate the normal pdf
    * @param rng random number generator for producing new initial values
    * @return empirical null mean and empirical null std
    * @throws ConvergenceException thrown when newton-raphson struggled to converge
@@ -739,7 +745,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
           this.bandwidthParameterA, this.bandwidthParameterB, initialValue, kernel, normal,
           rng);
       empiricalNull.estimateNull();
-    } catch (ConvergenceException exception1) {
+    } catch (ConvergenceException exception) {
       //exception is caught, use median as initial value this time
       
       //=====DEBUG=====

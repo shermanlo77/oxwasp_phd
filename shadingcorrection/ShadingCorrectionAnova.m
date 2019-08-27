@@ -1,7 +1,7 @@
 %MIT License
 %Copyright (c) 2019 Sherman Lo
 
-%CLASS: SHADING CORRECTION ANOVA
+%ABSTRACT CLASS: SHADING CORRECTION ANOVA
 %Does ANOVA on the shading corrected grey value in a greyscale projection
 %
 %One randomly selected replication from each power is assigned to the training set which trains the
@@ -10,7 +10,7 @@
     %looked at for each power. The experiment is repeated by reallocating the training and test set
 classdef (Abstract) ShadingCorrectionAnova < Experiment
   
-  properties (SetAccess = public)
+  properties (SetAccess = protected)
     
     scan; %scan object to get the calibration images from
     nRepeat = 100; %number of times to repeat the experiment

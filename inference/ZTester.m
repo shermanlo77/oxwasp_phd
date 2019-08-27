@@ -3,10 +3,6 @@
 
 %CLASS: Z TESTER
 %Does hypothesis test on an image of z statistics
-%Multiple testing corrected using FDR, see:
-  %Benjamini, Y. and Hochberg, Y., 1995.
-  %Controlling the false discovery rate: a practical and powerful approach to multiple testing.
-  %Journal of the royal statistical society. Series B (Methodological), pp.289-300.
 %The null hypothesis can be corrected using the empirical null
 %How to use:
   %pass z statistics into the constructor (can be 2d array)
@@ -51,7 +47,8 @@ classdef ZTester < handle
     end
 
     %METHOD: ESTIMATE NULL
-    %Estimates the nullMean and nullStd
+    %Estimates the nullMean and nullStd using the empirical null
+    %Uses the Java implementation of the empirical null
     %PARAMETERS:
       %initialValue: value to start the newton raphson from
       %seed: int32 for setting the random number generator, used for using different initial values
@@ -71,7 +68,7 @@ classdef ZTester < handle
     end
 
     %METHOD: DO TEST
-    %Does hypothesis using the p values, corrected using FDR
+    %Does hypothesis testing using the p values, corrected using FDR
     %Saves positive pixels in the member variable positiveImage
     function doTest(this)
       %calculate the p values
@@ -102,12 +99,12 @@ classdef ZTester < handle
     end
 
     %METHOD: PLOT HISTOGRAM WITH NULL DISTRIBUTION AND CRITICAL BOUNDARY
-    %Produce a figure plots:
+    %Plots:
       %histogram of z statistics
       %empirical null (optional)
       %critical boundary
     %PARAMETERS:
-      %wantNull: plot the empirical null as well?
+      %wantNull: boolean, plot the empirical null as well?
     function plotHistogram2(this, wantNull)
       %plot histogram
       this.plotHistogram();
@@ -123,6 +120,7 @@ classdef ZTester < handle
       this.plotCritical();
       
       %swap the order of the critical and histogram
+      %this is so that they appear in the desired order in the legend
       ax.Children = flip(ax.Children);
       
       %legend
@@ -136,6 +134,7 @@ classdef ZTester < handle
     %METHOD: PLOT P VALUES
     %Plot the p values in order with the BH critical region
     function plotPValues(this)
+      %pretend all the statistics are null so that all p values are presented using the same symbol
       this.plotPValues2(true(size(this.zImage)));
       ax = gca;
       legend(ax.Children([1,4]), 'p value', 'critical', 'Location','northwest');
@@ -145,7 +144,7 @@ classdef ZTester < handle
     %Plot the p values in order with the BH critical region
     %The null and non-null p values have different symbols
     %PARAMETERS:
-      %isNull: boolean image, true if this statistic is null
+      %isNull: boolean image, true if this statistic is null (truely negative)
     function plotPValues2(this, isNull)
       this.plotOrderedPValues(isNull);
       ax = gca;
@@ -177,19 +176,6 @@ classdef ZTester < handle
       ax.XLim = xlimBefore;
     end
     
-    %METHOD: PLOT BH CRITICAL
-    %Plot the BH critical region on a p value plot
-    function plotBhCritical(this)
-      %plot the BH critical line
-      ax = gca;
-      this.plotArea(orderIndex, this.sizeCorrected/this.nTest * 1:this.nTest);
-      %set the scale to log
-      ax.XScale = 'log';
-      ax.YScale = 'log';
-      %set other graph properties
-      ax.XLim = [1,this.nTest];
-    end
-    
     %METHOD: PLOT ORDERED P VALUES
     %Scatter plot the p values vs order
     %Use different symbol for null and non-null
@@ -200,10 +186,12 @@ classdef ZTester < handle
       %remove any nan and convert to vector
       isNull(isnan(this.pImage)) = [];
       pVector = this.pImage(~isnan(this.pImage));
+      isNull = reshape(isNull,[],1);
+      pVector = reshape(pVector,[],1);
       
       %get array of x axis values : integers representing the order
       orderIndex = 1:this.nTest;
-      %scatter plot the ordered p values
+      %order the p values
       [pVector, index] = sort(pVector);
       %reorder the boolean vector isNull because of sort
       isNull = isNull(index);

@@ -1,18 +1,18 @@
 %MIT License
 %Copyright (c) 2019 Sherman Lo
 
-%ABSTRACT CLASS: DEFECT SIMULATOR
-%Class for adding smooth function and defecting pixels with samples from the alt distribution
+%CLASS: DEFECT SIMULATOR
+%Class for generating a Gaussian image. Subclass can cotaminate and/or defect the Gaussian image,
+    %this class contains methods to cotaminate and/or defect the image
 %
 %HOW TO IMPLEMENT:
   %Use the contructor to pass a rng
-  %Implement the method getDefectedImage which returns N(0,1) image except for where there are
-      %defects. Where there are defects, the pixels sample the alt distribution
+  %Implement the method getDefectedImage which returns the desired image
 %NOTES:
   %In this version, when defecting a pixel, the pixel is multiplied by altStd and added by altMean,
       %thus caution should be used when adding multiple defects as overlapping defects will cause
       %unexpected results
-%HOW THE USER SHOULD USE IT:
+%HOW THE USER SHOULD USE SUB CLASSES:
   %Pass a rng in the constructor
   %Call image = getDefectedImage(size)
 classdef DefectSimulator < handle
@@ -23,7 +23,7 @@ classdef DefectSimulator < handle
   end
   
   properties (SetAccess = protected)
-    isContaminated;
+    isContaminated; %boolean, indicate if this contaminates the image
   end
   
   %METHODS
@@ -38,13 +38,13 @@ classdef DefectSimulator < handle
     end
     
     %METHOD: GET DEFECTED IMAGE
-    %Return an image with all N(0,1) pixels except for the alt pixels
-    %This is then followed by adding or multiplying by smooth functions
-    %In the superclass version, it returns a pure Gaussian image with no defects
+    %Returns a Gaussian image
+    %Subclasses can override this method and instead return an image with all N(0,1) pixels except
+        %for the alt pixels this is then followed by adding or multiplying by smooth functions
     %PARAMETER:
       %size: 2 row vector [height, width]
     %RETURN:
-      %image: a defected Gaussian image
+      %image: a Gaussian image (subclasses can contaminate or defect it)
       %isNonNullImage: boolean map, true if that pixel is a defect
     function [image, isNonNullImage] = getDefectedImage(this, size)
       image = this.randStream.randn(size);
@@ -103,7 +103,7 @@ classdef DefectSimulator < handle
     end
     
     %METHOD: ADD DUST
-    %Random select pixel with probability p, these selected pixels are alt
+    %Randommly select pixel with probability p, these selected pixels are alt
     %PARAMETERS:
       %image: the image to be defected
       %isNonNullImage: boolean image, true for defect
@@ -114,14 +114,9 @@ classdef DefectSimulator < handle
       %image: the defected image
       %isNonNullImage: boolean image, true for defect
     function [image, isNonNullImage] = addDust(this, image, isNonNullImage, p, mean, std)
-      %for all pixels
-      for iPixel = 1:numel(image)
-        %if this pixel is to be alt, assign alt sample
-        if(this.randStream.rand < p)
-          image(iPixel) = image(iPixel) * std + mean;
-          isNonNullImage(iPixel) = true;
-        end
-      end
+      isDust = this.randStream.rand(size(image)) < p;
+      isNonNullImage(isDust) = true;
+      image(isDust) = image(isDust) * std + mean;
     end
     
     %METHOD: ADD PLANE
@@ -192,7 +187,7 @@ classdef DefectSimulator < handle
         %else the length is even
       else
         %get the range of integers, including the middle and cutting the right hand side
-        %example: XXOX where I is the centre
+        %example: XXOX where O is the centre
         range = (centreCood - length/2) : (centreCood + length/2 - 1);
       end
     end

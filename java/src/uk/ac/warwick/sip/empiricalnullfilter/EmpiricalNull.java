@@ -10,7 +10,7 @@ import org.apache.commons.math3.random.RandomGenerator;
 //CLASS: EMPIRICAL NULL
 /**Fits a kernel density on the histogram, finds the mode using the Newton-Raphson method. The null
  *     std uses the 2nd derivate of the log density at the mode. The mode (null mean) and the null 
- *     can be returned so that it can used to normalise the statistics.
+ *     std can be returned so that it can used to normalise the statistics.
  * 
  * <p>How to use:
  *   <ul>
@@ -178,8 +178,8 @@ public class EmpiricalNull {
     //for each initial point
     for (int i=0; i<this.nInitial; i++) {
       //find the maximum density
-      //density at mode contains the density at the mode, the position of the mode and the second
-          //derivative of the log density at the mode
+      //densityAtMode contains the density at the mode, the position of the mode and the second
+          //derivative of the log density at the mode in that order
       try {
         float[] densityAtMode = this.findMode(initialValue);
         densityArray[i] = densityAtMode[0];
@@ -210,7 +210,7 @@ public class EmpiricalNull {
   
   //METHOD: ESTIMATE NULL STD
   /**Return the null std given the mode and the second derivative of the log density
-   * @param mode location of the mode
+   * @param mode location of the mode (not used in this class, subclasses may do)
    * @param secondDiv second derivative of the log density at the mode
    * @return empirical null std
    */
@@ -229,7 +229,7 @@ public class EmpiricalNull {
   //METHOD: FIND MODE
   /**Find the mode of the log density using the newton-raphson method
    * @param greyvalue initial value for the newton-raphson
-   * @return 3-array, [0] contains the maximum density, [1] mode, [2] 2nd div of log density
+   * @return 3-array, [0] the maximum density, [1] mode, [2] 2nd div of log density
    * @throws ConvergenceException when the algorithm fails to converge
    */
   private float[] findMode(float greyvalue) throws ConvergenceException{
@@ -403,8 +403,8 @@ public class EmpiricalNull {
   
   //METHOD: GET LOG 10 TOLERANCE
   /**@return stopping condition tolerance for newton-raphson
-   * stopping condition is Math.abs(dxLnF[1])&lt;this.tolerance where dxLnF[1] is the gradient of the
-   *     log density and this.tolerance is 10^log10Tolerance
+   * stopping condition is Math.abs(dxLnF[1])&lt;this.tolerance where dxLnF[1] is the gradient of
+   *     the log density and this.tolerance is 10^log10Tolerance
    */
   public float getLog10Tolerance() {
     return this.log10Tolerance;
@@ -412,8 +412,8 @@ public class EmpiricalNull {
   
   //METHOD: SET LOG 10 TOLERANCE
   /**@param log10Tolerance stopping condition tolerance for newton-raphson
-   * stopping condition is Math.abs(dxLnF[1])&lt;this.tolerance where dxLnF[1] is the gradient of the
-   *     log density and this.tolerance is 10^log10Tolerance
+   * stopping condition is Math.abs(dxLnF[1])&lt;this.tolerance where dxLnF[1] is the gradient of
+   *     the log density and this.tolerance is 10^log10Tolerance
    */
   public void setLog10Tolerance(float log10Tolerance) {
     this.log10Tolerance = log10Tolerance;

@@ -31,7 +31,7 @@ classdef Parzen < handle
     %METHOD: SET PARAMETER
     %Set the parzen std
     %PARAMETERS:
-    %bandwidth: parzen std
+      %bandwidth: parzen std
     function setParameter(this, bandwidth)
       this.bandwidth = bandwidth;
     end
@@ -47,9 +47,9 @@ classdef Parzen < handle
       %assign an array with the same size as x
       p = x;
       %for each value in x
-      for i_x = 1:n
+      for iX = 1:n
         %evaluate the estimated density
-        p(i_x) = this.getSumKernel(x(i_x))/(this.nData * this.bandwidth);
+        p(iX) = this.getSumKernel(x(iX))/(this.nData * this.bandwidth);
       end
     end
     

@@ -1,6 +1,8 @@
 %MIT License
 %Copyright (c) 2019 Sherman Lo
-
+%
+%Baseline subclass does not filter the image
+%Add contamination and defect
 classdef DefectAltDustBaseline < DefectAltDust
   
   methods (Access = public)
@@ -14,7 +16,6 @@ classdef DefectAltDustBaseline < DefectAltDust
   methods (Access = protected)
     
     function setup(this)
-      this.nRepeat = 300;
       this.setup@DefectAltDust(uint32(545404223));
     end
     

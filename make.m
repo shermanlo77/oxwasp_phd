@@ -42,7 +42,6 @@ this.printResults();
 nullIid;
 allNullScript;
 allNull;
-defectExample;
 defectSimulation;
 defectDetect;
 inferenceSubRoi;

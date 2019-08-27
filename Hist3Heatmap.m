@@ -61,21 +61,11 @@ classdef Hist3Heatmap < handle
     
     %METHOD: POSTER PLOT
     %Uses bigger squares suitable for larger poster images
-    function ax = posterPlot(this,x,y)
-      this.checkParameters(x,y);
-      %bin the data
-      [N,c] = hist3([y,x],this.nBin);
-      x = cell2mat(c(2));
-      x = linspace(x(1),x(end),this.nBin(2)*this.nInterpolate);
-      y = cell2mat(c(1));
-      y = linspace(y(1),y(end),this.nBin(1)*this.nInterpolate);
-      if this.isLog
-        z = log10(N/( (c{2}(2)-c{2}(1))*(c{1}(2)-c{1}(1))));
-      else
-        z = N/( (c{2}(2)-c{2}(1))*(c{1}(2)-c{1}(1)));
-      end
-      [x_grid,y_grid] = meshgrid(x,y);
-      z = interp2(cell2mat(c(2)),cell2mat(c(1)),z,x_grid,y_grid,'nearest');
+    function ax = plotMapPoster(this,x,y,z)
+      [xGrid,yGrid] = meshgrid(...
+          linspace(x(1),x(end),this.nBin(2)*this.nInterpolate),linspace(y(1),...
+          y(end),this.nBin(1)*this.nInterpolate));
+      z = interp2(x,y,z,xGrid,yGrid,'nearest');
       ax = this.plotMap(x,y,z);
     end
     

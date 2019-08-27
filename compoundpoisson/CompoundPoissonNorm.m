@@ -32,8 +32,8 @@ classdef CompoundPoissonNorm < CompoundPoisson
     %x: scalar, compound poisson variable
     %RETURN:
     %ln_pdf: log density
-    function ln_pdf = getlnpdf(this,x)
-      ln_pdf = log(this.getPdf(x));
+    function lnPdf = getlnpdf(this,x)
+      lnPdf = log(this.getPdf(x));
     end
     
     %OVERRIDE: GET INVERSE CDF

@@ -1,6 +1,7 @@
 %MIT License
 %Copyright (c) 2019 Sherman Lo
-
+%
+%Add contamination and defect
 classdef DefectAltDust < DefectAlt
   
   methods (Access = public)
@@ -10,7 +11,7 @@ classdef DefectAltDust < DefectAlt
     end
     
     function printResults(this)
-      this.printResults@DefectAlt(DefectAltDust0Baseline(), DefectAltDustBaseline());
+      this.printResults@DefectAlt();
     end
     
   end

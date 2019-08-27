@@ -3,6 +3,7 @@
 
 %SCRIPT: COMPOUND POISSON HISTOGRAM AND DENSITY EVALUATION
 %Simulate compound Poisson and plot the histogram along with the density
+%The density can be evaluated exactly, using Normal approximation or saddlepoint approximation
 
 close all;
 clearvars;
@@ -72,7 +73,8 @@ end
 %Also plots frequency density with the normcdf([-1,1]) confidence intervals
 %Plots zero frequency in a separate graph, the yLim is attempted to be on the same scale as the
     %frequency density plot
-%Note to developers: requires constant bin width so that the confidence intervals can be calculated.
+%Note to developers: requires constant bin width so that the confidence intervals can be
+    %calculated.
     %The confidence intervals is calculated using N_bin ~ Poisson(pdf * N * binWidth) / binWidth.
     %This function can be extended for variable bin widths
 %PARAMETERS:
@@ -111,7 +113,7 @@ function plotHistogram(compoundPoisson, isPlotZero, figureLocation)
     subplot(1,2,1);
     bar(1, n0Obv);
     hold on;
-    bar(2, n0Exp, 'r');
+    bar(2, n0Exp);
     %get error bars for the zero count, plot it as an horizontal line
     errorDown = poissinv(normcdf(-1),n0Exp);
     errorUp = poissinv(normcdf(1),n0Exp);

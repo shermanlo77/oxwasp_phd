@@ -1,6 +1,14 @@
 %MIT License
 %Copyright (c) 2019 Sherman Lo
 
+%CLASS: HISTOGRAM
+%A custom histogram class
+%
+%Plots the histogram (frequency density) as a line function
+%How to use:
+  %pass the data, and optionally the bin edges, via the constructor
+  %class the method plot
+  %properties of the histogram can be extracted from the member variables
 classdef Histogram < handle
   
   properties (SetAccess = protected)

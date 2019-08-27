@@ -50,8 +50,8 @@ for iScan = 1:numel(scanArray)
   xPlot = linspace(min(xOriginal), max(xOriginal), 1000)';
   XPlot = (xPlot-xCentre)./xScale;
   yPlot = model.predict(XPlot) * yStd;
-  upError = gaminv(0.975, alpha, yPlot/alpha) - yPlot;
-  downError = gaminv(0.025, alpha, yPlot/alpha) - yPlot;
+  upError = gaminv(normcdf(1), alpha, yPlot/alpha) - yPlot;
+  downError = gaminv(normcdf(-1), alpha, yPlot/alpha) - yPlot;
 
   %plot the heat map of the residual vs grey value
   hist3Heatmap = Hist3Heatmap();
@@ -72,6 +72,7 @@ for iScan = 1:numel(scanArray)
   imagesc = Imagesc(abs(residualSpatial));
   imagesc.setCLim([0,max(upError)]);
   imagesc.plot();
+  %for AbsNoFilterDeg120, highlight where the inflection is
   if (isa(scan,'AbsNoFilterDeg120'))
     hold on;
     axis xy;

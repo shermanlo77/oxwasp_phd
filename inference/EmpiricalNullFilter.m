@@ -12,12 +12,12 @@ classdef EmpiricalNullFilter < handle
   
   properties (SetAccess = protected)
     radius; %radius of the kernel
-    filteredImage; %resulting filtered image
-    nullMean; %empirical null mean image
-    nullStd; %empirical null std image
   end
   
   properties (GetAccess = protected)
+    filteredImage; %resulting filtered image
+    nullMean; %empirical null mean image
+    nullStd; %empirical null std image
     javaFilter; %the java object EmpiricalNullFilter
   end
   
@@ -59,19 +59,16 @@ classdef EmpiricalNullFilter < handle
     %METHOD: GET FILTERED IMAGE
     function filteredImage = getFilteredImage(this)
       filteredImage = this.filteredImage;
-      filteredImage = filteredImage';
     end
     
     %METHOD: GET NULL MEAN IMAGE
     function nullMean = getNullMean(this)
       nullMean = this.nullMean;
-      nullMean = nullMean';
     end
     
     %METHOD: GET NULL STD IMAGE
     function nullStd = getNullStd(this)
       nullStd = this.nullStd;
-      nullStd = nullStd';
     end
     
     %METHOD: SET N INITIAL
@@ -164,11 +161,12 @@ classdef EmpiricalNullFilter < handle
     %Get and set the filtered image, empirical null mean and empirical null std from the filter
         %object
     function setNullParameters(this, height, width)
-      this.filteredImage = reshape(this.javaFilter.getFilteredImage(), height, width);
+      %transpose as java is row major, matlab is column major
+      this.filteredImage = reshape(this.javaFilter.getFilteredImage(), height, width)';
       this.nullMean = reshape(this.javaFilter.getOutputImage( ...
-          uk.ac.warwick.sip.empiricalnullfilter.EmpiricalNullFilter.NULL_MEAN), height, width);
+          uk.ac.warwick.sip.empiricalnullfilter.EmpiricalNullFilter.NULL_MEAN), height, width)';
       this.nullStd = reshape(this.javaFilter.getOutputImage( ...
-          uk.ac.warwick.sip.empiricalnullfilter.EmpiricalNullFilter.NULL_STD), height, width);
+          uk.ac.warwick.sip.empiricalnullfilter.EmpiricalNullFilter.NULL_STD), height, width)';
     end
     
   end

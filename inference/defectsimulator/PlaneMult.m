@@ -32,6 +32,7 @@ classdef PlaneMult < DefectSimulator
     %RETURN:
       %image: a defected Gaussian image
       %isNonNullImage: boolean map, true if that pixel is a defect
+      %imageNoContamination: image with defect but no contamination
     function [imageContaminated, isNonNullImage, imageNoContamination] = ...
           getDefectedImage(this, size)
       [imageNoContamination, isNonNullImage] = this.getDefectedImage@DefectSimulator(size);

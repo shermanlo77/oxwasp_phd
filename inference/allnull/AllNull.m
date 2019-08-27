@@ -2,14 +2,13 @@
 %Copyright (c) 2019 Sherman Lo
 
 %ABSTRACT CLASS: ALL NULL IMAGE EXPERIMENT
-%See how the null filters behaves for images of pure Gaussian noise
-%A image is produced and then filtered using a null filter. The null mean and null std are recorded
-    %for each kernel radius only for the first repeat. Various properties of the post-filtered image
-    %are recorded such as the mean, variance, kurtosis and the time it took to filter the image.
+%See how the null filters behaves for images which has no defects
+%
+%An image is produced and then filtered using a null filter. Various properties of the post-filtered
+    %image are recorded such as the mean, variance, kurtosis and the time it took to filter the
+    %image.
 %This is repeated nRepeat times for various kernel radius
 %Plots the following:
-%  null mean (for all pixels in one repeat) vs radius
-%  null std (for all pixels in one repeat) vs radius
 %  post-filter mean vs radius
 %  post-filter variance vs radius
 %  post-filter kurtosis vs radius
@@ -17,7 +16,7 @@
 %
 %Methods to be implemeted:
 %  getImage returns an image to be filtered, this would be a Gaussian image with some bias added to
-%  or mutiplied to it
+%  or mutiplied to it, ie contamination
 classdef AllNull < Experiment
   
   properties (SetAccess = private)
@@ -36,15 +35,6 @@ classdef AllNull < Experiment
     stdArray; %variance over all pixels
     kurtosisArray; %kurtosis over all pixels
     timeArray; %time to filter the image in seconds
-    
-    %array to store the normalised statistics for one repeat: null mean and null std images,
-        %one for each kernel radius
-      %dim 1: y axis of image
-      %dim 2: x axis of image
-      %dim 3: for each kernel radius
-    correctedZArray;
-    nullMeanArray;
-    nullStdArray;
     
     imageSize = [256, 256]; %size of the gaussian image
     
@@ -65,62 +55,9 @@ classdef AllNull < Experiment
       %where to save the figures
       directory = fullfile('reports','figures','inference');
       
-      %save properties of this experiment to txt
-      
-      %radius range
-      fildId = fopen(fullfile(directory,strcat(this.experimentName,'_radius1.txt')),'w');
-      fprintf(fildId,'%d',this.radiusArray(1));
-      fclose(fildId);
-      
-      %radius range
-      fildId = fopen(fullfile(directory,strcat(this.experimentName,'_radiusend.txt')),'w');
-      fprintf(fildId,'%d',this.radiusArray(end));
-      fclose(fildId);
-      
-      %nrepeat
-      fildId = fopen(fullfile(directory,strcat(this.experimentName,'_nrepeat.txt')),'w');
-      fprintf(fildId,'%d',this.nRepeat);
-      fclose(fildId);
-      
-      %imagesize
-      fildId = fopen(fullfile(directory,strcat(this.experimentName,'_height.txt')),'w');
-      fprintf(fildId,'%d',this.imageSize(1));
-      fclose(fildId);
-      
-      %imagesize
-      fildId = fopen(fullfile(directory,strcat(this.experimentName,'_width.txt')),'w');
-      fprintf(fildId,'%d',this.imageSize(2));
-      fclose(fildId);
-      
       %show critical region for mean and variance
-      alpha = 0.05; %significant level
+      alpha = 2*(1-normcdf(2)); %significant level
       n = this.imageSize(1) * this.imageSize(2); %get number of pixels in the image
-      
-      %plot null mean
-      fig = LatexFigure.sub();
-      nullMeanPlot = Boxplots(reshape(this.nullMeanArray,[],numel(this.radiusArray)));
-      nullMeanPlot.setPosition(this.radiusArray);
-      nullMeanPlot.setWantOutlier(false);
-      nullMeanPlot.plot();
-      ylabel('null mean');
-      xlabel('radius (pixel)');
-      if (~isempty(this.getYLim(1)))
-        ylim(this.getYLim(1));
-      end
-      saveas(fig,fullfile(directory, strcat(this.experimentName,'_nullMean.eps')),'epsc');
-      
-      %plot null var
-      fig = LatexFigure.sub();
-      nullVarPlot = Boxplots(reshape(this.nullStdArray,[],numel(this.radiusArray)));
-      nullVarPlot.setPosition(this.radiusArray);
-      nullVarPlot.setWantOutlier(false);
-      nullVarPlot.plot();
-      ylabel('null std');
-      xlabel('radius (px)');
-      if (~isempty(this.getYLim(2)))
-        ylim(this.getYLim(2));
-      end
-      saveas(fig,fullfile(directory, strcat(this.experimentName,'_nullStd.eps')),'epsc');
       
       %plot post filter mean vs radius
       fig = LatexFigure.sub();
@@ -210,10 +147,6 @@ classdef AllNull < Experiment
       this.kurtosisArray = zeros(this.nRepeat, numel(this.radiusArray));
       %time to filter the image in seconds
       this.timeArray = zeros(this.nRepeat, numel(this.radiusArray));
-      %array of normalised statistics and null statistics
-      this.correctedZArray = zeros(this.imageSize(1), this.imageSize(2), numel(this.radiusArray));
-      this.nullMeanArray = zeros(this.imageSize(1), this.imageSize(2), numel(this.radiusArray));
-      this.nullStdArray = zeros(this.imageSize(1), this.imageSize(2), numel(this.radiusArray));
       %set the rng
       this.randStream = RandStream('mt19937ar','Seed', seed);
     end
@@ -248,13 +181,6 @@ classdef AllNull < Experiment
           
           %get the filtered image
           image = filter.getFilteredImage();
-          
-          %for the first repeat, save the normalised image, null mean and null std
-          if (iRepeat == 1)
-            this.nullMeanArray(:,:,iRadius) = filter.getNullMean();
-            this.nullStdArray(:,:,iRadius) = filter.getNullStd();
-            this.correctedZArray(:,:,iRadius) = image;
-          end
           
           %save the normalised statistics mean, var and kurtosis
           image = reshape(image,[],1);

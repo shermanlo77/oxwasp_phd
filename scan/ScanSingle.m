@@ -22,7 +22,7 @@ classdef ScanSingle < Scan
     %OVERRIDE: LOAD IMAGE
     %Return a sample image
     function slice = loadImage(this, ~)
-      slice = imread(fullfile(this.folderLocation,strcat(this.fileName,'.tif')));
+      slice = imread(fullfile(getDataDirectory(),this.folderLocation,strcat(this.fileName,'.tif')));
       slice = this.shadingCorrect(double(slice));
     end
     

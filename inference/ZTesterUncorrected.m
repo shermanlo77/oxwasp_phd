@@ -2,6 +2,7 @@
 %Copyright (c) 2019 Sherman Lo
 
 %CLASS: Z TESTER UNCORRECTED
+%Z tester using the uncorrected method
 classdef ZTesterUncorrected < ZTester
   
   properties (SetAccess = protected)
@@ -16,12 +17,12 @@ classdef ZTesterUncorrected < ZTester
     
     %OVERRIDE: DO TEST
     %Does hypothesis using the p values, uncorrected for multiple hypothesis testing
-    %Saves significant pixels in the member variable sig_image
+    %Saves positive pixels in the member variable pImage
     function doTest(this)
       %calculate the p values
       this.pImage = 2*(normcdf(-abs(this.getZCorrected())));
       %save the results, sig_image and size_corrected
-      this.positiveImage = this.pImage < this.threshold; %2d boolean of significant pixels
+      this.positiveImage = this.pImage < this.threshold; %2d boolean of positive pixels
       this.sizeCorrected = this.threshold; %size of test
     end
     

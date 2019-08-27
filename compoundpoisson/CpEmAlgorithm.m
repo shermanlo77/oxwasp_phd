@@ -33,7 +33,7 @@ classdef CpEmAlgorithm < Experiment
     nStep = 10; %number of EM steps
     
     %declare array of lnL, lambda, alpha and beta for each step of EM and each repeat
-      %dim 1: for each step of EM
+      %dim 1: for each step of EM + 1
       %dim 2: for each repeat of the experiment
       %dim 3: for each parameter set
     lnLArray;
