@@ -73,8 +73,6 @@ classdef (Abstract) DefectDetect < Experiment
         ax = fig.Children(1);
         saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
             '_sig.eps')),'epsc');
-        saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
-            '_sig.tif')),'tiff');
         
         %plot the filtered image
         fig = LatexFigure.sub();
@@ -91,8 +89,6 @@ classdef (Abstract) DefectDetect < Experiment
         nullMeanPlot.plot();
         saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
             '_nullMean.eps')),'epsc');
-        saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
-            '_nullMean.tif')),'tiff');
         
         %plot the null std
         fig = LatexFigure.sub();
@@ -101,8 +97,6 @@ classdef (Abstract) DefectDetect < Experiment
         nullStdPlot.plot();
         saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
             '_nullStd.eps')),'epsc');
-        saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
-            '_nullStd.tif')),'tiff');
           
         %plot the -log p values
         fig = LatexFigure.sub();
@@ -111,8 +105,6 @@ classdef (Abstract) DefectDetect < Experiment
         pPlot.plot();
         saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
             '_logp.eps')),'epsc');
-        saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
-            '_logp.tif')),'tiff');
         
       end
       
