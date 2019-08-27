@@ -42,16 +42,30 @@ fig = LatexFigure.sub();
 zTester.plotHistogram();
 saveas(fig, fullfile('reports','figures','inference','cornerSelectHist.eps'),'epsc');
 
-%plot the sub segments
-fig = LatexFigure.sub();
-axis xy;
-imagesc = Imagesc(zImage);
-imagesc.plot();
-hold on;
-for iSegmentation = 1:scan.nSubSegmentation
-  segmentation = scan.getSubSegmentation(iSegmentation);
-  boundary = bwboundaries(segmentation);
-  boundary = boundary{1};
-  plot(boundary(:,2), boundary(:,1), 'r:', 'LineWidth', 2.5);
+%plot the sub segments, in colour, then bw
+for isBw = [false, true]
+  fig = LatexFigure.sub();
+  axis xy;
+  imagesc = Imagesc(zImage);
+  if (isBw)
+    imagesc.setToBw();
+  end
+  imagesc.plot();
+  hold on;
+  for iSegmentation = 1:scan.nSubSegmentation
+    segmentation = scan.getSubSegmentation(iSegmentation);
+    boundary = bwboundaries(segmentation);
+    boundary = boundary{1};
+    if (isBw)
+      plot(boundary(:,2), boundary(:,1), 'w:', 'LineWidth', 2.5);
+    else
+      plot(boundary(:,2), boundary(:,1), 'r:', 'LineWidth', 2.5);
+    end
+  end
+  if (isBw)
+    saveas(fig, fullfile('reports','figures','inference','segmentBW.eps'),'eps');
+    saveas(fig, fullfile('reports','figures','inference','segmentBW.tiff'),'tiff');
+  else
+    saveas(fig, fullfile('reports','figures','inference','segment.eps'),'epsc');
+  end
 end
-saveas(fig, fullfile('reports','figures','inference','segment.eps'),'epsc');

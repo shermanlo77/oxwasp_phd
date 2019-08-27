@@ -70,9 +70,16 @@ classdef (Abstract) DefectDetect < Experiment
         positivePlot.addPositivePixels(zTester.positiveImage);
         positivePlot.setDilateSize(2);
         positivePlot.plot();
-        ax = fig.Children(1);
         saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
             '_sig.eps')),'epsc');
+        %plot black white
+        fig = LatexFigure.sub();
+        positivePlot.setToBw();
+        positivePlot.plot();
+        saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
+            '_sigBW.eps')),'eps');
+        saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
+          '_sigBW.tiff')),'tiff');
         
         %plot the filtered image
         fig = LatexFigure.sub();
@@ -89,6 +96,14 @@ classdef (Abstract) DefectDetect < Experiment
         nullMeanPlot.plot();
         saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
             '_nullMean.eps')),'epsc');
+        %set to BW
+        fig = LatexFigure.sub();
+        nullMeanPlot.setToBw();
+        nullMeanPlot.plot();
+        saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
+            '_nullMeanBW.eps')),'eps');
+        saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
+            '_nullMeanBW.tiff')),'tiff');
         
         %plot the null std
         fig = LatexFigure.sub();
@@ -97,6 +112,14 @@ classdef (Abstract) DefectDetect < Experiment
         nullStdPlot.plot();
         saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
             '_nullStd.eps')),'epsc');
+        %set to BW
+        fig = LatexFigure.sub();
+        nullStdPlot.setToBw();
+        nullStdPlot.plot();
+        saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
+            '_nullStdBW.eps')),'eps');
+        saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
+            '_nullStd.tiff')),'tiff');
           
         %plot the -log p values
         fig = LatexFigure.sub();
@@ -105,6 +128,14 @@ classdef (Abstract) DefectDetect < Experiment
         pPlot.plot();
         saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
             '_logp.eps')),'epsc');
+        %set to BW
+        fig = LatexFigure.sub();
+        pPlot.setToBw();
+        pPlot.plot();
+        saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
+            '_logpBW.eps')),'eps');
+        saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
+            '_logpBW.tiff')),'tiff');
         
       end
       

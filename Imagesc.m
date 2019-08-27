@@ -20,6 +20,7 @@ classdef Imagesc < handle
     positiveColour = [1,0,0];
     posterScale = 5;
     isPoster = false;
+    isBw = false; %boolean, true if black white
   end
   
   %METHODS
@@ -60,12 +61,22 @@ classdef Imagesc < handle
       this.positiveImage = positiveImage;
     end
     
+    %METHOD: SET TO BLACK WHITE
+    function setToBw(this)
+      this.isBw = true;
+      this.positiveColour = [1,1,1];
+    end
+    
     %METHOD: PLOT
     %Plots this.image using imagesc
     %colour in significant pixels, indicated by this.positiveImage
     function im = plot(this)
       %get the colour map
-      colourMap = colormap;
+      if (this.isBw)
+        colourMap = colormap('gray');
+      else
+        colourMap = colormap;
+      end
       %get the number of steps in this colour map
       nColourStep = numel(colourMap(:,1));
       %get the dimensions of the image and the area

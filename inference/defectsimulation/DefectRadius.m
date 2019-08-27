@@ -53,7 +53,7 @@ classdef DefectRadius < Experiment
       %plot roc area vs alt mean
       fig = LatexFigure.sub();
       ax = gca;
-      boxplot = Boxplots(this.rocAreaArray(:,:,2), true);
+      boxplot = Boxplots(this.rocAreaArray(:,:,2));
       boxplot.setPosition(this.radiusArray);
       boxplot.plot();
       hold on;
@@ -65,11 +65,16 @@ classdef DefectRadius < Experiment
       xlabel('radius (px)');
       ylabel('AUC');
       saveas(fig,fullfile(directory, strcat(this.experimentName,'_roc.eps')),'epsc');
+      %plot bw
+      boxplot.setToBw();
+      boxplot.plot();
+      saveas(fig,fullfile(directory, strcat(this.experimentName,'_rocBW.eps')),'eps')
+      saveas(fig,fullfile(directory, strcat(this.experimentName,'_rocVW.tiff')),'tiff')
       
       %plot type 1 error vs alt mean
       fig = LatexFigure.sub();
       ax = gca;
-      boxplot = Boxplots(this.type1ErrorArray(:,:,2), true);
+      boxplot = Boxplots(this.type1ErrorArray(:,:,2));
       boxplot.setPosition(this.radiusArray);
       boxplot.plot();
       hold on;
@@ -81,11 +86,16 @@ classdef DefectRadius < Experiment
       xlabel('radius (px)');
       ylabel('type 1 error');
       saveas(fig,fullfile(directory, strcat(this.experimentName,'_type1.eps')),'epsc');
+      %plot bw
+      boxplot.setToBw();
+      boxplot.plot();
+      saveas(fig,fullfile(directory, strcat(this.experimentName,'_type1BW.eps')),'eps');
+      saveas(fig,fullfile(directory, strcat(this.experimentName,'_type1BW.tiff')),'tiff');
       
       %plot type 2 error vs alt mean
       fig = LatexFigure.sub();
       ax = gca;
-      boxplot = Boxplots(this.type2ErrorArray(:,:,2), true);
+      boxplot = Boxplots(this.type2ErrorArray(:,:,2));
       boxplot.setPosition(this.radiusArray);
       boxplot.plot();
       hold on;
@@ -97,11 +107,16 @@ classdef DefectRadius < Experiment
       xlabel('radius (px)');
       ylabel('type 2 error');
       saveas(fig,fullfile(directory, strcat(this.experimentName,'_type2.eps')),'epsc');
+      %plot bw
+      boxplot.setToBw();
+      boxplot.plot();
+      saveas(fig,fullfile(directory, strcat(this.experimentName,'_type2BW.eps')),'eps');
+      saveas(fig,fullfile(directory, strcat(this.experimentName,'_type2BW.tiff')),'tiff');
       
       %fdr vs alt mean
       fig = LatexFigure.sub();
       ax = gca;
-      boxplot = Boxplots(this.fdrArray(:,:,2), true);
+      boxplot = Boxplots(this.fdrArray(:,:,2));
       boxplot.setPosition(this.radiusArray);
       boxplot.plot();
       hold on;
@@ -113,6 +128,11 @@ classdef DefectRadius < Experiment
       xlabel('radius (px)');
       ylabel('fdr');
       saveas(fig,fullfile(directory, strcat(this.experimentName,'_fdr.eps')),'epsc');
+      %plot bw
+      boxplot.setToBw();
+      boxplot.plot();
+      saveas(fig,fullfile(directory, strcat(this.experimentName,'_fdrBW.eps')),'eps');
+      saveas(fig,fullfile(directory, strcat(this.experimentName,'_fdrBW.tiff')),'tiff');
       
     end
     
