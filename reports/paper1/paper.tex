@@ -303,7 +303,7 @@ The area under the ROC curve (AUC) increased with kernel radius which highlighte
 
 It was observed that there is a kernel radius which minimised the type 2 error. A large kernel radius helped preserve false discovery rate (FDR) control after filtering in these examples but a kernel radius too large can lose statistical power. Keeping the FDR consistent before and after filtering is desirable so it is controlled at a specified level after filtering. For large enough kernel radius, the FDR was controlled at and fluctuates around 5\%.
 
-The running times for the empirical null filter with radius \SI{50}{\pixel} were measured to be \SI[separate-uncertainty = true]{26.72(35)}{\second}. This was compared to simpler filters such as the mean-variance filter which normalises the statistics using the sample mean and sample standard deviation. Running times of \SI[separate-uncertainty = true]{0.0100(12)}{\second} were achieved using the mean-variance filter. With both of these filters, running time increased with kernel radius.
+The running times for the empirical null filter increased with kernel radius. Compared to typical filters, say the mean and variance filter, the empirical null filter is a number of magnitudes slower. The main bottleneck is the evaluation of the density estimate, each step in the Newton-Raphson required the evaluation of $\pi r^2$ data points.
 
 The resulting inference from the test sample is shown in Fig.~\ref{fig:inference_subroiAbsFilterDeg120_inference_radius4}. The larger defects were successfully highlighted by the hypothesis test. The empirical null mean changed face to face, resulting in a clear boundary set by the edges. This suggests that the contamination or inaccuracy from \emph{aRTist} was face dependent.
 
@@ -358,7 +358,7 @@ This work is funded by EPSRC grant numbers EP/K031066/1 (Inside-out: Statistical
 
 \begin{figure}
   \centering
-  \includegraphics[width=0.49\textwidth]{../figures/inference/defectSquare2Example_imageContaminated.eps}
+  \includegraphics[width=0.49\textwidth]{../figures/inference/DefectExampleSquare40_imageContaminated.eps}
   \caption{A $\SI{256}{\pixel}\times \SI{256}{\pixel}$ contaminated Gaussian image with a $\SI{30}{\pixel} \times \SI{30}{\pixel}$ square defect. The null and alternative distributions are $Z_{x,y}|H_{0,x,y}\sim\normal(\mu_{0,x,y},2^2)$ and $Z_{x,y}|H_{1,x,y}\sim\normal(\mu_{0,x,y}+6,2^2)$ respectively where $\mu_{0,x,y}=0.01(x-x_0)+0.01(y-y_0)$ and $(x_0,y_0)$ is the centre of the image.}
   \label{fig:inference_defectSquare2Example}
 \end{figure}
