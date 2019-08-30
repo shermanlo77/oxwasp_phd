@@ -34,8 +34,11 @@ classdef (Abstract) DefectDetect < Experiment
     
     %IMPLEMENTED: PRINT RESULTS
     %PARAMETERS:
-      %nullStdCLim: cLim for the null std plot, empty to use default min and max null std for cLim
-    function printResults(this, zCLim, nullStdCLim, logPMax)
+      %zCLim: cLim for z plot
+      %nullStdCLim: cLim for the null std plot
+      %lopPMax: cLim max -log p
+      %scaleLength: length of scale bar in cm
+    function printResults(this, zCLim, nullStdCLim, logPMax, scaleLength)
       
       directory = fullfile('reports','figures','inference');
       
@@ -43,6 +46,7 @@ classdef (Abstract) DefectDetect < Experiment
       fig = LatexFigure.sub();
       imagesc = Imagesc(this.zImage);
       imagesc.plot();
+      imagesc.addScale(this.scan,scaleLength,'y');
       saveas(fig, fullfile(directory, strcat(this.experimentName,'_unfilteredZ.eps')), 'epsc');
       
       %array of p value images from the filtered z images
@@ -70,12 +74,14 @@ classdef (Abstract) DefectDetect < Experiment
         positivePlot.addPositivePixels(zTester.positiveImage);
         positivePlot.setDilateSize(2);
         positivePlot.plot();
+        positivePlot.addScale(this.scan,scaleLength,'k');
         saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
             '_sig.eps')),'epsc');
         %plot black white
         fig = LatexFigure.sub();
         positivePlot.setToBw();
         positivePlot.plot();
+        positivePlot.addScale(this.scan,scaleLength,'k');
         saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
             '_sigBW.eps')),'eps');
         saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
@@ -86,6 +92,7 @@ classdef (Abstract) DefectDetect < Experiment
         filteredImagePlot = Imagesc(filteredImage);
         filteredImagePlot.setCLim(zCLim);
         filteredImagePlot.plot();
+        filteredImagePlot.addScale(this.scan,scaleLength,'y');
         saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
             '_z.eps')),'epsc');
         
@@ -94,12 +101,14 @@ classdef (Abstract) DefectDetect < Experiment
         nullMeanPlot = Imagesc(this.nullMeanArray(:,:,iRadius));
         nullMeanPlot.setCLim(zCLim);
         nullMeanPlot.plot();
+        nullMeanPlot.addScale(this.scan,scaleLength,'y');
         saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
             '_nullMean.eps')),'epsc');
         %set to BW
         fig = LatexFigure.sub();
         nullMeanPlot.setToBw();
         nullMeanPlot.plot();
+        nullMeanPlot.addScale(this.scan,scaleLength,'y');
         saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
             '_nullMeanBW.eps')),'eps');
         saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
@@ -110,12 +119,14 @@ classdef (Abstract) DefectDetect < Experiment
         nullStdPlot = Imagesc(this.nullStdArray(:,:,iRadius));
         nullStdPlot.setCLim(nullStdCLim);
         nullStdPlot.plot();
+        nullStdPlot.addScale(this.scan,scaleLength,'y');
         saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
             '_nullStd.eps')),'epsc');
         %set to BW
         fig = LatexFigure.sub();
         nullStdPlot.setToBw();
         nullStdPlot.plot();
+        nullStdPlot.addScale(this.scan,scaleLength,'y');
         saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
             '_nullStdBW.eps')),'eps');
         saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
@@ -126,12 +137,14 @@ classdef (Abstract) DefectDetect < Experiment
         pPlot = Imagesc(logPArray(:,:,iRadius));
         pPlot.setCLim([0, logPMax]);
         pPlot.plot();
+        pPlot.addScale(this.scan,scaleLength,'y');
         saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
             '_logp.eps')),'epsc');
         %set to BW
         fig = LatexFigure.sub();
         pPlot.setToBw();
         pPlot.plot();
+        pPlot.addScale(this.scan,scaleLength,'y');
         saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
             '_logpBW.eps')),'eps');
         saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...

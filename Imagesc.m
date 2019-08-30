@@ -129,6 +129,25 @@ classdef Imagesc < handle
       
     end
     
+    %METHOD: ADD SCALE
+    %Add scale bar to the imagesc
+    %Optimise to be used with LatexFigure.sub();
+    %To be called after plot();
+    %
+    %PARAMETERS:
+      %scan: scan object containing magnification and detector resolution
+      %lengthCm: the length of the scale bar in cm
+      %scaleColour: colour of the scale bar using MATLAB notation, eg 'k' or [1,0,0]
+    function addScale(this, scan, lengthCm, scaleColour)
+      xStart = 20;
+      imageHeight = numel(this.image(:,1));
+      lengthOfCm = scan.magnification * lengthCm * 1E-2 / scan.resolution;
+      line([xStart, xStart+lengthOfCm], [imageHeight, imageHeight]*0.9,...
+          'LineWidth',3,'Color',scaleColour);
+      text(xStart+lengthOfCm/2,imageHeight*0.95,strcat(num2str(lengthCm),'cm'), ...
+          'HorizontalAlignment','center','Color',scaleColour);
+    end
+    
   end
   
 end

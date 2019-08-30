@@ -14,9 +14,10 @@ classdef ScanSingle < Scan
     
     %CONSTRUCTOR
     function this = ScanSingle(folderLocation, fileName, width, height, voltage, power, ...
-        timeExposure)
+        timeExposure, magnification)
       %calls superclass constructor
-      this@Scan(folderLocation, fileName, width, height, 1, voltage, power, timeExposure);
+      this@Scan(folderLocation, fileName, width, height, 1, voltage, power, timeExposure, ...
+          magnification);
     end
     
     %OVERRIDE: LOAD IMAGE

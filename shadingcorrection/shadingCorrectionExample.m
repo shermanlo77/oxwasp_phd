@@ -65,6 +65,7 @@ for i = 1:numel(scanArray)
     imagesc.setCLim(climProjection);
   end
   imagesc.plot();
+  imagesc.addScale(scan,1,'k');
   climProjection = imagesc.clim; %save the clim
   saveas(fig,fullfile('reports','figures','data', ...
       strcat(mfilename,'_image_',scan.getShadingCorrectionStatus(),'.eps')),'epsc');

@@ -15,7 +15,8 @@ close all;
 
 %get the x-ray projection, artist and the z image
 randStream = RandStream('mt19937ar', 'Seed', uint32(3538096789));
-[zImage, test, artist] = getZImage(AbsFilterDeg120(), randStream);
+scan = AbsFilterDeg120();
+[zImage, test, artist] = getZImage(scan, randStream);
 %do hypothesis testing on the zimage (without empirical null filter)
 zTester = ZTester(zImage);
 zTester.doTest();
@@ -26,6 +27,7 @@ clim = [2.2E4,5.5E4]; %set the clim of the imagesc plots of the x-ray and artist
 fig = LatexFigure.sub();
 testPlot = Imagesc(test);
 testPlot.plot();
+testPlot.addScale(scan,'k');
 ax = gca;
 ax.CLim = clim;
 saveas(fig,fullfile('reports','figures','inference',strcat(mfilename,'_scan.eps')),'epsc');
@@ -34,21 +36,24 @@ saveas(fig,fullfile('reports','figures','inference',strcat(mfilename,'_scan.eps'
 fig = LatexFigure.sub();
 artistPlot = Imagesc(artist);
 artistPlot.plot();
+artistPlot.addScale(scan,'k');
 ax = gca;
 ax.CLim = clim;
 saveas(fig,fullfile('reports','figures','inference',strcat(mfilename,'_artist.eps')),'epsc');
 
 %plot the p value image
 fig = LatexFigure.sub();
-image_plot = Imagesc(-log10(zTester.pImage));
-image_plot.plot();
+pPlot = Imagesc(-log10(zTester.pImage));
+pPlot.plot();
+pPlot.addScale(scan,'y');
 saveas(fig,fullfile('reports','figures','inference',strcat(mfilename,'_logp.eps')),'epsc');
 
 %plot the x-ray projection with critical pixels highlighted
 fig = LatexFigure.sub();
-image_plot = Imagesc(test);
-image_plot.addPositivePixels(zTester.positiveImage);
-image_plot.plot();
+sigPlot = Imagesc(test);
+sigPlot.addPositivePixels(zTester.positiveImage);
+sigPlot.plot();
+sigPlot.addScale(scan,'k');
 ax = gca;
 ax.CLim = clim;
 saveas(fig,fullfile('reports','figures','inference', ...

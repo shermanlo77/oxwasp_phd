@@ -28,6 +28,7 @@ fig = LatexFigure.sub();
 axis xy;
 imagesc = Imagesc(zImage);
 imagesc.plot();
+imagesc.addScale(scan,1,'y');
 hold on;
 plot(xArray,yArray(1)*ones(1,2),'r--');
 plot(xArray,yArray(2)*ones(1,2),'r--');

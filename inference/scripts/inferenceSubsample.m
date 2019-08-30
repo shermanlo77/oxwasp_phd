@@ -16,23 +16,30 @@ clearvars;
 close all;
 
 randStream = RandStream('mt19937ar', 'Seed', uint32(3538096789));
-zImage = getZImage(AbsFilterDeg120(), randStream);
-subsampleExample(zImage, 1:2000, 1:2000, strcat(mfilename,'All')); %whole image
-subsampleExample(zImage, 1100:1299, 400:599, strcat(mfilename,'1')); %subimage with no defect
-subsampleExample(zImage, 500:699, 500:699, strcat(mfilename,'2')); %subimage with defect
+scan = AbsFilterDeg120();
+zImage = getZImage(scan, randStream);
+%whole image
+subsampleExample(scan, zImage, 1:2000, 1:2000, 1, strcat(mfilename,'All'));
+%subimage with no defect
+subsampleExample(scan, zImage, 1100:1299, 400:599, 0.1, strcat(mfilename,'1'));
+%subimage with defect
+subsampleExample(scan, zImage, 500:699, 500:699, 0.1, strcat(mfilename,'2'));
 
 %PARAMETERS:
+  %scan: scan object
   %zImage: image of z statistics
   %rowSubsample: vector of indicies of rows which indiciate the position of the subimage
   %colSubsample: vector of indicies of columns which indiciate the position of the subimage
+  %scaleLength: the length of the scale bar in cm
   %name: prefix used when saving results
-function subsampleExample(zImage, rowSubsample, colSubsample, name)
+function subsampleExample(scan, zImage, rowSubsample, colSubsample, scaleLength, name)
   
   %FIGURE
   %Plot the z image with a rectangle highlighting the subsample
   fig = LatexFigure.sub();
-  image_plot = Imagesc(zImage);
-  image_plot.plot();
+  imagePlot = Imagesc(zImage);
+  imagePlot.plot();
+  imagePlot.addScale(scan,1,'y');
   hold on;
   rectangle('Position', [colSubsample(1), rowSubsample(1), ...
       colSubsample(end)-colSubsample(1)+1, rowSubsample(end)-rowSubsample(1)+1], ...
@@ -105,9 +112,10 @@ function subsampleExample(zImage, rowSubsample, colSubsample, name)
   %FIGURE
   %Plot the subsample z statistics along with the positive pixels
   fig = LatexFigure.sub();
-  image_plot = Imagesc(zSampleImage);
-  image_plot.addPositivePixels(zTester.positiveImage);
-  image_plot.plot();
+  subImagePlot = Imagesc(zSampleImage);
+  subImagePlot.addPositivePixels(zTester.positiveImage);
+  subImagePlot.plot();
+  subImagePlot.addScale(scan,scaleLength,'y');
   saveas(fig,fullfile('reports','figures','inference',strcat(name,'_subimagePositive.eps')),'epsc');
 
   %SAVE VALUE

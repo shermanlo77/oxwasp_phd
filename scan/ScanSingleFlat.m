@@ -16,9 +16,10 @@ classdef ScanSingleFlat < ScanSingle
   methods (Access = public)
     
     %CONSTRUCTOR
-    function this = ScanSingleFlat(width, height, voltage, power, timeExposure, greyvalue)
+    function this = ScanSingleFlat(width, height, voltage, power, timeExposure, magnification, ...
+          greyvalue)
       %calls superclass constructor
-      this@ScanSingle([], [], width, height, voltage, power, timeExposure);
+      this@ScanSingle([], [], width, height, voltage, power, timeExposure, magnification);
       this.greyvalue = greyvalue;
     end
     
