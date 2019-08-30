@@ -421,8 +421,6 @@ classdef CompoundPoisson < handle
       %a: start limit value of numerical integration
       %b: end limit value of numerical integration
       %n: number of trapeziums
-    %NOTES:
-      %the saddle point approximated pdf does not support exactly 0
     %RETURN:
       %x: array of compound poisson variables, one for each element in pArray corresponding to the
           %inverse cdf

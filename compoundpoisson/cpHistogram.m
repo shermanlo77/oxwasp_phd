@@ -59,11 +59,9 @@ for iParameter = 1:nParameter
     compoundPoisson.addData(X);
     
     %plot the histogram
-    plotHistogram(compoundPoisson, isPlotZeroArray(iParameter), figureLocation);
-    %plot qq plot if this model can evaluate zero mass
-    if (compoundPoisson.isSupportZeroMass || (~isPlotZeroArray(iParameter)))
-      plotQq(compoundPoisson, figureLocation);
-    end
+    plotHistogram(compoundPoisson, figureLocation);
+    %plot qq plot
+    plotQq(compoundPoisson, figureLocation);
   end
 end
 
@@ -81,10 +79,10 @@ end
   %compoundPoisson: stores the simulated compound Poisson and evaluates the density
   %isPlotZero: boolean, to plot the zero count or not
   %figureLocation: location to the save figure
-function plotHistogram(compoundPoisson, isPlotZero, figureLocation)
+function plotHistogram(compoundPoisson, figureLocation)
 
   %number of points when plotting densities
-  nLinspace = 500;
+  nLinspace = 10000;
   %get data from compound poisson object
   X = compoundPoisson.X;
   n = compoundPoisson.n;
@@ -102,7 +100,7 @@ function plotHistogram(compoundPoisson, isPlotZero, figureLocation)
   end
   
   %if statement for plotting histogram for zeros and positive numbers separately
-  if (compoundPoisson.isSupportZeroMass && isPlotZero)
+  if (compoundPoisson.isSupportZeroMass && any(X==0))
     
     n0Obv = sum(X==0); %number of observed zeros
     n0Exp = n*p0; %expected number of zeros
