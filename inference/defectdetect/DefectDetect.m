@@ -101,14 +101,12 @@ classdef (Abstract) DefectDetect < Experiment
         nullMeanPlot = Imagesc(this.nullMeanArray(:,:,iRadius));
         nullMeanPlot.setCLim(zCLim);
         nullMeanPlot.plot();
-        nullMeanPlot.addScale(this.scan,scaleLength,'y');
         saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
             '_nullMean.eps')),'epsc');
         %set to BW
         fig = LatexFigure.sub();
         nullMeanPlot.setToBw();
         nullMeanPlot.plot();
-        nullMeanPlot.addScale(this.scan,scaleLength,'y');
         saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
             '_nullMeanBW.eps')),'eps');
         saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
@@ -119,14 +117,12 @@ classdef (Abstract) DefectDetect < Experiment
         nullStdPlot = Imagesc(this.nullStdArray(:,:,iRadius));
         nullStdPlot.setCLim(nullStdCLim);
         nullStdPlot.plot();
-        nullStdPlot.addScale(this.scan,scaleLength,'y');
         saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
             '_nullStd.eps')),'epsc');
         %set to BW
         fig = LatexFigure.sub();
         nullStdPlot.setToBw();
         nullStdPlot.plot();
-        nullStdPlot.addScale(this.scan,scaleLength,'y');
         saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
             '_nullStdBW.eps')),'eps');
         saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
@@ -137,14 +133,12 @@ classdef (Abstract) DefectDetect < Experiment
         pPlot = Imagesc(logPArray(:,:,iRadius));
         pPlot.setCLim([0, logPMax]);
         pPlot.plot();
-        pPlot.addScale(this.scan,scaleLength,'y');
         saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
             '_logp.eps')),'epsc');
         %set to BW
         fig = LatexFigure.sub();
         pPlot.setToBw();
         pPlot.plot();
-        pPlot.addScale(this.scan,scaleLength,'y');
         saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
             '_logpBW.eps')),'eps');
         saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
