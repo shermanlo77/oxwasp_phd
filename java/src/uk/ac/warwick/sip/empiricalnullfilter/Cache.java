@@ -52,11 +52,18 @@ class Cache {
       //get the y coordinate
       int y = iRow - Kernel.getKRadius();
       //if y is outside the roi, fill this row with NaN
-      if ( (y < roiRectangle.y) || ( y >= (roiRectangle.y + roiRectangle.height) ) ) {
+      if ( (y < roiRectangle.y) || ( y >= (roiRectangle.y+roiRectangle.height) ) ) {
         Arrays.fill(this.cache, iRow*this.cacheWidth, (iRow+1)*this.cacheWidth, Float.NaN);
+      //else it is inside the roi
       } else {
-        System.arraycopy((float[])this.ip.getPixels(), y*width, this.cache, iRow*this.cacheWidth,
-            width);
+        //pad left and right with nan
+        //copy pixels between the padding
+        Arrays.fill(this.cache, iRow*this.cacheWidth,
+            iRow*this.cacheWidth+Kernel.getKRadius(), Float.NaN);
+        System.arraycopy(this.ip.getPixels(), y*width,
+            this.cache, iRow*this.cacheWidth+Kernel.getKRadius(),width);
+        Arrays.fill(this.cache, (iRow+1)*this.cacheWidth-Kernel.getKRadius(),
+            (iRow+1)*this.cacheWidth, Float.NaN);
       }
     }
     

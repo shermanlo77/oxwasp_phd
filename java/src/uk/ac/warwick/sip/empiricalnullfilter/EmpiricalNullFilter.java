@@ -424,8 +424,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     
     //threads announce here which line they currently process
     final int[] yForThread = new int[numThreads];
-    Arrays.fill(yForThread, -1);
-    yForThread[numThreads-1] = roiRectangle.y-1; //first thread started should begin at roi.y
+    Arrays.fill(yForThread, roiRectangle.y-1);
     //thread number 0 is this one, not in the array
     final Thread[] threads = new Thread[numThreads-1];
     //this rng is for producing random seeds for each thread
@@ -536,10 +535,11 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     //while loop, loop over each y
     while (!aborted[0]) {
       
-      //=====THREAD CONTROL===== (untouched from original source code)
+      //=====THREAD CONTROL===== 
       
-      int y = arrayMax(yForThread) + 1; // y of the next line that needs processing
-      yForThread[threadNumber] = y; //indicate that this thread is working on y
+      this.updateYForThread(yForThread, threadNumber);
+      int y = yForThread[threadNumber];
+      
       boolean threadFinished = y >= roiRectangle.y+roiRectangle.height;
       //'if' is not synchronized to avoid overhead
       if (numThreads>1 && (threadWaiting || threadFinished))
@@ -571,19 +571,21 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     }// end while (!aborted[0]); loops over y (lines)
   }
   
-  //METHOD: ARRAY MAX
-  /**Used by thread control in threadFilter
-   * @param array array of ints
-   * @return maximum in array
+  //METHOD: UPDATE Y FOR THREAD
+  /**Update the array of y positions of each thread so that the y position of the current thread is
+   *     at the next unfiltered row
+   * @param yForThread y position of each thread
+   * @param threadNumber
    */
-  private int arrayMax(int[] array) {
-    int max = Integer.MIN_VALUE;
-    for (int i=0; i<array.length; i++) {
-      if (array[i] > max) {
-        max = array[i];
+  private synchronized void updateYForThread(int[] yForThread, int threadNumber) {
+    int y = Integer.MIN_VALUE;
+    for (int i=0; i<yForThread.length; i++) {
+      if (yForThread[i] > y) {
+        y = yForThread[i];
       }
     }
-    return max;
+    y += 1; // y of the next line that needs processing
+    yForThread[threadNumber] = y; //indicate that this thread is working on y
   }
   
   //METHOD: FILTER LINE
@@ -598,7 +600,6 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   private void filterLine(float[][] values, Cache cache, Kernel kernel, int y,
       NormalDistribution normal, RandomGenerator rng) {
     
-    int cacheLineP = cache.getCacheWidth() * (y % cache.getCacheHeight()) + Kernel.getKRadius();
     //declare the pointer for a pixel in values
     int valuesP = this.imageProcessor.getRoi().x+y*this.imageProcessor.getWidth();
     float initialValue = Float.NaN; //initial value to be used for the newton-raphson method
@@ -629,8 +630,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
           
           float [] nullMeanStd = this.getNullMeanStd(initialValue, kernel, normal, rng);
           //normalise this pixel
-          values[0][valuesP] =
-              (cache.getCache()[cacheLineP+kernel.getX()] - nullMeanStd[0]) / nullMeanStd[1];
+          values[0][valuesP] = (values[0][valuesP] - nullMeanStd[0]) / nullMeanStd[1];
           //for the next x, the initial value is this nullMean
           initialValue = nullMeanStd[0];
           //for each requested output image, save that statistic
