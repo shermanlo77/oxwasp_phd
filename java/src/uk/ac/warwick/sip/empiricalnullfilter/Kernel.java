@@ -183,7 +183,6 @@ class Kernel {
             //sum[0] is nan
             RuntimeException exception = new RuntimeException("this.sums[0] is nan");
             DebugPrint.write(exception.toString());
-            DebugPrint.close();
             throw exception;
             //=====END DEBUG=====
           }
@@ -205,7 +204,6 @@ class Kernel {
                 new RuntimeException("sumArea() and sumSides() produced different sums[0] by "
                 + "E-5 at ("+this.x+","+this.y+")");
             DebugPrint.write(exception.toString());
-            DebugPrint.close();
             throw exception;
           }
           if (Math.log10(Math.abs(sums[1] - this.sums[1]))>-5) {
@@ -214,7 +212,6 @@ class Kernel {
                 new RuntimeException("sumArea() and sumSides() produced different sums[1] by "
                     + "E-5 at ("+this.x+","+this.y+")");
             DebugPrint.write(exception.toString());
-            DebugPrint.close();
             throw exception;
           }
           if (nFinite != this.nFinite) {
@@ -222,7 +219,6 @@ class Kernel {
                 new RuntimeException("sumArea() and sumSides() produced different nFinite at "
                     + "(" + this.x + "," + this. y +")" );
             DebugPrint.write(exception.toString());
-            DebugPrint.close();
             throw exception;
             
           }

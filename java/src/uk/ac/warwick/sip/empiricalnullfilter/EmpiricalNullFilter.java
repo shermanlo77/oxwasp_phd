@@ -673,7 +673,6 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
             RuntimeException exception =
                 new RuntimeException("initialValue has not been initalised");
             DebugPrint.write(exception.toString());
-            DebugPrint.close();
             throw exception;
           }
           //=====END DEBUG=====

@@ -149,21 +149,18 @@ public class EmpiricalNull {
     if (this.n <= 0) {
       RuntimeException exception = new RuntimeException("n = "+this.n+" is not positive");
       DebugPrint.write(exception.toString());
-      DebugPrint.close();
       throw exception;
     }
     //check the std is positive
     if (this.dataStd <= 0) {
       RuntimeException exception = new RuntimeException("dataStd = "+this.dataStd+" is not valid");
       DebugPrint.write(exception.toString());
-      DebugPrint.close();
       throw exception;
     }
     //check if iqr is positive
     if (this.iqr <= 0) {
       RuntimeException exception = new RuntimeException("iqr = "+this.iqr+" is not valid");
       DebugPrint.write(exception.toString());
-      DebugPrint.close();
       throw exception;
     }
     //=====END DEBUG=====
@@ -177,7 +174,6 @@ public class EmpiricalNull {
       RuntimeException exception = 
           new RuntimeException("initial value "+initialValue+" is not finite");
       DebugPrint.write(exception.toString());
-      DebugPrint.close();
       throw exception;
     }
     //=====END DEBUG=====
@@ -300,7 +296,6 @@ public class EmpiricalNull {
         RuntimeException exception = 
             new RuntimeException("random initial value is the same as this.initial value");
         DebugPrint.write(exception.toString());
-        DebugPrint.close();
         throw exception;
       }
       //=====END DEBUG=====
@@ -310,7 +305,6 @@ public class EmpiricalNull {
       if (counter > 10*this.nInitial) {
         //=====DEBUG=====
         DebugPrint.write("ConvergenceException thrown");
-        DebugPrint.close();
         //=====END DEBUG
         throw new ConvergenceException();
       }
@@ -461,7 +455,6 @@ public class EmpiricalNull {
       RuntimeException exception =
           new RuntimeException("bandwidth = "+this.bandwidth+" is not positive");
       DebugPrint.write(exception.toString());
-      DebugPrint.close();
       throw exception;
       
     }
