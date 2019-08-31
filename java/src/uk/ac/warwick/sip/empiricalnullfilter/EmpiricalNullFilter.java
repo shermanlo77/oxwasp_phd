@@ -763,8 +763,8 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
         empiricalNull.estimateNull();
       } catch (ConvergenceException exceptionAfterMedian) { //median as initial value didn't work
         //=====DEBUG=====
-        DebugPrint.write("Second ConvergenceException thrown, initial value = "
-            +kernel.getMedian());
+        DebugPrint.write("Second ConvergenceException caught at (\"+kernel.getX()+\",\"+y+\")\", "
+            + "initial value = "+kernel.getMedian());
         //=====END DEBUG
         throw exceptionAfterMedian;
       }

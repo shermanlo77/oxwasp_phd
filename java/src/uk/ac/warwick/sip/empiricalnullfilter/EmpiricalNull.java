@@ -297,7 +297,11 @@ public class EmpiricalNull {
       //=====DEBUG=====//
       //check if the random initial value is different
       if (Float.compare(greyvalue, this.initialValue)==0) {
-        throw new RuntimeException("random initial value is the same as this.initial value");
+        RuntimeException exception = 
+            new RuntimeException("random initial value is the same as this.initial value");
+        DebugPrint.write(exception.toString());
+        DebugPrint.close();
+        throw exception;
       }
       //=====END DEBUG=====
       
@@ -306,6 +310,7 @@ public class EmpiricalNull {
       if (counter > 10*this.nInitial) {
         //=====DEBUG=====
         DebugPrint.write("ConvergenceException thrown");
+        DebugPrint.close();
         //=====END DEBUG
         throw new ConvergenceException();
       }
@@ -453,7 +458,12 @@ public class EmpiricalNull {
     //=====DEBUG=====
     //check if the bandwidth is positive
     if (this.bandwidth < 0) {
-      throw new RuntimeException("bandwidth = "+this.bandwidth+" is not positive");
+      RuntimeException exception =
+          new RuntimeException("bandwidth = "+this.bandwidth+" is not positive");
+      DebugPrint.write(exception.toString());
+      DebugPrint.close();
+      throw exception;
+      
     }
     //=====END DEBUG=====
   }
