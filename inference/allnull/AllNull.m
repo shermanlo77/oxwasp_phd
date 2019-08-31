@@ -155,7 +155,7 @@ classdef AllNull < Experiment
     %Filter Gaussian images for different radius multiple times
     function doExperiment(this)
       
-      DebugPrint.newFile(this.experiment_name);
+      DebugPrint.newFile(this.experimentName);
       
       %for each radius
       for iRadius = 1:numel(this.radiusArray)

@@ -127,7 +127,7 @@ classdef BandwidthSelection < Experiment
     %IMPLEMENTED: DO EXPERIMENT
     function doExperiment(this)
       
-      DebugPrint.newFile(this.experiment_name);
+      DebugPrint.newFile(this.experimentName);
       
       %set progress bar
       this.setNIteration(this.nRepeat * numel(this.nArray) * numel(this.kArray));

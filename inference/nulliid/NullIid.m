@@ -145,7 +145,7 @@ classdef (Abstract) NullIid < Experiment
     %IMPLEMENTED: DO EXPERIMENT
     function doExperiment(this)
       
-      DebugPrint.newFile(this.experiment_name);
+      DebugPrint.newFile(this.experimentName);
       
       %for each n
       for iN = 1:numel(this.nArray)
@@ -175,7 +175,7 @@ classdef (Abstract) NullIid < Experiment
         
       end
       
-      DebugPrint.close(this.experiment_name);
+      DebugPrint.close();
 
     end
     

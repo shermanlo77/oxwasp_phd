@@ -2,7 +2,7 @@
 %Directory where all the experiment results are stored
 function directory = getResultsDirectory()
 
-  directory = fullfile('results');
+  directory = fullfile('results','debug');
 
 end
 

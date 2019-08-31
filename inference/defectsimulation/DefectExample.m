@@ -151,6 +151,8 @@ classdef DefectExample < Experiment
     %IMPLEMENTED: DO EXPERIMENT
     function doExperiment(this)
       
+      DebugPrint.newFile(this.experimentName);
+      
       %get the defected image
       [this.imageContaminated, this.isNonNullImage, this.imageClean] = ...
           this.defectSimulator.getDefectedImage(this.imageSize);
@@ -185,6 +187,8 @@ classdef DefectExample < Experiment
         %progress bar
         this.printProgress(iFilter / this.nFilter);
       end
+      
+      DebugPrint.close();
 
     end
     

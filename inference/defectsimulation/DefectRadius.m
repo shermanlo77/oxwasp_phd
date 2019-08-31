@@ -152,11 +152,15 @@ classdef DefectRadius < Experiment
     %METHOD: DO EXPERIMENT
     function doExperiment(this)
       
+      DebugPrint.newFile(this.experimentName);
+      
       %set up the contamination
       defectSimulator = this.getDefectSimulator();
       
       %for each kernel radius
       for iRadius = 1:numel(this.radiusArray)
+        
+        DebugPrint.write(strcat('r=',num2str(this.radiusArray(iRadius))));
         
         %repeat nRepeat times
         for iRepeat = 1:this.nRepeat
