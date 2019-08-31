@@ -98,6 +98,11 @@ classdef Boxplot < handle
       this.outlierSize = outlierSize;
     end
     
+    %METHOD: SET TO BLACK WHITE
+    function setToBw(this)
+      this.colour = [0,0,0];
+    end
+    
     %METHOD: PLOT
       %Plot the box plot
     function plot(this)

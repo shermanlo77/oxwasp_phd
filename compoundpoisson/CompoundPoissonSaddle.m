@@ -58,6 +58,26 @@ classdef CompoundPoissonSaddle < CompoundPoisson
       lnPdf = log(this.getPdf(x));
     end
     
+    %OVERRIDE: GET INVERSE CDF
+    %zero is not in the support, the override method adjusts a=0
+    %PARAMETERS:
+      %pArray: order array of parameters of the inverse cdf
+      %a: start limit value of numerical integration
+      %b: end limit value of numerical integration
+      %n: number of trapeziums
+    %RETURN:
+      %x: array of compound poisson variables, one for each element in pArray corresponding to the
+          %inverse cdf
+    function x = getInvCdf(this, pArray, a, b, n)
+      %get the hight of each trapezium
+      h = (b-a)/n;
+      %if a is zero, shift it by a trapezium height, this is the left integral limit
+      if (a==0)
+        a = a+h;
+      end
+      x = this.getInvCdf@CompoundPoisson(pArray, a, b, n);
+    end %getinv
+    
   end
   
 end

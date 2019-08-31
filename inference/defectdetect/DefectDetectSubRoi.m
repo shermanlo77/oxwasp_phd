@@ -17,11 +17,9 @@ classdef (Abstract) DefectDetectSubRoi < DefectDetect
     
     %OVERRIDE: PRINT RESULTS
     %Include the significant pixels when doing hypothesis testing on each segment separately
-    %PARAMETERS:
-      %nullStdCLim: cLim for the null std plot, empty to use default min and max null std for cLim
-    function printResults(this, zCLim, nullStdCLim, logPMax)
+    function printResults(this, zCLim, nullStdCLim, logPMax, scaleLength)
       
-      this.printResults@DefectDetect(zCLim, nullStdCLim, logPMax);
+      this.printResults@DefectDetect(zCLim, nullStdCLim, logPMax, scaleLength);
       directory = fullfile('reports','figures','inference');
       
       %for each radius

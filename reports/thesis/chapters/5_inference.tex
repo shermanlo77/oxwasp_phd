@@ -85,7 +85,7 @@ This chapter recaps hypothesis testing, for a single test and then for multiple 
 
 Consider a test statistic from a pixel. If there are no defects, then the statistic is null and has the null distribution $Z|H_0\sim\normal(0,1)$. This can be described in another way by specifying the random variable as $Z\sim\normal(\mu,1)$ and the null hypothesis as $H_0:\mu=0$. A hypothesis test can judge how much $Z$ deviates from 0 by defining the alternative hypothesis $H_1:\mu\neq 0$. A statistic which does not have the null distribution is known as non-null.
 
-In two-tailed hypothesis testing \citep{pearson1900on, neyman1933on, fisher1970statistical}, the $p$-value can be compared with the user defined significance level $\alpha$, also known as the size of the test in this specific example. A positive result is declared when $p<\alpha$, else it is a negative result. Correct and incorrect testing of the statistics can occur. For example testing a null statistic as positive is known as a false positive. It can be shown that $\alpha$ controls the false positive rate. $\alpha=5.0\%$ is a typical choice and is used throughout this thesis. Other fields use the $\sigma$ notation, for example $2\sigma$ correspond to about the $\alpha = 4.6\%$ significance level; this notation will not be used here.
+In two-tailed hypothesis testing \citep{pearson1900on, neyman1933on, fisher1970statistical}, the $p$-value can be compared with the user defined significance level $\alpha$, also known as the size of the test in this specific example. A positive result is declared when $p<\alpha$, else it is a negative result. Correct and incorrect testing of the statistics can occur. For example testing a null statistic as positive is known as a false positive. It can be shown that $\alpha$ controls the false positive rate. $\alpha=5.0\%$ is a typical choice \citep{wasserstein2019moving} and is used throughout this thesis. Other fields use the $\sigma$ notation, for example $2\sigma$ correspond to about the $\alpha = 4.6\%$ significance level; this notation will not be used here.
 
 Multiple hypothesis testing occurs when there are more than one hypotheses to test. For example $n$ pixels can be tested where the test statistics are $Z_1, Z_2, \dotsc, Z_n$ and $Z_i\sim\normal(\mu_i,1)$ for $i=1,2,\dotsc,n$. The null hypotheses are $H_{0,i}:\mu_i=0$ and are tested against the alternative $H_{1,i}:\mu_i\neq 0$ for $i=1,2,\dotsc,n$. Let the corresponding $p$-values be $p_1, p_2, \dotsc, p_n$.
 
@@ -1719,7 +1719,7 @@ The empirical null filter has been developed and tested thoroughly on simulated 
   \centering
     \centerline{
       \begin{subfigure}[b]{\subSize}
-        \includegraphics[width=1.05\textwidth, height=5.45cm]{../figures/inference/DefectDetectAbsFilterDeg120_radius1_sig.eps}
+        \includegraphics[width=1.05\textwidth, height=5.6cm]{../figures/inference/DefectDetectAbsFilterDeg120_radius1_sig.eps}
         \caption{Image with positive pixels}
       \end{subfigure}
       \begin{subfigure}[b]{\subSize}
@@ -1745,7 +1745,7 @@ The empirical null filter has been developed and tested thoroughly on simulated 
   \centering
     \centerline{
       \begin{subfigure}[b]{\subSize}
-        \includegraphics[width=1.05\textwidth, height=5.45cm]{../figures/inference/DefectDetectAbsFilterDeg120_radius4_sig.eps}
+        \includegraphics[width=1.05\textwidth, height=5.6cm]{../figures/inference/DefectDetectAbsFilterDeg120_radius4_sig.eps}
         \caption{Image with positive pixels}
       \end{subfigure}
       \begin{subfigure}[b]{\subSize}
@@ -1799,7 +1799,7 @@ False positives were detected on the bottom right of the test sample. This was t
   \centering
     \centerline{
       \begin{subfigure}[b]{\subSize}
-        \includegraphics[width=1.05\textwidth, height=5.45cm]{../figures/inference/DefectDetectSubRoiAbsFilterDeg120_radius4_sig.eps}
+        \includegraphics[width=1.05\textwidth, height=5.6cm]{../figures/inference/DefectDetectSubRoiAbsFilterDeg120_radius4_sig.eps}
         \caption{Image with positive pixels}
       \end{subfigure}
       \begin{subfigure}[b]{\subSize}
@@ -1825,7 +1825,7 @@ False positives were detected on the bottom right of the test sample. This was t
   \centering
     \centerline{
       \begin{subfigure}[b]{\subSize}
-        \includegraphics[width=1.05\textwidth, height=5.45cm]{../figures/inference/DefectDetectSubRoiAbsFilterDeg30_radius1_sig.eps}
+        \includegraphics[width=1.05\textwidth, height=5.6cm]{../figures/inference/DefectDetectSubRoiAbsFilterDeg30_radius1_sig.eps}
         \caption{Image with positive pixels}
       \end{subfigure}
       \begin{subfigure}[b]{\subSize}
@@ -1875,7 +1875,7 @@ The whole procedure was repeated on the titanium test sample in the dataset \tex
   \centering
     \centerline{
       \begin{subfigure}[b]{\subSize}
-        \includegraphics[width=1.03\textwidth, height=5.45cm]{../figures/inference/DefectDetectSubRoiTiFilterDeg30_radius1_sig.eps}
+        \includegraphics[width=1.03\textwidth, height=5.6cm]{../figures/inference/DefectDetectSubRoiTiFilterDeg30_radius1_sig.eps}
         \caption{Image with positive pixels}
       \end{subfigure}
       \begin{subfigure}[b]{\subSize}
@@ -1901,7 +1901,7 @@ The whole procedure was repeated on the titanium test sample in the dataset \tex
   \centering
     \centerline{
       \begin{subfigure}[b]{\subSize}
-        \includegraphics[width=1.03\textwidth, height=5.45cm]{../figures/inference/DefectDetectSubRoiTiFilterDeg120_radius1_sig.eps}
+        \includegraphics[width=1.03\textwidth, height=5.6cm]{../figures/inference/DefectDetectSubRoiTiFilterDeg120_radius1_sig.eps}
         \caption{Image with positive pixels}
       \end{subfigure}
       \begin{subfigure}[b]{\subSize}
@@ -1933,10 +1933,12 @@ In the experiment, the larger voids of diameter \SI{2.4}{\milli\metre} were dete
 
 For good results, the faces of the test sample were segmented. This was necessary because the empirical null filter assumes that the null parameters varied spatially smoothly and slowly. Manual segmentation was easy to do because a cuboid has 6 faces. However, segmentation of faces cannot be generalised well to AM samples with complicated geometry and curved surfaces. Automatic segmentation may be possible with geometrical information from the CAD model.
 
-While the empirical null filter performed well for the ABS test sample, it failed in the titanium test sample due to dominating effects on the edges. This could be due to poor face segmentation or poor alignment of the \emph{aRTist} projection with the obtained projection. This demonstrates that the empirical null filter can cater for model misspecification but there becomes a point where model misspecified null statistics cannot be distinguished from non-null statistics. Another possible cause for dominating edge effects are metal artifacts such as streaks which are problems observed in XCT of metal parts \citep{deman1998metal, nawaz2014metal}.
+While the empirical null filter performed well for the ABS test sample, it failed in the titanium test sample due to dominating effects on the edges. This could be due to poor face segmentation or poor alignment of the \emph{aRTist} projection with the obtained projection. This demonstrates that the empirical null filter can cater for model misspecification but there becomes a point where model misspecified null statistics cannot be distinguished from non-null statistics. Another possible cause for dominating edge effects are metal artifacts such as streaks which are problems observed in XCT of metal parts \citep{deman1998metal, nawaz2014metal}. Lastly, because the titanium test sample was created using a power-based method, the voids may be filled with power thus appear with less contrast in the projections making it hard to detect.
 
 The main issue with implementing this method onto the production line was how slow the filter was. The main bottleneck is the evaluation of the density estimate, each step in the Newton-Raphson required the evaluation of $\pi r^2$ data points. As a result, increasing the kernel radius slows down the filter. Perhaps there may be faster methods for density estimation such as fitting a smoothing spline on the histogram \citep{efron2004large}, however that would require tuning the histogram bins as well as the tuning parameters for the spline. On the other hand, the method in \cite{schwartzman2008empirical} which uses the histogram count found that the estimation of the null parameters was insensitive to the histogram binning.
 
 There are a few strategies to accelerate the filter. The empirical null filter may be accelerated using GPUs \citep{yang2008parallel, hwu2011gpu, eklund2013medical}, however efforts to implement the filter in \emph{CUDA} and \emph{C++} is fruitless if there may exist a faster method. Instead, accuracy may be sacrificed for speed by only estimating the null parameters for a number of regularly spaced pixels, the remaining pixels then do estimation through interpolation. The problem is that the assumption of a slow varying null parameter is required much more because of the use of interpolation, this may cause bigger problems due to the face to face transition observed in the experiments. It was found that if a bad solution was found for a point, then that solution would spread its bad solution to neighbour pixels due to the interpolation.
 
-Estimation of the null parameters is essentially robust statistics, estimating the parameters of the null distribution without being affected by non-null statistics. Potential faster methods than the empirical null could exist in literature for robust statistics such as \cite{hampel1986robust, rousseeuw1987robust, maronna2006robust, huber2009robust, jewson2018principles}. The EM algorithm \citep{dempster1977maximum} could be used to fit a mixture of Gaussians to identify the null distribution and estimate its parameters. However the power of hypothesis testing and the empirical null comes from the fact that the alternative distribution does not need to be specified.
+Estimation of the null parameters is essentially robust statistics, estimating the parameters of the null distribution without being affected by non-null statistics. Potential faster methods than the empirical null could exist in literature for robust statistics such as \cite{hampel1986robust, rousseeuw1987robust, maronna2006robust, huber2009robust, jewson2018principles}. The use of density estimation for robust estimation is also featured when using loss functions derived from the Hellinger-divergence \citep{beran1977minimum, jewson2018principles} or the beta-divergence \citep{basu1998robust, jewson2018principles} which bears similarities to the empirical null. However, numerical methods are still required to find the mode. Exact solutions for the mode using Bayesian methods is impossible \citep{heinrich2013the} which suggest avoiding the use of numerical methods can be difficult.
+
+The EM algorithm \citep{dempster1977maximum} could be used to fit a mixture of Gaussians to identify the null distribution and estimate its parameters. However the power of hypothesis testing and the empirical null comes from the fact that the alternative distribution does not need to be specified.

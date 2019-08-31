@@ -10,7 +10,7 @@ classdef DefectDetectAbsFilterDeg120 < DefectDetect
     end
     
     function printResults(this)
-      this.printResults@DefectDetect([-6, 8], [0,8], 15);
+      this.printResults@DefectDetect([-6, 8], [0,8], 15, 1);
     end
     
   end

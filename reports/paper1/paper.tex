@@ -44,7 +44,7 @@
 \title{Detection of defects in additive manufacturing from a single x-ray projection using the empirical null filter}
 \date{2019}
 \author[1]{S.E.~Lo}
-\author[2]{J.W.~Warnett}
+\author[2]{J.M.~Warnett}
 \author[2]{G.J.~Gibbons}
 \author[2]{M.A.~Williams}
 \author[3]{T.E.~Nichols}
@@ -105,10 +105,10 @@ This paper investigates whether defects can be detected from a single x-ray proj
 
 An ABS plastic cuboid (\SI{40}{\milli\metre} $\times$ \SI{40}{\milli\metre} $\times$ \SI{60}{\milli\metre}) with voids was purposefully manufactured to see if they can be detected. The CAD model of the test sample is shown in Fig.~\ref{fig:inference_testObject}. It was manufactured using a \emph{Fortus 400mc (Stratasys, US)} 3D printer. Six voids of each diameter, \SI{2.4}{\milli\metre}, \SI{1.2}{\milli\metre}, \SI{0.6}{\milli\metre} and \SI{0.3}{\milli\metre}, were designed in the CAD model. Voids with diameters \SI{2.4}{\milli\metre} and \SI{0.6}{\milli\metre} were regularly arranged, the other ones were arranged irregularly. The precision of the manufacturing was in the order of $\pm\SI{0.1}{\milli\metre}$ \citep{hanseen2013fortus}.
 
-X-ray projections were obtained using the \emph{Nikon XT H LC 225/320} x-ray CT scanner \emph{(Nikon Metrology, UK)}. The \SI{225}{\kilo\volt} source was used with a $\SI{2000}{\pixel}\times\SI{2000}{\pixel}$ \emph{Perkin Elmer} detector consisting of \SI{200}{\micro\metre} pixels, separated by a distance of \SI{1870}{\milli\metre}. The sample was placed on the manipulator, positioned to obtain a $5.7\times$ magnification resulting in an equivalent pixel size of \SI{35}{\micro\metre}. A voltage of \SI{80}{\kilo\volt} was used with a power of \SI{20}{\watt} resulting in a spot size of \SI{20}{\micro\metre} such that penumbra effects \citep{kueh2016modelling} were negligible. 20 greyscale projections were acquired at an exposure time of \SI{500}{\milli\second}. A shading correction \citep{munzenmayer2003enhancing, young2000shading} was applied to each projection using 20 black (\SI{0}{\kilo\volt}) and 20 white images (\SI{80}{\kilo\volt}) projection to remove intensity influences and variations in pixels of the detector.
+X-ray projections were obtained using the \emph{Nikon XT H LC 225/320} x-ray CT scanner \emph{(Nikon Metrology, UK)}. The \SI{225}{\kilo\volt} source was used with a $\SI{2000}{\pixel}\times\SI{2000}{\pixel}$ \emph{Perkin Elmer} detector consisting of \SI{200}{\micro\metre} pixels, separated by a distance of \SI{1870}{\milli\metre}. The sample was placed on the manipulator, positioned to obtain a $5.7\times$ magnification resulting in an equivalent pixel size of \SI{35}{\micro\metre}. A voltage of \SI{80}{\kilo\volt} was used with a power of \SI{20}{\watt} resulting in a spot size of \SI{20}{\micro\metre} such that penumbra effects \citep{kueh2016modelling} were negligible. 20 replicate greyscale projections were acquired using an exposure time of \SI{500}{\milli\second} and the following powers: \SI{0}{\kilo\volt}, \SI{5}{\kilo\volt}, \SI{10}{\kilo\volt}, \SI{15}{\kilo\volt} and \SI{20}{\kilo\volt}. A shading correction \citep{seibert1998flat} was applied to each projection of the test sample using the greyscale projections to remove intensity influences and variations in pixels of the detector.
 
 19 randomly selected projections, of the test sample, were held out. The remaining projection was used to compare with a simulated projection, obtained using \emph{aRTist} \citep{bellon2012radiographic, bellon2007artist, jaenisch2008artist}. \emph{aRTist} can simulate projections of the sample given the specifications of the CT apparatus, such as the x-ray source and the x-ray detector, and the
-CAD of the sample \citep{bellon2011simulation, deresch2012simulating}. \emph{aRTist} was used to obtain a simulation projection as if the voids were not there. Numerical methods were used to align the simulated projection to the obtained projection. The same shading correction was applied to the simulated projection, but instead using a flat black image and a simulated white image.
+CAD of the sample \citep{bellon2011simulation, deresch2012simulating}. \emph{aRTist} was used to obtain a simulation projection as if the voids were not there. Numerical methods were used to align the simulated projection to the obtained projection. The same shading correction was applied to the simulated projection, but instead using a flat black image and simulated greyscale projections.
 
 \subsection{The Empirical Null Filter}
 \label{subsection:empiricalnullfilter}
@@ -127,7 +127,7 @@ For each position $(x,y)$, a test statistic was calculated
     \sqrt{\widehat{\variance}\left[\text{projection}_{x,y}\right]}
   }
 \end{equation}
-where $\widehat{\variance}\left[\text{projection}_{x,y}\right]$ is the estimated grey value variance of pixel $(x,y)$ in the projection. The variance model $\widehat{\variance}\left[\text{projection}_{x,y}\right]$ has a linear relationship between the variance and the grey value \citep{yang2010noise}. A gamma distributed generalised linear model \citep{mccullagh1984generalized, nelder1972generalized} was used with an identity link. The fitting of the model was done using the held out replicated projections of the sample (see Section \ref{subsection:appratus}). These replicated projections were manually segmented so that only pixels which represent the test sample were used. This provided variance-mean data, where each pixel is a data point, which was used to fit the variance model. The variance was predicted using the grey value in the simulated projection as the predictor variable.
+where $\widehat{\variance}\left[\text{projection}_{x,y}\right]$ is the estimated grey value variance of pixel $(x,y)$ in the projection. The variance model $\widehat{\variance}\left[\text{projection}_{x,y}\right]$ has a linear relationship between the variance and the grey value \citep{ma2012varaince, yang2010noise}. A gamma distributed generalised linear model \citep{mccullagh1984generalized, nelder1972generalized} was used with an identity link. The fitting of the model was done using the held out replicated projections of the sample (see Section \ref{subsection:appratus}). These replicated projections were manually segmented so that only pixels which represent the test sample were used. This provided variance-mean data, where each pixel is a data point, which was used to fit the variance model. The variance was predicted using the grey value in the simulated projection as the predictor variable.
 
 It was assumed that the grey values were Normally distributed, therefore the test statistics should be approximately Normal as well. Let the test statistic of the pixel at position $(x,y)$ be
 \begin{equation}
@@ -326,7 +326,7 @@ The main bottleneck is the evaluation of the density estimate, each step in the 
 Estimation of the null parameters is essentially robust statistics, estimating the parameters of the null distribution without being affected by non-null statistics. Potential faster methods than the empirical null could exist in literature \citep{hampel1986robust, huber2009robust, jewson2018principles, maronna2006robust, rousseeuw1987robust}. The EM algorithm \citep{bishop2006pattern, dempster1977maximum} could be used to fit a mixture of Gaussians to identify the null distribution and estimate its parameters. However, the power of hypothesis testing and the empirical null comes from the fact that the alternative distribution does not need to be specified.
 
 \section{Appendix}
-Code which reproduces this paper can be found on the \emph{GitHub} page \url{https://github.com/shermanip/oxwasp_insideout}.
+Code which reproduces this paper can be found on the \emph{GitHub} page \url{https://github.com/shermanlo77/oxwasp_insideout}.
 
 \section{Acknowledgements}
 This work is funded by EPSRC grant numbers EP/K031066/1 (Inside-out: Statistical methods for Computed Tomography validation of complex structures in Additive Layer Manufacturing) and EP/L016710/1 (EPSRC and MRC Centre for Doctoral Training in Next Generation Statistical Science: The Oxford-Warwick Statistics Programme). We would like to thank Wilfred S.~Kendall for his role as principal investigator.
@@ -342,7 +342,7 @@ This work is funded by EPSRC grant numbers EP/K031066/1 (Inside-out: Statistical
 
 \begin{figure}[h]
   \centering
-  \includegraphics[width=0.49\textwidth]{../figures/inference/TestObject.png}
+  \includegraphics[width=0.49\textwidth]{../figures/inference/TestObjectBW.png}
   \caption{The CAD model of the test sample with voids. Six voids of each diameter, \SI{2.4}{\milli\metre}, \SI{1.2}{\milli\metre}, \SI{0.6}{\milli\metre} and \SI{0.3}{\milli\metre}, were designed in the CAD model. Voids with diameters \SI{2.4}{\milli\metre} and \SI{0.6}{\milli\metre} were regularly arranged, the other ones were arranged irregularly. The scale shown is approximate.}
   \label{fig:inference_testObject}
 \end{figure}
@@ -358,7 +358,7 @@ This work is funded by EPSRC grant numbers EP/K031066/1 (Inside-out: Statistical
 
 \begin{figure}
   \centering
-  \includegraphics[width=0.49\textwidth]{../figures/inference/DefectExampleSquare40_imageContaminated.eps}
+  \includegraphics[width=0.49\textwidth]{../figures/inference/DefectExampleSquare40_imageContaminatedBW.eps}
   \caption{A $\SI{256}{\pixel}\times \SI{256}{\pixel}$ contaminated Gaussian image with a $\SI{30}{\pixel} \times \SI{30}{\pixel}$ square defect. The null and alternative distributions are $Z_{x,y}|H_{0,x,y}\sim\normal(\mu_{0,x,y},2^2)$ and $Z_{x,y}|H_{1,x,y}\sim\normal(\mu_{0,x,y}+6,2^2)$ respectively where $\mu_{0,x,y}=0.01(x-x_0)+0.01(y-y_0)$ and $(x_0,y_0)$ is the centre of the image.}
   \label{fig:inference_defectSquare2Example}
 \end{figure}
@@ -367,8 +367,8 @@ This work is funded by EPSRC grant numbers EP/K031066/1 (Inside-out: Statistical
 
 \begin{figure}
   \centering
-  \includegraphics[width=0.49\textwidth]{../figures/inference/segment.eps}
-  \caption{The $z$ image was segmented further into 7 segments shown by the dotted red lines.}
+  \includegraphics[width=0.49\textwidth]{../figures/inference/segmentBW.eps}
+  \caption{The $z$ image was segmented further into 7 segments shown by the dashed lines.}
   \label{fig:inference_segmentFurther}
 \end{figure}
 
@@ -378,21 +378,21 @@ This work is funded by EPSRC grant numbers EP/K031066/1 (Inside-out: Statistical
   \centering
     \centerline{
       \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/DefectRadiusSquare_roc.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/DefectRadiusSquare_rocBW.eps}
         \caption{AUC}
       \end{subfigure}
       \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/DefectRadiusSquare_type1.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/DefectRadiusSquare_type1BW.eps}
         \caption{Type 1 error}
       \end{subfigure}
     }
     \centerline{
       \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/DefectRadiusSquare_type2.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/DefectRadiusSquare_type2BW.eps}
         \caption{Type 2 error}
       \end{subfigure}
       \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/DefectRadiusSquare_fdr.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/DefectRadiusSquare_fdrBW.eps}
         \caption{FDR}
       \end{subfigure}
     }
@@ -406,25 +406,25 @@ This work is funded by EPSRC grant numbers EP/K031066/1 (Inside-out: Statistical
   \centering
     \centerline{
       \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=1.05\textwidth, height=4.9cm]{../figures/inference/DefectDetectSubRoiAbsFilterDeg120_radius4_sig.eps}
+        \includegraphics[width=1.05\textwidth, height=5.0cm]{../figures/inference/DefectDetectSubRoiAbsFilterDeg120_radius4_sigBW.eps}
         \caption{X-ray projection with positive pixels}
       \end{subfigure}
       \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/DefectDetectSubRoiAbsFilterDeg120_radius4_logp.eps}\vspace{-1mm}
+        \includegraphics[width=\textwidth]{../figures/inference/DefectDetectSubRoiAbsFilterDeg120_radius4_logpBW.eps}\vspace{-1mm}
         \caption{$-\log p$}
       \end{subfigure}
     }
     \centerline{
       \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/DefectDetectSubRoiAbsFilterDeg120_radius4_nullMean.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/DefectDetectSubRoiAbsFilterDeg120_radius4_nullMeanBW.eps}
         \caption{Empirical null mean}
       \end{subfigure}
       \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../figures/inference/DefectDetectSubRoiAbsFilterDeg120_radius4_nullStd.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/DefectDetectSubRoiAbsFilterDeg120_radius4_nullStdBW.eps}
         \caption{Empirical null std}
       \end{subfigure}
     }
-  \caption{Resulting inference when using the empirical null filter, on each segment independently, with radius $r=\SI{130}{\pixel}$. a) X-ray projection with highlighted red positive pixels at the 5\% FDR level. b) $p$-values on the log scale. c) and d) Empirical null mean and standard deviation.}
+  \caption{Resulting inference when using the empirical null filter, on each segment independently, with radius $r=\SI{130}{\pixel}$. a) X-ray projection with highlighted white positive pixels at the 5\% FDR level. b) $p$-values on the log scale. c) and d) Empirical null mean and standard deviation.}
   \label{fig:inference_subroiAbsFilterDeg120_inference_radius4}
 \end{figure}
 

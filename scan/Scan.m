@@ -21,6 +21,9 @@ classdef Scan < matlab.mixin.Heterogeneous & handle
     voltage; %in units of kV
     power; %in units of W
     timeExposure; %in units of ms
+    magnification; %magnification, distance source to detector / distance source to object
+    
+    resolution = 200E-6; %resolution of the detector (m.px-1)
     
     panelCounter %panel counter object
     shadingCorrector; %shading corrector object
@@ -42,8 +45,9 @@ classdef Scan < matlab.mixin.Heterogeneous & handle
       %voltage: in units of kV
       %power: in units of W
       %timeExposure: in units of ms
+      %magnification: distance source to detector / distance source to object
     function this = Scan(folderLocation, fileName, width, height, nSample, voltage, power, ...
-        timeExposure)
+        timeExposure, magnification)
       %assign member variable if parameters are provided
       if nargin > 0
         this.folderLocation = folderLocation;
@@ -55,6 +59,7 @@ classdef Scan < matlab.mixin.Heterogeneous & handle
         this.voltage = voltage;
         this.power = power;
         this.timeExposure = timeExposure;
+        this.magnification = magnification;
       end
     end
     
@@ -261,7 +266,7 @@ classdef Scan < matlab.mixin.Heterogeneous & handle
       [artistLocation, artistName, ~] = fileparts(this.artistFile);
       %instantise a Scan object containing the aRTist image
       artist = ScanSingle(artistLocation, artistName, this.width, this.height, this.voltage, ...
-          this.power, this.timeExposure);
+          this.power, this.timeExposure, this.magnification);
       %instantise an array of Scan objects, storing aRTist calibration images
       %store the array in the aRTist member variable calibrationScanArray
       artistCalibrationArray(this.getNCalibration()) = Scan();
@@ -271,7 +276,7 @@ classdef Scan < matlab.mixin.Heterogeneous & handle
       calibrationScan = this.calibrationScanArray(1);
       greyvalue = mean(reshape(calibrationScan.loadImageStack(),[],1));
       artist.calibrationScanArray(1) = ScanSingleFlat(this.width, this.height, this.voltage, ...
-          calibrationScan.power, this.timeExposure, greyvalue);
+          calibrationScan.power, this.timeExposure, this.magnification, greyvalue);
       
       %for each calibration scan, except for black
       for i = 2:this.getNCalibration()
@@ -281,7 +286,8 @@ classdef Scan < matlab.mixin.Heterogeneous & handle
         [artistLocation, artistName, ~] = fileparts(calibrationScan.artistFile);
         %instantise a Scan object for that aRTist calibration image
         artist.calibrationScanArray(i) = ScanSingle(artistLocation, artistName, this.width, ...
-            this.height, this.voltage, calibrationScan.power, this.timeExposure);
+            this.height, this.voltage, calibrationScan.power, this.timeExposure, ...
+            this.magnification);
       end
       
       artist.whiteIndex = this.whiteIndex;

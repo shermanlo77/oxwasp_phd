@@ -10,7 +10,7 @@ classdef DefectDetectSubRoiTiFilterDeg120 < DefectDetectSubRoi
     end
     
     function printResults(this)
-      this.printResults@DefectDetectSubRoi([-10, 15], [0,15], 10);
+      this.printResults@DefectDetectSubRoi([-10, 15], [0,15], 10, 0.5);
     end
     
   end

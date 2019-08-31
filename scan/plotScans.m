@@ -12,14 +12,15 @@
 close all;
 clearvars;
 
-plotAndSaveScan([AbsNoFilterDeg30(), AbsNoFilterDeg120()]);
-plotAndSaveScan([AbsFilterDeg30(), AbsFilterDeg120()]);
-plotAndSaveScan([TiFilterDeg30(), TiFilterDeg120()]);
+plotAndSaveScan([AbsNoFilterDeg30(), AbsNoFilterDeg120()], 1);
+plotAndSaveScan([AbsFilterDeg30(), AbsFilterDeg120()], 1);
+plotAndSaveScan([TiFilterDeg30(), TiFilterDeg120()], 0.5);
 
 %NESTED PROCEDURE: PLOT AND SAVE SCAN
 %PARAMETERS:
   %scanArray: array of a scan object at different angles
-function plotAndSaveScan(scanArray)
+  %scaleLength: length of scale bar in cm
+function plotAndSaveScan(scanArray, scaleLength)
   
   n = numel(scanArray); %number of angles
   scan = scanArray(1); %use the first scan to get the calibration images
@@ -44,6 +45,7 @@ function plotAndSaveScan(scanArray)
     imagescPlot = Imagesc(imageArray(:,:,i));
     imagescPlot.setCLim(clim);
     imagescPlot.plot();
+    imagescPlot.addScale(scanArray(i), scaleLength, 'k');
     saveas(fig,fullfile('reports','figures','data', ...
         strcat(class(scanArray(i)),'.eps')),'epsc');
     %plot the x-ray simulation
@@ -51,6 +53,7 @@ function plotAndSaveScan(scanArray)
     imagescPlot = Imagesc(scanArray(i).getArtistImage());
     imagescPlot.setCLim(clim);
     imagescPlot.plot();
+    imagescPlot.addScale(scanArray(i), scaleLength, 'k');
     saveas(fig,fullfile('reports','figures','data', ...
         strcat(class(scanArray(i)),'_sim','.eps')),'epsc');
   end

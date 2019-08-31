@@ -18,7 +18,7 @@ classdef Boxplots < handle
     %CONSTRUCTOR
     %PARAMETERS:
       %X: matrix, dim 1: for each obversation, dim 2: for each group or boxplot
-    function this = Boxplots(X, ~)
+    function this = Boxplots(X)
       %get the number of boxplots
       [~,this.nBoxplot] = size(X);
       %create an array of box plots
@@ -81,8 +81,8 @@ classdef Boxplots < handle
     
     %METHOD: SET WANT MEDIAN
     function setWantMedian(this, wantMedian)
-      for i_group = 1:this.nBoxplot
-        this.boxplotArray{i_group}.setWantMedian(wantMedian);
+      for i = 1:this.nBoxplot
+        this.boxplotArray{i}.setWantMedian(wantMedian);
       end
     end
     
@@ -93,16 +93,6 @@ classdef Boxplots < handle
     function setColour(this, colour)
       for i = 1:this.nBoxplot
         this.boxplotArray{i}.setColour(colour);
-      end
-    end
-    
-    %METHOD: SET WHISKER CAP
-      %Set the whisker cap to be on of off
-    %PARAMETERS:
-      %want_whisker_cap: true if want whisker cap on
-    function setWhiskerCap(this,want_whisker_cap)
-      for i = 1:this.nBoxplot
-        this.boxplotArray{i}.setWhiskerCap(want_whisker_cap);
       end
     end
     
@@ -130,9 +120,9 @@ classdef Boxplots < handle
     %Set the size for the outlier mark
     %PARAMETERS:
     %outlier_size: size of the outlier mark
-    function setOutlierSize(this,outlier_size)
-      for i_group = 1:this.nBoxplot
-        this.boxplotArray{i_group}.setOutlierSize(outlier_size);
+    function setOutlierSize(this,outlierSize)
+      for i = 1:this.nBoxplot
+        this.boxplotArray{i}.setOutlierSize(outlierSize);
       end
     end
     
@@ -140,6 +130,13 @@ classdef Boxplots < handle
       %Return axis object for the purpose of legend plotting
     function ax = getLegendAx(this)
       ax = this.boxplotArray{1}.legendAx;
+    end
+    
+    %METHOD: SET TO BW
+    function setToBw(this)
+      for i = 1:this.nBoxplot
+        this.boxplotArray{i}.setToBw();
+      end
     end
     
   end

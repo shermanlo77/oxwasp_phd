@@ -20,13 +20,15 @@ It should be noted that $X=0$ if and only if $Y=0$ and this happens with probabi
 \end{equation}
 where $\delta(x)$ is the Dirac delta function.
 
+The compound Poisson has applications in, for example, modelling rainfall \citep{revfeim1984initial} and insurance claims \citep{jorgensen1994fitting, smyth2002fitting}.
+
 This chapter starts with a literature review on the compound Poisson distribution, how it is derived from the behaviour of photons, how its likelihood is evaluated and methods for fitting it onto data. A model was proposed for the pixel's grey values and the expectation-maximization (EM) algorithm was implemented to fit the model onto data. It was found that for high photon rate, there were identifiability issues. The chapter is concluded on a discussion on why the EM algorithm failed.
 
 \section{Literature Review}
 
 \subsection{Compound Poisson in X-ray Detection}
 
-In an x-ray tube, photons are emitted as a Poisson process \citep{cierniak2011x} and each photon has some random energy due to bremsstrahlung and characteristic radiation \citep{sun2012overview}. This shares similarities to the compound Poisson. Let $Y$ be the number of photons emitted for some time exposure $\tau$, then $Y\sim\poisson(\lambda)$. Each photon is assumed to be i.i.d.~with energy $U_i$ for $i=1,2,3,\dotsc$. $U_i$ has p.d.f.~$p_U(u)$. The random variables discussed here covers all the latent variables in the compound Poisson.
+In an x-ray tube, photons are emitted as a Poisson process \citep{whiting2006properties, cierniak2011x} and each photon has some random energy due to bremsstrahlung and characteristic radiation \citep{sun2012overview}. This shares similarities to the compound Poisson. Let $Y$ be the number of photons emitted for some time exposure $\tau$, then $Y\sim\poisson(\lambda)$. Each photon is assumed to be i.i.d.~with energy $U_i$ for $i=1,2,3,\dotsc$. $U_i$ has p.d.f.~$p_U(u)$. The random variables discussed here covers all the latent variables in the compound Poisson.
 
 Photons emitted from the x-ray tube undergo attenuation when propagating through the test sample. Assuming no beam hardening, some photons are either absorbed or scattered, making them undetectable. Scattered photons may be detected but it is very rare \citep{cantatore2011introduction}. Attenuated photon energy remains unaffected so attenuation decreases the parameter $\lambda$ and the amount it decreases by depends on the attenuation coefficient of the material and the amount of material the x-ray attenuates. The parameters of the random variable $U_i$ remains unchanged because the energy of each photon remains the same after attenuation, assuming no beam hardening.
 
@@ -164,7 +166,7 @@ where
   W_y = W_y(x,p,\phi)=\frac{x^{y\alpha}}{\phi^{y(1+\alpha)}(p-1)^{y\alpha}(2-p)^yy!\Gamma(y\alpha)}
   \ .
 \end{equation}
-The derivation is shown in Appendix \ref{chapter:appendix_tweedie}. This is in the form of a generalised linear model \citep{nelder1972generalized, nelder1972generalized_2, mccullagh1984generalized} for fixed $p$ and $\phi$ because the above is in the form of a distribution in the dispersive exponential family. This has applications in, for example, insurance claim data \citep{jorgensen1994fitting, smyth2002fitting}.
+The derivation is shown in Appendix \ref{chapter:appendix_tweedie}. This is in the form of a generalised linear model \citep{nelder1972generalized, nelder1972generalized_2, mccullagh1984generalized} for fixed $p$ and $\phi$ because the above is in the form of a distribution in the dispersive exponential family.
 
 Parameter estimation for fixed $p$ can be done via the generalised linear model framework and can be extended to include linear mixed models \citep{zhang2013likelihood}. Estimating $p$ is difficult and various methods were discussed by \cite{zhang2013likelihood}. One way is to estimate $\mu$ and $\phi$ on a grid of $p$'s and then select the $p$ which maximises the likelihood \citep{dunn2005series}.
 
@@ -202,7 +204,7 @@ The solution is shown in Appendix \ref{chapter:appendix_normalApproximation}.
 
 \subsection{Saddlepoint Approximation}
 
-The saddlepoint approximation \citep{daniels1954saddlepoint} gives an approximate solution to inverting the Laplace transformation of the m.g.f.~giving the p.d.f. Inverting the Fourier transformation of the characteristic function also gives the p.d.f.~using computational methods \citep{dunn2008evaluation}. The saddlepoint approximation will be studied here.
+The saddlepoint approximation \citep{daniels1954saddlepoint} gives an approximate solution to inverting the Laplace transformation or the m.g.f.~giving the p.d.f.~and has been used in XCT \citep{elbakri2003statistical, elbakri2003efficient}. Inverting the Fourier transformation of the characteristic function also gives the p.d.f.~using computational methods \citep{dunn2008evaluation}. The saddlepoint approximation will be studied here.
 
 For a given m.g.f.~$M_X(\theta)$, the saddlepoint approximation \citep{daniels1954saddlepoint, butler2007saddlepoint} finds an approximate p.d.f.~$p_X(x)$. The saddlepoint approximation is given as
 \begin{equation}
@@ -278,7 +280,7 @@ $y_\text{l}$ and $y_\text{u}$ can be chosen such that $W_{y_\text{l}}$ and $W_{y
 
 Simulations of a compound Poisson-gamma random variable were conducted with the aim to compare how well these density evaluations methods perform. This was done by comparing the evaluated densities with the histogram of simulations and a Q-Q plot. The following compound Poisson-gamma distributions were used in the simulations to capture the variety in the compound Poisson-gamma family: $\CPoisson(1,1,1)$, $\CPoisson(1,100,1)$, $\CPoisson(10,1,1)$, $\CPoisson(100,100,1)$. Varying $\beta$ is not interesting here as this only scales the random variable.
 
-There were a few technical problems with the histogram because the compound Poisson has probability mass at zero and probability density for positive numbers. To correctly represent the empirical distribution of a compound Poisson random variable, a bar chart was used to show the frequency of a zero and a histogram to show the frequency density of positive numbers. However, the Normal approximation and the saddlepoint approximation does not have support at zero. Therefore, to compare these approximate densities to the empirical distribution fairly, a histogram containing both zero and positive samples was used when appropriate.
+There were a few technical problems with the histogram because the compound Poisson has probability mass at zero and probability density for positive numbers. To correctly represent the empirical distribution of a compound Poisson random variable, a bar chart was used to show the frequency of a zero and a histogram to show the frequency density of positive numbers. However, the Normal approximation and the saddlepoint approximation does not have mass support at zero. Therefore, to compare these approximate densities to the empirical distribution fairly, a histogram containing both zero and positive samples was used when appropriate.
 
 The evaluation of the p.d.f.~using the saddlepoint approximate required a bit of caution to avoid over/underflow problems. Suppose realizations of $X$ were simulated $\left\{x_1,x_2,x_3,\dotsc,x_n\right\}$. The saddlepoint approximation was computed up to a constant using
 \begin{equation}
@@ -292,7 +294,7 @@ The evaluation of the p.d.f.~using the saddlepoint approximate required a bit of
     \right)^{\frac{\alpha}{\alpha+1}}\lambda^{\frac{1}{\alpha+1}}(\alpha+1) - k
   \right]
 \end{equation}
-for 500 equally spaced points from and including the minimum non-zero simulated value to the maximum simulated value. $k$ is some constant which was chosen to be
+for 10\,000 equally spaced points from and including the minimum non-zero simulated value to the maximum simulated value. $k$ is some constant which was chosen to be
 \begin{equation}
   k =
   \max_{i\in\left\{1,2,3,\dotsc,n\right\}}
@@ -306,7 +308,7 @@ for 500 equally spaced points from and including the minimum non-zero simulated 
   \right]
   \ .
 \end{equation}
-The density was then was normalised by numerically integrating it using the trapezium rule using the 500 evaluated points.
+The density was then was normalised by numerically integrating it using the trapezium rule using the 10\,000 evaluated points.
 
 A Q-Q plot is a plot which compares the empirical quantiles with the theoretical quantiles. Let
 \begin{equation}
@@ -320,11 +322,11 @@ and
   \right]
   \ ,
 \end{equation}
-then a Q-Q plot is a parametric plot which plots $\widehat{F}_X^{-1}(p)$ against $F_X^{-1}(p)$ for $p=\frac{0.5}{n},\frac{1.5}{n},\frac{2.5}{n},\dotsc,\frac{n-0.5}{n}$. If $F_X(x)$ and $\widehat{F}_X(x)$ are similar, a Q-Q plot should be a straight line with gradient 1, intercepting the origin. For the exact method and the saddlepoint approximate, $F_X(x)$ was found numerically by evaluating the p.d.f.~at $10\,000$ equally spaced points from and including the minimum to the maximum of the simulated samples, and then summing the required trapeziums. $\widehat{F}_X^{-1}(p)$ was then calculated by interpolation. Because the Normal and saddlepoint approximation does not support zero, the Q-Q plot was omitted for small $\lambda$.
+then a Q-Q plot is a parametric plot which plots $\widehat{F}_X^{-1}(p)$ against $F_X^{-1}(p)$ for $p=\frac{0.5}{n},\frac{1.5}{n},\frac{2.5}{n},\dotsc,\frac{n-0.5}{n}$. If $F_X(x)$ and $\widehat{F}_X(x)$ are similar, a Q-Q plot should be a straight line with gradient 1, intercepting the origin. For the exact method and the saddlepoint approximation, $F_X(x)$ was found numerically by evaluating the p.d.f.~at $10\,000$ equally spaced points from and including the minimum to the maximum of the simulated samples, and then summing the required trapeziums. Because the saddlepoint approximation does not support zero, the numerical integration cannot start at zero. $\widehat{F}_X^{-1}(p)$ was then calculated by interpolation.
 
 When plotting the probability of obtaining a zero or the p.d.f.~for positive values, confidence intervals were plotted as well. Consider a bin in a histogram, the confidence intervals were obtained by assuming that the frequency in a bin $\sim\poisson(\text{p.d.f.~evaluated at the bin}\times 1\,000 \times \text{bin width})$.
 
-For low $\lambda$ (Figures \ref{fig:compoundPoisson_histogram_1_1_1}, \ref{fig:compoundPoisson_histogram_1_100_1} and \ref{fig:compoundPoisson_histogram_approx}) there is a chance of simulating zeros. For $\lambda = 1$, the Normal approximation failed to capture the probability mass at zero because the Normal distribution is symmetric and support negative values. The saddlepoint approximation did capture the probability mass at zero as shown by an increase in probability density towards zero. For $\CPoisson(1,100,1)$ in Figure \ref{fig:compoundPoisson_histogram_approx}, the compound Poisson-gamma p.d.f.~contains multiple peaks and the saddlepoint approximation was not flexible enough to capture them. In Figure \ref{fig:compoundPoisson_histogram_1_100_1}, the Q-Q plot for the exact method was quite sensitive at the tails of each peak, perhaps there were a few inaccuracies in the exact evaluation of the p.d.f.~or in the calculation or inversion of the c.d.f.
+For low $\lambda$ (Figures \ref{fig:compoundPoisson_histogram_1_1_1}to \ref{fig:compoundPoisson_histogram_approx_1_100_1}) there is a chance of simulating zeros. For $\lambda = 1$, the Normal approximation failed to capture the probability mass at zero because the Normal distribution is symmetric and support negative values. The saddlepoint approximation did capture the probability mass at zero as shown by an increase in probability density towards zero. For $\CPoisson(1,100,1)$ in Figure \ref{fig:compoundPoisson_histogram_approx_1_100_1}, the compound Poisson-gamma p.d.f.~contains multiple peaks and the saddlepoint approximation was not flexible enough to capture them. In Figure \ref{fig:compoundPoisson_histogram_1_100_1}, the Q-Q plot for the exact method was quite sensitive at the tails of each peak, perhaps there were a few inaccuracies in the exact evaluation of the p.d.f.~or in the calculation of the numerical calculation of the c.d.f.~and its inversion.
 
 As $\lambda$ increased, in Figures \ref{fig:compoundPoisson_histogram_10_1_1} and \ref{fig:compoundPoisson_histogram_100_1_1}, all 3 density evaluation methods performed quite well. For $\CPoisson(10,1,1)$ in Figure \ref{fig:compoundPoisson_histogram_10_1_1}, the Normal approximation did not quite capture the skewness. In Figure \ref{fig:compoundPoisson_histogram_100_1_1}, $\lambda$ was high enough where the compound-Poisson distribution starts to converge to a Normal distribution. All methods performed well in this realm.
 
@@ -371,27 +373,53 @@ As $\lambda$ increased, in Figures \ref{fig:compoundPoisson_histogram_10_1_1} an
     \centerline{
     \begin{subfigure}[b]{\subSize}
         \includegraphics[width=\textwidth]{../figures/compoundpoisson/cpHistogram_CompoundPoissonNormlambda1alpha1beta1.eps}
-        \caption{$\CPoisson(1,1,1)$ Normal approx.}
+        \caption{Histogram - Normal approx.}
     \end{subfigure}
     \begin{subfigure}[b]{\subSize}
-        \includegraphics[width=\textwidth]{../figures/compoundpoisson/cpHistogram_CompoundPoissonSaddlelambda1alpha1beta1.eps}
-        \caption{$\CPoisson(1,1,1)$ saddlepoint approx.}
+        \includegraphics[width=\textwidth]{../figures/compoundpoisson/cpHistogram_qq_CompoundPoissonNormlambda1alpha1beta1.eps}
+        \caption{Q-Q plot - Normal approx.}
     \end{subfigure}
     }
     \vspace{1em}
     \centerline{
     \begin{subfigure}[b]{\subSize}
-        \includegraphics[width=\textwidth]{../figures/compoundpoisson/cpHistogram_CompoundPoissonNormlambda1alpha100beta1.eps}
-        \caption{$\CPoisson(1,100,1)$ Normal approx.}
+        \includegraphics[width=\textwidth]{../figures/compoundpoisson/cpHistogram_CompoundPoissonSaddlelambda1alpha1beta1.eps}
+        \caption{Histogram - Saddlepoint approx.}
     \end{subfigure}
     \begin{subfigure}[b]{\subSize}
-        \includegraphics[width=\textwidth]{../figures/compoundpoisson/cpHistogram_CompoundPoissonSaddlelambda1alpha100beta1.eps}
-        \caption{$\CPoisson(1,100,1)$ saddlepoint approx.}
-        \label{fig:compoundPoisson_histogram_approx_1_100_1}
+        \includegraphics[width=\textwidth]{../figures/compoundpoisson/cpHistogram_qq_CompoundPoissonSaddlelambda1alpha1beta1.eps}
+        \caption{Q-Q plot - Saddlepoint approx.}
     \end{subfigure}
     }
-    \caption{1\,000 $\CPoisson(1,\alpha,1)$ random variables were simulated and its empirical distribution is compared to the p.d.f.~evaluated using approximate methods. The dotted red line shows the 68\% confidence interval of the expected frequency density.}
-    \label{fig:compoundPoisson_histogram_approx}
+    \caption{1\,000 $\CPoisson(1,1,1)$ random variables were simulated and its empirical distribution is compared to the approximate p.d.f. On the left, the dotted red line shows the 68\% confidence interval of the expected frequency density.}
+    \label{fig:compoundPoisson_histogram_approx_1_1_1}
+\end{figure}
+
+\begin{figure}
+  \centering
+    \centerline{
+    \begin{subfigure}[b]{\subSize}
+        \includegraphics[width=\textwidth]{../figures/compoundpoisson/cpHistogram_CompoundPoissonNormlambda1alpha100beta1.eps}
+        \caption{Histogram - Normal approx.}
+    \end{subfigure}
+    \begin{subfigure}[b]{\subSize}
+        \includegraphics[width=\textwidth]{../figures/compoundpoisson/cpHistogram_qq_CompoundPoissonNormlambda1alpha100beta1.eps}
+        \caption{Q-Q plot - Normal approx.}
+    \end{subfigure}
+    }
+    \vspace{1em}
+    \centerline{
+    \begin{subfigure}[b]{\subSize}
+        \includegraphics[width=\textwidth]{../figures/compoundpoisson/cpHistogram_CompoundPoissonSaddlelambda1alpha100beta1.eps}
+        \caption{Histogram - Saddlepoint approx.}
+    \end{subfigure}
+    \begin{subfigure}[b]{\subSize}
+        \includegraphics[width=\textwidth]{../figures/compoundpoisson/cpHistogram_qq_CompoundPoissonSaddlelambda1alpha100beta1.eps}
+        \caption{Q-Q plot - Saddlepoint approx.}
+    \end{subfigure}
+    }
+    \caption{1\,000 $\CPoisson(1,100,1)$ random variables were simulated and its empirical distribution is compared to the approximate p.d.f. On the left, the dotted red line shows the 68\% confidence interval of the expected frequency density.}
+    \label{fig:compoundPoisson_histogram_approx_1_100_1}
 \end{figure}
 
 \begin{figure}
@@ -479,13 +507,13 @@ By assuming no beam hardening, the distribution of the photon energy does not ch
   \label{fig:compoundPoisson_graphicalModel}
 \end{figure}
 
-The graphical model in Figure \ref{fig:compoundPoisson_graphicalModel} illustrates how all of these variables link together. $a$ and $\kappa$ are unknown parameters but can be estimated beforehand from replicate black images. The energy of each photon $U\sim\gammaDist(\alpha,\beta)$ was omitted in the graphical model because the conditional distribution $X|Y\sim\gammaDist(Y\alpha,\beta)$ encapsulates each detected photon energy already.
+The graphical model in Figure \ref{fig:compoundPoisson_graphicalModel} illustrates how all of these variables link together. $a$ and $\kappa$ are unknown parameters but can be estimated beforehand from replicate black images. Care must be taken to use the replicate black images for either shading correction or for estimating $a$ and $\kappa$ to avoid using the data twice. The energy of each photon $U\sim\gammaDist(\alpha,\beta)$ was omitted in the graphical model because the conditional distribution $X|Y\sim\gammaDist(Y\alpha,\beta)$ encapsulates each detected photon energy already.
 
 The model may be simplified by omitting the electronic noise, this can be done by setting $a=0$ and $\kappa=0$. The number of pixels can be set to $m=1$ as well. Parameter estimation can be done using gradient methods because the likelihood of the compound Poisson can be evaluated \citep{dunn2005series}. However, the EM algorithm is faster and the model is well set up for it.
 
 \section{EM Algorithm}
 
-The EM algorithm \citep{dempster1977maximum} is proposed as a method to estimate the parameters of a $X\sim\CPoisson(\lambda,\alpha,\beta)$ random variable given a sample of measurements of it $\left\{x_1,x_2,x_3,\dotsc,x_n\right\}$. The use of the EM algorithm here for the compound Poisson is similar to \cite{elbakri2003statistical, xu2009electronic}.
+The EM algorithm \citep{dempster1977maximum} is proposed as a method to estimate the parameters of a $X\sim\CPoisson(\lambda,\alpha,\beta)$ random variable given a sample of measurements of it $\left\{x_1,x_2,x_3,\dotsc,x_n\right\}$. The use of the EM algorithm for the compound Poisson in XCT has been studied in \cite{elbakri2003statistical, xie2008x, xu2009electronic}.
 
 Let $\widehat{\lambda}$, $\widehat{\alpha}$ and $\widehat{\beta}$ be estimators of $\lambda$, $\alpha$ and $\beta$ respectively. The log likelihood is defined to be
 \begin{equation*}

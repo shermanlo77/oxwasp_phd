@@ -67,6 +67,13 @@ classdef DefectExample < Experiment
       imageContaminatedPlot.setCLim(imageCleanPlot.clim);
       imageContaminatedPlot.plot();
       saveas(fig,fullfile(directory, strcat(this.experimentName,'_imageContaminated.eps')),'epsc');
+      %bw plot
+      fig = LatexFigure.sub();
+      imageContaminatedPlot.setToBw();
+      imageContaminatedPlot.plot();
+      saveas(fig,fullfile(directory, strcat(this.experimentName,'_imageContaminatedBW.eps')),'eps');
+      saveas(fig,fullfile(directory, strcat(this.experimentName, ...
+          '_imageContaminatedBW.tiff')),'tiff');
       
       %for each filter, plot image filtered with positive pixels, p value, empirical null mean, and
           %empricial null std with positive pixels

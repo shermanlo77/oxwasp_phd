@@ -77,7 +77,7 @@ classdef DefectAlt < Experiment
       %plot roc area vs alt mean
       fig = LatexFigure.sub();
       ax = gca;
-      boxplotFiltered = Boxplots(this.rocAreaArray, true);
+      boxplotFiltered = Boxplots(this.rocAreaArray);
       boxplotFiltered.setPosition(this.altMeanArray);
       boxplotFiltered.setColour(ax.ColorOrder(1,:));
       boxplotFiltered.plot();
@@ -101,7 +101,7 @@ classdef DefectAlt < Experiment
           %filtered
       fig = LatexFigure.sub();
       ax = gca;
-      boxplotFiltered = Boxplots(this.type1ErrorArray, true);
+      boxplotFiltered = Boxplots(this.type1ErrorArray);
       boxplotFiltered.setPosition(this.altMeanArray);
       boxplotFiltered.setColour(ax.ColorOrder(1,:));
       boxplotFiltered.plot();
@@ -122,7 +122,7 @@ classdef DefectAlt < Experiment
       %plot type 2 error vs alt mean
       fig = LatexFigure.sub();
       ax = gca;
-      boxplotFiltered = Boxplots(this.type2ErrorArray, true);
+      boxplotFiltered = Boxplots(this.type2ErrorArray);
       boxplotFiltered.setPosition(this.altMeanArray);
       boxplotFiltered.setColour(ax.ColorOrder(1,:));
       boxplotFiltered.plot();
@@ -142,7 +142,7 @@ classdef DefectAlt < Experiment
       %fdr vs alt mean
       fig = LatexFigure.sub();
       ax = gca;
-      boxplotFiltered = Boxplots(this.fdrArray, true);
+      boxplotFiltered = Boxplots(this.fdrArray);
       boxplotFiltered.setPosition(this.altMeanArray);
       boxplotFiltered.setColour(ax.ColorOrder(1,:));
       boxplotFiltered.plot();
