@@ -665,7 +665,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
         
         //get the null mean and null std
         try {
-          float [] nullMeanStd = this.getNullMeanStd(initialValue, cache, kernel, normal, rng);
+          float [] nullMeanStd = this.getNullMeanStd(initialValue, kernel, normal, rng);
           //normalise this pixel
           values[0][valuesP] =
               (cache.getCache()[cacheLineP+kernel.getX()] - nullMeanStd[0]) / nullMeanStd[1];
@@ -711,15 +711,14 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   /**Perform the Newton-Raphson on the kernel density estimate to get the empirical null mean and 
    *     the empirical null std
    * @param initialValue starting value for the Newton-Raphson
-   * @param cache contains pixels of the pre-filter image
    * @param kernel contains pixels in the kernel and its statistics
    * @param normal normal distribution to evaluate the normal pdf
    * @param rng random number generator for producing new initial values
    * @return empirical null mean and empirical null std
    * @throws ConvergenceException thrown when newton-raphson struggled to converge
    */
-  protected float[] getNullMeanStd(float initialValue, Cache cache, Kernel kernel,
-      NormalDistribution normal, RandomGenerator rng) throws ConvergenceException{
+  protected float[] getNullMeanStd(float initialValue, Kernel kernel, NormalDistribution normal,
+      RandomGenerator rng) throws ConvergenceException{
     //declare 2 vector to store the null mean and null std
     float[] nullMeanStd = new float[2];
     //get the empirical null
