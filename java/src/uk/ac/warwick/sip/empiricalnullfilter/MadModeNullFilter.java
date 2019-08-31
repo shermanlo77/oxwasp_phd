@@ -17,8 +17,8 @@ public class MadModeNullFilter extends EmpiricalNullFilter {
   }
   
   @Override
-  protected float[] getNullMeanStd(float initialValue, Cache cache, Kernel kernel,
-      NormalDistribution normal, RandomGenerator rng) throws ConvergenceException{
+  protected float[] getNullMeanStd(float initialValue, Kernel kernel, NormalDistribution normal,
+      RandomGenerator rng) throws ConvergenceException{
     //declare 2 vector to store the null mean and null std
     float[] nullMeanStd = new float[2];
     //get the empirical null

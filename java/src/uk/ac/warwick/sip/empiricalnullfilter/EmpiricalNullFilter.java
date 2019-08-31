@@ -420,7 +420,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
       return;
     }
     
-    final Cache cache = new Cache(numThreads, this.imageProcessor, this.roi);
+    final Cache cache = new Cache(this.imageProcessor, this.roi);
     
     //threads announce here which line they currently process
     final int[] yForThread = new int[numThreads];
@@ -563,41 +563,6 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
         }
       }
       
-      if (numThreads>1) { // thread synchronization
-        //non-synchronized check to avoid overhead
-        int slowestThreadY = arrayMinNonNegative(yForThread);
-       //we would overwrite data needed by another thread
-        if (y - slowestThreadY + Kernel.getKHeight() > cache.getCacheHeight()) {
-          synchronized(this) {
-            slowestThreadY = arrayMinNonNegative(yForThread); //recheck whether we have to wait
-            if (y - slowestThreadY + Kernel.getKHeight() > cache.getCacheHeight()) {
-              do {
-                notifyAll(); //avoid deadlock: wake up others waiting
-                threadWaiting = true;
-                try {
-                  wait();
-                  if (aborted[0]) {
-                    return;
-                  }
-                } catch (InterruptedException e) {
-                  aborted[0] = true;
-                  notifyAll();
-                  //keep interrupted status (PlugInFilterRunner needs it)
-                  Thread.currentThread().interrupt();
-                  return;
-                }
-                slowestThreadY = arrayMinNonNegative(yForThread);
-              } while (y - slowestThreadY + Kernel.getKHeight() > cache.getCacheHeight());
-            } //end if
-            threadWaiting = false;
-          }
-        }
-      }
-      
-      //=====READ INTO CACHE=====
-      
-      cache.readIntoCache(yForThread, kernel);
-      
       //=====FILTER A LINE=====
       
       //set rng for this line and filter this line
@@ -619,21 +584,6 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
       }
     }
     return max;
-  }
-  
-  //METHOD: ARRAY MIN NON NEGATIVE
-  /**Used by thread control in threadFilter
-   * @param array array of ints
-   * @return the minimum of the array, but not less than 0
-   */
-  private int arrayMinNonNegative(int[] array) {
-    int min = Integer.MAX_VALUE;
-    for (int i=0; i<array.length; i++) {
-      if (array[i]<min) {
-        min = array[i];
-      }
-    }
-    return min<0 ? 0 : min;
   }
   
   //METHOD: FILTER LINE
@@ -677,7 +627,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
           }
           //=====END DEBUG=====
           
-          float [] nullMeanStd = this.getNullMeanStd(initialValue, cache, kernel, normal, rng);
+          float [] nullMeanStd = this.getNullMeanStd(initialValue, kernel, normal, rng);
           //normalise this pixel
           values[0][valuesP] =
               (cache.getCache()[cacheLineP+kernel.getX()] - nullMeanStd[0]) / nullMeanStd[1];
@@ -726,15 +676,14 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   /**Perform the Newton-Raphson on the kernel density estimate to get the empirical null mean and 
    *     the empirical null std
    * @param initialValue starting value for the Newton-Raphson
-   * @param cache contains pixels of the pre-filter image
    * @param kernel contains pixels in the kernel and its statistics
    * @param normal normal distribution to evaluate the normal pdf
    * @param rng random number generator for producing new initial values
    * @return empirical null mean and empirical null std
    * @throws ConvergenceException thrown when newton-raphson struggled to converge
    */
-  protected float[] getNullMeanStd(float initialValue, Cache cache, Kernel kernel,
-      NormalDistribution normal, RandomGenerator rng) throws ConvergenceException{
+  protected float[] getNullMeanStd(float initialValue, Kernel kernel, NormalDistribution normal,
+      RandomGenerator rng) throws ConvergenceException{
     //declare 2 vector to store the null mean and null std
     float[] nullMeanStd = new float[2];
     //get the empirical null

@@ -269,7 +269,7 @@ class Kernel {
     //y within the cache stripe (we have 2 kernel pointers per cache line)
     for (int kk=0; kk<this.cachePointers.length; kk++) {
       for (int p=this.cachePointers[kk++]+this.x; p<=this.cachePointers[kk]+this.x; p++) {
-        double greyvalue = this.cache.getCache()[p];
+        double greyvalue = (double) this.cache.getCache()[p];
         if (!Double.isNaN(greyvalue)) {
           this.sums[0] += greyvalue;
           this.sums[1] += greyvalue*greyvalue;
@@ -287,14 +287,14 @@ class Kernel {
     //for each row
     for (int kk=0; kk<this.cachePointers.length; /*kk++ below*/) {
       //this value is not in the kernel area any more
-      double greyvalue = this.cache.getCache()[this.cachePointers[kk++]+(this.x-1)];
+      double greyvalue = (double) this.cache.getCache()[this.cachePointers[kk++]+(this.x-1)];
       if (!Double.isNaN(greyvalue)) {
         this.sums[0] -= greyvalue;
         this.sums[1] -= greyvalue*greyvalue;
         this.nFinite--;
       }
       //this value comes into the kernel area
-      greyvalue = this.cache.getCache()[this.cachePointers[kk++]+this.x];
+      greyvalue = (double) this.cache.getCache()[this.cachePointers[kk++]+this.x];
       if (!Double.isNaN(greyvalue)) {
         this.sums[0] += greyvalue;
         this.sums[1] += greyvalue*greyvalue;
