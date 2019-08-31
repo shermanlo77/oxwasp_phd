@@ -56,8 +56,6 @@ class Kernel {
   private int x;
   /**y position of kernel, set using method moveToNewLine()*/
   private int y;
-  /**previous y position*/
-  private int previousY;
   /**number of finite numbers in kernel*/
   private int nFinite;
   /**false if the kernel is centred on a non-ROI pixel or NaN calculations*/
@@ -91,12 +89,6 @@ class Kernel {
     //pairs of integers which points the start and end of the current row to the cache according to
         //the shape of the kernel
     this.cachePointers = new int[2*Kernel.getKHeight()];
-    for (int i=0; i<Kernel.getKHeight(); i++) {
-      cachePointers[2*i] =
-          i*cache.getCacheWidth()+Kernel.getKRadius() + Kernel.getKernelPointer()[2*i];
-      cachePointers[2*i+1] =
-          i*cache.getCacheWidth()+Kernel.getKRadius() + Kernel.getKernelPointer()[2*i+1];
-    }
     this.roi = roi;
     
     this.isQuartile = isQuartile;
@@ -115,8 +107,6 @@ class Kernel {
     this.quartiles = new float[3];
     this.isFullCalculation = true;
     
-    this.previousY = Kernel.getKHeight()/2-cache.getCacheHeight();
-    
   }
   
   //METHOD: MOVE TO NEW LINE
@@ -127,12 +117,13 @@ class Kernel {
     this.y = y;
     this.x = 0;
     this.isFullCalculation = true;
-    //shift the cachePointers
-    for (int i=0; i<this.cachePointers.length; i++) {  //shift kernel pointers to new line
-      this.cachePointers[i] = (this.cachePointers[i] +
-          this.cache.getCacheWidth()*(y-this.previousY))%this.cache.getCache().length;
+    //get the cache pointers
+    for (int i=0; i<Kernel.getKHeight(); i++) {
+      cachePointers[2*i] =
+          (i+y)*cache.getCacheWidth()+Kernel.getKRadius() + Kernel.getKernelPointer()[2*i];
+      cachePointers[2*i+1] =
+          (i+y)*cache.getCacheWidth()+Kernel.getKRadius() + Kernel.getKernelPointer()[2*i+1];
     }
-    this.previousY = y;
     this.updateStatistics();
   }
   
