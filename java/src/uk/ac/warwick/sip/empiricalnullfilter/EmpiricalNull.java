@@ -147,15 +147,24 @@ public class EmpiricalNull {
     //=====DEBUG=====//
     //Check if n is positive
     if (this.n <= 0) {
-      throw new RuntimeException("n = "+this.n+" is not positive");
+      RuntimeException exception = new RuntimeException("n = "+this.n+" is not positive");
+      DebugPrint.write(exception.toString());
+      DebugPrint.close();
+      throw exception;
     }
     //check the std is positive
     if (this.dataStd <= 0) {
-      throw new RuntimeException("dataStd = "+this.dataStd+" is not valid");
+      RuntimeException exception = new RuntimeException("dataStd = "+this.dataStd+" is not valid");
+      DebugPrint.write(exception.toString());
+      DebugPrint.close();
+      throw exception;
     }
     //check if iqr is positive
     if (this.iqr <= 0) {
-      throw new RuntimeException("iqr = "+this.iqr+" is not valid");
+      RuntimeException exception = new RuntimeException("iqr = "+this.iqr+" is not valid");
+      DebugPrint.write(exception.toString());
+      DebugPrint.close();
+      throw exception;
     }
     //=====END DEBUG=====
     
@@ -165,7 +174,11 @@ public class EmpiricalNull {
     //=====DEBUG=====//
     //Check if the initial value is finite
     if (!isFinite(initialValue)) {
-      throw new RuntimeException("initial value "+initialValue+" is not finite");
+      RuntimeException exception = 
+          new RuntimeException("initial value "+initialValue+" is not finite");
+      DebugPrint.write(exception.toString());
+      DebugPrint.close();
+      throw exception;
     }
     //=====END DEBUG=====
     

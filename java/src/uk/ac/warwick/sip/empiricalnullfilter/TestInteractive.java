@@ -1,3 +1,6 @@
+//MIT License
+//Copyright (c) 2019 Sherman Lo
+
 package uk.ac.warwick.sip.empiricalnullfilter;
 
 import ij.ImageJ;
@@ -8,11 +11,18 @@ import uk.ac.warwick.sip.empiricalnullfilter.EmpiricalNullFilter;
 
 import org.apache.commons.math3.random.MersenneTwister;
 
-public class GlobalInteractive {
+/**Test Interactive class
+ * Produce random image and filters it using plugin
+ * Shows image before and after filtering
+ * Shows options for what output images to show
+ */
+public class TestInteractive {
   
   public static void main(String[] args) {
     
-    System.out.println("Hello");
+    DebugPrint.newFile("TestInteractive");
+    
+    //produce random image
     ImageJ.main(null);
     FloatProcessor processorOrginal = new FloatProcessor(255, 250);
     MersenneTwister rng = new MersenneTwister(1018526);
@@ -20,21 +30,25 @@ public class GlobalInteractive {
       processorOrginal.setf(i, (float) rng.nextGaussian());
     }
     
+    //copy random image
     ImagePlus image = new ImagePlus("float version" , processorOrginal);
-    
-    double radius = 20;
-    
     ImagePlus org = image.duplicate();
-    org.show();
+    org.show(); //show random image
     
-    long time = System.currentTimeMillis();
+    double radius = 20; //kernel radius
+    long time = System.currentTimeMillis(); //timing
     
+    //filter the image using it as a plugin
     EmpiricalNullFilter filter = new EmpiricalNullFilter();
     PlugInFilterRunner pfr = new PlugInFilterRunner(filter, "empirical null filter", null);
     image.show();
+    
+    //filter again, the settings should be the same as last time
     pfr = new PlugInFilterRunner(filter, "empirical null filter", null);
     
     System.out.println("time "+(System.currentTimeMillis() - time) + " ms");
+    
+    DebugPrint.close();
     
   }
   

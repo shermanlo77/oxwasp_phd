@@ -1,3 +1,6 @@
+//MIT License
+//Copyright (c) 2019 Sherman Lo
+
 package uk.ac.warwick.sip.empiricalnullfilter;
 
 import java.io.BufferedWriter;
@@ -9,12 +12,12 @@ import java.util.Date;
 
 public class DebugPrint {
   
-  static final String directory = "/home/sherman/Documents/oxwasp_phd/debugReport";
+  static final String directory = "debugReport";
   static String name;
   static BufferedWriter bufferedWriter;
   
   public static void newFile(String prefix) {
-    DateFormat dateFormat = new SimpleDateFormat("yyyymmddhhmmss");
+    DateFormat dateFormat = new SimpleDateFormat("yyyyMMddkkmmss");
     Date date = new Date();
     name = prefix + "_" + dateFormat.format(date);
     

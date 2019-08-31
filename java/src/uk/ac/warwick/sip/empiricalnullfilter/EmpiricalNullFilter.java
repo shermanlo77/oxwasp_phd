@@ -670,7 +670,11 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
           //=====DEBUG=====
           //Check if the initial value has changed
           if (Float.isNaN(initialValue)) {
-            throw new RuntimeException("initialValue has not been initalised");
+            RuntimeException exception =
+                new RuntimeException("initialValue has not been initalised");
+            DebugPrint.write(exception.toString());
+            DebugPrint.close();
+            throw exception;
           }
           //=====END DEBUG=====
           
