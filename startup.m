@@ -9,6 +9,7 @@ directoryList = {
   fullfile('reports','figures','compoundpoisson')
   fullfile('reports','figures','varmean')
   fullfile('reports','figures','inference')
+  fullfile('debugReport')
 };
 
 for i = 1:numel(directoryList)
