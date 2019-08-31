@@ -419,7 +419,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
       return;
     }
     
-    final Cache cache = new Cache(numThreads, this.imageProcessor, this.roi);
+    final Cache cache = new Cache(this.imageProcessor, this.roi);
     
     //threads announce here which line they currently process
     final int[] yForThread = new int[numThreads];
@@ -562,41 +562,6 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
         }
       }
       
-      if (numThreads>1) { // thread synchronization
-        //non-synchronized check to avoid overhead
-        int slowestThreadY = arrayMinNonNegative(yForThread);
-       //we would overwrite data needed by another thread
-        if (y - slowestThreadY + Kernel.getKHeight() > cache.getCacheHeight()) {
-          synchronized(this) {
-            slowestThreadY = arrayMinNonNegative(yForThread); //recheck whether we have to wait
-            if (y - slowestThreadY + Kernel.getKHeight() > cache.getCacheHeight()) {
-              do {
-                notifyAll(); //avoid deadlock: wake up others waiting
-                threadWaiting = true;
-                try {
-                  wait();
-                  if (aborted[0]) {
-                    return;
-                  }
-                } catch (InterruptedException e) {
-                  aborted[0] = true;
-                  notifyAll();
-                  //keep interrupted status (PlugInFilterRunner needs it)
-                  Thread.currentThread().interrupt();
-                  return;
-                }
-                slowestThreadY = arrayMinNonNegative(yForThread);
-              } while (y - slowestThreadY + Kernel.getKHeight() > cache.getCacheHeight());
-            } //end if
-            threadWaiting = false;
-          }
-        }
-      }
-      
-      //=====READ INTO CACHE=====
-      
-      cache.readIntoCache(yForThread, kernel);
-      
       //=====FILTER A LINE=====
       
       //set rng for this line and filter this line
@@ -618,21 +583,6 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
       }
     }
     return max;
-  }
-  
-  //METHOD: ARRAY MIN NON NEGATIVE
-  /**Used by thread control in threadFilter
-   * @param array array of ints
-   * @return the minimum of the array, but not less than 0
-   */
-  private int arrayMinNonNegative(int[] array) {
-    int min = Integer.MAX_VALUE;
-    for (int i=0; i<array.length; i++) {
-      if (array[i]<min) {
-        min = array[i];
-      }
-    }
-    return min<0 ? 0 : min;
   }
   
   //METHOD: FILTER LINE
