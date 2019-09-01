@@ -66,12 +66,13 @@ classdef (Abstract) DefectDetectSubRoi < DefectDetect
       %for each radius in radius Array
       for iRadius = 1:numel(this.radiusArray)
         
+        radius = this.radiusArray(iRadius);
+        DebugPrint.write(strcat('r=',num2str(radius)));
+        
         %for each segmentation
         for iSegmentation = 1:this.scan.nSubSegmentation
         
           %filter the image
-          radius = this.radiusArray(iRadius);
-          DebugPrint.write(strcat('r=',num2str(radius)));
           filter = EmpiricalNullFilter(radius);
           filter.filterRoi(this.zImage, this.scan.getSubRoiPath(iSegmentation));
           
