@@ -67,6 +67,14 @@ class Cache {
           float greyvalue = Float.NaN;
           if (roi.contains(x+roi.getBounds().x, y+roi.getBounds().y)){
             greyvalue = pixels[(y+roi.getBounds().y)*width + x+roi.getBounds().x];
+            //=====DEBUG=====
+            //check greyvalue is not nan
+            if (Float.isNaN(greyvalue)) {
+              RuntimeException exception = new RuntimeException("Copied NaN from image to cache");
+              DebugPrint.write(exception.toString());
+              throw exception;
+            }
+            //=====END DEBUG=====
           }
           this.cache[iRow*this.cacheWidth+Kernel.getKRadius()+x] = greyvalue;
         }

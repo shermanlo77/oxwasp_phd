@@ -5,12 +5,14 @@ package uk.ac.warwick.sip.empiricalnullfilter;
 
 import ij.ImageJ;
 import ij.ImagePlus;
+import ij.gui.Roi;
+import ij.io.Opener;
 import ij.process.FloatProcessor;
 
 import org.apache.commons.math3.random.MersenneTwister;
 
 /**Test class
- * Produce random image and filters it
+ * Produce random image with ROI and filters it
  * Shows image before and after filtering
  * Shows null mean and null std
  */
@@ -22,12 +24,17 @@ public class Test {
     
     //random image
     ImageJ.main(null);
-    FloatProcessor processorOrginal = new FloatProcessor(255, 250);
+    FloatProcessor processorOrginal = new FloatProcessor(1000, 1000);
     MersenneTwister rng = new MersenneTwister(1018526);
     for (int i=0; i<processorOrginal.getPixelCount(); i++) {
       processorOrginal.setf(i, (float) rng.nextGaussian());
     }
     ImagePlus image = new ImagePlus("float version" , processorOrginal);
+    Opener opener = new Opener();
+    Roi roi = opener.openRoi("../data/absBlock_CuFilter_Sep16/scans/phantom_120deg/segmentation1.roi");
+    image.setRoi(roi);
+    image.show();
+    
     //show the random image
     ImagePlus org = image.duplicate(); //copy of original before filtering
     org.show();
