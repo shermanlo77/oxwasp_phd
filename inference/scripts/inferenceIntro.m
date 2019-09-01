@@ -27,7 +27,7 @@ clim = [2.2E4,5.5E4]; %set the clim of the imagesc plots of the x-ray and artist
 fig = LatexFigure.sub();
 testPlot = Imagesc(test);
 testPlot.plot();
-testPlot.addScale(scan,'k');
+testPlot.addScale(scan,1,'k');
 ax = gca;
 ax.CLim = clim;
 saveas(fig,fullfile('reports','figures','inference',strcat(mfilename,'_scan.eps')),'epsc');
@@ -36,7 +36,7 @@ saveas(fig,fullfile('reports','figures','inference',strcat(mfilename,'_scan.eps'
 fig = LatexFigure.sub();
 artistPlot = Imagesc(artist);
 artistPlot.plot();
-artistPlot.addScale(scan,'k');
+artistPlot.addScale(scan,1,'k');
 ax = gca;
 ax.CLim = clim;
 saveas(fig,fullfile('reports','figures','inference',strcat(mfilename,'_artist.eps')),'epsc');
@@ -45,7 +45,7 @@ saveas(fig,fullfile('reports','figures','inference',strcat(mfilename,'_artist.ep
 fig = LatexFigure.sub();
 pPlot = Imagesc(-log10(zTester.pImage));
 pPlot.plot();
-pPlot.addScale(scan,'y');
+pPlot.addScale(scan,1,'y');
 saveas(fig,fullfile('reports','figures','inference',strcat(mfilename,'_logp.eps')),'epsc');
 
 %plot the x-ray projection with critical pixels highlighted
@@ -53,7 +53,7 @@ fig = LatexFigure.sub();
 sigPlot = Imagesc(test);
 sigPlot.addPositivePixels(zTester.positiveImage);
 sigPlot.plot();
-sigPlot.addScale(scan,'k');
+sigPlot.addScale(scan,1,'k');
 ax = gca;
 ax.CLim = clim;
 saveas(fig,fullfile('reports','figures','inference', ...
