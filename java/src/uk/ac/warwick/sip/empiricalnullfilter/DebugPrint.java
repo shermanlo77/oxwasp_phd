@@ -32,7 +32,7 @@ public class DebugPrint {
     }
   }
   
-  public static void write(String string) {
+  public static synchronized void write(String string) {
     if (bufferedWriter == null) {
       System.out.println(string);
     } else {

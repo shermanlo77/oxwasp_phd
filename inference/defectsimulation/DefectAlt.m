@@ -192,9 +192,10 @@ classdef DefectAlt < Experiment
     %METHOD: DO EXPERIMENT
     function doExperiment(this)
       
-      DebugPrint.newFile(this.experimentName);
       %run any required experiments
       this.runPrerequisite();
+      
+      DebugPrint.newFile(this.experimentName);
       
       %for each alt mean
       for iMu = 1:numel(this.altMeanArray)
