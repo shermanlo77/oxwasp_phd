@@ -114,15 +114,15 @@ class Kernel {
    * @param y Row number
    */
   public void moveToNewLine(int y) {
-    this.y = y;
+    this.y = y - this.roi.getBounds().y;
     this.x = 0;
     this.isFullCalculation = true;
     //get the cache pointers
     for (int i=0; i<Kernel.getKHeight(); i++) {
       cachePointers[2*i] =
-          (i+y)*cache.getCacheWidth()+Kernel.getKRadius() + Kernel.getKernelPointer()[2*i];
+          (i+this.y)*cache.getCacheWidth()+Kernel.getKRadius() + Kernel.getKernelPointer()[2*i];
       cachePointers[2*i+1] =
-          (i+y)*cache.getCacheWidth()+Kernel.getKRadius() + Kernel.getKernelPointer()[2*i+1];
+          (i+this.y)*cache.getCacheWidth()+Kernel.getKRadius() + Kernel.getKernelPointer()[2*i+1];
     }
     this.updateStatistics();
   }
@@ -148,7 +148,7 @@ class Kernel {
     //if this pixel is not in the roi, for the next pixel do a full calculation as the summation
         //cannot be propagate
     //else this pixel is in the roi and filter this pixel
-    if (!this.roi.contains(this.roi.getBounds().x+x, y)) {
+    if (!this.roi.contains(this.roi.getBounds().x+x, this.roi.getBounds().y+y)) {
       this.isFullCalculation = true;
       this.isFinite = false;
     } else {

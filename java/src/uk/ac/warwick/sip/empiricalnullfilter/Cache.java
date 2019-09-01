@@ -40,6 +40,7 @@ class Cache {
     this.ip = ip;
     Rectangle roiRectangle = ip.getRoi();
     int width = ip.getWidth();
+    float[] pixels = (float[]) ip.getPixels();
     
     //get properties of the kernel and the cache
     this.cacheWidth = roiRectangle.width+2*Kernel.getKRadius();
@@ -52,18 +53,24 @@ class Cache {
       //get the y coordinate
       int y = iRow - Kernel.getKRadius();
       //if y is outside the roi, fill this row with NaN
-      if ( (y < roiRectangle.y) || ( y >= (roiRectangle.y+roiRectangle.height) ) ) {
+      if ( y < 0 ||  y >= roiRectangle.height ) {
         Arrays.fill(this.cache, iRow*this.cacheWidth, (iRow+1)*this.cacheWidth, Float.NaN);
       //else it is inside the roi
       } else {
         //pad left and right with nan
-        //copy pixels between the padding
         Arrays.fill(this.cache, iRow*this.cacheWidth,
             iRow*this.cacheWidth+Kernel.getKRadius(), Float.NaN);
-        System.arraycopy(this.ip.getPixels(), y*width,
-            this.cache, iRow*this.cacheWidth+Kernel.getKRadius(),width);
         Arrays.fill(this.cache, (iRow+1)*this.cacheWidth-Kernel.getKRadius(),
             (iRow+1)*this.cacheWidth, Float.NaN);
+        //copy pixels between the padding
+        for (int x=0; x<roi.getBounds().width; x++){
+          float greyvalue = Float.NaN;
+          if (roi.contains(x+roi.getBounds().x, y+roi.getBounds().y)){
+            greyvalue = pixels[(y+roi.getBounds().y)*width + x+roi.getBounds().x];
+          }
+          this.cache[iRow*this.cacheWidth+Kernel.getKRadius()+x] = greyvalue;
+        }
+        
       }
     }
     
