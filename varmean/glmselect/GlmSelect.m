@@ -156,6 +156,9 @@ classdef GlmSelect < Experiment
       %set up progress bar
       this.setNIteration(this.nShadingCorrection * numel(this.linkArray) * this.nRepeat);
       
+      %turn off warning for glm fit, happens when trying out bad models using glm
+      warning('off','stats:glmfit:BadScaling');
+      
       %for each shading correction
       for iShadingCorrection = 1:this.nShadingCorrection
         
@@ -229,6 +232,9 @@ classdef GlmSelect < Experiment
         end
       
       end
+      
+      %turn back on warning
+      warning('on','stats:glmfit:BadScaling');
       
     end
     
