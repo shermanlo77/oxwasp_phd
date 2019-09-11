@@ -28,7 +28,7 @@ This chapter starts with a literature review on the compound Poisson distributio
 
 \subsection{Compound Poisson in X-ray Detection}
 
-In an x-ray tube, photons are emitted as a Poisson process \citep{whiting2006properties, cierniak2011x} and each photon has some random energy due to bremsstrahlung and characteristic radiation \citep{sun2012overview}. This shares similarities to the compound Poisson distribution. Let $Y$ be the number of photons emitted for some time exposure $\tau$, then $Y\sim\poisson(\lambda)$. Each photon is assumed to be i.i.d.~with random energy $U_i$ for $i=1,2,3,\dotsc$ with p.d.f.~$p_U(u)$. The random variables discussed here cover all the latent variables in the compound Poisson.
+In an x-ray tube, photons are emitted as a Poisson process \citep{whiting2006properties, cierniak2011x} and each photon has some random energy due to bremsstrahlung and characteristic radiation \citep{sun2012overview}. This is similar to the compound Poisson distribution. Let $Y$ be the number of photons emitted for some time exposure $\tau$, then $Y\sim\poisson(\lambda)$. Each photon is assumed to be i.i.d.~with random energy $U_i$ for $i=1,2,3,\dotsc$ with p.d.f.~$p_U(u)$. The random variables discussed here cover all the latent variables in the compound Poisson.
 
 Photons emitted from the x-ray tube undergo attenuation when propagating through the test sample. Assuming no beam hardening, some photons are either absorbed or scattered, making them undetectable. Scattered photons may be detected but it is very rare \citep{cantatore2011introduction}. The energy of the attenuated photons remain unaffected so attenuation decreases the parameter $\lambda$. The amount it decreases by depends on the attenuation coefficient of the material and the amount of material the x-ray attenuates. The density of the random variable $U_i$ remains unchanged because the energy of each photon remains the same after attenuation, assuming no beam hardening.
 
@@ -68,7 +68,7 @@ respectively. Eliminating $\lambda$ obtains
 \end{equation}
 By assuming no beam hardening, $\expectation\left[U\right]$ and $\expectation\left[U^2\right]$ remains constant, thus there is a linear relationship between the variance and expectation of the grey value \citep{yang2009evaluation}. There are other types of detection schemes \citep{whiting2006properties} but it shall be not be considered here.
 
-Experiments have been done to verify the compound Poisson nature of the detector. This was done by investigating the variance of radiographs of air \citep{hsieh2015compound} and a polyethylene cylinder \citep{yang2009evaluation, yang2010noise} using different exposures. It was found there were two components in the noise, one was signal dependent and comes from the compound Poisson distribution, the other was signal independent and may be electronic noise. The electronic noise can be modelled using a Normal distribution \citep{xu2009electronic}.
+Experiments have been done to verify the compound Poisson nature of the detector. This was done by investigating the variance of radiographs of air \citep{hsieh2015compound} and a polyethene cylinder \citep{yang2009evaluation, yang2010noise} using different exposures. It was found there were two components in the noise, one was signal-dependent and comes from the compound Poisson distribution, the other was signal independent and maybe electronic noise. The electronic noise can be modelled using a Normal distribution \citep{xu2009electronic}.
 
 \subsection{Moment Generating Function}
 
@@ -170,11 +170,11 @@ The derivation is shown in Appendix \ref{chapter:appendix_tweedie}. This is in t
 
 Parameter estimation for known $p$ can be done via the generalised linear model framework and can be extended to include linear mixed models \citep{zhang2013likelihood}. Estimating $p$ is difficult and various methods were discussed \citep{zhang2013likelihood}. One way is to estimate $\mu$ and $\phi$ on a grid of $p$'s and then select the $p$ which maximises the likelihood \citep{dunn2005series}.
 
-One special property of the compound Poisson-gamma distribution is that it is in the Tweedie dispersion exponential family \citep{jorgensen1987exponential}. It can be shown that it has a special variance mean relationship
+One special property of the compound Poisson-gamma distribution is that it is in the Tweedie dispersion exponential family \citep{jorgensen1987exponential}. It can be shown that it has a special variance-mean relationship
 \begin{equation}
   \variance[X] = \phi \mu^p
 \end{equation}
-where $1<p<2$. This is derived in Appendix \ref{chapter:appendix_tweedie}. It should be noted that this relationship is for fixed $p$ and $\phi$. This is different from the linear variance mean relationship found at the start of the chapter which was for fixed $\alpha$ and $\beta$ from assuming no beam hardening.
+where $1<p<2$. This is derived in Appendix \ref{chapter:appendix_tweedie}. It should be noted that this relationship is for fixed $p$ and $\phi$. This is different from the linear variance-mean relationship found at the start of the chapter which was for fixed $\alpha$ and $\beta$ from assuming no beam hardening.
 
 \subsection{Method of Moments}
 
@@ -192,7 +192,7 @@ are method of moments estimators of $\lambda$, $\alpha$ and $\beta$ respectively
 
 \subsection{Normal Approximation}
 
-The evaluation of the p.d.f.~of a compound Poisson-gamma distribution is useful so that the likelihood can be obtained. The likelihood can be used to find, for example, maximum likelihood estimators. A problem occurs when dealing with the infinite sum in the p.d.f.~because it cannot be simplified. There are a number of approximations or computational methods to evaluate the p.d.f.~such as Fourier inverting the characteristic function \citep{dunn2008evaluation}, using the saddlepoint approximation \citep{daniels1954saddlepoint} or cleverly sum over certain terms in the infinite sum \citep{dunn2005series}. Monte Carlo methods can be used to evaluate the p.d.f.~by simulating compound Poisson-gamma random variables.
+The evaluation of the p.d.f.~of a compound Poisson-gamma distribution is useful so that the likelihood can be obtained. The likelihood can be used to find, for example, maximum likelihood estimators. A problem occurs when dealing with the infinite sum in the p.d.f.~because it cannot be simplified. There are several approximations or computational methods to evaluate the p.d.f.~such as Fourier inverting the characteristic function \citep{dunn2008evaluation}, using the saddlepoint approximation \citep{daniels1954saddlepoint} or cleverly sum over certain terms in the infinite sum \citep{dunn2005series}. Monte Carlo methods can be used to evaluate the p.d.f.~by simulating compound Poisson-gamma random variables.
 
 The m.g.f.~provides a starting point to what limiting distributions the compound Poisson-gamma distribution converges to for large parameters. These limiting distributions can be used to approximate the p.d.f.~of the compound Poisson-gamma distribution.
 
@@ -244,7 +244,7 @@ The integral of the density approximation over the support may not equal to one 
 
 \subsection{Series Evaluation}
 
-The infinite sum, $\sum_{y=1}^\infty W_y$, can be computationally summed in a clever way in order to evaluate the p.d.f. This was done by summing only large terms in the sum and ignoring small terms \citep{dunn2005series}. \cite{dunn2005series} approximated the sum by truncation
+The infinite sum, $\sum_{y=1}^\infty W_y$, can be computationally summed cleverly to evaluate the p.d.f. This was done by summing only large terms in the sum and ignoring small terms \citep{dunn2005series}. \cite{dunn2005series} approximated the sum by truncation
 \begin{equation}
   \sum_{y=1}^\infty W_y \approx \sum_{y=y_\text{l}}^{y_\text{u}}W_y
 \end{equation}
@@ -278,9 +278,9 @@ $y_\text{l}$ and $y_\text{u}$ can be chosen such that $W_{y_\text{l}}$ and $W_{y
 
 \section{Simulation Studies on Density Evaluation}
 
-Simulations of a compound Poisson-gamma random variable were conducted with the aim to compare how well these density evaluation methods performed. This was done by comparing the evaluated densities using the histogram of simulations and a Q-Q plot. The following compound Poisson-gamma distributions were used in the simulations to capture the variety in the compound Poisson-gamma family: $\CPoisson(1,1,1)$, $\CPoisson(1,100,1)$, $\CPoisson(10,1,1)$, $\CPoisson(100,100,1)$. For each of these distribution, 1\,000 random variables were simulated. Varying $\beta$ is not interesting as this only scales the random variable.
+Simulations of a compound Poisson-gamma random variable were conducted to compare how well these density evaluation methods performed. This was done by comparing the evaluated densities using the histogram of simulations and a Q-Q plot. The following compound Poisson-gamma distributions were used in the simulations to capture the variety in the compound Poisson-gamma family: $\CPoisson(1,1,1)$, $\CPoisson(1,100,1)$, $\CPoisson(10,1,1)$, $\CPoisson(100,100,1)$. For each of these distribution, 1\,000 random variables were simulated. Varying $\beta$ is not interesting as this only scales the random variable.
 
-There were a few technical problems with the histogram because the compound Poisson has probability mass at zero and probability density for positive numbers. To correctly represent the empirical density of a compound Poisson random variable, a bar chart was used to show the frequency of a zero and a histogram to show the frequency density of positive numbers. However, the Normal approximation and the saddlepoint approximation does not have mass support at zero. Therefore, to compare these approximate densities to the empirical distribution fairly, a histogram containing both zero and positive samples was used when appropriate.
+There were a few technical problems with the histogram because the compound Poisson has probability mass at zero and probability density for positive numbers. To correctly represent the empirical density of a compound Poisson random variable, a bar chart was used to show the frequency of zeros and a histogram to show the frequency density of positive numbers. However, the Normal approximation and the saddlepoint approximation does not have mass support at zero. Therefore, to compare these approximate densities to the empirical distribution fairly, a histogram containing both zero and positive samples was used when appropriate.
 
 The evaluation of the p.d.f.~using the saddlepoint approximate required a bit of caution to avoid over/underflow problems. Suppose realisations of $X$ were simulated $\left\{x_1,x_2,x_3,\dotsc,x_n\right\}$. The saddlepoint approximation was computed up to a constant using
 \begin{equation}
@@ -515,7 +515,7 @@ The model may be simplified by omitting the electronic noise and this can be don
 
 The EM algorithm \citep{dempster1977maximum} was proposed to estimate the parameters of a $X\sim\CPoisson(\lambda,\alpha,\beta)$ random variable given a sample of measurements of it $\left\{x_1,x_2,x_3,\dotsc,x_n\right\}$. The use of the EM algorithm for the compound Poisson distribution in XCT have been studied in \cite{elbakri2003statistical, xie2008x, xu2009electronic}.
 
-Let $\widehat{\lambda}$, $\widehat{\alpha}$ and $\widehat{\beta}$ be estimators of $\lambda$, $\alpha$ and $\beta$ respectively. The log likelihood is defined to be
+Let $\widehat{\lambda}$, $\widehat{\alpha}$ and $\widehat{\beta}$ be estimators of $\lambda$, $\alpha$ and $\beta$ respectively. The log-likelihood is defined to be
 \begin{equation*}
   \ln L(\lambda,\alpha,\beta;X) = \sum_{i=1}^n
   \left[
@@ -538,9 +538,9 @@ and using the results in Appendix \ref{chapter:appendix_tweedie}
       \right)
     \right] \ .
 \end{equation}
-Maximum likelihood estimators are values of $\lambda$, $\alpha$ and $\beta$ which jointly maximise the log likelihood.
+Maximum likelihood estimators are values of $\lambda$, $\alpha$ and $\beta$ which jointly maximise the log-likelihood.
 
-The EM algorithm \citep{dempster1977maximum} treats $Y\sim\poisson(\lambda)$ as a latent variable. Let $\left\{Y_1,Y_2,Y_3,\dotsc, Y_n\right\}$ be realisations of $Y$. Define the joint log likelihood to be
+The EM algorithm \citep{dempster1977maximum} treats $Y\sim\poisson(\lambda)$ as a latent variable. Let $\left\{Y_1,Y_2,Y_3,\dotsc, Y_n\right\}$ be realisations of $Y$. Define the joint log-likelihood to be
 \begin{multline*}
   \ln L(\lambda,\alpha,\beta;X,Y)
   =
@@ -583,7 +583,7 @@ so that
   \right]
   \ .
 \end{multline}
-The estimators were found by optimising the joint log likelihood. This was done iteratively by estimating the $Y$s given the $X$s and parameters (E step), followed by estimating the parameters given the $Y$s and $X$s (M step) until some convergence conditions were met.
+The estimators were found by optimising the joint log-likelihood. This was done iteratively by estimating the $Y$s given the $X$s and parameters (E step), followed by estimating the parameters given the $Y$s and $X$s (M step) until some convergence conditions were met.
 
 It will be shown that using some approximations, the E step and M step can be implemented. The Cram\'er-Rao lower bound \citep{rao1945information, cramer1946mathematical} can also be found by using a few approximations. However, simulations showed that these estimators struggle for high $\lambda$.
 
@@ -659,7 +659,7 @@ Therefore, the maximum of $W_y^{(r)}$ is located at $y_\text{max}$ for all $r=0,
 
 \subsection{M Step}
 
-In the M step, the conditional expected joint log likelihood is maximised with respect to the parameters $\lambda$, $\alpha$ and $\beta$. The objective function is
+In the M step, the conditional expected joint log-likelihood is maximised with respect to the parameters $\lambda$, $\alpha$ and $\beta$. The objective function is
 \begin{align}
   T(\lambda,\alpha,\beta)&=
   \begin{multlined}[t]
@@ -747,7 +747,7 @@ and
   \ .
 \end{equation}
 
-Maximising $T$ with respect to $\alpha$ and $\beta$ can be done numerically using the Newton-Raphson method since derivatives up to the second order can be obtained. For the first order, these are:
+Maximising $T$ with respect to $\alpha$ and $\beta$ can be done numerically using the Newton-Raphson method since derivatives up to the second-order can be obtained. For the first-order derivatives, these are:
 \begin{multline}
   \frac{\partial T}{\partial \alpha} =
   \sum_{i=1}^n\mathbb{I}(x_i>0)
@@ -767,7 +767,7 @@ and
   \right]
   \ .
 \end{equation}
-The second orders are:
+The second-order derivatives are:
 \begin{equation}
   \frac{\partial^2 T}{\partial \alpha \partial \beta} =
   \sum_{i=1}^n \mathbb{I}(x_i>0)\left[\frac{y_i}{\beta}\right]
@@ -878,18 +878,18 @@ The Cram\'er-Rao lower bound is then
 
 \subsection{Simulations}
 
-An experiment was conducted to assess the performance on the EM algorithm. For a given set of parameters, 1\,000 samples of a $\CPoisson(\lambda,\alpha,\beta)$ random variable were simulated. The EM algorithm was initialised with its parameters at the true values to investigate the convergence in that vicinity. The log likelihood $\ln L(\lambda,\alpha,\beta;X)$ and the parameters were recorded at every EM step. The experiment was repeated 10 times using different simulated samples.
+An experiment was conducted to assess the performance on the EM algorithm. For a given set of parameters, 1\,000 samples of a $\CPoisson(\lambda,\alpha,\beta)$ random variable were simulated. The EM algorithm was initialised with its parameters at the true values to investigate the convergence in that vicinity. The log-likelihood $\ln L(\lambda,\alpha,\beta;X)$ and the parameters were recorded at every EM step. The experiment was repeated 10 times using different simulated samples.
 
 The results for $\CPoisson(1,1,1)$, $\CPoisson(1,100,1)$, $\CPoisson(10,1,1)$ and $\CPoisson(100,100,1)$ are shown in Figures \ref{fig:compoundPoisson_convergence_1}, \ref{fig:compoundPoisson_convergence_2}, \ref{fig:compoundPoisson_convergence_3} and \ref{fig:compoundPoisson_convergence_4} respectively. Good performance was observed in the $\lambda=1$ case with convergence of all three parameters within a step or two. The Cram\'er-Rao lower bound captured the spread of the estimates well.
 
-For $\lambda=10$ and $\lambda=100$ case, the estimates of $\alpha$ and $\beta$ struggled to converge and increased/decreased without bounds without affecting the log likelihood. It appeared that the EM algorithm failed for $\lambda>10$ looking at these particular examples.
+For $\lambda=10$ and $\lambda=100$ case, the estimates of $\alpha$ and $\beta$ struggled to converge and increased/decreased without bounds without affecting the log-likelihood. It appeared that the EM algorithm failed for $\lambda>10$ looking at these particular examples.
 
 \begin{figure}[p]
   \centering
     \centerline{
     \begin{subfigure}[b]{\subSize}
         \includegraphics[width=\textwidth]{../figures/compoundpoisson/CpEmAlgorithm_CompoundPoissonlambda1alpha1beta1_lnL.eps}
-        \caption{Log likelihood}
+        \caption{Log-likelihood}
     \end{subfigure}
         \begin{subfigure}[b]{\subSize}
         \includegraphics[width=\textwidth]{../figures/compoundpoisson/CpEmAlgorithm_CompoundPoissonlambda1alpha1beta1_lambda.eps}
@@ -906,7 +906,7 @@ For $\lambda=10$ and $\lambda=100$ case, the estimates of $\alpha$ and $\beta$ s
         \caption{$\beta$}
     \end{subfigure}
     }
-    \caption{EM algorithm was used to estimate the parameters of a $\CPoisson(1,1,1)$ random variable using 1\,000 simulated samples, repeated 10 times. The graphs show the log likelihood and the estimated parameters at each EM step for each repeat of the experiment. The dashed lines show the standard deviation using the Cram\'er-Rao lower bound.}
+    \caption{EM algorithm was used to estimate the parameters of a $\CPoisson(1,1,1)$ random variable using 1\,000 simulated samples, repeated 10 times. The graphs show the log-likelihood and the estimated parameters at each EM step for each repeat of the experiment. The dashed lines show the standard deviation using the Cram\'er-Rao lower bound.}
     \label{fig:compoundPoisson_convergence_1}
 \end{figure}
 
@@ -915,7 +915,7 @@ For $\lambda=10$ and $\lambda=100$ case, the estimates of $\alpha$ and $\beta$ s
     \centerline{
     \begin{subfigure}[b]{\subSize}
         \includegraphics[width=\textwidth]{../figures/compoundpoisson/CpEmAlgorithm_CompoundPoissonlambda1alpha100beta1_lnL.eps}
-        \caption{Log likelihood}
+        \caption{Log-likelihood}
     \end{subfigure}
         \begin{subfigure}[b]{\subSize}
         \includegraphics[width=\textwidth]{../figures/compoundpoisson/CpEmAlgorithm_CompoundPoissonlambda1alpha100beta1_lambda.eps}
@@ -932,7 +932,7 @@ For $\lambda=10$ and $\lambda=100$ case, the estimates of $\alpha$ and $\beta$ s
         \caption{$\beta$}
     \end{subfigure}
     }
-    \caption{EM algorithm was used to estimate the parameters of a $\CPoisson(1,100,1)$ random variable using 1\,000 simulated samples, repeated 10 times. The graphs show the log likelihood and the estimated parameters at each EM step for each repeat of the experiment. The dashed lines show the standard deviation using the Cram\'er-Rao lower bound.}
+    \caption{EM algorithm was used to estimate the parameters of a $\CPoisson(1,100,1)$ random variable using 1\,000 simulated samples, repeated 10 times. The graphs show the log-likelihood and the estimated parameters at each EM step for each repeat of the experiment. The dashed lines show the standard deviation using the Cram\'er-Rao lower bound.}
     \label{fig:compoundPoisson_convergence_2}
 \end{figure}
 
@@ -941,7 +941,7 @@ For $\lambda=10$ and $\lambda=100$ case, the estimates of $\alpha$ and $\beta$ s
     \centerline{
     \begin{subfigure}[b]{\subSize}
         \includegraphics[width=\textwidth]{../figures/compoundpoisson/CpEmAlgorithm_CompoundPoissonlambda10alpha1beta1_lnL.eps}
-        \caption{Log likelihood}
+        \caption{Log-likelihood}
     \end{subfigure}
         \begin{subfigure}[b]{\subSize}
         \includegraphics[width=\textwidth]{../figures/compoundpoisson/CpEmAlgorithm_CompoundPoissonlambda10alpha1beta1_lambda.eps}
@@ -958,7 +958,7 @@ For $\lambda=10$ and $\lambda=100$ case, the estimates of $\alpha$ and $\beta$ s
         \caption{$\beta$}
     \end{subfigure}
     }
-    \caption{EM algorithm was used to estimate the parameters of a $\CPoisson(10,1,1)$ random variable using 1\,000 simulated samples, repeated 10 times. The graphs show the log likelihood and the estimated parameters at each EM step for each repeat of the experiment. The dashed lines show the standard deviation using the Cram\'er-Rao lower bound.}
+    \caption{EM algorithm was used to estimate the parameters of a $\CPoisson(10,1,1)$ random variable using 1\,000 simulated samples, repeated 10 times. The graphs show the log-likelihood and the estimated parameters at each EM step for each repeat of the experiment. The dashed lines show the standard deviation using the Cram\'er-Rao lower bound.}
     \label{fig:compoundPoisson_convergence_3}
 \end{figure}
 
@@ -967,7 +967,7 @@ For $\lambda=10$ and $\lambda=100$ case, the estimates of $\alpha$ and $\beta$ s
     \centerline{
     \begin{subfigure}[b]{\subSize}
         \includegraphics[width=\textwidth]{../figures/compoundpoisson/CpEmAlgorithm_CompoundPoissonlambda100alpha100beta1_lnL.eps}
-        \caption{Log likelihood}
+        \caption{Log-likelihood}
     \end{subfigure}
         \begin{subfigure}[b]{\subSize}
         \includegraphics[width=\textwidth]{../figures/compoundpoisson/CpEmAlgorithm_CompoundPoissonlambda100alpha100beta1_lambda.eps}
@@ -984,7 +984,7 @@ For $\lambda=10$ and $\lambda=100$ case, the estimates of $\alpha$ and $\beta$ s
         \caption{$\beta$}
     \end{subfigure}
     }
-    \caption{EM algorithm was used to estimate the parameters of a $\CPoisson(100,100,1)$ random variable using 1\,000 simulated samples, repeated 10 times. The graphs show the log likelihood and the estimated parameters at each EM step for each repeat of the experiment. The dashed lines show the standard deviation using the Cram\'er-Rao lower bound.}
+    \caption{EM algorithm was used to estimate the parameters of a $\CPoisson(100,100,1)$ random variable using 1\,000 simulated samples, repeated 10 times. The graphs show the log-likelihood and the estimated parameters at each EM step for each repeat of the experiment. The dashed lines show the standard deviation using the Cram\'er-Rao lower bound.}
     \label{fig:compoundPoisson_convergence_4}
 \end{figure}
 
@@ -992,7 +992,7 @@ For $\lambda=10$ and $\lambda=100$ case, the estimates of $\alpha$ and $\beta$ s
 
 \section{Failure Evaluation}
 
-It should be convincing that the EM algorithm failed when the compound Poisson-gamma random variable starts behaving Normally. In particular, in Figure \ref{fig:compoundPoisson_convergence_4}, estimates of $\lambda$ were stable while estimates of $\alpha$ and $\beta$ struggled to converge. This could be because as the compound Poisson-gamma distribution approaches the Normal distribution, the parameters $(\lambda,\alpha,\beta)$ becomes degenerate because there is more than one way to represent a two parameter random variable $\normal(\mu,\sigma^2)$ using the three parameters $(\lambda,\alpha,\beta)$.
+It should be convincing that the EM algorithm failed when the compound Poisson-gamma random variable starts behaving Normally. In particular, in Figure \ref{fig:compoundPoisson_convergence_4}, estimates of $\lambda$ were stable while estimates of $\alpha$ and $\beta$ struggled to converge. This could be because as the compound Poisson-gamma distribution approaches the Normal distribution, the parameters $(\lambda,\alpha,\beta)$ becomes degenerate because there is more than one way to represent a two-parameter random variable $\normal(\mu,\sigma^2)$ using three parameters $(\lambda,\alpha,\beta)$.
 
 \subsection{Determinant of the Hessian}
 
@@ -1155,7 +1155,7 @@ Taking the derivative with respect to $\alpha$
 \end{equation}
 and this is not $\alpha$ dependent, thus there is no solution to $\alpha$.
 
-\subsection{Log Likelihood Plot}
+\subsection{Log-Likelihood Plot}
 
 \begin{figure}
   \centering
@@ -1179,13 +1179,13 @@ and this is not $\alpha$ dependent, thus there is no solution to $\alpha$.
         \caption{$\CPoisson(100,100,1)$}
     \end{subfigure}
     }
-    \caption{Log likelihood from a simulation of 100 compound Poisson-gamma random variables. $\lambda$ is fixed at the true value.}
+    \caption{Log-likelihood from a simulation of 100 compound Poisson-gamma random variables. $\lambda$ is fixed at the true value.}
     \label{fig:compoundPoisson_loglikelihoodplot}
 \end{figure}
 
-The log likelihood, using a simulation of 100 compound Poisson-gamma random variables, are plotted for fixed $\lambda$ in Figure \ref{fig:compoundPoisson_loglikelihoodplot}. These plots are concerning because the likelihood appeared not to be convex and there is no unique maxima for all $\lambda$ investigated.
+The log-likelihood, using a simulation of 100 compound Poisson-gamma random variables, are plotted for fixed $\lambda$ in Figure \ref{fig:compoundPoisson_loglikelihoodplot}. These plots are concerning because the likelihood appeared not convex and there is no unique maximum for all $\lambda$ investigated.
 
-It was observed that there is a saddle point in the log likelihood for the $\CPoisson(1,100,1)$ case. This is when the log likelihood increased and decreased when varying $\alpha$ and $\beta$. This suggest a possibility of a local maxima.
+It was observed that there is a saddle point in the log-likelihood for the $\CPoisson(1,100,1)$ case. This is when the log-likelihood increased and decreased when varying $\alpha$ and $\beta$. This suggests the possibility of local maxima.
 
 As a result, there is no unique maximum likelihood estimator and the EM algorithm would be very sensitive to the starting position, including for small $\lambda$.
 
@@ -1201,4 +1201,4 @@ XCT is in the realm of high $\lambda$ and this can be shown using back of the en
 \end{align*}
 Fitting the compound Poisson model onto XCT data would not be possible with such a high value of $\lambda$.
 
-All is not lost though, it was found that there is a linear relationship between the variance and mean of the grey value in a pixel. This suggest the uncertainty can be predicted by using such a relationship. The next chapter investigates this.
+All is not lost though, it was found that there is a linear relationship between the variance and mean of the grey value in a pixel. This suggests that uncertainty can be predicted by using such a relationship. The next chapter investigates this.
