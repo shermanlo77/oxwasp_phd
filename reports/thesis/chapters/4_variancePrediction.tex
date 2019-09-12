@@ -61,9 +61,9 @@ Once the parameters have been estimated, prediction of the variance given a grey
 
 \section{Model Selection}
 
-This section describes how forward stepwise selection \citep{friedman2001elements} was used to select which polynomial features to use in the systematic component.
+This section describes how forward stepwise selection \citep{efroymson1960multiple, friedman2001elements} was used to select which polynomial features to use in the systematic component.
 
-In summary, forward stepwise selection fits a basic model to the data initially. A feature is added to make the model more complicated at each step to improve the fit onto the data. This is continued until the model cannot be improved subject to overfitting. The Akaike information criterion (AIC) \citep{friedman2001elements} and the Bayesian information criterion (BIC) \citep{friedman2001elements} are criteria which can be used to assess the fit of the model at each step without overfitting to the data too much.
+In summary, forward stepwise selection fits a basic model to the data initially. A feature is added to make the model more complicated at each step to improve the fit onto the data. This is continued until the model cannot be improved subject to overfitting. The Akaike information criterion (AIC) \citep{akaike1974new, friedman2001elements} and the Bayesian information criterion (BIC) \citep{schwarz1978estimating, friedman2001elements} are criteria which can be used to assess the fit of the model at each step without overfitting to the data too much.
 
 The AIC and BIC are given as
 \begin{equation}
