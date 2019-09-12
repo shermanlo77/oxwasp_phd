@@ -20,8 +20,20 @@ function quote = siUncertainity(value, err, nTerm)
     isNegative = false;
   end
   
-  %E is the exponent of value
+  %E is the exponent of value (and to be used for the final quote)
   E = floor(log10(abs(value)));
+  %errE is the exponent of the error
+  errE = floor(log10(abs(err)));
+  
+  %compare the exponent of the value and the error
+  %if the error is bigger than the value, use the exponent of the error
+  if errE > E
+    E = errE;
+    isErrBigger = true;
+  else
+    isErrBigger = false;
+  end
+  
   %get the mantissa of the value
   value = value * 10^-E;
   
@@ -42,6 +54,14 @@ function quote = siUncertainity(value, err, nTerm)
   value = value * 10^(-(errE - nTerm + 1));
   value = round(value);
   valueString = num2str(value);
+  %if the error is one or more magnitude bigger than the value, leading zeros are required
+  if (isErrBigger)
+    leadingZero = char();
+    for i = 1:(numel(errString) - numel(valueString))
+      leadingZero(i) = '0';
+    end
+    valueString = strcat(leadingZero, valueString);
+  end
   %if there are more than 1 value, then the mantissa needs a decimial place
   if (numel(valueString) > 1)
     valueString = strcat(valueString(1),'.',valueString(2:end));
