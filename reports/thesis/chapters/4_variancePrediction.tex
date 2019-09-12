@@ -1,6 +1,6 @@
-It was found that it was hard to fit a compound Poisson distribution onto the grey values. Results did show that the variance of the grey value has a linear relationship with the mean grey value. As a result, it would be possible to predict the variance of the grey value, given the grey value. This opens up new ways to predict the uncertainty of each individual pixel in an x-ray projection.
+It was found that it was hard to fit a compound Poisson distribution onto the grey values. Results did show that the variance of the grey value has a linear relationship with the mean grey value. As a result, it would be possible to predict the variance of the grey value, given the grey value. This opens up new ways to predict the uncertainty of each pixel in an x-ray projection.
 
-In this chapter, generalised linear models \citep{nelder1972generalized, nelder1972generalized_2, mccullagh1984generalized} with different link functions and polynomial features were selected using forward step-wise selection. These selected models were compared using cross validation to find the best model and verified using residual analysis.
+In this chapter, generalised linear models \citep{nelder1972generalized, nelder1972generalized_2, mccullagh1984generalized} with different link functions and polynomial features were selected using forward step-wise selection. These selected models were compared using cross-validation to find the best model and verified using residual analysis.
 
 \section{Generalised Linear Models}
 
@@ -86,9 +86,9 @@ respectively where $k$ is the number of parameters in the systematic component a
 \end{equation}
 where $\widehat{y}_i=\widehat{y}(x_i)$. $\alpha=(n-1)/2$ was assumed to be known so does not need to be estimated.
 
-The procedure is as follows. A criterion and a link function was chosen beforehand. In the initial step, a GLM with systematic component $\eta(x)=\beta_0$ was fitted and the criterion was recorded. In the next step, a polynomial feature with one order higher was added to the systematic component $\eta(x)=\beta_0+\beta_1 x$, fitted and the criterion recorded. In addition, a polynomial feature with one order lower was added $\beta(x)=\beta_{-1}x^{-1}+\beta_0$ and fitted separately with the criterion recorded. The model which decreased the criterion the most was accepted. Adding higher and lower order polynomials to the systematic component was repeated, for example after accepting $\eta(x)=\beta_0+\beta_1 x$, the following systematic components $\eta(x)=\beta_0+\beta_1 x+\beta_2x^2$ and $\eta(x)=\beta_{-1}x^{-1}+\beta_0+\beta_1 x$ were fitted and assessed. The fitted parameters, $\beta_0$ and $\beta_1$ in this example, may change when adding more terms. This is repeated until the criterion cannot be decreased and the procedure is left with the final model.
+The procedure is as follows. A criterion and a link function were chosen beforehand. In the initial step, a GLM with systematic component $\eta(x)=\beta_0$ was fitted and the criterion was recorded. In the next step, a polynomial feature with one order higher was added to the systematic component $\eta(x)=\beta_0+\beta_1 x$, fitted and the criterion recorded. Also, a polynomial feature with one order lower was added $\beta(x)=\beta_{-1}x^{-1}+\beta_0$ and fitted separately with the criterion recorded. The model which decreased the criterion the most was accepted. Adding higher and lower order polynomials to the systematic component was repeated, for example after accepting $\eta(x)=\beta_0+\beta_1 x$, the following systematic components $\eta(x)=\beta_0+\beta_1 x+\beta_2x^2$ and $\eta(x)=\beta_{-1}x^{-1}+\beta_0+\beta_1 x$ were fitted and assessed. The fitted parameters, $\beta_0$ and $\beta_1$ in this example, may change when adding more terms. This is repeated until the criterion cannot be decreased and the procedure is left with the final model.
 
-Forward stepwise selection was conducted on the datasets \texttt{AbsNoFilter} and \texttt{AbsFilter}. The procedure was repeated 10 times by using a random permutation with replacement of the replicate projections to obtain a different sample variance-mean data which introduced some variation to the data \citep{efron1979bootstrap}. The procedure was also repeated using various shading corrections to investigate the effects of shading correction on the variance-mean relationship.
+Forward stepwise selection was conducted on the datasets \texttt{AbsNoFilter} and \texttt{AbsFilter}. The procedure was repeated 10 times by using a random permutation, with replacement, of the replicate projections to obtain a different sample variance-mean data which introduced some variation to the data \citep{efron1979bootstrap}. The procedure was also repeated using various shading corrections to investigate the effects of shading correction on the variance-mean relationship.
 
 \begin{sidewaystable}
 \centering
@@ -240,9 +240,9 @@ Figures \ref{fig:meanVar_varMeanExample_AbsNoFilter} and \ref{fig:meanVar_varMea
     \label{fig:meanVar_varMeanExample_AbsFilter}
 \end{figure}
 
-\section{Cross Validation}
+\section{Cross-Validation}
 
-Instead of assessing the model fit using the AIC and BIC, the performance on predicting the variance given a grey value was assessed using cross validation \citep{friedman2001elements}. Cross validation assesses the model to make predictions on data it has not seen before. This was done by randomly splitting the $m$ data points into two disjoint sets, the training set and the test set. It was chosen that the training and test set are of the same size. The model was fitted onto the training set. Afterwards, the fitted model predicts the variances given the grey values in the test set which were then compared to the actual variances. 
+Instead of assessing the model fit using the AIC and BIC, the performance on predicting the variance given a grey value was assessed using cross-validation \citep{friedman2001elements}. Cross-validation assesses the model to make predictions on data it has not seen before. This was done by randomly splitting the $m$ data points into two disjoint sets, the training set and the test set. It was chosen that the training and test set are of the same size. The model was fitted onto the training set. Afterwards, the fitted model predicts the variances given the grey values in the test set which were then compared to the actual variances. 
 
 The mean scaled deviance was used to assess the performance of variance prediction. The deviance is defined to be
 \begin{equation}
@@ -337,15 +337,15 @@ Cross validation was performed on the datasets \texttt{AbsNoFilter} and \texttt{
   \label{fig:meanVar_varMeanCv}
 \end{figure}
 
-The results from the cross validation is shown in Figure \ref{fig:meanVar_varMeanCv}. The performance of the three candidate models were very similar. One exception is the model ${y}(x)=\beta_{-1}x^{-1}+\beta_0$ fitted onto the \texttt{AbsNoFilter} dataset, the mean scaled deviance was significantly larger and this is expected from a model not favoured in the forward step-wise selection in the previous section.
+The results from the cross-validation is shown in Figure \ref{fig:meanVar_varMeanCv}. The performances of the three candidate models were very similar. One exception is the model ${y}(x)=\beta_{-1}x^{-1}+\beta_0$ fitted onto the \texttt{AbsNoFilter} dataset, the mean scaled deviance was significantly larger and this is expected from a model not favoured in the forward step-wise selection in the previous section.
 
-Shading correction did not had a significant effect in the analysis.
+Shading correction did not have a significant effect on the analysis.
 
 From these results, it is recommended that the relationship ${y}(x)=\beta_0+\beta_1 x$ should be used for its simple form, similar performance to other candidate models and connections to the compound Poisson.
 
 \section{Residual Analysis}
 
-A residual analysis was conducted to study for anything overlooked. The model ${y}(x)=\beta_0+\beta_1 x$ was fitted onto the entire sample variance-mean data. A residual plot plots $r_i=y_i-\widehat{y}(x_i)$ for all $x_i$ in the dataset which was done using a 2D histogram. Due to the gamma GLM, higher grey values typically have bigger residuals in magnitude. A predicted residual interval is included in the histogram to aid judging the residuals. This interval was acquired by obtaining the prediction interval and subtracting it from the fit.
+Residual analysis was conducted to study for anything overlooked. The model ${y}(x)=\beta_0+\beta_1 x$ was fitted onto the entire sample variance-mean data. A residual plot plots $r_i=y_i-\widehat{y}(x_i)$ for all $x_i$ in the dataset which was done using a 2D histogram. Due to the gamma GLM, higher grey values typically have bigger residuals in magnitude. A predicted residual interval is included in the histogram to aid judging the residuals. This interval was acquired by obtaining the prediction interval and subtracting it from the fit.
 
 \begin{figure}
   \centering
@@ -373,7 +373,7 @@ A residual analysis was conducted to study for anything overlooked. The model ${
   \label{fig:meanVar_residualGreyvalue}
 \end{figure}
 
-The residual plots are shown in Figure \ref{fig:meanVar_residualGreyvalue}. The residuals are all sensible and increased in magnitude with grey value which is captured by the predicted residual interval. The inflection in \texttt{AbsNoFilter} at \ang{120}, as discussed previously, can be seen more clearly here.
+The residual plots are shown in Figure \ref{fig:meanVar_residualGreyvalue}. The residuals are all sensible and increased in magnitude with the grey value which is captured by the predicted residual interval. The inflection in \texttt{AbsNoFilter} at \ang{120}, as discussed previously, can be seen more clearly here.
 
 \begin{figure}
   \centering
@@ -415,4 +415,4 @@ It was unusual to see an infection in the sample variance-mean data in \texttt{A
 
 More flexible models such as non-parametric and machine learning methods may be used, however, they are slow and are unnecessary in a low dimensional problem with a large number of data points.
 
-With the ability to predict the variance given a grey value of a pixel, the uncertainty can be quantified. In the next chapter, the projection is compared to a simulated projection under the face of that uncertainty.
+With the ability to predict the variance given a grey value of a pixel, the uncertainty can be quantified. In the next chapter, the projection is compared to a simulated projection in the face of that uncertainty.
