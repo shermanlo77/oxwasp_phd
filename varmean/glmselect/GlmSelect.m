@@ -99,9 +99,9 @@ classdef GlmSelect < Experiment
 
           end
 
-          %quote deviance
+          %quote criteria
           devianceQuote = siUncertainity(mean(this.criterionArray(:,iLink,iShadingCorrection)), ...
-              std(this.criterionArray(:,iLink,iShadingCorrection)), 2);
+              std(this.criterionArray(:,iLink,iShadingCorrection)), 1);
           %quote polynomial with the most votes
           [maxCount,maxKey] = max(polynomialCount);
           

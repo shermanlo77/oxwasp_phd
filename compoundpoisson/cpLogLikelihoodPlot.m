@@ -79,7 +79,7 @@ function cpPlotlnL(compoundPoisson, alpha, beta, n)
   surf(alphaGrid, betaGrid, lnLFullGrid);
   xlabel('\alpha');
   ylabel('\beta');
-  zlabel('log likelihood');
+  zlabel('log-likelihood');
   view(-45,35.264);
   saveas(fig, fullfile(fullfile('reports','figures','compoundpoisson'), ...
       strcat(mfilename,'_',compoundPoissonTrue.toString(),'.eps')),'epsc');
