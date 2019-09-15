@@ -1,4 +1,4 @@
-Disagreement between the obtained and the \emph{aRTist} simulated projections can be found by subtracting one projection from the other. Any values too big in magnitude can be considered as a defect. However, in the previous chapters, it was found that x-ray photons behave randomly and differences in the comparison can be due to chance. Thus, the comparisons should be done in the face of uncertainty.
+A disagreement between the obtained and the \emph{aRTist} simulated projections can be found by subtracting one projection from the other. Any values too big in magnitude can be considered as a defect. However, in the previous chapters, it was found that x-ray photons behave randomly and differences in the comparison can be due to chance. Thus, the comparisons should be done in the face of uncertainty.
 
 A pixel by pixel hypothesis test was proposed to do defect detection. The test statistic, for the pixel located at $(x,y)$, is
 \begin{equation}
@@ -18,7 +18,7 @@ As with usual statistical convention, an upper case $Z$ denotes a random variabl
 
 To illustrate this method of inference, the projections from the dataset \texttt{AbsFilter} at \ang{120} was used. To recap, replicate projections of a test sample, with purposefully manufactured voids, were obtained. \emph{aRTist} was used to create a simulation of that projection but as if the voids were not there. Thus the method should pick these voids up.
 
-The obtained and \emph{aRTist} projections are shown in Figures \ref{fig:inference_inferenceIntro_inference_scan} and \ref{fig:inference_inferenceIntro_inference_artist} respectively. The 20 replicate projections were spilt into two. 19 randomly selected projections were used for the variance-mean model to fit onto. A gamma GLM, with a basic linear relationship, was used for the variance-mean model. The remaining projection was compared with the \emph{aRTist} projection. The variance was predicted using the grey value in the \emph{aRTist} simulation as the predictor variable.
+The obtained and \emph{aRTist} projections are shown in Figures \ref{fig:inference_inferenceIntro_inference_scan} and \ref{fig:inference_inferenceIntro_inference_artist} respectively. The 20 replicate projections were split into two. 19 randomly selected projections were used for the variance-mean model to fit onto. A gamma GLM, with a basic linear relationship, was used for the variance-mean model. The remaining projection was compared with the \emph{aRTist} projection. The variance was predicted using the grey value in the \emph{aRTist} simulation as the predictor variable.
 
 \begin{figure}
   \centering
@@ -56,9 +56,9 @@ For each pixel, a test statistic was calculated, which forms a $z$ image. A test
 \end{equation}
 which can takes values $0\leqslant p_{x,y} \leqslant 1$. A $p$-value too small is considered a positive result. The $p$-values are shown in Figure \ref{fig:inference_inferenceIntro_inference_pvalue}.
 
-The resulting $p$-values are concerning. This is because the $p$-values are not very smooth on the surfaces of the sample. It should be expected that small $p$-values are in areas of the defects. Pixels were tested positive, or considered to be evidence of a defect, when $|z_{x,y}|>\inputNumber{../figures/inference/inferenceIntro_critical.txt}$ to 2 decimal places. This value was chosen by controlling the false discovery rate at 5\% using the \cite{benjamini1995controlling} (BH) procedure. The positive pixels are shown in Figure \ref{fig:inference_inferenceIntro_inference_positivePixels}.
+The resulting $p$-values are concerning. This is because the $p$-values are not very smooth on the surfaces of the sample. It should be expected that small $p$-values are in areas of the defects. Pixels were tested positive or considered to be evidence of a defect, when $|z_{x,y}|>\inputNumber{../figures/inference/inferenceIntro_critical.txt}$ to 2 decimal places. This value was chosen by controlling the false discovery rate at 5\% using the \cite{benjamini1995controlling} (BH) procedure. The positive pixels are shown in Figure \ref{fig:inference_inferenceIntro_inference_positivePixels}.
 
-This proposed method for defect detection failed because too many false positives were detected. These false positives appear to have some structure, for example clustering in the corners or on surfaces. In addition, false negatives were detected because not all of the defects were detected.
+This proposed method for defect detection failed because too many false positives were detected. These false positives appear to have some structure, for example, clustering in the corners or on surfaces. Also, false negatives were detected because not all of the defects were detected.
 
 Model misspecification appeared to be the main source of error. The test statistics and $p$-values were inspected in Figure \ref{fig:inference_inferenceIntro_histogram}. It can be seen that the test statistics were not compatible with the standard Normal distribution. Also, the majority of the $p$-values did not look uniformly distributed. This seems to suggest that the assumption of $Z_{x,y}\sim \normal(0,1)$ is incorrect.
 
@@ -79,7 +79,7 @@ Model misspecification appeared to be the main source of error. The test statist
   \label{fig:inference_inferenceIntro_histogram}
 \end{figure}
 
-This chapter recaps hypothesis testing, for a single test and then for multiple tests, treating each pixel as a test. Assumptions used on the hypothesis testing can be relaxed by using the empirical null \citep{efron2004large}, which is reviewed here. The empirical null is then extended to an image filter, called the empirical null filter. This filter adjust each test statistic according to its neighbours, ironing out false positive results. Simulations and results are shown towards the end of the chapter.
+This chapter recaps hypothesis testing, for a single test and then for multiple tests, treating each pixel as a test. Assumptions used in the hypotheses testing can be relaxed by using the empirical null \citep{efron2004large}, which is reviewed here. The empirical null is then extended to an image filter, called the empirical null filter. This filter adjusts each test statistic according to its neighbours, ironing out false positive results. Simulations and results are shown towards the end of the chapter.
 
 \section{Literature Review}
 
@@ -162,7 +162,7 @@ In summary, the uncorrected, Bonferroni and BH correction controls for different
     \label{table:inference_corrections}
 \end{table}
 
-Consider a small example where a $\SI{200}{\pixel}\times\SI{200}{\pixel}$ section of the $z$ image was investigated, as shown Figure \ref{fig:inference_inferenceSubsample1_histogram}. The distribution of the test statistics appeared Normal but not centred at zero. By using the BH procedure to obtain a critical region of $|Z|>\input{../figures/inference/inferenceSubsample1_criticalBoundary.txt}$ to 2 decimal places, almost half of the pixels were tested positive. It is questionable whether such a number of positive results is sensible, in particular, in an area where defects were not expected.
+Consider a small example where a $\SI{200}{\pixel}\times\SI{200}{\pixel}$ section of the $z$ image was investigated, as shown Figure \ref{fig:inference_inferenceSubsample1_histogram}. The distribution of the test statistics appeared Normal but not centred at zero. By using the BH procedure to obtain a critical region of $|Z|>\input{../figures/inference/inferenceSubsample1_criticalBoundary.txt}$ to 2 decimal places, almost half of the pixels were tested positive. It is questionable whether such many positive results are sensible, in particular, in an area where defects were not expected.
 
 \begin{figure}
   \centering
@@ -256,7 +256,7 @@ The evaluation of $z=\widehat{\mu}_0$ is used because at the mode, it was assume
 
 This method does not need estimations of $\pi_0$ which makes it quite convenient. Estimations of $\pi_0$ are discussed in literature such as \cite{benjamini2000adaptive, pounds2003estimating, storey2003statistical, pounds2004improving, langaas2005estimating, durnez2014posthoc}. \cite{efron2004large} motivated the use of the empirical null by investigating various types of false discovery rates \citep{storey2002direct, storey2003positive, efron2002empirical, efron2007size} which will not be discussed here.
 
-The empirical null is used widely, including in neuroimaging \citep{schwartzman2008false, schwartzman2009empirical} and has been extended to include non-Normal null distributions \citep{schwartzman2008false, schwartzman2008empirical}. There exist various methods for the empicial null, for example, \cite{schwartzman2008empirical} used Poisson regression on the histogram counts in regions where the null statistics dominate. The empirical characteristic function was used in \cite{jin2007estimating}.
+The empirical null is used widely, including in neuroimaging \citep{schwartzman2008false, schwartzman2009empirical} and has been extended to include non-Normal null distributions \citep{schwartzman2008false, schwartzman2008empirical}. There exist various methods for the empirical null, for example, \cite{schwartzman2008empirical} used Poisson regression on the histogram counts in regions where the null statistics dominate. The empirical characteristic function was used in \cite{jin2007estimating}.
 
 \section{Empirical Null}
 
@@ -319,7 +319,7 @@ and were used in the BH procedure. The critical region was found to be $|t|\geqs
     \label{fig:inference_inferenceSubsample1_nullResults}
 \end{figure}
 
-No positive results were found and the $p$-values were sensible as they resemble the uniform distribution. This demonstrated that the empirical null adjusted the parameters of the null distribution to fit onto the majority of the data in order to make sensible inference.
+No positive results were found and the $p$-values were sensible as they resemble the uniform distribution. This demonstrated that the empirical null adjusted the parameters of the null distribution to fit onto the majority of the data to make a sensible inference.
 
 \begin{figure}
   \centering
@@ -347,9 +347,9 @@ No positive results were found and the $p$-values were sensible as they resemble
     \label{fig:inference_inferenceSubsample2}
 \end{figure}
 
-Another example is shown in Figure \ref{fig:inference_inferenceSubsample2} where a $\SI{200}{\pixel}\times\SI{200}{\pixel}$ sub-image containing a defect was used. It can be seen that the null distribution was not centred at zero which can be taken into account by using the empirical null. The estimation of the empirical null parameters were robust as it depends on the density estimate at the mode only, it should not be affected by non-null test statistics.
+Another example is shown in Figure \ref{fig:inference_inferenceSubsample2} where a $\SI{200}{\pixel}\times\SI{200}{\pixel}$ sub-image containing a defect was used. It can be seen that the null distribution was not centred at zero which can be taken into account by using the empirical null. The estimation of the empirical null parameters was robust as it depends on the density estimate at the mode only, it should not be affected by non-null test statistics.
 
-The BH procedure was conducted using the normalised $p$-values. $\inputNumber{../figures/inference/inferenceSubsample2_nPositive.txt}$ pixels were tested positive. The majority of the positive pixels were found to be clustered together which highlighted the defect. The entire area of the defects were not tested positive but a good portion of them are. This should be enough to raise suspicion in that particular area. Only a few pixels were falsely tested as positive, however, they are typically isolated single pixels. Isolated positive pixels should be discarded as they are more than likely to be tested positive by random chance.
+The BH procedure was conducted using the normalised $p$-values. $\inputNumber{../figures/inference/inferenceSubsample2_nPositive.txt}$ pixels were tested positive. The majority of the positive pixels were found to be clustered together which highlighted the defect. The entire area of the defects was not tested positive but a good portion of them are. This should be enough to raise suspicion in that particular area. Only a few pixels were falsely tested as positive, however, they are typically isolated single pixels. Isolated positive pixels should be discarded as they are more than likely to be tested positive by random chance.
 
 This section describes the empirical null implementation in detail, in particular, the numerical and computational aspects. The empirical properties of the sampling distribution of the null parameter estimators were studied.
 
@@ -719,7 +719,7 @@ Using the fact that $\phi'(z)=-z\phi(z)$, then it is simplified to
   \ .
 \end{multline}
 
-A convergence criteria was met when either 10 update steps were taken or when
+The convergence criteria were met when either 10 update steps were taken or when
 \begin{equation}
   \log\left[\left|
     \left.
@@ -753,7 +753,7 @@ The algorithm does depend on the initial value so using different initial values
 
 \subsection{Bandwidth Tuning}
 
-The bandwidth $h$ controls how smooth the kernel density estimator is, higher values produce smoother curves \citep{friedman2001elements}. Cross validation methods to select $h$ do exist \citep{bowman1984alternative, sheather2004density} but they can be computationally expensive. Rules of thumb \citep{silverman1986density, sheather2004density} can be used instead and are typically of the form
+The bandwidth $h$ controls how smooth the kernel density estimator is, higher values produce smoother curves \citep{friedman2001elements}. Cross-validation methods to select $h$ do exist \citep{bowman1984alternative, sheather2004density} but they can be computationally expensive. Rules of thumb \citep{silverman1986density, sheather2004density} can be used instead and are usually of the form
 \begin{equation}
   h = bn^{-1/5}\times\text{min}\left(s_z,\text{IQR}_z/1.34\right)
 \end{equation}
@@ -761,9 +761,9 @@ where $b=0.9$ \citep{silverman1986density}. This rule of thumb was developed wit
 
 The kernel density estimator was only used to obtain values of $\widehat{\mu}_0$ and $\widehat{\sigma}_0$. Thus, a good bandwidth, in the context of the empirical null, is one which has good properties of $\widehat{\mu}_0$ and $\widehat{\sigma}_0$ rather than the density estimate. Exact properties of these estimators based on the kernel density estimators can be rather complicated. For example, numerous approximations were needed to show that $\widehat{\sigma}_0^2$ is an unbiased estimator of $\sigma_0^2$ to the first-order and higher-order terms are functions of $(\widehat{\mu}_0 - \mu_0)^2$ and $h$. This is shown in Appendix \ref{chapter:appendix_expectationNullStdEstimator}.
 
-An experiment was conducted to investigate how the estimators, $\widehat{\mu}_0$ and $\widehat{\sigma}_0$, varied with $h$ and $n$. This was done on a simulated dataset of $n$ standard Normal random variables. For a given $h$ and $n$, 100 values of $\widehat{\mu}_0$ and $\widehat{\sigma}_0$ were obtained by repeating the simulation of the dataset. The median squared error was obtained by taking the median over all squared errors from the 100 estimates. 300 values of $n$ from 10 to $10^6$ and 30 values of $h$ from 0.09 to 1.5 were investigated. Figure \ref{fig:inference_BandwidthSelection_error} shows the resulting median squared errors with the rules of thumb.
+An experiment was conducted to investigate how the estimators, $\widehat{\mu}_0$ and $\widehat{\sigma}_0$, varied with $h$ and $n$. This was done on a simulated dataset of $n$ standard Normal random variables. For a given $h$ and $n$, 100 values of $\widehat{\mu}_0$ and $\widehat{\sigma}_0$ were obtained by repeating the simulation of the dataset. The median squared error was obtained by taking the median over all the squared errors from the 100 estimates. 300 values of $n$ from 10 to $10^6$ and 30 values of $h$ from 0.09 to 1.5 were investigated. Figure \ref{fig:inference_BandwidthSelection_error} shows the resulting median squared errors with the rules of thumb.
 
-$\widehat{\mu}_0$ has low median squared error for large bandwidths. For low $n$, large bandwidths are particularly useful because smoother curves prevent any false bimodal features appearing, making it easier to find the mode.
+$\widehat{\mu}_0$ has a low median squared error for large bandwidths. For low $n$, large bandwidths are particularly useful because smoother curves prevent any false bimodal features appearing, making it easier to find the mode.
 
 A smooth valley can be seen for the median squared error for $\widehat{\sigma}_0$. It appeared for a given $n$, there exist a bandwidth which minimises the median squared error. The rules of thumb did not optimise for $\widehat{\sigma}_0$ and undershot it. Figure \ref{fig:inference_BandwidthSelection_error3} shows the median of the estimates of $\sigma_0$. The true value in this simulation is $\sigma_0=1$ which is represented as a horizontal plane. Bandwidths too small underestimated $\sigma_0$, bandwidths too big overestimated $\sigma_0$.
 
@@ -791,7 +791,7 @@ A smooth valley can be seen for the median squared error for $\widehat{\sigma}_0
     \label{fig:inference_BandwidthSelection_error3}
 \end{figure}
 
-Overestimates and underestimates are both dangerous and it can affect the false positive and false negative rate. This is because $\widehat{\sigma}_0$ was used to rescale the test statistics accordingly. Recall that the normalised test statistics are $t_i = \dfrac{z_i - \widehat{\mu}_0}{\widehat{\sigma}_0}$. Low values of $\widehat{\sigma}_0$ produce large values in magnitude of $t_i$, potentially testing more of these test statistics as positive. High values of $\widehat{\sigma}_0$ does the opposite. Large number of positives can led to more false positives and vice versa.
+Overestimates and underestimates are both dangerous and it can affect the false positive and false negative rate. This is because $\widehat{\sigma}_0$ was used to rescale the test statistics accordingly. Recall that the normalised test statistics are $t_i = \dfrac{z_i - \widehat{\mu}_0}{\widehat{\sigma}_0}$. Low values of $\widehat{\sigma}_0$ produce large values, in magnitude, of $t_i$, potentially testing more of these test statistics as positive. High values of $\widehat{\sigma}_0$ do the opposite. A large number of positives can lead to more false positives and vice versa.
 
 The optimal bandwidth for a given $n$ was found numerically. Figure \ref{fig:inference_BandwidthSelection2_plot} shows the log squared error against the bandwidth for various $h$ given $n$. A smoothing spline \citep{friedman2001elements} was fitted and this was optimised to find the bandwidth which minimises the log squared error for a given $n$. \emph{MATLAB}'s \texttt{fit(x,y,'smoothingspline')} function was used to fit the smoothing spline which has inbuilt cross validation procedures. The optimisation was done using \emph{MATLAB}'s gradient free \texttt{fminsearch} function, using $h=0.9n^{-1/5}$ as the initial value.
 
@@ -827,7 +827,7 @@ The optimal bandwidth for a given $n$ was found numerically. Figure \ref{fig:inf
     \label{fig:inference_BandwidthSelection2_plot}
 \end{figure}
 
-A relationship between the optimal bandwidth and $n$ was attempted to be found. It was assumed such a relationship has the linear from
+A relationship between the optimal bandwidth and $n$ was attempted to be found. It was assumed such a relationship has the linear form
 \begin{equation}
   h_{\text{optimal}} = b n^{-1/5} + a
 \end{equation}
@@ -860,11 +860,11 @@ In conclusion, a small bias added to the rule of thumb improved the performance 
 \afterpage{\clearpage}
 \subsection{Comparison with Other Robust Estimators}
 
-Various estimates of central tendency and dispersion were compared with estimates of the null mean and null standard deviation. The empirical sampling distribution of these estimators were observed to look for properties such as bias, variance and robustness. The central tendency estimates looked at were the median and mean. The dispersion estimates looked at were the median absolute deviation (MAD) around the mode $\times 1.483$, interquartile range (IQR) $\div 1.349$ and the standard deviation. The normalisation constants were used so that the MAD and IQR can be compared directly to the standard deviation.
+Various estimates of central tendency and dispersion were compared with estimates of the null mean and null standard deviation. The empirical sampling distribution of these estimators was observed to look for properties such as bias, variance and robustness. The central tendency estimates looked at were the median and the mean. The dispersion estimates looked at were the median absolute deviation (MAD) around the mode $\times 1.483$, interquartile range (IQR) $\div 1.349$ and the standard deviation. The normalisation constants were used so that the MAD and IQR can be compared directly to the standard deviation.
 
-A dataset of $n = \pi r^2$ standard Normal random variables were simulated to obtain estimates of central tendency and dispersion. This was repeated 100 times to obtain a sampling distribution. The results are shown in Figures \ref{fig:inference_NullIidMean} and \ref{fig:inference_NullIidStd}. The empirical null mean and empirical null standard deviation estimations both suffered from high variance, much higher than typical robust estimators such as the median and IQR.
+A dataset of $n = \pi r^2$ standard Normal random variables was simulated to obtain estimates of central tendency and dispersion. This was repeated 100 times to obtain a sampling distribution. The results are shown in Figures \ref{fig:inference_NullIidMean} and \ref{fig:inference_NullIidStd}. The empirical null mean and empirical null standard deviation estimations both suffered from high variance, much higher than typical robust estimators such as the median and IQR.
 
-The empirical null standard deviation had some positive bias and it was found that this bias was quite sensitive to the bandwidth. Further fine tuning on the bandwidth would be required for the empirical null standard deviation to be unbiased. For example, it appeared there was consistent positive bias for all $r$ investigated, perhaps suggesting the bandwidth parameter $a$ should be decreased ever so slightly. The source of bias could come from the fact that the bandwidth was tuned to minimise the log squared error rather than the squared bias.
+The empirical null standard deviation had some positive bias and it was found that this bias was quite sensitive to the bandwidth. Further fine-tuning on the bandwidth would be required for the empirical null standard deviation to be unbiased. For example, it appeared there was consistent positive bias for all $r$ investigated, perhaps suggesting the bandwidth parameter $a$ should be decreased ever so slightly. The source of bias could come from the fact that the bandwidth was tuned to minimise the log squared error rather than the squared bias.
 
 To test for robustness, a dataset of $n = \pi r^2$ mixture of Gaussian random variables were simulated with the following distribution: $\normal(0,1)$ with probability $90\%$, $\normal(3,1)$ with probability $10\%$. The $\normal(3,1)$ component acts as non-null statistics and robust estimators should be unaffected by it. The results are shown in Figures \ref{fig:inference_NullIidMixtureMean} and \ref{fig:inference_NullIidMixtureStd}. The empirical null estimators are robust to the non-null component but still suffers from high variance. The rest of the estimators were affected by the non-null statistics, making them unsuitable to estimate parameters of the null parameters.
 
