@@ -60,7 +60,7 @@ classdef (Abstract) NullIid < Experiment
       plot(radiusPlot, -zCritical./sqrt(this.nArray), 'k--');
       ax = fig.Children(1);
       ax.XLabel.String = 'r';
-      ax.YLabel.String = 'null mean';
+      ax.YLabel.String = 'central tendency';
       ax.YLim = this.getYLim(1);
       ax.XLim(2) = 110;
       saveas(fig, fullfile(directory,strcat(this.experimentName,'_nullMean.eps')), 'epsc');
@@ -75,7 +75,7 @@ classdef (Abstract) NullIid < Experiment
       plot(radiusPlot, sqrt(chi2inv(normcdf(-2),this.nArray - 1)./(this.nArray-1)), 'k--');
       ax = fig.Children(1);
       ax.XLabel.String = 'r';
-      ax.YLabel.String = 'null std';
+      ax.YLabel.String = 'dispersion';
       ax.YLim = this.getYLim(2);
       ax.XLim(2) = 110;
       saveas(fig, fullfile(directory,strcat(this.experimentName,'_nullStd.eps')), 'epsc');

@@ -69,7 +69,7 @@ classdef AllNull < Experiment
       plot([0,this.radiusArray(end)+10],[meanCritical,meanCritical], 'k--');
       plot([0,this.radiusArray(end)+10],[-meanCritical,-meanCritical], 'k--');
       xlim([0,this.radiusArray(end)+10]);
-      ylabel('post filter image greyvalue mean');
+      ylabel('image mean');
       xlabel('radius (px)');
       if (~isempty(this.getYLim(3)))
         ylim(this.getYLim(3));
@@ -87,7 +87,7 @@ classdef AllNull < Experiment
       plot([0,this.radiusArray(end)+10],[stdCritical1,stdCritical1], 'k--');
       plot([0,this.radiusArray(end)+10],[stdCritical2,stdCritical2], 'k--');
       xlim([0,this.radiusArray(end)+10]);
-      ylabel('post filter image greyvalue std');
+      ylabel('image std');
       xlabel('radius (px)');
       if (~isempty(this.getYLim(4)))
         ylim(this.getYLim(4));
@@ -104,7 +104,7 @@ classdef AllNull < Experiment
       plot([0,this.radiusArray(end)+10],3+sqrt(24)*[meanCritical,meanCritical], 'k--');
       plot([0,this.radiusArray(end)+10],3+sqrt(24)*[-meanCritical,-meanCritical], 'k--');
       xlim([0,this.radiusArray(end)+10]);
-      ylabel('post filter image greyvalue kurtosis');
+      ylabel('image kurtosis');
       xlabel('radius (px)');
       if (~isempty(this.getYLim(5)))
         ylim(this.getYLim(5));

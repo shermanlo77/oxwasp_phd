@@ -93,7 +93,7 @@ function subsampleExample(scan, zImage, rowSubsample, colSubsample, scaleLength,
   plot(xPlot,  nullPdfPlot, 'r-.');
   legend('density estimate', 'empirical null', 'Location', 'best');
   ylabel('frequency density');
-  xlabel('z stat');
+  xlabel('z statistic');
   xlim([min(zSampleVector), max(zSampleVector)]);
   saveas(fig,fullfile('reports','figures','inference',strcat(name,'_densityEstimate.eps')),'epsc');
 
