@@ -1,4 +1,4 @@
-A disagreement between the obtained and the \emph{aRTist} simulated projections can be found by subtracting one projection from the other. Any values too big in magnitude can be considered as a defect. However, in the previous chapters, it was found that x-ray photons behave randomly and differences in the comparison can be due to chance. Thus, the comparisons should be done in the face of uncertainty.
+Disagreements between the obtained and the \emph{aRTist} simulated projections can be found by subtracting one projection from the other. Any values too big in magnitude can be considered as a defect. However, in the previous chapters, it was found that x-ray photons behave randomly and differences in the comparison can be due to chance. Thus, the comparisons should be done in the face of uncertainty.
 
 A pixel by pixel hypothesis test was proposed to do defect detection. The test statistic, for the pixel located at $(x,y)$, is
 \begin{equation}
@@ -10,7 +10,9 @@ A pixel by pixel hypothesis test was proposed to do defect detection. The test s
     \sqrt{\widehat{\variance}\left[\text{projection}_{x,y}\right]}
   }
 \end{equation}
-where $\widehat{\variance}\left[\text{projection}_{x,y}\right]$ is the estimated grey value variance. The test statistic was calculated for each pixel in the projection. For high photon rate, it was shown in the previous chapters that the grey values in the scan can be modelled using a Normal distribution. Thus, if there are no significant differences between the obtained and \emph{aRTist} projections, then the randomness of the test statistics can be approximately quantified as
+where $\widehat{\variance}\left[\text{projection}_{x,y}\right]$ is the estimated grey value variance. The test statistic was calculated for each pixel in the ROI, that is, pixels which represent the test sample. The ROI was created by manually segmenting the test sample from the projection.
+
+For high photon rate, it was shown in the previous chapters that the grey values in the scan can be modelled using a Normal distribution. Thus, if there are no significant differences between the obtained and \emph{aRTist} projections, then the randomness of the test statistics can be approximately quantified as
 \begin{equation}
 Z_{x,y}\sim \normal(0,1) \ .
 \end{equation}
@@ -87,16 +89,16 @@ Consider a test statistic $Z$ from a pixel. If there are no defects, then the st
 
 In two-tailed hypothesis testing \citep{pearson1900on, neyman1933on, fisher1970statistical}, the $p$-value can be compared with the user-defined size of the test $\alpha$, also known as the significance level in this specific example. A positive result is declared when $p<\alpha$, else it is a negative result. Correct and incorrect testing of the statistics can occur. For example, testing a null statistic as positive is known as a false positive. It can be shown that $\alpha$ controls the false positive rate. $\alpha=5.0\%$ is a typical choice \citep{wasserstein2019moving} and is used throughout this thesis.
 
-Multiple hypotheses testing occurs when there are more than one hypotheses to test. For example, $n$ pixels can be tested where the test statistics are $Z_1, Z_2, \dotsc, Z_n$ and $Z_i\sim\normal(\mu_i,1)$ for $i=1,2,\dotsc,n$. The null hypotheses are $H_{0,i}:\mu_i=0$ and are tested against the alternative $H_{1,i}:\mu_i\neq 0$ for $i=1,2,\dotsc,n$. Let the corresponding $p$-values be $p_1, p_2, \dotsc, p_n$.
+Multiple hypotheses testing occurs when there are more than one hypotheses to test. For example, $N$ pixels can be tested where the test statistics are $Z_1, Z_2, \dotsc, Z_N$ and $Z_i\sim\normal(\mu_i,1)$ for $i=1,2,\dotsc,N$. The null hypotheses are $H_{0,i}:\mu_i=0$ and are tested against the alternative $H_{1,i}:\mu_i\neq 0$ for $i=1,2,\dotsc,N$. Let the corresponding $p$-values be $p_1, p_2, \dotsc, p_N$.
 
 The uncorrected test classify any $p_i<\alpha$ as positive. This is flawed because the possibility of obtaining at least one false positive increases as the number of tests increases \citep{shaffer1995multiple}. This method does control the per comparison error rate (PCER) \citep{benjamini1995controlling}. PCER is the proportion of false positives out of all tests. The notation for the number of true/false positive/negatives obtained are defined in Table \ref{table:inference_randomvariables}. Using the notation, the PCER is defined as
 \begin{equation}
   \text{PCER}=
-  \dfrac{1}{n}
+  \dfrac{1}{N}
   \expectation[V]
   \ .
 \end{equation}
-It can be seen that if the uncorrected test controls the false positive rate such that $\expectation[V]/n_0 = \alpha$, then it controls the PCER such that
+It can be seen that if the uncorrected test controls the false positive rate such that $\expectation[V]/N_0 = \alpha$, then it controls the PCER such that
 \begin{equation}
   \text{PCER}\leqslant\alpha \ .
 \end{equation}
@@ -105,9 +107,9 @@ It can be seen that if the uncorrected test controls the false positive rate suc
   \centering
   \begin{tabular}{c|c|c|c}
     &Negative&Positive&Total\\\hline
-    Null & $U$ & $V$ & $n_0$\\
-    Non-null & $T$ & $S$ & $n-n_0$\\\hline
-    &$n-R$&$R$&$n$
+    Null & $U$ & $V$ & $N_0$\\
+    Non-null & $T$ & $S$ & $N-N_0$\\\hline
+    &$N-R$&$R$&$N$
   \end{tabular}
   \caption{Random variable definitions for the number of true/false positives/negatives made in multiple hypotheses testing}
   \label{table:inference_randomvariables}
@@ -118,7 +120,7 @@ The Bonferroni correction \citep{shaffer1995multiple, bland1995multiple, pernege
   \text{FWER} = \prob(V\geqslant1) \ .
   \label{eq:inference_fwer}
 \end{equation}
-This is done by adjusting the size of the test to be $\alpha/n$. By using the adjusted size, then $\text{FWER}=1-\left[(1-\alpha/n)^n\right]$. Using the approximation $(1-\alpha/n)^n\approx 1-\alpha$ then $\text{FWER}\approx \alpha$. This shows that the Bonferroni correction controls the family-wise error rate such that
+This is done by adjusting the size of the test to be $\alpha/N$. By using the adjusted size, then $\text{FWER}=1-\left[(1-\alpha/N)^N\right]$. Using the approximation $(1-\alpha/N)^N\approx 1-\alpha$ then $\text{FWER}\approx \alpha$. This shows that the Bonferroni correction controls the family-wise error rate such that
 \begin{equation}
   \text{FWER} \leqslant \alpha \ .
 \end{equation}
@@ -131,16 +133,16 @@ The \cite{benjamini1995controlling} (BH) procedure controls the false discovery 
 \end{equation}
 It is defined that $V/R=0$ when $R=0$.
 
-The BH procedure adjusts the size of the test between the Bonferroni correction and the uncorrected test. It adapts to the data and chooses different sizes for different data. The procedure is as follows, the $p$-values are ordered such that $p_{(1)}\leqslant p_{(2)}\leqslant \dotsc \leqslant p_{(n)}$. Suppose a size $\alpha$ is provided beforehand. The size is adjusted to
+The BH procedure adjusts the size of the test between the Bonferroni correction and the uncorrected test. It adapts to the data and chooses different sizes for different data. The procedure is as follows, the $p$-values are ordered such that $p_{(1)}\leqslant p_{(2)}\leqslant \dotsc \leqslant p_{(N)}$. Suppose a size $\alpha$ is provided beforehand. The size is adjusted to
 \begin{equation}
-  \alpha_{\text{BH}} = \frac{\alpha k}{n}
+  \alpha_{\text{BH}} = \frac{\alpha k}{N}
 \end{equation}
 where
 \begin{equation}
-  k\text{ is the largest }i\text{ for which }p_{(i)}\leqslant\frac{i}{n}\alpha
+  k\text{ is the largest }i\text{ for which }p_{(i)}\leqslant\frac{i}{N}\alpha
   \ .
 \end{equation}
-This test the statistics with $p$-values $p_{(1)},p_{(2)},\dotsc,p_{(k)}$ as positive. For the case where $p_{(1)}>\alpha/n$ then $k=1$ so that the Bonferroni correction is used when there are no positive results, this is only for illustration purposes. For example in Figure \ref{fig:inference_inferenceIntro_pvalue}, the $p$-values were plotted against their order so that the critical boundary was shown by a linear curve with gradient $\alpha/n$.
+This test the statistics with $p$-values $p_{(1)},p_{(2)},\dotsc,p_{(k)}$ as positive. For the case where $p_{(1)}>\alpha/N$ then $k=1$ so that the Bonferroni correction is used when there are no positive results, this is only for illustration purposes. For example in Figure \ref{fig:inference_inferenceIntro_pvalue}, the $p$-values were plotted against their order so that the critical boundary was shown by a linear curve with gradient $\alpha/N$.
 
 The BH procedure comes from the fact that if all the statistics are null and independent, then the $p$-values are uniformly distributed \citep{simes1986improved}. However, it can be shown that the BH procedure works for many scenarios of dependencies \citep{benjamini2001control}. It can be shown that the BH procedure controls the FDR such that
 \begin{equation}
@@ -182,7 +184,7 @@ Consider a small example where a $\SI{200}{\pixel}\times\SI{200}{\pixel}$ sectio
 
 This problem commonly occurs in large scale multiple hypotheses testing \citep{efron2004large} such as in microarrays \citep{hedenfalk2001gene, efron2002empirical, efron2003robbins}. It appeared that the null distribution was misspecified as $Z_i|H_{0,i}\sim\normal(0,1)$ when in reality they are distributed as $Z_i|H_{0,i}\sim\normal(\mu_0,\sigma_0^2)$, where $\mu_0$ and $\sigma_0$ are the null mean and null standard deviation respectively.
 
-In practice $\mu_0$ and $\sigma_0$ are unknown. The empirical null \citep{efron2004large} replaces the parameters of the null distribution with its estimate. Suppose $\widehat{\mu}_0$ and $\widehat{\sigma}_0$ are the estimated null mean and null standard deviation respectively. The statistics are specified by $Z_i\sim\normal(\mu_i, \widehat{\sigma}_0^2)$ so that the following null hypotheses $H_{0,i}:\mu_i=\widehat{\mu}_0$ are tested against $H_{1,i}:\mu_i\neq\widehat{\mu}_0$ for $i=1,2,\dotsc,n$.
+In practice $\mu_0$ and $\sigma_0$ are unknown. The empirical null \citep{efron2004large} replaces the parameters of the null distribution with its estimate. Suppose $\widehat{\mu}_0$ and $\widehat{\sigma}_0$ are the estimated null mean and null standard deviation respectively. The statistics are specified by $Z_i\sim\normal(\mu_i, \widehat{\sigma}_0^2)$ so that the following null hypotheses $H_{0,i}:\mu_i=\widehat{\mu}_0$ are tested against $H_{1,i}:\mu_i\neq\widehat{\mu}_0$ for $i=1,2,\dotsc,N$.
 
 In \cite{efron2004large}, a few assumptions were made in order to obtain the estimators $\widehat{\mu}_0$ and $\widehat{\sigma}_0$. Let the test statistic $Z$ have the p.d.f.
 \begin{equation}
@@ -269,7 +271,7 @@ Returning back to the sub-image example in Figure \ref{fig:inference_inferenceSu
   \right)
   \label{eq:inference_kernel_density_estimate}
 \end{equation}
-where $h$ is the bandwidth and $\phi(x)$ is the standard Normal density. The bandwidth was chosen such that
+where $h$ is the bandwidth, $\phi(x)$ is the standard Normal density and $n=N$ is number of terms in the summation. The bandwidth was chosen such that
 \begin{equation}
   h = (0.9n^{-1/5}\ + 0.16) \times \text{min}\left(s_z,\text{IQR}_z/1.34\right)
   \label{eq:inference_ourruleofthumb}
@@ -287,7 +289,7 @@ The null mean was estimated by numerically finding the mode of the density estim
 
 The use of the kernel density estimate has its advantages. The only tuning parameter is the bandwidth $h$ and the density estimate is simple enough to do calculus on it. Speed may be an issue as an evaluation of the density estimate requires the sum over the $n$ test statistics.
 
-The test statistics were normalised to $T_1,T_2,\dotsc,T_n$ by using
+The test statistics were normalised to $T_1,T_2,\dotsc,T_N$ by using
 \begin{equation}
   T_i = \dfrac{
     Z_i - \widehat{\mu}_0
@@ -297,7 +299,7 @@ The test statistics were normalised to $T_1,T_2,\dotsc,T_n$ by using
   }
   \label{eq:inference_empiricalNullNormalise}
 \end{equation}
-for $i=1,2,\dotsc,n$. The normalised $p$-values were obtained by using
+for $i=1,2,\dotsc,N$. The normalised $p$-values were obtained by using
 \begin{equation}
   p_i = 2(1-\Phi(|t_i|))
 \end{equation}
@@ -1018,7 +1020,9 @@ where
     \dfrac{z_{i,j}-z}{h}
   \right) \ ,
 \end{equation}
-$K_{x,y} = C_r(x,y) \cap \text{ROI}$ and $n=\left|K_{x,y}\right|$. Using these estimates, the test statistics were normalised using
+$K_{x,y} = C_r(x,y) \cap \text{ROI}$ and $n=\left|K_{x,y}\right|$, not to be confused with $N$. A bandwidth of $h = (0.9n^{-1/5}\ + 0.16) \times \text{min}\left(s_{x,y},\text{IQR}_{x,y}/1.34\right)$ was used where $s_{x,y}$ and $\text{IQR}_{x,y}$ are the sample standard deviation and sample interquartile range of the test statistics in $K_{x,y}$.
+
+After obtaining the estimates of the empirical null parameters, the test statistics were normalised using
 \begin{equation}
   T_{x,y} = 
   \dfrac{

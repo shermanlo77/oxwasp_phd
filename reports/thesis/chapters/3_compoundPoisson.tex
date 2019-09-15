@@ -496,7 +496,7 @@ As $\lambda$ increased (Figures \ref{fig:compoundPoisson_histogram_10_1_1} and \
 
 \section{Proposed Model}
 
-The compound Poisson-gamma distribution can be used to model the grey value of each pixel in a projection. Suppose a projection has $m$ pixels and $n$ replicate projections were obtained. Let $X_{i,j}$ and $Y_{i,j}$ be the grey value and photon count, respectively, of the $i$th pixel in the $j$th replicate projection.
+The compound Poisson-gamma distribution can be used to model the grey value of each pixel in a projection. Suppose a projection has $N$ pixels and $m$ replicate projections were obtained. Let $X_{i,j}$ and $Y_{i,j}$ be the grey value and photon count, respectively, of the $i$th pixel in the $j$th replicate projection.
 
 By assuming no beam hardening, the distribution of the photon energy does not change with attenuation. As a result, all pixels will detect photons with identical energy distributions, thus, $\alpha$ and $\beta$ are the same for all pixels. Attenuation does affect the photon count, the more material a photon has to attenuate, the lower the number of detectable photons. The amount of attenuation depends on the specific path from the source to a pixel in a detector, so $\lambda_i$ varies from pixel to pixel. Electronic Normal noise $\epsilon_{i,j}\sim\normal(a,\kappa)$ may be added as well.
 
@@ -509,7 +509,7 @@ By assuming no beam hardening, the distribution of the photon energy does not ch
 
 The graphical model in Figure \ref{fig:compoundPoisson_graphicalModel} illustrates how all of these variables are linked. $a$ and $\kappa$ are unknown parameters but can be estimated beforehand from replicate black images. Care must be taken to use the replicate black images for either shading correction or for estimating $a$ and $\kappa$ to avoid using the data twice. The energy of each photon $U\sim\gammaDist(\alpha,\beta)$ was omitted in the graphical model because the conditional distribution $X|Y\sim\gammaDist(Y\alpha,\beta)$ encapsulates each detected photon energy already.
 
-The model may be simplified by omitting the electronic noise and this can be done by setting $a=0$ and $\kappa=0$. The number of pixels can be set to $m=1$ to simplify the model further. Parameter estimation can be done using gradient methods because the likelihood of the compound Poisson can be evaluated \citep{dunn2005series}. However, the EM algorithm is faster and the model is well set up for it.
+The model may be simplified by omitting the electronic noise and this can be done by setting $a=0$ and $\kappa=0$. The number of pixels can be set to $N=1$ to simplify the model further. Parameter estimation can be done using gradient methods because the likelihood of the compound Poisson can be evaluated \citep{dunn2005series}. However, the EM algorithm is faster and the model is well set up for it.
 
 \section{EM Algorithm}
 

@@ -4,30 +4,30 @@ In this chapter, generalised linear models \citep{nelder1972generalized, nelder1
 
 \section{Generalised Linear Models}
 
-The sample variance-mean data were obtained from the replicate projections. Let $x_{i,j}^{(r)}$ be the grey value of the pixel at $(i,j)$ from the $r$th replicate projection for $r=1,2,3,\dotsc,n$. The sample mean and sample variance grey value for the pixel at $(i,j)$ are
+The sample variance-mean data were obtained from the replicate projections. Let $x_{i,j}^{(r)}$ be the grey value of the pixel at $(i,j)$ from the $r$th replicate projection for $r=1,2,3,\dotsc,m$. The sample mean and sample variance grey value for the pixel at $(i,j)$ are
 \begin{equation}
-    \overline{x}_{i,j}=\frac{1}{n}\sum_{r=1}^n x_{i,j}^{(r)}
+    \overline{x}_{i,j}=\frac{1}{m}\sum_{r=1}^m x_{i,j}^{(r)}
 \end{equation}
 and
 \begin{equation}
     y_{i,j} =
-    \frac{1}{n-1}
-    \sum_{r=1}^n
+    \frac{1}{m-1}
+    \sum_{r=1}^m
         \left(
             x_{i,j}^{(r)} - \overline{x}_{i,j}
         \right)^2
 \end{equation}
 respectively. Only pixels in the region of interest (ROI) were considered here, that is, pixels which represent the test sample. The ROI was created by manually segmenting the test sample from the projection.
 
-The aim is to model and predict the grey value variance of a pixel given the pixel's grey value by using a model fitted onto the sample variance-mean data. No spatial information was used, thus, the variance-mean data is denoted as $(x_1,y_1),(x_2,y_2),\dotsc,(x_m,y_m)$ from now on, where $m$ is the area of the ROI or the size of the dataset. Let $Y(x)$ be a random variable and the sample variance given a grey value mean $x$. It was assumed that the standard error from estimating the mean was negligible so that the uncertainty is captured by the random variable $Y$. It was assumed that for a given pixel, the grey values are Normal and i.i.d. Let $\sigma^2(x)$ be the variance given a grey value $x$, then it can be shown that
+The aim is to model and predict the grey value variance of a pixel given the pixel's grey value by using a model fitted onto the sample variance-mean data. No spatial information was used, thus, the variance-mean data is denoted as $(x_1,y_1),(x_2,y_2),\dotsc,(x_N,y_N)$ from now on, where $N$ is the area of the ROI or the size of the dataset. Let $Y(x)$ be a random variable and the sample variance given a grey value mean $x$. It was assumed that the standard error from estimating the mean was negligible so that the uncertainty is captured by the random variable $Y$. It was assumed that for a given pixel, the grey values are Normal and i.i.d. Let $\sigma^2(x)$ be the variance given a grey value $x$, then it can be shown that
 \begin{equation}
-\dfrac{(n-1)Y(x)}{\sigma^2(x)}\sim\chi^2_{n-1}
+\dfrac{(m-1)Y(x)}{\sigma^2(x)}\sim\chi^2_{m-1}
 \end{equation}
 which results in
 \begin{equation}
 Y(x)\sim\gammaDist\left(\alpha,\dfrac{\alpha}{\sigma^2(x)}\right)
 \end{equation}
-where $\alpha=(n-1)/2$ is the shape parameter. The expectation and variance are
+where $\alpha=(m-1)/2$ is the shape parameter. The expectation and variance are
 \begin{equation}
 \expectation\left[Y(x)\right]=\sigma^2(x)
 \end{equation}
@@ -75,7 +75,7 @@ and
 \end{equation}
 respectively where $k$ is the number of parameters in the systematic component and $\ln L$ is the log-likelihood of the GLM. The model with the lowest AIC or BIC is preferred. GLM aims to maximise the log-likelihood but the additional terms in the criteria penalise models with too many terms. The log-likelihood is given as
 \begin{equation}
-  \ln L = \sum_{i=1}^m \left[
+  \ln L = \sum_{i=1}^N \left[
     \alpha\ln\alpha
     -\ln\Gamma(\alpha)
     -\alpha\ln \widehat{y}_i
@@ -84,7 +84,7 @@ respectively where $k$ is the number of parameters in the systematic component a
   \right]
   \ .
 \end{equation}
-where $\widehat{y}_i=\widehat{y}(x_i)$. $\alpha=(n-1)/2$ was assumed to be known so does not need to be estimated.
+where $\widehat{y}_i=\widehat{y}(x_i)$. $\alpha=(m-1)/2$ was assumed to be known so does not need to be estimated.
 
 The procedure is as follows. A criterion and a link function were chosen beforehand. In the initial step, a GLM with systematic component $\eta(x)=\beta_0$ was fitted and the criterion was recorded. In the next step, a polynomial feature with one order higher was added to the systematic component $\eta(x)=\beta_0+\beta_1 x$, fitted and the criterion recorded. Also, a polynomial feature with one order lower was added $\beta(x)=\beta_{-1}x^{-1}+\beta_0$ and fitted separately with the criterion recorded. The model which decreased the criterion the most was accepted. Adding higher and lower order polynomials to the systematic component was repeated, for example after accepting $\eta(x)=\beta_0+\beta_1 x$, the following systematic components $\eta(x)=\beta_0+\beta_1 x+\beta_2x^2$ and $\eta(x)=\beta_{-1}x^{-1}+\beta_0+\beta_1 x$ were fitted and assessed. The fitted parameters, $\beta_0$ and $\beta_1$ in this example, may change when adding more terms. This is repeated until the criterion cannot be decreased and the procedure is left with the final model.
 
@@ -252,7 +252,7 @@ The mean scaled deviance was used to assess the performance of variance predicti
 \end{equation}
 where $L$ and $L_\mathrm{s}$ are the likelihood and saturated likelihood respectively.  The saturated likelihood is obtained by replacing all $\widehat{y}_i$ with $y_i$ in the likelihood so that
 \begin{equation}
-  \ln L_\mathrm{s} = \sum_{i=1}^m \left[
+  \ln L_\mathrm{s} = \sum_{i=1}^N \left[
     \alpha\ln\alpha
     -\ln\Gamma(\alpha)
     -\alpha\ln{y_i}
@@ -264,7 +264,7 @@ where $L$ and $L_\mathrm{s}$ are the likelihood and saturated likelihood respect
 Following from this, the deviance is
 \begin{equation}
   D = 2\alpha
-  \sum_{i=1}^m\left[
+  \sum_{i=1}^N\left[
       \dfrac{
           y_i-\widehat{y}_i
       }
@@ -275,10 +275,10 @@ Following from this, the deviance is
   \right]
   \ .
 \end{equation}
-The mean scaled deviance is obtained by removing the factor of $\alpha$ and dividing by $m$ to get
+The mean scaled deviance is obtained by removing the factor of $\alpha$ and dividing by $N$ to get
 \begin{equation}
-    D_\mathrm{s} = \dfrac{2}{m}
-    \sum_{i=1}^m\left[
+    D_\mathrm{s} = \dfrac{2}{N}
+    \sum_{i=1}^N\left[
         \dfrac{
             y_i-\widehat{y}_i
         }
@@ -299,15 +299,15 @@ The mean scaled deviance is obtained by removing the factor of $\alpha$ and divi
 
 The mean scaled deviance is a loss function which increases as $y_i/\widehat{y}_i$ deviates from one, this is shown in Figure \ref{fig:meanVar_deviance} and it should be noted that the $x$-axis is in log scale. Another way to show this is by letting $r_i = y_i/\widehat{y}_i$ and $d_i = 2\left[r_i-1-\ln r_i\right]$ be an element from the sum in the deviance. For $r_i\approx 1$, $\ln(r_i)\approx(r_i-1)-(r_i-1)^2/2$ which implies that $d_i\approx (r_i-1)^2$ with minimum at one. For $r_i$ deviate greatly from one, the loss function is asymmetric. For example a ratio of $r_i=10^1$ has a greater penalty than $r_i=10^{-1}$. This means that in extreme cases, overestimates are penalised less than underestimates relative to $y_i$. 
 
-Assuming the model is correct, it is given that $D\sim\chi_{m-k}^2$ which implies that for large $m$,
+Assuming the model is correct, it is given that $D\sim\chi_{N-k}^2$ which implies that for large $N$,
 \begin{equation}
 \expectation\left[D_\mathrm{s}\right] = \dfrac{1}{\alpha}
 \end{equation}
 and
 \begin{equation}
-\variance\left[D_\mathrm{s}\right] = \dfrac{2}{\alpha^2 m} \ .
+\variance\left[D_\mathrm{s}\right] = \dfrac{2}{\alpha^2 N} \ .
 \end{equation}
-Because $\alpha=(n-1)/2$, this shows that the number of replicated projections used to obtain the sample variance-mean data has an influence on the mean scaled deviance. This result can be used to estimate $\alpha$ if it is unknown.
+Because $\alpha=(m-1)/2$, this shows that the number of replicated projections used to obtain the sample variance-mean data has an influence on the mean scaled deviance. This result can be used to estimate $\alpha$ if it is unknown.
 
 Cross validation was performed on the datasets \texttt{AbsNoFilter} and \texttt{AbsFilter} with various shading corrections. The models selected from forward step-wise selection in the previous section were assessed. They are ${y}(x)=\beta_0+\beta_1 x$ and ${y}(x)=\beta_{-1}x^{-1}+\beta_0$ using the identity link and ${y}(x)=(\beta_{-1}x^{-1}+\beta_0)^{-1}$ using the canonical link. The analysis was repeated 100 times by using a random permutation with replacement of the replicated projections to obtain a different sample variance-mean data which introduces some variation to the data \citep{efron1979bootstrap}.
 

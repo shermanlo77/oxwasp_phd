@@ -320,17 +320,17 @@ An experiment was conducted to quantify the performance of the different types o
 
 In each dataset, there are 20 replicated greyscale images for each power. One randomly selected replication from each power was assigned to the training set and used to calibrate the shading correction. The remaining images were assigned to the test set and the shading correction was applied to each image.
 
-For each power, the within and between pixel variance was calculated. Let $U_{x,y}^{(j)}(P)$ be the shading corrected greyscale image in the test set with power $P$ for $j=1,2,\dotsc,n$ replicates. The within and between pixel variance are
+For each power, the within and between pixel variance was calculated. Let $U_{x,y}^{(j)}(P)$ be the shading corrected greyscale image in the test set with power $P$ for $j=1,2,\dotsc,m$ replicates. The within and between pixel variance are
 \begin{equation}
-s_\mathrm{w}^2(P)=\dfrac{1}{WH(n-1)}
-  \sum_{x=1}^{W}\sum_{y=1}^{H}\sum_{j=1}^{n}
+s_\mathrm{w}^2(P)=\dfrac{1}{WH(m-1)}
+  \sum_{x=1}^{W}\sum_{y=1}^{H}\sum_{j=1}^{m}
   \left(
     U_{x,y}^{(j)}(P) - \overline{U}_{x,y}(P)
   \right)^2
 \end{equation}
 and
 \begin{equation}
-s_\mathrm{b}^2(P)=\dfrac{n}{WH-1}
+s_\mathrm{b}^2(P)=\dfrac{m}{WH-1}
   \sum_{x=1}^{W}\sum_{y=1}^{H}
   \left(
     \overline{U}_{x,y}(P) - \overline{U}(P)
@@ -338,14 +338,14 @@ s_\mathrm{b}^2(P)=\dfrac{n}{WH-1}
 \end{equation}
 respectively where
 \begin{equation}
-  \overline{U}_{x,y}(P) = \dfrac{1}{n}\sum_{j=1}^{n}U_{x,y}^{(j)}(P)
+  \overline{U}_{x,y}(P) = \dfrac{1}{m}\sum_{j=1}^{m}U_{x,y}^{(j)}(P)
 \end{equation}
 and
 \begin{equation}
   \overline{U}(P) = \dfrac{1}{WH}\sum_{x=1}^{W}\sum_{y=1}^{H}\overline{U}_{x,y}(P)
   \ .
 \end{equation}
-In this specific experiment, $W=2000$, $H=2000$ and $n=19$. The $F$ statistic is
+In this specific experiment, $W=2000$, $H=2000$ and $m=19$. The $F$ statistic is
 \begin{equation}
 F(P)=\dfrac{s_\mathrm{b}^2(P)}{s_\mathrm{w}^2(P)}
 \end{equation}
@@ -405,7 +405,7 @@ and it should be about one if the within and between pixel variances are similar
 
 The results are shown in Figures \ref{fig:data_anovaAbsNoFilter} and \ref{fig:data_anovaAbsFilter} for the datasets \texttt{AbsNoFilter} and \texttt{AbsFilter} respectively. With shading correction, the within and between pixel variance became similar. A difference between BW and linear shading correction was that for the black image, the $F$ statistic is closer to one for BW shading correction compared with linear shading correction. For the rest of the powers, linear shading correction outperformed BW shading correction. This shows that linear shading correction generalises to powers between zero and $P_\text{proj}$. Since beam extinction is avoided, black grey values in the obtained projection should not be possible. As a result, the linear shading correction is recommended for its good performance for various powers.
 
-Using the $F$ test from ANOVA was found to be too strict in this experiment. Under the hypothesis that the grey values all have the same mean and assume they are Normally distributed and i.i.d., then $F(P)\sim F_{WH-1, WH(n-1)}$. In this experiment, the 5\% critical value is 1.001 to 3 decimal places, this is too small for this analysis. This may be due to the grey values of the greyscale projections not satisfying the assumptions for the $F$ test, for example, they may not be i.i.d.
+Using the $F$ test from ANOVA was found to be too strict in this experiment. Under the hypothesis that the grey values all have the same mean and assume they are Normally distributed and i.i.d., then $F(P)\sim F_{WH-1, WH(m-1)}$. In this experiment, the 5\% critical value is 1.001 to 3 decimal places, this is too small for this analysis. This may be due to the grey values of the greyscale projections not satisfying the assumptions for the $F$ test, for example, they may not be i.i.d.
 
 \subsection{Conclusion}
 
