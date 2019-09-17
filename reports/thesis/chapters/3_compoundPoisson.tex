@@ -72,7 +72,7 @@ Experiments have been done to verify the compound Poisson nature of the detector
 
 \subsection{Moment Generating Function}
 
-Returning back to the compound Poisson with no electronic noise $X|Y = \sum_{i=1}^{Y}U_i$, let the moment generating function (m.g.f.) of $X$ be $M_X(\theta)=\expectation\left[\euler^{X\theta}\right]$. It can be shown that the m.g.f.~is
+Returning back to the compound Poisson distribution with no electronic noise $X|Y = \sum_{i=1}^{Y}U_i$, let the moment generating function (m.g.f.) of $X$ be $M_X(\theta)=\expectation\left[\euler^{X\theta}\right]$. It can be shown that the m.g.f.~is
 \begin{equation}
   M_X(\theta)=
   \exp\left[
@@ -94,7 +94,7 @@ which agrees with the expectation and variance results in the previous section. 
 
 \subsection{Compound Poisson-Gamma Distribution}
 \label{chapter:compoundPoisson_compoundPoissonGamma}
-A special case of the compound Poisson is when $U\sim\gammaDist\left(\alpha,\beta\right)$ where $\alpha>0$ is the gamma shape parameter and $\beta>0$ is the gamma rate parameter. This was used for example in \cite{xu2009electronic}. The distribution is known as the compound Poisson-gamma distribution and is denoted by $X\sim\CPoisson(\lambda,\alpha,\beta)$. The p.d.f.~is
+A special case of the compound Poisson distribution is when $U\sim\gammaDist\left(\alpha,\beta\right)$ where $\alpha>0$ is the gamma shape parameter and $\beta>0$ is the gamma rate parameter. This was used for example in \cite{xu2009electronic}. The distribution is known as the compound Poisson-gamma distribution and is denoted by $X\sim\CPoisson(\lambda,\alpha,\beta)$. The p.d.f.~is
 \begin{equation}
   p_X(x) = 
   \begin{cases}
@@ -632,7 +632,7 @@ so that
 \begin{equation}
   y_i = \frac{\sum_{y=1}^\infty W^{(1)}_y}{\sum_{y=1}^\infty W_y} \ .
 \end{equation}
-Similarly
+Similarly,
 \begin{equation}
   \zeta_i = \variance[Y|X=x_i] = \frac{\sum_{y=1}^\infty W^{(2)}_y}{\sum_{y=1}^\infty W_y} - \left(y_i\right)^2
   \ .
@@ -655,7 +655,7 @@ Keep in mind that $y=1,2,3,\dotsc$ so for large $y$, an approximation can be mad
   \frac{\partial \ln(W_y^{(r)})}{\partial y} \approx \frac{\partial \ln(W_y)}{\partial y}
   \ .
 \end{equation}
-Therefore, the maximum of $W_y^{(r)}$ is located at $y_\text{max}$ for all $r=0,1,2,\dotsc$. As a results, the same method for evaluating $W_y$ can be used to evaluate $W_y^{(r)}$. For a given $r=0,1,2,\dotsc$, the limit of the sum $\sum_{y=y_\text{l}}^{y_\text{u}} W^{(r)}_y$ are chosen such that $W_{y_\text{l}}$ and $W_{y_\text{u}}$ are less than $\epsilon W_{y_\text{max}}^{(r)}$ where $\epsilon$ is some small constant. The limits will be different for different values of $r$.
+Therefore, the maximum of $W_y^{(r)}$ is located at $y_\text{max}=\dfrac{x^{2-p}}{\phi(2-p)}$ for all $r=0,1,2,\dotsc$. As a result, the same method for evaluating $W_y$ can be used to evaluate $W_y^{(r)}$. For a given $r=0,1,2,\dotsc$, the limit of the sum $\sum_{y=y_\text{l}}^{y_\text{u}} W^{(r)}_y$ are chosen such that $W_{y_\text{l}}$ and $W_{y_\text{u}}$ are less than $\epsilon W_{y_\text{max}}^{(r)}$ where $\epsilon$ is some small constant. The limits will be different for different values of $r$.
 
 \subsection{M Step}
 
@@ -684,7 +684,7 @@ In the M step, the conditional expected joint log-likelihood is maximised with r
     \right]
   \end{multlined}
   \nonumber\\
-  &\!\begin{multlined}[b]=
+  &=\begin{multlined}[t]
     -n\lambda
     \\
     +\sum_{i=1}^n

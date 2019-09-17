@@ -54,7 +54,7 @@ Let $Y\sim\poisson(\lambda)$, $U_1,U_2,U_3,\cdots$ be i.i.d.~random variables an
   &=\expectation\expectation\left[\euler^{\theta U_1}\cdot\euler^{\theta U_2}\cdot\cdots\cdot\euler^{\theta U_Y}|Y\right]
   \ .
 \end{align}
-But because $U_i$ for $i=1,2,3,\cdots$ are i.i.d.~and each $U_i$ has a m.g.f.~$M_U(\theta)=\expectation\left[\euler^{U\theta}\right]$, then
+Because $U_i$, for $i=1,2,3,\cdots$, are i.i.d.~and each $U_i$ has a m.g.f.~$M_U(\theta)=\expectation\left[\euler^{U\theta}\right]$, then
 \begin{align}
   M_X(\theta)&=\expectation\left(
     \expectation\left[\euler^{\theta U_1}|Y\right]\cdot
@@ -79,7 +79,7 @@ $
       \euler^\theta-1
     \right)
   \right]
-$
+$,
 hence
 \begin{equation}
   M_X(\theta)=
@@ -175,7 +175,7 @@ and the third moment about the mean is
 
 \section{Tweedie Dispersion Exponential Family}
 \label{chapter:appendix_tweedie}
-Let $X\sim\CPoisson(\lambda,\alpha,\beta)$ and has p.d.f.
+Let $X\sim\CPoisson(\lambda,\alpha,\beta)$ and have p.d.f.
 \begin{equation}
   p_X(x) = 
   \begin{cases}
@@ -259,7 +259,7 @@ This is in the form of a distribution in the exponential family
 \begin{equation}
   p_X(x)=\dfrac{\exp\left(x\theta\right)g(x)}{Z(\theta)}
 \end{equation}
-where $Z(\theta)$ is the partition function and $\theta$ is the natural parameter. The partition function has some useful properties. It is a normalisation constant $Z=Z(\theta)=\int_{0}^{\infty}\exp(x\theta)g(x)\diff x$. The derivative of the log partition function is
+where $Z(\theta)$ is the partition function and $\theta$ is the natural parameter. The partition function has some useful properties. It is a normalisation constant $Z=Z(\theta)=\int_{0}^{\infty}\exp(x\theta)g(x)\diff x$. The derivative of the log-partition function is
 \begin{align*}
   \dfrac{\partial \ln Z}{\partial \theta} &= \dfrac{1}{Z}\dfrac{\partial Z}{\partial \theta}
   \\
@@ -271,7 +271,7 @@ which results in
 \begin{equation}
 \expectation[X] = \dfrac{\partial \ln Z}{\partial \theta} \ .
 \end{equation}
-The second derivative of the log partition function is
+The second-order derivative of the log partition function is
 \begin{align*}
   \dfrac{\partial^2\ln Z}{\partial \theta^2} &=
   \dfrac{
@@ -322,7 +322,7 @@ Rearranging the natural parameter $\mu=(\theta\phi(1-p))^{1/(1-p)}$, the partiti
   \right]
   \ .
 \end{equation}
-The log partition function is
+The log-partition function is
 \begin{equation}
   \ln Z = \phi^{\frac{1}{1-p}}
     \cdot
@@ -335,7 +335,7 @@ The log partition function is
     }
   \ .
 \end{equation}
-Taking the first derivative
+Taking the first-order derivative
 \begin{align}
   \dfrac{\partial \ln Z}{\partial \theta} &=
   \phi^{\frac{1}{1-p}}
@@ -346,7 +346,7 @@ Taking the first derivative
   \nonumber \\
   &= \phi^{\frac{1}{1-p}} \cdot \theta^{\frac{1}{1-p}} \cdot (1-p)^\frac{1}{1-p} \ .
 \end{align}
-Taking the second derivative
+Taking the second-order derivative
 \begin{align}
   \dfrac{\partial^2 \ln Z}{\partial \theta^2} &=
   \phi^{\frac{1}{1-p}}
@@ -555,7 +555,7 @@ obtains
   \ .
 \end{equation}
 Writing in full the $r=1,2$ terms
-\begin{multline*}
+\begin{equation*}
   M_Z(\theta)=
   \exp\left(
       -\theta\sqrt{\frac{\alpha\lambda}{\alpha+1}}
@@ -563,12 +563,9 @@ Writing in full the $r=1,2$ terms
   \exp\left[
     \theta\sqrt{\frac{\alpha\lambda}{\alpha+1}}
     +\frac{\theta^2}{2}
-  \right.
-  \\
-  \left.
     +\lambda\sum_{r=3}^\infty \frac{\theta^r\prod_{s=1}^r(\alpha+s-1)}{(\alpha(\alpha+1)\lambda)^{r/2}r!}
   \right]
-\end{multline*}
+\end{equation*}
 and a term cancels out
 \begin{equation}
   M_Z(\theta)=
@@ -600,9 +597,10 @@ For high $\alpha$
     \prod_{s=1}^r(\alpha+s-1)
   }
   {
-    \alpha(\alpha+1))^{r/2}
+    (\alpha(\alpha+1))^{r/2}
   }
   &=
+  \lim_{\alpha\rightarrow\infty}
   \frac{
     \prod_{s=1}^r\alpha
   }
@@ -631,7 +629,7 @@ This shows that taking the limit $\alpha\rightarrow\infty$ is not enough to get 
   \ .
 \end{equation}
 
-Finally it should be noted that $M_Z(\theta)$ is independent of $\beta$. Thus $\beta$ has no effect on the convergence to a Normal limiting distribution.
+It should be noted that $M_Z(\theta)$ is independent of $\beta$. Thus $\beta$ has no effect on the limiting distribution.
 
 The above results justify the use of the approximation
 \begin{equation}
@@ -671,7 +669,7 @@ with solution
   \ .
   \label{eq:appendix_saddlepointSolution}
 \end{equation}
-The second derivative of the cumulant generating function is
+The second-order derivative of the cumulant generating function is
 \begin{equation}
   K_X''(\theta)=\frac{\lambda\alpha(\alpha+1)\beta^\alpha}{(\beta-\theta)^{\alpha+2}} \ .
   \label{eq:appenfix_2nddiffcgf}
@@ -879,7 +877,7 @@ p_X(x)\approx
   \ .
 \end{equation}
 
-\section{Series Evaluation for Compound Poisson-Gamma}
+\section{Series Evaluation}
 \label{chapter:appendix_compoundPoissonSeries}
 
 Let $X\sim\CPoisson(\lambda,\alpha,\beta)$ with p.d.f.
@@ -1003,7 +1001,7 @@ and finally
   \ .
 \end{equation}
 
-To verify that $y_\text{max}$ is a maximum, the second derivative can be investigated
+To verify that $y_\text{max}$ is a maximum, the second-order derivative can be investigated
 \begin{equation}
   \frac{\partial^2\ln(W_y)}{\partial y^2}
   \approx
@@ -1018,7 +1016,7 @@ therefore $y_\text{max}$ is a maximum.
 \chapter{Expectation of $\widehat{\sigma}^2_0$}
 \label{chapter:appendix_expectationNullStdEstimator}
 
-It can be shown that the null variance estimator $\widehat{\sigma}_0^2$ is approximately unbiased when estimating on $n$ $\normal(\mu_0, \sigma_0^2)$ random variables. Suppose the random variables are $Z_1, Z_2, \cdots, Z_n$ and are i.i.d.~with probability density function $f(z)$. Recall that
+It can be shown that the null variance estimator $\widehat{\sigma}_0^2$ is approximately unbiased when estimating using $n$ samples of $\normal(\mu_0, \sigma_0^2)$ random variables. Suppose the random variables are $Z_1, Z_2, \cdots, Z_n$ and are i.i.d.~with probability density function $f(z)$. Recall that
 \begin{equation}
   \widehat{\sigma}_0 = \left[
     \left.
@@ -1254,7 +1252,7 @@ to get
 }
 M^{(t+r)}(0)
 \end{equation}
-where $M(\theta)=\int_{-\infty}^{\infty}\euler^{\theta u}\phi(u)\diff u$ is the moment generating function of a standard Normal random variable. It is left as an exercise to show that
+where $M(\theta)=\int_{-\infty}^{\infty}\euler^{\theta u}\phi(u)\diff u$ is the moment generating function of the standard Normal distribution. It is left as an exercise to show that
 \begin{align}
 M(0) &= 1
 \\
@@ -1311,7 +1309,7 @@ f^{(4)}(z) &= \dfrac{f(z)}{\sigma_0^4}
   3 - \dfrac{6(z-\mu_0)^2}{\sigma_0^2} + \dfrac{(z-\mu_0)^4}{\sigma_0^4}
 \right] \ .
 \end{align}
-Then substituting these into Equations \ref{eq:appendix_expectation1}, \ref{eq:appendix_expectation2} and \ref{eq:appendix_expectation3} obtains
+Then substituting these into Equations \eqref{eq:appendix_expectation1}, \eqref{eq:appendix_expectation2} and \eqref{eq:appendix_expectation3} obtains
 \begin{multline}
 \expectation\left[g_0(Z)\right]
 =
@@ -1358,7 +1356,7 @@ f(z_0)h
 \label{eq:appendix_expectationExpand3}
 \end{multline}
 
-The definition for $\expectation\left[g_t(Z)\right]$ can be used to simplify Equation \ref{eq:appendix_expectationNullStd} to
+The definition for $\expectation\left[g_t(Z)\right]$ can be used to simplify Equation \eqref{eq:appendix_expectationNullStd} to
 \begin{equation}
   \expectation\left[\widehat{\sigma}_0^{2}\right]
   =
@@ -1373,7 +1371,7 @@ The definition for $\expectation\left[g_t(Z)\right]$ can be used to simplify Equ
   }
   \ .
 \end{equation}
-Substituting in Equations \ref{eq:appendix_expectationExpand1}, \ref{eq:appendix_expectationExpand2} and \ref{eq:appendix_expectationExpand3}  and setting $z_0 = \widehat{\mu}_0$ obtains
+Substituting in Equations \eqref{eq:appendix_expectationExpand1}, \eqref{eq:appendix_expectationExpand2} and \eqref{eq:appendix_expectationExpand3}  and setting $z_0 = \widehat{\mu}_0$ obtains
 \begin{equation}
 \expectation\left[\widehat{\sigma}_0^{2}\right]
 =
@@ -1387,4 +1385,4 @@ Substituting in Equations \ref{eq:appendix_expectationExpand1}, \ref{eq:appendix
 }
 \ .
 \end{equation}
-This implies that $\widehat{\sigma}_0^{2}$ is an unbiased estimator of $\sigma_0^{2}$ up to the first order approximation. Higher order terms consist of at least even polynomials of $(\widehat{\mu}_0-\mu_0)$ and $h$. As a result, any bias in $\widehat{\mu}_0$ would contribute to the bias of $\widehat{\sigma}_0^{2}$. It is not clear if $\widehat{\sigma}_0^{2}$ is a consistent estimator because $h$ depends on $n$ and the result for $\variance\left[\widehat{\sigma}_0^{2}\right]$ is difficult to obtain.
+This implies that $\widehat{\sigma}_0^{2}$ is an unbiased estimator of $\sigma_0^{2}$ up to the first order approximation. Higher order terms consist of at least even-order polynomials of $(\widehat{\mu}_0-\mu_0)$ and $h$. As a result, any bias in $\widehat{\mu}_0$ would contribute to the bias of $\widehat{\sigma}_0^{2}$. It is not clear if $\widehat{\sigma}_0^{2}$ is a consistent estimator because $h$ depends on $n$ and the result for $\variance\left[\widehat{\sigma}_0^{2}\right]$ is difficult to obtain.
