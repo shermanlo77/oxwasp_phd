@@ -582,6 +582,7 @@ so that
     \right)
   \right]
   \ .
+  \label{eq:compoundPoisson_jointLogLikelihood}
 \end{multline}
 The estimators were found by optimising the joint log-likelihood. This was done iteratively by estimating the $Y$s given the $X$s and parameters (E step), followed by estimating the parameters given the $Y$s and $X$s (M step) until some convergence conditions were met.
 
@@ -854,17 +855,67 @@ where
   \end{pmatrix}
   \ .
 \end{equation}
-The calculation is similar to the derivatives of $T$ using the same approximations. Using the fact that $\expectation[Y]=\lambda$ and another approximation $\expectation\left[\psi^{(r)}(\alpha Y)\right]\approx\psi^{(r)}(\alpha \lambda)$, then
+
+Most of the calculations for the elements of the matrix are similar to the derivatives of $T$. For the $\alpha$ component, taking derivatives of the joint log-likelihood (Equation \eqref{eq:compoundPoisson_jointLogLikelihood}) obtains
 \begin{equation}
-  \matr{I}=
-  \begin{pmatrix}
-    \dfrac{n}{\lambda} & 0 & 0 \\
-    0 & (\lambda^2+\lambda)\psi'(\alpha\lambda)+2\alpha\lambda^2\psi''(\alpha\lambda)+\frac{1}{2}\alpha^2\lambda^3\psi'''(\alpha\lambda) & -\dfrac{n\lambda}{\beta}\\
-    0 & -\dfrac{n\lambda}{\beta} & \dfrac{n\alpha\lambda}{\beta^2}
-  \end{pmatrix}
-  \ .
+\dfrac{\partial\ln L}{\partial\alpha} = \sum_{i=1}^n\mathbb{I}(x_i>0)
+\left[
+  Y_i\ln\beta - \psi(Y_i\alpha)Y_i+Y_i\ln x_i
+\right]
 \end{equation}
-The Cram\'er-Rao lower bound is then
+\begin{equation}
+\dfrac{\partial^2\ln L}{\partial\alpha^2} = \sum_{i=1}^n\mathbb{I}(x_i>0)
+\left[
+  -\psi'(Y_i\alpha)Y_i^2
+\right] \ .
+\end{equation}
+The expectation of the second-order derivative is
+\begin{equation}
+-\expectation\left[\dfrac{\partial^2\ln L}{\partial\alpha^2}\right]
+=
+n\left(1-\euler^{-\lambda}\right)
+\expectation\left[
+  \psi'(Y\alpha)Y^2
+\right]
+\end{equation}
+where the factor $\left(1-\euler^{-\lambda}\right)$ is the proportion of data where $x_i>0$. $\expectation\left[\psi'(Y\alpha)Y^2\right]$ can be approximated. Let $g(Y)=\psi'(Y\alpha)Y^2$, then
+\begin{equation}
+\expectation\left[\psi'(Y\alpha)Y^2\right]
+\approx
+\psi'(\lambda\alpha)\lambda^2
++\dfrac{\lambda}{2}g''(\lambda) \ .
+\end{equation}
+The derivatives of $g(Y)$ are
+\begin{align}
+g'(Y)&=\psi''(Y\alpha)Y^2\alpha + 2\psi'(Y\alpha)Y
+\\
+g''(Y)&=Y^2\alpha^2\psi'''(Y\alpha)+4Y\alpha\psi''(Y\alpha)+2\psi'(Y\alpha)\ .
+\end{align}
+Therefore,
+\begin{multline}
+-\expectation\left[\dfrac{\partial^2\ln L}{\partial\alpha^2}\right]=n\left(1-\euler^{-\lambda}\right)
+\\
+\times\left[(\lambda^2+\lambda)\psi'(\lambda\alpha)+2\lambda^2\alpha\psi''(\lambda\alpha)+\dfrac{\lambda^3\alpha^2}{2}\psi'''(\lambda\alpha)\right]
+\end{multline}
+
+The Fisher's information matrix is
+\begin{multline}
+  \matr{I}=
+  n
+  \left(\begin{matrix}
+    \dfrac{1}{\lambda} & 0\\
+    0 & \left(1-\euler^{-\lambda}\right)\left[(\lambda^2+\lambda)\psi'(\lambda\alpha)+2\lambda^2\alpha\psi''(\lambda\alpha)+\dfrac{\lambda^3\alpha^2}{2}\psi'''(\lambda\alpha)\right]\\
+    0 & -\dfrac{\left(1-\euler^{-\lambda}\right)\lambda}{\beta}
+  \end{matrix}\right.
+  \\
+  \left.\begin{matrix}
+  \vphantom{\dfrac{1}{\lambda}}0\\
+  -\dfrac{\left(1-\euler^{-\lambda}\right)\lambda}{\beta}\\
+  \dfrac{\left(1-\euler^{-\lambda}\right)\alpha\lambda}{\beta^2}
+  \end{matrix}\right)
+  \ .
+\end{multline}
+The Cram\'er-Rao lower bound can be obtained using
 \begin{equation}
   \cov\left[
     \begin{pmatrix}
