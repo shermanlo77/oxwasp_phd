@@ -33,7 +33,7 @@ where $\alpha=(m-1)/2$ is the shape parameter. The expectation and variance are
 \end{equation}
 and
 \begin{equation}
-\variance\left[Y(x)\right]=\dfrac{\sigma^2(x)}{\alpha}
+\variance\left[Y(x)\right]=\left(\dfrac{\sigma^2(x)}{\alpha}\right)^2
 \end{equation}
 respectively.
 
@@ -55,7 +55,7 @@ g(y)=g^{-1}(y)=1/y \ .
 \end{equation}
 There is also the log link $g(y)=\ln y$ but $y$ must be a unitless quantity, for example Poisson counts, for it to be comparable. Because $y$ is in units of $\SI{}{\adu^2}$, the log link was not used in this analysis.
 
-An example of a systematic component are polynomial features $\eta(x)=\sum_{r=0}^{p}\beta_r x^{r}$ so that when used with the identity link, for example, $\expectation\left[Y(x)\right] = \sum_{r=0}^{p}\beta_r x^{r}$. Iterative reweighted least squares \citep{friedman2001elements} can be used to estimate the parameters $\beta_0, \beta_2, \dotsc, \beta_{p}$ given data for the model to fit onto.
+An example of a systematic component are polynomial features $\eta(x)=\sum_{r=0}^{p}\beta_r x^{r}$ so that when used with the identity link, for example, $\expectation\left[Y(x)\right] = \sum_{r=0}^{p}\beta_r x^{r}$. Iterative reweighted least squares \citep{friedman2001elements} can be used to estimate the parameters $\beta_0, \beta_1, \dotsc, \beta_{p}$ given data for the model to fit onto.
 
 Once the parameters have been estimated, prediction of the variance given a grey value $x$ is done by using $\widehat{y}(x) = g^{-1}(\widehat{\eta}(x))$ where $\widehat{\eta}(x)$ is the systematic component using the estimated parameters.
 
@@ -71,7 +71,7 @@ The AIC and BIC are given as
 \end{equation}
 and
 \begin{equation}
-\BIC = k\ln m - 2\ln L
+\BIC = k\ln N - 2\ln L
 \end{equation}
 respectively where $k$ is the number of parameters in the systematic component and $\ln L$ is the log-likelihood of the GLM. The model with the lowest AIC or BIC is preferred. GLM aims to maximise the log-likelihood but the additional terms in the criteria penalise models with too many terms. The log-likelihood is given as
 \begin{equation}
@@ -247,7 +247,7 @@ Instead of assessing the model fit using the AIC and BIC, the performance on pre
 The mean scaled deviance was used to assess the performance of variance prediction. The deviance is defined to be
 \begin{equation}
   D = 2\left(
-    \ln L_\mathrm{s} - \ln L    
+    \ln L_\mathrm{s} - \ln L
   \right)
 \end{equation}
 where $L$ and $L_\mathrm{s}$ are the likelihood and saturated likelihood respectively.  The saturated likelihood is obtained by replacing all $\widehat{y}_i$ with $y_i$ in the likelihood so that
@@ -255,8 +255,7 @@ where $L$ and $L_\mathrm{s}$ are the likelihood and saturated likelihood respect
   \ln L_\mathrm{s} = \sum_{i=1}^N \left[
     \alpha\ln\alpha
     -\ln\Gamma(\alpha)
-    -\alpha\ln{y_i}
-    +(\alpha-1)\ln y_i
+    -\ln y_i
     -\alpha
   \right]
   \ .

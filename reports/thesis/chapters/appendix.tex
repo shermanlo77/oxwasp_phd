@@ -1243,7 +1243,7 @@ h\phi(u)u^t
 to get
 \begin{equation}
 \expectation\left[g_t(Z)\right] = 
-\sum_{i=0}^\infty
+\sum_{r=0}^\infty
 \dfrac{
   f^{(r)}(z_0)h^{r+1}
 }
@@ -1291,7 +1291,7 @@ f(z_0)h
 +O(h^7)
 \label{eq:appendix_expectation3}\ .
 \end{align}
-Let $f(z)=\dfrac{1}{\sigma_0}\phi\left(\dfrac{z-\mu_0}{\sigma_0}\right)$ then
+The derivatives of $f(z)$ are
 \begin{align}
 f^{(1)}(z) &= \dfrac{f(z)}{\sigma_0^2}\left[-(z-\mu_0)\right]
 \\
@@ -1383,6 +1383,21 @@ Substituting in Equations \eqref{eq:appendix_expectationExpand1}, \eqref{eq:appe
   1 + h^2\left[\dfrac{(\widehat{\mu}_0-\mu_0)^2}{\sigma_0^4}-\dfrac{2}{\sigma_0^2}\right]
   +O(h^4)
 }
-\ .
 \end{equation}
-This implies that $\widehat{\sigma}_0^{2}$ is an unbiased estimator of $\sigma_0^{2}$ up to the first order approximation. Higher order terms consist of at least even-order polynomials of $(\widehat{\mu}_0-\mu_0)$ and $h$. As a result, any bias in $\widehat{\mu}_0$ would contribute to the bias of $\widehat{\sigma}_0^{2}$. It is not clear if $\widehat{\sigma}_0^{2}$ is a consistent estimator because $h$ depends on $n$ and the result for $\variance\left[\widehat{\sigma}_0^{2}\right]$ is difficult to obtain.
+where the following may be useful
+\begin{multline}
+\expectation\left[g_0(Z)\right]\left[
+    \expectation\left[g_2(Z)\right] - \expectation\left[g_0(Z)\right]
+  \right]
+=
+h^4\dfrac{f^2(z_0)}{\sigma_0^2}\left[
+  \dfrac{(z_0-\mu_0)^2}{\sigma_0^2}-1
+\right]
+\\
++h^6\dfrac{f^2(z_0)}{\sigma_0^4}\left[
+  2 - \dfrac{4(z_0-\mu_0)^2}{\sigma_0^2} + \dfrac{(z_0-\mu_0)^4}{\sigma_0^4}
+\right]
++O(h^8)
+\ .
+\end{multline}
+The result implies that $\widehat{\sigma}_0^{2}$ is an unbiased estimator of $\sigma_0^{2}$ up to the first-order approximation. Higher-order terms consist of at least even-order polynomials of $(\widehat{\mu}_0-\mu_0)$ and $h$. As a result, any bias in $\widehat{\mu}_0$ would contribute to the bias of $\widehat{\sigma}_0^{2}$. It is not clear if $\widehat{\sigma}_0^{2}$ is a consistent estimator because $h$ depends on $n$ and the result for $\variance\left[\widehat{\sigma}_0^{2}\right]$ is difficult to obtain.

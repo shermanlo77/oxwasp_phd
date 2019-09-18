@@ -395,12 +395,7 @@ for $z$ which finds stationary points. The method is an iterative algorithm and 
     \right|_{z = z^{(r)}}
   } 
 \end{equation}
-for $r=0,1,2,3,\dotsc$ until some convergence condition is met. The derivatives for the log density was obtained via the following. Recall that the kernel density estimate is $\widehat{p}_Z(z)=
-  \frac{1}{nh}
-  \sum_{i=1}^n\phi\left(
-    \frac{z_i-z}{h}
-  \right) $,
-so the log density is
+for $r=0,1,2,3,\dotsc$ until some convergence condition is met. The derivatives for the log density were obtained via the following. Recall the kernel density estimate in Equation \eqref{eq:inference_kernel_density_estimate}, the log density is
 \begin{equation}
   \ln\widehat{p}_Z(z)=
   \ln\left(

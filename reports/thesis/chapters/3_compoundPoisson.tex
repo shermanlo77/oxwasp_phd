@@ -857,18 +857,17 @@ where
 \end{equation}
 
 Most of the calculations for the elements of the matrix are similar to the derivatives of $T$. For the $\alpha$ component, taking derivatives of the joint log-likelihood (Equation \eqref{eq:compoundPoisson_jointLogLikelihood}) obtains
-\begin{equation}
-\dfrac{\partial\ln L}{\partial\alpha} = \sum_{i=1}^n\mathbb{I}(x_i>0)
+\begin{align}
+\dfrac{\partial\ln L}{\partial\alpha} &= \sum_{i=1}^n\mathbb{I}(x_i>0)
 \left[
   Y_i\ln\beta - \psi(Y_i\alpha)Y_i+Y_i\ln x_i
 \right]
-\end{equation}
-\begin{equation}
-\dfrac{\partial^2\ln L}{\partial\alpha^2} = \sum_{i=1}^n\mathbb{I}(x_i>0)
+\\
+\dfrac{\partial^2\ln L}{\partial\alpha^2} &= \sum_{i=1}^n\mathbb{I}(x_i>0)
 \left[
   -\psi'(Y_i\alpha)Y_i^2
 \right] \ .
-\end{equation}
+\end{align}
 The expectation of the second-order derivative is
 \begin{equation}
 -\expectation\left[\dfrac{\partial^2\ln L}{\partial\alpha^2}\right]
