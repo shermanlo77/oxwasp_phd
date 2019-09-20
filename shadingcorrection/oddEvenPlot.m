@@ -41,8 +41,8 @@ for i = 1:3
   %plot the y profile
   fig = LatexFigure.sub();
   plot(yCoordinate, yProfile);
-  ylabel('grey value');
-  xlabel('y coordinate');
+  ylabel('grey value (ADU)');
+  xlabel('y coordinate (px)');
   %use the ylim for all graphs
   if (i==1)
     ax = gca;
@@ -58,8 +58,8 @@ for i = 1:3
   hold on;
   plot(yCoordinate(1:2:end), yProfile(2:2:end));
   legend('odd y', 'even y');
-  ylabel('grey value');
-  xlabel('y coordinate');
+  ylabel('grey value (ADU)');
+  xlabel('y coordinate (px)');
   ylim(ylimAll);
   saveas(fig,fullfile('reports','figures','data', ...
         strcat(mfilename,'2_',scan.getShadingCorrectionStatus(),'.eps')),'epsc');
