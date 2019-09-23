@@ -66,7 +66,7 @@ classdef VarMeanCv < Experiment
         end
 
         %plot the test deviance for each shading correction
-        fig = LatexFigure.sub();
+        fig = LatexFigure.subLoose();
         legendArray = line(0,0);
         for iShadingCorrection = 1:this.nShadingCorrection
           boxplots = this.getBoxplot(-0.1 + ((iShadingCorrection-1)*0.1), isTrainingDeviance, ...
@@ -80,6 +80,8 @@ classdef VarMeanCv < Experiment
         %label each glm with its name
         ax.XTickLabel = this.modelArray;
         ax.XLim = [0.5,numel(this.modelArray)+0.5];
+        ax.Box = 'on';
+        ax.YAxis.Exponent = floor(log10(abs(ax.YLim(2))));
         %label the axis and legend
         ylabel(statName);
         legend(legendArray,shadingCorrectionNameArray,'Location','best');
@@ -88,7 +90,7 @@ classdef VarMeanCv < Experiment
         fileName = fullfile('reports','figures','varmean', ...
             strcat(class(this),'_',statName,'.eps'));
         fileName(fileName == ' ') = [];
-        saveas(fig,fileName,'epsc');
+        print(fig,fileName,'-depsc','-loose');
       end
     end
     

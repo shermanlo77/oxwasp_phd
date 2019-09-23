@@ -56,6 +56,7 @@ classdef (Abstract) ShadingCorrectionAnova < Experiment
         boxplotBetween.setPosition(powerArray);
         boxplotBetween.plot();
         ax.YScale = 'log';
+        ax.Box = 'on';
         xlabel('power (W)');
         %the use of unicode so that it renders properly in .eps output
         %see https://uk.mathworks.com/matlabcentral/answers/159732-2014b-axis-label-errors-when-printing-to-postscript
@@ -82,6 +83,7 @@ classdef (Abstract) ShadingCorrectionAnova < Experiment
         legendAxes(iShading) = boxPlotF.getLegendAx();
       end
       ax.YScale = 'log';
+      ax.Box = 'on';
       xlabel('power (W)');
       ylabel('F statistic');
       legend(legendAxes, this.shadingCorrectionNameArray, 'Location', 'best');

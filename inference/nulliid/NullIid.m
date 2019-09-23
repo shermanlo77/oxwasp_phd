@@ -63,6 +63,7 @@ classdef (Abstract) NullIid < Experiment
       ax.YLabel.String = 'central tendency';
       ax.YLim = this.getYLim(1);
       ax.XLim(2) = 110;
+      ax.Box = 'on';
       saveas(fig, fullfile(directory,strcat(this.experimentName,'_nullMean.eps')), 'epsc');
       
       %plot null std
@@ -78,6 +79,7 @@ classdef (Abstract) NullIid < Experiment
       ax.YLabel.String = 'dispersion';
       ax.YLim = this.getYLim(2);
       ax.XLim(2) = 110;
+      ax.Box = 'on';
       saveas(fig, fullfile(directory,strcat(this.experimentName,'_nullStd.eps')), 'epsc');
       
       %plot mean normalised z
@@ -94,6 +96,7 @@ classdef (Abstract) NullIid < Experiment
       ax.YLabel.String = 'mean corrected z';
       ax.YLim = this.getYLim(3);
       ax.XLim(2) = 110;
+      ax.Box = 'on';
       saveas(fig, fullfile(directory,strcat(this.experimentName,'_zMean.eps')), 'epsc');
       
       %plot std normalised z
@@ -124,6 +127,7 @@ classdef (Abstract) NullIid < Experiment
       ax.YLabel.String = 'kurtosis corrected z';
       ax.YLim = this.getYLim(5);
       ax.XLim(2) = 110;
+      ax.Box = 'on';
       saveas(fig, fullfile(directory,strcat(this.experimentName,'_zKurtosis.eps')), 'epsc');
       
     end

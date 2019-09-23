@@ -36,15 +36,16 @@ function subsampleExample(scan, zImage, rowSubsample, colSubsample, scaleLength,
   
   %FIGURE
   %Plot the z image with a rectangle highlighting the subsample
-  fig = LatexFigure.sub();
+  fig = LatexFigure.subLoose();
   imagePlot = Imagesc(zImage);
   imagePlot.plot();
   imagePlot.addScale(scan,1,'y');
+  imagePlot.removeLabelSpace();
   hold on;
   rectangle('Position', [colSubsample(1), rowSubsample(1), ...
       colSubsample(end)-colSubsample(1)+1, rowSubsample(end)-rowSubsample(1)+1], ...
       'EdgeColor','r','LineStyle','--');
-  saveas(fig,fullfile('reports','figures','inference',strcat(name,'_zImage.eps')),'epsc');
+  print(fig,fullfile('reports','figures','inference',strcat(name,'_zImage.eps')),'-depsc','-loose');
 
   %get the subsample of z statistics and do BH multiple hypothesis testing without any empirical
       %null correction
@@ -64,9 +65,10 @@ function subsampleExample(scan, zImage, rowSubsample, colSubsample, scaleLength,
 
   %FIGURE
   %Plot the histogram of the z statistics with the BH critical boundary
-  fig = LatexFigure.sub();
+  fig = LatexFigure.subLoose();
   zTester.plotHistogram2(false);
-  saveas(fig, fullfile('reports','figures','inference',strcat(name,'_histogram.eps')),'epsc');
+  print(fig, fullfile('reports','figures','inference',strcat(name,'_histogram.eps')),'-depsc',...
+      '-loose');
 
   %estimate the empirical null and do the test
   zTester.estimateNull(0, int32(-854868324));
@@ -84,7 +86,7 @@ function subsampleExample(scan, zImage, rowSubsample, colSubsample, scaleLength,
 
   %FIGURE
   %Plot the frequency density estimate along with the empirical null
-  fig = LatexFigure.sub(); 
+  fig = LatexFigure.subLoose(); 
   plot(xPlot, numel(zSampleVector)*fHat); %plot density estimate
   hold on;
   %draw the null std
@@ -95,7 +97,8 @@ function subsampleExample(scan, zImage, rowSubsample, colSubsample, scaleLength,
   ylabel('frequency density');
   xlabel('z statistic');
   xlim([min(zSampleVector), max(zSampleVector)]);
-  saveas(fig,fullfile('reports','figures','inference',strcat(name,'_densityEstimate.eps')),'epsc');
+  print(fig,fullfile('reports','figures','inference',strcat(name,'_densityEstimate.eps')),...
+      '-depsc','-loose');
 
   %SAVE VALUE
   %save the empirical null mean
@@ -111,12 +114,14 @@ function subsampleExample(scan, zImage, rowSubsample, colSubsample, scaleLength,
 
   %FIGURE
   %Plot the subsample z statistics along with the positive pixels
-  fig = LatexFigure.sub();
+  fig = LatexFigure.subLoose();
   subImagePlot = Imagesc(zSampleImage);
   subImagePlot.addPositivePixels(zTester.positiveImage);
   subImagePlot.plot();
   subImagePlot.addScale(scan,scaleLength,'y');
-  saveas(fig,fullfile('reports','figures','inference',strcat(name,'_subimagePositive.eps')),'epsc');
+  subImagePlot.removeLabelSpace();
+  print(fig,fullfile('reports','figures','inference',strcat(name,'_subimagePositive.eps')),...
+      '-depsc','-loose');
 
   %SAVE VALUE
   %Save the lower critical boundary for the empirical null BH procedure
@@ -147,15 +152,17 @@ function subsampleExample(scan, zImage, rowSubsample, colSubsample, scaleLength,
   %FIGURE
   %Plot the histogram of z statistics
   %Also plot the empirical null BH critical boundary
-  fig = LatexFigure.sub();
+  fig = LatexFigure.subLoose();
   zTester.plotHistogram2(false);
-  saveas(fig,fullfile('reports','figures','inference',strcat(name,'_nullHistogram.eps')),'epsc');
+  print(fig,fullfile('reports','figures','inference',strcat(name,'_nullHistogram.eps')),...
+      '-depsc','-loose');
 
   %FIGURE
   %plot the p values in order
   %also plot the BH critical boundary
-  fig = LatexFigure.sub();
+  fig = LatexFigure.subLoose();
   zTester.plotPValues();
   fig.CurrentAxes.XTick = 10.^(0:5);
-  saveas(fig,fullfile('reports','figures','inference',strcat(name,'_nullPValues.eps')),'epsc');
+  print(fig,fullfile('reports','figures','inference',strcat(name,'_nullPValues.eps')),...
+    '-depsc','-loose');
 end

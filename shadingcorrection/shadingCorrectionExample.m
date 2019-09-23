@@ -59,42 +59,45 @@ for i = 1:numel(scanArray)
   scan = scanArray(i); %get the scan, shading correction already applied
   
   %plot the scan
-  fig = LatexFigure.sub();
+  fig = LatexFigure.subLoose();
   imagesc = Imagesc(scan.loadImage(1));
   if (~isempty(climProjection))
     imagesc.setCLim(climProjection);
   end
   imagesc.plot();
   imagesc.addScale(scan,1,'k');
+  imagesc.removeLabelSpace();
   climProjection = imagesc.clim; %save the clim
-  saveas(fig,fullfile('reports','figures','data', ...
-      strcat(mfilename,'_image_',scan.getShadingCorrectionStatus(),'.eps')),'epsc');
+  print(fig,fullfile('reports','figures','data', ...
+      strcat(mfilename,'_image_',scan.getShadingCorrectionStatus(),'.eps')),'-depsc','-loose');
   
   %get the black and white image
   black = scan.calibrationScanArray(1).loadImage(calibrationIndex(2,1));
   white = scan.calibrationScanArray(scan.whiteIndex).loadImage(calibrationIndex(2,end));
   
   %plot the black image
-  fig = LatexFigure.sub();
+  fig = LatexFigure.subLoose();
   imagesc = Imagesc(black);
   if (~isempty(climBlack))
     imagesc.setCLim(climBlack);
   end
   imagesc.plot();
+  imagesc.removeLabelSpace();
   climBlack = imagesc.clim; %save the clim
-  saveas(fig,fullfile('reports','figures','data', ...
-      strcat(mfilename,'_black_',scan.getShadingCorrectionStatus(),'.eps')),'epsc');
+  print(fig,fullfile('reports','figures','data', ...
+      strcat(mfilename,'_black_',scan.getShadingCorrectionStatus(),'.eps')),'-depsc','-loose');
   
   %plot the white image
-  fig = LatexFigure.sub();
+  fig = LatexFigure.subLoose();
   imagesc = Imagesc(white);
   if (~isempty(climWhite))
     imagesc.setCLim(climWhite);
   end
   imagesc.plot();
+  imagesc.removeLabelSpace();
   climWhite = imagesc.clim; %save the clim
-  saveas(fig,fullfile('reports','figures','data', ...
-      strcat(mfilename,'_white_',scan.getShadingCorrectionStatus(),'.eps')),'epsc');
+  print(fig,fullfile('reports','figures','data', ...
+      strcat(mfilename,'_white_',scan.getShadingCorrectionStatus(),'.eps')),'-depsc','-loose');
   
   %plot the fourier transform of the black and white image
   fig = LatexFigure.sub();
@@ -120,6 +123,8 @@ for i = 1:numel(scanArray)
   boxplotPower.setPosition(scan.getPowerArray());
   boxplotPower.setWantOutlier(false);
   boxplotPower.plot();
+  ax = gca;
+  ax.Box = 'on';
   ylabel('grey value (ADU)');
   xlabel('power (W)');
   saveas(fig,fullfile('reports','figures','data', ...
@@ -127,12 +132,13 @@ for i = 1:numel(scanArray)
   
   %plot the gradient if this has shading correction
   if (scan.wantShadingCorrection)
-    fig = LatexFigure.sub();
+    fig = LatexFigure.subLoose();
     imagesc = Imagesc(scan.shadingCorrector.bArray);
     imagesc.setCLim(climB);
     imagesc.plot();
-    saveas(fig,fullfile('reports','figures','data', ...
-        strcat(mfilename,'_gradient_',scan.getShadingCorrectionStatus(),'.eps')),'epsc');
+    imagesc.removeLabelSpace();
+    print(fig,fullfile('reports','figures','data', ...
+        strcat(mfilename,'_gradient_',scan.getShadingCorrectionStatus(),'.eps')),'-depsc','-loose');
   end
   
   
@@ -156,7 +162,7 @@ for i = 1:scan.whiteIndex
 end
 
 %scatter plot the within image mean vs greyvalue
-fig = LatexFigure.sub();
+fig = LatexFigure.subLoose();
 hold on;
 ax = gca;
 for i = 1:nPlot
@@ -178,10 +184,12 @@ for i = 1:nPlot
 end
 %force the ylim to start at zero
 ax.YLim(1) = 0;
+ax.Box = 'on';
 xlabel('grey value (ADU)');
 ylabel('within image mean (ADU)');
 legend('pixel 1', 'pixel 2', 'pixel 3', 'Location', 'northwest');
-saveas(fig,fullfile('reports','figures','data', strcat(mfilename,'_interpolation.eps')),'epsc');
+print(fig,fullfile('reports','figures','data', strcat(mfilename,'_interpolation.eps')),...
+    '-depsc','-loose');
 
 %use imageJ for FFT
 function imageFft = fft(image)

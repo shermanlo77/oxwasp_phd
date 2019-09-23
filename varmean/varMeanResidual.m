@@ -55,32 +55,35 @@ for iScan = 1:numel(scanArray)
 
   %plot the heat map of the residual vs grey value
   hist3Heatmap = Hist3Heatmap();
-  fig = LatexFigure.sub();
+  fig = LatexFigure.subLoose();
   hist3Heatmap.plot(xOriginal, residual);
   hold on;
   plot(xPlot, upError, 'r--');
   plot(xPlot, downError, 'r--');
   xlabel('mean grey value (ADU)');
   ylabel('residual (ADU²)');
-  saveas(fig, fullfile(directory,strcat(mfilename,class(scan),'_vsgreyvalue.eps')), 'epsc');
+  ytickformat('%.1f');
+  print(fig, fullfile(directory,strcat(mfilename,class(scan),'_vsgreyvalue.eps')), '-depsc', ...
+      '-loose');
   
   %plot the residual on the segmentation
   residualSpatial = double(scan.getSegmentation());
   residualSpatial(residualSpatial==1) = residual;
   residualSpatial(residualSpatial==0) = nan;
-  fig = LatexFigure.sub();
+  fig = LatexFigure.subLoose();
   imagesc = Imagesc(abs(residualSpatial));
   imagesc.setCLim([0,max(upError)]);
   imagesc.plot();
+  imagesc.addScale(scan, 1.0, [1,1,0]);
+  imagesc.removeLabelSpace();
   %for AbsNoFilterDeg120, highlight where the inflection is
   if (isa(scan,'AbsNoFilterDeg120'))
     hold on;
-    axis xy;
     plot([220,220],[130,1860],'r--');
     plot([620,620],[130,1860],'r--');
     plot([220,620],[130,130],'r--');
     plot([220,620],[1860,1860],'r--');
   end
-  saveas(fig, fullfile(directory,strcat(mfilename,class(scan),'_spatial.eps')), 'epsc');
+  print(fig, fullfile(directory,strcat(mfilename,class(scan),'_spatial.eps')), '-depsc', '-loose');
   
 end

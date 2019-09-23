@@ -64,20 +64,21 @@ function plotExample(scan, termMatrixArray, linkArray)
     
     %plot the heat map
     hist3Heatmap = Hist3Heatmap();
-    fig = LatexFigure.sub();
+    fig = LatexFigure.subLoose();
     hist3Heatmap.plot(xOriginal, yOriginal);
     hold on;
     plot(xPlot, yPlot, 'r');
     plot(xPlot, upError, 'r--');
     plot(xPlot, downError, 'r--');
+    ytickformat('%.1f');
     xlabel('mean grey value (ADU)');
     ylabel('variance grey value (ADU²)');
     
     %save the figure
     terms = reshape(num2str(termMatrix'),1,[]);
     terms(terms==' ') = [];
-    saveas(fig, fullfile('reports','figures','varmean', ...
-        strcat(mfilename,'_',class(scan),'_',link,terms,'.eps')),'epsc');
+    print(fig, fullfile('reports','figures','varmean', ...
+        strcat(mfilename,'_',class(scan),'_',link,terms,'.eps')),'-depsc','-loose');
     
   end
   

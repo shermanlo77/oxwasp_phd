@@ -41,21 +41,23 @@ function plotAndSaveScan(scanArray, scaleLength)
   %for each angle
   for i = 1:n
     %plot the x-ray image
-    fig = LatexFigure.sub();
+    fig = LatexFigure.subLoose();
     imagescPlot = Imagesc(imageArray(:,:,i));
     imagescPlot.setCLim(clim);
     imagescPlot.plot();
     imagescPlot.addScale(scanArray(i), scaleLength, 'k');
-    saveas(fig,fullfile('reports','figures','data', ...
-        strcat(class(scanArray(i)),'.eps')),'epsc');
+    imagescPlot.removeLabelSpace();
+    print(fig,fullfile('reports','figures','data', ...
+        strcat(class(scanArray(i)),'.eps')),'-depsc','-loose');
     %plot the x-ray simulation
-    fig = LatexFigure.sub();
+    fig = LatexFigure.subLoose();
     imagescPlot = Imagesc(scanArray(i).getArtistImage());
     imagescPlot.setCLim(clim);
     imagescPlot.plot();
     imagescPlot.addScale(scanArray(i), scaleLength, 'k');
-    saveas(fig,fullfile('reports','figures','data', ...
-        strcat(class(scanArray(i)),'_sim','.eps')),'epsc');
+    imagescPlot.removeLabelSpace();
+    print(fig,fullfile('reports','figures','data', ...
+        strcat(class(scanArray(i)),'_sim','.eps')),'-depsc','-loose');
   end
   
   %for each power
@@ -65,22 +67,24 @@ function plotAndSaveScan(scanArray, scaleLength)
     calibration = scan.calibrationScanArray(i).loadImage(1);
     
     %plot the calibration image
-    fig = LatexFigure.sub();
+    fig = LatexFigure.subLoose();
     imagescPlot = Imagesc(calibration);
     imagescPlot.plot();
-    saveas(fig,fullfile('reports','figures','data', ...
-        strcat(dataName,'_calibration',num2str(i),'.eps')),'epsc');
+    imagescPlot.removeLabelSpace();
+    print(fig,fullfile('reports','figures','data', ...
+        strcat(dataName,'_calibration',num2str(i),'.eps')),'-depsc','-loose');
     
     %plot the calibration simulation
     %calibration simulation using power of 0 are not obtained so are not used
     if (i >= 2)
       calibration = scan.calibrationScanArray(i).getArtistImage();
-      fig = LatexFigure.sub();
+      fig = LatexFigure.subLoose();
       imagescArtistPlot = Imagesc(calibration);
       imagescArtistPlot.setCLim(imagescPlot.clim);
       imagescArtistPlot.plot();
-      saveas(fig,fullfile('reports','figures','data', ...
-        strcat(dataName,'_calibrationSim',num2str(i),'.eps')),'epsc');
+      imagescPlot.removeLabelSpace();
+      print(fig,fullfile('reports','figures','data', ...
+        strcat(dataName,'_calibrationSim',num2str(i),'.eps')),'-depsc','-loose');
     end
     
   end

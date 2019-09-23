@@ -1618,8 +1618,8 @@ An experiment was conducted to investigate how filtering affects hypotheses test
       \end{subfigure}
       \begin{subfigure}{\subSize}
         \includegraphics[width=\textwidth]{../figures/inference/DefectAltDustEmpirical_type1.eps}
-        \label{fig:inference_DefectSimulationDust_type1}
         \caption{Type 1 error}
+        \label{fig:inference_DefectSimulationDust_type1}
       \end{subfigure}
     }
     \centerline{
@@ -1716,11 +1716,11 @@ The empirical null filter was developed and tested thoroughly on simulated image
   \centering
     \centerline{
       \begin{subfigure}[b]{\subSize}
-        \includegraphics[width=1.05\textwidth, height=5.6cm]{../figures/inference/DefectDetectAbsFilterDeg120_radius1_sig.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/DefectDetectAbsFilterDeg120_radius1_sig.eps}
         \caption{Obtained projection (\SI{}{\adu})}
       \end{subfigure}
       \begin{subfigure}[b]{\subSize}
-        \includegraphics[width=\textwidth]{../figures/inference/DefectDetectAbsFilterDeg120_radius1_logp.eps}\vspace{-1mm}
+        \includegraphics[width=\textwidth]{../figures/inference/DefectDetectAbsFilterDeg120_radius1_logp.eps}
         \caption{$-\log p$}
       \end{subfigure}
     }
@@ -1742,11 +1742,11 @@ The empirical null filter was developed and tested thoroughly on simulated image
   \centering
     \centerline{
       \begin{subfigure}[b]{\subSize}
-        \includegraphics[width=1.05\textwidth, height=5.6cm]{../figures/inference/DefectDetectAbsFilterDeg120_radius4_sig.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/DefectDetectAbsFilterDeg120_radius4_sig.eps}
         \caption{{Obtained projection (\SI{}{\adu})}}
       \end{subfigure}
       \begin{subfigure}[b]{\subSize}
-        \includegraphics[width=\textwidth]{../figures/inference/DefectDetectAbsFilterDeg120_radius4_logp.eps}\vspace{-1mm}
+        \includegraphics[width=\textwidth]{../figures/inference/DefectDetectAbsFilterDeg120_radius4_logp.eps}
         \caption{$-\log p$}
       \end{subfigure}
     }
@@ -1766,6 +1766,8 @@ The empirical null filter was developed and tested thoroughly on simulated image
 
 The empirical null filter was applied to the \texttt{AbsFilter} projection at \ang{120}. Figures \ref{fig:inference_AbsFilterDeg120_inference_radius1} and \ref{fig:inference_AbsFilterDeg120_inference_radius4} shows the resulting inference when using a kernel radius of $r=\addNumber{../figures/inference/DefectDetectAbsFilterDeg120_radius1.txt}\,\SI{}{\pixel}$ and $r=\addNumber{../figures/inference/DefectDetectAbsFilterDeg120_radius4.txt}\,\SI{}{\pixel}$ respectively.
 With a small radius, the empirical null treated the voids as the null which is shown by the empirical null mean capturing the features of the voids. When a large enough radius was used, the larger voids were highlighted by the hypotheses test and the empirical null mean became smoother. This is evidence that this method ironed out  false positives observed at the start of the chapter.
+
+False positives were detected on the bottom right of the test sample. When placing the corner on the bottom right corner, the null distribution is bimodal because each face has a different distribution. Figure \ref{fig:inference_cornerSelect} illustrates this. The geometry of the faces and the kernel used was such that it resulted in one of the faces to be treated as non-null and then tested positive, falsely so.
 
 \begin{figure}
   \centering
@@ -1790,17 +1792,15 @@ With a small radius, the empirical null treated the voids as the null which is s
   \label{fig:inference_segmentFurther}
 \end{figure}
 
-False positives were detected on the bottom right of the test sample. When placing the corner on the bottom right corner, the null distribution is bimodal because each face has a different distribution. Figure \ref{fig:inference_cornerSelect} illustrates this. The geometry of the faces and the kernel used was such that it resulted in one of the faces to be treated as non-null and then tested positive, falsely so.
-
 \begin{figure}[p]
   \centering
     \centerline{
       \begin{subfigure}[b]{\subSize}
-        \includegraphics[width=1.05\textwidth, height=5.6cm]{../figures/inference/DefectDetectSubRoiAbsFilterDeg120_radius4_sig.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/DefectDetectSubRoiAbsFilterDeg120_radius4_sig.eps}
         \caption{{Obtained projection (\SI{}{\adu})}}
       \end{subfigure}
       \begin{subfigure}[b]{\subSize}
-        \includegraphics[width=\textwidth]{../figures/inference/DefectDetectSubRoiAbsFilterDeg120_radius4_logp.eps}\vspace{-1mm}
+        \includegraphics[width=\textwidth]{../figures/inference/DefectDetectSubRoiAbsFilterDeg120_radius4_logp.eps}
         \caption{$-\log p$}
       \end{subfigure}
     }
@@ -1822,11 +1822,11 @@ False positives were detected on the bottom right of the test sample. When placi
   \centering
     \centerline{
       \begin{subfigure}[b]{\subSize}
-        \includegraphics[width=1.05\textwidth, height=5.6cm]{../figures/inference/DefectDetectSubRoiAbsFilterDeg30_radius1_sig.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/DefectDetectSubRoiAbsFilterDeg30_radius1_sig.eps}
         \caption{{Obtained projection (\SI{}{\adu})}}
       \end{subfigure}
       \begin{subfigure}[b]{\subSize}
-        \includegraphics[width=\textwidth]{../figures/inference/DefectDetectSubRoiAbsFilterDeg30_radius1_logp.eps}\vspace{-1mm}
+        \includegraphics[width=\textwidth]{../figures/inference/DefectDetectSubRoiAbsFilterDeg30_radius1_logp.eps}
         \caption{$-\log p$}
       \end{subfigure}
     }
@@ -1872,11 +1872,11 @@ The whole procedure was repeated on the titanium test sample in the dataset \tex
   \centering
     \centerline{
       \begin{subfigure}[b]{\subSize}
-        \includegraphics[width=1.03\textwidth, height=5.6cm]{../figures/inference/DefectDetectSubRoiTiFilterDeg30_radius1_sig.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/DefectDetectSubRoiTiFilterDeg30_radius1_sig.eps}
         \caption{{Obtained projection (\SI{}{\adu})}}
       \end{subfigure}
       \begin{subfigure}[b]{\subSize}
-        \includegraphics[width=\textwidth]{../figures/inference/DefectDetectSubRoiTiFilterDeg30_radius1_logp.eps}\vspace{-1mm}
+        \includegraphics[width=\textwidth]{../figures/inference/DefectDetectSubRoiTiFilterDeg30_radius1_logp.eps}
         \caption{$-\log p$}
       \end{subfigure}
     }
@@ -1898,11 +1898,11 @@ The whole procedure was repeated on the titanium test sample in the dataset \tex
   \centering
     \centerline{
       \begin{subfigure}[b]{\subSize}
-        \includegraphics[width=1.03\textwidth, height=5.6cm]{../figures/inference/DefectDetectSubRoiTiFilterDeg120_radius1_sig.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/DefectDetectSubRoiTiFilterDeg120_radius1_sig.eps}
         \caption{{Obtained projection (\SI{}{\adu})}}
       \end{subfigure}
       \begin{subfigure}[b]{\subSize}
-        \includegraphics[width=\textwidth]{../figures/inference/DefectDetectSubRoiTiFilterDeg120_radius1_logp.eps}\vspace{-1mm}
+        \includegraphics[width=\textwidth]{../figures/inference/DefectDetectSubRoiTiFilterDeg120_radius1_logp.eps}
         \caption{$-\log p$}
       \end{subfigure}
     }

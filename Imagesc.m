@@ -148,6 +148,14 @@ classdef Imagesc < handle
           'HorizontalAlignment','center','Color',scaleColour);
     end
     
+    %METHOD: REMOVE LABEL SPACE
+    %Adjust inner position when plotting projections
+    %To be called after calling plot()
+    function removeLabelSpace(this)
+      ax = gca;
+      ax.Position = [-0.03, 0.02, 0.9, 0.9];
+    end
+    
   end
   
 end
