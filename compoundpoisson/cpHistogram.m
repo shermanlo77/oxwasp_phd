@@ -121,7 +121,7 @@ function plotHistogram(compoundPoisson, figureLocation)
     %other graph properties being set
     ylabel('frequency at zero');
     xticks([1,2]);
-    xticklabels({'obv.','expec.'});
+    xticklabels({'obs.','expec.'});
     
     %histogram and density plot
     subplot(1,2,2);
@@ -136,7 +136,7 @@ function plotHistogram(compoundPoisson, figureLocation)
   %if statement for not plotting the zero mass
   else
     %plot a regular histogram
-    fig = LatexFigure.sub();
+    fig = LatexFigure.subLoose();
     hist = Histogram(X);
     hist.plot();
     ylim([0,max(hist.freqDensity)*1.1]);
@@ -149,8 +149,8 @@ function plotHistogram(compoundPoisson, figureLocation)
   plot(xPlot,poissinv(normcdf(1),n*pdfPlot*hist.binWidth(1))/hist.binWidth(1),'r:');
   xlabel('support');
   ylabel('frequency density');
-  saveas(fig, ...
-      fullfile(figureLocation, strcat(mfilename,'_',compoundPoisson.toString(),'.eps')),'epsc');
+  print(fig, fullfile(figureLocation, strcat(mfilename,'_',compoundPoisson.toString(),'.eps')),...
+      '-depsc','-loose');
   
 end
 
@@ -167,7 +167,8 @@ function plotQq(compoundPoisson, figureLocation)
   X = compoundPoisson.X;
   n = compoundPoisson.n;
 
-  fig = LatexFigure.sub();
+  fig = LatexFigure.subLoose();
+  ax = gca;
 
   %get array of percentages
   p = ((1:n)'-0.5)/n;
@@ -180,10 +181,12 @@ function plotQq(compoundPoisson, figureLocation)
   hold on;
   %plot straight line
   plot(xTheoretical,xTheoretical);
+  ax.Box = 'on';
   xlabel('theoretical quantiles');
   ylabel('simulation quantiles');
   xlim([xTheoretical(1),xTheoretical(end)]);
-  saveas(fig, ...
-      fullfile(figureLocation, strcat(mfilename,'_qq_',compoundPoisson.toString(),'.eps')), 'epsc');
+  print(fig, ...
+      fullfile(figureLocation, strcat(mfilename,'_qq_',compoundPoisson.toString(),'.eps')), ...
+      '-depsc','-loose');
 
 end

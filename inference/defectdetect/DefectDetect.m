@@ -43,11 +43,13 @@ classdef (Abstract) DefectDetect < Experiment
       directory = fullfile('reports','figures','inference');
       
       %plot unfilted z image
-      fig = LatexFigure.sub();
+      fig = LatexFigure.subLoose();
       imagesc = Imagesc(this.zImage);
       imagesc.plot();
       imagesc.addScale(this.scan,scaleLength,'y');
-      saveas(fig, fullfile(directory, strcat(this.experimentName,'_unfilteredZ.eps')), 'epsc');
+      imagesc.removeLabelSpace();
+      print(fig, fullfile(directory, strcat(this.experimentName,'_unfilteredZ.eps')), ...
+        '-depsc','-loose');
       
       %array of p value images from the filtered z images
       logPArray = zeros(this.scan.height, this.scan.width, numel(this.radiusArray));
@@ -69,80 +71,95 @@ classdef (Abstract) DefectDetect < Experiment
         logPArray(:,:,iRadius) = -log10(zTester.pImage);
         
         %plot the test image with the significant pixels
-        fig = LatexFigure.sub();
+        fig = LatexFigure.subLoose();
         positivePlot = Imagesc(this.testImage);
         positivePlot.addPositivePixels(zTester.positiveImage);
         positivePlot.setDilateSize(2);
         positivePlot.plot();
         positivePlot.addScale(this.scan,scaleLength,'k');
-        saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
-            '_sig.eps')),'epsc');
+        positivePlot.removeLabelSpace();
+        print(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
+            '_sig.eps')),'-depsc','-loose');
         %plot black white
-        fig = LatexFigure.sub();
+        fig = LatexFigure.subLoose();
         positivePlot.setToBw();
         positivePlot.plot();
         positivePlot.addScale(this.scan,scaleLength,'k');
-        saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
-            '_sigBW.eps')),'eps');
-        saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
-          '_sigBW.tiff')),'tiff');
+        positivePlot.removeLabelSpace();
+        print(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
+            '_sigBW.eps')),'-deps','-loose');
+        print(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
+            '_sigBW.tiff')),'-dtiff','-loose');
         
         %plot the filtered image
-        fig = LatexFigure.sub();
+        fig = LatexFigure.subLoose();
         filteredImagePlot = Imagesc(filteredImage);
         filteredImagePlot.setCLim(zCLim);
         filteredImagePlot.plot();
         filteredImagePlot.addScale(this.scan,scaleLength,'y');
-        saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
-            '_z.eps')),'epsc');
+        filteredImagePlot.removeLabelSpace();
+        print(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
+            '_z.eps')),'-depsc','-loose');
         
         %plot the null mean
-        fig = LatexFigure.sub();
+        fig = LatexFigure.subLoose();
         nullMeanPlot = Imagesc(this.nullMeanArray(:,:,iRadius));
         nullMeanPlot.setCLim(zCLim);
         nullMeanPlot.plot();
-        saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
-            '_nullMean.eps')),'epsc');
+        nullMeanPlot.addScale(this.scan,scaleLength,'y');
+        nullMeanPlot.removeLabelSpace();
+        print(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
+            '_nullMean.eps')),'-depsc','-loose');
         %set to BW
-        fig = LatexFigure.sub();
+        fig = LatexFigure.subLoose();
         nullMeanPlot.setToBw();
         nullMeanPlot.plot();
-        saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
-            '_nullMeanBW.eps')),'eps');
-        saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
-            '_nullMeanBW.tiff')),'tiff');
+        nullMeanPlot.addScale(this.scan,scaleLength,'y');
+        nullMeanPlot.removeLabelSpace();
+        print(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
+            '_nullMeanBW.eps')),'-deps','-loose');
+        print(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
+            '_nullMeanBW.tiff')),'-dtiff','-loose');
         
         %plot the null std
-        fig = LatexFigure.sub();
+        fig = LatexFigure.subLoose();
         nullStdPlot = Imagesc(this.nullStdArray(:,:,iRadius));
         nullStdPlot.setCLim(nullStdCLim);
         nullStdPlot.plot();
-        saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
-            '_nullStd.eps')),'epsc');
+        nullStdPlot.addScale(this.scan,scaleLength,'y');
+        nullStdPlot.removeLabelSpace();
+        print(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
+            '_nullStd.eps')),'-depsc','-loose');
         %set to BW
-        fig = LatexFigure.sub();
+        fig = LatexFigure.subLoose();
         nullStdPlot.setToBw();
         nullStdPlot.plot();
-        saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
-            '_nullStdBW.eps')),'eps');
-        saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
-            '_nullStd.tiff')),'tiff');
+        nullStdPlot.addScale(this.scan,scaleLength,'y');
+        nullStdPlot.removeLabelSpace();
+        print(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
+            '_nullStdBW.eps')),'-deps','-loose');
+        print(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
+            '_nullStd.tiff')),'-dtiff','-loose');
           
         %plot the -log p values
-        fig = LatexFigure.sub();
+        fig = LatexFigure.subLoose();
         pPlot = Imagesc(logPArray(:,:,iRadius));
         pPlot.setCLim([0, logPMax]);
         pPlot.plot();
-        saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
-            '_logp.eps')),'epsc');
+        pPlot.addScale(this.scan,scaleLength,'y');
+        pPlot.removeLabelSpace();
+        print(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
+            '_logp.eps')),'-depsc','-loose');
         %set to BW
-        fig = LatexFigure.sub();
+        fig = LatexFigure.subLoose();
         pPlot.setToBw();
         pPlot.plot();
-        saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
-            '_logpBW.eps')),'eps');
-        saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
-            '_logpBW.tiff')),'tiff');
+        pPlot.addScale(this.scan,scaleLength,'y');
+        pPlot.removeLabelSpace();
+        print(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
+            '_logpBW.eps')),'-deps','-loose');
+        print(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
+            '_logpBW.tiff')),'-dtiff','-loose');
         
       end
       

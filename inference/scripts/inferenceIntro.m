@@ -24,50 +24,59 @@ zTester.doTest();
 clim = [2.2E4,5.5E4]; %set the clim of the imagesc plots of the x-ray and artist
     
 %plot the x ray projection
-fig = LatexFigure.sub();
+fig = LatexFigure.subLoose();
 testPlot = Imagesc(test);
 testPlot.plot();
 testPlot.addScale(scan,1,'k');
+testPlot.removeLabelSpace();
 ax = gca;
 ax.CLim = clim;
-saveas(fig,fullfile('reports','figures','inference',strcat(mfilename,'_scan.eps')),'epsc');
+print(fig,fullfile('reports','figures','inference',strcat(mfilename,'_scan.eps')),...
+    '-depsc','-loose');
 
 %plot the artist simulation
-fig = LatexFigure.sub();
+fig = LatexFigure.subLoose();
 artistPlot = Imagesc(artist);
 artistPlot.plot();
 artistPlot.addScale(scan,1,'k');
+artistPlot.removeLabelSpace();
 ax = gca;
 ax.CLim = clim;
-saveas(fig,fullfile('reports','figures','inference',strcat(mfilename,'_artist.eps')),'epsc');
+print(fig,fullfile('reports','figures','inference',strcat(mfilename,'_artist.eps')),...
+    '-depsc','-loose');
 
 %plot the p value image
-fig = LatexFigure.sub();
+fig = LatexFigure.subLoose();
 pPlot = Imagesc(-log10(zTester.pImage));
 pPlot.plot();
 pPlot.addScale(scan,1,'y');
-saveas(fig,fullfile('reports','figures','inference',strcat(mfilename,'_logp.eps')),'epsc');
+pPlot.removeLabelSpace();
+print(fig,fullfile('reports','figures','inference',strcat(mfilename,'_logp.eps')),...
+    '-depsc','-loose');
 
 %plot the x-ray projection with critical pixels highlighted
-fig = LatexFigure.sub();
+fig = LatexFigure.subLoose();
 sigPlot = Imagesc(test);
 sigPlot.addPositivePixels(zTester.positiveImage);
 sigPlot.plot();
 sigPlot.addScale(scan,1,'k');
+sigPlot.removeLabelSpace();
 ax = gca;
 ax.CLim = clim;
-saveas(fig,fullfile('reports','figures','inference', ...
-    strcat(mfilename,'_positivePixels.eps')),'epsc');
+print(fig,fullfile('reports','figures','inference', ...
+    strcat(mfilename,'_positivePixels.eps')),'-depsc','-loose');
 
 %plot the histogram with critical boundary
-fig = LatexFigure.sub();
+fig = LatexFigure.subLoose();
 zTester.plotHistogram2(true);
-saveas(fig,fullfile('reports','figures','inference',strcat(mfilename,'_histogram.eps')),'epsc');
+print(fig,fullfile('reports','figures','inference',strcat(mfilename,'_histogram.eps')),...
+    '-depsc','-loose');
 
 %plot p values with critical boundary
-fig = LatexFigure.sub();
+fig = LatexFigure.subLoose();
 zTester.plotPValues();
-saveas(fig,fullfile('reports','figures','inference',strcat(mfilename,'_pValue.eps')),'epsc');
+print(fig,fullfile('reports','figures','inference',strcat(mfilename,'_pValue.eps')),...
+    '-depsc','-loose');
 
 %save the critical value
 zCritical = zTester.getZCritical();

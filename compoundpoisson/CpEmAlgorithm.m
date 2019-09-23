@@ -66,17 +66,19 @@ classdef CpEmAlgorithm < Experiment
         compoundPoissonTrue.setParameters(lambda, alpha, beta);
 
         %plot the log likelihood
-        fig = LatexFigure.sub();
-        plot(0:this.nStep, this.lnLArray(:,:,iParameter), 'b');
+        fig = LatexFigure.subLoose();
+        ax = gca;
+        plot(0:this.nStep, -this.lnLArray(:,:,iParameter), 'b');
         xlabel('number of EM steps');
-        ylabel('lnL');
+        ylabel('-lnL');
         xlim([0,this.nStep]);
-        saveas(fig, ...
+        ax.YAxis.Exponent = floor(log10(abs(ax.YLim(2))));
+        print(fig, ...
             fullfile(figureLocation, strcat(class(this),'_',compoundPoissonTrue.toString(),...
-            '_lnL.eps')),'epsc');
+            '_lnL.eps')),'-depsc','-loose');
 
         %plot lambda
-        fig = LatexFigure.sub();
+        fig = LatexFigure.subLoose();
         plot(0:this.nStep, this.lambdaArray(:,:,iParameter), 'b');
         hold on;
         plot([0,this.nStep], [lambda-this.stdArray(1,iParameter), ...
@@ -86,12 +88,12 @@ classdef CpEmAlgorithm < Experiment
         xlabel('number of EM steps');
         ylabel('\lambda');
         xlim([0,this.nStep]);
-        saveas(fig, ...
+        print(fig, ...
             fullfile(figureLocation, strcat(class(this),'_',compoundPoissonTrue.toString(),...
-            '_lambda.eps')),'epsc');
+            '_lambda.eps')),'-depsc','-loose');
 
         %plot alpha
-        fig = LatexFigure.sub();
+        fig = LatexFigure.subLoose();
         plot(0:this.nStep, this.alphaArray(:,:,iParameter), 'b');
         hold on;
         plot([0,this.nStep], [alpha-this.stdArray(2,iParameter), ...
@@ -101,12 +103,12 @@ classdef CpEmAlgorithm < Experiment
         xlabel('number of EM steps');
         ylabel('\alpha');
         xlim([0,this.nStep]);
-        saveas(fig, ...
+        print(fig, ...
             fullfile(figureLocation, strcat(class(this),'_',compoundPoissonTrue.toString(),...
-            '_alpha.eps')),'epsc');
+            '_alpha.eps')),'-depsc','-loose');
 
         %plot beta
-        fig = LatexFigure.sub();
+        fig = LatexFigure.subLoose();
         plot(0:this.nStep, this.betaArray(:,:,iParameter), 'b');
         hold on;
         plot([0,this.nStep], [beta-this.stdArray(3,iParameter), ...
@@ -116,9 +118,9 @@ classdef CpEmAlgorithm < Experiment
         xlabel('number of EM steps');
         ylabel('\beta');
         xlim([0,this.nStep]);
-        saveas(fig, ...
+        print(fig, ...
             fullfile(figureLocation, strcat(class(this),'_',compoundPoissonTrue.toString(),...
-            '_beta.eps')),'epsc');
+            '_beta.eps')),'-depsc','-loose');
           
       end
     end

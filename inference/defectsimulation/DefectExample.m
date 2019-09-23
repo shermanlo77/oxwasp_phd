@@ -53,66 +53,76 @@ classdef DefectExample < Experiment
       directory = fullfile('reports','figures','inference');
 
       %plot the z images with positive pixels (before contamination)
-      fig = LatexFigure.sub();
+      fig = LatexFigure.subLoose();
       imageCleanPlot = Imagesc(this.imageClean);
       zCleanTester = ZTester(this.imageClean);
       zCleanTester.doTest();
       imageCleanPlot.addPositivePixels(zCleanTester.positiveImage);
       imageCleanPlot.plot();
-      saveas(fig,fullfile(directory, strcat(this.experimentName,'_imageClean.eps')),'epsc');
+      imageCleanPlot.removeLabelSpace();
+      print(fig,fullfile(directory, strcat(this.experimentName,'_imageClean.eps')),...
+          '-depsc','-loose');
       
       %plot z image with contamination, no positive pixels
-      fig = LatexFigure.sub();
+      fig = LatexFigure.subLoose();
       imageContaminatedPlot = Imagesc(this.imageContaminated);
       imageContaminatedPlot.setCLim(imageCleanPlot.clim);
       imageContaminatedPlot.plot();
-      saveas(fig,fullfile(directory, strcat(this.experimentName,'_imageContaminated.eps')),'epsc');
+      imageContaminatedPlot.removeLabelSpace();
+      print(fig,fullfile(directory, strcat(this.experimentName,'_imageContaminated.eps')),...
+          '-depsc','-loose');
       %bw plot
-      fig = LatexFigure.sub();
+      fig = LatexFigure.subLoose();
       imageContaminatedPlot.setToBw();
       imageContaminatedPlot.plot();
-      saveas(fig,fullfile(directory, strcat(this.experimentName,'_imageContaminatedBW.eps')),'eps');
-      saveas(fig,fullfile(directory, strcat(this.experimentName, ...
-          '_imageContaminatedBW.tiff')),'tiff');
+      imageContaminatedPlot.removeLabelSpace();
+      print(fig,fullfile(directory, strcat(this.experimentName,'_imageContaminatedBW.eps')),...
+          '-deps','-loose');
+      print(fig,fullfile(directory, strcat(this.experimentName, ...
+          '_imageContaminatedBW.tiff')),'-dtiff','-loose');
       
       %for each filter, plot image filtered with positive pixels, p value, empirical null mean, and
           %empricial null std with positive pixels
       for iFilter = 1:this.nFilter
         filter = this.filterArray{iFilter};
         imageFilter = filter.getFilteredImage();
-        fig = LatexFigure.sub();
+        fig = LatexFigure.subLoose();
         imageFilterPlot = Imagesc(imageFilter);
         zFilterTester = ZTester(imageFilter);
         zFilterTester.doTest();
         imageFilterPlot.addPositivePixels(zFilterTester.positiveImage);
         imageFilterPlot.setCLim(imageCleanPlot.clim);
         imageFilterPlot.plot();
-        saveas(fig,fullfile(directory, strcat(this.experimentName,'_',class(filter), ...
-            'imageFiltered.eps')),'epsc');
+        imageFilterPlot.removeLabelSpace();
+        print(fig,fullfile(directory, strcat(this.experimentName,'_',class(filter), ...
+            'imageFiltered.eps')),'-depsc','-loose');
         
         %p values
         fig = LatexFigure.sub();
         zFilterTester.plotPValues2(~this.isNonNullImage);
         fig.CurrentAxes.XTick = 10.^(0:4);
+        fig.CurrentAxes.YLim(1) = 10.^(-10.5);
         saveas(fig,fullfile(directory, strcat(this.experimentName,'_',class(filter), ...
             'pValueFiltered.eps')),'epsc');
         
         %empirical null mean plot
-        fig = LatexFigure.sub();
+        fig = LatexFigure.subLoose();
         imageNullMeanPlot = Imagesc(filter.getNullMean());
         imageNullMeanPlot.setCLim(imageCleanPlot.clim);
         imageNullMeanPlot.plot();
-        saveas(fig,fullfile(directory, strcat(this.experimentName,'_',class(filter), ...
-            'nullMean.eps')),'epsc');
+        imageNullMeanPlot.removeLabelSpace();
+        print(fig,fullfile(directory, strcat(this.experimentName,'_',class(filter), ...
+            'nullMean.eps')),'-depsc','-loose');
               
         %empirical null std plot with positive pixels
-        fig = LatexFigure.sub();
+        fig = LatexFigure.subLoose();
         imageNullStdPlot = Imagesc(filter.getNullStd());
         imageNullStdPlot.setCLim([0,imageCleanPlot.clim(2)]);
         imageNullStdPlot.addPositivePixels(zFilterTester.positiveImage);
         imageNullStdPlot.plot();
-        saveas(fig,fullfile(directory, strcat(this.experimentName,'_',class(filter), ...
-            'nullStd.eps')),'epsc');
+        imageNullStdPlot.removeLabelSpace();
+        print(fig,fullfile(directory, strcat(this.experimentName,'_',class(filter), ...
+            'nullStd.eps')),'-depsc','-loose');
       end
       
       

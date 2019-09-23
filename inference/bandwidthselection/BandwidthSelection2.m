@@ -57,6 +57,7 @@ classdef BandwidthSelection2 < Experiment
         %get the ln MSE
         array = this.getObjective(previous.stdArray(:,:,iN));
         fig = LatexFigure.sub();
+        ax = gca;
         %boxplot the ln MSE for each kernel width
         boxPlot = Boxplots(array);
         %set the values of the kernel width
@@ -69,6 +70,7 @@ classdef BandwidthSelection2 < Experiment
         %plot as a verticle line the minimum
         plot(this.kOptimal(iN)*ones(1,2), yLim, '--'); 
         %label axis and graph
+        ax.Box = 'on';
         ylabel('ln squared error');
         xlabel('bandwidth');
         title(strcat('log n=',num2str(log10(previous.nArray(iN)))));
@@ -97,6 +99,7 @@ classdef BandwidthSelection2 < Experiment
       ylabel('optimal bandwidth');
       ax = gca;
       ax.YLim(1) = 0;
+      ax.Box = 'on';
       saveas(fig,fullfile('reports','figures','inference', ...
           strcat(this.experimentName,'_ruleOfThumb','.eps')),'epsc');
       

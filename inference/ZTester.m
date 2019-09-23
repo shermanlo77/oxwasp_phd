@@ -137,7 +137,7 @@ classdef ZTester < handle
       %pretend all the statistics are null so that all p values are presented using the same symbol
       this.plotPValues2(true(size(this.zImage)));
       ax = gca;
-      legend(ax.Children([1,4]), 'p value', 'critical', 'Location','northwest');
+      legend(ax.Children([1,4]), 'p-value', 'critical', 'Location','northwest');
     end
 
     %METHOD: PLOT P VALUES (highlight null and non-null)
@@ -204,7 +204,7 @@ classdef ZTester < handle
       scatter(orderIndex(~isNull), pVector(~isNull),'rx');
       scatter(orderIndex(isNull), pVector(isNull),'b.');
       xlabel('order');
-      ylabel('p value');
+      ylabel('p-value');
       
       %set the scale to log and other graph properties
       ax = gca;

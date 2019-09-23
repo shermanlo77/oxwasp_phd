@@ -75,7 +75,7 @@ classdef DefectAlt < Experiment
       baseLineQuantile = normcdf(-2);
       
       %plot roc area vs alt mean
-      fig = LatexFigure.sub();
+      fig = LatexFigure.subLoose();
       ax = gca;
       boxplotFiltered = Boxplots(this.rocAreaArray);
       boxplotFiltered.setPosition(this.altMeanArray);
@@ -93,13 +93,14 @@ classdef DefectAlt < Experiment
       ylabel('AUC');
       ylim([0.5,1]);
       ax.XLim(1) = this.altMeanArray(1) - offset*2;
-      ax.XLim(2) = this.altMeanArray(end) + offset*2;    
-      saveas(fig,fullfile(directory, strcat(this.experimentName,'_roc.eps')),'epsc');
+      ax.XLim(2) = this.altMeanArray(end) + offset*2;
+      ax.Box = 'on';
+      print(fig,fullfile(directory, strcat(this.experimentName,'_roc.eps')),'-depsc','-loose');
       
       %plot type 1 error vs alt mean
       %omit the contaminted plot as this very off the scale compared to the non-contaminted and
           %filtered
-      fig = LatexFigure.sub();
+      fig = LatexFigure.subLoose();
       ax = gca;
       boxplotFiltered = Boxplots(this.type1ErrorArray);
       boxplotFiltered.setPosition(this.altMeanArray);
@@ -114,13 +115,13 @@ classdef DefectAlt < Experiment
       end
       xlabel('alt distribution mean');
       ylabel('type 1 error');
-      ylim([0,0.012]);
       ax.XLim(1) = this.altMeanArray(1) - offset*2;
       ax.XLim(2) = this.altMeanArray(end) + offset*2;
-      saveas(fig,fullfile(directory, strcat(this.experimentName,'_type1.eps')),'epsc');
+      ax.Box = 'on';
+      print(fig,fullfile(directory, strcat(this.experimentName,'_type1.eps')),'-depsc','-loose');
       
       %plot type 2 error vs alt mean
-      fig = LatexFigure.sub();
+      fig = LatexFigure.subLoose();
       ax = gca;
       boxplotFiltered = Boxplots(this.type2ErrorArray);
       boxplotFiltered.setPosition(this.altMeanArray);
@@ -137,10 +138,11 @@ classdef DefectAlt < Experiment
       ylabel('type 2 error');
       ax.XLim(1) = this.altMeanArray(1) - offset*2;
       ax.XLim(2) = this.altMeanArray(end) + offset*2;
-      saveas(fig,fullfile(directory, strcat(this.experimentName,'_type2.eps')),'epsc');
+      ax.Box = 'on';
+      print(fig,fullfile(directory, strcat(this.experimentName,'_type2.eps')),'-depsc','-loose');
       
       %fdr vs alt mean
-      fig = LatexFigure.sub();
+      fig = LatexFigure.subLoose();
       ax = gca;
       boxplotFiltered = Boxplots(this.fdrArray);
       boxplotFiltered.setPosition(this.altMeanArray);
@@ -157,7 +159,8 @@ classdef DefectAlt < Experiment
       ylabel('fdr');
       ax.XLim(1) = this.altMeanArray(1) - offset*2;
       ax.XLim(2) = this.altMeanArray(end) + offset*2;
-      saveas(fig,fullfile(directory, strcat(this.experimentName,'_fdr.eps')),'epsc');
+      ax.Box = 'on';
+      print(fig,fullfile(directory, strcat(this.experimentName,'_fdr.eps')),'-depsc','-loose');
       
     end
     

@@ -41,13 +41,15 @@ classdef (Abstract) DefectDetectSubRoi < DefectDetect
         end
         
         %plot the test image with the significant pixels from each segment
-        fig = LatexFigure.sub();
+        fig = LatexFigure.subLoose();
         sigPlot = Imagesc(this.testImage);
         sigPlot.addPositivePixels(sigImage);
         sigPlot.setDilateSize(2);
         sigPlot.plot();
-        saveas(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
-            '_sigSeparate.eps')),'epsc');
+        sigPlot.removeLabelSpace();
+        sigPlot.addScale(this.scan,scaleLength,'y');
+        print(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
+            '_sigSeparate.eps')),'-depsc','-loose');
         
       end
 

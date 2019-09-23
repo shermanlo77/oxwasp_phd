@@ -15,6 +15,11 @@ classdef LatexFigure
       fig.Position(3:4) = [420,315];
     end
     
+    function fig = subLoose()
+      fig = figure('Visible','off');
+      fig.Position(3:4) = [392,294];
+    end
+    
     function fig = main()
       fig = figure('Visible','off');
     end

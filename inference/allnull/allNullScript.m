@@ -46,38 +46,44 @@ function allNullExample(image, name)
   stdClim = [0, clim(2)];
   
   %plot the image before filtering
-  fig = LatexFigure.sub();
+  fig = LatexFigure.subLoose();
   imagePlot = Imagesc(image);
   imagePlot.setCLim(clim);
   imagePlot.plot();
-  saveas(fig,fullfile(directory, strcat(name,'_beforeFilter.eps')),'epsc');
+  imagePlot.removeLabelSpace();
+  print(fig,fullfile(directory, strcat(name,'_beforeFilter.eps')),'-depsc','-loose');
   
   %plot the image after filtering
-  fig = LatexFigure.sub();
+  fig = LatexFigure.subLoose();
   imagePlot = Imagesc(imageFiltered);
   imagePlot.setCLim(clim);
   imagePlot.plot();
-  saveas(fig,fullfile(directory, strcat(name,'_afterFilter.eps')),'epsc');
+  imagePlot.removeLabelSpace();
+  print(fig,fullfile(directory, strcat(name,'_afterFilter.eps')),'-depsc','-loose');
   
   %empirical null mean plot
-  fig = LatexFigure.sub();
+  fig = LatexFigure.subLoose();
   imagePlot = Imagesc(nullMean);
   imagePlot.setCLim(clim);
   imagePlot.plot();
-  saveas(fig,fullfile(directory, strcat(name,'_nullMean.eps')),'epsc');
+  imagePlot.removeLabelSpace();
+  print(fig,fullfile(directory, strcat(name,'_nullMean.eps')),'-depsc','-loose');
   
   %empirical null std plot
-  fig = LatexFigure.sub();
+  fig = LatexFigure.subLoose();
   imagePlot = Imagesc(nullStd);
   imagePlot.setCLim(stdClim);
   imagePlot.plot();
-  saveas(fig,fullfile(directory, strcat(name,'_nullStd.eps')),'epsc');
+  imagePlot.removeLabelSpace();
+  print(fig,fullfile(directory, strcat(name,'_nullStd.eps')),'-depsc','-loose');
   
   %p value plot
   zTester = ZTester(imageFiltered);
   zTester.doTest();
   fig = LatexFigure.sub();
   zTester.plotPValues();
+  ax = gca;
+  ax.XTick = 10.^(0:4);
   saveas(fig,fullfile(directory, strcat(name,'_pValue.eps')),'epsc');
 
 end

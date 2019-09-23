@@ -163,6 +163,9 @@ classdef CompoundPoisson < handle
       %set for beta
       I(3,3) = this.n*this.lambda*this.alpha/(this.beta^2);
       
+      %only consider data which x>0 when estimating alpha and beta
+      I(2:3,2:3) = (1-exp(-this.lambda)) * I(2:3,2:3);
+      
     end
     
     %METHOD: GET OBJECTIVE FUNCTION FOR THE M STEP

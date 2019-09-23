@@ -61,6 +61,7 @@ classdef AllNull < Experiment
       
       %plot post filter mean vs radius
       fig = LatexFigure.sub();
+      ax = gca;
       meanPlot = Boxplots(this.meanArray);
       meanPlot.setPosition(this.radiusArray);
       meanPlot.plot();
@@ -69,8 +70,9 @@ classdef AllNull < Experiment
       plot([0,this.radiusArray(end)+10],[meanCritical,meanCritical], 'k--');
       plot([0,this.radiusArray(end)+10],[-meanCritical,-meanCritical], 'k--');
       xlim([0,this.radiusArray(end)+10]);
-      ylabel('post filter image greyvalue mean');
+      ylabel('image mean');
       xlabel('radius (px)');
+      ax.Box = 'on';
       if (~isempty(this.getYLim(3)))
         ylim(this.getYLim(3));
       end
@@ -78,6 +80,7 @@ classdef AllNull < Experiment
       
       %plot post filter variance vs radius
       fig = LatexFigure.sub();
+      ax = gca;
       stdPlot = Boxplots(this.stdArray);
       stdPlot.setPosition(this.radiusArray);
       stdPlot.plot();
@@ -87,8 +90,9 @@ classdef AllNull < Experiment
       plot([0,this.radiusArray(end)+10],[stdCritical1,stdCritical1], 'k--');
       plot([0,this.radiusArray(end)+10],[stdCritical2,stdCritical2], 'k--');
       xlim([0,this.radiusArray(end)+10]);
-      ylabel('post filter image greyvalue std');
+      ylabel('image std');
       xlabel('radius (px)');
+      ax.Box = 'on';
       if (~isempty(this.getYLim(4)))
         ylim(this.getYLim(4));
       end
@@ -96,6 +100,7 @@ classdef AllNull < Experiment
       
       %plot post filter kurtosisArray vs radius
       fig = LatexFigure.sub();
+      ax = gca;
       kurtPlot = Boxplots(this.kurtosisArray);
       kurtPlot.setPosition(this.radiusArray);
       kurtPlot.plot();
@@ -104,8 +109,9 @@ classdef AllNull < Experiment
       plot([0,this.radiusArray(end)+10],3+sqrt(24)*[meanCritical,meanCritical], 'k--');
       plot([0,this.radiusArray(end)+10],3+sqrt(24)*[-meanCritical,-meanCritical], 'k--');
       xlim([0,this.radiusArray(end)+10]);
-      ylabel('post filter image greyvalue kurtosis');
+      ylabel('image kurtosis');
       xlabel('radius (px)');
+      ax.Box = 'on';
       if (~isempty(this.getYLim(5)))
         ylim(this.getYLim(5));
       end
@@ -113,6 +119,7 @@ classdef AllNull < Experiment
       
       %plot time vs radius
       fig = LatexFigure.sub();
+      ax = gca;
       timePlot = Boxplots(this.timeArray);
       timePlot.setPosition(this.radiusArray);
       timePlot.plot();
@@ -122,6 +129,7 @@ classdef AllNull < Experiment
       if (~isempty(this.getYLim(6)))
         ylim(this.getYLim(6));
       end
+      ax.Box = 'on';
       saveas(fig,fullfile(directory, strcat(this.experimentName,'_time.eps')),'epsc');
       
     end

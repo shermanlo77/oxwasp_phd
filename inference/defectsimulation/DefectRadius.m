@@ -51,7 +51,7 @@ classdef DefectRadius < Experiment
       offset = 10;
       
       %plot roc area vs alt mean
-      fig = LatexFigure.sub();
+      fig = LatexFigure.subLoose();
       ax = gca;
       boxplot = Boxplots(this.rocAreaArray(:,:,2));
       boxplot.setPosition(this.radiusArray);
@@ -64,15 +64,16 @@ classdef DefectRadius < Experiment
       plot(ax.XLim, [oracleInterval(2), oracleInterval(2)], 'k--');
       xlabel('radius (px)');
       ylabel('AUC');
-      saveas(fig,fullfile(directory, strcat(this.experimentName,'_roc.eps')),'epsc');
+      ax.Box = 'on';
+      print(fig,fullfile(directory, strcat(this.experimentName,'_roc.eps')),'-depsc','-loose');
       %plot bw
       boxplot.setToBw();
       boxplot.plot();
-      saveas(fig,fullfile(directory, strcat(this.experimentName,'_rocBW.eps')),'eps')
-      saveas(fig,fullfile(directory, strcat(this.experimentName,'_rocVW.tiff')),'tiff')
+      print(fig,fullfile(directory, strcat(this.experimentName,'_rocBW.eps')),'-deps','-loose');
+      print(fig,fullfile(directory, strcat(this.experimentName,'_rocVW.tiff')),'-dtiff','-loose');
       
       %plot type 1 error vs alt mean
-      fig = LatexFigure.sub();
+      fig = LatexFigure.subLoose();
       ax = gca;
       boxplot = Boxplots(this.type1ErrorArray(:,:,2));
       boxplot.setPosition(this.radiusArray);
@@ -85,15 +86,16 @@ classdef DefectRadius < Experiment
       plot(ax.XLim, [oracleInterval(2), oracleInterval(2)], 'k--');
       xlabel('radius (px)');
       ylabel('type 1 error');
-      saveas(fig,fullfile(directory, strcat(this.experimentName,'_type1.eps')),'epsc');
+      ax.Box = 'on';
+      print(fig,fullfile(directory, strcat(this.experimentName,'_type1.eps')),'-depsc','-loose');
       %plot bw
       boxplot.setToBw();
       boxplot.plot();
-      saveas(fig,fullfile(directory, strcat(this.experimentName,'_type1BW.eps')),'eps');
-      saveas(fig,fullfile(directory, strcat(this.experimentName,'_type1BW.tiff')),'tiff');
+      print(fig,fullfile(directory, strcat(this.experimentName,'_type1BW.eps')),'-deps','-loose');
+      print(fig,fullfile(directory, strcat(this.experimentName,'_type1BW.tiff')),'-dtiff','-loose');
       
       %plot type 2 error vs alt mean
-      fig = LatexFigure.sub();
+      fig = LatexFigure.subLoose();
       ax = gca;
       boxplot = Boxplots(this.type2ErrorArray(:,:,2));
       boxplot.setPosition(this.radiusArray);
@@ -106,15 +108,17 @@ classdef DefectRadius < Experiment
       plot(ax.XLim, [oracleInterval(2), oracleInterval(2)], 'k--');
       xlabel('radius (px)');
       ylabel('type 2 error');
-      saveas(fig,fullfile(directory, strcat(this.experimentName,'_type2.eps')),'epsc');
+      ax.Box = 'on';
+      print(fig,fullfile(directory, strcat(this.experimentName,'_type2.eps')),'-depsc','-loose');
       %plot bw
       boxplot.setToBw();
       boxplot.plot();
-      saveas(fig,fullfile(directory, strcat(this.experimentName,'_type2BW.eps')),'eps');
-      saveas(fig,fullfile(directory, strcat(this.experimentName,'_type2BW.tiff')),'tiff');
+      print(fig,fullfile(directory, strcat(this.experimentName,'_type2BW.eps')),'-deps','-loose');
+      print(fig,fullfile(directory, strcat(this.experimentName,'_type2BW.tiff')),'-dtiff',...
+          '-loose');
       
       %fdr vs alt mean
-      fig = LatexFigure.sub();
+      fig = LatexFigure.subLoose();
       ax = gca;
       boxplot = Boxplots(this.fdrArray(:,:,2));
       boxplot.setPosition(this.radiusArray);
@@ -127,12 +131,13 @@ classdef DefectRadius < Experiment
       plot(ax.XLim, [oracleInterval(2), oracleInterval(2)], 'k--');
       xlabel('radius (px)');
       ylabel('fdr');
-      saveas(fig,fullfile(directory, strcat(this.experimentName,'_fdr.eps')),'epsc');
+      ax.Box = 'on';
+      print(fig,fullfile(directory, strcat(this.experimentName,'_fdr.eps')),'-depsc','-loose');
       %plot bw
       boxplot.setToBw();
       boxplot.plot();
-      saveas(fig,fullfile(directory, strcat(this.experimentName,'_fdrBW.eps')),'eps');
-      saveas(fig,fullfile(directory, strcat(this.experimentName,'_fdrBW.tiff')),'tiff');
+      print(fig,fullfile(directory, strcat(this.experimentName,'_fdrBW.eps')),'-deps','-loose');
+      print(fig,fullfile(directory, strcat(this.experimentName,'_fdrBW.tiff')),'-dtiff','-loose');
       
     end
     
