@@ -24,7 +24,7 @@ xArray = [1500,1745];
 yArray = [1660,1900];
 
 %plot the z image with the sub-sample highlighed
-fig = LatexFigure.sub();
+fig = LatexFigure.subLoose();
 axis xy;
 imagesc = Imagesc(zImage);
 imagesc.plot();
@@ -34,18 +34,18 @@ plot(xArray,yArray(1)*ones(1,2),'r--');
 plot(xArray,yArray(2)*ones(1,2),'r--');
 plot(xArray(1)*ones(1,2),yArray,'r--');
 plot(xArray(2)*ones(1,2),yArray,'r--');
-saveas(fig, fullfile('reports','figures','inference','cornerSelect.eps'),'epsc');
+print(fig, fullfile('reports','figures','inference','cornerSelect.eps'),'-depsc','-loose');
 
 %plot histogram of the z statistics
 zSub = zImage(yArray(1):yArray(2), xArray(1):xArray(2));
 zTester = ZTester(zSub);
-fig = LatexFigure.sub();
+fig = LatexFigure.subLoose();
 zTester.plotHistogram();
-saveas(fig, fullfile('reports','figures','inference','cornerSelectHist.eps'),'epsc');
+print(fig, fullfile('reports','figures','inference','cornerSelectHist.eps'),'-depsc','-loose');
 
 %plot the sub segments, in colour, then bw
 for isBw = [false, true]
-  fig = LatexFigure.sub();
+  fig = LatexFigure.subLoose();
   axis xy;
   imagesc = Imagesc(zImage);
   if (isBw)
@@ -64,9 +64,9 @@ for isBw = [false, true]
     end
   end
   if (isBw)
-    saveas(fig, fullfile('reports','figures','inference','segmentBW.eps'),'eps');
-    saveas(fig, fullfile('reports','figures','inference','segmentBW.tiff'),'tiff');
+    print(fig, fullfile('reports','figures','inference','segmentBW.eps'),'-deps','-loose');
+    print(fig, fullfile('reports','figures','inference','segmentBW.tiff'),'-dtiff','-loose');
   else
-    saveas(fig, fullfile('reports','figures','inference','segment.eps'),'epsc');
+    print(fig, fullfile('reports','figures','inference','segment.eps'),'-depsc','-loose');
   end
 end

@@ -1707,7 +1707,7 @@ The results showed that the AUC increased with kernel radius. This highlighted t
 For large enough kernel radius, the FDR was controlled at around 5\%. It appeared that a large kernel radius helped preserve FDR control after filtering in these examples. It was observed that there exist a kernel radius which minimised the type 2 error. So a large kernel radius is required for FDR control but too large can lose statistical power. It was noticed that filtering using large kernel radiuses is computationally slower.
 
 \afterpage{\clearpage}
-\section{Results}
+\subsection{Application to Real Projections}
 
 The empirical null filter was applied to the \texttt{AbsFilter} projection at \ang{120}. Figures \ref{fig:inference_AbsFilterDeg120_inference_radius1} and \ref{fig:inference_AbsFilterDeg120_inference_radius4} shows the resulting inference when using a kernel radius of $r=\addNumber{../figures/inference/DefectDetectAbsFilterDeg120_radius1.txt}\,\SI{}{\pixel}$ and $r=\addNumber{../figures/inference/DefectDetectAbsFilterDeg120_radius4.txt}\,\SI{}{\pixel}$ respectively. With a small radius, the empirical null treated the voids as the null which is shown by the empirical null mean capturing the features of the voids. When a large enough radius was used, the larger voids were highlighted by the hypotheses test and the empirical null mean became smoother. This is evidence that this method ironed out false positives observed at the start of the chapter.
 
@@ -1779,18 +1779,18 @@ The empirical null filter was applied to the \texttt{AbsFilter} projection at \a
   \label{fig:inference_cornerSelect}
 \end{figure}
 
-False positives were detected on the bottom right of the test sample. When placing the corner on the bottom right corner, the null distribution is bimodal because each face has a different distribution. Figure \ref{fig:inference_cornerSelect} illustrates this. The geometry of the faces and the kernel used was such that it resulted in one of the faces to be treated as non-null and then tested positive, falsely so.
-
-The false positives were tackled by manually segmenting the image further as shown in Figure \ref{fig:inference_segmentFurther}. It was segmented using the edges of the $z$ image. The empirical null filter was then used on each segment, or ROI, independently, ignoring any pixels outside the ROI the filter is working on. The resulting filtered segments were stitched together to form the resulting filtered image. By using this method, the resulting inference is shown in Figure \ref{fig:inference_subroiAbsFilterDeg120_inference_radius4}. It can be seen that the empirical null mean did change face to face, resulting in a clear boundary set by the edges. Most of false positives around the corners and edges have been eliminated.
-
-The same procedure was done on the projection at \ang{30}, as shown in Figure \ref{fig:inference_subroiAbsFilterDeg30_inference_radius1}, with similar results.
-
 \begin{figure}
   \centering
   \includegraphics[width=\subSize]{../figures/inference/segment.eps}
   \caption{The $z$ image was segmented further into 7 segments shown by the dotted red lines.}
   \label{fig:inference_segmentFurther}
 \end{figure}
+
+False positives were detected on the bottom right of the test sample. When placing the corner on the bottom right corner, the null distribution is bimodal because each face has a different distribution. Figure \ref{fig:inference_cornerSelect} illustrates this. The geometry of the faces and the kernel used was such that it resulted in one of the faces to be treated as non-null and then tested positive, falsely so.
+
+The false positives were tackled by manually segmenting the image further as shown in Figure \ref{fig:inference_segmentFurther}. It was segmented using the edges of the $z$ image. The empirical null filter was then used on each segment, or ROI, independently, ignoring any pixels outside the ROI the filter is working on. The resulting filtered segments were stitched together to form the resulting filtered image. By using this method, the resulting inference is shown in Figure \ref{fig:inference_subroiAbsFilterDeg120_inference_radius4}. It can be seen that the empirical null mean did change face to face, resulting in a clear boundary set by the edges. Most of false positives around the corners and edges have been eliminated.
+
+The same procedure was done on the projection at \ang{30}, as shown in Figure \ref{fig:inference_subroiAbsFilterDeg30_inference_radius1}, with similar results.
 
 \begin{figure}[p]
   \centering
@@ -1846,7 +1846,7 @@ The same procedure was done on the projection at \ang{30}, as shown in Figure \r
 
 \section{Conclusion}
 
-The empirical null filter demonstrated that it can adjust the null hypotheses according to the data to make sensible inference. In the simulations, it was found that the FDR level is preserved after filtering. Also, the empirical null filter outperformed other methods based on quantiles, as suggested by \cite{efron2004large}. A sensible kernel radius is required to aid distinguishing misspecified null statistics from non-null statistics, for example, a kernel too small would treat defects as the null.
+The empirical null filter demonstrated that it can adjust the null hypotheses according to the data to make sensible inference. In the simulations, it was found that the FDR level is preserved after filtering. Also, the empirical null filter outperformed other methods based on quantiles, as suggested by \cite{efron2004large}. A sensible kernel radius is required to avoid treating defects as the null.
 
 In the experiment, the larger voids of diameter \SI{2.4}{\milli\metre} were detected in the test sample. False positives do occur but this is unavoidable because tests were done at the 5\% FDR level. Typically in the experiments, false positives were isolated single pixels and probably occurred due to random chance. Clusters of positive pixels should raise suspicion. One could create a binary image, assigning a Boolean value whether that pixel was tested positive or not. A binary image filter, such as erode followed by a dilate, can be used to remove isolated positive pixels to emphasise the cluster of positive pixels.
 
