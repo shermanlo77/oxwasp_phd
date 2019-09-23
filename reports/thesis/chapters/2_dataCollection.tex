@@ -15,7 +15,7 @@ The test object is a cuboid (\SI{40.0}{\milli\metre} $\times$ \SI{40.0}{\milli\m
   \label{fig:inference_testObject}
 \end{figure}
 
-The \emph{Fortus 400mc (Stratasys, US)} was used to manufacture the test object made of plastic (acrylonitrile butadiene styrene or ABS). The precision of the manufacturing was in the order of $\pm\SI{0.1}{\milli\metre}$ \citep{hanseen2013fortus}. Another test object was manufactured made from titanium (Ti-6Al-4V)
+The \emph{Fortus 400mc (Stratasys, US)} was used to manufacture the test object made of plastic (acrylonitrile butadiene styrene or ABS). The precision of the manufacturing was in the order of $\pm\SI{0.1}{\milli\metre}$ \citep{hanseen2013fortus}.
 
 X-ray projections were obtained using the \emph{Nikon XT H LC 225/320} x-ray CT scanner (\emph{Nikon Metrology, UK}) together with a \emph{Perkin Elmer XRD 1621 (Perkin Elmer, US)} detector. The target material in the x-ray tube was tungsten. The detector was made up of 2 rows and 16 columns of panels and together has dimensions of $\SI{409.6}{\milli\metre}\times\SI{409.6}{\milli\metre}$ which produced a 16-bit projection of $\SI{2048}{\pixel}\times\SI{2048}{\pixel}$ in size \citep{perkinelmer2006xrd}. Therefore, the scale of each pixel is $\SI{200.0}{\micro\metre\per\pixel}$. The projections were cropped to $\SI{2000}{\pixel}\times\SI{2000}{\pixel}$ to remove boundary effects. The gain and offset were adjusted by the engineers to produce a projection with good contrast and negligible penumbra effect. Each pixel has a grey value in units of analogue to digital units (\SI{}{\adu}).
 
@@ -23,34 +23,34 @@ Greyscale projections were taken in addition to the projection of the test objec
 
 Replicate test sample projections and greyscale projections were obtained by repeating the acquisition. These replicated projections were used to study the noise observed in the projections.
 
-Filters were used, such as a \SI{0.35}{\milli\metre} copper filter and a \SI{2.0}{\milli\metre} tin filter, to tackle beam hardening.
+A \SI{0.35}{\milli\metre} copper filter was used to tackle beam hardening.
 
 \emph{aRTist} was used to simulate the test object projection and all greyscale projections except for the black image. The black image was simulated by producing a uniform image with a grey value the mean over the obtained black image. The engineers used numerical methods to align the simulated projection with the obtained projection.
 
 \section{Datasets}
 
-Three datasets were collected and named \texttt{AbsNoFilter}, \texttt{AbsFilter} and \texttt{TiFilter}. They contain replicate projections of the test sample at two different angles, named $\ang{30}$ and $\ang{120}$, as well as replicate greyscale projections. Projections of the ABS test sample were taken in \texttt{AbsNoFilter} and \texttt{AbsFilter}. The titanium test sample was scanned in \texttt{TiFilter}. To investigate the effects of beam hardening, no x-ray filter was used in \texttt{AbsNoFilter}, a filter was used in \texttt{AbsFilter} and \texttt{TiFilter}.
+Two datasets were collected and named \texttt{AbsNoFilter} and \texttt{AbsFilter}. They contain replicate projections of the test sample at two different angles, named $\ang{30}$ and $\ang{120}$, as well as replicate greyscale projections. To investigate the effects of beam hardening, no x-ray filter was used in \texttt{AbsNoFilter}, a filter was used in \texttt{AbsFilter}.
 
-The properties of each dataset are shown in Table \ref{table:data_dataset}. These include the properties of the x-ray tube, the XCT apparatus and what powers were used in the greyscale projections. A sample of the obtained, simulated and greyscale projections for the datasets \texttt{AbsNoFilter}, \texttt{AbsFilter} and \texttt{TiFilter} are shown in Figures \ref{fig:data_AbsNoFilter}, \ref{fig:data_AbsFilter} and \ref{fig:data_TiFilter} respectively.
+The properties of each dataset are shown in Table \ref{table:data_dataset}. These include the properties of the x-ray tube, the XCT apparatus and what powers were used in the greyscale projections. A sample of the obtained, simulated and greyscale projections from the datasets \texttt{AbsNoFilter} and \texttt{AbsFilter} are shown in Figures \ref{fig:data_AbsNoFilter} and \ref{fig:data_AbsFilter} respectively.
 
 \begin{sidewaystable}
 \centering
-\begin{tabular}{l|lll}
-                                                       & \multicolumn{3}{c}{Dataset name}                                                \\
-                                                       & \texttt{AbsNoFilter} & \texttt{AbsFilter}             & \texttt{TiFilter}        \\ \hline
-potential difference (\SI{}{\kilo\volt})               & 80                   & 80                             & 190                      \\
-power (\SI{}{\watt})                                   & 36                   & 20                             & 20                       \\
-filter                                                 & no filter            & \SI{0.35}{\milli\metre} copper & \SI{2.0}{\milli\metre} tin \\
-time exposure (\SI{}{\milli\second})                   & 708                  & 500                            & 1415                     \\
-distance from source to object (\SI{}{\milli\metre})   & 217                  & 168                            & 86                       \\
-distance from source to detector (\SI{}{\milli\metre}) & 1178                 & 876                            & 875                      \\
-number of replications for each angle                  & 100                  & 20                             & 20                       \\ \hline
-powers used for greyscale projections (\SI{}{\watt})   & 0.0                  & 0.0                            & 0.0                      \\
-\multicolumn{1}{c|}{\vdots}                            & 10                   & 5.0                            & 10                       \\
-\multicolumn{1}{c|}{\vdots}                            & 18                   & 10                             & 20                       \\
-\multicolumn{1}{c|}{\vdots}                            & 28                   & 15                             &                          \\
-\multicolumn{1}{c|}{\vdots}                            & 36                   & 20                             &                          \\
-number of replications for each power                  & 20                   & 20                             & 20                    
+\begin{tabular}{l|ll}
+                                                       & \multicolumn{2}{c}{Dataset name}                      \\
+                                                       & \texttt{AbsNoFilter} & \texttt{AbsFilter}             \\ \hline
+potential difference (\SI{}{\kilo\volt})               & 80                   & 80                             \\
+power (\SI{}{\watt})                                   & 36                   & 20                             \\
+filter                                                 & no filter            & \SI{0.35}{\milli\metre} copper \\
+time exposure (\SI{}{\milli\second})                   & 708                  & 500                            \\
+distance from source to object (\SI{}{\milli\metre})   & 217                  & 168                            \\
+distance from source to detector (\SI{}{\milli\metre}) & 1178                 & 876                            \\
+number of replications for each angle                  & 100                  & 20                             \\ \hline
+powers used for greyscale projections (\SI{}{\watt})   & 0.0                  & 0.0                            \\
+\multicolumn{1}{c|}{\vdots}                            & 10                   & 5.0                            \\
+\multicolumn{1}{c|}{\vdots}                            & 18                   & 10                             \\
+\multicolumn{1}{c|}{\vdots}                            & 28                   & 15                             \\
+\multicolumn{1}{c|}{\vdots}                            & 36                   & 20                             \\
+number of replications for each power                  & 20                   & 20                             
 \end{tabular}
 \caption{Properties of the three datasets obtained for the experiment.}
 \label{table:data_dataset}
@@ -106,32 +106,6 @@ number of replications for each power                  & 20                   & 
   }
   \caption{\texttt{AbsFilter} projections at \ang{30}. The colour scales are in units of \SI{}{\adu}.}
   \label{fig:data_AbsFilter}
-\end{figure}
-
-\begin{figure}[p]
-  \centering
-  \centerline{
-    \begin{subfigure}[b]{\subSize}
-      \includegraphics[width=\textwidth]{../figures/data/TiFilterDeg30.eps}
-      \caption{Obtained projection at \SI{20}{\watt}}
-    \end{subfigure}
-    \begin{subfigure}[b]{\subSize}
-      \includegraphics[width=\textwidth]{../figures/data/TiFilterDeg30_sim.eps}
-      \caption{Simulated projection at \SI{20}{\watt}}
-    \end{subfigure}
-  }
-  \centerline{
-    \begin{subfigure}[b]{\subSize}
-      \includegraphics[width=\textwidth]{../figures/data/TiFilter_calibration1.eps}
-      \caption{Greyscale projection at \SI{0}{\watt}}
-    \end{subfigure}
-    \begin{subfigure}[b]{\subSize}
-      \includegraphics[width=\textwidth]{../figures/data/TiFilter_calibration3.eps}
-      \caption{Greyscale projection at \SI{20}{\watt}}
-    \end{subfigure}
-  }
-  \caption{\texttt{TiFilter} projections at \ang{30}. The colour scales are in units of \SI{}{\adu}.}
-  \label{fig:data_TiFilter}
 \end{figure}
 
 The projections show the test sample, but, with panel and spot effects. The structure of the 32 panels are predominate in the black image, in particular, this was observed by \cite{yang2009evaluation} as well. This is concerning because systematic errors could be introduced as a result of the panel effects in the black image. This should not happen because, in a black image, the detector is exposed only to background radiation. The x-ray spot can be observed, in particular, in the white image, and this is the result of using a cone beam.

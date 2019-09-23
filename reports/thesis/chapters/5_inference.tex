@@ -1708,9 +1708,8 @@ For large enough kernel radius, the FDR was controlled at around 5\%. It appeare
 
 \afterpage{\clearpage}
 \section{Results}
-The empirical null filter was developed and tested thoroughly on simulated images. In this section, the filter was applied to the projections in the \texttt{AbsFilter} and \texttt{TiFilter} datasets.
 
-\subsection{ABS Test Sample}
+The empirical null filter was applied to the \texttt{AbsFilter} projection at \ang{120}. Figures \ref{fig:inference_AbsFilterDeg120_inference_radius1} and \ref{fig:inference_AbsFilterDeg120_inference_radius4} shows the resulting inference when using a kernel radius of $r=\addNumber{../figures/inference/DefectDetectAbsFilterDeg120_radius1.txt}\,\SI{}{\pixel}$ and $r=\addNumber{../figures/inference/DefectDetectAbsFilterDeg120_radius4.txt}\,\SI{}{\pixel}$ respectively. With a small radius, the empirical null treated the voids as the null which is shown by the empirical null mean capturing the features of the voids. When a large enough radius was used, the larger voids were highlighted by the hypotheses test and the empirical null mean became smoother. This is evidence that this method ironed out false positives observed at the start of the chapter.
 
 \begin{figure}[p]
   \centering
@@ -1764,11 +1763,6 @@ The empirical null filter was developed and tested thoroughly on simulated image
   \label{fig:inference_AbsFilterDeg120_inference_radius4}
 \end{figure}
 
-The empirical null filter was applied to the \texttt{AbsFilter} projection at \ang{120}. Figures \ref{fig:inference_AbsFilterDeg120_inference_radius1} and \ref{fig:inference_AbsFilterDeg120_inference_radius4} shows the resulting inference when using a kernel radius of $r=\addNumber{../figures/inference/DefectDetectAbsFilterDeg120_radius1.txt}\,\SI{}{\pixel}$ and $r=\addNumber{../figures/inference/DefectDetectAbsFilterDeg120_radius4.txt}\,\SI{}{\pixel}$ respectively.
-With a small radius, the empirical null treated the voids as the null which is shown by the empirical null mean capturing the features of the voids. When a large enough radius was used, the larger voids were highlighted by the hypotheses test and the empirical null mean became smoother. This is evidence that this method ironed out  false positives observed at the start of the chapter.
-
-False positives were detected on the bottom right of the test sample. When placing the corner on the bottom right corner, the null distribution is bimodal because each face has a different distribution. Figure \ref{fig:inference_cornerSelect} illustrates this. The geometry of the faces and the kernel used was such that it resulted in one of the faces to be treated as non-null and then tested positive, falsely so.
-
 \begin{figure}
   \centering
   \centerline{
@@ -1784,6 +1778,12 @@ False positives were detected on the bottom right of the test sample. When placi
   \caption{A section of the bottom right of a unfiltered $z$ image is shown in a). The $z$ statistics in it are shown as a histogram in b) and indicates a bimodal distribution.}
   \label{fig:inference_cornerSelect}
 \end{figure}
+
+False positives were detected on the bottom right of the test sample. When placing the corner on the bottom right corner, the null distribution is bimodal because each face has a different distribution. Figure \ref{fig:inference_cornerSelect} illustrates this. The geometry of the faces and the kernel used was such that it resulted in one of the faces to be treated as non-null and then tested positive, falsely so.
+
+The false positives were tackled by manually segmenting the image further as shown in Figure \ref{fig:inference_segmentFurther}. It was segmented using the edges of the $z$ image. The empirical null filter was then used on each segment, or ROI, independently, ignoring any pixels outside the ROI the filter is working on. The resulting filtered segments were stitched together to form the resulting filtered image. By using this method, the resulting inference is shown in Figure \ref{fig:inference_subroiAbsFilterDeg120_inference_radius4}. It can be seen that the empirical null mean did change face to face, resulting in a clear boundary set by the edges. Most of false positives around the corners and edges have been eliminated.
+
+The same procedure was done on the projection at \ang{30}, as shown in Figure \ref{fig:inference_subroiAbsFilterDeg30_inference_radius1}, with similar results.
 
 \begin{figure}
   \centering
@@ -1844,93 +1844,15 @@ False positives were detected on the bottom right of the test sample. When placi
   \label{fig:inference_subroiAbsFilterDeg30_inference_radius1}
 \end{figure}
 
-The false positives were tackled by manually segmenting the image further as shown in Figure \ref{fig:inference_segmentFurther}. It was segmented using the edges of the $z$ image. The empirical null filter was then used on each segment, or ROI, independently, ignoring any pixels outside the ROI the filter is working on. The resulting filtered segments were stitched together to form the resulting filtered image. By using this method, the resulting inference is shown in Figure \ref{fig:inference_subroiAbsFilterDeg120_inference_radius4}. It can be seen that the empirical null mean did change face to face, resulting in a clear boundary set by the edges. Most of false positives around the corners and edges have been eliminated.
-
-The same procedure was done on the projection at \ang{30}, as shown in Figure \ref{fig:inference_subroiAbsFilterDeg30_inference_radius1}, with similar results.
-
-\subsection{Titanium Test Sample}
-
-The whole procedure was repeated on the titanium test sample in the dataset \texttt{TiFilter}. The resulting $z$ statistics are shown in Figure \ref{fig:inference_subroiTiFilter_unfiteredZ} and shows, as in the \texttt{AbsFilter} case, a boundary on the edges of the test sample. The faces of the test sample were manually segmented and the empirical null filter was used on each segment separately and stitched together to form the final stages of the analysis.
-
-\begin{figure}
-  \centering
-    \centerline{
-      \begin{subfigure}[b]{\subSize}
-        \includegraphics[width=\textwidth]{../figures/inference/DefectDetectSubRoiTiFilterDeg30_unfilteredZ.eps}
-        \caption{\ang{30}}
-      \end{subfigure}
-      \begin{subfigure}[b]{\subSize}
-        \includegraphics[width=\textwidth]{../figures/inference/DefectDetectSubRoiTiFilterDeg120_unfilteredZ.eps}
-        \caption{\ang{120}}
-      \end{subfigure}
-    }
-  \caption{Unfiltered $z$ images from the dataset \texttt{TiFilter}}
-  \label{fig:inference_subroiTiFilter_unfiteredZ}
-\end{figure}
-
-\begin{figure}[p]
-  \centering
-    \centerline{
-      \begin{subfigure}[b]{\subSize}
-        \includegraphics[width=\textwidth]{../figures/inference/DefectDetectSubRoiTiFilterDeg30_radius1_sig.eps}
-        \caption{{Obtained projection (\SI{}{\adu})}}
-      \end{subfigure}
-      \begin{subfigure}[b]{\subSize}
-        \includegraphics[width=\textwidth]{../figures/inference/DefectDetectSubRoiTiFilterDeg30_radius1_logp.eps}
-        \caption{$-\log p$}
-      \end{subfigure}
-    }
-    \centerline{
-      \begin{subfigure}{\subSize}
-        \includegraphics[width=\textwidth]{../figures/inference/DefectDetectSubRoiTiFilterDeg30_radius1_nullMean.eps}
-        \caption{Empirical null mean}
-      \end{subfigure}
-      \begin{subfigure}{\subSize}
-        \includegraphics[width=\textwidth]{../figures/inference/DefectDetectSubRoiTiFilterDeg30_radius1_nullStd.eps}
-        \caption{Empirical null std}
-      \end{subfigure}
-    }
-  \caption{Resulting inference when using the empirical null filter on the \texttt{TiFilter} at \ang{30} projection and on each segment independently. A kernel radius of $r=\addNumber{../figures/inference/DefectDetectSubRoiTiFilterDeg30_radius1.txt}\,\SI{}{\pixel}$ was used. a) Highlighted in red are positive pixels at the 5\% FDR level. The test statistics from all segments were combined in the BH procedure. b) $p$-values on the log scale. c) and d) Empirical null mean and standard deviation.}
-  \label{fig:inference_subroiTiFilterDeg30_inference}
-\end{figure}
-
-\begin{figure}[p]
-  \centering
-    \centerline{
-      \begin{subfigure}[b]{\subSize}
-        \includegraphics[width=\textwidth]{../figures/inference/DefectDetectSubRoiTiFilterDeg120_radius1_sig.eps}
-        \caption{{Obtained projection (\SI{}{\adu})}}
-      \end{subfigure}
-      \begin{subfigure}[b]{\subSize}
-        \includegraphics[width=\textwidth]{../figures/inference/DefectDetectSubRoiTiFilterDeg120_radius1_logp.eps}
-        \caption{$-\log p$}
-      \end{subfigure}
-    }
-    \centerline{
-      \begin{subfigure}{\subSize}
-        \includegraphics[width=\textwidth]{../figures/inference/DefectDetectSubRoiTiFilterDeg120_radius1_nullMean.eps}
-        \caption{Empirical null mean}
-      \end{subfigure}
-      \begin{subfigure}{\subSize}
-        \includegraphics[width=\textwidth]{../figures/inference/DefectDetectSubRoiTiFilterDeg120_radius1_nullStd.eps}
-        \caption{Empirical null std}
-      \end{subfigure}
-    }
-  \caption{Resulting inference when using the empirical null filter on the \texttt{TiFilter} at \ang{120} projection and on each segment independently. A kernel radius of $r=\addNumber{../figures/inference/DefectDetectSubRoiTiFilterDeg120_radius1.txt}\,\SI{}{\pixel}$ was used. a) Highlighted in red are positive pixels at the 5\% FDR level. The test statistics from all segments were combined in the BH procedure. b) $p$-values on the log scale. c) and d) Empirical null mean and standard deviation.}
-  \label{fig:inference_subroiTiFilterDeg120_inference}
-\end{figure}
-
-The resulting inference are shown in Figures \ref{fig:inference_subroiTiFilterDeg30_inference} and \ref{fig:inference_subroiTiFilterDeg120_inference}. Unfortunately the edges of the test sample were falsely tested as positive and none of the voids were detected. The discrepancies are at the edges and can be due to inaccurate face segmentation or poor alignment of the \emph{aRTist} projection to the obtained projection.
-
 \section{Conclusion}
 
-The empirical null filter demonstrated that it can adjust the null hypotheses according to the data to make sensible inference. In the experiments, it was found that the FDR level is preserved after filtering. Also, the empirical null filter outperformed other methods based on quantiles, as suggested by \cite{efron2004large}.
+The empirical null filter demonstrated that it can adjust the null hypotheses according to the data to make sensible inference. In the simulations, it was found that the FDR level is preserved after filtering. Also, the empirical null filter outperformed other methods based on quantiles, as suggested by \cite{efron2004large}. A sensible kernel radius is required to aid distinguishing misspecified null statistics from non-null statistics, for example, a kernel too small would treat defects as the null.
 
-Larger voids of diameter \SI{2.4}{\milli\metre} were detected in the ABS test sample. False positives do occur but this is unavoidable because tests were done at the 5\% FDR level. Typically in the experiments, false positives were isolated single pixels and probably occurred due to random chance. Clusters of positive pixels should raise suspicion. One could create a binary image, assigning a Boolean value whether that pixel was tested positive or not. A binary image filter, such as erode followed by a dilate, can be used to remove isolated positive pixels to emphasise the cluster of positive pixels.
+In the experiment, the larger voids of diameter \SI{2.4}{\milli\metre} were detected in the test sample. False positives do occur but this is unavoidable because tests were done at the 5\% FDR level. Typically in the experiments, false positives were isolated single pixels and probably occurred due to random chance. Clusters of positive pixels should raise suspicion. One could create a binary image, assigning a Boolean value whether that pixel was tested positive or not. A binary image filter, such as erode followed by a dilate, can be used to remove isolated positive pixels to emphasise the cluster of positive pixels.
+
+The assessment of the inference could be improved if the location of the defects were known in the projection. This would allow identifying which positives are true and false positives so that the analysis can be quantified using a ROC curve.
 
 For good results, the faces of the test sample were segmented. This was necessary because the empirical null filter assumes that the null parameters varied spatially smoothly and slowly. Manual segmentation was easy to do because a cuboid has 6 faces. However, segmentation of faces cannot be generalised well to AM samples with complicated geometry and curved surfaces. Automatic segmentation may be possible with geometrical information from the CAD model.
-
-While the empirical null filter performed well for the ABS test sample, it failed in the titanium test sample due to dominating effects on the edges. This could be due to poor face segmentation or poor alignment of the \emph{aRTist} projection with the obtained projection. This demonstrates that the empirical null filter can cater for model misspecification but there becomes a point where model misspecified null statistics cannot be distinguished from non-null statistics. Another possible cause for dominating edge effects are metal artifacts such as streaks which are problems observed in XCT of metal parts \citep{deman1998metal, nawaz2014metal}. Lastly, because the titanium test sample was created using a power-based method, powder may become trapped \citep{brierley2018optimized} in the void. This results in the voids appearing with less contrast in the projections, making it harder to detect.
 
 The main issue with implementing this method onto the production line was how slow the filter was. The main bottleneck is the evaluation of the density estimate. Each step in the Newton-Raphson required the evaluation of $\pi r^2$ data points. As a result, increasing the kernel radius slows down the filter. There may be faster methods for density estimation such as fitting a smoothing spline on the histogram \citep{efron2004large}, however, that would require tuning the histogram bins as well as the tuning parameters for the spline. On the other hand, the method in \cite{schwartzman2008empirical}, which uses the histogram count, found that the estimation of the null parameters was insensitive to the histogram binning.
 
