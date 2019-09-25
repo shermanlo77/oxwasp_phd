@@ -281,7 +281,7 @@ where $s_z$ and $\text{IQR}_z$ are the sample standard deviation and sample inte
 \begin{figure}
   \centering
   \includegraphics[width=\subSize]{../figures/inference/inferenceSubsample1_densityEstimate.eps}
-  \caption{The density of the test statistics, from Figure \ref{fig:inference_inferenceSubsample1_histogram}, was estimated using a kernel density estimate. The dot dashed line shows the empirical null distribution multiplied by some constant, this is to illustrate that the two densities have the same curvature at the mode.}
+  \caption{The density of the test statistics, from Figure \ref{fig:inference_inferenceSubsample1_histogram}, was estimated using a kernel density estimate. The dot-dashed line shows the empirical null distribution multiplied by some constant, this is to illustrate that the two densities have the same curvature at the mode.}
   \label{fig:inference_inferenceSubsample1_densityEstimate}
 \end{figure}
 
@@ -774,7 +774,7 @@ A smooth valley can be seen for the median squared error for $\widehat{\sigma}_0
       \includegraphics[width=\textwidth]{../figures/inference/BandwidthSelection_error2.eps}
       \caption{$\sigma_0$}
   \end{subfigure}
-  \caption{Median squared error of the estimates of the empirical null parameters over 100 repeats of $n$ simulated standard Normal data. Lines represent the rule of thumb for various values of $b$.}
+  \caption{The median squared error of the estimates of the empirical null parameters over 100 repeats of $n$ simulated standard Normal data. Lines represent the rule of thumb for various values of $b$.}
   \label{fig:inference_BandwidthSelection_error}
 \end{figure}
 
@@ -833,7 +833,7 @@ where $b$ and $a$ are parameters to be fitted. This was chosen to establish a si
 \begin{figure}
   \centering
   \includegraphics[width=\mainSize]{../figures/inference/BandwidthSelection2_ruleOfThumb.eps}
-  \caption{An identity link gamma GLM was fitted onto the relationship between the optimal bandwidth and $n^{-1/5}$ from the experiment. The dashed lines shows the 68\% prediction interval.}
+  \caption{An identity link gamma GLM was fitted onto the relationship between the optimal bandwidth and $n^{-1/5}$ from the experiment. The dashed lines show the 68\% prediction interval.}
   \label{fig:inference_BandwidthSelection2_ruleOfThumb}
 \end{figure}
 
@@ -844,7 +844,7 @@ where $b$ and $a$ are parameters to be fitted. This was chosen to establish a si
   Intercept&\input{../figures/inference/BandwidthSelection2_coeff1.txt}\\
   Gradient &\input{../figures/inference/BandwidthSelection2_coeff2.txt}
   \end{tabular}
-  \caption{Estimated and standard error of the gradient and intercept from the linear relationship in Figure \ref{fig:inference_BandwidthSelection2_ruleOfThumb}.}
+  \caption{The estimated and standard error of the gradient and intercept from the linear relationship in Figure \ref{fig:inference_BandwidthSelection2_ruleOfThumb}.}
   \label{table:inference_BandwidthSelection2_ruleOfThumb}
 \end{table}
 
@@ -1042,7 +1042,7 @@ The empirical null filter was implemented using open-source software called \emp
 \begin{figure}
     \centering
     \includegraphics[width=\textwidth]{../figures/inference/fiji/gui.png}
-    \caption{Graphical user interface of the empirical null filter in \emph{Fiji}. The user can adjust the kernel radius as well as other advanced options relating to the Newton-Raphson method and the kernel density estimate. By-products such as the empirical null parameters can be shown after the filtering as well.}
+    \caption{The graphical user interface of the empirical null filter in \emph{Fiji}. The user can adjust the kernel radius as well as other advanced options relating to the Newton-Raphson method and the kernel density estimate. By-products such as the empirical null parameters can be shown after the filtering as well.}
     \label{fig:inference_fijiGui}
 \end{figure}
 
@@ -1418,7 +1418,7 @@ The kurtosis in Figures \ref{fig:inference_AllNullGaussian_kurtosis} and \ref{fi
 \afterpage{\clearpage}
 \subsection{Detection of Simulated Defects}
 
-The empirical null filter was tested to see if it can assist in detecting simulated defects from an image with/without contamination. A defect assign pixels to have a value not distributed under the null distribution, but instead, under an alternative, or non-null, distribution. For example, suppose $Z_{x,y}|H_{0,x,y}\sim\normal(0,1)$, then a defect assign certain pixels to have a value distributed as $Z_{x,y}|H_{1,x,y}\sim\normal(\mu_{1},1)$ where $\mu_1\neq0$.
+The empirical null filter was tested to see if it can assist in detecting simulated defects from an image with/without contamination. A defect assigns pixels to have a value not distributed under the null distribution, but instead, under an alternative, or non-null, distribution. For example, suppose $Z_{x,y}|H_{0,x,y}\sim\normal(0,1)$, then a defect assign certain pixels to have a value distributed as $Z_{x,y}|H_{1,x,y}\sim\normal(\mu_{1},1)$ where $\mu_1\neq0$.
 
 To recap, contamination is the result of a linear transform of the test statistics $Z_{x,y}$. For example, in this experiment, the image was multiplied by 2 and a gradient was added to it. The resulting null and alternative distributions are
 \begin{align}
@@ -1595,7 +1595,7 @@ The receiver operating characteristic (ROC) curves \citep{green1966signal, metz1
         \caption{Square defect, $r=\SI{40}{\pixel}$}
       \end{subfigure}
     }
-  \caption{ROC curves for various defected $\SI{256}{\pixel}\times \SI{256}{\pixel}$ Gaussian images. The upper/lower dot dashed lines show the resulting ROC curve when testing on an image without/with contamination respectively. The different curves are the resulting ROC curves after filtering a contaminated image. The speckle defect has density $\pi_1=0.1$. The line defect is \SI{5}{\pixel} thick. The square defect is $\SI{30}{\pixel}\times \SI{30}{\pixel}$ in size. Defected pixels have the distribution $\normal(3,1)$. The contamination was such that the null distribution is $Z_{x,y}|H_{0,x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$.}
+  \caption{ROC curves for various defected $\SI{256}{\pixel}\times \SI{256}{\pixel}$ Gaussian images. The upper/lower dot-dashed lines show the resulting ROC curve when testing on an image without/with contamination respectively. The different curves are the resulting ROC curves after filtering a contaminated image. The speckle defect has density $\pi_1=0.1$. The line defect is \SI{5}{\pixel} thick. The square defect is $\SI{30}{\pixel}\times \SI{30}{\pixel}$ in size. Defected pixels have the distribution $\normal(3,1)$. The contamination was such that the null distribution is $Z_{x,y}|H_{0,x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$.}
   \label{fig:inference_defectSimulationRoc}
 \end{figure}
 
@@ -1603,7 +1603,7 @@ In terms of the AUC, the empirical null filter improved the performance of hypot
 
 \subsection{Speckle Defect Experiment}
 
-The ROC curves consider all thresholds or specificities used in the hypotheses testing. In the previous experiment, it was found that the variance of the test statistics were different before and after filtering. As a result, for a given threshold, such as the 5\% FDR level, the specificity may change ever so slightly after filtering.
+The ROC curves consider all thresholds or specificities used in the hypotheses testing. In the previous experiment, it was found that the variance of the test statistics was different before and after filtering. As a result, for a given threshold, such as the 5\% FDR level, the specificity may change ever so slightly after filtering.
 
 An experiment was conducted to investigate how filtering affects hypotheses testing. A $\SI{256}{\pixel}\times \SI{256}{\pixel}$ Gaussian image with speckle defect, with density $\pi_1=0.1$, and various values of $\mu_1$ were investigated. The AUC, type 1 error, type 2 error and FDR were measured when testing on an image with a defect before and after contamination and then after filtering with the contamination. The AUC was obtained by numerically integrating the ROC curve using the trapezium rule with 1\,000 trapeziums. A kernel radius of $r=\SI{20}{\pixel}$ was used and was repeated 100 times by simulating another image.
 
@@ -1631,7 +1631,7 @@ An experiment was conducted to investigate how filtering affects hypotheses test
         \label{fig:inference_DefectSimulationDust_fdr}
       \end{subfigure}
     }
-  \caption{AUC and various errors obtained when conducting hypotheses testing on an empirical null filtered contaminated salt defected Gaussian image of size $\SI{256}{\pixel} \times \SI{256}{\pixel}$. In a), the upper/lower dot dashed lines shows the resulting mean AUC when testing on a defected image before/after contamination respectively. In b), c) and d), the dashed lines show the 95\% empirical confidence interval of the resulting error when testing the defected image before contamination. The filter used a kernel radius of \SI{20}{\pixel}. Defected pixels have the distribution $\normal(\mu_1,1)$ where $\mu_1$ was varied in this experiment. The salt defect has density $\pi_1 = 0.1$. The contamination was such that the null distribution is $Z_{x,y}|H_{0,x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$. The test was done at the 5\% FDR level. The boxplots summarise the 100 repeated simulations of the image.}
+  \caption{AUC and various errors obtained when conducting hypotheses testing on an empirical null filtered contaminated salt defected Gaussian image of size $\SI{256}{\pixel} \times \SI{256}{\pixel}$. In a), the upper/lower dot-dashed lines shows the resulting mean AUC when testing on a defected image before/after contamination respectively. In b), c) and d), the dashed lines show the 95\% empirical confidence interval of the resulting error when testing the defected image before contamination. The filter used a kernel radius of \SI{20}{\pixel}. Defected pixels have the distribution $\normal(\mu_1,1)$ where $\mu_1$ was varied in this experiment. The salt defect has density $\pi_1 = 0.1$. The contamination was such that the null distribution is $Z_{x,y}|H_{0,x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$. The test was done at the 5\% FDR level. The boxplots summarise the 100 repeated simulations of the image.}
   \label{fig:inference_DefectSimulationDust}
 \end{figure}
 
@@ -1773,7 +1773,7 @@ The empirical null filter was applied to the \texttt{AbsFilter} projection at \a
       \caption{Histogram of $z$ in the kernel}
     \end{subfigure}
   }
-  \caption{A section of the bottom right of a unfiltered $z$ image is shown in a). The $z$ statistics in it are shown as a histogram in b) and indicates a bimodal distribution.}
+  \caption{A section of the bottom right of an unfiltered $z$ image is shown in a). The $z$ statistics in it are shown as a histogram in b) and indicates a bimodal distribution.}
   \label{fig:inference_cornerSelect}
 \end{figure}
 
