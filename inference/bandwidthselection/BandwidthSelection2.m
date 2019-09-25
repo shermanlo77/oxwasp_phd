@@ -68,7 +68,7 @@ classdef BandwidthSelection2 < Experiment
         kPlot = linspace(this.kArray(1), this.kArray(end), numel(this.kArray)*nPlot);
         plot(kPlot,feval(this.errorFit{iN},kPlot));
         %plot as a verticle line the minimum
-        plot(this.kOptimal(iN)*ones(1,2), yLim, '--'); 
+        plot(this.kOptimal(iN)*ones(1,2), yLim, 'r--'); 
         %label axis and graph
         ax.Box = 'on';
         ylabel('ln squared error');
@@ -93,8 +93,8 @@ classdef BandwidthSelection2 < Experiment
       hold on;
       %plot the glm fit and the error bar
       plot(x, y, 'Color', colour2);
-      plot(x, gaminv(normcdf(1), shapeParameter, gammaScale), 'Color', colour2, 'LineStyle',':');
-      plot(x, gaminv(normcdf(-1), shapeParameter, gammaScale), 'Color', colour2, 'LineStyle',':');
+      plot(x, gaminv(normcdf(1), shapeParameter, gammaScale), 'Color', colour2, 'LineStyle','--');
+      plot(x, gaminv(normcdf(-1), shapeParameter, gammaScale), 'Color', colour2, 'LineStyle','--');
       xlabel('n^{-1/5}');
       ylabel('optimal bandwidth');
       ax = gca;

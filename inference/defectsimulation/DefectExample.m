@@ -133,9 +133,9 @@ classdef DefectExample < Experiment
         plot(this.falsePositiveFilter(:,iFilter), this.truePositiveFilter(:,iFilter));
         hold on;
       end
-      plot(this.falsePositiveClean, this.truePositiveClean, 'k--');
+      plot(this.falsePositiveClean, this.truePositiveClean, 'k-.');
       hold on;
-      plot(this.falsePositiveContaminated, this.truePositiveContaminated, 'k--');
+      plot(this.falsePositiveContaminated, this.truePositiveContaminated, 'k-.');
       plot([0,1],[0,1],'k:');
       xlabel('false positive rate');
       ylabel('true positive rate');

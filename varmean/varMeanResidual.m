@@ -79,10 +79,10 @@ for iScan = 1:numel(scanArray)
   %for AbsNoFilterDeg120, highlight where the inflection is
   if (isa(scan,'AbsNoFilterDeg120'))
     hold on;
-    plot([220,220],[130,1860],'r--');
-    plot([620,620],[130,1860],'r--');
-    plot([220,620],[130,130],'r--');
-    plot([220,620],[1860,1860],'r--');
+    plot([220,220],[130,1860],'r--','LineWidth',1);
+    plot([620,620],[130,1860],'r--','LineWidth',1);
+    plot([220,620],[130,130],'r--','LineWidth',1);
+    plot([220,620],[1860,1860],'r--','LineWidth',1);
   end
   print(fig, fullfile(directory,strcat(mfilename,class(scan),'_spatial.eps')), '-depsc', '-loose');
   
