@@ -3,7 +3,7 @@
 \begin{longtable}{ll}
 3D&Three dimensions\\
 ABS&Acrylonitrile butadiene styrene\\
-\SI{}{\adu}&analogue to digital units\\
+\SI{}{\adu}&Analogue to digital units\\
 AIC&Akaike information criterion\\
 AM&Additive manufacturing\\
 ANOVA&Analysis of variance\\
@@ -29,7 +29,7 @@ IQR&Interquartile range\\
 MAD&Median absolute deviation\\
 m.g.f.&Moment generating function\\
 Obs.&Observed\\
-PCER&Per comparison error rate\\
+PCER&Per-comparison error rate\\
 p.d.f.&Probability density function\\
 px&Pixels\\
 Q-Q&Quantile-quantile\\
@@ -187,7 +187,7 @@ Let $X\sim\CPoisson(\lambda,\alpha,\beta)$ and have p.d.f.
   \label{eq:appendix_compoundPoisson_pdf}
 \end{equation}
 
-\cite{jorgensen1987exponential} uses the following parametrisation: $p=\dfrac{2+\alpha}{1+\alpha}$, $\mu=\dfrac{\lambda\alpha}{\beta}$ and $\phi = \dfrac{\alpha+1}{\beta^{2-p}(\lambda\alpha)^{p-1}}$. The parameters can be rearranged
+\cite{jorgensen1987exponential} uses the following parametrisation: $p=\dfrac{2+\alpha}{1+\alpha}$, $\mu=\dfrac{\lambda\alpha}{\beta}$, $\phi = \dfrac{\alpha+1}{\beta^{2-p}(\lambda\alpha)^{p-1}}$. The parameters can be rearranged
 \begin{equation}
   \lambda=\frac{\mu^{2-p}}{\phi(2-p)}
 \end{equation}
@@ -938,7 +938,7 @@ Using Stirling's approximation $\ln(n!)\approx\ln\Gamma(n)\approx n\ln(n!)-n$
   \ .
 \end{equation}
 Taking the derivative with respect to $y$
-\begin{align*}
+\begin{align}
   \frac{\partial \ln(W_y)}{\partial y} &\approx
   \begin{multlined}[t]
     \ln\left(
@@ -948,7 +948,7 @@ Taking the derivative with respect to $y$
     \\
     -\alpha\ln(y\alpha)-\alpha+\alpha
   \end{multlined}
-  \\
+  \nonumber\\
   &\approx
   \ln\left(
     \frac{x^\alpha}{\phi^{1+\alpha}(p-1)^\alpha(2-p)}
@@ -956,7 +956,7 @@ Taking the derivative with respect to $y$
   -\ln(y)
   -\alpha\ln(y\alpha)
   \ .
-\end{align*}
+\end{align}
 
 Setting the derivative to zero
 \begin{equation*}

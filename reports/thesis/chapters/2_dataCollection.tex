@@ -6,12 +6,12 @@ Many figures presented here were given by engineers concerning the experiment or
 
 \section{Apparatus}
 
-The test object is a cuboid (\SI{40.0}{\milli\metre} $\times$ \SI{40.0}{\milli\metre} $\times$ \SI{60.0}{\milli\metre}) with voids. The voids were of diameters \SI{2.4}{\milli\metre}, \SI{1.2}{\milli\metre}, \SI{0.6}{\milli\metre} and \SI{0.3}{\milli\metre}. 6 voids for each diameter were designed in the CAD. Voids with diameters \SI{2.4}{\milli\metre} and \SI{0.6}{\milli\metre} were regularly arranged, the other ones were arranged irregularly. The CAD model of the test sample is shown in Figure \ref{fig:inference_testObject}.
+The test object is a cuboid (\SI{40.0}{\milli\metre} $\times$ \SI{40.0}{\milli\metre} $\times$ \SI{60.0}{\milli\metre}) with voids. The voids were of diameters \SI{2.4}{\milli\metre}, \SI{1.2}{\milli\metre}, \SI{0.6}{\milli\metre} and \SI{0.3}{\milli\metre}. 6 voids for each diameter were designed in the CAD model. Voids with diameters \SI{2.4}{\milli\metre} and \SI{0.6}{\milli\metre} were regularly arranged, the other ones were arranged irregularly. The CAD model of the test sample is shown in Figure \ref{fig:inference_testObject}.
 
 \begin{figure}
   \centering
   \includegraphics[width=0.4\textwidth]{../figures/inference/TestObject.png}
-  \caption{CAD model of the test sample; the scale shown is approximate.}
+  \caption{The CAD model of the test sample. The scale is approximate.}
   \label{fig:inference_testObject}
 \end{figure}
 
@@ -29,13 +29,13 @@ A \SI{0.35}{\milli\metre} copper filter was used to tackle beam hardening.
 
 \section{Datasets}
 
-Two datasets were collected and named \texttt{AbsNoFilter} and \texttt{AbsFilter}. They contain replicate projections of the test sample at two different angles, named $\ang{30}$ and $\ang{120}$, as well as replicate greyscale projections. To investigate the effects of beam hardening, no x-ray filter was used in \texttt{AbsNoFilter}, a filter was used in \texttt{AbsFilter}.
+Two datasets were collected and named \texttt{AbsNoFilter} and \texttt{AbsFilter}. They contain replicate projections of the test sample at two different angles, named $\ang{30}$ and $\ang{120}$, as well as replicate greyscale projections. To investigate the effects of beam hardening, no x-ray filter was used in \texttt{AbsNoFilter} and a filter was used in \texttt{AbsFilter}.
 
 The properties of each dataset are shown in Table \ref{table:data_dataset}. These include the properties of the x-ray tube, the XCT apparatus and what powers were used in the greyscale projections. A sample of the obtained, simulated and greyscale projections from the datasets \texttt{AbsNoFilter} and \texttt{AbsFilter} are shown in Figures \ref{fig:data_AbsNoFilter} and \ref{fig:data_AbsFilter} respectively.
 
 \begin{sidewaystable}
 \centering
-\begin{tabular}{l|ll}
+\begin{tabular}{l|cc}
                                                        & \multicolumn{2}{c}{Dataset name}                      \\
                                                        & \texttt{AbsNoFilter} & \texttt{AbsFilter}             \\ \hline
 potential difference (\SI{}{\kilo\volt})               & 80                   & 80                             \\
@@ -52,7 +52,7 @@ powers used for greyscale projections (\SI{}{\watt})   & 0.0                  & 
 \multicolumn{1}{c|}{\vdots}                            & 36                   & 20                             \\
 number of replications for each power                  & 20                   & 20                             
 \end{tabular}
-\caption{Properties of the three datasets obtained for the experiment.}
+\caption{Properties of the two datasets obtained for the experiment.}
 \label{table:data_dataset}
 \end{sidewaystable}
 
@@ -108,7 +108,7 @@ number of replications for each power                  & 20                   & 
   \label{fig:data_AbsFilter}
 \end{figure}
 
-The projections show the test sample, but, with panel and spot effects. The structure of the 32 panels are predominate in the black image, in particular, this was observed by \cite{yang2009evaluation} as well. This is concerning because systematic errors could be introduced as a result of the panel effects in the black image. This should not happen because, in a black image, the detector is exposed only to background radiation. The x-ray spot can be observed, in particular, in the white image, and this is the result of using a cone beam.
+The projections show the test sample, but, with panel and spot effects. The structure of the 32 panels are predominate in the black image, in particular, this was observed by \cite{yang2009evaluation} as well. This is concerning because systematic errors could be introduced as a result of the panel effects in the black image. A black image should be flat because the detector is exposed only to background radiation. The x-ray spot can be observed, in particular, in the white image, and this is the result of using a cone beam.
 
 \afterpage{\clearpage}
 
@@ -129,7 +129,7 @@ In this section, the shading correction in \cite{seibert1998flat} is presented i
 
 \subsection{Proposed Shading Correction}
 
-Let $S_{x,y}(P)$ be the greyscale projection when exposed to x-rays produced by an x-ray tube with power $P$ for some fixed time exposure $\tau$. $S_{x,y}(P)$ may be averaged over replications. Let $x=1,2,3,\dotsc, W$ and $y=1,2,3,\dotsc,H$. Let $N_{x,y}$ be the obtained projection of the test sample when exposed to x-rays produced by an x-ray tube with power $P_\text{proj}$ for some fixed time exposure $\tau$. The black and white image can be expressed as $\text{black}_{x,y}=S_{x,y}(0)$ and $\text{white}_{x,y}=S_{x,y}(P_\text{proj})$ respectively. For both the greyscale projections and the projection of the test sample, the power was varied by fixing the potential difference and varying the current of the x-ray tube.
+Let $S_{x,y}(P)$ be the greyscale projection when exposed to x-rays produced by an x-ray tube with power $P$ for some fixed time exposure $\tau$. $S_{x,y}(P)$ may be averaged over replications. Let $x=1,2,3,\dotsc, W$ and $y=1,2,3,\dotsc,H$. Let $N_{x,y}$ be the obtained projection of the test sample when exposed to x-rays produced by an x-ray tube with power $P_\text{proj}$ for some fixed time exposure $\tau$. The black and white image can be expressed as $\text{black}_{x,y}=S_{x,y}(0)$ and $\text{white}_{x,y}=S_{x,y}(P_\text{proj})$ respectively. The power was varied by fixing the potential difference and varying the current of the x-ray tube.
 
 The shading free image is not known, but it is expected that the shading corrected greyscale projection should be flat with some noise. In other words, all pixels in a shading corrected greyscale projection should have grey values with the same expectation $\mu_{S}(P)$ and same variance $\sigma_{S}^2(P)$. Suppose $\mu_{S}(P)$ was estimated using the within projection mean
 \begin{equation}
@@ -180,7 +180,7 @@ An example of the linear regression is shown in Figure \ref{fig:data_shadingCorr
       \caption{$b_{x,y}$}
     \end{subfigure}
   }
-  \caption{For each pixel, a linear regression was fitted on the within projection mean versus the grey value for each greyscale projection. The \texttt{AbsNoFilter} dataset was used. 3 random pixels were used to illustrate this in a). b) shows the fitted gradient for all pixels.}
+  \caption{For each pixel, a linear regression was fitted on the within projection mean versus the pixel's grey value. The \texttt{AbsNoFilter} dataset was used. 3 random pixels were used to illustrate this in a). b) shows the fitted gradient for all pixels.}
   \label{fig:data_shadingCorrectionExample_gainMap}
 \end{figure}
 
@@ -219,7 +219,7 @@ Figure \ref{fig:data_shadingCorrectionExample_greyvaluePower} shows the grey val
       \caption{Linear shading correction}
     \end{subfigure}
   }
-  \caption{Grey values in the greyscale projections before and after shading correction using the \texttt{AbsNoFilter} dataset. The box plot summarise all $2\,000\times2\,000$ pixels in a projection.}
+  \caption{Grey values in the greyscale projections before and after shading correction using the \texttt{AbsNoFilter} dataset. The boxplots summarise all $2\,000\times2\,000$ pixels in a projection.}
   \label{fig:data_shadingCorrectionExample_greyvaluePower}
 \end{figure}
 
@@ -284,7 +284,7 @@ The BW shading corrected black and white image appeared uniform but there is som
       \caption{linear shading correction}
     \end{subfigure}
   }
-  \caption{Left shows the profile plot of a \texttt{AbsNoFilter} black image at $(879,y)$ using various shading corrections. Right shows two curves for odd and even $y$.}
+  \caption{Left shows the profile plot of an \texttt{AbsNoFilter} black image at $(879,y)$ using various shading corrections. Right shows two curves for odd and even $y$.}
   \label{fig:data_oddEven}
 \end{figure}
 
@@ -347,7 +347,7 @@ and it should be about one if the within and between pixel variances are similar
       \caption{$F$ statistic}
     \end{subfigure}
   }
-  \caption{One randomly selected greyscale image from each power was used to train the shading correction which was then applied to the remaining of the greyscale projections. The within and between pixel variance were estimated and used to calculate a $F$ statistic for each power. The experiment was repeated by reselecting the greyscale projections used for training the shading correction.  The box plots represent the 100 repeats. The \texttt{AbsNoFilter} dataset was used here.}
+  \caption{One randomly selected greyscale image from each power was used to train the shading correction which was then applied to the remaining of the greyscale projections. The within and between pixel variance were estimated and used to calculate a $F$ statistic for each power. The experiment was repeated by reselecting the greyscale projections used for training the shading correction.  The boxplots represent the 100 repeats. The \texttt{AbsNoFilter} dataset was used here.}
   \label{fig:data_anovaAbsNoFilter}
 \end{figure}
 
@@ -373,7 +373,7 @@ and it should be about one if the within and between pixel variances are similar
       \caption{$F$ statistic}
     \end{subfigure}
   }
-  \caption{One randomly selected greyscale image from each power was used to train the shading correction which was then applied to the remaining of the greyscale projections. The within and between pixel variance were estimated and used to calculate a $F$ statistic for each power. The experiment was repeated by reselecting the greyscale projections used for training the shading correction.  The box plots represent the 100 repeats. The \texttt{AbsFilter} dataset was used here.}
+  \caption{One randomly selected greyscale image from each power was used to train the shading correction which was then applied to the remaining of the greyscale projections. The within and between pixel variance were estimated and used to calculate a $F$ statistic for each power. The experiment was repeated by reselecting the greyscale projections used for training the shading correction.  The boxplots represent the 100 repeats. The \texttt{AbsFilter} dataset was used here.}
   \label{fig:data_anovaAbsFilter}
 \end{figure}
 

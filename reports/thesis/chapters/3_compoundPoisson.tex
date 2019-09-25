@@ -72,7 +72,7 @@ Experiments have been done to verify the compound Poisson nature of the detector
 
 \subsection{Moment Generating Function}
 
-Returning back to the compound Poisson distribution with no electronic noise $X|Y = \sum_{i=1}^{Y}U_i$, let the moment generating function (m.g.f.) of $X$ be $M_X(\theta)=\expectation\left[\euler^{X\theta}\right]$. It can be shown that the m.g.f.~is
+Returning to the compound Poisson distribution with no electronic noise $X|Y = \sum_{i=1}^{Y}U_i$, let the moment generating function (m.g.f.) of $X$ be $M_X(\theta)=\expectation\left[\euler^{X\theta}\right]$. It can be shown that the m.g.f.~is
 \begin{equation}
   M_X(\theta)=
   \exp\left[
@@ -308,7 +308,7 @@ for 10\,000 equally spaced points from and including the minimum non-zero simula
   \right]
   \ .
 \end{equation}
-The density was then was normalised by numerically integrating it using the trapezium rule using the 10\,000 evaluated points.
+The density was then normalised by numerically integrating it using the trapezium rule using the 10\,000 evaluated points.
 
 A Q-Q plot is a plot which compares the empirical quantiles with the theoretical quantiles. Let
 \begin{equation}
@@ -368,7 +368,7 @@ As $\lambda$ increased (Figures \ref{fig:compoundPoisson_histogram_10_1_1} and \
     \label{fig:compoundPoisson_histogram_1_100_1}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[t]
   \centering
     \centerline{
     \begin{subfigure}[b]{\subSize}
@@ -395,7 +395,7 @@ As $\lambda$ increased (Figures \ref{fig:compoundPoisson_histogram_10_1_1} and \
     \label{fig:compoundPoisson_histogram_approx_1_1_1}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[t]
   \centering
     \centerline{
     \begin{subfigure}[b]{\subSize}
@@ -503,7 +503,7 @@ By assuming no beam hardening, the distribution of the photon energy does not ch
 \begin{figure}
   \centering
   \includegraphics[width=0.6\textwidth]{../figures/compoundpoisson/graphicalModel.pdf}
-  \caption{Graphical model of the grey value $X_{i,j}$ for each of the $m$ pixels in the $n$ replicate projections. $Y_{i,j}\sim\poisson(\lambda_i)$ is the photon count. The grey value has a compound Poisson gamma element $X_{i,j}|Y_{i,j}\sim\gammaDist(Y_{i,j}\alpha,\beta)$ and can be extended by adding electronic noise $\epsilon_{i,j}\sim\normal(a,\kappa)$.}
+  \caption{Graphical model of the grey value $X_{i,j}$ for each of the $N$ pixels in the $m$ replicate projections. $Y_{i,j}\sim\poisson(\lambda_i)$ is the photon count. The grey value has a compound Poisson gamma element $X_{i,j}|Y_{i,j}\sim\gammaDist(Y_{i,j}\alpha,\beta)$ and can be extended by adding electronic noise $\epsilon_{i,j}\sim\normal(a,\kappa)$.}
   \label{fig:compoundPoisson_graphicalModel}
 \end{figure}
 
@@ -584,7 +584,7 @@ so that
   \ .
   \label{eq:compoundPoisson_jointLogLikelihood}
 \end{multline}
-The estimators were found by optimising the joint log-likelihood. This was done iteratively by estimating the $Y$s given the $X$s and parameters (E step), followed by estimating the parameters given the $Y$s and $X$s (M step) until some convergence conditions were met.
+The estimators were found by optimising the joint log-likelihood. This was done iteratively by estimating the $Y$'s given the $X$'s and parameters (E step), followed by estimating the parameters given the $Y$'s and $X$'s (M step) until some convergence conditions were met.
 
 It will be shown that using some approximations, the E step and M step can be implemented. The Cram\'er-Rao lower bound \citep{rao1945information, cramer1946mathematical} can also be found by using a few approximations. However, simulations showed that these estimators struggle for high $\lambda$.
 
@@ -618,7 +618,7 @@ which is simplified to
 \begin{equation}
   \prob(Y=y|X=x) = W_y \frac{\euler^{-\lambda-\beta x}}{x p_X(x)} \ .
 \end{equation}
-Then, the conditional expectation is
+As a result, the conditional expectation is
 \begin{equation}
   y_i = \frac{\sum_{y=1}^\infty y W_y}{\sum_{y=1}^\infty W_y}
   \ .
@@ -638,22 +638,22 @@ Similarly,
   \zeta_i = \variance[Y|X=x_i] = \frac{\sum_{y=1}^\infty W^{(2)}_y}{\sum_{y=1}^\infty W_y} - \left(y_i\right)^2
   \ .
 \end{equation}
-The expectation terms, $y_i$ and $\zeta_i$, are evaluated in the M step so that they can be used in the E step. The evaluation can be done by truncating the sum
+The expectation terms, $y_i$ and $\zeta_i$, are evaluated here so that they can be used in the M step. The evaluation can be done by truncating the sum
 \begin{equation}
   \sum_{y=1}^\infty W^{(r)}_y \approx \sum_{y=y_\text{l}}^{y_\text{u}} W^{(r)}_y
 \end{equation}
-where $y_\text{l}<y_\text{max}<y_\text{u}$ and $y_\text{max}$ is the value of $y$ which maximises $W_y^{(r)}$. $\ln(W^{(r)}_y)$ can be expressed as
+where $y_\text{l}<y_\text{max}<y_\text{u}$ and $y_\text{max}$ is the value of $y$ which maximises $W_y^{(r)}$. $\ln\left(W^{(r)}_y\right)$ can be expressed as
 \begin{equation}
   \ln\left(W_y^{(r)}\right)=r\ln(y)+\ln(W_y)
 \end{equation}
 and taking the derivative with respect to $y$ obtains
 \begin{equation}
-  \frac{\partial \ln(W_y^{(r)})}{\partial y} = \frac{r}{y } + \frac{\partial \ln(W_y)}{\partial y}
+  \frac{\partial }{\partial y} \ln\left(W_y^{(r)}\right) = \frac{r}{y } + \frac{\partial }{\partial y}\ln\left(W_y\right)
   \ .
 \end{equation}
 Keep in mind that $y=1,2,3,\dotsc$ so for large $y$, an approximation can be made $r/y\approx 0$ so that
 \begin{equation}
-  \frac{\partial \ln(W_y^{(r)})}{\partial y} \approx \frac{\partial \ln(W_y)}{\partial y}
+  \frac{\partial }{\partial y} \ln\left(W_y^{(r)}\right)\approx \frac{\partial }{\partial y} \ln\left(W_y\right)
   \ .
 \end{equation}
 Therefore, the maximum of $W_y^{(r)}$ is located at $y_\text{max}=\dfrac{x^{2-p}}{\phi(2-p)}$ for all $r=0,1,2,\dotsc$. As a result, the same method for evaluating $W_y$ can be used to evaluate $W_y^{(r)}$. For a given $r=0,1,2,\dotsc$, the limit of the sum $\sum_{y=y_\text{l}}^{y_\text{u}} W^{(r)}_y$ are chosen such that $W_{y_\text{l}}$ and $W_{y_\text{u}}$ are less than $\epsilon W_{y_\text{max}}^{(r)}$ where $\epsilon$ is some small constant. The limits will be different for different values of $r$.
@@ -709,7 +709,7 @@ The conditional expectation $y_i = \expectation[Y_i|X_i=x_i]$ and $\zeta_i = \va
 \end{equation}
 where $\psi(n)$ is the digamma function. The objective function is then
 \begin{multline}
-  T(\lambda,\alpha,\beta)=
+  T(\lambda,\alpha,\beta)\approx
   -n\lambda
   +\sum_{i=1}^n
   \mathbb{I}(x_i>0)
@@ -768,7 +768,7 @@ and
   \right]
   \ .
 \end{equation}
-The second-order derivatives are:
+The second-order derivatives are
 \begin{equation}
   \frac{\partial^2 T}{\partial \alpha \partial \beta} =
   \sum_{i=1}^n \mathbb{I}(x_i>0)\left[\frac{y_i}{\beta}\right]
@@ -778,6 +778,7 @@ The second-order derivatives are:
 \begin{equation}
   \frac{\partial^2 T}{\partial \beta^2} = \sum_{i=1}^n\mathbb{I}(x_i>0)\left[-\frac{\alpha y_i}{\beta^2}
   \right]
+  \ ,
   \label{eq:compoundPoisson:d2td2b}
 \end{equation}
 and
@@ -892,12 +893,12 @@ g''(Y)&=Y^2\alpha^2\psi'''(Y\alpha)+4Y\alpha\psi''(Y\alpha)+2\psi'(Y\alpha)\ .
 \end{align}
 Therefore,
 \begin{multline}
--\expectation\left[\dfrac{\partial^2\ln L}{\partial\alpha^2}\right]=n\left(1-\euler^{-\lambda}\right)
+-\expectation\left[\dfrac{\partial^2\ln L}{\partial\alpha^2}\right]\approx n\left(1-\euler^{-\lambda}\right)
 \\
 \times\left[(\lambda^2+\lambda)\psi'(\lambda\alpha)+2\lambda^2\alpha\psi''(\lambda\alpha)+\dfrac{\lambda^3\alpha^2}{2}\psi'''(\lambda\alpha)\right]
 \end{multline}
 
-The Fisher's information matrix is
+Fisher's information matrix is
 \begin{multline}
   \matr{I}=
   n
@@ -932,7 +933,7 @@ An experiment was conducted to assess the performance on the EM algorithm. For a
 
 The results for $\CPoisson(1,1,1)$, $\CPoisson(1,100,1)$, $\CPoisson(10,1,1)$ and $\CPoisson(100,100,1)$ are shown in Figures \ref{fig:compoundPoisson_convergence_1}, \ref{fig:compoundPoisson_convergence_2}, \ref{fig:compoundPoisson_convergence_3} and \ref{fig:compoundPoisson_convergence_4} respectively. Good performance was observed in the $\lambda=1$ case with convergence of all three parameters within a step or two. The Cram\'er-Rao lower bound captured the spread of the estimates well.
 
-For $\lambda=10$ and $\lambda=100$ case, the estimates of $\alpha$ and $\beta$ struggled to converge and increased/decreased without bounds without affecting the log-likelihood. It appeared that the EM algorithm failed for $\lambda>10$ looking at these particular examples.
+For $\lambda=10$ and $\lambda=100$, the estimates of $\alpha$ and $\beta$ struggled to converge and increased/decreased without bounds without affecting the log-likelihood. It appeared that the EM algorithm failed for $\lambda>10$ looking at these particular examples.
 
 \begin{figure}[p]
   \centering
@@ -956,7 +957,7 @@ For $\lambda=10$ and $\lambda=100$ case, the estimates of $\alpha$ and $\beta$ s
         \caption{$\beta$}
     \end{subfigure}
     }
-    \caption{EM algorithm was used to estimate the parameters of a $\CPoisson(1,1,1)$ random variable using 1\,000 simulated samples, repeated 10 times. The graphs show the log-likelihood and the estimated parameters at each EM step for each repeat of the experiment. The dashed lines show the standard deviation using the Cram\'er-Rao lower bound.}
+    \caption{The EM algorithm was used to estimate the parameters of a $\CPoisson(1,1,1)$ random variable using 1\,000 simulated samples. The graphs show the log-likelihood and the estimated parameters at each EM step for 10 different simulations. The dashed lines show the standard deviation using the Cram\'er-Rao lower bound.}
     \label{fig:compoundPoisson_convergence_1}
 \end{figure}
 
@@ -982,7 +983,7 @@ For $\lambda=10$ and $\lambda=100$ case, the estimates of $\alpha$ and $\beta$ s
         \caption{$\beta$}
     \end{subfigure}
     }
-    \caption{EM algorithm was used to estimate the parameters of a $\CPoisson(1,100,1)$ random variable using 1\,000 simulated samples, repeated 10 times. The graphs show the log-likelihood and the estimated parameters at each EM step for each repeat of the experiment. The dashed lines show the standard deviation using the Cram\'er-Rao lower bound.}
+    \caption{The EM algorithm was used to estimate the parameters of a $\CPoisson(1,100,1)$ random variable using 1\,000 simulated samples. The graphs show the log-likelihood and the estimated parameters at each EM step for 10 different simulations. The dashed lines show the standard deviation using the Cram\'er-Rao lower bound.}
     \label{fig:compoundPoisson_convergence_2}
 \end{figure}
 
@@ -1008,7 +1009,7 @@ For $\lambda=10$ and $\lambda=100$ case, the estimates of $\alpha$ and $\beta$ s
         \caption{$\beta$}
     \end{subfigure}
     }
-    \caption{EM algorithm was used to estimate the parameters of a $\CPoisson(10,1,1)$ random variable using 1\,000 simulated samples, repeated 10 times. The graphs show the log-likelihood and the estimated parameters at each EM step for each repeat of the experiment. The dashed lines show the standard deviation using the Cram\'er-Rao lower bound.}
+    \caption{The EM algorithm was used to estimate the parameters of a $\CPoisson(10,1,1)$ random variable using 1\,000 simulated samples. The graphs show the log-likelihood and the estimated parameters at each EM step for 10 different simulations. The dashed lines show the standard deviation using the Cram\'er-Rao lower bound.}
     \label{fig:compoundPoisson_convergence_3}
 \end{figure}
 
@@ -1034,7 +1035,7 @@ For $\lambda=10$ and $\lambda=100$ case, the estimates of $\alpha$ and $\beta$ s
         \caption{$\beta$}
     \end{subfigure}
     }
-    \caption{EM algorithm was used to estimate the parameters of a $\CPoisson(100,100,1)$ random variable using 1\,000 simulated samples, repeated 10 times. The graphs show the log-likelihood and the estimated parameters at each EM step for each repeat of the experiment. The dashed lines show the standard deviation using the Cram\'er-Rao lower bound.}
+    \caption{The EM algorithm was used to estimate the parameters of a $\CPoisson(100,100,1)$ random variable using 1\,000 simulated samples. The graphs show the log-likelihood and the estimated parameters at each EM step for 10 different simulations. The dashed lines show the standard deviation using the Cram\'er-Rao lower bound.}
     \label{fig:compoundPoisson_convergence_4}
 \end{figure}
 
@@ -1046,7 +1047,7 @@ It should be convincing that the EM algorithm failed when the compound Poisson-g
 
 \subsection{Determinant of the Hessian}
 
-One investigation is to look at the Newton-Raphson step in the M step, in particular the Hessian matrix $\nabla_{\alpha,\beta}\nabla_{\alpha,\beta}\T T$ for high $\lambda$. The elements of the Hessian matrix can be found in Equations \eqref{eq:compoundPoisson:d2tdadb}, \eqref{eq:compoundPoisson:d2td2b} and \eqref{eq:compoundPoisson:d2td2a}. Recall that
+One investigation is to look at the Newton-Raphson step in the M step, in particular, the Hessian matrix $\nabla_{\alpha,\beta}\nabla_{\alpha,\beta}\T T$ for high $\lambda$. The elements of the Hessian matrix can be found in Equations \eqref{eq:compoundPoisson:d2tdadb}, \eqref{eq:compoundPoisson:d2td2b} and \eqref{eq:compoundPoisson:d2td2a}. Recall that
 \begin{multline*}
   \frac{\partial^2 T}{\partial \alpha^2} = 
   \sum_{i=1}^n\mathbb{I}(x_i>0)\left[
@@ -1157,7 +1158,7 @@ and it was investigated whenever a unique solution to $\dfrac{\partial T}{\parti
 \end{multline}
 which can be approximated to
 \begin{align}
-  T(\lambda,\alpha)&=
+  T(\lambda,\alpha)&\approx
   \begin{multlined}[t]
     -n\lambda+
     \sum_{i=1}^n
@@ -1174,7 +1175,7 @@ which can be approximated to
     + c
   \end{multlined}
   \nonumber\\
-  &\!\begin{multlined}[b]=
+  &\!\begin{multlined}[b]\approx
     -n\lambda+
     \sum_{i=1}^n
     \mathbb{I}(x_i>0)
@@ -1193,7 +1194,7 @@ which can be approximated to
 \end{align}
 Taking the derivative with respect to $\alpha$
 \begin{equation}
-  \frac{\partial T}{\partial \alpha} =
+  \frac{\partial T}{\partial \alpha} \approx
   \sum_{i=1}^n
   \mathbb{I}(x_i>0)
   \left[
@@ -1203,7 +1204,7 @@ Taking the derivative with respect to $\alpha$
     \vphantom{\frac{1}{1}}
   \right]
 \end{equation}
-and this is not $\alpha$ dependent, thus there is no solution to $\alpha$.
+and this is not $\alpha$ dependent, thus there is no solution for $\alpha$.
 
 \subsection{Log-Likelihood Plot}
 
