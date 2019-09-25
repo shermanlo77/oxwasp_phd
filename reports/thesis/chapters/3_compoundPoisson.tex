@@ -72,7 +72,7 @@ Experiments have been done to verify the compound Poisson nature of the detector
 
 \subsection{Moment Generating Function}
 
-Returning to the compound Poisson distribution with no electronic noise $X|Y = \sum_{i=1}^{Y}U_i$, let the moment generating function (m.g.f.) of $X$ be $M_X(\theta)=\expectation\left[\euler^{X\theta}\right]$. It can be shown that the m.g.f.~is
+Returning to the compound Poisson distribution with no electronic noise $X|Y = \sum_{i=1}^{Y}U_i$, let the moment generating function (m.g.f.)~of $X$ be $M_X(\theta)=\expectation\left[\euler^{X\theta}\right]$. It can be shown that the m.g.f.~is
 \begin{equation}
   M_X(\theta)=
   \exp\left[
@@ -734,7 +734,7 @@ and setting it to zero
 \begin{equation}
   \widehat{\lambda} = \frac{\sum_{i=1}^n y_i}{n}
 \end{equation}
-obtains a M step estimator for $\lambda$. Taking the second derivative with respect to $\lambda$
+obtains a M step estimator for $\lambda$. Taking the second-order derivative with respect to $\lambda$
 \begin{equation}
   \frac{\partial^2 T}{\partial \lambda^2} = -\frac{\sum_{i=1}^ny_i}{\lambda^2} < 0
 \end{equation}
@@ -748,7 +748,7 @@ and
   \ .
 \end{equation}
 
-Maximising $T$ with respect to $\alpha$ and $\beta$ can be done numerically using the Newton-Raphson method since derivatives up to the second-order can be obtained. For the first-order derivatives, these are:
+Maximising $T$ with respect to $\alpha$ and $\beta$ can be done numerically using the Newton-Raphson method since derivatives up to the second-order can be obtained. For the first-order derivatives, these are
 \begin{multline}
   \frac{\partial T}{\partial \alpha} =
   \sum_{i=1}^n\mathbb{I}(x_i>0)

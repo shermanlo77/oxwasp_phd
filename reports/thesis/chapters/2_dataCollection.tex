@@ -6,7 +6,7 @@ Many figures presented here were given by engineers concerning the experiment or
 
 \section{Apparatus}
 
-The test object is a cuboid (\SI{40.0}{\milli\metre} $\times$ \SI{40.0}{\milli\metre} $\times$ \SI{60.0}{\milli\metre}) with voids. The voids were of diameters \SI{2.4}{\milli\metre}, \SI{1.2}{\milli\metre}, \SI{0.6}{\milli\metre} and \SI{0.3}{\milli\metre}. 6 voids for each diameter were designed in the CAD model. Voids with diameters \SI{2.4}{\milli\metre} and \SI{0.6}{\milli\metre} were regularly arranged, the other ones were arranged irregularly. The CAD model of the test sample is shown in Figure \ref{fig:inference_testObject}.
+The test sample is a cuboid (\SI{40.0}{\milli\metre} $\times$ \SI{40.0}{\milli\metre} $\times$ \SI{60.0}{\milli\metre}) with voids. The voids were of diameters \SI{2.4}{\milli\metre}, \SI{1.2}{\milli\metre}, \SI{0.6}{\milli\metre} and \SI{0.3}{\milli\metre}. 6 voids for each diameter were designed in the CAD model. Voids with diameters \SI{2.4}{\milli\metre} and \SI{0.6}{\milli\metre} were regularly arranged, the other ones were arranged irregularly. The CAD model of the test sample is shown in Figure \ref{fig:inference_testObject}.
 
 \begin{figure}
   \centering
@@ -15,17 +15,15 @@ The test object is a cuboid (\SI{40.0}{\milli\metre} $\times$ \SI{40.0}{\milli\m
   \label{fig:inference_testObject}
 \end{figure}
 
-The \emph{Fortus 400mc (Stratasys, US)} was used to manufacture the test object made of plastic (acrylonitrile butadiene styrene or ABS). The precision of the manufacturing was in the order of $\pm\SI{0.1}{\milli\metre}$ \citep{hanseen2013fortus}.
+The \emph{Fortus 400mc (Stratasys, US)} was used to manufacture the test sample made of plastic (acrylonitrile butadiene styrene or ABS). The precision of the manufacturing was in the order of $\pm\SI{0.1}{\milli\metre}$ \citep{hanseen2013fortus}.
 
-X-ray projections were obtained using the \emph{Nikon XT H LC 225/320} x-ray CT scanner (\emph{Nikon Metrology, UK}) together with a \emph{Perkin Elmer XRD 1621 (Perkin Elmer, US)} detector. The target material in the x-ray tube was tungsten. The detector was made up of 2 rows and 16 columns of panels and together has dimensions of $\SI{409.6}{\milli\metre}\times\SI{409.6}{\milli\metre}$ which produced a 16-bit projection of $\SI{2048}{\pixel}\times\SI{2048}{\pixel}$ in size \citep{perkinelmer2006xrd}. Therefore, the scale of each pixel is $\SI{200.0}{\micro\metre\per\pixel}$. The projections were cropped to $\SI{2000}{\pixel}\times\SI{2000}{\pixel}$ to remove boundary effects. The gain and offset were adjusted by the engineers to produce a projection with good contrast and negligible penumbra effect. Each pixel has a grey value in units of analogue to digital units (\SI{}{\adu}).
+X-ray projections were obtained using the \emph{Nikon XT H LC 225/320} x-ray CT scanner (\emph{Nikon Metrology, UK}) together with a \emph{Perkin Elmer XRD 1621 (Perkin Elmer, US)} detector. The target material in the x-ray tube was tungsten. A \SI{0.35}{\milli\metre} copper filter was used to tackle beam hardening. The detector was made up of 2 rows and 16 columns of panels and together has dimensions of $\SI{409.6}{\milli\metre}\times\SI{409.6}{\milli\metre}$ which produced a 16-bit projection of $\SI{2048}{\pixel}\times\SI{2048}{\pixel}$ in size \citep{perkinelmer2006xrd}. Therefore, the scale of each pixel is $\SI{200.0}{\micro\metre\per\pixel}$. The projections were cropped to $\SI{2000}{\pixel}\times\SI{2000}{\pixel}$ to remove boundary effects. The gain and offset were adjusted by the engineers to produce a projection with good contrast and negligible penumbra effect. Each pixel has a grey value in units of analogue to digital units (\SI{}{\adu}).
 
-Greyscale projections were taken in addition to the projection of the test object. These are projections with nothing between the source and the detector, obtained with the x-ray tube at different powers. The power was varied by fixing the potential difference and varying the current. The greyscale projections were used for calibration such as shading correction. The greyscale projection with the x-ray turned off is called the black image. The greyscale projection with the x-ray set up the same when obtaining the test sample projection is called the white image.
+Greyscale projections were taken in addition to the projection of the test sample. These are projections with nothing between the source and the detector, obtained with the x-ray tube at different powers. The power was varied by fixing the potential difference and varying the current. The greyscale projections were used for calibration such as shading correction. The greyscale projection with the x-ray turned off is called the black image. The greyscale projection with the x-ray set up the same when obtaining the test sample projection is called the white image.
 
 Replicate test sample projections and greyscale projections were obtained by repeating the acquisition. These replicated projections were used to study the noise observed in the projections.
 
-A \SI{0.35}{\milli\metre} copper filter was used to tackle beam hardening.
-
-\emph{aRTist} was used to simulate the test object projection and all greyscale projections except for the black image. The black image was simulated by producing a uniform image with a grey value the mean over the obtained black image. The engineers used numerical methods to align the simulated projection with the obtained projection.
+\emph{aRTist} was used to simulate the test sample projection and all greyscale projections except for the black image. The black image was simulated by producing a uniform image with a grey value the mean over the obtained black image. The engineers used numerical methods to align the simulated projection with the obtained projection.
 
 \section{Datasets}
 
@@ -38,8 +36,8 @@ The properties of each dataset are shown in Table \ref{table:data_dataset}. Thes
 \begin{tabular}{l|cc}
                                                        & \multicolumn{2}{c}{Dataset name}                      \\
                                                        & \texttt{AbsNoFilter} & \texttt{AbsFilter}             \\ \hline
-potential difference (\SI{}{\kilo\volt})               & 80                   & 80                             \\
-power (\SI{}{\watt})                                   & 36                   & 20                             \\
+potential difference (\SI{}{\kilo\volt}) of x-ray tube & 80                   & 80                             \\
+power (\SI{}{\watt}) of x-ray tube                     & 36                   & 20                             \\
 filter                                                 & no filter            & \SI{0.35}{\milli\metre} copper \\
 time exposure (\SI{}{\milli\second})                   & 708                  & 500                            \\
 distance from source to object (\SI{}{\milli\metre})   & 217                  & 168                            \\
@@ -114,7 +112,7 @@ The projections show the test sample, but, with panel and spot effects. The stru
 
 \section{Shading Correction}
 
-Shading correction, also known as flat field correction, aims to eliminate any spatial variation in sensitivity, observed in the projections, as a result from panel effects, spot effects and other artefacts. Shading correction is done by using the greyscale projections and examining how the grey values respond to different powers for different pixels. For example, the black and white image can be used to correct the projections using
+Shading correction, also known as flat field correction, aims to eliminate any spatial variation in sensitivity, observed in the projections, as a result from panel effects, spot effects and other artefacts. Shading correction is done by using the greyscale projections and examining how the grey values respond to different powers for different pixels. For example, the black and white images can be used to correct the projections using
 \begin{equation}
 U_{x,y} = \dfrac{N_{x,y}-\text{black}_{x,y}}{\text{white}_{x,y}-\text{black}_{x,y}}\times B+A
 \label{eq:data_shadingCorrectionOld}
@@ -129,7 +127,7 @@ In this section, the shading correction in \cite{seibert1998flat} is presented i
 
 \subsection{Proposed Shading Correction}
 
-Let $S_{x,y}(P)$ be the greyscale projection when exposed to x-rays produced by an x-ray tube with power $P$ for some fixed time exposure $\tau$. $S_{x,y}(P)$ may be averaged over replications. Let $x=1,2,3,\dotsc, W$ and $y=1,2,3,\dotsc,H$. Let $N_{x,y}$ be the obtained projection of the test sample when exposed to x-rays produced by an x-ray tube with power $P_\text{proj}$ for some fixed time exposure $\tau$. The black and white image can be expressed as $\text{black}_{x,y}=S_{x,y}(0)$ and $\text{white}_{x,y}=S_{x,y}(P_\text{proj})$ respectively. The power was varied by fixing the potential difference and varying the current of the x-ray tube.
+Let $S_{x,y}(P)$ be the greyscale projection when exposed to x-rays produced by an x-ray tube with power $P$ for some fixed time exposure $\tau$. $S_{x,y}(P)$ may be averaged over replications. Let $x=1,2,3,\dotsc, W$ and $y=1,2,3,\dotsc,H$. Let $N_{x,y}$ be the obtained projection of the test sample when exposed to x-rays produced by an x-ray tube with power $P_\text{proj}$ for some fixed time exposure $\tau$. The black and white images can be expressed as $\text{black}_{x,y}=S_{x,y}(0)$ and $\text{white}_{x,y}=S_{x,y}(P_\text{proj})$ respectively. The power was varied by fixing the potential difference and varying the current of the x-ray tube.
 
 The shading free image is not known, but it is expected that the shading corrected greyscale projection should be flat with some noise. In other words, all pixels in a shading corrected greyscale projection should have grey values with the same expectation $\mu_{S}(P)$ and same variance $\sigma_{S}^2(P)$. Suppose $\mu_{S}(P)$ was estimated using the within projection mean
 \begin{equation}
@@ -200,7 +198,7 @@ An example of the linear regression is shown in Figure \ref{fig:data_shadingCorr
   \label{fig:data_shadingCorrectionExample_image}
 \end{figure}
 
-A variation of the shading correction which uses only the black and white image such that $\mathbb{P}=\left\{0, P_\text{proj}\right\}$ shall be known as black/white (BW) shading correction.
+A variation of the shading correction which uses only the black and white images such that $\mathbb{P}=\left\{0, P_\text{proj}\right\}$ shall be known as black/white (BW) shading correction.
 
 \subsection{Exploratory Analysis}
 
@@ -225,7 +223,7 @@ Figure \ref{fig:data_shadingCorrectionExample_greyvaluePower} shows the grey val
 
 The \texttt{AbsNoFilter} black and white images before and after shading correction are shown in Figure \ref{fig:data_shadingCorrectionExample_greyscale}. The flatness of the image can be shown using a profile plot, this is a plot of the grey values along a column or row, an example shown in Figure \ref{fig:data_oddEven}. The figure shows that the shading uncorrected black image was not flat but a remarkable structure was observed by plotting the odd rows and even rows separately. Such a plot shows that the grey values depend on neighbouring pixels, where the majority of pixels on even rows have grey values larger than pixels above and below it. Perhaps this is caused by the read-out structure in the detector.
 
-The BW shading corrected black and white image appeared uniform but there is some structure in the linear shading correction. By giving linear shading correction various greyscale projections, it attempts to generalise to a range of powers, thus may struggle at shading correcting the black and white images.
+The BW shading corrected black and white images appeared uniform but there is some structure in the linear shading correction. By giving linear shading correction various greyscale projections, it attempts to generalise to a range of powers, thus may struggle at shading correcting the black and white images.
 
 \begin{figure}
   \centerline{
