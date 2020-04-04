@@ -48,7 +48,7 @@ powers used for greyscale projections (\SI{}{\watt})   & 0.0                  & 
 \multicolumn{1}{c|}{\vdots}                            & 18                   & 10                             \\
 \multicolumn{1}{c|}{\vdots}                            & 28                   & 15                             \\
 \multicolumn{1}{c|}{\vdots}                            & 36                   & 20                             \\
-number of replications for each power                  & 20                   & 20                             
+number of replications for each power                  & 20                   & 20
 \end{tabular}
 \caption{Properties of the two datasets obtained for the experiment.}
 \label{table:data_dataset}
@@ -127,7 +127,7 @@ In this section, the shading correction in \cite{seibert1998flat} is presented i
 
 \subsection{Proposed Shading Correction}
 
-Let $S_{x,y}(P)$ be the greyscale projection when exposed to x-rays produced by an x-ray tube with power $P$ for some fixed time exposure $\tau$. $S_{x,y}(P)$ may be averaged over replications. Let $x=1,2,3,\dotsc, W$ and $y=1,2,3,\dotsc,H$. Let $N_{x,y}$ be the obtained projection of the test sample when exposed to x-rays produced by an x-ray tube with power $P_\text{proj}$ for some fixed time exposure $\tau$. The black and white images can be expressed as $\text{black}_{x,y}=S_{x,y}(0)$ and $\text{white}_{x,y}=S_{x,y}(P_\text{proj})$ respectively. The power was varied by fixing the potential difference and varying the current of the x-ray tube.
+Let $S_{x,y}(P)$ be the greyscale projection when exposed to x-rays produced by an x-ray tube with power $P$ for some fixed time exposure $\tau$. The projection, $S_{x,y}(P)$, may be averaged over replications. Let $x=1,2,3,\ldots, W$ and $y=1,2,3,\ldots,H$. Let $N_{x,y}$ be the obtained projection of the test sample when exposed to x-rays produced by an x-ray tube with power $P_\text{proj}$ for some fixed time exposure $\tau$. The black and white images can be expressed as $\text{black}_{x,y}=S_{x,y}(0)$ and $\text{white}_{x,y}=S_{x,y}(P_\text{proj})$ respectively. The power was varied by fixing the potential difference and varying the current of the x-ray tube.
 
 The shading free image is not known, but it is expected that the shading corrected greyscale projection should be flat with some noise. In other words, all pixels in a shading corrected greyscale projection should have grey values with the same expectation $\mu_{S}(P)$ and same variance $\sigma_{S}^2(P)$. Suppose $\mu_{S}(P)$ was estimated using the within projection mean
 \begin{equation}
@@ -279,7 +279,7 @@ The BW shading corrected black and white images appeared uniform but there is so
     \begin{subfigure}[b]{\textwidth}
       \includegraphics[width=\subSize]{../figures/data/oddEvenPlot1_linear.eps}
       \includegraphics[width=\subSize]{../figures/data/oddEvenPlot2_linear.eps}
-      \caption{linear shading correction}
+      \caption{Linear shading correction}
     \end{subfigure}
   }
   \caption{Left shows the profile plot of an \texttt{AbsNoFilter} black image at $(879,y)$ using various shading corrections. Right shows two curves for odd and even $y$.}
@@ -292,7 +292,7 @@ An experiment was conducted to quantify the performance of the different types o
 
 In each dataset, there are 20 replicated greyscale images for each power. One randomly selected replication from each power was assigned to the training set and used to calibrate the shading correction. The remaining images were assigned to the test set and the shading correction was applied to each image.
 
-For each power, the within and between pixel variance was calculated. Let $U_{x,y}^{(j)}(P)$ be the shading corrected greyscale image in the test set with power $P$ for $j=1,2,\dotsc,m$ replicates. The within and between pixel variance are
+For each power, the within and between pixel variance was calculated. Let $U_{x,y}^{(j)}(P)$ be the shading corrected greyscale image in the test set with power $P$ for $j=1,2,\ldots,m$ replicates. The within and between pixel variance are
 \begin{equation}
 s_\mathrm{w}^2(P)=\dfrac{1}{WH(m-1)}
   \sum_{x=1}^{W}\sum_{y=1}^{H}\sum_{j=1}^{m}
@@ -338,7 +338,7 @@ and it should be about one if the within and between pixel variances are similar
   \centerline{
     \begin{subfigure}[b]{\subSize}
       \includegraphics[width=\textwidth]{../figures/data/ShadingCorrectionAnovaAbsNoFilter_linear.eps}
-      \caption{Linear shading Correction}
+      \caption{Linear shading correction}
     \end{subfigure}
     \begin{subfigure}[b]{\subSize}
       \includegraphics[width=\textwidth]{../figures/data/ShadingCorrectionAnovaAbsNoFilter_FStatistic.eps}
@@ -364,7 +364,7 @@ and it should be about one if the within and between pixel variances are similar
   \centerline{
     \begin{subfigure}[b]{\subSize}
       \includegraphics[width=\textwidth]{../figures/data/ShadingCorrectionAnovaAbsFilter_linear.eps}
-      \caption{Linear shading Correction}
+      \caption{Linear shading correction}
     \end{subfigure}
     \begin{subfigure}[b]{\subSize}
       \includegraphics[width=\textwidth]{../figures/data/ShadingCorrectionAnovaAbsFilter_FStatistic.eps}

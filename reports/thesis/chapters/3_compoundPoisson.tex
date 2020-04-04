@@ -1,6 +1,6 @@
 The grey value of each pixel in the detector can be modelled as a random variable, due to the random behaviour of photons being produced, interacting with the test sample and the scintillator in the detector. By modelling using a random variable, the uncertainty can be quantified and considered when conducting inference about any detected defects.
 
-The compound Poisson distribution is studied here because of the compound Poission-like behaviour from the detection of photons \citep{whiting2002signal, elbakri2003efficient, whiting2006properties}. It is defined by defining a latent variable $Y\sim\poisson(\lambda)$ with probability mass function (p.m.f.) $\prob(Y=y)=\euler^{-\lambda}\frac{\lambda^y}{y!}$ for $y=0,1,2,\dotsc$, where $\lambda>0$ is the Poisson rate parameter. Let $U_i$ be some independent and identically distributed (i.i.d.) latent random variables with probability density function (p.d.f.) $p_U(u)$ for $i=1,2,3,\dotsc$. Let $X$ be a compound Poisson random variable where
+The compound Poisson distribution is studied here because of the compound Poission-like behaviour from the detection of photons \citep{whiting2002signal, elbakri2003efficient, whiting2006properties}. It is defined by defining a latent variable $Y\sim\poisson(\lambda)$ with probability mass function (p.m.f.) $\prob(Y=y)=\euler^{-\lambda}\frac{\lambda^y}{y!}$ for $y=0,1,2,\ldots$, where $\lambda>0$ is the Poisson rate parameter. Let $U_i$ be some independent and identically distributed (i.i.d.) latent random variables with probability density function (p.d.f.) $p_U(u)$ for $i=1,2,3,\ldots$. Let $X$ be a compound Poisson random variable where
 \begin{equation}
   X|Y = \sum_{i=1}^{Y}U_i \ .
   \label{eq:compoundPoisson_X|Y}
@@ -12,9 +12,9 @@ The p.d.f.~of $X$ can be obtained by marginalising the joint p.d.f.
 \end{equation}
 It should be noted that $X=0$ if and only if $Y=0$ and this happens with probability $\prob(Y=0)=\euler^{-\lambda}$. This implies that $X$ has probability mass at zero and probability density for positive numbers which results in the p.d.f.
 \begin{equation}
-  p_X(x) = 
+  p_X(x) =
   \begin{cases}
-    \delta(x) \euler^{-\lambda}  & \text{ for } x=0 \\ 
+    \delta(x) \euler^{-\lambda}  & \text{ for } x=0 \\
     \sum_{y=1}^\infty p_{X|Y}(x|y)\euler^{-\lambda}\frac{\lambda^y}{y!} \quad\text{for } & \text{ for } x>0
   \end{cases}
 \end{equation}
@@ -28,7 +28,7 @@ This chapter starts with a literature review on the compound Poisson distributio
 
 \subsection{Compound Poisson in X-ray Detection}
 
-In an x-ray tube, photons are emitted as a Poisson process \citep{whiting2006properties, cierniak2011x} and each photon has some random energy due to bremsstrahlung and characteristic radiation \citep{sun2012overview}. This is similar to the compound Poisson distribution. Let $Y$ be the number of photons emitted for some time exposure $\tau$, then $Y\sim\poisson(\lambda)$. Each photon is assumed to be i.i.d.~with random energy $U_i$ for $i=1,2,3,\dotsc$ with p.d.f.~$p_U(u)$. The random variables discussed here cover all the latent variables in the compound Poisson.
+In an x-ray tube, photons are emitted as a Poisson process \citep{whiting2006properties, cierniak2011x} and each photon has some random energy due to bremsstrahlung and characteristic radiation \citep{sun2012overview}. This is similar to the compound Poisson distribution. Let $Y$ be the number of photons emitted for some time exposure $\tau$, then $Y\sim\poisson(\lambda)$. Each photon is assumed to be i.i.d.~with random energy $U_i$ for $i=1,2,3,\ldots$ with p.d.f.~$p_U(u)$. The random variables discussed here cover all the latent variables in the compound Poisson.
 
 Photons emitted from the x-ray tube undergo attenuation when propagating through the test sample. Assuming no beam hardening, some photons are either absorbed or scattered, making them undetectable. Scattered photons may be detected but it is very rare \citep{cantatore2011introduction}. The energy of the attenuated photons remain unaffected so attenuation decreases the parameter $\lambda$. The amount it decreases by depends on the attenuation coefficient of the material and the amount of material the x-ray attenuates. The density of the random variable $U_i$ remains unchanged because the energy of each photon remains the same after attenuation, assuming no beam hardening.
 
@@ -66,7 +66,7 @@ respectively. Eliminating $\lambda$ obtains
 \begin{equation}
 \variance\left[X\right] = \dfrac{\expectation\left[U^2\right]}{\expectation\left[U\right]} \expectation\left[X\right] + \kappa - a\dfrac{\expectation\left[U^2\right]}{\expectation\left[U\right]} \ .
 \end{equation}
-By assuming no beam hardening, $\expectation\left[U\right]$ and $\expectation\left[U^2\right]$ remains constant, thus there is a linear relationship between the variance and expectation of the grey value \citep{yang2009evaluation}. There are other types of detection schemes \citep{whiting2006properties} but it shall be not be considered here.
+By assuming no beam hardening, $\expectation\left[U\right]$ and $\expectation\left[U^2\right]$ remains constant, thus there is a linear relationship between the variance and expectation of the grey value \citep{yang2009evaluation}. There are other types of detection schemes \citep{whiting2006properties} but it shall not be considered here.
 
 Experiments have been done to verify the compound Poisson nature of the detector. This was done by investigating the variance of radiographs of air \citep{hsieh2015compound} and a polyethene cylinder \citep{yang2009evaluation, yang2010noise} using different exposures. It was found there were two components in the noise, one was signal-dependent and comes from the compound Poisson distribution, the other was signal independent and maybe electronic noise. The electronic noise can be modelled using a Normal distribution \citep{xu2009electronic}.
 
@@ -96,9 +96,9 @@ which agrees with the expectation and variance results in the previous section. 
 \label{chapter:compoundPoisson_compoundPoissonGamma}
 A special case of the compound Poisson distribution is when $U\sim\gammaDist\left(\alpha,\beta\right)$ where $\alpha>0$ is the gamma shape parameter and $\beta>0$ is the gamma rate parameter. This was used for example in \cite{xu2009electronic}. The distribution is known as the compound Poisson-gamma distribution and is denoted by $X\sim\CPoisson(\lambda,\alpha,\beta)$. The p.d.f.~is
 \begin{equation}
-  p_X(x) = 
+  p_X(x) =
   \begin{cases}
-    \delta(x) \euler^{-\lambda} & \text{ for } x=0 \\ 
+    \delta(x) \euler^{-\lambda} & \text{ for } x=0 \\
     \displaystyle\sum_{y=1}^{\infty}\dfrac{\beta^{y\alpha}}{\Gamma(y\alpha)}x^{y\alpha-1}\euler^{-\beta x}\euler^{-\lambda}\frac{\lambda^y}{y!} & \text{ for } x>0
   \end{cases}
   \ .
@@ -151,7 +151,7 @@ The parameters $p$, $\mu$ and $\phi$ are called the index, mean and dispersion p
 \end{equation}
 and the p.d.f.~for $x>0$ is
 \begin{equation}
-  p_X(x) = 
+  p_X(x) =
   \exp\left[
     \frac{1}{\phi}
     \left(
@@ -166,7 +166,7 @@ where
   W_y = W_y(x,p,\phi)=\frac{x^{y\alpha}}{\phi^{y(1+\alpha)}(p-1)^{y\alpha}(2-p)^yy!\Gamma(y\alpha)}
   \ .
 \end{equation}
-The derivation is shown in Appendix \ref{chapter:appendix_tweedie}. This is in the form of a distribution in the dispersive exponential family.\citep{nelder1972generalized, nelder1972generalized_2, mccullagh1984generalized} for fixed $p$ and $\phi$.
+The derivation is shown in Appendix \ref{chapter:appendix_tweedie}. This is in the form of a distribution in the dispersive exponential family \citep{nelder1972generalized, nelder1972generalized_2, mccullagh1984generalized} for fixed $p$.
 
 Parameter estimation for known $p$ can be done via the generalised linear model framework and can be extended to include linear mixed models \citep{zhang2013likelihood}. Estimating $p$ is difficult and various methods were discussed \citep{zhang2013likelihood}. One way is to estimate $\mu$ and $\phi$ on a grid of $p$'s and then select the $p$ which maximises the likelihood \citep{dunn2005series}.
 
@@ -213,7 +213,7 @@ For a given m.g.f.~$M_X(\theta)$, the saddlepoint approximation \citep{daniels19
 \end{equation}
 where $K_X(\theta) = \ln\left(M_X(\theta)\right)$ and $s=s(x)$ is the solution to the saddle point equation $K_X'(s)=x$.
 
-For the compound Poisson-gamma distribution, the saddle point approximation \citep{jensen1991saddlepoint} is given as 
+For the compound Poisson-gamma distribution, the saddle point approximation \citep{jensen1991saddlepoint} is given as
 \begin{multline}
   p_X(x)\approx
   \frac{\left(\lambda\alpha\beta^\alpha\right)^{\frac{1}{2(\alpha+1)}}\euler^{-\lambda}}{\sqrt{2\pi(\alpha+1)}}x^{-\frac{\alpha+2}{2(\alpha+1)}}
@@ -260,12 +260,12 @@ by treating $W_y$ as a continuous and differentiable function of $y$. The deriva
   \ .
 \end{equation}
 
-$y_\text{l}$ and $y_\text{u}$ can be chosen such that $W_{y_\text{l}}$ and $W_{y_\text{u}}$ are less than $\epsilon W_{y_\text{max}}$ where $\epsilon$ is some small constant, for example, $\epsilon=\euler^{-37}$ will be better than machine precision in 64 bits \citep{dunn2005series}. To prevent overflow problems, it is advised to calculate each term in the summation in log scale \citep{dunn2005series} by using the equation
+The limits, $y_\text{l}$ and $y_\text{u}$, can be chosen such that $W_{y_\text{l}}$ and $W_{y_\text{u}}$ are less than $\epsilon W_{y_\text{max}}$ where $\epsilon$ is some small constant, for example, $\epsilon=\euler^{-37}$ will be better than machine precision in 64 bits \citep{dunn2005series}. To prevent overflow problems, it is advised to calculate each term in the summation in log scale \citep{dunn2005series} by using the equation
 \begin{equation}
   \ln\left[
     \sum_{y=y_\text{l}}^{y_\text{u}}W_y
   \right]
-  = 
+  =
   \ln\left(
     W_{y_\text{max}}
   \right)
@@ -282,7 +282,7 @@ Simulations of a compound Poisson-gamma random variable were conducted to compar
 
 There were a few technical problems with the histogram because the compound Poisson has probability mass at zero and probability density for positive numbers. To correctly represent the empirical density of a compound Poisson random variable, a bar chart was used to show the frequency of zeros and a histogram to show the frequency density of positive numbers. However, the Normal approximation and the saddlepoint approximation does not have mass support at zero. Therefore, to compare these approximate densities to the empirical distribution fairly, a histogram containing both zero and positive samples was used when appropriate.
 
-The evaluation of the p.d.f.~using the saddlepoint approximate required a bit of caution to avoid over/underflow problems. Suppose realisations of $X$ were simulated $\left\{x_1,x_2,x_3,\dotsc,x_n\right\}$. The saddlepoint approximation was computed up to a constant using
+The evaluation of the p.d.f.~using the saddlepoint approximate required a bit of caution to avoid over/underflow problems. Suppose realisations of $X$ were simulated $\left\{x_1,x_2,x_3,\ldots,x_n\right\}$. The saddlepoint approximation was computed up to a constant using
 \begin{equation}
   p_X(x) \propto
   \exp\left[
@@ -297,7 +297,7 @@ The evaluation of the p.d.f.~using the saddlepoint approximate required a bit of
 for 10\,000 equally spaced points from and including the minimum non-zero simulated value to the maximum simulated value. $k$ is some constant which was chosen to be
 \begin{equation}
   k =
-  \max_{i\in\left\{1,2,3,\dotsc,n\right\}}
+  \max_{i\in\left\{1,2,3,\ldots,n\right\}}
   \left[
     -\frac{\alpha+2}{2(\alpha+1)}
     \ln(x_i)
@@ -322,13 +322,9 @@ and
   \right]
   \ ,
 \end{equation}
-then a Q-Q plot is a parametric plot which plots $\widehat{F}_X^{-1}(p)$ against $F_X^{-1}(p)$ for $p=\frac{0.5}{n},\frac{1.5}{n},\frac{2.5}{n},\dotsc,\frac{n-0.5}{n}$. If $F_X(x)$ and $\widehat{F}_X(x)$ are similar, a Q-Q plot should be a straight line with gradient 1, intercepting the origin. For the exact method and the saddlepoint approximation, $F_X(x)$ was found numerically by evaluating the p.d.f.~at $10\,000$ equally spaced points from and including the minimum to the maximum of the simulated samples, and then summing the required trapeziums. For the saddlepoint approximation, it does not support zero, thus the numerical integration started at a non-zero value. $\widehat{F}_X^{-1}(p)$ was then calculated by interpolation.
+then a Q-Q plot is a parametric plot which plots $\widehat{F}_X^{-1}(p)$ against $F_X^{-1}(p)$ for $p=\frac{0.5}{n},\frac{1.5}{n},\frac{2.5}{n},\ldots,\frac{n-0.5}{n}$. If $F_X(x)$ and $\widehat{F}_X(x)$ are similar, a Q-Q plot should be a straight line with gradient 1, intercepting the origin. For the exact method and the saddlepoint approximation, $F_X(x)$ was found numerically by evaluating the p.d.f.~at $10\,000$ equally spaced points from and including the minimum to the maximum of the simulated samples, and then summing the required trapeziums. For the saddlepoint approximation, it does not support zero, thus the numerical integration started at a non-zero value. $\widehat{F}_X^{-1}(p)$ was then calculated by interpolation.
 
-When plotting the probability of obtaining a zero or the p.d.f.~for positive values, confidence intervals were plotted as well. Consider a bin in a histogram, the confidence intervals were obtained by assuming that the frequency in a bin $\sim\poisson(\text{p.d.f.~evaluated at the bin}\times 1\,000 \times \text{bin width})$.
-
-For low $\lambda$ (Figures \ref{fig:compoundPoisson_histogram_1_1_1} to \ref{fig:compoundPoisson_histogram_approx_1_100_1}) there was a chance of simulating zeros. For $\lambda = 1$, the Normal approximation failed to capture the probability mass at zero because the Normal distribution is symmetric and support negative values. The saddlepoint approximation did capture the probability mass at zero as shown by an increase in probability density towards zero. For $\CPoisson(1,100,1)$ in Figure \ref{fig:compoundPoisson_histogram_approx_1_100_1}, the compound Poisson-gamma p.d.f.~contained multiple peaks and the saddlepoint approximation was not flexible enough to capture them. In Figure \ref{fig:compoundPoisson_histogram_1_100_1}, the Q-Q plot for the exact method was quite sensitive at the tails of each peak, perhaps there were a few inaccuracies in the exact evaluation of the p.d.f.~or in the calculation of the numerical calculation of the c.d.f.~and its inversion.
-
-As $\lambda$ increased (Figures \ref{fig:compoundPoisson_histogram_10_1_1} and \ref{fig:compoundPoisson_histogram_100_1_1}), all 3 density evaluation methods performed quite well. For $\CPoisson(10,1,1)$ in Figure \ref{fig:compoundPoisson_histogram_10_1_1}, the Normal approximation did not capture the skewness. In Figure \ref{fig:compoundPoisson_histogram_100_1_1}, $\lambda$ was high enough where the compound-Poisson distribution started to converge to a Normal distribution. All methods performed well in this realm.
+When plotting the probability of obtaining a zero or the p.d.f.~for positive values, confidence intervals were plotted as well. Consider a bin in a histogram, the confidence intervals were obtained by assuming that the frequency in a bin $\sim\poisson(\text{p.d.f.~evaluated at the bin}\times 1\,000 \times \text{bin width})$. The 68\% confidence interval was chosen because this is a typical choice in physics \citep{cowan1998statistical}.
 
 \begin{figure}
   \centering
@@ -422,6 +418,13 @@ As $\lambda$ increased (Figures \ref{fig:compoundPoisson_histogram_10_1_1} and \
     \label{fig:compoundPoisson_histogram_approx_1_100_1}
 \end{figure}
 
+
+For low $\lambda$ (Figures \ref{fig:compoundPoisson_histogram_1_1_1} to \ref{fig:compoundPoisson_histogram_approx_1_100_1}) there was a chance of simulating zeros. The exact method has an advantage here because it can evaluate probability mass at zero. The Normal approximation failed to capture the probability mass at zero because the Normal distribution is symmetric and support negative values. The saddlepoint approximation improves on the Normal approximation by capturing the skewness and kurtosis of the distribution \citep{bedrick1992empirical, butler2007saddlepoint}. As a result, it captured the probability mass at zero as shown by an increase in probability density towards zero.
+
+For $\CPoisson(1,100,1)$, the compound Poisson-gamma p.d.f.~contained multiple peaks. Figure \ref{fig:compoundPoisson_histogram_approx_1_100_1} shows that the saddlepoint approximation was not flexible enough to capture them. In Figure \ref{fig:compoundPoisson_histogram_1_100_1}, the Q-Q plot for the exact method was quite sensitive at the tails of each peak, perhaps there were a few inaccuracies in the exact evaluation of the p.d.f.~or in the calculation of the numerical calculation of the c.d.f.~and its inversion.
+
+As $\lambda$ increased (Figures \ref{fig:compoundPoisson_histogram_10_1_1} and \ref{fig:compoundPoisson_histogram_100_1_1}), all 3 density evaluation methods performed quite well. For $\CPoisson(10,1,1)$ in Figure \ref{fig:compoundPoisson_histogram_10_1_1}, the Normal approximation did not capture the skewness. In Figure \ref{fig:compoundPoisson_histogram_100_1_1}, $\lambda$ was high enough where the compound-Poisson distribution started to converge to a Normal distribution. All methods performed well in this realm.
+
 \begin{figure}
   \centering
     \centerline{
@@ -495,10 +498,11 @@ As $\lambda$ increased (Figures \ref{fig:compoundPoisson_histogram_10_1_1} and \
 \end{figure}
 
 \section{Proposed Model}
+\label{chapter2:proposed_model}
 
 The compound Poisson-gamma distribution can be used to model the grey value of each pixel in a projection. Suppose a projection has $N$ pixels and $m$ replicate projections were obtained. Let $X_{i,j}$ and $Y_{i,j}$ be the grey value and photon count, respectively, of the $i$th pixel in the $j$th replicate projection.
 
-By assuming no beam hardening, the distribution of the photon energy does not change with attenuation. As a result, all pixels will detect photons with identical energy distributions, thus, $\alpha$ and $\beta$ are the same for all pixels. Attenuation does affect the photon count, the more material a photon has to attenuate, the lower the number of detectable photons. The amount of attenuation depends on the specific path from the source to a pixel in a detector, so $\lambda_i$ varies from pixel to pixel. Electronic Normal noise $\epsilon_{i,j}\sim\normal(a,\kappa)$ may be added as well.
+By assuming no beam hardening, the distribution of the photon energy does not change with attenuation. As a result, all pixels will detect photons with identical energy distributions, thus, $\alpha$ and $\beta$ are the same for all pixels. Attenuation does affect the photon count, the more material a photon has to attenuate, the lower the number of detectable photons. The amount of attenuation depends on the specific path from the source to a pixel in a detector, so $\lambda_i$ varies from pixel to pixel. Electronic Normal noise $\epsilon_{i,j}\sim\normal(a,\kappa)$ is added to model noise recorded by the x-ray detector when no x-rays are exposed. This was observed in the black images in Chapter \ref{chapter2}.
 
 \begin{figure}
   \centering
@@ -509,11 +513,13 @@ By assuming no beam hardening, the distribution of the photon energy does not ch
 
 The graphical model in Figure \ref{fig:compoundPoisson_graphicalModel} illustrates how all of these variables are linked. $a$ and $\kappa$ are unknown parameters but can be estimated beforehand from replicate black images. Care must be taken to use the replicate black images for either shading correction or for estimating $a$ and $\kappa$ to avoid using the data twice. The energy of each photon $U\sim\gammaDist(\alpha,\beta)$ was omitted in the graphical model because the conditional distribution $X|Y\sim\gammaDist(Y\alpha,\beta)$ encapsulates each detected photon energy already.
 
-The model may be simplified by omitting the electronic noise and this can be done by setting $a=0$ and $\kappa=0$. The number of pixels can be set to $N=1$ to simplify the model further. Parameter estimation can be done using gradient methods because the likelihood of the compound Poisson can be evaluated \citep{dunn2005series}. However, the EM algorithm is faster and the model is well set up for it.
+The assumption of a gamma-distributed x-ray photon energy and Normal electronic noise was applied to XCT by \cite{xu2009electronic}. The assumptions were verified by investigating the variance of radiographs for different x-ray exposures. More statistically sound methods could use goodness of fit tests or Q-Q plots. The use of the gamma distribution will not be exactly correct because the sources of x-ray photon energy are characteristic and bremsstrahlung radiation which does not behave like a gamma random variable. However, characterisation of the density of the x-ray photon energy is difficult and usually involve more apparatuses and numerical methods \citep{fewell1977photon, stumbo2004direct}.
+
+The model may be simplified by omitting the electronic noise and this can be done by setting $a=0$ and $\kappa=0$. Further simplification can be done by removing spatial variation by setting $\lambda=\lambda_1=\lambda_2=\ldots=\lambda_N$. Parameter estimation can be done using gradient methods because the likelihood of the compound Poisson can be evaluated \citep{dunn2005series}. However, the EM algorithm is faster and the model is well set up for it.
 
 \section{EM Algorithm}
 
-The EM algorithm \citep{dempster1977maximum} was proposed to estimate the parameters of a $X\sim\CPoisson(\lambda,\alpha,\beta)$ random variable given a sample of measurements of it $\left\{x_1,x_2,x_3,\dotsc,x_n\right\}$. The use of the EM algorithm for the compound Poisson distribution in XCT have been studied in \cite{elbakri2003statistical, xie2008x, xu2009electronic}.
+The EM algorithm \citep{dempster1977maximum} was proposed to estimate the parameters of a $X\sim\CPoisson(\lambda,\alpha,\beta)$ random variable given a sample of measurements of it $\left\{x_1,x_2,x_3,\ldots,x_n\right\}$. The use of the EM algorithm for the compound Poisson distribution in XCT have been studied in \cite{elbakri2003statistical, xie2008x, xu2009electronic}.
 
 Let $\widehat{\lambda}$, $\widehat{\alpha}$ and $\widehat{\beta}$ be estimators of $\lambda$, $\alpha$ and $\beta$ respectively. The log-likelihood is defined to be
 \begin{equation*}
@@ -540,7 +546,7 @@ and using the results in Appendix \ref{chapter:appendix_tweedie}
 \end{equation}
 Maximum likelihood estimators are values of $\lambda$, $\alpha$ and $\beta$ which jointly maximise the log-likelihood.
 
-The EM algorithm \citep{dempster1977maximum} treats $Y\sim\poisson(\lambda)$ as a latent variable. Let $\left\{Y_1,Y_2,Y_3,\dotsc, Y_n\right\}$ be realisations of $Y$. Define the joint log-likelihood to be
+The EM algorithm \citep{dempster1977maximum} treats $Y\sim\poisson(\lambda)$ as a latent variable. Let $\left\{Y_1,Y_2,Y_3,\ldots, Y_n\right\}$ be realisations of $Y$. Define the joint log-likelihood to be
 \begin{multline*}
   \ln L(\lambda,\alpha,\beta;X,Y)
   =
@@ -577,7 +583,7 @@ so that
   \right.
   \\
   \left.
-    \left.  
+    \left.
       - \lambda + Y_i \ln \lambda - \ln(Y_i!)
     \right)
   \right]
@@ -586,7 +592,7 @@ so that
 \end{multline}
 The estimators were found by optimising the joint log-likelihood. This was done iteratively by estimating the $Y$'s given the $X$'s and parameters (E step), followed by estimating the parameters given the $Y$'s and $X$'s (M step) until some convergence conditions were met.
 
-It will be shown that using some approximations, the E step and M step can be implemented. The Cram\'er-Rao lower bound \citep{rao1945information, cramer1946mathematical} can also be found by using a few approximations. However, simulations showed that these estimators struggle for high $\lambda$.
+It will be shown that using some approximations, the E step and M step can be implemented. However, simulations showed that these estimators struggle for high $\lambda$.
 
 \subsection{E Step}
 
@@ -599,9 +605,9 @@ In the E step, the realisations of $Y$ are estimated using
 \end{equation}
 given the parameters $\lambda$, $\alpha$ and $\beta$. The conditional expectation is calculated using
 \begin{equation}
-  y_i = 
+  y_i =
   \begin{cases}
-    0 & \text{ for } x=0 \\ 
+    0 & \text{ for } x=0 \\
     \dfrac{\sum_{y=1}^\infty y \prob(Y=y|X=x_i)}{\sum_{y=1}^\infty \prob(Y=y|X=x_i)} & \text{ for } x>0
   \end{cases}
 \end{equation}
@@ -627,7 +633,7 @@ As discussed before, the sum in the denominator can be evaluated using the metho
 
 Let
 \begin{equation}
-  W_y^{(r)} = y^r W_y \quad \text{for }r=1,2,3,\dotsc
+  W_y^{(r)} = y^r W_y \quad \text{for }r=1,2,3,\ldots
 \end{equation}
 so that
 \begin{equation}
@@ -642,21 +648,21 @@ The expectation terms, $y_i$ and $\zeta_i$, are evaluated here so that they can 
 \begin{equation}
   \sum_{y=1}^\infty W^{(r)}_y \approx \sum_{y=y_\text{l}}^{y_\text{u}} W^{(r)}_y
 \end{equation}
-where $y_\text{l}<y_\text{max}<y_\text{u}$ and $y_\text{max}$ is the value of $y$ which maximises $W_y^{(r)}$. $\ln\left(W^{(r)}_y\right)$ can be expressed as
+where $y_\text{l}<y_\text{max}<y_\text{u}$ and $y_\text{max}$ is the value of $y$ which maximises $W_y^{(r)}$. This term can be expressed as
 \begin{equation}
-  \ln\left(W_y^{(r)}\right)=r\ln(y)+\ln(W_y)
+  \ln W_y^{(r)} =r\ln y+\ln W_y
 \end{equation}
 and taking the derivative with respect to $y$ obtains
 \begin{equation}
-  \frac{\partial }{\partial y} \ln\left(W_y^{(r)}\right) = \frac{r}{y } + \frac{\partial }{\partial y}\ln\left(W_y\right)
+  \frac{\partial }{\partial y} \ln W_y^{(r)} = \frac{r}{y } + \frac{\partial }{\partial y}\ln W_y
   \ .
 \end{equation}
-Keep in mind that $y=1,2,3,\dotsc$ so for large $y$, an approximation can be made $r/y\approx 0$ so that
+Keep in mind that $y=1,2,3,\ldots$ so for large $y$, an approximation can be made $r/y\approx 0$ so that
 \begin{equation}
-  \frac{\partial }{\partial y} \ln\left(W_y^{(r)}\right)\approx \frac{\partial }{\partial y} \ln\left(W_y\right)
+  \frac{\partial }{\partial y} \ln W_y^{(r)}\approx \frac{\partial }{\partial y} \ln W_y
   \ .
 \end{equation}
-Therefore, the maximum of $W_y^{(r)}$ is located at $y_\text{max}=\dfrac{x^{2-p}}{\phi(2-p)}$ for all $r=0,1,2,\dotsc$. As a result, the same method for evaluating $W_y$ can be used to evaluate $W_y^{(r)}$. For a given $r=0,1,2,\dotsc$, the limit of the sum $\sum_{y=y_\text{l}}^{y_\text{u}} W^{(r)}_y$ are chosen such that $W_{y_\text{l}}$ and $W_{y_\text{u}}$ are less than $\epsilon W_{y_\text{max}}^{(r)}$ where $\epsilon$ is some small constant. The limits will be different for different values of $r$.
+Therefore, the maximum of $W_y^{(r)}$ is located at $y_\text{max}=\dfrac{x^{2-p}}{\phi(2-p)}$ for all $r=0,1,2,\ldots$. As a result, the same method for evaluating $W_y$ can be used to evaluate $W_y^{(r)}$. For a given $r=0,1,2,\ldots$, the limit of the sum $\sum_{y=y_\text{l}}^{y_\text{u}} W^{(r)}_y$ were chosen such that $W^{(r)}_{y_\text{l}}$ and $W^{(r)}_{y_\text{u}}$ are less than $\epsilon W_{y_\text{max}}^{(r)}$ where $\epsilon$ is some small constant. The limits will be different for different values of $r$.
 
 \subsection{M Step}
 
@@ -678,7 +684,7 @@ In the M step, the conditional expected joint log-likelihood is maximised with r
     \right.
     \\
     \left.
-      \left.  
+      \left.
         - \lambda + Y_i \ln \lambda - \ln(Y_i!)
       \right)
       |X_i=x_i
@@ -783,25 +789,25 @@ The second-order derivatives are
 \end{equation}
 and
 \begin{multline*}
-  \frac{\partial^2 T}{\partial \alpha^2} = 
+  \frac{\partial^2 T}{\partial \alpha^2} =
   \sum_{i=1}^n\mathbb{I}(x_i>0)
   \left[
     -y_i^2\psi'(\alpha y_i) - \zeta_i\psi'(\alpha y_i) - \zeta_i\alpha y_i\psi''(\alpha y_i)
-    \vphantom{\frac{1}{2}}\right.\\\left. 
+    \vphantom{\frac{1}{2}}\right.\\\left.
     - \zeta_i\alpha\psi''(\alpha y_i)y_i
     -\frac{1}{2}\zeta_i\alpha^2\psi'''(\alpha y_i)y_i^2
   \right]
 \end{multline*}
 simplifying to
 \begin{multline}
-  \frac{\partial^2 T}{\partial \alpha^2} = 
+  \frac{\partial^2 T}{\partial \alpha^2} =
   \sum_{i=1}^n\mathbb{I}(x_i>0)
   \left[
     -(y_i^2+\zeta_i)\psi'(\alpha y_i) - 2\zeta_i\alpha y_i\psi''(\alpha y_i)
     \vphantom{\frac{1}{2}}
   \right.
   \\
-  \left.  
+  \left.
     -\frac{1}{2}\zeta_i\alpha^2y_i^2\psi'''(\alpha y_i)
   \right] \ .
   \label{eq:compoundPoisson:d2td2a}
@@ -836,97 +842,6 @@ where
 \end{equation}
 Since increasing $T$ is sufficient for the EM algorithm \citep{dempster1977maximum}, one step of the Newton-Raphson iterative update was chosen in the M step to avoid implementing a convergence condition for the Newton-Raphson method.
 
-\subsection{Estimation Error}
-
-The variance of the M step estimators can be obtained by using the Cram\'er-Rao lower bound \citep{rao1945information, cramer1946mathematical} from the Fisher's information matrix \citep{fisher1922on} defined as
-\begin{equation}
-  \matr{I} = -\expectation\left[
-    \nabla_{\lambda,\alpha,\beta}\nabla_{\lambda,\alpha,\beta}\T \ln L(\lambda,\alpha,\beta;X,Y)
-  \right]
-\end{equation}
-where
-\begin{equation}
-  \nabla_{\lambda, \alpha,\beta}=
-  \begin{pmatrix}
-    {\partial}/{\partial \lambda}
-    \\
-    {\partial}/{\partial \alpha}
-    \\
-    {\partial}/{\partial \beta}
-  \end{pmatrix}
-  \ .
-\end{equation}
-
-Most of the calculations for the elements of the matrix are similar to the derivatives of $T$. For the $\alpha$ component, taking derivatives of the joint log-likelihood (Equation \eqref{eq:compoundPoisson_jointLogLikelihood}) obtains
-\begin{align}
-\dfrac{\partial\ln L}{\partial\alpha} &= \sum_{i=1}^n\mathbb{I}(x_i>0)
-\left[
-  Y_i\ln\beta - \psi(Y_i\alpha)Y_i+Y_i\ln x_i
-\right]
-\\
-\dfrac{\partial^2\ln L}{\partial\alpha^2} &= \sum_{i=1}^n\mathbb{I}(x_i>0)
-\left[
-  -\psi'(Y_i\alpha)Y_i^2
-\right] \ .
-\end{align}
-The expectation of the second-order derivative is
-\begin{equation}
--\expectation\left[\dfrac{\partial^2\ln L}{\partial\alpha^2}\right]
-=
-n\left(1-\euler^{-\lambda}\right)
-\expectation\left[
-  \psi'(Y\alpha)Y^2
-\right]
-\end{equation}
-where the factor $\left(1-\euler^{-\lambda}\right)$ is the proportion of data where $x_i>0$. $\expectation\left[\psi'(Y\alpha)Y^2\right]$ can be approximated. Let $g(Y)=\psi'(Y\alpha)Y^2$, then
-\begin{equation}
-\expectation\left[\psi'(Y\alpha)Y^2\right]
-\approx
-\psi'(\lambda\alpha)\lambda^2
-+\dfrac{\lambda}{2}g''(\lambda) \ .
-\end{equation}
-The derivatives of $g(Y)$ are
-\begin{align}
-g'(Y)&=\psi''(Y\alpha)Y^2\alpha + 2\psi'(Y\alpha)Y
-\\
-g''(Y)&=Y^2\alpha^2\psi'''(Y\alpha)+4Y\alpha\psi''(Y\alpha)+2\psi'(Y\alpha)\ .
-\end{align}
-Therefore,
-\begin{multline}
--\expectation\left[\dfrac{\partial^2\ln L}{\partial\alpha^2}\right]\approx n\left(1-\euler^{-\lambda}\right)
-\\
-\times\left[(\lambda^2+\lambda)\psi'(\lambda\alpha)+2\lambda^2\alpha\psi''(\lambda\alpha)+\dfrac{\lambda^3\alpha^2}{2}\psi'''(\lambda\alpha)\right]
-\end{multline}
-
-Fisher's information matrix is
-\begin{multline}
-  \matr{I}=
-  n
-  \left(\begin{matrix}
-    \dfrac{1}{\lambda} & 0\\
-    0 & \left(1-\euler^{-\lambda}\right)\left[(\lambda^2+\lambda)\psi'(\lambda\alpha)+2\lambda^2\alpha\psi''(\lambda\alpha)+\dfrac{\lambda^3\alpha^2}{2}\psi'''(\lambda\alpha)\right]\\
-    0 & -\dfrac{\left(1-\euler^{-\lambda}\right)\lambda}{\beta}
-  \end{matrix}\right.
-  \\
-  \left.\begin{matrix}
-  \vphantom{\dfrac{1}{\lambda}}0\\
-  -\dfrac{\left(1-\euler^{-\lambda}\right)\lambda}{\beta}\\
-  \dfrac{\left(1-\euler^{-\lambda}\right)\alpha\lambda}{\beta^2}
-  \end{matrix}\right)
-  \ .
-\end{multline}
-The Cram\'er-Rao lower bound can be obtained using
-\begin{equation}
-  \cov\left[
-    \begin{pmatrix}
-      \widehat{\lambda}\\\widehat{\alpha}\\\widehat{\beta}
-    \end{pmatrix}
-  \right]
-  =
-  \matr{I}^{-1}
-  \ .
-\end{equation}
-
 \subsection{Simulations}
 
 An experiment was conducted to assess the performance on the EM algorithm. For a given set of parameters, 1\,000 samples of a $\CPoisson(\lambda,\alpha,\beta)$ random variable were simulated. The EM algorithm was initialised with its parameters at the true values to investigate the convergence in that vicinity. The log-likelihood $\ln L(\lambda,\alpha,\beta;X)$ and the parameters were recorded at every EM step. The experiment was repeated 10 times using different simulated samples.
@@ -957,7 +872,7 @@ For $\lambda=10$ and $\lambda=100$, the estimates of $\alpha$ and $\beta$ strugg
         \caption{$\beta$}
     \end{subfigure}
     }
-    \caption{The EM algorithm was used to estimate the parameters of a $\CPoisson(1,1,1)$ random variable using 1\,000 simulated samples. The graphs show the log-likelihood and the estimated parameters at each EM step for 10 different simulations. The dashed lines show the standard deviation using the Cram\'er-Rao lower bound.}
+    \caption{The EM algorithm was used to estimate the parameters of a $\CPoisson(1,1,1)$ random variable using 1\,000 simulated samples. The graphs show the log-likelihood and the estimated parameters at each EM step for 10 different simulations.}
     \label{fig:compoundPoisson_convergence_1}
 \end{figure}
 
@@ -983,7 +898,7 @@ For $\lambda=10$ and $\lambda=100$, the estimates of $\alpha$ and $\beta$ strugg
         \caption{$\beta$}
     \end{subfigure}
     }
-    \caption{The EM algorithm was used to estimate the parameters of a $\CPoisson(1,100,1)$ random variable using 1\,000 simulated samples. The graphs show the log-likelihood and the estimated parameters at each EM step for 10 different simulations. The dashed lines show the standard deviation using the Cram\'er-Rao lower bound.}
+    \caption{The EM algorithm was used to estimate the parameters of a $\CPoisson(1,100,1)$ random variable using 1\,000 simulated samples. The graphs show the log-likelihood and the estimated parameters at each EM step for 10 different simulations.}
     \label{fig:compoundPoisson_convergence_2}
 \end{figure}
 
@@ -1009,7 +924,7 @@ For $\lambda=10$ and $\lambda=100$, the estimates of $\alpha$ and $\beta$ strugg
         \caption{$\beta$}
     \end{subfigure}
     }
-    \caption{The EM algorithm was used to estimate the parameters of a $\CPoisson(10,1,1)$ random variable using 1\,000 simulated samples. The graphs show the log-likelihood and the estimated parameters at each EM step for 10 different simulations. The dashed lines show the standard deviation using the Cram\'er-Rao lower bound.}
+    \caption{The EM algorithm was used to estimate the parameters of a $\CPoisson(10,1,1)$ random variable using 1\,000 simulated samples. The graphs show the log-likelihood and the estimated parameters at each EM step for 10 different simulations.}
     \label{fig:compoundPoisson_convergence_3}
 \end{figure}
 
@@ -1035,7 +950,7 @@ For $\lambda=10$ and $\lambda=100$, the estimates of $\alpha$ and $\beta$ strugg
         \caption{$\beta$}
     \end{subfigure}
     }
-    \caption{The EM algorithm was used to estimate the parameters of a $\CPoisson(100,100,1)$ random variable using 1\,000 simulated samples. The graphs show the log-likelihood and the estimated parameters at each EM step for 10 different simulations. The dashed lines show the standard deviation using the Cram\'er-Rao lower bound.}
+    \caption{The EM algorithm was used to estimate the parameters of a $\CPoisson(100,100,1)$ random variable using 1\,000 simulated samples. The graphs show the log-likelihood and the estimated parameters at each EM step for 10 different simulations.}
     \label{fig:compoundPoisson_convergence_4}
 \end{figure}
 
@@ -1049,13 +964,13 @@ It should be convincing that the EM algorithm failed when the compound Poisson-g
 
 One investigation is to look at the Newton-Raphson step in the M step, in particular, the Hessian matrix $\nabla_{\alpha,\beta}\nabla_{\alpha,\beta}\T T$ for high $\lambda$. The elements of the Hessian matrix can be found in Equations \eqref{eq:compoundPoisson:d2tdadb}, \eqref{eq:compoundPoisson:d2td2b} and \eqref{eq:compoundPoisson:d2td2a}. Recall that
 \begin{multline*}
-  \frac{\partial^2 T}{\partial \alpha^2} = 
+  \frac{\partial^2 T}{\partial \alpha^2} =
   \sum_{i=1}^n\mathbb{I}(x_i>0)\left[
     -(y_i^2+\zeta_i)\psi'(\alpha y_i) - 2\zeta_i\alpha y_i\psi''(\alpha y_i)
     \vphantom{\frac{1}{2}}
   \right.
   \\
-  \left.  
+  \left.
     -\frac{1}{2}\zeta_i\alpha^2y_i^2\psi'''(\alpha y_i)
   \right]
   \ .
@@ -1074,7 +989,7 @@ Differentiating further
 \end{align}
 $\dfrac{\partial^2T}{\partial\alpha^2}$ can be approximated
 \begin{equation*}
-  \frac{\partial^2 T}{\partial \alpha^2} \approx 
+  \frac{\partial^2 T}{\partial \alpha^2} \approx
   \sum_{i=1}^n\mathbb{I}(x_i>0)
   \left[
     -\frac{y_i^2+\zeta_i}{\alpha y_i} + 2\frac{\zeta_i\alpha y_i}{\alpha^2 y_i^2}
@@ -1083,7 +998,7 @@ $\dfrac{\partial^2T}{\partial\alpha^2}$ can be approximated
 \end{equation*}
 to get
 \begin{equation}
-  \frac{\partial^2 T}{\partial \alpha^2} \approx 
+  \frac{\partial^2 T}{\partial \alpha^2} \approx
   \sum_{i=1}^n\mathbb{I}(x_i>0)
   \left[
     -\frac{y_i}{\alpha}
@@ -1099,7 +1014,7 @@ The Hessian matrix is, omitting the $\mathbb{I}(x_i>0)$ term,
     -y_i/\alpha  & y_i/\beta \\
     y_i/\beta & -\alpha y_i/\beta^2
   \end{pmatrix}
-  \ . 
+  \ .
 \end{equation}
 The determinant of the Hessian matrix is
 \begin{align*}
@@ -1241,15 +1156,16 @@ It was observed that there is a saddle point in the log-likelihood for the $\CPo
 As a result, there is no unique maximum likelihood estimator and the EM algorithm would be very sensitive to the starting position, including for small $\lambda$.
 
 \section{Conclusion}
-The compound Poisson-gamma distribution was studied but it was found there were identifiability issues when fitting the model onto simulated data, in particular for high $\lambda$.
+The compound Poisson-gamma distribution was studied but it was found there were identifiability issues when fitting the model onto simulated data, in particular for high $\lambda$. It was found that the log-likelihood was quite flat because, by using numerous approximations, it was found that the determinant of the Hessian is zero. This cast doubts if a unique maximum likelihood estimator exists. Tighter bounds for the Hessian is beyond the scope of this thesis.
 
-XCT is in the realm of high $\lambda$ and this can be shown using back of the envelope calculations. Using the properties in the \texttt{AbsNoFilter} dataset, the power and potential difference of the x-ray tube were $P=\SI{36}{\watt}$ and $V=\SI{80}{\kilo\volt}$ respectively. The time exposure was $\tau=\SI{708}{\milli\second}$. Assume an efficiency of \SI{0.01}{{photon.}{electron}^{-1}} and the charge per electron is $e=\SI{1.602e-19}{\coulomb\,{electron}^{-1}}$. Assume that the photons were projected onto the array of $2\,000^2\,\si{\pixel}$. The number of photons detected per pixel is calculated to be
-\begin{align*}
-\lambda &\approx \dfrac{\text{efficiency} \times P \tau}{\text{number of pixels} \times V e}
-\\
-&\sim 10^7\,\si{{photon}\,\pixel^{-1}}
-\ .
-\end{align*}
-Fitting the compound Poisson model onto XCT data would not be possible with such a high value of $\lambda$.
+The problem with the EM algorithm is that it is sensitive to the initial value and does not guarantee convergence to a global maximum \citep{moon1996expectation}. Another disadvantage is that the EM algorithm does not produce uncertainty quantification for the estimators. Methods such as bootstrapping \citep{efron1979bootstrap} and Louis' missing information principle \citep{louis1982finding} can be used to obtain such uncertainty quantification.
 
-All is not lost though, it was found that there is a linear relationship between the variance and mean of the grey value in a pixel. This suggests that uncertainty can be predicted by using such a relationship. The next chapter investigates this.
+There are methods to deal with flat likelihoods by extending the likelihood to include penalising terms \citep{cole2014maximum}. Another approach is to use Bayesian methods \citep{bishop2006pattern} where a prior distribution is defined for the parameters $\alpha$, $\beta$, $\lambda_1,\lambda_2,\ldots,\lambda_N$, $a$ and $\kappa$ where $N$ is the number of pixels and $a$ and $\kappa$ are the mean and variance terms for the Normal noise, defined in Section \ref{chapter2:proposed_model}. The prior distribution can reflect prior knowledge of the model, for example, the statistical properties of the sample of black images can be embedded into the priors of $a$ and $\kappa$. Back of the envelope calculations can be used to show that $\lambda_i \sim 10^7\,\si{{photon}\,\pixel^{-1}}$ which can be used to aid in the creation of a prior distribution for $\lambda_i$. Poisson graphical models \citep{yang2013poisson} and Gaussian processes \citep{williams1996gaussian} can impose a spatial dependency on $Y_{i,j}$ and $\lambda_i$ respectively as well.
+
+Bayesian inference is done by studying the posterior distribution where
+\begin{equation*}
+\mathrm{posterior} \propto \mathrm{likelhood} \times \mathrm{prior} \ .
+\end{equation*}
+By multiplying the likelihood with the prior, the posterior should hopefully be convex and enable better convergence. Studying the posterior distribution typically requires Markov chains using Monte Carlo methods \citep{brooks2011handbook} such as Metropolis-Hastings \citep{metropolis1953equation, hastings1970monte}, Gibbs sampling \citep{geman1984stochastic}, Hamiltonian Monte Carlo \citep{neal2011mcmc, hoffman2014no} and slice sampling \citep{neal2003slice, murray2010elliptical}.
+
+To keep the frequentist theme throughout this thesis, the next chapter studies the linear relationship between the variance and mean of the grey value in a pixel. The uncertainty can be predicted by using such a relationship.

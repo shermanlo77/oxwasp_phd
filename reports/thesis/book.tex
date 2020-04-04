@@ -1,4 +1,4 @@
-\documentclass[12pt, a4paper, oneside]{memoir}
+\documentclass[12pt, a4paper, twoside]{memoir}
 %oneside for soft copy
 %twoside for hard final copy
 \setlrmargins{4.3cm}{*}{*}
@@ -12,7 +12,7 @@
 \usepackage{amsbsy}
 \usepackage{graphicx}
 \usepackage[outdir=./]{epstopdf}
-\usepackage[round]{natbib} 
+\usepackage[round]{natbib}
 \usepackage{url}
 \usepackage{subcaption}
 \usepackage{hyperref}
@@ -77,6 +77,8 @@
 \DeclareSIUnit\adu{ADU}
 \OnehalfSpacing*
 \begin{document}\sloppy
+
+%\includepdf[page={1,2,3,4}]{licence.pdf}
 
 \begin{titlingpage}
 \centering
@@ -143,7 +145,7 @@ The analysis was done by comparing the experimental projection with a simulated 
 
 The front cover shows the before and after of the statistical analysis. The left-hand side shows an x-ray projection of an additive manufactured cuboid. Its edges appeared curved due to spot and panel effects and this can be fixed using shading correction. The right-hand side shows the $p$-values of the resulting inference. Lighter colours show evidence of a defect and they successfully highlighted voids put in there purposefully.
 
-In Chapter \ref{chapter1}, x-ray computed tomography and additive manufacturing is reviewed. Sources of error were investigated and see how they were handled. In Chapter \ref{chapter2}, a test sample was additively manufactured and the chapter describes how experimental x-ray projections were obtained. Shading correction is explained here and it was used to remove sources of systematic error in the projections. In Chapter \ref{chapter3}, the compound Poisson distribution is studied so that it can be used to model the detection of x-rays. In Chapter \ref{chapter4}, the uncertainty in the projection was quantified using the variance and generalised linear models were used to predict it. In Chapter \ref{chapter5}, novel statistical techniques were developed and implemented to look for defects in the test sample in the face of uncertainty. This was done by comparing the experimental projection with a simulated projection and looking for any disagreement. The empirical null filter was used to cater for any model misspecification so that sensible conclusions were made. The thesis ends with an evaluation in Chapter \ref{chapter6}.
+In Chapter \ref{chapter1}, x-ray computed tomography and additive manufacturing is reviewed. Sources of error were investigated and it was discuused how they were handled. In Chapter \ref{chapter2}, a test sample was additively manufactured and the chapter describes how experimental x-ray projections were obtained. Shading correction is explained here and it was used to remove sources of systematic error in the projections. In Chapter \ref{chapter3}, the compound Poisson distribution is studied so that it can be used to model the detection of x-rays. In Chapter \ref{chapter4}, the uncertainty in the projection was quantified using the variance and generalised linear models were used to predict it. In Chapter \ref{chapter5}, novel statistical techniques were developed and implemented to look for defects in the test sample in the face of uncertainty. This was done by comparing the experimental projection with a simulated projection and looking for any disagreement. The empirical null filter was used to cater for any model misspecification so that sensible conclusions were made. The thesis ends with an evaluation in Chapter \ref{chapter6}.
 
 The results presented in this thesis can be reproduced using the source code in the \emph{GitHub} repository \url{https://github.com/shermanlo77/oxwasp_phd}.
 
