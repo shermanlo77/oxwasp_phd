@@ -197,7 +197,7 @@ classdef DefectExample < Experiment
         this.filterArray{iFilter} = filter;
         %get the roc properties
         [this.falsePositiveFilter(:, iFilter), this.truePositiveFilter(:, iFilter), ~] = ...
-            roc(filter.getFilteredImage(), this.isNonNullImage, this.nRoc);
+            roc(filter.getFilteredImage(), this.isNonNullImage);
         
         %progress bar
         this.printProgress(iFilter / this.nFilter);
