@@ -12,7 +12,6 @@ classdef DefectRadius < Experiment
 
   properties (SetAccess = protected)
     
-    nRoc = 1000; %for roc function
     nRepeat = 100; %number of times to repeat the experiment
     imageSize = 256; %dimension of the image
     radiusArray = 10:10:100; %radius of the empirical null filter kernel
@@ -186,10 +185,8 @@ classdef DefectRadius < Experiment
           zTesterFiltered.doTest();
 
           %get the roc area
-          [~, ~, this.rocAreaArray(iRepeat, iRadius, 1)] = roc(imagePreCont, isNonNullImage, ...
-              this.nRoc);
-          [~, ~, this.rocAreaArray(iRepeat, iRadius, 2)] = roc(imageFiltered, isNonNullImage, ...
-              this.nRoc);
+          [~, ~, this.rocAreaArray(iRepeat, iRadius, 1)] = roc(imagePreCont, isNonNullImage);
+          [~, ~, this.rocAreaArray(iRepeat, iRadius, 2)] = roc(imageFiltered, isNonNullImage);
           
           %get the error rates fdrArray
           

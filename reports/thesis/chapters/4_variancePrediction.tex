@@ -6,7 +6,7 @@ In this chapter, generalised linear models \citep{nelder1972generalized, nelder1
 
 The sample variance-mean data were obtained from the replicate projections. Let $x_{i,j}$ be the grey value of the $i$th pixel, ignoring any spatial information, from the $j$th replicate projection for $i=1,2,3,\ldots,N$ and $j=1,2,3,\ldots,m$. The sample mean and sample variance grey value for the $i$th pixel are
 \begin{equation}
-    \overline{x}_{i}=\frac{1}{m}\sum_{j=1}^m x_{i,j}
+    x_{i}=\frac{1}{m}\sum_{j=1}^m x_{i,j}
 \end{equation}
 and
 \begin{equation}
@@ -423,6 +423,6 @@ As discussed in the compound Poisson chapter, a linear relationship can be deriv
 
 It was unusual to see an infection in the sample variance-mean data in \texttt{AbsNoFilter} at \ang{120} which was not captured by the GLM. A good explanation was not found but perhaps the absence of an x-ray filter may have contributed to this. As a result, the \texttt{AbsNoFilter} dataset was discarded in favour of the \texttt{AbsFilter} dataset from the next chapter.
 
-There exist model selection methods such as lasso and elastic net \citep{tibshirani1996regression, zou2005regularization, friedman2010regularization} but they are catered for high dimensional problems involving hundreds of parameters. In this problem, only a few parameters were needed to find a good model. More flexible models such as non-parametric and machine learning methods may be used, however, they are slow and are unnecessary in a low dimensional problem with a large number of data points.
+There exist model selection methods such as lasso and elastic net \citep{tibshirani1996regression, zou2005regularization, friedman2010regularization} but they are catered for high dimensional problems involving hundreds of parameters. In this problem, only a few parameters were needed to find a good model thus forward stepwise selection was sufficient. More flexible models such as non-parametric and machine learning methods may be used, however, they are slow and are unnecessary in a low dimensional problem with a large number of data points.
 
 With the ability to predict the variance given a grey value of a pixel, the uncertainty can be quantified. In the next chapter, the projection is compared to a simulated projection in the face of that uncertainty.

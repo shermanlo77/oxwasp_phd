@@ -26,7 +26,7 @@ GPU&Graphics processing unit\\
 i.i.d.&Independent and identically distributed\\
 IOP&Institute of Physics\\
 IQR&Interquartile range\\
-MAD&Median absolute deviation\\
+MADA-mode&Median absolute deviation around the mode\\
 m.g.f.&Moment generating function\\
 Obs.&Observed\\
 PCER&Per-comparison error rate\\
@@ -47,19 +47,19 @@ XCT&X-ray computed tomography
 \section{Moment Generating Function}
 \label{chapter:appendix_compoundPoissonMgf}
 
-Let $Y\sim\poisson(\lambda)$, $U_1,U_2,U_3,\cdots$ be i.i.d.~random variables and $X|Y=\sum_{i=1}^YU_i$. Let the m.g.f.~of $X$ be $M_X(\theta)=\expectation\left[\euler^{\theta X}\right]$. This can be computed using the result for conditional expectations $M_X(\theta)=\expectation\expectation\left[\euler^{X\theta}|Y\right]$. This results in 
+Let $Y\sim\poisson(\lambda)$, $U_1,U_2,U_3,\ldots$ be i.i.d.~random variables and $X|Y=\sum_{i=1}^YU_i$. Let the m.g.f.~of $X$ be $M_X(\theta)=\expectation\left[\euler^{\theta X}\right]$. This can be computed using the result for conditional expectations $M_X(\theta)=\expectation\expectation\left[\euler^{X\theta}|Y\right]$. This results in
 \begin{align}
-  M_X(\theta)&=\expectation\expectation\left[\exp\left(\theta U_1 + \theta U_2 + \cdots + \theta U_Y\right)|Y\right]
+  M_X(\theta)&=\expectation\expectation\left[\exp\left(\theta U_1 + \theta U_2 + \ldots + \theta U_Y\right)|Y\right]
   \nonumber \\
-  &=\expectation\expectation\left[\euler^{\theta U_1}\cdot\euler^{\theta U_2}\cdot\cdots\cdot\euler^{\theta U_Y}|Y\right]
+  &=\expectation\expectation\left[\euler^{\theta U_1}\cdot\euler^{\theta U_2}\cdot\ldots\cdot\euler^{\theta U_Y}|Y\right]
   \ .
 \end{align}
-Because $U_i$, for $i=1,2,3,\cdots$, are i.i.d.~and each $U_i$ has a m.g.f.~$M_U(\theta)=\expectation\left[\euler^{U\theta}\right]$, then
+Because $U_i$, for $i=1,2,3,\ldots$, are i.i.d.~and each $U_i$ has a m.g.f.~$M_U(\theta)=\expectation\left[\euler^{U\theta}\right]$, then
 \begin{align}
   M_X(\theta)&=\expectation\left(
     \expectation\left[\euler^{\theta U_1}|Y\right]\cdot
     \expectation\left[\euler^{\theta U_2}|Y\right]\cdot
-    \cdots \cdot
+    \ldots \cdot
     \expectation\left[\euler^{\theta U_Y}|Y\right]
   \right)
   \nonumber\\
@@ -177,9 +177,9 @@ and the third moment about the mean is
 \label{chapter:appendix_tweedie}
 Let $X\sim\CPoisson(\lambda,\alpha,\beta)$ and have p.d.f.
 \begin{equation}
-  p_X(x) = 
+  p_X(x) =
   \begin{cases}
-    \delta(x) \euler^{-\lambda} & \text{ for } x=0 \\ 
+    \delta(x) \euler^{-\lambda} & \text{ for } x=0 \\
     \dfrac{\euler^{-x\beta-\lambda}}{x}
     \displaystyle\sum_{y=1}^{\infty}\dfrac{\beta^{y\alpha}}{\Gamma(y\alpha)}x^{y\alpha}\frac{\lambda^y}{y!} & \text{ for } x>0
   \end{cases}
@@ -226,7 +226,7 @@ and the p.d.f.~for $x>0$ is
     \frac{1}{y!}
   \end{multlined}
   \\
-  &= 
+  &=
   \begin{multlined}[t]
     \exp\left[
       \frac{1}{\phi}\left(x\frac{\mu^{1-p}}{1-p}-\frac{\mu^{2-p}}{2-p}\right)
@@ -239,7 +239,7 @@ and the p.d.f.~for $x>0$ is
 \end{align*}
 It should be noted that $2-p-\alpha(p-1) = 2-p - \frac{2-p}{p-1}(p-1) =0$ so that
 \begin{equation}
-  p_X(x) = 
+  p_X(x) =
   \exp\left[
     \frac{1}{\phi}
     \left(
@@ -301,7 +301,7 @@ For the compound Poisson-gamma distribution, the natural parameter is
 \end{equation}
 and the partition function is
 \begin{equation*}
-  Z(\theta) = 
+  Z(\theta) =
   \exp\left[
     \frac{\mu^{2-p}}{\phi(2-p)}
   \right]
@@ -434,7 +434,7 @@ and substituting in Equation \eqref{eq:appendix_methodofmoments_beta}
 \end{align}
 obtains the estimator
 \begin{equation}
-  \widehat{\alpha} = 
+  \widehat{\alpha} =
   \dfrac{2\widehat{\mu}_2^2 - \widehat{\mu}_1\widehat{\mu}_3}{\widehat{\mu}_1\widehat{\mu}_3-\widehat{\mu}_2^2} \ .
 \end{equation}
 
@@ -444,7 +444,7 @@ Finally, rearranging Equation \eqref{eq:appendix_methodofmoments_mu1}
 \end{equation*}
 and substituting in Equations \eqref{eq:appendix_methodofmoments_beta} and \eqref{eq:appendix_methodofmoments_alpha}
 \begin{align}
-\lambda &= 
+\lambda &=
   \dfrac{\mu_1\mu_2}{\mu_1\mu_3-\mu_2^2}
   \times
   \dfrac{\mu_1\mu_3-\mu_2^2}{2\mu_2^2 - \mu_1\mu_3}
@@ -523,7 +523,7 @@ Substituting in $a$ and $b$
     \lambda
     \left(
       \left(
-        1-\frac{\theta}{\sqrt{\alpha(\alpha+1)\lambda}} 
+        1-\frac{\theta}{\sqrt{\alpha(\alpha+1)\lambda}}
       \right)^{-\alpha}
       -1
     \right)
@@ -531,7 +531,7 @@ Substituting in $a$ and $b$
   \ .
 \end{align}
 
-Using the binomial expansion 
+Using the binomial expansion
 \begin{multline}
   \left(
     1-\frac{\theta}{\sqrt{\alpha(\alpha+1)\lambda}}
@@ -639,7 +639,7 @@ for large $\lambda$. The limiting case where $\lambda\rightarrow 0$, $\alpha\rig
 
 \section{Saddlepoint Approximation}
 \label{chapter:appendix_saddlepoint}
-Let $X\sim\CPoisson(\lambda,\alpha,\beta)$ with m.g.f.~$M_X(\theta)=\exp\left[\lambda\left(\left(\frac{\beta}{\beta-\theta}\right)^{\alpha}-1\right)\right]$. Let the cumulant generating function of $X$ be $K_X(\theta)=\ln M_X(\theta)$. The saddlepoint approximation is 
+Let $X\sim\CPoisson(\lambda,\alpha,\beta)$ with m.g.f.~$M_X(\theta)=\exp\left[\lambda\left(\left(\frac{\beta}{\beta-\theta}\right)^{\alpha}-1\right)\right]$. Let the cumulant generating function of $X$ be $K_X(\theta)=\ln M_X(\theta)$. The saddlepoint approximation is
 \begin{equation}
   p_X(x)\approx\left(2\pi K_X''(s)\right)^{-1/2}\exp\left[K_X(s)-sx\right]
   \label{eq:appendix_saddlepoint}
@@ -764,7 +764,7 @@ simplifying further
     }
     {
       \sqrt{2\pi(\alpha+1)}}x^{-\frac{\alpha+2}{2(\alpha+1)}
-    } 
+    }
     \\
     \exp\left[
       -\lambda
@@ -859,7 +859,7 @@ The expression $\alpha^{-\frac{\alpha}{\alpha+1}}+\alpha^{\frac{1}{\alpha+1}}$ c
   \nonumber\\
   & = \frac{\alpha+1}{\alpha^{\frac{\alpha}{\alpha+1}}}
 \end{align}
-so that the saddlepoint approximation is 
+so that the saddlepoint approximation is
 \begin{equation}
 p_X(x)\approx
   \frac{
@@ -882,14 +882,14 @@ p_X(x)\approx
 
 Let $X\sim\CPoisson(\lambda,\alpha,\beta)$ with p.d.f.
 \begin{equation*}
-  p_X(x) = 
+  p_X(x) =
   \begin{cases}
     \delta(x) \exp
       \left[
           -\dfrac{\mu^{2-p}}{\phi(2-p)}
-      \right] 
+      \right]
     &\text{ for } x=0
-    \\ 
+    \\
     \displaystyle
     \exp\left[
       \frac{1}{\phi}
@@ -915,7 +915,7 @@ where $y_\text{l}<y_{\text{max}}<y_\text{u}$ and $y_{\text{max}}$ is the value o
 
 It is easier to differentiate $\ln(W_y)$ where
 \begin{align}
-  \ln(W_y) &= 
+  \ln(W_y) &=
   \begin{multlined}[t]
     y\alpha\ln(x)-y(1+\alpha)\ln(\phi)-y\alpha\ln(p-1)\\-y\ln(2-p)-\ln(y!)-\ln\Gamma(y\alpha)
   \end{multlined}
@@ -970,15 +970,15 @@ Setting the derivative to zero
   \right)
 \end{equation*}
 \begin{equation*}
-  1 \approx 
+  1 \approx
   \frac{x^\alpha}{\phi^{1+\alpha}(p-1)^\alpha(2-p)y_{\text{max}}^{1+\alpha}\alpha^\alpha}
 \end{equation*}
 \begin{equation*}
-  y_{\text{max}}^{1+\alpha} \approx 
+  y_{\text{max}}^{1+\alpha} \approx
   \frac{x^\alpha}{\phi^{1+\alpha}(p-1)^\alpha(2-p)\alpha^\alpha}
 \end{equation*}
 \begin{equation*}
-  y_{\text{max}} \approx 
+  y_{\text{max}} \approx
   \frac{1}{\phi}
   \left(
     \frac{x}{(p-1)\alpha}
@@ -988,7 +988,7 @@ Setting the derivative to zero
 \end{equation*}
 This can be simplified using the fact that $\alpha=\frac{2-p}{p-1}$, $\frac{1}{1+\alpha} = p-1$ and $\frac{\alpha}{1+\alpha} = 2-p$ then
 \begin{equation*}
-  y_{\text{max}} \approx 
+  y_{\text{max}} \approx
   \frac{1}{\phi}
   \left(
     \frac{x}{2-p}
@@ -1009,14 +1009,14 @@ To verify that $y_\text{max}$ is a maximum, the second-order derivative can be i
 \end{equation}
 to see that
 \begin{equation}
-  \frac{\partial^2\ln(W_y)}{\partial y^2} < 0 \quad \text{for }y=1,2,3,\cdots
+  \frac{\partial^2\ln(W_y)}{\partial y^2} < 0 \quad \text{for }y=1,2,3,\ldots
 \end{equation}
 therefore $y_\text{max}$ is a maximum.
 
 \chapter{Expectation of $\widehat{\sigma}^2_0$}
 \label{chapter:appendix_expectationNullStdEstimator}
 
-It can be shown that the null variance estimator $\widehat{\sigma}_0^2$ is approximately unbiased when estimating using $n$ samples of $\normal(\mu_0, \sigma_0^2)$ random variables. Suppose the random variables are $Z_1, Z_2, \cdots, Z_n$ and are i.i.d.~with probability density function $f(z)$. Recall that
+It can be shown that the null variance estimator $\widehat{\sigma}_0^2$ is approximately unbiased when estimating using $n$ samples of $\normal(\mu_0, \sigma_0^2)$ random variables. Suppose the random variables are $Z_1, Z_2, \ldots, Z_n$ and are i.i.d.~with probability density function $f(z)$. Recall that
 \begin{equation}
   \widehat{\sigma}_0 = \left[
     \left.
@@ -1210,7 +1210,7 @@ g_t(Z) = \phi\left(
 \end{equation}
 The expectation is
 \begin{equation}
-\expectation\left[g_t(Z)\right] = 
+\expectation\left[g_t(Z)\right] =
 \int_{-\infty}^{\infty}
 \phi\left(
   \dfrac{z - z_0}{h}
@@ -1222,13 +1222,13 @@ f(z) \diff z \ .
 \end{equation}
 By substituting $u=(z-z_0)/h$ then
 \begin{equation}
-\expectation\left[g_t(Z)\right] = 
+\expectation\left[g_t(Z)\right] =
 \int_{-\infty}^{\infty}
 h\phi(u)u^tf(z_0+uh)\diff u
 \end{equation}
 which a Taylor series can be used to expand $f(z_0+uh)$
 \begin{equation}
-\expectation\left[g_t(Z)\right] = 
+\expectation\left[g_t(Z)\right] =
 \int_{-\infty}^{\infty}
 h\phi(u)u^t
 \sum_{r=0}^\infty \dfrac{
@@ -1242,7 +1242,7 @@ h\phi(u)u^t
 \end{equation}
 to get
 \begin{equation}
-\expectation\left[g_t(Z)\right] = 
+\expectation\left[g_t(Z)\right] =
 \sum_{r=0}^\infty
 \dfrac{
   f^{(r)}(z_0)h^{r+1}

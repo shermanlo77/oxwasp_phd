@@ -22,7 +22,6 @@ classdef DefectAlt < Experiment
     radius = 20; %radius of the empirical null filter kernel
     randStream; %rng
     nIntial = 3; %number of initial points used for the empirical null filter
-    nRoc = 1000; %number of points used for the roc curve
     altMeanArray = linspace(1,5,9); %array of alt distribution means to investigate
     
     %records results
@@ -219,7 +218,7 @@ classdef DefectAlt < Experiment
           zTester.doTest();
 
           %get the roc area
-          [~, ~, this.rocAreaArray(iRepeat, iMu)] = roc(imageFiltered, isNonNullImage, this.nRoc);
+          [~, ~, this.rocAreaArray(iRepeat, iMu)] = roc(imageFiltered, isNonNullImage);
           
           %get the error rates fdrArray
           this.type1ErrorArray(iRepeat, iMu) = ...

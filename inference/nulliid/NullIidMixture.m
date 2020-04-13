@@ -1,12 +1,13 @@
 %MIT License
 %Copyright (c) 2019 Sherman Lo
 
-classdef (Abstract) NullIidMixture < NullIid
+classdef NullIidMixture < NullIid
   
   methods (Access = protected)
     
-    function setup(this, seed)
-      this.setup@NullIid(seed);
+    function setup(this)
+      this.setup@NullIid();
+      this.randStream = RandStream('mt19937ar','Seed', uint32(1716164366));
     end
     
     function yLim = getYLim(this, index)

@@ -18,7 +18,6 @@ classdef DefectExample < Experiment
     
     nFilter = 4; %number of filters to be investigated
     filterArray; %cell array of filters
-    nRoc = 1000; %for roc function
     
     %z statistics (images)
     imageClean; %before contamination
@@ -128,19 +127,25 @@ classdef DefectExample < Experiment
       
       
       %plot ROC
+      %thin the rates to make vector figure
+      %it should be stairs rather than plot but accurracy is traded for quality of the figures 
+      thinningIndex = round(linspace(1, this.imageSize(1)*this.imageSize(2) + 2, 1000));
+      
       fig = LatexFigure.sub();
       for iFilter = 1:this.nFilter
-        plot(this.falsePositiveFilter(:,iFilter), this.truePositiveFilter(:,iFilter));
+        plot(this.falsePositiveFilter(thinningIndex,iFilter), ...
+            this.truePositiveFilter(thinningIndex,iFilter));
         hold on;
       end
-      plot(this.falsePositiveClean, this.truePositiveClean, 'k-.');
+      plot(this.falsePositiveClean(thinningIndex), this.truePositiveClean(thinningIndex), 'k-.');
       hold on;
-      plot(this.falsePositiveContaminated, this.truePositiveContaminated, 'k-.');
+      plot(this.falsePositiveContaminated(thinningIndex), ...
+          this.truePositiveContaminated(thinningIndex), 'k-.');
       plot([0,1],[0,1],'k:');
       xlabel('false positive rate');
       ylabel('true positive rate');
-      legend('empirical','mad mode','meadian iqr','mean var','Location','southeast');
-      saveas(fig,fullfile(directory, strcat(this.experimentName,'_roc.eps')),'epsc');
+      legend('empirical null','MADA-mode','meadian IQR','mean var','Location','southeast');
+      print(fig,fullfile(directory, strcat(this.experimentName,'_roc.eps')),'-depsc');
 
     end
     
@@ -155,8 +160,9 @@ classdef DefectExample < Experiment
       this.imageSize = imageSize;
       this.radius = radius;
       this.randStream = this.defectSimulator.randStream;
-      this.falsePositiveFilter = zeros(this.nRoc, this.nFilter);
-      this.truePositiveFilter = zeros(this.nRoc, this.nFilter);
+      nPoints = imageSize(1) * imageSize(2) + 1;
+      this.falsePositiveFilter = zeros(nPoints, this.nFilter);
+      this.truePositiveFilter = zeros(nPoints, this.nFilter);
     end
     
     %IMPLEMENTED: DO EXPERIMENT
@@ -167,10 +173,10 @@ classdef DefectExample < Experiment
           this.defectSimulator.getDefectedImage(this.imageSize);
       %work out true and false positive without filtering, before and after contamination
       [this.falsePositiveClean, this.truePositiveClean, ~] = ...
-          roc(this.imageClean, this.isNonNullImage, this.nRoc);
+          roc(this.imageClean, this.isNonNullImage);
       [this.falsePositiveContaminated, this.truePositiveContaminated, ~] = ...
-          roc(this.imageContaminated, this.isNonNullImage, this.nRoc);
-         
+          roc(this.imageContaminated, this.isNonNullImage);
+      
       %for each filter
       for iFilter = 1:this.nFilter
         %get the filter
@@ -202,4 +208,3 @@ classdef DefectExample < Experiment
   end
   
 end
-

@@ -1,26 +1,36 @@
 Disagreements between the obtained and the \emph{aRTist} simulated projections can be found by subtracting one projection from the other. Any values too big in magnitude can be considered as a defect. However, in the previous chapters, it was found that x-ray photons behave randomly and differences in the comparison can be due to chance. Thus, the comparisons should be done in the face of uncertainty.
 
-A pixel by pixel hypothesis test was proposed to do defect detection. Beforehand, linear shading correction was applied to the projections. The \emph{aRTist} projections were shading corrected using the simulated greyscale projections. The test statistic, for the pixel located at $(x,y)$, is
+A pixel by pixel hypothesis test was proposed to do defect detection. To illustrate this method of inference, the projections from the dataset \texttt{AbsFilter} at \ang{120} was used. To recap, 20 replicate projections of a test sample, with purposefully manufactured voids, were obtained. \emph{aRTist} was used to create a simulation of that projection but as if the voids were not there. Thus, the method should pick these voids up.
+
+Beforehand, linear shading correction was applied to the projections. The \emph{aRTist} projections were shading corrected using the simulated greyscale projections. The 20 replicate projections were split into two. 19 randomly selected projections were used for the variance-mean model to fit onto. The remaining projection was compared with the \emph{aRTist} projection. This remaining projection and the \emph{aRTist} projections are shown in Figures \ref{fig:inference_inferenceIntro_inference_scan} and \ref{fig:inference_inferenceIntro_inference_artist} respectively.
+
+A gamma GLM, with a basic linear relationship, was used for the variance-mean model, as described in Chapter \ref{chapter4}. The variance was predicted using the grey value in the \emph{aRTist} simulation as the predictor variable.
+
+The test statistic, for the pixel located at $(x,y)$, is
 \begin{equation}
-  Z_{x,y} = 
+  Z_{x,y} =
   \dfrac{
     \text{projection}_{x,y} - \emph{aRTist}_{x,y}
   }
   {
-    \sqrt{\widehat{\variance}\left[\text{projection}_{x,y}\right]}
+    \sqrt{s^2\left[\emph{aRTist}_{x,y}\right]}
   }
 \end{equation}
-where $\widehat{\variance}\left[\text{projection}_{x,y}\right]$ is the estimated grey value variance. The test statistic was calculated for each pixel in the ROI, that is, pixels which represent the test sample. The ROI was created by manually segmenting the test sample from the projection.
+where $s^2\left[\emph{aRTist}_{x,y}\right]$ is the predicted grey value variance. The test statistic was calculated for each pixel in the ROI, that is, pixels which represent the test sample. The ROI was created by manually segmenting the test sample from the projection.
 
-For high photon rate, it was shown in the previous chapters that the grey values in the scan can be modelled using a Normal distribution. Thus, if there are no significant differences between the obtained and \emph{aRTist} projections, then the randomness of the test statistics can be approximately quantified as
+It is important to identity which quantites are random and which are not. For high photon rates, it was shown in the previous chapters that the grey values in the projection can be modelled using a Normal distribution. Thus, $\text{projection}_{x,y}$ is a random quantity. The simulation $\emph{aRTist}_{x,y}$ is not random because this was obtained through a computer software. Given the 19 selected projections used for training the variance-mean model, the variance prediction $s^2\left[\emph{aRTist}_{x,y}\right]$ is not random because the variance-mean model was fitted before encountering the remaining projection to be compared with \emph{aRTist}. The variance-mean model can be made random if a different set of 19 projections was used to train the model each time this inference was conducted, but this shall not be considered here.
+
+If there are no significant differences between the obtained and \emph{aRTist} projections, then the randomness of the test statistics can be approximately quantified as
 \begin{equation}
 Z_{x,y}\sim \normal(0,1) \ .
 \end{equation}
 As with usual statistical convention, an upper case $Z$ denotes a random variable. A lower case $z$ denotes a realisation or an observation of that random variable.
 
-To illustrate this method of inference, the projections from the dataset \texttt{AbsFilter} at \ang{120} was used. To recap, replicate projections of a test sample, with purposefully manufactured voids, were obtained. \emph{aRTist} was used to create a simulation of that projection but as if the voids were not there. Thus, the method should pick these voids up.
-
-The obtained and \emph{aRTist} projections are shown in Figures \ref{fig:inference_inferenceIntro_inference_scan} and \ref{fig:inference_inferenceIntro_inference_artist} respectively. The 20 replicate projections were split into two. 19 randomly selected projections were used for the variance-mean model to fit onto. A gamma GLM, with a basic linear relationship, was used for the variance-mean model. The remaining projection was compared with the \emph{aRTist} projection. The variance was predicted using the grey value in the \emph{aRTist} simulation as the predictor variable.
+For each pixel, a test statistic was calculated, which forms a $z$ image. A test statistic too large in magnitude, relative to the anticipated variance, will classify that pixel as a positive result. In two-tailed hypothesis testing \citep{pearson1900on, neyman1933on, fisher1970statistical}, $p$-values can be used to represent the test statistics in a different way
+\begin{equation}
+  p_{x,y} = 2(1-\Phi(|z_{x,y}|))
+\end{equation}
+which can takes values $0\leqslant p_{x,y} \leqslant 1$. A $p$-value too small is considered a positive result. The $p$-values are shown in Figure \ref{fig:inference_inferenceIntro_inference_pvalue}.
 
 \begin{figure}
   \centering
@@ -51,12 +61,6 @@ The obtained and \emph{aRTist} projections are shown in Figures \ref{fig:inferen
   \caption{The obtained projection of the test sample (a), from the \texttt{AbsFilter} at \ang{120} dataset, was compared to the \emph{aRTist} projection (b) to detect purposefully manufactured voids. The $p$-values (c) obtained were used for hypotheses testing. Pixels detected as positive are shown in red in d) using the \cite{benjamini1995controlling} procedure at the 5\% false discovery rate level.}
   \label{fig:inference_inferenceIntro_inference}
 \end{figure}
-
-For each pixel, a test statistic was calculated, which forms a $z$ image. A test statistic too large in magnitude, relative to the anticipated variance, will classify that pixel as a positive result. In two-tailed hypothesis testing \citep{pearson1900on, neyman1933on, fisher1970statistical}, $p$-values can be used to represent the test statistics in a different way
-\begin{equation}
-  p_{x,y} = 2(1-\Phi(|z_{x,y}|))
-\end{equation}
-which can takes values $0\leqslant p_{x,y} \leqslant 1$. A $p$-value too small is considered a positive result. The $p$-values are shown in Figure \ref{fig:inference_inferenceIntro_inference_pvalue}.
 
 The resulting $p$-values are concerning. This is because the $p$-values are not very smooth on the surfaces of the sample. It should be expected that small $p$-values are in areas of the defects. Pixels were tested positive or considered to be evidence of a defect, when $|z_{x,y}|>\inputNumber{../figures/inference/inferenceIntro_critical.txt}$ to 2 decimal places. This value was chosen by controlling the false discovery rate at 5\% using the \cite{benjamini1995controlling} (BH) procedure. The positive pixels are shown in Figure \ref{fig:inference_inferenceIntro_inference_positivePixels}.
 
@@ -113,7 +117,7 @@ It can be seen that if the uncorrected test controls the false positive rate suc
   \end{tabular}
   \caption{Random variable definitions for the number of true/false positives/negatives made in multiple hypotheses testing}
   \label{table:inference_randomvariables}
-\end{table} 
+\end{table}
 
 The Bonferroni correction \citep{shaffer1995multiple, bland1995multiple, perneger1998what} controls the family-wise error rate (FWER) \citep{shaffer1995multiple} where
 \begin{equation}
@@ -193,7 +197,7 @@ In \cite{efron2004large}, a few assumptions were made in order to obtain the est
 \end{equation}
 where $0\leqslant\pi_0\leqslant 1$ and  $\pi_1 = 1-\pi_0$. In addition, the null distribution is
 \begin{equation}
-  p_{Z|H_0}(z) = 
+  p_{Z|H_0}(z) =
   \dfrac{1}{\sqrt{2\pi}\sigma_0}
   \exp\left[
     -\dfrac{1}{2}
@@ -214,7 +218,7 @@ where $\widehat{p}_Z(z)$ is the density estimation of $p_Z(z)$, for example it c
 
 The null standard deviation is estimated from the log density \citep{efron2004large}. For values of $z$ at and around the mode
 \begin{equation}
-  \ln p_{Z}(z) = 
+  \ln p_{Z}(z) =
   \ln\left[
     \dfrac{\pi_0}{\sqrt{2\pi}{\sigma}_0}
   \right]
@@ -393,7 +397,7 @@ for $z$ which finds stationary points. The method is an iterative algorithm and 
       }
       \ln\widehat{p}_Z(z)
     \right|_{z = z^{(r)}}
-  } 
+  }
 \end{equation}
 for $r=0,1,2,3,\dotsc$ until some convergence condition is met. The derivatives for the log density were obtained via the following. Recall the kernel density estimate in Equation \eqref{eq:inference_kernel_density_estimate}, the log density is
 \begin{equation}
@@ -746,7 +750,9 @@ at the current step. This was chosen arbitrary to speed up the algorithm without
 \end{equation}
 Following a successful convergence, the estimator $\widehat{\sigma}_0$ was calculated straight away.
 
-The algorithm does depend on the initial value so using different initial values were used. Further initial values were generated by sampling from $\normal(z^{(0)}, s_z^2)$. This was done multiple times until three valid solutions were obtained. The best solution, the one with the largest $\ln\widehat{p}_Z\left(\widehat{\mu}_0\right)$, out of all the different initial values was used as the final answer. The Newton-Raphson method may converge to a local maximum. 
+The algorithm does depend on the initial value so using different initial values were used. Further initial values were generated by sampling from $\normal(z^{(0)}, s_z^2)$. This was done multiple times until three valid solutions were obtained. The best solution, the one with the largest $\ln\widehat{p}_Z\left(\widehat{\mu}_0\right)$, out of all the different initial values was used as the final answer. The Newton-Raphson method may converge to a local maximum.
+
+It can be noted that this mode finding method can be aplied to other distributions in general.
 
 \subsection{Bandwidth Tuning}
 
@@ -850,36 +856,48 @@ where $b$ and $a$ are parameters to be fitted. This was chosen to establish a si
 
 The rules of thumb can be improved if a small bias is added to it. This is because an intercept was found when fitting a linear relationship between the optimal bandwidth and $n^{-1/5}$. Adding this bias should improve the performance of the estimator $\widehat{\sigma}_0$. The gradient is similar to the rules of thumb in the literature \citep{sheather2004density}.
 
-The GLM fit in Figure \ref{fig:inference_BandwidthSelection2_ruleOfThumb} appeared to underfit, which suggest there may be a more complicated relationship between the optimal bandwidth and $n$. The method used in fitting the smoothing spline could contribute to the underfitting. For example, if the smoothing spline was not smooth enough so that multiple local minima appeared, it would add variance to the optimal bandwidth if the optimisation algorithm converges to a local minimum. A basic linear relationship was chosen to avoid overfitting and to keep the rule of thumb simple.
+The GLM fit in Figure \ref{fig:inference_BandwidthSelection2_ruleOfThumb} appeared to underfit, which suggest there may be a more complicated relationship between the optimal bandwidth and $n$, for example, a quadratic term can be added to the GLM fit. The method used in fitting the smoothing spline could contribute to the underfitting. For example, if the smoothing spline was not smooth enough so that multiple local minima appeared, it would add variance to the optimal bandwidth if the optimisation algorithm converges to a local minimum. A basic linear relationship was chosen to avoid overfitting and to keep the rule of thumb simple. It would also choose a large bandwidth for small $n$ which would improve the performance $\widehat{\mu}_0$ by working on a smoother density estimate for the price of a less optimal $s^2\left[\emph{aRTist}_{x,y}\right]$.
 
 In conclusion, a small bias added to the rule of thumb improved the performance of the estimator $\widehat{\sigma}_0$. \cite{silverman1986density} pointed out that a smaller bandwidth should be used when, in particular, the distribution is bimodal. This is why \cite{silverman1986density} suggested the use of $b=0.9$. Following from this, it was chosen that the intercept was added to Silverman's rule of thumb for the use in the empirical null $h = \left(0.9n^{-1/5}+ 0.16\right) \times\text{min}\left(s_z,\text{IQR}_z/1.34\right)$.
 
 \afterpage{\clearpage}
 \subsection{Comparison with Other Robust Estimators}
 
-Various estimates of central tendency and dispersion were compared with the empirical null mean and empirical null standard deviation. The empirical sampling distribution of these estimators was observed to look for properties such as bias, variance and robustness. The central tendency estimates looked at were the median and the mean. The dispersion estimates looked at were the median absolute deviation (MAD) around the mode $\times 1.483$, interquartile range (IQR) $\div 1.349$ and the standard deviation. The normalisation constants were used so that the MAD and IQR can be compared directly to the standard deviation.
+The empirical null mean is effectively the mode and the empirical null standard deivation is a measure of dispersion. It was investigated how they compare with various estimates of central tendency and dispersion for varying sample sizes $n$. The empirical sampling distribution of these estimators was observed to look for properties such as bias, variance and robustness.
 
-A dataset of $n = \pi r^2$ standard Normal random variables was simulated to obtain estimates of central tendency and dispersion. This was repeated 100 times to obtain a sampling distribution. The results are shown in Figures \ref{fig:inference_NullIidMean} and \ref{fig:inference_NullIidStd}. The empirical null mean and empirical null standard deviation both suffered from high variance, much higher than typical robust estimators such as the median and IQR.
+The central tendency estimates looked at were the median, the mean and Tukey's biweighted mean \citep{beaton1974fitting}. In summary, the biweighted mean weigh each data point using a smooth function of its residual and ignores any data points with residuals greater than a certain value. \emph{MATLAB}'s \texttt{robustfit} function was used for the biweighted mean and selects any tuning parmaeters.
+
+The dispersion estimates looked at were the interquartile range (IQR) $\div 1.349$, the standard deviation and the median absolute deviation around the mode (MADA-mode) $\times 1.483$, . The normalisation constants were used so that MADA-mode and IQR can be compared directly to the standard deviation. MADA-mode was considered to investigate how estimators, which depends on the mode, perform.
+
+In the next section, these estimators are used on a circular kernel with radius $r$ containing $\pi r^2$ pixels. To make results comparable, the sample size $n$ may be represented using $r=\sqrt{n/\pi}$.
+
+A sample of standard Normal random variables was simulated to obtain estimates of central tendency and dispersion. This was repeated 100 times to obtain a sampling distribution. The results are shown in Figures \ref{fig:inference_NullIidMean} and \ref{fig:inference_NullIidStd}. The mode and empirical null standard deviation both suffered from high variance, much higher than typical robust estimators.
 
 The empirical null standard deviation had some positive bias and it was found that this bias was quite sensitive to the bandwidth. Further fine-tuning on the bandwidth would be required for the empirical null standard deviation to be unbiased. For example, it appeared there was consistent positive bias for all $r$ investigated, perhaps suggesting the bandwidth parameter $a$ should be decreased ever so slightly. The source of bias could come from the fact that the bandwidth was tuned to minimise the log squared error rather than the squared bias.
 
-To test for robustness, a dataset of $n = \pi r^2$ mixture of Gaussian random variables were simulated with the following distribution: $\normal(0,1)$ with probability $90\%$, $\normal(3,1)$ with probability $10\%$. The $\normal(3,1)$ component acts as non-null statistics and robust estimators should be unaffected by it. The results are shown in Figures \ref{fig:inference_NullIidMixtureMean} and \ref{fig:inference_NullIidMixtureStd}. The empirical null estimators are robust to the non-null component but still suffers from high variance. The rest of the estimators were affected by the non-null statistics, making them unsuitable to estimate parameters of the null parameters.
+It is interesting to compare the empirical null standard devaition with MADA-mode, in Figure \ref{fig:inference_NullIidStd}, because they both depend on the mode. The mode suffered from high variance with may affect dispersion estimators using the mode. The figure shows that MADA-mode has less variance than the empirical null standard deviation. This suggests that using the curvature of the density estimate at the mode is a main source of variance for the empirical null standard devation.
+
+To test for robustness, a sample of mixture of Gaussian random variables were simulated with the following distribution: $\normal(0,1)$ with probability $90\%$, $\normal(3,1)$ with probability $10\%$. The $\normal(3,1)$ component acts as non-null statistics and robust estimators should be unaffected by it. The results are shown in Figures \ref{fig:inference_NullIidMixtureMean} and \ref{fig:inference_NullIidMixtureStd}. The empirical null estimators are robust to the non-null component but still suffers from high variance. The rest of the estimators were affected by the non-null statistics, making them unsuitable to estimate parameters of the null parameters.
 
 \begin{figure}[p]
   \centering
     \centerline{
       \begin{subfigure}[b]{\subSize}
-        \includegraphics[width=\textwidth]{../figures/inference/NullIidEmpirical_nullMean.eps}
-        \caption{Empirical null mean}
+        \includegraphics[width=\textwidth]{../figures/inference/NullIid_nullMean1.eps}
+        \caption{Mode}
+      \end{subfigure}
+      \begin{subfigure}[b]{\subSize}
+        \includegraphics[width=\textwidth]{../figures/inference/NullIid_nullMean2.eps}
+        \caption{Bisquare weighted mean}
       \end{subfigure}
     }
     \centerline{
       \begin{subfigure}{\subSize}
-        \includegraphics[width=\textwidth]{../figures/inference/NullIidMedianIqr_nullMean.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/NullIid_nullMean3.eps}
         \caption{Median}
       \end{subfigure}
       \begin{subfigure}{\subSize}
-        \includegraphics[width=\textwidth]{../figures/inference/NullIidMeanVar_nullMean.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/NullIid_nullMean4.eps}
         \caption{Mean}
       \end{subfigure}
     }
@@ -887,25 +905,25 @@ To test for robustness, a dataset of $n = \pi r^2$ mixture of Gaussian random va
   \label{fig:inference_NullIidMean}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[p]
   \centering
     \centerline{
       \begin{subfigure}[b]{\subSize}
-        \includegraphics[width=\textwidth]{../figures/inference/NullIidEmpirical_nullStd.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/NullIid_nullStd1.eps}
         \caption{Empirical null std}
       \end{subfigure}
       \begin{subfigure}[b]{\subSize}
-        \includegraphics[width=\textwidth]{../figures/inference/NullIidMadMode_nullStd.eps}
-        \caption{MAD mode}
+        \includegraphics[width=\textwidth]{../figures/inference/NullIid_nullStd2.eps}
+        \caption{MADA-mode}
       \end{subfigure}
     }
     \centerline{
       \begin{subfigure}{\subSize}
-        \includegraphics[width=\textwidth]{../figures/inference/NullIidMedianIqr_nullStd.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/NullIid_nullStd3.eps}
         \caption{IQR}
       \end{subfigure}
       \begin{subfigure}{\subSize}
-        \includegraphics[width=\textwidth]{../figures/inference/NullIidMeanVar_nullStd.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/NullIid_nullStd4.eps}
         \caption{Standard deviation}
       \end{subfigure}
     }
@@ -913,21 +931,25 @@ To test for robustness, a dataset of $n = \pi r^2$ mixture of Gaussian random va
   \label{fig:inference_NullIidStd}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[p]
   \centering
     \centerline{
       \begin{subfigure}[b]{\subSize}
-        \includegraphics[width=\textwidth]{../figures/inference/NullIidMixtureEmpirical_nullMean.eps}
-        \caption{Empirical null mean}
+        \includegraphics[width=\textwidth]{../figures/inference/NullIidMixture_nullMean1.eps}
+        \caption{Mode}
+      \end{subfigure}
+      \begin{subfigure}[b]{\subSize}
+        \includegraphics[width=\textwidth]{../figures/inference/NullIidMixture_nullMean2.eps}
+        \caption{Bisquared weighted mean}
       \end{subfigure}
     }
     \centerline{
       \begin{subfigure}{\subSize}
-        \includegraphics[width=\textwidth]{../figures/inference/NullIidMixtureMedianIqr_nullMean.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/NullIidMixture_nullMean3.eps}
         \caption{Median}
       \end{subfigure}
       \begin{subfigure}{\subSize}
-        \includegraphics[width=\textwidth]{../figures/inference/NullIidMixtureMeanVar_nullMean.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/NullIidMixture_nullMean4.eps}
         \caption{Mean}
       \end{subfigure}
     }
@@ -939,21 +961,21 @@ To test for robustness, a dataset of $n = \pi r^2$ mixture of Gaussian random va
   \centering
     \centerline{
       \begin{subfigure}[b]{\subSize}
-        \includegraphics[width=\textwidth]{../figures/inference/NullIidMixtureEmpirical_nullStd.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/NullIidMixture_nullStd1.eps}
         \caption{Empirical null std}
       \end{subfigure}
       \begin{subfigure}[b]{\subSize}
-        \includegraphics[width=\textwidth]{../figures/inference/NullIidMixtureMadMode_nullStd.eps}
-        \caption{MAD mode}
+        \includegraphics[width=\textwidth]{../figures/inference/NullIidMixture_nullStd2.eps}
+        \caption{MADA-mode}
       \end{subfigure}
     }
     \centerline{
       \begin{subfigure}{\subSize}
-        \includegraphics[width=\textwidth]{../figures/inference/NullIidMixtureMedianIqr_nullStd.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/NullIidMixture_nullStd3.eps}
         \caption{IQR}
       \end{subfigure}
       \begin{subfigure}{\subSize}
-        \includegraphics[width=\textwidth]{../figures/inference/NullIidMixtureMeanVar_nullStd.eps}
+        \includegraphics[width=\textwidth]{../figures/inference/NullIidMixture_nullStd4.eps}
         \caption{Standard deviation}
       \end{subfigure}
     }
@@ -970,18 +992,18 @@ The problem was that the empirical distribution of all of the test statistics lo
 
 The empirical null filter extends the empirical null to images. The parameters of the null distribution varies spatially, slowly and smoothly. Let the test statistic of the pixel at position $(x,y)$ be
 \begin{equation}
-Z_{x,y}\sim\normal(\mu_{x,y},\widehat{\sigma}_{x,y}^2)
+Z_{x,y}\sim\normal(\mu_{0,x,y},\widehat{\sigma}_{0,x,y}^2)
 \end{equation}
 for $x=1,2,\dotsc,W$ and $y=1,2,\dotsc,H$. $\mu_{0,x,y}$ and $\sigma_{0,x,y}$ are the null mean and null standard deviation at position $(x,y)$ respectively. Define the null hypotheses to be
 \begin{equation}
-  H_{0,x,y}:\mu_{x,y}=\widehat{\mu}_{0,x,y}
+  H_{0,x,y}:\mu_{0,x,y}=\widehat{\mu}_{0,x,y}
 \end{equation}
 which are tested against
 \begin{equation}
-  H_{1,x,y}:\mu_{x,y}\neq\widehat{\mu}_{0,x,y} \ .
+  H_{1,x,y}:\mu_{0,x,y}\neq\widehat{\mu}_{0,x,y} \ .
 \end{equation}
  The empirical null filter aims to estimate the parameters $\mu_{0,x,y}$ and $\sigma_{0,x,y}$ for all $x$ and $y$.
- 
+
  \begin{figure}[t]
   \centering
   \begin{subfigure}[b]{\subSize}
@@ -1009,7 +1031,7 @@ The empirical null filter uses the empirical null on neighbouring pixels to esti
 \end{equation}
 where
 \begin{equation}
-\widehat{p}_{Z_{x,y}}(z) = 
+\widehat{p}_{Z_{x,y}}(z) =
 \frac{1}{nh}
   \sum_{i,j\in K_{x,y}}\phi\left(
     \dfrac{z_{i,j}-z}{h}
@@ -1019,7 +1041,7 @@ $K_{x,y} = C_r(x,y) \cap \text{ROI}$ and $n=\left|K_{x,y}\right|$, not to be con
 
 After obtaining the estimates of the empirical null parameters, the test statistics were normalised using
 \begin{equation}
-  T_{x,y} = 
+  T_{x,y} =
   \dfrac{
     Z_{x,y}-\widehat{\mu}_{0,x,y}
   }
@@ -1029,9 +1051,9 @@ After obtaining the estimates of the empirical null parameters, the test statist
 \end{equation}
 and only the normalised test statistics were used in hypotheses testing. It should be noted that because the kernels can overlap, correlation between $T_{x,y}$ for different $(x,y)$ is introduced.
 
-The parameter of choice is the kernel radius $r$. A $r$ too small will treat defects as the null and will not detect them. A $r$ too big can also cause problems as well. The empirical null filter assumes that the null parameters vary smoothly and slowly so that the null test statistics captured by the kernel is somewhat Normal. If $r$ is too big, the kernel will capture distanced test statistics with very different null distributions. If all of these test statistics are pulled together into a histogram, the null distribution may not look Normal at all which can cause problems when fitting a Normal null distribution. Furthermore, if $r\rightarrow \infty$, then this is just using the empirical null on all pixels.
+The parameter of choice is the kernel radius $r$. A radius too small will treat defects as the null and will not detect them, too big can also cause problems as well. The empirical null filter assumes that the null parameters vary smoothly and slowly so that the null test statistics captured by the kernel is somewhat Normal. If the radius is too big, the kernel will capture distanced test statistics with very different null distributions. If all of these test statistics are pulled together into a histogram, the null distribution may not look Normal at all which can cause problems when fitting a Normal null distribution. Furthermore, if $r\rightarrow \infty$, then this is just using the empirical null on all pixels.
 
-$r$ controls the proportion of pixels which are null captured by the kernel, denoted as $\pi_0$. $r$ should be selected so that $\pi_0$ is of sensible value, for example, $>90\%$. In practice, the defects are unknown so various kernel radiuses should be tried out. The kernel radius should be much larger than the size of the defect.
+The radius controls the proportion of pixels which are null captured by the kernel, denoted as $\pi_0$. It should be selected so that $\pi_0$ is of sensible value, for example, $>90\%$. In practice, the defects are unknown so various kernel radiuses should be tried out. The kernel radius should be much larger than the size of the defect.
 
 There exist similar filters, for example the local normalisation filter \citep{sage2003teaching, sage2018local} uses a Gaussian filter to obtain $\widehat{\mu}_{0,x,y}$. $\widehat{\sigma}_{0,x,y}^2$ was obtained by applying another Gaussian filter on the $\left(z_{x,y}-\widehat{\mu}_{0,x,y}\right)^2$ image. The purpose of this filter was to normalise images with uneven illumination. The disadvantage of using this filter, for estimating the null parameters, is that it uses a Gaussian filter. This is a type of weighted mean which is not robust to non-null statistics. Also, the two Gaussian filters can have different radiuses, it is not clear how to set them.
 
@@ -1148,15 +1170,22 @@ When the number of initial values is too few, poor solutions to $\widehat{\mu}_0
 
 \subsection{Filtering an Image with No Defects}
 
-An experiment was conducted to demonstrate the effects of the empirical null filter on a simulated $\SI{256}{\pixel}\times\SI{256}{\pixel}$ Gaussian image, where all the pixels have value distributed as standard Normal. The purpose is to simulate test statistics which are null and no positive results should be detected. The test statistics after filtering should preserve its original distribution, or at least close to it. The statistical moments before and after filtering should be the same and were investigated. Because the empirical null mean and empirical null standard deviation are random variables, the filtered pixels will never be Normal and any normality tests would be too strict for this experiment.
+An experiment was conducted to demonstrate the effects of the empirical null filter on a simulated $\SI{256}{\pixel}\times\SI{256}{\pixel}$ Gaussian image, where all the pixels have value distributed as standard Normal. The purpose is to simulate test statistics which are null and few positive results, subject to the FDR, should be detected. The test statistics after filtering should preserve its original distribution, or at least close to it. The statistical moments before and after filtering should be the same and were investigated. Because the empirical null mean and empirical null standard deviation are random variables, the filtered pixels will never be Normal and any normality tests would be too strict for this experiment.
 
-Contamination is defined as some smooth and slowly varying function added and/or multiplied to an image. Conducting hypotheses testing on a contaminated Gaussian image may cause errors if the null distributions were incorrectly specified as standard Normal. In this experiment, the contamination was a gradient such that the pixel at position $(x,y)$ have a value distributed as $Z_{x,y}\sim\normal(\mu_{0,x,y},\sigma_{0,x,y}^2)$ where
+Contamination is defined as some smooth and slowly varying function added and/or multiplied to an image. Conducting hypotheses testing on a contaminated Gaussian image may cause errors if the null distributions were incorrectly specified as standard Normal. In this experiment, the contamination was a gradient such that the pixel at position $(x,y)$ has a value distributed as $Z_{x,y}\sim\normal(\mu_{0,x,y},\sigma_{0,x,y}^2)$ where
 \begin{equation}
   \mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0) \ ,
 \end{equation}
 $(x_0,y_0)$ is the centre of the image and $\sigma_{0,x,y}=2$ for all $(x,y)$.
 
-A caveat is that some bias to the null standard deviation estimation would be introduced because of the contamination. This is because sources of variance captured by the kernel are from $\sigma_{0,x,y}$ and also from the variability of $\mu_{0,x,y}$. This can be shown. Let $Z_{x,y}$ be the value of the pixels captured by the circular kernel for integer values of $(x,y)$ such that $x^2+y^2\leqslant r^2$. Suppose that $Z_{x,y}\sim\normal(ax+by,c^2\sigma^2)$. The calculations of the expectation and variance of $Z_{x,y}$ can be approximated by treating $x$ and $y$ as uniformly distributed within a circle centred at the origin with radius $r$. The expectation is $\expectation[Z_{X,Y}] = \expectation\expectation[Z_{X,Y}|X,Y]=0$. The variance is given as $\variance[Z_{X,Y}] = \expectation\variance[Z_{X,Y}|X,Y] + \variance\expectation[Z_{X,Y}|X,Y]$. From the distribution of $Z_{X,Y}$, $\expectation\variance[Z_{X,Y}|X,Y] = c^2\sigma^2$ and $\variance\expectation[Z_{X,Y}|X,Y]=\variance[aX+bY]$. This is worked out to be
+A caveat is that some bias to the null standard deviation estimation would be introduced because of the contamination. This is because sources of variance captured by the kernel are from $\sigma_{0,x,y}$ and also from the variability of $\mu_{0,x,y}$. This can be shown with an example. Let $Z_{x,y}$ be the value of the pixels captured by the circular kernel, centred at the origin, for integer values of $(x,y)$ such that $x^2+y^2\leqslant r^2$. Suppose that $Z_{x,y}\sim\normal(ax+by,\sigma^2)$. The quantities of interest are the expectation and variance of all the values contained in the kernel because this is the quantity the estimators are estimating.
+
+The calculations of the expectation and variance of $Z_{x,y}$ can be approximated by treating $x$ and $y$ as uniformly distributed within a circle centred at the origin with radius $r$. The expectation is
+\begin{equation}
+\expectation[Z_{X,Y}] = \expectation\expectation[Z_{X,Y}|X,Y]=0 \ .
+\end{equation}
+
+The variance is given as $\variance[Z_{X,Y}] = \expectation\variance[Z_{X,Y}|X,Y] + \variance\expectation[Z_{X,Y}|X,Y]$. From the distribution of $Z_{X,Y}$, $\expectation\variance[Z_{X,Y}|X,Y] = \sigma^2$ and $\variance\expectation[Z_{X,Y}|X,Y]=\variance[aX+bY]$. This is worked out to be
 \begin{align}
 \variance[aX+bY] &= \dfrac{1}{\pi r^2}\int_{\rho=0}^{\rho=r}\int_{\theta=0}^{\theta=2\pi}
 \rho^3(a\cos\theta + b\sin\theta)^2 \diff \theta \diff \rho
@@ -1165,7 +1194,7 @@ A caveat is that some bias to the null standard deviation estimation would be in
 \end{align}
 thus
 \begin{equation}
-\variance[Z_{X,Y}] = \dfrac{1}{4}(a^2+b^2)r^2 + c^2\sigma^2 \ .
+\variance[Z_{X,Y}] = \dfrac{1}{4}(a^2+b^2)r^2 + \sigma^2 \ .
 \end{equation}
 This shows that when estimating the null variance on a contaminated Gaussian image, there may be a $(a^2+b^2)r^2/4$ bias. If the contamination is slowly varying, that is $a$ and $b$ are small, then the bias should be small.
 
@@ -1239,40 +1268,40 @@ This shows that when estimating the null variance on a contaminated Gaussian ima
 
 An example of a Gaussian image with/without contamination before/after filtering are shown in Figures \ref{fig:inference_allNullGaussianScript} and \ref{fig:inference_allNullPlaneScript}. In the contaminated example, the filter managed to estimate the null mean, picking up the gradient. This enabled the filtered image to look flat and removed the contamination. The $p$-values after filtering are shown in Figure \ref{fig:inference_allNull_pValues}. A quick inspection suggests that the filtered pixels appeared reasonably Normal for this particular example.
 
-For a given kernel radius $r$, 100 different Gaussian images were filtered to investigate the within image mean, standard deviation and kurtosis of the filtered statistics. Various other filters for normalisation were used as well such as the MAD mode null filter, median IQR null filter and the mean variance null filter. They use different estimators to estimate the null parameters as their name suggests, Table \ref{table:inference_nullFilters} clarifies them.
+For a given kernel radius $r$, 100 different Gaussian images were filtered to investigate the within image mean, standard deviation and kurtosis of the filtered statistics. Various other filters for normalisation were used as well such as the MADA-mode null filter, median IQR null filter and the mean variance null filter. They use different estimators to estimate the null parameters as their name suggests, Table \ref{table:inference_nullFilters} clarifies them.
 
 \begin{table}
   \centering
   \begin{tabular}{l|l|l}
     Filters&Null mean&Null standard deviation\\\hline
-    MAD mode null&Mode&MAD around the mode $\times1.483$\\
+    MADA-mode null&Mode&MADA-mode $\times1.483$\\
     Median IQR null&Median&IQR $\div1.349$\\
     Mean variance null&Mean&Standard deviation
   \end{tabular}
   \caption{Various filters using different estimators to estimate the null parameters are described here.}
   \label{table:inference_nullFilters}
-\end{table} 
+\end{table}
 
 \begin{figure}
   \centering
   \centerline{
   \begin{subfigure}[b]{\subSize}
     \includegraphics[width=\textwidth]{../figures/inference/AllNullGaussianEmpirical_mean.eps}
-    \caption{Empirical Null}
+    \caption{Empirical null filter}
   \end{subfigure}
   \begin{subfigure}[b]{\subSize}
     \includegraphics[width=\textwidth]{../figures/inference/AllNullGaussianMadMode_mean.eps}
-    \caption{MAD Mode Null}
+    \caption{MADA-mode null filter}
   \end{subfigure}
   }
   \centerline{
     \begin{subfigure}[b]{\subSize}
     \includegraphics[width=\textwidth]{../figures/inference/AllNullGaussianMedianIqr_mean.eps}
-    \caption{Median IQR Null}
+    \caption{Median IQR null filter}
   \end{subfigure}
   \begin{subfigure}[b]{\subSize}
     \includegraphics[width=\textwidth]{../figures/inference/AllNullGaussianMeanVar_mean.eps}
-    \caption{Mean Var Null}
+    \caption{Mean var null filter}
   \end{subfigure}
   }
   \caption{The within image sample mean of a filtered Gaussian image of size $\SI{256}{\pixel}\times\SI{256}{\pixel}$.  The boxplots summarise the 100 repeated simulations of the image. The dashed lines show the 95\% confidence interval using standard tests and assuming independence.}
@@ -1284,21 +1313,21 @@ For a given kernel radius $r$, 100 different Gaussian images were filtered to in
   \centerline{
   \begin{subfigure}[b]{\subSize}
     \includegraphics[width=\textwidth]{../figures/inference/AllNullGaussianEmpirical_variance.eps}
-    \caption{Empirical Null}
+    \caption{Empirical null filter}
   \end{subfigure}
   \begin{subfigure}[b]{\subSize}
     \includegraphics[width=\textwidth]{../figures/inference/AllNullGaussianMadMode_variance.eps}
-    \caption{MAD Mode Null}
+    \caption{MADA-mode null filter}
   \end{subfigure}
   }
   \centerline{
     \begin{subfigure}[b]{\subSize}
     \includegraphics[width=\textwidth]{../figures/inference/AllNullGaussianMedianIqr_variance.eps}
-    \caption{Median IQR Null}
+    \caption{Median IQR null filter}
   \end{subfigure}
   \begin{subfigure}[b]{\subSize}
     \includegraphics[width=\textwidth]{../figures/inference/AllNullGaussianMeanVar_variance.eps}
-    \caption{Mean Var Null}
+    \caption{Mean var null filter}
   \end{subfigure}
   }
   \caption{The within image sample standard deviation of a filtered Gaussian image of size $\SI{256}{\pixel}\times\SI{256}{\pixel}$. The boxplots summarise the 100 repeated simulations of the image. The dashed lines show the 95\% confidence interval using standard tests and assuming independence.}
@@ -1310,21 +1339,21 @@ For a given kernel radius $r$, 100 different Gaussian images were filtered to in
   \centerline{
   \begin{subfigure}[b]{\subSize}
     \includegraphics[width=\textwidth]{../figures/inference/AllNullGaussianEmpirical_kurtosis.eps}
-    \caption{Empirical Null}
+    \caption{Empirical null filter}
   \end{subfigure}
   \begin{subfigure}[b]{\subSize}
     \includegraphics[width=\textwidth]{../figures/inference/AllNullGaussianMadMode_kurtosis.eps}
-    \caption{MAD Mode Null}
+    \caption{MADA-mode null filter}
   \end{subfigure}
   }
   \centerline{
     \begin{subfigure}[b]{\subSize}
     \includegraphics[width=\textwidth]{../figures/inference/AllNullGaussianMedianIqr_kurtosis.eps}
-    \caption{Median IQR Null}
+    \caption{Median IQR null filter}
   \end{subfigure}
   \begin{subfigure}[b]{\subSize}
     \includegraphics[width=\textwidth]{../figures/inference/AllNullGaussianMeanVar_kurtosis.eps}
-    \caption{Mean Var Null}
+    \caption{Mean var null filter}
   \end{subfigure}
   }
   \caption{The within image sample kurtosis of a filtered Gaussian image of size $\SI{256}{\pixel}\times\SI{256}{\pixel}$. The boxplots summarise the 100 repeated simulations of the image. The dashed lines show the 95\% confidence interval using standard tests and assuming independence.}
@@ -1336,21 +1365,21 @@ For a given kernel radius $r$, 100 different Gaussian images were filtered to in
   \centerline{
   \begin{subfigure}[b]{\subSize}
     \includegraphics[width=\textwidth]{../figures/inference/AllNullPlaneEmpirical_mean.eps}
-    \caption{Empirical Null}
+    \caption{Empirical null filter}
   \end{subfigure}
   \begin{subfigure}[b]{\subSize}
     \includegraphics[width=\textwidth]{../figures/inference/AllNullPlaneMadMode_mean.eps}
-    \caption{MAD Mode Null}
+    \caption{MADA-mode null filter}
   \end{subfigure}
   }
   \centerline{
     \begin{subfigure}[b]{\subSize}
     \includegraphics[width=\textwidth]{../figures/inference/AllNullPlaneMedianIqr_mean.eps}
-    \caption{Median IQR Null}
+    \caption{Median IQR null filter}
   \end{subfigure}
   \begin{subfigure}[b]{\subSize}
     \includegraphics[width=\textwidth]{../figures/inference/AllNullPlaneMeanVar_mean.eps}
-    \caption{Mean Var Null}
+    \caption{Mean var null filter}
   \end{subfigure}
   }
   \caption{The within image sample mean of a filtered contaminated Gaussian image of size $\SI{256}{\pixel}\times\SI{256}{\pixel}$. The contamination was such that the null distribution is $Z_{x,y}|H_{0,x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$. The boxplots summarise the 100 repeated simulations of the image. The dashed lines show the 95\% confidence interval using standard tests and assuming independence.}
@@ -1362,21 +1391,21 @@ For a given kernel radius $r$, 100 different Gaussian images were filtered to in
   \centerline{
   \begin{subfigure}[b]{\subSize}
     \includegraphics[width=\textwidth]{../figures/inference/AllNullPlaneEmpirical_variance.eps}
-    \caption{Empirical Null}
+    \caption{Empirical null filter}
   \end{subfigure}
   \begin{subfigure}[b]{\subSize}
     \includegraphics[width=\textwidth]{../figures/inference/AllNullPlaneMadMode_variance.eps}
-    \caption{MAD Mode Null}
+    \caption{MADA-mode null filter}
   \end{subfigure}
   }
   \centerline{
     \begin{subfigure}[b]{\subSize}
     \includegraphics[width=\textwidth]{../figures/inference/AllNullPlaneMedianIqr_variance.eps}
-    \caption{Median IQR Null}
+    \caption{Median IQR null filter}
   \end{subfigure}
   \begin{subfigure}[b]{\subSize}
     \includegraphics[width=\textwidth]{../figures/inference/AllNullPlaneMeanVar_variance.eps}
-    \caption{Mean Var Null}
+    \caption{Mean var null filter}
   \end{subfigure}
   }
   \caption{The within image sample standard deviation of a filtered contaminated Gaussian image of size $\SI{256}{\pixel}\times\SI{256}{\pixel}$. The contamination was such that the null distribution is $Z_{x,y}|H_{0,x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$. The boxplots summarise the 100 repeated simulations of the image. The dashed lines show the 95\% confidence interval using standard tests and assuming independence.}
@@ -1388,21 +1417,21 @@ For a given kernel radius $r$, 100 different Gaussian images were filtered to in
   \centerline{
   \begin{subfigure}[b]{\subSize}
     \includegraphics[width=\textwidth]{../figures/inference/AllNullPlaneEmpirical_kurtosis.eps}
-    \caption{Empirical Null}
+    \caption{Empirical null filter}
   \end{subfigure}
   \begin{subfigure}[b]{\subSize}
     \includegraphics[width=\textwidth]{../figures/inference/AllNullPlaneMadMode_kurtosis.eps}
-    \caption{MAD Mode Null}
+    \caption{MADA-mode null filter}
   \end{subfigure}
   }
   \centerline{
     \begin{subfigure}[b]{\subSize}
     \includegraphics[width=\textwidth]{../figures/inference/AllNullPlaneMedianIqr_kurtosis.eps}
-    \caption{Median IQR Null}
+    \caption{Median IQR null filter}
   \end{subfigure}
   \begin{subfigure}[b]{\subSize}
     \includegraphics[width=\textwidth]{../figures/inference/AllNullPlaneMeanVar_kurtosis.eps}
-    \caption{Mean Var Null}
+    \caption{Mean var null filter}
   \end{subfigure}
   }
   \caption{The within image sample kurtosis of a filtered contaminated Gaussian image of size $\SI{256}{\pixel}\times\SI{256}{\pixel}$. The contamination was such that the null distribution is $Z_{x,y}|H_{0,x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$. The boxplots summarise the 100 repeated simulations of the image. The dashed lines show the 95\% confidence interval using standard tests and assuming independence.}
@@ -1413,7 +1442,7 @@ The results for the filtered images are shown in Figures \ref{fig:inference_AllN
 
 When filtering the contaminated image, all estimators suffered from negative bias in the standard deviation of the filtered statistics, in particular when the kernel radius increased. This is shown in Figure \ref{fig:inference_AllNullPlane_var}. As discussed before, the kernel captured the variation due to the contamination and this added bias to the estimation of the null standard deviation.
 
-The kurtosis in Figures \ref{fig:inference_AllNullGaussian_kurtosis} and \ref{fig:inference_AllNullPlane_kurtosis} showed that the empirical null filter caused the filtered statistics to have heavy tails, in particular, for small kernel radiuses. This could cause problems in hypotheses testing because heavy tails could be misinterpreted as a contribution from non-null statistics. The source of the kurtosis inflation is from the estimation of the null standard deviation. This can be seen by comparing the empirical null filter with the MAD mode null filter because the only difference between the two filters is in the estimation of the null standard deviation.
+The kurtosis in Figures \ref{fig:inference_AllNullGaussian_kurtosis} and \ref{fig:inference_AllNullPlane_kurtosis} showed that the empirical null filter caused the filtered statistics to have heavy tails, in particular, for small kernel radiuses. This could cause problems in hypotheses testing because heavy tails could be misinterpreted as a contribution from non-null statistics. The source of the kurtosis inflation is from the estimation of the null standard deviation. This can be seen by comparing the empirical null filter with the MADA-mode null filter because the only difference between the two filters is in the estimation of the null standard deviation.
 
 \afterpage{\clearpage}
 \subsection{Detection of Simulated Defects}
@@ -1430,7 +1459,7 @@ respectively where $\mu_{0,x,y}=0.01(x-x_0)+0.01(y-y_0)$ and $(x_0,y_0)$ is the 
 
 The empirical null filter aims to estimate the null distribution parameters from $Z_{x,y}$ to normalise it to form $T_{x,y}$. By normalising it, $T_{x,y}|H_{0,x,y}$ should be approximately standard Normal and hypotheses testing can be used to detect defects.
 
-Various defects were investigated. Speckle defect with density $\pi_1$ assign all test statistics to be non-null with probability $\pi_1$ and are null otherwise. This was chosen because the proportion of null statistics captured by the kernel should be the same for all kernel radiuses. A line defect assigns columns of pixels to be non-null, a kernel would only capture a section of the defect. A square defect was also investigated and a kernel can only capture the entire defect if its radius is large enough.
+Various defects were investigated. Speckle defect with density $\pi_1$ assign all test statistics to be non-null with probability $\pi_1$ and are null otherwise. This was chosen because the proportion of null statistics captured by the kernel should be the same for all kernel radiuses. A line defect assigns columns of pixels to be non-null, a kernel would only capture a section of the defect. A square defect was also investigated and a kernel can capture the entire defect only if its radius is large enough.
 
 \begin{figure}[p]
   \centering
@@ -1541,7 +1570,7 @@ Various defects were investigated. Speckle defect with density $\pi_1$ assign al
     \centerline{
       \begin{subfigure}{\subSize}
         \includegraphics[width=\textwidth]{../figures/inference/DefectExampleDust_EmpiricalNullFilterpValueFiltered.eps}
-        \caption{Dust defect, $r=\SI{20}{\pixel}$}
+        \caption{Speckle defect, $r=\SI{20}{\pixel}$}
       \end{subfigure}
       \begin{subfigure}{\subSize}
         \includegraphics[width=\textwidth]{../figures/inference/DefectExampleLine_EmpiricalNullFilterpValueFiltered.eps}
@@ -1566,9 +1595,9 @@ An example of a speckle defected image is shown in Figure \ref{fig:inference_def
 
 The square defected images, including the contaminated ones, are shown in Figures \ref{fig:inference_defectSquareExample} and \ref{fig:inference_defectSquare2Example}. Figure \ref{fig:inference_defectSquareExample} filtered the contaminated image using a kernel radius of $r=\SI{20}{\pixel}$, while Figure \ref{fig:inference_defectSquare2Example} used a kernel radius of $r=\SI{40}{\pixel}$. With $r=\SI{20}{\pixel}$, the kernel is smaller than the square defect, therefore, the defect was treated as the null. This is evident because the empirical null mean captured the defect. This resulted in difficulty detecting the defect. With $r=\SI{40}{\pixel}$, the kernel is bigger than the defect and treated the defect as non-null. In this scenario, the empirical null filter recovered the gradient in the empirical null which was then used for normalisation.
 
-The empirical null mean in Figure \ref{fig:inference_defectSquareExample} demonstrated the multi-thread nature of the implementation of the empirical null filter. It can be seen that there were horizontal streaks where the defect is. This is the result of each thread filtering a row and jumping from one mode, the null, to the other, the non-null, at different times. The horizontal streaks can be removed by using more initial values so that the Newton-Raphson method can pinpoint which mode is greater.
+The empirical null mean in Figure \ref{fig:inference_defectSquareExample} demonstrated the multi-thread nature of the implementation of the empirical null filter. It can be seen that there were horizontal streaks where the defect is. This is the result of each thread filtering a row and jumping from one mode, the null, to the other, the non-null, at different times. The horizontal streaks can be removed by using more initial values so that the Newton-Raphson method can pinpoint which mode is greater. However, this would be at a computational cost.
 
-Figure \ref{fig:inference_defectExamplePValue} shows the $p$-values after filtering a contaminated defected image. The FDR can be estimated in these figures by dividing the number of null statistics in the critical region by the number of statistics in the critical region. With a sensible kernel radius, some of the defects can be detected. False negatives are common but this is inevitable to control for the FDR. The figure shows that using a kernel radius of $r=\SI{20}{\pixel}$, for the square defect, failed to capture the defect. This, again, emphasise the importance of a good kernel radius. 
+Figure \ref{fig:inference_defectExamplePValue} shows the $p$-values after filtering a contaminated defected image. The FDR can be estimated in these figures by dividing the number of null statistics in the critical region by the number of statistics in the critical region. With a sensible kernel radius, some of the defects can be detected. False negatives are common but this is inevitable to control for the FDR. The figure shows that using a kernel radius of $r=\SI{20}{\pixel}$, for the square defect, failed to capture the defect. This, again, emphasise the importance of a good kernel radius.
 
 The receiver operating characteristic (ROC) curves \citep{green1966signal, metz1978basic, hanley1982meaning, friedman2001elements, cook2007use} are shown in Figure \ref{fig:inference_defectSimulationRoc} for the various defects and filters. The ROC curve is a parametric plot, plotting the true positive rate (sensitivity) against the false positive rate ($1-\text{specificity}$) for varying thresholds. The area under the ROC curve (AUC) is a commonly used statistic to quantify the performance of the test \citep{friedman2001elements}. Interpretations of the area do exist \citep{metz1978basic,hanley1982meaning} and discussed thoroughly in \cite{cook2007use}.
 
@@ -1577,7 +1606,7 @@ The receiver operating characteristic (ROC) curves \citep{green1966signal, metz1
     \centerline{
       \begin{subfigure}{\subSize}
         \includegraphics[width=\textwidth]{../figures/inference/DefectExampleDust_roc.eps}
-        \caption{Dust defect, $r=\SI{20}{\pixel}$}
+        \caption{Speckle defect, $r=\SI{20}{\pixel}$}
       \end{subfigure}
       \begin{subfigure}{\subSize}
         \includegraphics[width=\textwidth]{../figures/inference/DefectExampleLine_roc.eps}
@@ -1605,7 +1634,7 @@ In terms of the AUC, the empirical null filter improved the performance of hypot
 
 The ROC curves consider all thresholds or specificities used in the hypotheses testing. In the previous experiment, it was found that the variance of the test statistics was different before and after filtering. As a result, for a given threshold, such as the 5\% FDR level, the specificity may change ever so slightly after filtering.
 
-An experiment was conducted to investigate how filtering affects hypotheses testing. A $\SI{256}{\pixel}\times \SI{256}{\pixel}$ Gaussian image with speckle defect, with density $\pi_1=0.1$, and various values of $\mu_1$ were investigated. The AUC, type 1 error, type 2 error and FDR were measured when testing on an image with a defect before and after contamination and then after filtering with the contamination. The AUC was obtained by numerically integrating the ROC curve using the trapezium rule with 1\,000 trapeziums. A kernel radius of $r=\SI{20}{\pixel}$ was used and was repeated 100 times by simulating another image.
+An experiment was conducted to investigate how filtering affects hypotheses testing. A $\SI{256}{\pixel}\times \SI{256}{\pixel}$ Gaussian image with speckle defect, with density $\pi_1=0.1$, and various values of $\mu_1$ were investigated. The AUC, type 1 error, type 2 error and FDR were measured when testing on an image with a defect before and after contamination and then after filtering with the contamination. The AUC was obtained by integrating the ROC curve. A kernel radius of $r=\SI{20}{\pixel}$ was used and was repeated 100 times by simulating another image.
 
 \begin{figure}
   \centering
@@ -1631,7 +1660,7 @@ An experiment was conducted to investigate how filtering affects hypotheses test
         \label{fig:inference_DefectSimulationDust_fdr}
       \end{subfigure}
     }
-  \caption{AUC and various errors obtained when conducting hypotheses testing on an empirical null filtered contaminated salt defected Gaussian image of size $\SI{256}{\pixel} \times \SI{256}{\pixel}$. In a), the upper/lower dot-dashed lines shows the resulting mean AUC when testing on a defected image before/after contamination respectively. In b), c) and d), the dashed lines show the 95\% empirical confidence interval of the resulting error when testing the defected image before contamination. The filter used a kernel radius of \SI{20}{\pixel}. Defected pixels have the distribution $\normal(\mu_1,1)$ where $\mu_1$ was varied in this experiment. The salt defect has density $\pi_1 = 0.1$. The contamination was such that the null distribution is $Z_{x,y}|H_{0,x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$. The test was done at the 5\% FDR level. The boxplots summarise the 100 repeated simulations of the image.}
+  \caption{AUC and various errors obtained when conducting hypotheses testing on an empirical null filtered contaminated speckle defected Gaussian image of size $\SI{256}{\pixel} \times \SI{256}{\pixel}$. In a), the upper/lower dot-dashed lines shows the resulting mean AUC when testing on a defected image before/after contamination respectively. In b), c) and d), the dashed lines show the 95\% empirical confidence interval of the resulting error when testing the defected image before contamination. The filter used a kernel radius of \SI{20}{\pixel}. Defected pixels have the distribution $\normal(\mu_1,1)$ where $\mu_1$ was varied in this experiment. The speckle defect has density $\pi_1 = 0.1$. The contamination was such that the null distribution is $Z_{x,y}|H_{0,x,y}\sim\normal(\mu_{0,x,y},\sigma_0^2)$ where $\mu_{0,x,y} = 0.01 (x-x_0) + 0.01 (y-y_0)$ and $\sigma_0=2$. The test was done at the 5\% FDR level. The boxplots summarise the 100 repeated simulations of the image.}
   \label{fig:inference_DefectSimulationDust}
 \end{figure}
 
@@ -1846,7 +1875,7 @@ The same procedure was done on the projection at \ang{30}, as shown in Figure \r
 
 The empirical null filter demonstrated that it can adjust the null hypotheses according to the data to make a sensible inference. In the simulations, it was found that the FDR level is preserved after filtering. Also, the empirical null filter outperformed other methods based on quantiles, as suggested by \cite{efron2004large}. A sensible kernel radius is required to avoid treating defects as the null.
 
-In the experiment, the larger voids of diameter \SI{2.4}{\milli\metre} were detected in the test sample. False positives do occur but this is unavoidable because tests were done at the 5\% FDR level. Typically in the experiments, false positives were isolated single pixels and probably occurred due to random chance. Clusters of positive pixels should raise suspicion. One could create a binary image, assigning a Boolean value whether that pixel was tested positive or not. A binary image filter, such as erode followed by a dilate, can be used to remove isolated positive pixels to emphasise the cluster of positive pixels.
+In the experiment, the larger voids of diameter \SI{2.4}{\milli\metre} were detected in the test sample. False positives do occur but this is unavoidable because tests were done at the 5\% FDR level. Typically in the experiments, false positives were isolated single pixels and probably occurred due to random chance. Clusters of positive pixels should raise suspicion so it would be a good idea to borrow strength from neighbouring pixels. For example, one could create a binary image, assigning a Boolean value whether that pixel was tested positive or not. A binary image filter, such as erode followed by a dilate, can be used to remove isolated positive pixels to emphasise the cluster of positive pixels.
 
 The assessment of the inference could be improved if the location of the defects were known in the projections. This would allow identifying which positives are true and false positives so that the analysis can be quantified using a ROC curve.
 

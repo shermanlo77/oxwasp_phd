@@ -1,42 +1,12 @@
 %MIT License
 %Copyright (c) 2019 Sherman Lo
 
-this = NullIidEmpirical();
+this = NullIid();
 this.run();
 this.printResults();
 close all;
 
-this = NullIidMeanVar();
-this.run();
-this.printResults();
-close all;
-
-this = NullIidMedianIqr();
-this.run();
-this.printResults();
-close all;
-
-this = NullIidMadMode();
-this.run();
-this.printResults();
-close all;
-
-this = NullIidMixtureEmpirical();
-this.run();
-this.printResults();
-close all;
-
-this = NullIidMixtureMeanVar();
-this.run();
-this.printResults();
-close all;
-
-this = NullIidMixtureMedianIqr();
-this.run();
-this.printResults();
-close all;
-
-this = NullIidMixtureMadMode();
+this = NullIidMixture();
 this.run();
 this.printResults();
 close all;

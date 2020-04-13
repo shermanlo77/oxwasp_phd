@@ -80,6 +80,11 @@ classdef CpEmAlgorithm < Experiment
         %plot lambda
         fig = LatexFigure.subLoose();
         plot(0:this.nStep, this.lambdaArray(:,:,iParameter), 'b');
+        hold on;
+        plot([0,this.nStep], [lambda-this.stdArray(1,iParameter), ...
+            lambda-this.stdArray(1,iParameter)], 'LineStyle','none');
+        plot([0,this.nStep], [lambda+this.stdArray(1,iParameter),...
+            lambda+this.stdArray(1,iParameter)], 'LineStyle','none');
         xlabel('number of EM steps');
         ylabel('\lambda');
         xlim([0,this.nStep]);
@@ -90,6 +95,11 @@ classdef CpEmAlgorithm < Experiment
         %plot alpha
         fig = LatexFigure.subLoose();
         plot(0:this.nStep, this.alphaArray(:,:,iParameter), 'b');
+        hold on;
+        plot([0,this.nStep], [alpha-this.stdArray(2,iParameter), ...
+            alpha-this.stdArray(2,iParameter)], 'LineStyle','none');
+        plot([0,this.nStep], [alpha+this.stdArray(2,iParameter), ...
+            alpha+this.stdArray(2,iParameter)], 'LineStyle','none');
         xlabel('number of EM steps');
         ylabel('\alpha');
         xlim([0,this.nStep]);
@@ -100,6 +110,11 @@ classdef CpEmAlgorithm < Experiment
         %plot beta
         fig = LatexFigure.subLoose();
         plot(0:this.nStep, this.betaArray(:,:,iParameter), 'b');
+        hold on;
+        plot([0,this.nStep], [beta-this.stdArray(3,iParameter), ...
+            beta-this.stdArray(3,iParameter)], 'LineStyle','none');
+        plot([0,this.nStep], [beta+this.stdArray(3,iParameter), ...
+            beta+this.stdArray(3,iParameter)], 'LineStyle','none');
         xlabel('number of EM steps');
         ylabel('\beta');
         xlim([0,this.nStep]);
