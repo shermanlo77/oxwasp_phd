@@ -129,7 +129,7 @@ classdef DefectExample < Experiment
       %plot ROC
       %thin the rates to make vector figure
       %it should be stairs rather than plot but accurracy is traded for quality of the figures 
-      thinningIndex = round(linspace(1, this.imageSize(1)*this.imageSize(2) + 2, 1000));
+      thinningIndex = round(linspace(1, this.imageSize(1)*this.imageSize(2) + 1, 1000));
       
       fig = LatexFigure.sub();
       for iFilter = 1:this.nFilter
