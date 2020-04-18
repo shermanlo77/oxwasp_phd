@@ -13,12 +13,12 @@ The test statistic, for the pixel located at $(x,y)$, is
     \text{projection}_{x,y} - \emph{aRTist}_{x,y}
   }
   {
-    \sqrt{s^2\left[\emph{aRTist}_{x,y}\right]}
+    \sqrt{\widehat{y}\left[\emph{aRTist}_{x,y}\right]}
   }
 \end{equation}
-where $s^2\left[\emph{aRTist}_{x,y}\right]$ is the predicted grey value variance. The test statistic was calculated for each pixel in the ROI, that is, pixels which represent the test sample. The ROI was created by manually segmenting the test sample from the projection.
+where $\widehat{y}\left[\emph{aRTist}_{x,y}\right]$ is the predicted grey value variance. The test statistic was calculated for each pixel in the ROI, that is, pixels which represent the test sample. The ROI was created by manually segmenting the test sample from the projection.
 
-It is important to identity which quantites are random and which are not. For high photon rates, it was shown in the previous chapters that the grey values in the projection can be modelled using a Normal distribution. Thus, $\text{projection}_{x,y}$ is a random quantity. The simulation $\emph{aRTist}_{x,y}$ is not random because this was obtained through a computer software. Given the 19 selected projections used for training the variance-mean model, the variance prediction $s^2\left[\emph{aRTist}_{x,y}\right]$ is not random because the variance-mean model was fitted before encountering the remaining projection to be compared with \emph{aRTist}. The variance-mean model can be made random if a different set of 19 projections was used to train the model each time this inference was conducted, but this shall not be considered here.
+It is important to identity which quantites are random and which are not. For high photon rates, it was shown in the previous chapters that the grey values in the projection can be modelled using a Normal distribution. Thus, $\text{projection}_{x,y}$ is a random quantity. The simulation $\emph{aRTist}_{x,y}$ is not random because this was obtained through a computer software. Given the 19 selected projections used for training the variance-mean model, the variance prediction $\widehat{y}\left[\emph{aRTist}_{x,y}\right]$ is not random because the variance-mean model was fitted before encountering the remaining projection to be compared with \emph{aRTist}. The variance-mean model can be made random if a different set of 19 projections was used to train the model each time this inference was conducted, but this shall not be considered here.
 
 If there are no significant differences between the obtained and \emph{aRTist} projections, then the randomness of the test statistics can be approximately quantified as
 \begin{equation}
@@ -1727,7 +1727,7 @@ In the example of $d=\SI{30}{\pixel}$, this is about $r>\SI{54}{\pixel}$. For th
   \label{fig:inference_Experiment_DefectRadiusSquare}
 \end{figure}
 
-An experiment was conducted where a contaminated defected Gaussian image, of size $\SI{256}{\pixel}\times\SI{256}{\pixel}$, was filtered using various kernel radiuses for a fixed alternative distribution $\normal(3,1)$. Hypotheses testing was done on the uncontaminated defected and filtered contaminated defected images. The AUC and various errors were recorded. This was repeated 100 times by simulating the image again. The AUC was obtained by numerically integrating the ROC curve using the trapezium rule with 1\,000 trapeziums. The results of the uncontaminated defected image were all pooled together to obtain the empirical distribution of the AUC and errors without contamination. Results for the line and square defect are shown in Figures \ref{fig:inference_Experiment_DefectRadiusLine} and \ref{fig:inference_Experiment_DefectRadiusSquare} respectively.
+An experiment was conducted where a contaminated defected Gaussian image, of size $\SI{256}{\pixel}\times\SI{256}{\pixel}$, was filtered using various kernel radiuses for a fixed alternative distribution $\normal(3,1)$. Hypotheses testing was done on the uncontaminated defected and filtered contaminated defected images. The AUC and various errors were recorded. This was repeated 100 times by simulating the image again. The AUC was obtained by integrating the ROC curve. The results of the uncontaminated defected image were all pooled together to obtain the empirical distribution of the AUC and errors without contamination. Results for the line and square defect are shown in Figures \ref{fig:inference_Experiment_DefectRadiusLine} and \ref{fig:inference_Experiment_DefectRadiusSquare} respectively.
 
 The results showed that the AUC increased with kernel radius. This highlighted that a kernel with a good radius can perform almost as though there was no contamination. It also appeared that the optimal AUC was achieved when using the kernel radius from the rule of thumb, making these results consistent with the literature.
 
