@@ -93,7 +93,7 @@
 \vfill
 {\Large University of Warwick\par}
 {\Large Department of Statistics\par}
-{\Large September 2019\par}
+{\Large May 2020\par}
 \end{titlingpage}
 
 
@@ -125,6 +125,8 @@ X-ray computed tomography can be used for defect detection in additive manufactu
 The uncertainty of the projection was modelled using a compound Poisson distribution. This arises from x-ray photon arrivals being a Poisson process and each photon has random energy. This results in a linear relationship between the mean and variance of the grey values in the projection. Fitting of the compound Poisson distribution using the expectation-maximisation algorithm was unsuccessful due to identifiability issues with the model. Instead, a gamma-distributed generalised linear model was fitted onto sample variance-mean data and used for variance prediction to quantify the uncertainty.
 
 Software, called \emph{aRTist}, was used to simulate the projection and compared with the experimental projection in the face of uncertainty by treating each pixel as a hypothesis test. To overcome the imperfections of the simulation, the empirical null filter was used to cater for model misspecification so that sensible inference was achieved. This was done by locally normalising the test statistics using the mode. Voids with diameters in the order of millimetres were detectable.
+
+This thesis is a contribution to real-time quality control in additive manufacturing.
 
 \newpage
 
@@ -181,11 +183,11 @@ In Chapter \ref{chapter3}, it was attempted to fit a compound Poisson distributi
 
 In Chapter \ref{chapter5}, the replicated projections were split into two. 19 randomly selected projections were used for the variance-mean model to fit onto. The remaining projection was compared with the simulated projection in the face of uncertainty. The uncertainty was predicted using the variance-mean model. Hypotheses testing was done on the test statistics, one for each pixel in a projection. Unfortunately, the simulation was not perfect which led to model misspecification, thus, false positives. The empirical null filter was developed and used to smooth the test statistics. This allows the hypotheses test to pick out areas which are unusual and unlike its neighbours. The filtered test statistics were converted to $p$-values so that hypotheses testing can be done to detect the voids.
 
-The main statistical novelty was extending the empirical null \citep{efron2004large} to a filter where it can be applied to images. This has been implemented in \emph{ImageJ} \citep{abramoff2004image, schneider2012nih, perez2013image}. A by-product is the empirical null mean, which is effectively the mode filter, which can be used to smooth images.
+The main statistical novelty was extending the empirical null \citep{efron2004large} to a filter where it can be applied to images. This has been implemented in \emph{ImageJ} \citep{abramoff2004image, schneider2012nih, perez2013image}. A by-product is the empirical null mean, effectively the mode filter, which can be used to smooth images.
 
 Two angular projections were looked at in this thesis. The angles were selected by the engineers, in calibration with this experiment, so that all of the voids were visible in a single projection. Defect detection can be tough if a difficult projection angle was used. This experiment could be improved by analysing more angular projections independently to pick up voids which may be hidden at a particular projection angle. Another possible extension is to integrate \emph{aRTist} into the inference, for example, the simulated projection could be realigned to minimise the number of positives. This will help eliminate sources of error due to \emph{aRTist}. A problem with this suggestion is that aligning the simulated projection is a high dimensional problem \citep{brierley2018optimized}.
 
-Voids in the order of millimetres were detectable using this method. Further work could include test samples made from materials such as titanium alloys (Ti-6Al-4V). This can be challenging because artefacts, such as streaks, can appear when using XCT for metal parts \citep{deman1998metal, nawaz2014metal}. Another problem is that because titanium products are created using a power-based method, the powder may become trapped \citep{brierley2018optimized} in designed voids. This results in voids appearing with less contrast in the projections, making it harder to detect. Different types of challenging defects could be investigated. For example, the orientation of cracks can affect the detectability of it \citep{wooldridge1997demonstrating}.
+Voids in the order of millimetres were detectable using this method. Further work could include test samples made from materials such as titanium alloys (Ti-6Al-4V). This can be challenging because artefacts, such as streaks, can appear when using XCT for metal parts \citep{deman1998metal, nawaz2014metal}. Another problem is that because titanium products are created using a power-based method, the powder may become trapped \citep{brierley2018optimized} in designed voids. This results in voids appearing with less contrast in the projections, making it harder to detect. Different types of challenging defects could be investigated, for example, the orientation of cracks can affect the detectability of it \citep{wooldridge1997demonstrating}.
 
 This thesis is a contribution to real-time quality control for AM and perhaps inverse problems in imaging \citep{bertero1998introduction} and robust statistics. A powerful multi-core computer could be used to conduct the statistical analysis on a few x-ray projections of AM products on a conveyor belt. This could be competitive with other converyor belt inspection methods, for example \cite{warnett2016towards}, by using less projections and hopefully less computational time. By using fewer projections, quality control can be faster which advances the development and increases the scope of applications of AM.
 

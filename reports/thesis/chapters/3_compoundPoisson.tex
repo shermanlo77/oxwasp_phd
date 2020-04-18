@@ -1156,7 +1156,7 @@ It was observed that there is a saddle point in the log-likelihood for the $\CPo
 As a result, there is no unique maximum likelihood estimator and the EM algorithm would be very sensitive to the starting position, including for small $\lambda$.
 
 \section{Conclusion}
-The compound Poisson-gamma distribution was studied but it was found there were identifiability issues when fitting the model onto simulated data, in particular for high $\lambda$. It was found that the log-likelihood was quite flat because, by using numerous approximations, it was found that the determinant of the Hessian is zero. This cast doubts if a unique maximum likelihood estimator exists. Tighter bounds for the Hessian is beyond the scope of this thesis.
+The compound Poisson-gamma distribution was studied but it was found there were identifiability issues when fitting the model onto simulated data, in particular for high $\lambda$. It was found that the log-likelihood was quite flat because, by using numerous approximations, it was found that the determinant of the Hessian is about zero. This cast doubts if a unique maximum likelihood estimator exists. Tighter bounds for the Hessian is beyond the scope of this thesis.
 
 The problem with the EM algorithm is that it is sensitive to the initial value and does not guarantee convergence to a global maximum \citep{moon1996expectation}. Another disadvantage is that the EM algorithm does not produce uncertainty quantification for the estimators. Methods such as bootstrapping \citep{efron1979bootstrap} and Louis' missing information principle \citep{louis1982finding} can be used to obtain such uncertainty quantification.
 
