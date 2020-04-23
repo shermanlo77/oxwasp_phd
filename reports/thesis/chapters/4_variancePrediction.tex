@@ -17,7 +17,7 @@ and
             x_{i,j} - \overline{x}_{i}
         \right)^2
 \end{equation}
-respectively. The symbol $y$ should not be confused with the latent varible in the previous chapter. Only pixels in the region of interest (ROI) were considered here, that is, pixels which represent the test sample. The ROI was created by manually segmenting the test sample from the projection.
+respectively. The symbol $y$ should not be confused with the latent variable in the previous chapter. Only pixels in the region of interest (ROI) were considered here, that is, pixels which represent the test sample. The ROI was created by manually segmenting the test sample from the projection.
 
 The aim is to model and predict the grey value variance of a pixel given its grey value by using a model fitted onto the sample variance-mean data. The variance-mean data is denoted as $(x_1,y_1),(x_2,y_2),\ldots,(x_N,y_N)$ where $N$ is the area of the ROI or the size of the dataset. Let $Y(x)$ be a random variable and the sample variance given a grey value mean $x$. It was assumed that the standard error from estimating the mean was negligible so that the uncertainty is captured by the random variable $Y$. It was assumed that for a given pixel, the grey values are Normal and i.i.d. Let $\sigma^2(x)$ be the variance given a grey value $x$, then it can be shown that
 \begin{equation}

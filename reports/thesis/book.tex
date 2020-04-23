@@ -93,7 +93,7 @@
 \vfill
 {\Large University of Warwick\par}
 {\Large Department of Statistics\par}
-{\Large May 2020\par}
+{\Large April 2020\par}
 \end{titlingpage}
 
 
@@ -142,7 +142,7 @@ The analysis was done by comparing the experimental projection with a simulated 
 
 The front cover shows the before and after of the statistical analysis. The left-hand side shows an x-ray projection of an additive manufactured cuboid. Its edges appeared curved due to spot and panel effects and this can be fixed using shading correction. The right-hand side shows the $p$-values of the resulting inference. Lighter colours show evidence of a defect and they successfully highlighted voids put in there purposefully.
 
-In Chapter \ref{chapter1}, x-ray computed tomography and additive manufacturing is reviewed. Sources of error were investigated and it was discuused how they were handled. In Chapter \ref{chapter2}, a test sample was additively manufactured and the chapter describes how experimental x-ray projections were obtained. Shading correction is explained here and it was used to remove sources of systematic error in the projections. In Chapter \ref{chapter3}, the compound Poisson distribution is studied so that it can be used to model the detection of x-rays. In Chapter \ref{chapter4}, the uncertainty in the projection was quantified using the variance and generalised linear models were used to predict it. In Chapter \ref{chapter5}, novel statistical techniques were developed and implemented to look for defects in the test sample in the face of uncertainty. This was done by comparing the experimental projection with a simulated projection and looking for any disagreement. The empirical null filter was used to cater for any model misspecification so that sensible conclusions were made. The thesis ends with an evaluation in Chapter \ref{chapter6}.
+In Chapter \ref{chapter1}, x-ray computed tomography and additive manufacturing is reviewed. Sources of error were investigated and it was discussed how they were handled. In Chapter \ref{chapter2}, a test sample was additively manufactured and the chapter describes how experimental x-ray projections were obtained. Shading correction is explained here and it was used to remove sources of systematic error in the projections. In Chapter \ref{chapter3}, the compound Poisson distribution is studied so that it can be used to model the detection of x-rays. In Chapter \ref{chapter4}, the uncertainty in the projection was quantified using the variance and generalised linear models were used to predict it. In Chapter \ref{chapter5}, novel statistical techniques were developed and implemented to look for defects in the test sample in the face of uncertainty. This was done by comparing the experimental projection with a simulated projection and looking for any disagreement. The empirical null filter was used to cater for any model misspecification so that sensible conclusions were made. The thesis ends with an evaluation in Chapter \ref{chapter6}.
 
 The results presented in this thesis can be reproduced using the source code in the \emph{GitHub} repository \url{https://github.com/shermanlo77/oxwasp_phd}.
 
@@ -189,7 +189,7 @@ Two angular projections were looked at in this thesis. The angles were selected 
 
 Voids in the order of millimetres were detectable using this method. Further work could include test samples made from materials such as titanium alloys (Ti-6Al-4V). This can be challenging because artefacts, such as streaks, can appear when using XCT for metal parts \citep{deman1998metal, nawaz2014metal}. Another problem is that because titanium products are created using a power-based method, the powder may become trapped \citep{brierley2018optimized} in designed voids. This results in voids appearing with less contrast in the projections, making it harder to detect. Different types of challenging defects could be investigated, for example, the orientation of cracks can affect the detectability of it \citep{wooldridge1997demonstrating}.
 
-This thesis is a contribution to real-time quality control for AM and perhaps inverse problems in imaging \citep{bertero1998introduction} and robust statistics. A powerful multi-core computer could be used to conduct the statistical analysis on a few x-ray projections of AM products on a conveyor belt. This could be competitive with other converyor belt inspection methods, for example \cite{warnett2016towards}, by using less projections and hopefully less computational time. By using fewer projections, quality control can be faster which advances the development and increases the scope of applications of AM.
+This thesis is a contribution to real-time quality control for AM and perhaps inverse problems in imaging \citep{bertero1998introduction} and robust statistics. A powerful multi-core computer could be used to conduct the statistical analysis on a few x-ray projections of AM products on a conveyor belt. This could be competitive with other conveyor belt inspection methods, for example \cite{warnett2016towards}, by using fewer projections and hopefully less computational time. By using fewer projections, quality control can be faster which advances the development and increases the scope of applications of AM.
 
 \bibliographystyle{apalike}
 \bibliography{../bib}
