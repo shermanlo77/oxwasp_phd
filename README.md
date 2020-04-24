@@ -2,9 +2,10 @@
 
 * MIT License - all source code
 * Copyright (c) - `reports/`
+  * See `reports/thesis/LICENSE` for more details about the thesis
 * Copyright (c) 2019 Sherman Lo
 
-Contains code to reproduce the thesis Lo, S.E. (2019). *Characterisation of Computed Tomography Noise in Projection Space with Applications to Additive Manufacturing*. PhD thesis, University of Warwick, Department of Statistics
+Contains code to reproduce the thesis Lo, S.E. (2020). *Characterisation of Computed Tomography Noise in Projection Space with Applications to Additive Manufacturing*. PhD thesis, University of Warwick, Department of Statistics
 
 The *Java* source code for the empirical null filter *ImageJ* plugin is in the directory `java/src` and the *Maven* project file is in `java/pom.xml`.
 
