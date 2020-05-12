@@ -69,7 +69,7 @@ classdef DefectRadius < Experiment
       boxplot.setToBw();
       boxplot.plot();
       print(fig,fullfile(directory, strcat(this.experimentName,'_rocBW.eps')),'-deps','-loose');
-      print(fig,fullfile(directory, strcat(this.experimentName,'_rocVW.tiff')),'-dtiff','-loose');
+      print(fig,fullfile(directory, strcat(this.experimentName,'_rocBW.tiff')),'-dtiff','-loose');
       
       %plot type 1 error vs alt mean
       fig = LatexFigure.subLoose();

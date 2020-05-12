@@ -134,12 +134,12 @@ classdef (Abstract) DefectDetect < Experiment
         fig = LatexFigure.subLoose();
         nullStdPlot.setToBw();
         nullStdPlot.plot();
-        nullStdPlot.addScale(this.scan,scaleLength,'y');
+        nullStdPlot.addScale(this.scan,scaleLength,'w');
         nullStdPlot.removeLabelSpace();
         print(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
             '_nullStdBW.eps')),'-deps','-loose');
         print(fig,fullfile(directory, strcat(this.experimentName,'_radius',num2str(iRadius), ...
-            '_nullStd.tiff')),'-dtiff','-loose');
+            '_nullStdBW.tiff')),'-dtiff','-loose');
           
         %plot the -log p values
         fig = LatexFigure.subLoose();
@@ -153,6 +153,7 @@ classdef (Abstract) DefectDetect < Experiment
         %set to BW
         fig = LatexFigure.subLoose();
         pPlot.setToBw();
+        pPlot.setCLim([0, 3]);
         pPlot.plot();
         pPlot.addScale(this.scan,scaleLength,'y');
         pPlot.removeLabelSpace();
