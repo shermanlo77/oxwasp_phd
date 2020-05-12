@@ -6,7 +6,7 @@
 \usepackage{amsbsy}
 \usepackage{graphicx}
 \usepackage[outdir=./]{epstopdf}
-\usepackage[square,numbers,comma]{natbib} 
+\usepackage[square,numbers,comma]{natbib}
 \usepackage{url}
 \usepackage{subcaption}
 \usepackage{hyperref}
@@ -86,7 +86,7 @@ Additive manufacturing (AM) is an emerging technology that overcomes many tradit
 
 There is a need for product inspection, in particular, quality assessment of the internal structures. The properties of materials produced by AM are not yet fully understood. For example, voids can form between layers which can impact the mechanical properties of the product \citep{ngo2018additive, wang20173d}. In power-based AM technologies, gas can become trapped during the manufacturing process forming gas pores in the manufactured object \citep{tammas2015xct, thijs2010study}. Low wetting ability of the melt pool can cause balling, a phenomenon where spherical or ellipsoidal particles form on the surface of the AM part. They are formed by sintered powder with insufficient contact on the existing layer \citep{gu2009balling, li2012balling}.
 
-Non-destructive testing, such as x-ray computed tomography (XCT), can be used to assess the quality of the product \citep{kruth2011computed, sun2012overview}. The object is held by foam on a turntable and placed between an x-ray source and an x-ray detector. X-ray projections are taken at a series of angles. Typically the x-ray is a cone beam. The x-ray projections are then used to reconstruct the object in 3D \citep{brooks1976principles, feldkamp1984practical, smith1990cone}. 
+Non-destructive testing, such as x-ray computed tomography (XCT), can be used to assess the quality of the product \citep{kruth2011computed, sun2012overview}. The object is held by foam on a turntable and placed between an x-ray source and an x-ray detector. X-ray projections are taken at a series of angles. Typically the x-ray is a cone beam. The x-ray projections are then used to reconstruct the object in 3D \citep{brooks1976principles, feldkamp1984practical, smith1990cone}.
 
 In AM, XCT is commonly used for the investigation of pores \citep{thompson2016x}. Pores can be classified as defects if the pores are larger than some volume threshold. This threshold controls the probability of the detection of defects \citep{amrhein2014characterization, gandossi2010probability}. The porosity can be estimated by dividing the volume of all of the pores by the volume of solid material in the XCT scan \citep{taud2005porosity}. More accurate methods of measuring the porosity can be done using Archimedes' method \citep{spierings2011comparison}.
 
@@ -119,15 +119,15 @@ Fig.~\ref{fig:flowchart} shows a flowchart which summarises the process of the e
 
 For each position $(x,y)$, a test statistic was calculated
 \begin{equation}
-  Z_{x,y} = 
+  Z_{x,y} =
   \dfrac{
     \text{projection}_{x,y} - \emph{aRTist}_{x,y}
   }
   {
-    \sqrt{\widehat{\variance}\left[\text{projection}_{x,y}\right]}
+    \sqrt{{s}^2\left[\emph{aRTist}_{x,y}\right]}
   }
 \end{equation}
-where $\widehat{\variance}\left[\text{projection}_{x,y}\right]$ is the estimated grey value variance of pixel $(x,y)$ in the projection. The variance model $\widehat{\variance}\left[\text{projection}_{x,y}\right]$ has a linear relationship between the variance and the grey value \citep{ma2012varaince, yang2010noise}. A gamma distributed generalised linear model \citep{mccullagh1984generalized, nelder1972generalized} was used with an identity link. The fitting of the model was done using the held out replicated projections of the sample (see Section \ref{subsection:appratus}). These replicated projections were manually segmented so that only pixels which represent the test sample were used. This provided variance-mean data, where each pixel is a data point, which was used to fit the variance model. The variance was predicted using the grey value in the simulated projection as the predictor variable.
+where ${s}^2\left[\emph{aRTist}_{x,y}\right]$ is the predicted grey value variance of pixel $(x,y)$ in the projection using \emph{aRTist} as a predictor. The variance model ${s}^2\left[\emph{aRTist}_{x,y}\right]$ has a linear relationship between the variance and the grey value \citep{ma2012varaince, yang2010noise}. A gamma distributed generalised linear model \citep{mccullagh1984generalized, nelder1972generalized} was used with an identity link. The fitting of the model was done using the held out replicated projections of the sample (see Section \ref{subsection:appratus}). These replicated projections were manually segmented so that only pixels which represent the test sample were used. This provided variance-mean data, where each pixel is a data point, which was used to fit the variance model. The variance was predicted using the grey value in the simulated projection as the predictor variable.
 
 It was assumed that the grey values were Normally distributed, therefore the test statistics should be approximately Normal as well. Let the test statistic of the pixel at position $(x,y)$ be
 \begin{equation}
@@ -146,7 +146,7 @@ _{0,x,y}$ and $\widehat{\sigma}_{0,x,y}$ for all $x$ and $y$. This is based on t
 
 To obtain the estimates, a circular kernel $C_r(x,y)$ with radius $r$ was centred at $(x,y)$. All the pixels captured by the circular kernel and the region of interest (ROI) were pooled together to obtain a kernel density estimate \citep{friedman2001elements, parzen1962on}
 \begin{equation}
-\widehat{p}_{Z_{x,y}}(z) = 
+\widehat{p}_{Z_{x,y}}(z) =
 \frac{1}{nh}
   \sum_{i,j\in K_{x,y}}\phi\left(
     \dfrac{z_{i,j}-z}{h}
@@ -171,7 +171,7 @@ using the Newton-Raphson method and
 \end{equation}
 \citep{efron2004large}. The test statistics were normalised using
 \begin{equation}
-  T_{x,y} = 
+  T_{x,y} =
   \dfrac{
     Z_{x,y}-\widehat{\mu}_{0,x,y}
   }
@@ -240,7 +240,7 @@ by using the iterative procedure
       }
       \ln\widehat{p}_{Z_{x,y}}(z)
     \right|_{z = z^{(r)}}
-  } 
+  }
 \end{equation}
 where $z^{(0)}$ is the initial value. A convergence criteria was met when either 10 update steps were taken or when
 \begin{equation}
