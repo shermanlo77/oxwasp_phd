@@ -21,7 +21,7 @@ Software, called \emph{aRTist}, was used to simulate the projection and compared
 This thesis is a contribution to real-time quality control in additive manufacturing.
 
 ## How to Use (Linux recommended)
-Requires *Maven*. Run the command
+Requires *Maven* as well as *Java Runtime Environment* and *Java Development Kit*. Run the command
 ```
 mvn -f java package
 ```

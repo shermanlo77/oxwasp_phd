@@ -37,15 +37,15 @@ import org.apache.commons.math3.random.RandomGenerator;
 //CLASS: EMPIRICAL NULL FILTER
 /**Locally normalise the grey values using the empirical null  mean (mode) and the empirical null
  *     std.
- * 
+ *
  * <p>The method filter is overloaded but all are directed to filter() with no parameters.
  *     filter() with no parameter is used directly by ImageJ because the image is passed through the
  *     methods setup and run. The methods filter(float [][] image) and
  *     filter(float [][] image, String roiPath) are required to pass the image when used by MATLAB.
- * 
+ *
  * <p>How to use:
  *   <ul><li>Compile to a .jar file and use ImageJ or Fiji</li></ul>
- * 
+ *
  * <p>For use outside ImageJ such as MATLAB:
  *   <ul>
  *     <li>Use the empty constructor</li>
@@ -55,30 +55,26 @@ import org.apache.commons.math3.random.RandomGenerator;
  *     <li>Call the method getFilteredImage() to get the filtered image</li>
  *     <li>Call the method getOutputImage(int outputImagePointer) to get any other images</li>
  *   </ul>
- * 
+ *
  * <p>Based on
  *     <a href=https://github.com/imagej/ImageJA/blob/7f965b866c9db364b0b47140caeef4f62d5d8c15/src/main/java/ij/plugin/filter/RankFilters.java>
  *     RankFilters.java</a>
- * 
+ *
  * @author Sherman Lo
  */
 public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener {
-  
+
   //STATIC FINAL VARIABLES
-  
+
   //
   /**Options for what output images to show. To combine the options, either add them together or use
    *     the OR operator.
    */
   public static final int NULL_MEAN = 1, NULL_STD = 2, STD = 4, Q1 = 8, Q2 = 16, Q3 = 32;
-  /**number of output images which can be shown*/
-  public static final int N_IMAGE_OUTPUT = 6;
   /**name of each output image*/
   public static final String[] OUTPUT_NAME = {"null mean", "null std", "standard deviation",
       "quantile 1", "median", "quantile 3"};
-  /**this filter only works on 32-bit images, this is indicated in FLAGS*/
-  private static final int FLAGS = DOES_32;
-  
+
   //STATIC VARIABLES
   /**values used in the previous filtering*/
   private static double lastRadius = 0;
@@ -94,20 +90,24 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   private static float lastBandwidthParameterB = EmpiricalNull.BANDWIDTH_PARAMETER_B;
   /**values used in the previous filtering*/
   private static int lastOutputImagePointer = -1;
-  
+
   //MEMBER VARIABLES
-  
+
+  /**this filter only works on 32-bit images, this is indicated in FLAGS*/
+  protected int flags = DOES_32;
+  /**number of output images which can be shown*/
+  protected int n_image_output = 6;
   /**which output images to show*/
-  private int outputImagePointer = NULL_MEAN + NULL_STD;
-  /**array of float processors which contains images (or statistics) which are obtained from the 
+  protected int outputImagePointer = NULL_MEAN + NULL_STD;
+  /**array of float processors which contains images (or statistics) which are obtained from the
    *     filter itself, eg null mean, null std, std, q1, q2, q3
    */
-  private FloatProcessor [] outputImageArray = new FloatProcessor[N_IMAGE_OUTPUT];
+  private FloatProcessor [] outputImageArray = new FloatProcessor[this.n_image_output];
   /** radius of the kernel*/
   private double radius = 20;
-  
+
   /**the image to be filtered*/
-  private ImageProcessor imageProcessor;
+  protected ImageProcessor imageProcessor;
   /**region of interest*/
   private Roi roi;
   /**used by showDialog, unused but needed in case deleted by automatic garbage collection*/
@@ -116,7 +116,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   /**The number of passes (color channels * stack slices)*/
   protected int nPasses = 1;
   protected int pass;
-  
+
   //EMPIRICAL NULL RELATED
   /**number of initial values for newton-raphson*/
   protected int nInitial = lastNInitial;
@@ -132,31 +132,31 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
    *     (B x n^{-1/5} + A) * std
    */
   protected float bandwidthParameterB = lastBandwidthParameterB;
-  
+
   /**indicate if pixels in the kernel need to be copied to a float[]*/
   protected boolean isKernelCopy = true;
   /**indicate if the kernel mean and var is required*/
   protected boolean isKernelMeanVar = true;
   /**indicate if the kernel quartiles is required*/
   protected boolean isKernelQuartile = true;
-  
+
   /**seed for the rng*/
   private int seed = 1742863098;
-  
+
   //MULTITHREADING RELATED
   /**number of threads*/
   private int numThreads = Prefs.getThreads();
-  /**Current state of processing is in class variables. Thus, stack parallelization must be done 
+  /**Current state of processing is in class variables. Thus, stack parallelization must be done
    *     ONLY with one thread for the image
    */
   private boolean threadWaiting; // a thread waits until it may read data
-  
+
   //CONSTRUCTOR
   /**Empty constructor, used by ImageJ
    */
   public EmpiricalNullFilter() {
   }
-  
+
   //IMPLEMENTED: SETUP
   /**Setup of the PlugInFilter. Returns the flags specifying the capabilities and needs
    * of the filter.
@@ -175,9 +175,9 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     if (this.roi == null) {
       this.roi = new Roi(ip.getProcessor().getRoi());
     }
-    return FLAGS;
+    return this.flags;
   }
-  
+
   //IMPLEMENTED: RUN
   /**For the use of ExtendedPlugInFilter. Do the filtering.
    * @param ip image to be filtered
@@ -193,15 +193,14 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
       ip.reset();
     }
     //show each requested output image
-    for (int i=0; i<N_IMAGE_OUTPUT; i++) {
-      if ( (outputImagePointer >> i) % 2 == 1) {
-        ImagePlus output;
-        output = new ImagePlus(OUTPUT_NAME[i], this.outputImageArray[i]);
+    for (int i=0; i<this.n_image_output; i++) {
+      if ((outputImagePointer >> i) % 2 == 1) {
+        ImagePlus output = new ImagePlus(OUTPUT_NAME[i], this.outputImageArray[i]);
         output.show();
       }
     }
   }
-  
+
   //IMPLEMENTED: SHOW DIALOG
   /**Dialog box for setting the radius and which output images to show
    * @param imp image to apply the filter on
@@ -210,26 +209,28 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
    */
   @Override
   public int showDialog(ImagePlus imp, String command, PlugInFilterRunner pfr) {
-    
+
     GenericDialog genericDialog = new GenericDialog(command+"...");
-    
+
     //set up radius field, use the last radius if it exists
     genericDialog.addMessage("Settings");
     if (lastRadius > 0) {
       this.radius = lastRadius;
     }
     genericDialog.addNumericField("Radius", this.radius, 1, 6, "pixels");
-    
-    //set up checkbox for each output image, use the last pointer if it exists
-    genericDialog.addMessage("Output images");
-    if (lastOutputImagePointer >= 0) {
-      this.outputImagePointer = lastOutputImagePointer;
+
+    //checkbox each output image
+    if (this.n_image_output > 0) {
+      genericDialog.addMessage("Output images");
+      if (lastOutputImagePointer >= 0) {
+        this.outputImagePointer = lastOutputImagePointer;
+      }
+      for (int i=0; i<this.n_image_output; i++) {
+        boolean defaultBoolean = (this.outputImagePointer >> i) % 2 == 1;
+        genericDialog.addCheckbox("Show "+OUTPUT_NAME[i], defaultBoolean);
+      }
     }
-    for (int i=0; i<N_IMAGE_OUTPUT; i++) {
-      boolean defaultBoolean = (this.outputImagePointer >> i) % 2 == 1;
-      genericDialog.addCheckbox("Show "+OUTPUT_NAME[i], defaultBoolean);
-    }
-    
+
     //add fields for the empirical null tuning parameters
     //integers do not show decimal points
     genericDialog.addMessage("Advanced options");
@@ -243,7 +244,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
         2, 6, null);
     genericDialog.addNumericField("bandwidth B", this.getBandwidthB(),
         2, 6, null);
-    
+
     //the DialogItemChanged method will be called on user input
     genericDialog.addDialogListener(this);
     genericDialog.showDialog(); //display the dialog
@@ -252,7 +253,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     }
     //protected static class variables (filter parameters) from garbage collection
     IJ.register(this.getClass());
-    
+
     if (Macro.getOptions() == null) { //interactive only: remember settings
       lastRadius = this.radius;
       lastNInitial = this.nInitial;
@@ -262,13 +263,13 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
       lastBandwidthParameterB = this.bandwidthParameterB;
       lastOutputImagePointer = this.outputImagePointer;
     }
-    
+
     //save a copy of pfr
     this.pfr = pfr;
-    
-    return FLAGS;
+
+    return this.flags;
   }
-  
+
   //IMPLEMENTED: DIALOG ITEM CHANGED
   /**Called on user input and update the radius and outputImagePointer.
    * @parm gd GUI
@@ -284,7 +285,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     }
     //get the output image options and save it
     this.outputImagePointer = 0;
-    for (int i=0; i<N_IMAGE_OUTPUT; i++) {
+    for (int i=0; i<this.n_image_output; i++) {
       boolean value = gd.getNextBoolean();
       if (value) {
         int pointer = 1;
@@ -303,31 +304,31 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     } catch (InvalidValueException exception) {
       return false;
     }
-    
+
     return true;
   }
-  
+
   //METHOD: GET RADIUS
   /**@return the radius of the kernel
    */
   public double getRadius() {
     return this.radius;
   }
-  
+
   //METHOD: SET RADIUS
   /**@param radius The radius of the kernel
    */
   public void setRadius(double radius) {
     this.radius = radius;
   }
-  
+
   //METHOD: GET FILTERED IMAGE
   /**@return array of pixels of the filtered image
    */
   public float [] getFilteredImage() {
     return (float []) this.imageProcessor.getPixels();
   }
-  
+
   //METHOD: GET OUTPUT IMAGE
   /**Returns an array of pixels from one of the requested output images
    * @param outputImagePointer e.g. NULL_MEAN, NULL_STD
@@ -335,7 +336,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
    */
   public float [] getOutputImage(int outputImagePointer) {
     //for each output image
-    for (int i=0; i<N_IMAGE_OUTPUT; i++) {
+    for (int i=0; i<this.n_image_output; i++) {
       //if the user requested this output image, return it
       if ( (outputImagePointer >> i) % 2 == 1) {
         return (float [] ) this.outputImageArray[i].getPixels();
@@ -343,7 +344,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     }
     return null;
   }
-  
+
   //METHOD: SET OUTPUT IMAGE
   /**Set outputImagePointer, this indicate which output images to show
    * @param pointer which output images to show, use and the static int variables,
@@ -352,7 +353,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   public void setOutputImage(int pointer) {
     this.outputImagePointer = pointer;
   }
-  
+
   //METHOD: FILTER
   /**Call the method filter() using the image passed in the parameter
    * @param image image to be filtered
@@ -362,7 +363,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     this.roi = new Roi(this.imageProcessor.getRoi());
     this.filter();
   }
-  
+
   //METHOD: FILTER
   /**Call the method filter() using the image and ROI passed in the parameter
    * @param image image to be filtered
@@ -380,47 +381,47 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     this.roi = roi;
     this.filter();
   }
-  
+
   //METHOD: FILTER
   /**Do the empirical null filter using several threads.
-   * 
+   *
    * <p>Implementation: each thread uses the same input buffer (cache), always works on the next
    *     unfiltered line. Usually, one thread reads reads several lines into the cache, while the
    *     others are processing the data.
-   *     
+   *
    * <p>'aborted[0]' is set if the main thread has been interrupted (during preview) or ESC pressed.
    *     'aborted' must not be a class variable because it signals the other threads to stop;
    *     and this may be caused by an interrupted preview thread after the main calculation has been
    *     started.
    */
   public void filter() {
-    
+
     //roi = region of interest
     Rectangle roiRectangle = this.imageProcessor.getRoi();
     //setup the kernel
     Kernel.setKernel(this.radius);
-    
+
     //instantiate new images for each outout
-    for (int i=0; i<N_IMAGE_OUTPUT; i++) {
-      if ( (this.outputImagePointer >> i) % 2 == 1) {
+    for (int i=0; i<this.n_image_output; i++) {
+      if ((this.outputImagePointer >> i) % 2 == 1) {
         FloatProcessor outputProcessor = (FloatProcessor) this.imageProcessor.duplicate();
         float [] pixels = (float []) outputProcessor.getPixels();
         Arrays.fill(pixels, Float.NaN);
         this.outputImageArray[i] = outputProcessor;
       }
     }
-    
+
     //returns whether interrupted during preview or ESC pressed
     final boolean[] aborted = new boolean[1];
-    
+
     //get the number of threads
     int numThreads = Math.min(roiRectangle.height, this.numThreads);
     if (numThreads==0) {
       return;
     }
-    
+
     final Cache cache = new Cache(this.imageProcessor, this.roi);
-    
+
     //threads announce here which line they currently process
     final int[] yForThread = new int[numThreads];
     Arrays.fill(yForThread, roiRectangle.y-1);
@@ -428,13 +429,13 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     final Thread[] threads = new Thread[numThreads-1];
     //this rng is for producing random seeds for each thread
     RandomGenerator rng = new MersenneTwister(this.seed);
-    
+
     //produce a random seed for each row
     final int seeds[] = new int[roiRectangle.height];
     for (int i=0; i<roiRectangle.height; i++) {
       seeds[i] = rng.nextInt();
     }
-    
+
     //instantiate threads and start them
     for (int t=numThreads-1; t>0; t--) {
       final int ti = t; //thread number
@@ -451,10 +452,10 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
       thread.start();
       threads[ti-1] = thread;
     }
-    
+
     //main thread start filtering
     this.threadFilter(cache, yForThread, 0, seeds, aborted);
-    
+
     //join each thread
     for (final Thread thread : threads) {
       try {
@@ -464,14 +465,14 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
         Thread.currentThread().interrupt(); //keep interrupted status (PlugInFilterRunner needs it)
       }
     }
-    
+
     this.showProgress(1.0);
     pass++;
   }
-  
+
   //METHOD: THREAD FILTER
   /**Empirical null filter a grayscale image for a given thread.
-   * 
+   *
    * <p>Synchronization: unless a thread is waiting, we avoid the overhead of 'synchronized'
    *     statements. That's because a thread waiting for another one should be rare.
    *
@@ -487,7 +488,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
    * <p>Notes: For mean and variance, except for very small radius, usually do not calculate the
    *     sum over all pixels. This sum is calculated for the first pixel of every line only. For the
    *     following pixels, add the new values and subtract those that are not in the sum any more.
-   * 
+   *
    * @param cache pointer to the cache
    * @param yForThread array indicating which y a thread is filtering
    * @param threadNumber id for this thread
@@ -496,49 +497,49 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
    */
   private void threadFilter(Cache cache, int [] yForThread, int threadNumber,int[] seeds,
       boolean[] aborted) {
-    
+
     //get properties of this image
     Rectangle roiRectangle = this.imageProcessor.getRoi();
     //rng for trying out different initial values
     RandomGenerator rng = new MersenneTwister();
-    
+
     //get the pointer of the kernel given the width of the cache
     Kernel kernel = new Kernel(cache, roi, this.isKernelCopy, this.isKernelMeanVar,
         this.isKernelQuartile);
     if (aborted[0] || Thread.currentThread().isInterrupted()) {
       return;
     }
-    
+
     //for calculation the normal pdf
     NormalDistribution normal = new NormalDistribution();
-    
+
     //values is a 2D array
     //each dimension contain the pixel values for each image
     //dim 1:
       //0. filtered image
       //1. 2. 3. ... are the output images
-    float[][] values = new float[N_IMAGE_OUTPUT+1][];
+    float[][] values = new float[this.n_image_output+1][];
     float [] pixels = (float[]) this.imageProcessor.getPixels();
     //get the pixels of the filtered image
     values[0] = pixels;
     //get the pixels of each of the output images (only if requested)
-    for (int i=0; i<N_IMAGE_OUTPUT; i++) {
+    for (int i=0; i<this.n_image_output; i++) {
       if ( (this.outputImagePointer >> i) % 2 == 1) {
         values[i+1] = (float[]) this.outputImageArray[i].getPixels();
       }
     }
-    
+
     int numThreads = yForThread.length;
     long lastTime = System.currentTimeMillis();
-    
+
     //while loop, loop over each y
     while (!aborted[0]) {
-      
-      //=====THREAD CONTROL===== 
-      
+
+      //=====THREAD CONTROL=====
+
       this.updateYForThread(yForThread, threadNumber);
       int y = yForThread[threadNumber];
-      
+
       boolean threadFinished = y >= roiRectangle.y+roiRectangle.height;
       //'if' is not synchronized to avoid overhead
       if (numThreads>1 && (threadWaiting || threadFinished))
@@ -561,15 +562,15 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
           }
         }
       }
-      
+
       //=====FILTER A LINE=====
-      
+
       //set rng for this line and filter this line
       rng.setSeed(seeds[y - roiRectangle.y]);
       this.filterLine(values, cache, kernel, y, normal, rng);
     }// end while (!aborted[0]); loops over y (lines)
   }
-  
+
   //METHOD: UPDATE Y FOR THREAD
   /**Update the array of y positions of each thread so that the y position of the current thread is
    *     at the next unfiltered row
@@ -586,7 +587,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     y += 1; // y of the next line that needs processing
     yForThread[threadNumber] = y; //indicate that this thread is working on y
   }
-  
+
   //METHOD: FILTER LINE
   /**Empirical null filter a line
    * @param values array of float [] for output values to be stored
@@ -598,7 +599,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
    */
   private void filterLine(float[][] values, Cache cache, Kernel kernel, int y,
       NormalDistribution normal, RandomGenerator rng) {
-    
+
     //declare the pointer for a pixel in values
     int valuesP = this.imageProcessor.getRoi().x+y*this.imageProcessor.getWidth();
     float initialValue = Float.NaN; //initial value to be used for the newton-raphson method
@@ -607,22 +608,22 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     //do the filter while moving the kernel to the right
     do {
       if (kernel.isFinite()) {
-        
+
         //if the previous pixel is not finite, then use the median as the initial value
         if (!isPreviousFinite) {
           initialValue = kernel.getQuartiles()[1];
         }
         isPreviousFinite = true;
-        
+
         //get the null mean and null std
         try {
           float [] nullMeanStd = this.getNullMeanStd(initialValue, kernel, normal, rng);
           //normalise this pixel
-          values[0][valuesP] = (values[0][valuesP] - nullMeanStd[0]) / nullMeanStd[1];
+          this.updatePixelInImage(values[0], valuesP, nullMeanStd);
           //for the next x, the initial value is this nullMean
           initialValue = nullMeanStd[0];
           //for each requested output image, save that statistic
-          for (int i=0; i<N_IMAGE_OUTPUT; i++) {
+          for (int i=0; i<this.n_image_output; i++) {
             if ( (this.outputImagePointer >> i) % 2 == 1) {
               switch (i) {
                 case 0:
@@ -656,9 +657,20 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
       valuesP++;
     } while(kernel.moveRight());
   }
-  
+
+  //METHOD: UPDATE PIXEL IN IMAGE
+  /**Update a pixel in the image to be filtered
+   * @param values array of pixels of the iamge to be filtered
+   * @param valuesP pointer to the pixel to be updated
+   * @param nullMeanStd 2-element array, mode and empirical null std of this pixel
+   */
+  protected void updatePixelInImage(float [] values, int valuesP, float [] nullMeanStd) {
+    values[valuesP] -= nullMeanStd[0];
+    values[valuesP] /= nullMeanStd[1];
+  }
+
   //METHOD: GET NULL MEAN STD
-  /**Perform the Newton-Raphson on the kernel density estimate to get the empirical null mean and 
+  /**Perform the Newton-Raphson on the kernel density estimate to get the empirical null mean and
    *     the empirical null std
    * @param initialValue starting value for the Newton-Raphson
    * @param kernel contains pixels in the kernel and its statistics
@@ -673,9 +685,9 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     float[] nullMeanStd = new float[2];
     //get the empirical null
     EmpiricalNull empiricalNull;
-    
+
     //estimate the null and get it
-    //try using the empirical null,if an exception is caught, then use the median as the initial 
+    //try using the empirical null,if an exception is caught, then use the median as the initial
         //value and try again, if another exception is caught, then throw exception
     try {
       empiricalNull = new EmpiricalNull(this.nInitial, this.nStep, this.log10Tolerance,
@@ -698,9 +710,9 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     nullMeanStd[1] = empiricalNull.getNullStd();
     return nullMeanStd;
   }
-  
+
   //=====STATIC FUNCTIONS AND PROCEDURES=====
-  
+
   //PROCEDURE: SET NUMBER OF INITIAL POINTS
   /**@param nInitial must be 1 or bigger
    * @throws InvalidValueException
@@ -712,14 +724,14 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
       throw new InvalidValueException("number of initial points must be positive");
     }
   }
-  
+
   //FUNCTION: GET N INITIAL
   /**@return number of initial points to try out in newton-raphson
    */
   public int getNInitial() {
     return this.nInitial;
   }
-  
+
   //PROCEDURE: SET NUMBER OF STEPS
   /**@param nStep
    * @throws InvalidValueException
@@ -731,14 +743,14 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
       throw new InvalidValueException("number of steps must be positive");
     }
   }
-  
+
   //FUNCTION: GET N STEP
   /**@return number of steps to do in newton-raphson
    */
   public int getNStep() {
     return this.nStep;
   }
-  
+
   //PROCEDURE: SET LOG 10  TOLERANCE
   /**Stops the newton-raphson algorithm when (Math.abs(dxLnF[1])&lt;tolerance)
    * where dxLnF is the first diff of the log density
@@ -747,14 +759,14 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   public void setLog10Tolerance(float log10Tolerance){
     this.log10Tolerance = log10Tolerance;
   }
-  
+
   //METHOD: GET LOG 10 TOLERANCE
   /**@return log10 tolerance when doing newton-raphson
    */
   public float getLog10Tolerance() {
     return this.log10Tolerance;
   }
-  
+
   //PROCEDURE: SET BANDWIDTH A
   /**The bandwidth for the density estimate is
    * bandwidthParameterB * Math.min(dataStd, iqr/1.34f)
@@ -770,7 +782,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
       throw new InvalidValueException("bandwidthParameterA must be non-negative");
     }
   }
-  
+
   //FUNCTION: GET BANDWIDTH A
   /**The bandwidth for the density estimate is
    * bandwidthParameterB * Math.min(dataStd, iqr/1.34f)
@@ -781,7 +793,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   public float getBandwidthA() {
     return this.bandwidthParameterA;
   }
-  
+
   //METHOD: SET BANDWIDTH B
   /**The bandwidth for the density estimate is
    * bandwidthParameterB * Math.min(dataStd, iqr/1.34f)
@@ -796,7 +808,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
       throw new InvalidValueException("bandwidthParameterB must be non-negative");
     }
   }
-  
+
   //FUNCTION: GET BANDWIDTH B
   /**The bandwidth for the density estimate is
    * bandwidthParameterB * Math.min(dataStd, iqr/1.34f)
@@ -807,7 +819,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   public float getBandwidthB() {
     return this.bandwidthParameterB;
   }
-  
+
   //FUNCTION: SET SEED
   /**Set the seed for the rng used to give seeds for each row
    * @param seed
@@ -815,7 +827,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   public void setSeed(int seed) {
     this.seed = seed;
   }
-  
+
   //METHOD: SHOW MASKS
   /**Show the kernel
    */
@@ -834,7 +846,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     }
     new ImagePlus("Masks", stack).show();
   }
-  
+
   //METHOD: SET N PASSES
   /**This method is called by ImageJ to set the number of calls to run(ip)
    * corresponding to 100% of the progress bar
@@ -844,7 +856,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     this.nPasses = nPasses;
     pass = 0;
   }
-  
+
   //METHOD: SHOW PROGRESS
   /**@param percent
    */
@@ -866,7 +878,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
       System.out.println("]");
     }
   }
-  
+
   //METHOD: SET PROGRESS BAR
   /**Turn the progress bar on or off
    * @param isShowProgressBar true to show the progress bar
@@ -874,5 +886,5 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   public void setProgress(boolean isShowProgressBar) {
     this.isShowProgressBar = isShowProgressBar;
   }
-  
+
 }
