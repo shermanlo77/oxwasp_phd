@@ -109,7 +109,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   /**the image to be filtered*/
   protected ImageProcessor imageProcessor;
   /**region of interest*/
-  private Roi roi;
+  protected Roi roi;
   /**used by showDialog, unused but needed in case deleted by automatic garbage collection*/
   private PlugInFilterRunner pfr;
   private boolean isShowProgressBar = false;
@@ -420,7 +420,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
       return;
     }
 
-    final Cache cache = new Cache(this.imageProcessor, this.roi);
+    final Cache cache = this.instantiateCache();
 
     //threads announce here which line they currently process
     final int[] yForThread = new int[numThreads];
@@ -468,6 +468,12 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
 
     this.showProgress(1.0);
     pass++;
+  }
+
+  /**METHOD: Instantiate a cache (different cache can have paddings)
+   */
+  protected Cache instantiateCache() {
+    return new Cache(this.imageProcessor, this.roi);
   }
 
   //METHOD: THREAD FILTER
