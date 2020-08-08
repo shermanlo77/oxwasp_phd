@@ -23,7 +23,7 @@ import ij.process.ImageProcessor;
 class Cache {
 
   /**image to be working on*/
-  private final ImageProcessor ip;
+  protected final ImageProcessor ip;
   /**contains deep copy of a section of the image*/
   protected final float[] cache;
   /**width of cache*/
@@ -77,8 +77,8 @@ class Cache {
         //copy pixels between the padding
         for (int x=0; x<width; x++){
           float greyvalue = Float.NaN;
-          if (roi.contains(x+roi.getBounds().x, y+roi.getBounds().y)){
-            greyvalue = pixels[(y+roi.getBounds().y)*width + x+roi.getBounds().x];
+          if (roi.contains(x+roiRectangle.x, y+roiRectangle.y)){
+            greyvalue = pixels[(y+roiRectangle.y)*this.ip.getWidth() + x+roi.getBounds().x];
           }
           this.cache[iRow*this.cacheWidth+Kernel.getKRadius()+x] = greyvalue;
         }

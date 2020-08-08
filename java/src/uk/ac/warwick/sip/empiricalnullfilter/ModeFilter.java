@@ -5,7 +5,6 @@ package uk.ac.warwick.sip.empiricalnullfilter;
 
 import ij.IJ;
 import ij.gui.GenericDialog;
-import ij.process.ByteProcessor;
 import ij.process.ImageProcessor;
 
 public class ModeFilter extends EmpiricalNullFilter{

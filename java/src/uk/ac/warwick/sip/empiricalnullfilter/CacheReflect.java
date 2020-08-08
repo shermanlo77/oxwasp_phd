@@ -4,10 +4,6 @@
 package uk.ac.warwick.sip.empiricalnullfilter;
 
 import java.awt.Rectangle;
-import java.util.Arrays;
-
-import ij.ImagePlus;
-import ij.process.FloatProcessor;
 import ij.gui.Roi;
 import ij.process.ImageProcessor;
 
@@ -32,28 +28,28 @@ class CacheReflect extends Cache {
     for (int iRow = 0; iRow < this.cacheHeight; iRow++) {
 
       //get the y coordinate
-      int y = iRow - Kernel.getKRadius();
+      int y = iRow - kRadius;
 
       //if y is outside the roi, fill from next rows (top and bottom padding)
-      if (y < 0 || y >= roiRectangle.height) {
+      if (y < 0 || y >= height) {
         int copyFrom;
         if (y<0) {
-          copyFrom = (-y-1)*roiRectangle.width;
+          copyFrom = (-y+roiRectangle.y-1)*width;
         } else {
-          copyFrom = (2*roiRectangle.height-y-1)*roiRectangle.width;
+          copyFrom = (2*height-y+roiRectangle.y-1)*width;
         }
         int copyTo;
-        for (int x=0; x<roiRectangle.width; x++) {
+        for (int x=0; x<width; x++) {
           copyTo = iRow*this.cacheWidth + Kernel.getKRadius();
-          this.cache[copyTo+x] = pixels[copyFrom+x];
+          this.cache[copyTo+x] = pixels[copyFrom+x+roi.getBounds().x];
         }
       //else it is inside the roi
       } else {
         //copy pixels between the padding
-        for (int x=0; x<roi.getBounds().width; x++) {
+        for (int x=0; x<width; x++) {
           float greyvalue = Float.NaN;
-          if (roi.contains(x+roi.getBounds().x, y+roi.getBounds().y)){
-            greyvalue = pixels[(y+roi.getBounds().y)*width + x+roi.getBounds().x];
+          if (roi.contains(x+roiRectangle.x, y+roiRectangle.y)){
+            greyvalue = pixels[(y+roiRectangle.y)*this.ip.getWidth() + x+roiRectangle.x];
           }
           this.cache[iRow*this.cacheWidth+Kernel.getKRadius()+x] = greyvalue;
         }
