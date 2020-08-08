@@ -231,19 +231,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
       }
     }
 
-    //add fields for the empirical null tuning parameters
-    //integers do not show decimal points
-    genericDialog.addMessage("Advanced options");
-    genericDialog.addNumericField("number of initial values", this.getNInitial(),
-        0, 6, null);
-    genericDialog.addNumericField("number of steps", this.getNStep(),
-        0, 6, null);
-    genericDialog.addNumericField("log tolerance", this.getLog10Tolerance(),
-        2, 6, null);
-    genericDialog.addNumericField("bandwidth A", this.getBandwidthA(),
-        2, 6, null);
-    genericDialog.addNumericField("bandwidth B", this.getBandwidthB(),
-        2, 6, null);
+    this.showOptionsInDialog(genericDialog);
 
     //the DialogItemChanged method will be called on user input
     genericDialog.addDialogListener(this);
@@ -270,6 +258,22 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     return this.flags;
   }
 
+  public void showOptionsInDialog(GenericDialog genericDialog) {
+    //add fields for the empirical null tuning parameters
+    //integers do not show decimal points
+    genericDialog.addMessage("Advanced options");
+    genericDialog.addNumericField("number of initial values", this.getNInitial(),
+        0, 6, null);
+    genericDialog.addNumericField("number of steps", this.getNStep(),
+        0, 6, null);
+    genericDialog.addNumericField("log tolerance", this.getLog10Tolerance(),
+        2, 6, null);
+    genericDialog.addNumericField("bandwidth A", this.getBandwidthA(),
+        2, 6, null);
+    genericDialog.addNumericField("bandwidth B", this.getBandwidthB(),
+        2, 6, null);
+  }
+
   //IMPLEMENTED: DIALOG ITEM CHANGED
   /**Called on user input and update the radius and outputImagePointer.
    * @parm gd GUI
@@ -277,16 +281,16 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
    * @return true if input values are valid, else false
    */
   @Override
-  public boolean dialogItemChanged(GenericDialog gd, AWTEvent e) {
+  public boolean dialogItemChanged(GenericDialog genericDialog, AWTEvent e) {
     //get the radius and set it
-    this.setRadius(gd.getNextNumber());
-    if (gd.invalidNumber() || this.radius < 0) {
+    this.setRadius(genericDialog.getNextNumber());
+    if (genericDialog.invalidNumber() || this.radius < 0) {
       return false;
     }
     //get the output image options and save it
     this.outputImagePointer = 0;
     for (int i=0; i<this.n_image_output; i++) {
-      boolean value = gd.getNextBoolean();
+      boolean value = genericDialog.getNextBoolean();
       if (value) {
         int pointer = 1;
         pointer  <<= i;
@@ -296,16 +300,23 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     //get the empirical null parameters and set it
     //if an exception is caught, return false to indicate an invalid item change
     try {
-      this.setNInitial((int)gd.getNextNumber());
-      this.setNStep((int)gd.getNextNumber());
-      this.setLog10Tolerance((float)gd.getNextNumber());
-      this.setBandwidthA((float)gd.getNextNumber());
-      this.setBandwidthB((float)gd.getNextNumber());
+      this.changeValueFromDialog(genericDialog);
     } catch (InvalidValueException exception) {
       return false;
     }
-
     return true;
+  }
+
+  protected void changeValueFromDialog(GenericDialog genericDialog) throws InvalidValueException {
+    try {
+      this.setNInitial((int) genericDialog.getNextNumber());
+      this.setNStep((int) genericDialog.getNextNumber());
+      this.setLog10Tolerance((float) genericDialog.getNextNumber());
+      this.setBandwidthA((float) genericDialog.getNextNumber());
+      this.setBandwidthB((float) genericDialog.getNextNumber());
+    } catch (InvalidValueException exception) {
+      throw exception;
+    }
   }
 
   //METHOD: GET RADIUS
@@ -382,6 +393,30 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     this.filter();
   }
 
+  /**METHOD: Perpare to call doFiltering
+   */
+  public void filter() {
+    //setup the kernel
+    Kernel.setKernel(this.radius);
+    //instantiate new images for each outout
+    for (int i=0; i<this.n_image_output; i++) {
+      if ((this.outputImagePointer >> i) % 2 == 1) {
+        FloatProcessor outputProcessor = (FloatProcessor) this.imageProcessor.duplicate();
+        float [] pixels = (float []) outputProcessor.getPixels();
+        Arrays.fill(pixels, Float.NaN);
+        this.outputImageArray[i] = outputProcessor;
+      }
+    }
+    final Cache cache = this.instantiateCache();
+    this.doFiltering(cache);
+  }
+
+  /**METHOD: Instantiate a cache (different cache can have paddings)
+   */
+  protected Cache instantiateCache() {
+    return new Cache(this.imageProcessor, this.roi);
+  }
+
   //METHOD: FILTER
   /**Do the empirical null filter using several threads.
    *
@@ -394,33 +429,17 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
    *     and this may be caused by an interrupted preview thread after the main calculation has been
    *     started.
    */
-  public void filter() {
-
-    //roi = region of interest
-    Rectangle roiRectangle = this.imageProcessor.getRoi();
-    //setup the kernel
-    Kernel.setKernel(this.radius);
-
-    //instantiate new images for each outout
-    for (int i=0; i<this.n_image_output; i++) {
-      if ((this.outputImagePointer >> i) % 2 == 1) {
-        FloatProcessor outputProcessor = (FloatProcessor) this.imageProcessor.duplicate();
-        float [] pixels = (float []) outputProcessor.getPixels();
-        Arrays.fill(pixels, Float.NaN);
-        this.outputImageArray[i] = outputProcessor;
-      }
-    }
-
+  protected void doFiltering(final Cache cache) {
     //returns whether interrupted during preview or ESC pressed
     final boolean[] aborted = new boolean[1];
+    //roi = region of interest
+    Rectangle roiRectangle = this.imageProcessor.getRoi();
 
     //get the number of threads
     int numThreads = Math.min(roiRectangle.height, this.numThreads);
     if (numThreads==0) {
       return;
     }
-
-    final Cache cache = this.instantiateCache();
 
     //threads announce here which line they currently process
     final int[] yForThread = new int[numThreads];
@@ -467,13 +486,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     }
 
     this.showProgress(1.0);
-    pass++;
-  }
-
-  /**METHOD: Instantiate a cache (different cache can have paddings)
-   */
-  protected Cache instantiateCache() {
-    return new Cache(this.imageProcessor, this.roi);
+    this.pass++;
   }
 
   //METHOD: THREAD FILTER
@@ -860,7 +873,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   @Override
   public void setNPasses (int nPasses) {
     this.nPasses = nPasses;
-    pass = 0;
+    this.pass = 0;
   }
 
   //METHOD: SHOW PROGRESS
@@ -869,7 +882,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   protected void showProgress(double percent) {
     if (this.isShowProgressBar) {
       int nPasses2 = nPasses;
-      percent = (double)pass/nPasses2 + percent/nPasses2;
+      percent = (double)this.pass/nPasses2 + percent/nPasses2;
       //print progress bar
       int length = 20;
       int nArrow = (int) Math.round(percent * 20);
