@@ -10,17 +10,47 @@ __constant__ int kernelHeight;
 __constant__ int nPoints;
 __constant__ int nInitial;
 __constant__ int nStep;
-__constant__ float bandwidthA;
-__constant__ float bandwidthB;
 
-extern "C" __global__ void empiricalNullFilter(float* cache, float* pixels,
-    float* std, int* kernelPointers, float* nullMean, float* nullStd) {
+//FUNCTION: NORMAL PDF
+//args: where to evaluate
+//return: pdf (up to a constant)
+__device__ float normalPdf(float x) {
+  return expf(-x/2);
+}
+
+__device__ bool findMode(float* cache, float bandwidth, int* kernelPointers,
+    float* nullMean, float* secondDiff, float* densityAtMode) {
+  return true;
+}
+
+extern "C" __global__ void empiricalNullFilter(float* cache,
+    float* bandwidthImage, int* kernelPointers, float* nullMeanImage,
+    float* nullStdImage) {
 
   int x = threadIdx.x + blockIdx.x * blockDim.x;
   int y = threadIdx.y + blockIdx.y * blockDim.y;
 
   if (x < imageWidth && y < imageHeight) {
     int imagePointer = y*imageWidth + x;
-    pixels[imagePointer] = std[imagePointer];
+    float bandwidth = bandwidthImage[imagePointer];
+    float maxDensityAtMode = -INFINITY;
+    bool isSuccess;
+    float densityAtMode;
+    float nullMean;
+    float secondDiff;
+
+    for (int i=0; i<nInitial; i++) {
+      nullMean = nullMeanImage[imagePointer];
+      isSuccess = findMode(cache, bandwidth, kernelPointers, &nullMean,
+          &secondDiff, &densityAtMode);
+      if (isSuccess) {
+        if (densityAtMode > maxDensityAtMode) {
+          maxDensityAtMode = densityAtMode;
+          nullMeanImage[imagePointer] = nullMean;
+          nullStdImage[imagePointer] = powf(-secondDiff, -0.5f);
+        }
+      }
+    }
+
   }
 }

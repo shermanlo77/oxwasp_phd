@@ -102,7 +102,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   /**array of float processors which contains images (or statistics) which are obtained from the
    *     filter itself, eg null mean, null std, std, q1, q2, q3
    */
-  private FloatProcessor [] outputImageArray = new FloatProcessor[this.n_image_output];
+  protected FloatProcessor [] outputImageArray = new FloatProcessor[this.n_image_output];
   /** radius of the kernel*/
   private double radius = 20;
 

@@ -98,24 +98,27 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
     float[] q1 = rankFilters.getOutputImage(Q1);
     float[] q3 = rankFilters.getOutputImage(Q3);
 
-    float[] bandwidthStd = new float[nPixelsInImage];
+    float[] bandwidth = new float[nPixelsInImage];
     for (int i=0; i<nPixelsInImage; i++) {
       nullMean[i] = median[i];
-      bandwidthStd[i] = std[i];
+      bandwidth[i] = std[i];
     }
 
     float iqr;
     for (int i=0; i<std.length; i++) {
       iqr = (q3[i] - q1[i]) / 1.34f;
-      if (Float.compare(bandwidthStd[i], 0.0f) == 0) {
-        bandwidthStd[i] = 0.289f;
+      if (Float.compare(bandwidth[i], 0.0f) == 0) {
+        bandwidth[i] = 0.289f;
       }
       if (Float.compare(iqr, 0.0f) == 0) {
-        iqr = bandwidthStd[i];
+        iqr = bandwidth[i];
       }
-      if (iqr < bandwidthStd[i]) {
-        bandwidthStd[i] = iqr;
+      if (iqr < bandwidth[i]) {
+        bandwidth[i] = iqr;
       }
+      bandwidth[i] *= this.bandwidthParameterB *
+          ((float) Math.pow((double)Kernel.getKNPoints(), -0.2))
+          + this.bandwidthParameterA;
     }
 
     //roi = region of interest
@@ -151,8 +154,6 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
     int[] nPoints = {Kernel.getKNPoints()};
     int[] nInitial = {this.nInitial};
     int[] nStep = {this.nStep};
-    float[] bandwidthA = {this.bandwidthParameterA};
-    float[] bandwidthB = {this.bandwidthParameterB};
 
     Pointer h_imageWidth = Pointer.to(imageWidth);
     Pointer h_imageHeight = Pointer.to(imageHeight);
@@ -163,8 +164,6 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
     Pointer h_nPoints = Pointer.to(nPoints);
     Pointer h_nInitial = Pointer.to(nInitial);
     Pointer h_nStep = Pointer.to(nStep);
-    Pointer h_bandwidthA = Pointer.to(bandwidthA);
-    Pointer h_bandwidthB = Pointer.to(bandwidthB);
 
     CUdeviceptr d_imageWidth = new CUdeviceptr();
     CUdeviceptr d_imageHeight = new CUdeviceptr();
@@ -175,8 +174,6 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
     CUdeviceptr d_nPoints = new CUdeviceptr();
     CUdeviceptr d_nInitial = new CUdeviceptr();
     CUdeviceptr d_nStep = new CUdeviceptr();
-    CUdeviceptr d_bandwidthA = new CUdeviceptr();
-    CUdeviceptr d_bandwidthB = new CUdeviceptr();
 
     long[] size = new long[1];
 
@@ -189,8 +186,6 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
     JCudaDriver.cuModuleGetGlobal(d_nPoints, size, module, "nPoints");
     JCudaDriver.cuModuleGetGlobal(d_nInitial, size, module, "nInitial");
     JCudaDriver.cuModuleGetGlobal(d_nStep, size, module, "nStep");
-    JCudaDriver.cuModuleGetGlobal(d_bandwidthA, size, module, "bandwidthA");
-    JCudaDriver.cuModuleGetGlobal(d_bandwidthB, size, module, "bandwidthB");
 
     JCudaDriver.cuMemcpyHtoD(d_imageWidth, h_imageWidth, Sizeof.INT);
     JCudaDriver.cuMemcpyHtoD(d_imageHeight, h_imageHeight, Sizeof.INT);
@@ -201,41 +196,34 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
     JCudaDriver.cuMemcpyHtoD(d_nPoints, h_nPoints, Sizeof.INT);
     JCudaDriver.cuMemcpyHtoD(d_nInitial, h_nInitial, Sizeof.INT);
     JCudaDriver.cuMemcpyHtoD(d_nStep, h_nStep, Sizeof.INT);
-    JCudaDriver.cuMemcpyHtoD(d_bandwidthA, h_bandwidthA, Sizeof.FLOAT);
-    JCudaDriver.cuMemcpyHtoD(d_bandwidthB, h_bandwidthB, Sizeof.FLOAT);
 
     Pointer h_cache = Pointer.to(cache.getCache());
-    Pointer h_pixels = Pointer.to(pixels);
-    Pointer h_bandwidthStd = Pointer.to(bandwidthStd);
+    Pointer h_bandwidth = Pointer.to(bandwidth);
     Pointer h_kernelPointers = Pointer.to(Kernel.getKernelPointer());
     Pointer h_nullMean = Pointer.to(nullMean);
     Pointer h_nullStd = Pointer.to(nullStd);
 
     CUdeviceptr d_cache = new CUdeviceptr();
-    CUdeviceptr d_pixels = new CUdeviceptr();
-    CUdeviceptr d_bandwidthStd = new CUdeviceptr();
+    CUdeviceptr d_bandwidth = new CUdeviceptr();
     CUdeviceptr d_kernelPointers = new CUdeviceptr();
     CUdeviceptr d_nullMean = new CUdeviceptr();
     CUdeviceptr d_nullStd = new CUdeviceptr();
 
     JCudaDriver.cuMemAlloc(d_cache, Sizeof.FLOAT*nPixelsInCache);
-    JCudaDriver.cuMemAlloc(d_pixels, Sizeof.FLOAT*nPixelsInImage);
-    JCudaDriver.cuMemAlloc(d_bandwidthStd, Sizeof.FLOAT*nPixelsInImage);
+    JCudaDriver.cuMemAlloc(d_bandwidth, Sizeof.FLOAT*nPixelsInImage);
     JCudaDriver.cuMemAlloc(d_kernelPointers, Sizeof.INT*2*Kernel.getKHeight());
     JCudaDriver.cuMemAlloc(d_nullMean, Sizeof.FLOAT*nPixelsInImage);
     JCudaDriver.cuMemAlloc(d_nullStd, Sizeof.FLOAT*nPixelsInImage);
 
     JCudaDriver.cuMemcpyHtoD(d_cache, h_cache, Sizeof.FLOAT*nPixelsInCache);
-    JCudaDriver.cuMemcpyHtoD(d_pixels, h_pixels, Sizeof.FLOAT*nPixelsInImage);
-    JCudaDriver.cuMemcpyHtoD(d_bandwidthStd, h_bandwidthStd, Sizeof.FLOAT*nPixelsInImage);
+    JCudaDriver.cuMemcpyHtoD(d_bandwidth, h_bandwidth, Sizeof.FLOAT*nPixelsInImage);
     JCudaDriver.cuMemcpyHtoD(d_kernelPointers, h_kernelPointers, Sizeof.INT*2*Kernel.getKHeight());
     JCudaDriver.cuMemcpyHtoD(d_nullMean, h_nullMean, Sizeof.FLOAT*nPixelsInImage);
     JCudaDriver.cuMemcpyHtoD(d_nullStd, h_nullStd, Sizeof.FLOAT*nPixelsInImage);
 
     Pointer kernelParameters = Pointer.to(
         Pointer.to(d_cache),
-        Pointer.to(d_pixels),
-        Pointer.to(d_bandwidthStd),
+        Pointer.to(d_bandwidth),
         Pointer.to(d_kernelPointers),
         Pointer.to(d_nullMean),
         Pointer.to(d_nullStd)
@@ -248,15 +236,46 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
     JCudaDriver.cuLaunchKernel(kernel, nBlockX, nBlockY, 1, blockDimX, blockDimY, 1, 0, null,
         kernelParameters, null);
 
-    JCudaDriver.cuMemcpyDtoH(h_pixels, d_pixels, Sizeof.FLOAT*nPixelsInImage);
+    JCudaDriver.cuMemcpyDtoH(h_nullMean, d_nullMean, Sizeof.FLOAT*nPixelsInImage);
+    JCudaDriver.cuMemcpyDtoH(h_nullStd, d_nullStd, Sizeof.FLOAT*nPixelsInImage);
 
     JCudaDriver.cuMemFree(d_cache);
-    JCudaDriver.cuMemFree(d_pixels);
-    JCudaDriver.cuMemFree(d_bandwidthStd);
+    JCudaDriver.cuMemFree(d_bandwidth);
     JCudaDriver.cuMemFree(d_kernelPointers);
     JCudaDriver.cuMemFree(d_nullMean);
     JCudaDriver.cuMemFree(d_nullStd);
     JCuda.cudaDeviceReset();
+
+
+    for (int i=0; i<nPixelsInImage; i++) {
+      pixels[i] -= nullMean[i];
+      pixels[i] /= nullStd[i];
+    }
+
+    for (int i=0; i<this.n_image_output; i++) {
+      if ((this.outputImagePointer >> i) % 2 == 1) {
+        switch (i) {
+          case 0:
+            this.outputImageArray[i].setPixels(nullMean);
+            break;
+          case 1:
+            this.outputImageArray[i].setPixels(nullStd);
+            break;
+          case 2:
+            this.outputImageArray[i].setPixels(std);
+            break;
+          case 3:
+            this.outputImageArray[i].setPixels(q1);
+            break;
+          case 4:
+            this.outputImageArray[i].setPixels(median);
+            break;
+          case 5:
+            this.outputImageArray[i].setPixels(q3);
+            break;
+        }
+      }
+    }
 
   }
 
