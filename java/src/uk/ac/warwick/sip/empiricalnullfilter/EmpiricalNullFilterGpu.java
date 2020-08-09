@@ -7,6 +7,7 @@ import ij.plugin.filter.ExtendedPlugInFilter;
 import ij.plugin.filter.PlugInFilterRunner;
 import java.awt.Rectangle;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Scanner;
 import jcuda.Pointer;
 import jcuda.Sizeof;
@@ -98,6 +99,9 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
     float[] q1 = rankFilters.getOutputImage(Q1);
     float[] q3 = rankFilters.getOutputImage(Q3);
 
+    Arrays.fill(nullMean, Float.NaN);
+    Arrays.fill(nullStd, Float.NaN);
+
     float[] bandwidth = new float[nPixelsInImage];
     for (int i=0; i<nPixelsInImage; i++) {
       nullMean[i] = median[i];
@@ -145,8 +149,12 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
     CUfunction kernel = new CUfunction();
     JCudaDriver.cuModuleGetFunction(kernel, module, "empiricalNullFilter");
 
-    int[] imageWidth = {roiRectangle.width};
-    int[] imageHeight = {roiRectangle.height};
+    int[] imageWidth = {this.imageProcessor.getWidth()};
+    int[] imageHeight = {this.imageProcessor.getHeight()};
+    int[] roiX = {roiRectangle.x};
+    int[] roiY = {roiRectangle.y};
+    int[] roiWidth = {roiRectangle.width};
+    int[] roiHeight = {roiRectangle.height};
     int[] cacheWidth = {cache.getCacheWidth()};
     int[] cacheHeight = {cache.getCacheHeight()};
     int[] kernelRadius = {Kernel.getKRadius()};
@@ -157,6 +165,10 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
 
     Pointer h_imageWidth = Pointer.to(imageWidth);
     Pointer h_imageHeight = Pointer.to(imageHeight);
+    Pointer h_roiX = Pointer.to(roiX);
+    Pointer h_roiY = Pointer.to(roiY);
+    Pointer h_roiWidth = Pointer.to(roiWidth);
+    Pointer h_roiHeight = Pointer.to(roiHeight);
     Pointer h_cacheWidth = Pointer.to(cacheWidth);
     Pointer h_cacheHeight = Pointer.to(cacheHeight);
     Pointer h_kernelRadius = Pointer.to(kernelRadius);
@@ -167,6 +179,10 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
 
     CUdeviceptr d_imageWidth = new CUdeviceptr();
     CUdeviceptr d_imageHeight = new CUdeviceptr();
+    CUdeviceptr d_roiX = new CUdeviceptr();
+    CUdeviceptr d_roiY = new CUdeviceptr();
+    CUdeviceptr d_roiWidth = new CUdeviceptr();
+    CUdeviceptr d_roiHeight = new CUdeviceptr();
     CUdeviceptr d_cacheWidth = new CUdeviceptr();
     CUdeviceptr d_cacheHeight = new CUdeviceptr();
     CUdeviceptr d_kernelRadius = new CUdeviceptr();
@@ -179,6 +195,10 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
 
     JCudaDriver.cuModuleGetGlobal(d_imageWidth, size, module, "imageWidth");
     JCudaDriver.cuModuleGetGlobal(d_imageHeight, size, module, "imageHeight");
+    JCudaDriver.cuModuleGetGlobal(d_roiX, size, module, "roiX");
+    JCudaDriver.cuModuleGetGlobal(d_roiY, size, module, "roiY");
+    JCudaDriver.cuModuleGetGlobal(d_roiWidth, size, module, "roiWidth");
+    JCudaDriver.cuModuleGetGlobal(d_roiHeight, size, module, "roiHeight");
     JCudaDriver.cuModuleGetGlobal(d_cacheWidth, size, module, "cacheWidth");
     JCudaDriver.cuModuleGetGlobal(d_cacheHeight, size, module, "cacheHeight");
     JCudaDriver.cuModuleGetGlobal(d_kernelRadius, size, module, "kernelRadius");
@@ -189,6 +209,10 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
 
     JCudaDriver.cuMemcpyHtoD(d_imageWidth, h_imageWidth, Sizeof.INT);
     JCudaDriver.cuMemcpyHtoD(d_imageHeight, h_imageHeight, Sizeof.INT);
+    JCudaDriver.cuMemcpyHtoD(d_roiX, h_roiX, Sizeof.INT);
+    JCudaDriver.cuMemcpyHtoD(d_roiY, h_roiY, Sizeof.INT);
+    JCudaDriver.cuMemcpyHtoD(d_roiWidth, h_roiWidth, Sizeof.INT);
+    JCudaDriver.cuMemcpyHtoD(d_roiHeight, h_roiHeight, Sizeof.INT);
     JCudaDriver.cuMemcpyHtoD(d_cacheWidth, h_cacheWidth, Sizeof.INT);
     JCudaDriver.cuMemcpyHtoD(d_cacheHeight, h_cacheHeight, Sizeof.INT);
     JCudaDriver.cuMemcpyHtoD(d_kernelRadius, h_kernelRadius, Sizeof.INT);
@@ -231,8 +255,8 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
 
     int blockDimX = 5;
     int blockDimY = 5;
-    int nBlockX = (imageWidth[0] + blockDimX - 1) / blockDimX;
-    int nBlockY = (imageHeight[0] + blockDimY - 1) / blockDimY;
+    int nBlockX = (roiWidth[0] + blockDimX - 1) / blockDimX;
+    int nBlockY = (roiHeight[0] + blockDimY - 1) / blockDimY;
     JCudaDriver.cuLaunchKernel(kernel, nBlockX, nBlockY, 1, blockDimX, blockDimY, 1, 0, null,
         kernelParameters, null);
 
@@ -246,10 +270,13 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
     JCudaDriver.cuMemFree(d_nullStd);
     JCuda.cudaDeviceReset();
 
-
-    for (int i=0; i<nPixelsInImage; i++) {
-      pixels[i] -= nullMean[i];
-      pixels[i] /= nullStd[i];
+    int imagePointer;
+    for (int y=0; y<roiHeight[0]; y++) {
+      for (int x=0; x<roiWidth[0]; x++) {
+        imagePointer = (roiY[0]+y)*imageWidth[0] + roiX[0] + x;
+        pixels[imagePointer] -= nullMean[imagePointer];
+        pixels[imagePointer] /= nullStd[imagePointer];
+      }
     }
 
     for (int i=0; i<this.n_image_output; i++) {

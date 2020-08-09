@@ -3,6 +3,10 @@
 
 __constant__ int imageWidth;
 __constant__ int imageHeight;
+__constant__ int roiX;
+__constant__ int roiY;
+__constant__ int roiWidth;
+__constant__ int roiHeight;
 __constant__ int cacheWidth;
 __constant__ int cacheHeight;
 __constant__ int kernelRadius;
@@ -30,8 +34,8 @@ extern "C" __global__ void empiricalNullFilter(float* cache,
   int x = threadIdx.x + blockIdx.x * blockDim.x;
   int y = threadIdx.y + blockIdx.y * blockDim.y;
 
-  if (x < imageWidth && y < imageHeight) {
-    int imagePointer = y*imageWidth + x;
+  if (x < roiWidth && y < roiHeight) {
+    int imagePointer = (y+roiY)*imageWidth + x + roiX;
     float bandwidth = bandwidthImage[imagePointer];
     float maxDensityAtMode = -INFINITY;
     bool isSuccess;
