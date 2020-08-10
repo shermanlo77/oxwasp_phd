@@ -20,6 +20,25 @@ __device__ float normalPdf(float x) {
 
 __device__ bool findMode(float* cache, float bandwidth, int* kernelPointers,
     float* nullMean, float* secondDiff, float* densityAtMode) {
+
+  int x0 = threadIdx.x + blockIdx.x * blockDim.x;
+  int y0 = threadIdx.y + blockIdx.y * blockDim.y;
+
+  float value;
+  float y = y0 - kernelRadius;
+  int cachePointer;
+  float mean = 0;
+  for (int i=0; i<2*kernelHeight; i++) {
+    for (int dx=kernelPointers[i++]; dx<=kernelPointers[i]; dx++) {
+      cachePointer = (y+kernelRadius)*cacheWidth + x0 + dx + kernelRadius;
+      value = cache[cachePointer];
+      mean += value;
+    }
+    y++;
+  }
+
+  *nullMean = mean / ((float) nPoints);
+  *densityAtMode = 0.0f;
   return true;
 }
 
