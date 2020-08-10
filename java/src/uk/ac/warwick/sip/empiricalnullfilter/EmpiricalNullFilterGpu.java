@@ -88,9 +88,27 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
     rankFilters.roi = this.roi;
     rankFilters.filter();
 
+    //roi = region of interest
+    Rectangle roiRectangle = this.imageProcessor.getRoi();
+
+    int[] imageWidth = {this.imageProcessor.getWidth()};
+    int[] imageHeight = {this.imageProcessor.getHeight()};
+    int[] roiX = {roiRectangle.x};
+    int[] roiY = {roiRectangle.y};
+    int[] roiWidth = {roiRectangle.width};
+    int[] roiHeight = {roiRectangle.height};
+    int[] cacheWidth = {cache.getCacheWidth()};
+    int[] cacheHeight = {cache.getCacheHeight()};
+    int[] kernelRadius = {Kernel.getKRadius()};
+    int[] kernelHeight = {Kernel.getKHeight()};
+    int[] nPoints = {Kernel.getKNPoints()};
+    int[] nInitial = {this.nInitial};
+    int[] nStep = {this.nStep};
+
     float[] pixels = (float[]) this.imageProcessor.getPixels();
     int nPixelsInImage = pixels.length;
     int nPixelsInCache = cache.getCache().length;
+    int nPixelsInRoi = roiWidth[0] * roiHeight[0];
 
     float[] nullMean = new float[nPixelsInImage];
     float[] nullStd = new float[nPixelsInImage];
@@ -102,31 +120,35 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
     Arrays.fill(nullMean, Float.NaN);
     Arrays.fill(nullStd, Float.NaN);
 
-    float[] bandwidth = new float[nPixelsInImage];
-    for (int i=0; i<nPixelsInImage; i++) {
-      nullMean[i] = median[i];
-      bandwidth[i] = std[i];
-    }
+    float[] bandwidthRoi = new float[nPixelsInRoi];
+    float[] nullMeanRoi = new float[nPixelsInRoi];
+    float[] nullStdRoi = new float[nPixelsInRoi];
 
+    int imagePointer;
+    int roiPointer;
     float iqr;
-    for (int i=0; i<std.length; i++) {
-      iqr = (q3[i] - q1[i]) / 1.34f;
-      if (Float.compare(bandwidth[i], 0.0f) == 0) {
-        bandwidth[i] = 0.289f;
-      }
-      if (Float.compare(iqr, 0.0f) == 0) {
-        iqr = bandwidth[i];
-      }
-      if (iqr < bandwidth[i]) {
-        bandwidth[i] = iqr;
-      }
-      bandwidth[i] *= this.bandwidthParameterB *
-          ((float) Math.pow((double)Kernel.getKNPoints(), -0.2))
-          + this.bandwidthParameterA;
-    }
+    for (int y=0; y<roiHeight[0]; y++) {
+      for (int x=0; x<roiWidth[0]; x++) {
+        roiPointer = y*roiWidth[0] + x;
+        imagePointer = (y+roiY[0])*imageWidth[0] + x + roiX[0];
+        nullMeanRoi[roiPointer] = median[imagePointer];
+        bandwidthRoi[roiPointer] = std[imagePointer];
 
-    //roi = region of interest
-    Rectangle roiRectangle = this.imageProcessor.getRoi();
+        iqr = (q3[imagePointer] - q1[imagePointer]) / 1.34f;
+        if (Float.compare(bandwidthRoi[roiPointer], 0.0f) == 0) {
+          bandwidthRoi[roiPointer] = 0.289f;
+        }
+        if (Float.compare(iqr, 0.0f) == 0) {
+          iqr = bandwidthRoi[roiPointer];
+        }
+        if (iqr < bandwidthRoi[roiPointer]) {
+          bandwidthRoi[roiPointer] = iqr;
+        }
+        bandwidthRoi[roiPointer] *= this.bandwidthParameterB *
+            ((float) Math.pow((double)Kernel.getKNPoints(), -0.2))
+            + this.bandwidthParameterA;
+      }
+    }
 
     //gpu code
     JCudaDriver.setExceptionsEnabled(true);
@@ -149,24 +171,6 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
     CUfunction kernel = new CUfunction();
     JCudaDriver.cuModuleGetFunction(kernel, module, "empiricalNullFilter");
 
-    int[] imageWidth = {this.imageProcessor.getWidth()};
-    int[] imageHeight = {this.imageProcessor.getHeight()};
-    int[] roiX = {roiRectangle.x};
-    int[] roiY = {roiRectangle.y};
-    int[] roiWidth = {roiRectangle.width};
-    int[] roiHeight = {roiRectangle.height};
-    int[] cacheWidth = {cache.getCacheWidth()};
-    int[] cacheHeight = {cache.getCacheHeight()};
-    int[] kernelRadius = {Kernel.getKRadius()};
-    int[] kernelHeight = {Kernel.getKHeight()};
-    int[] nPoints = {Kernel.getKNPoints()};
-    int[] nInitial = {this.nInitial};
-    int[] nStep = {this.nStep};
-
-    Pointer h_imageWidth = Pointer.to(imageWidth);
-    Pointer h_imageHeight = Pointer.to(imageHeight);
-    Pointer h_roiX = Pointer.to(roiX);
-    Pointer h_roiY = Pointer.to(roiY);
     Pointer h_roiWidth = Pointer.to(roiWidth);
     Pointer h_roiHeight = Pointer.to(roiHeight);
     Pointer h_cacheWidth = Pointer.to(cacheWidth);
@@ -177,10 +181,6 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
     Pointer h_nInitial = Pointer.to(nInitial);
     Pointer h_nStep = Pointer.to(nStep);
 
-    CUdeviceptr d_imageWidth = new CUdeviceptr();
-    CUdeviceptr d_imageHeight = new CUdeviceptr();
-    CUdeviceptr d_roiX = new CUdeviceptr();
-    CUdeviceptr d_roiY = new CUdeviceptr();
     CUdeviceptr d_roiWidth = new CUdeviceptr();
     CUdeviceptr d_roiHeight = new CUdeviceptr();
     CUdeviceptr d_cacheWidth = new CUdeviceptr();
@@ -193,10 +193,6 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
 
     long[] size = new long[1];
 
-    JCudaDriver.cuModuleGetGlobal(d_imageWidth, size, module, "imageWidth");
-    JCudaDriver.cuModuleGetGlobal(d_imageHeight, size, module, "imageHeight");
-    JCudaDriver.cuModuleGetGlobal(d_roiX, size, module, "roiX");
-    JCudaDriver.cuModuleGetGlobal(d_roiY, size, module, "roiY");
     JCudaDriver.cuModuleGetGlobal(d_roiWidth, size, module, "roiWidth");
     JCudaDriver.cuModuleGetGlobal(d_roiHeight, size, module, "roiHeight");
     JCudaDriver.cuModuleGetGlobal(d_cacheWidth, size, module, "cacheWidth");
@@ -207,10 +203,6 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
     JCudaDriver.cuModuleGetGlobal(d_nInitial, size, module, "nInitial");
     JCudaDriver.cuModuleGetGlobal(d_nStep, size, module, "nStep");
 
-    JCudaDriver.cuMemcpyHtoD(d_imageWidth, h_imageWidth, Sizeof.INT);
-    JCudaDriver.cuMemcpyHtoD(d_imageHeight, h_imageHeight, Sizeof.INT);
-    JCudaDriver.cuMemcpyHtoD(d_roiX, h_roiX, Sizeof.INT);
-    JCudaDriver.cuMemcpyHtoD(d_roiY, h_roiY, Sizeof.INT);
     JCudaDriver.cuMemcpyHtoD(d_roiWidth, h_roiWidth, Sizeof.INT);
     JCudaDriver.cuMemcpyHtoD(d_roiHeight, h_roiHeight, Sizeof.INT);
     JCudaDriver.cuMemcpyHtoD(d_cacheWidth, h_cacheWidth, Sizeof.INT);
@@ -222,35 +214,35 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
     JCudaDriver.cuMemcpyHtoD(d_nStep, h_nStep, Sizeof.INT);
 
     Pointer h_cache = Pointer.to(cache.getCache());
-    Pointer h_bandwidth = Pointer.to(bandwidth);
+    Pointer h_bandwidthRoi = Pointer.to(bandwidthRoi);
     Pointer h_kernelPointers = Pointer.to(Kernel.getKernelPointer());
-    Pointer h_nullMean = Pointer.to(nullMean);
-    Pointer h_nullStd = Pointer.to(nullStd);
+    Pointer h_nullMeanRoi = Pointer.to(nullMeanRoi);
+    Pointer h_nullStdRoi = Pointer.to(nullStdRoi);
 
     CUdeviceptr d_cache = new CUdeviceptr();
-    CUdeviceptr d_bandwidth = new CUdeviceptr();
+    CUdeviceptr d_bandwidthRoi = new CUdeviceptr();
     CUdeviceptr d_kernelPointers = new CUdeviceptr();
-    CUdeviceptr d_nullMean = new CUdeviceptr();
-    CUdeviceptr d_nullStd = new CUdeviceptr();
+    CUdeviceptr d_nullMeanRoi = new CUdeviceptr();
+    CUdeviceptr d_nullStdRoi = new CUdeviceptr();
 
     JCudaDriver.cuMemAlloc(d_cache, Sizeof.FLOAT*nPixelsInCache);
-    JCudaDriver.cuMemAlloc(d_bandwidth, Sizeof.FLOAT*nPixelsInImage);
+    JCudaDriver.cuMemAlloc(d_bandwidthRoi, Sizeof.FLOAT*nPixelsInRoi);
     JCudaDriver.cuMemAlloc(d_kernelPointers, Sizeof.INT*2*Kernel.getKHeight());
-    JCudaDriver.cuMemAlloc(d_nullMean, Sizeof.FLOAT*nPixelsInImage);
-    JCudaDriver.cuMemAlloc(d_nullStd, Sizeof.FLOAT*nPixelsInImage);
+    JCudaDriver.cuMemAlloc(d_nullMeanRoi, Sizeof.FLOAT*nPixelsInRoi);
+    JCudaDriver.cuMemAlloc(d_nullStdRoi, Sizeof.FLOAT*nPixelsInRoi);
 
     JCudaDriver.cuMemcpyHtoD(d_cache, h_cache, Sizeof.FLOAT*nPixelsInCache);
-    JCudaDriver.cuMemcpyHtoD(d_bandwidth, h_bandwidth, Sizeof.FLOAT*nPixelsInImage);
+    JCudaDriver.cuMemcpyHtoD(d_bandwidthRoi, h_bandwidthRoi, Sizeof.FLOAT*nPixelsInRoi);
     JCudaDriver.cuMemcpyHtoD(d_kernelPointers, h_kernelPointers, Sizeof.INT*2*Kernel.getKHeight());
-    JCudaDriver.cuMemcpyHtoD(d_nullMean, h_nullMean, Sizeof.FLOAT*nPixelsInImage);
-    JCudaDriver.cuMemcpyHtoD(d_nullStd, h_nullStd, Sizeof.FLOAT*nPixelsInImage);
+    JCudaDriver.cuMemcpyHtoD(d_nullMeanRoi, h_nullMeanRoi, Sizeof.FLOAT*nPixelsInRoi);
+    JCudaDriver.cuMemcpyHtoD(d_nullStdRoi, h_nullStdRoi, Sizeof.FLOAT*nPixelsInRoi);
 
     Pointer kernelParameters = Pointer.to(
         Pointer.to(d_cache),
-        Pointer.to(d_bandwidth),
+        Pointer.to(d_bandwidthRoi),
         Pointer.to(d_kernelPointers),
-        Pointer.to(d_nullMean),
-        Pointer.to(d_nullStd)
+        Pointer.to(d_nullMeanRoi),
+        Pointer.to(d_nullStdRoi)
     );
 
     int blockDimX = 5;
@@ -260,22 +252,24 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
     JCudaDriver.cuLaunchKernel(kernel, nBlockX, nBlockY, 1, blockDimX, blockDimY, 1, 0, null,
         kernelParameters, null);
 
-    JCudaDriver.cuMemcpyDtoH(h_nullMean, d_nullMean, Sizeof.FLOAT*nPixelsInImage);
-    JCudaDriver.cuMemcpyDtoH(h_nullStd, d_nullStd, Sizeof.FLOAT*nPixelsInImage);
+    JCudaDriver.cuMemcpyDtoH(h_nullMeanRoi, d_nullMeanRoi, Sizeof.FLOAT*nPixelsInRoi);
+    JCudaDriver.cuMemcpyDtoH(h_nullStdRoi, d_nullStdRoi, Sizeof.FLOAT*nPixelsInRoi);
 
     JCudaDriver.cuMemFree(d_cache);
-    JCudaDriver.cuMemFree(d_bandwidth);
+    JCudaDriver.cuMemFree(d_bandwidthRoi);
     JCudaDriver.cuMemFree(d_kernelPointers);
-    JCudaDriver.cuMemFree(d_nullMean);
-    JCudaDriver.cuMemFree(d_nullStd);
+    JCudaDriver.cuMemFree(d_nullMeanRoi);
+    JCudaDriver.cuMemFree(d_nullStdRoi);
     JCuda.cudaDeviceReset();
 
-    int imagePointer;
     for (int y=0; y<roiHeight[0]; y++) {
       for (int x=0; x<roiWidth[0]; x++) {
-        imagePointer = (roiY[0]+y)*imageWidth[0] + roiX[0] + x;
-        pixels[imagePointer] -= nullMean[imagePointer];
-        pixels[imagePointer] /= nullStd[imagePointer];
+        roiPointer = y*roiWidth[0] + x;
+        imagePointer = (y+roiY[0])*imageWidth[0] + x + roiX[0];
+        nullMean[imagePointer] = nullMeanRoi[roiPointer];
+        nullStd[imagePointer] = nullStdRoi[roiPointer];
+        pixels[imagePointer] -= nullMeanRoi[roiPointer];
+        pixels[imagePointer] /= nullStdRoi[roiPointer];
       }
     }
 
