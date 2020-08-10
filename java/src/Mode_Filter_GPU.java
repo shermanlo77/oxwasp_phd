@@ -2,13 +2,13 @@
 //Copyright (c) 2019 Sherman Lo
 
 import ij.IJ;
-import uk.ac.warwick.sip.empiricalnullfilter.EmpiricalNullFilterGpu;
+import uk.ac.warwick.sip.empiricalnullfilter.ModeFilterGpu;
 
 //EMPIRICAL NULL FILTER
 /**
  * @author Sherman Lo
  */
-public class Empirical_Null_Filter_GPU extends EmpiricalNullFilterGpu{
+public class Mode_Filter_GPU extends ModeFilterGpu{
 
   //METHOD: SHOW PROGRESS
   /**Use ImageJ to show progress bar
