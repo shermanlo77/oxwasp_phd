@@ -9,7 +9,7 @@ import uk.ac.warwick.sip.empiricalnullfilter.EmpiricalNullFilter;
  * @author Sherman Lo
  */
 public class Empirical_Null_Filter extends EmpiricalNullFilter{
-  
+
   //METHOD: SHOW PROGRESS
   /**Use ImageJ to show progress bar
    * @param percent
@@ -20,7 +20,7 @@ public class Empirical_Null_Filter extends EmpiricalNullFilter{
     percent = (double)pass/nPasses2 + percent/nPasses2;
     IJ.showProgress(percent);
   }
-  
+
   //MAIN
   public static void main(String[] args){
     System.out.println("MIT License - please see LICENSE");

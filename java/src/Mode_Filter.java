@@ -21,10 +21,4 @@ public class Mode_Filter extends ModeFilter{
     IJ.showProgress(percent);
   }
 
-  //MAIN
-  public static void main(String[] args){
-    System.out.println("MIT License - please see LICENSE");
-    System.out.println("Copyright (c) 2019 Sherman Lo");
-    System.out.println("Please see https://github.com/shermanlo77/oxwasp_phd or README.md");
-  }
 }
