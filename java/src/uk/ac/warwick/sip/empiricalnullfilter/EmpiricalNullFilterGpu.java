@@ -7,6 +7,7 @@ import ij.plugin.filter.ExtendedPlugInFilter;
 import ij.plugin.filter.PlugInFilterRunner;
 import java.awt.Rectangle;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
 import jcuda.Pointer;
@@ -264,51 +265,62 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
     CUdeviceptr d_nullMeanRoi = new CUdeviceptr();
     CUdeviceptr d_nullStdRoi = new CUdeviceptr();
 
-    //allocate memory on device
-    JCudaDriver.cuMemAlloc(d_cache, Sizeof.FLOAT*nPixelsInCache);
-    JCudaDriver.cuMemAlloc(d_initialSigmaRoi, Sizeof.FLOAT*nPixelsInRoi);
-    JCudaDriver.cuMemAlloc(d_bandwidthRoi, Sizeof.FLOAT*nPixelsInRoi);
-    JCudaDriver.cuMemAlloc(d_kernelPointers, Sizeof.INT*2*Kernel.getKHeight());
-    JCudaDriver.cuMemAlloc(d_nullMeanRoi, Sizeof.FLOAT*nPixelsInRoi);
-    JCudaDriver.cuMemAlloc(d_nullStdRoi, Sizeof.FLOAT*nPixelsInRoi);
+    //keep track of all pointers which allocates on device
+    ArrayList<CUdeviceptr> devicePointerArray = new ArrayList<CUdeviceptr>();
+    //use try statement so that device memory is freeded when an exception is caught
+    try {
+      //allocate memory on device
+      JCudaDriver.cuMemAlloc(d_cache, Sizeof.FLOAT*nPixelsInCache);
+      devicePointerArray.add(d_cache);
+      JCudaDriver.cuMemAlloc(d_initialSigmaRoi, Sizeof.FLOAT*nPixelsInRoi);
+      devicePointerArray.add(d_initialSigmaRoi);
+      JCudaDriver.cuMemAlloc(d_bandwidthRoi, Sizeof.FLOAT*nPixelsInRoi);
+      devicePointerArray.add(d_bandwidthRoi);
+      JCudaDriver.cuMemAlloc(d_kernelPointers, Sizeof.INT*2*Kernel.getKHeight());
+      devicePointerArray.add(d_kernelPointers);
+      JCudaDriver.cuMemAlloc(d_nullMeanRoi, Sizeof.FLOAT*nPixelsInRoi);
+      devicePointerArray.add(d_nullMeanRoi);
+      JCudaDriver.cuMemAlloc(d_nullStdRoi, Sizeof.FLOAT*nPixelsInRoi);
+      devicePointerArray.add(d_nullStdRoi);
 
-    //copy from host to device for the kernel parameters
-    JCudaDriver.cuMemcpyHtoD(d_cache, h_cache, Sizeof.FLOAT*nPixelsInCache);
-    JCudaDriver.cuMemcpyHtoD(d_initialSigmaRoi, h_bandwidthRoi, Sizeof.FLOAT*nPixelsInRoi);
-    JCudaDriver.cuMemcpyHtoD(d_bandwidthRoi, h_bandwidthRoi, Sizeof.FLOAT*nPixelsInRoi);
-    JCudaDriver.cuMemcpyHtoD(d_kernelPointers, h_kernelPointers, Sizeof.INT*2*Kernel.getKHeight());
-    JCudaDriver.cuMemcpyHtoD(d_nullMeanRoi, h_nullMeanRoi, Sizeof.FLOAT*nPixelsInRoi);
-    JCudaDriver.cuMemcpyHtoD(d_nullStdRoi, h_nullStdRoi, Sizeof.FLOAT*nPixelsInRoi);
+      //copy from host to device for the kernel parameters
+      JCudaDriver.cuMemcpyHtoD(d_cache, h_cache, Sizeof.FLOAT*nPixelsInCache);
+      JCudaDriver.cuMemcpyHtoD(d_initialSigmaRoi, h_bandwidthRoi, Sizeof.FLOAT*nPixelsInRoi);
+      JCudaDriver.cuMemcpyHtoD(d_bandwidthRoi, h_bandwidthRoi, Sizeof.FLOAT*nPixelsInRoi);
+      JCudaDriver.cuMemcpyHtoD(d_kernelPointers, h_kernelPointers, Sizeof.INT*2*Kernel.getKHeight());
+      JCudaDriver.cuMemcpyHtoD(d_nullMeanRoi, h_nullMeanRoi, Sizeof.FLOAT*nPixelsInRoi);
+      JCudaDriver.cuMemcpyHtoD(d_nullStdRoi, h_nullStdRoi, Sizeof.FLOAT*nPixelsInRoi);
 
-    //put pointers in pointers, to pass to kernel
-    Pointer kernelParameters = Pointer.to(
-        Pointer.to(d_cache),
-        Pointer.to(d_initialSigmaRoi),
-        Pointer.to(d_bandwidthRoi),
-        Pointer.to(d_kernelPointers),
-        Pointer.to(d_nullMeanRoi),
-        Pointer.to(d_nullStdRoi)
-    );
+      //put pointers in pointers, to pass to kernel
+      Pointer kernelParameters = Pointer.to(
+          Pointer.to(d_cache),
+          Pointer.to(d_initialSigmaRoi),
+          Pointer.to(d_bandwidthRoi),
+          Pointer.to(d_kernelPointers),
+          Pointer.to(d_nullMeanRoi),
+          Pointer.to(d_nullStdRoi)
+      );
 
-    //call kernel
-    int nBlockX = (roiWidth[0] + this.blockDimX - 1) / this.blockDimX;
-    int nBlockY = (roiHeight[0] + this.blockDimY - 1) / this.blockDimY;
-    JCudaDriver.cuLaunchKernel(kernel, nBlockX, nBlockY, 1, this.blockDimX, this.blockDimY, 1,
-        0, null, kernelParameters, null);
+      //call kernel
+      int nBlockX = (roiWidth[0] + this.blockDimX - 1) / this.blockDimX;
+      int nBlockY = (roiHeight[0] + this.blockDimY - 1) / this.blockDimY;
 
-    //copy results over, device to host
-    JCudaDriver.cuMemcpyDtoH(h_nullMeanRoi, d_nullMeanRoi, Sizeof.FLOAT*nPixelsInRoi);
-    JCudaDriver.cuMemcpyDtoH(h_nullStdRoi, d_nullStdRoi, Sizeof.FLOAT*nPixelsInRoi);
+      JCudaDriver.cuLaunchKernel(kernel, nBlockX, nBlockY, 1, this.blockDimX, this.blockDimY, 1,
+          0, null, kernelParameters, null);
 
-    //free memory and close device
-    JCudaDriver.cuMemFree(d_cache);
-    JCudaDriver.cuMemFree(d_initialSigmaRoi);
-    JCudaDriver.cuMemFree(d_bandwidthRoi);
-    JCudaDriver.cuMemFree(d_kernelPointers);
-    JCudaDriver.cuMemFree(d_nullMeanRoi);
-    JCudaDriver.cuMemFree(d_nullStdRoi);
-    JCudaDriver.cuCtxDestroy(context);
-    JCuda.cudaDeviceReset();
+      //copy results over, device to host
+      JCudaDriver.cuMemcpyDtoH(h_nullMeanRoi, d_nullMeanRoi, Sizeof.FLOAT*nPixelsInRoi);
+      JCudaDriver.cuMemcpyDtoH(h_nullStdRoi, d_nullStdRoi, Sizeof.FLOAT*nPixelsInRoi);
+    } catch (Exception exception) {
+      throw exception;
+    } finally {
+      //free memory and close device
+      for (int i=0; i<devicePointerArray.size(); i++) {
+        JCudaDriver.cuMemFree(devicePointerArray.get(i));
+      }
+      JCudaDriver.cuCtxDestroy(context);
+      JCuda.cudaDeviceReset();
+    }
 
     //copy roi image to the actual image
     //do the filtering given the null mean and null std
