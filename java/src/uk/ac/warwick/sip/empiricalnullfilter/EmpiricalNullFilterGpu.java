@@ -155,7 +155,7 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
         nullMeanRoi[roiPointer] = median[imagePointer];
         bandwidthRoi[roiPointer] = std[imagePointer];
 
-        //bandwidth, iqr version
+        //bandwidth and iqr
         iqr = (q3[imagePointer] - q1[imagePointer]) / 1.34f;
         //handle iqr or std = 0
         if (Float.compare(bandwidthRoi[roiPointer], 0.0f) == 0) {
@@ -164,12 +164,14 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
         if (Float.compare(iqr, 0.0f) == 0) {
           iqr = bandwidthRoi[roiPointer];
         }
-        //min over iqr and std
+
+        //use standard deviation for generating random initial values
+        initialSigmaRoi[roiPointer] = bandwidthRoi[roiPointer];
+
+        //min over iqr and std, used for bandwidth
         if (iqr < bandwidthRoi[roiPointer]) {
           bandwidthRoi[roiPointer] = iqr;
         }
-
-        initialSigmaRoi[roiPointer] = bandwidthRoi[roiPointer];
         bandwidthRoi[roiPointer] *= this.bandwidthParameterB *
             ((float) Math.pow((double)Kernel.getKNPoints(), -0.2))
             + this.bandwidthParameterA;

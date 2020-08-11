@@ -59,6 +59,8 @@ public class EmpiricalNull {
   private float iqr;
   /**the user requested initial value*/
   private final float initialValue;
+  /**std used to generate new initial values*/
+  private float initialSigma;
 
   /**empirical null mean*/
   private float nullMean;
@@ -201,7 +203,7 @@ public class EmpiricalNull {
    * @return original initial value plus Gaussian noise.
    */
   private float getRandomInitial() {
-    return this.initialValue + ((float) this.rng.nextGaussian()) * this.dataStd;
+    return this.initialValue + ((float) this.rng.nextGaussian()) * this.initialSigma;
   }
 
   //METHOD: FIND MODE
@@ -400,6 +402,8 @@ public class EmpiricalNull {
     if (Float.compare(this.iqr, 0.0f) == 0) {
       this.iqr = this.dataStd * 1.34f;
     }
+    //set initialSigma, used for generating new initial values
+    this.initialSigma = this.dataStd;
     //get the bandwidth for the density estimate
     this.bandwidth = (this.bandwidthParameterB * ( (float) Math.pow((double) this.n, -0.2))
         + this.bandwidthParameterA) * Math.min(this.dataStd, this.iqr/1.34f);
