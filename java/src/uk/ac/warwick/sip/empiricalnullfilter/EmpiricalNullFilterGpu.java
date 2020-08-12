@@ -116,6 +116,7 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
     int[] nPoints = {Kernel.getKNPoints()};
     int[] nInitial = {this.nInitial};
     int[] nStep = {this.nStep};
+    int[] cacheSharedWidth = {this.blockDimX + 2*Kernel.getKRadius()};
 
     //get image to be filtered
     float[] pixels = (float[]) this.imageProcessor.getPixels();
@@ -212,6 +213,7 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
     Pointer h_nPoints = Pointer.to(nPoints);
     Pointer h_nInitial = Pointer.to(nInitial);
     Pointer h_nStep = Pointer.to(nStep);
+    Pointer h_cacheSharedWidth = Pointer.to(cacheSharedWidth);
 
     //device pointers
     CUdeviceptr d_roiWidth = new CUdeviceptr();
@@ -223,6 +225,7 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
     CUdeviceptr d_nPoints = new CUdeviceptr();
     CUdeviceptr d_nInitial = new CUdeviceptr();
     CUdeviceptr d_nStep = new CUdeviceptr();
+    CUdeviceptr d_cacheSharedWidth = new CUdeviceptr();
 
     long[] size = new long[1];
 
@@ -236,6 +239,7 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
     JCudaDriver.cuModuleGetGlobal(d_nPoints, size, module, "nPoints");
     JCudaDriver.cuModuleGetGlobal(d_nInitial, size, module, "nInitial");
     JCudaDriver.cuModuleGetGlobal(d_nStep, size, module, "nStep");
+    JCudaDriver.cuModuleGetGlobal(d_cacheSharedWidth, size, module, "cacheSharedWidth");
 
     //copy from host to device
     JCudaDriver.cuMemcpyHtoD(d_roiWidth, h_roiWidth, Sizeof.INT);
@@ -247,6 +251,7 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
     JCudaDriver.cuMemcpyHtoD(d_nPoints, h_nPoints, Sizeof.INT);
     JCudaDriver.cuMemcpyHtoD(d_nInitial, h_nInitial, Sizeof.INT);
     JCudaDriver.cuMemcpyHtoD(d_nStep, h_nStep, Sizeof.INT);
+    JCudaDriver.cuMemcpyHtoD(d_cacheSharedWidth, h_cacheSharedWidth, Sizeof.INT);
 
     //perpare to send variables through kernel
     //host pointers
@@ -301,12 +306,16 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
           Pointer.to(d_nullStdRoi)
       );
 
+      //shared memory
+      int sharedMemorySize = (this.blockDimX+2*kernelRadius[0]) * (this.blockDimY+2*kernelRadius[0])
+          * Sizeof.FLOAT;
+
       //call kernel
       int nBlockX = (roiWidth[0] + this.blockDimX - 1) / this.blockDimX;
       int nBlockY = (roiHeight[0] + this.blockDimY - 1) / this.blockDimY;
 
       JCudaDriver.cuLaunchKernel(kernel, nBlockX, nBlockY, 1, this.blockDimX, this.blockDimY, 1,
-          0, null, kernelParameters, null);
+          sharedMemorySize, null, kernelParameters, null);
 
       //copy results over, device to host
       JCudaDriver.cuMemcpyDtoH(h_nullMeanRoi, d_nullMeanRoi, Sizeof.FLOAT*nPixelsInRoi);

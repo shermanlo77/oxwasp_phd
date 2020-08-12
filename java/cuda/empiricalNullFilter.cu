@@ -12,6 +12,7 @@ __constant__ int kernelHeight;
 __constant__ int nPoints; //number of points in kernel
 __constant__ int nInitial; //number of initial values for Newton-Raphson
 __constant__ int nStep; //number of steps for Newton-Raphson
+__constant__ int cacheSharedWidth; //the width of the shared memory cache
 
 /**FUNCTION: Get derivative
  * Set dxLnF to contain derivatives of the density estimate (of values in the
@@ -26,12 +27,12 @@ __constant__ int nStep; //number of steps for Newton-Raphson
  *     2. the first derivative of the log density
  *     3. the second derivative of the log density
  */
-__device__ void getDLnDensity(float* cache, float bandwidth,
+__device__ void getDLnDensity(float* cacheShared, float bandwidth,
     int* kernelPointers, float* value, float* dxLnF) {
 
   //coordinates of the centre of the kernel
-  int x0 = threadIdx.x + blockIdx.x * blockDim.x;
-  int y0 = threadIdx.y + blockIdx.y * blockDim.y;
+  int x0 = threadIdx.x;
+  int y0 = threadIdx.y;
 
   //variables when going through all pixels in the kernel
   int cachePointer; //pointer for cache
@@ -45,8 +46,8 @@ __device__ void getDLnDensity(float* cache, float bandwidth,
     //for each column for this row
     for (int dx=kernelPointers[i++]; dx<=kernelPointers[i]; dx++) {
       //append to sum
-      cachePointer = (y+kernelRadius)*cacheWidth + x0 + dx + kernelRadius;
-      z = (cache[cachePointer] - *value) / bandwidth;
+      cachePointer = (y+kernelRadius)*cacheSharedWidth + x0 + dx + kernelRadius;
+      z = (cacheShared[cachePointer] - *value) / bandwidth;
       phiZ = expf(-z*z/2);
       sumKernel[0] += phiZ;
       sumKernel[1] += phiZ * z;
@@ -78,15 +79,15 @@ __device__ void getDLnDensity(float* cache, float bandwidth,
  *   secondDiffLn: MODIFIED second derivative of the log density
  * RETURNS: true if sucessful, false otherwise
  */
-__device__ bool findMode(float* cache, float bandwidth, int* kernelPointers,
+__device__ bool findMode(float* cacheShared, float bandwidth, int* kernelPointers,
     float* nullMean, float* secondDiffLn, float* densityAtMode) {
   float dxLnF[3];
   //nStep of Newton-Raphson
   for (int i=0; i<nStep; i++) {
-    getDLnDensity(cache, bandwidth, kernelPointers, nullMean, dxLnF);
+    getDLnDensity(cacheShared, bandwidth, kernelPointers, nullMean, dxLnF);
     *nullMean -= dxLnF[1] / dxLnF[2];
   }
-  getDLnDensity(cache, bandwidth, kernelPointers, nullMean, dxLnF);
+  getDLnDensity(cacheShared, bandwidth, kernelPointers, nullMean, dxLnF);
   //need to check if answer is valid
   if (isfinite(*nullMean) && isfinite(dxLnF[0]) && isfinite(dxLnF[1])
       && isfinite(dxLnF[2]) && (dxLnF[2] < 0)) {
@@ -119,17 +120,37 @@ extern "C" __global__ void empiricalNullFilter(float* cache,
     float* initialSigmaRoi, float* bandwidthRoi, int* kernelPointers,
     float* nullMeanRoi, float* nullStdRoi) {
 
-  int x = threadIdx.x + blockIdx.x * blockDim.x;
-  int y = threadIdx.y + blockIdx.y * blockDim.y;
-  int threadId = y*roiWidth + x;
+  int x0 = threadIdx.x + blockIdx.x * blockDim.x;
+  int y0 = threadIdx.y + blockIdx.y * blockDim.y;
+  int threadId = y0*roiWidth + x0;
 
-  if (x < roiWidth && y < roiHeight) {
+  extern __shared__ float cacheShared[];
+
+  if (x0 < roiWidth && y0 < roiHeight) {
+
+    //variables when going through all pixels in the kernel
+    int cachePointer; //pointer for cache
+    int cacheSharedPointer; //pointer for cacheShared
+    float y = y0 - kernelRadius; //y coordinate when looping through kernel
+
+    //for each row in the kernel
+    for (int i=0; i<2*kernelHeight; i++) {
+      //for each column for this row
+      for (int dx=kernelPointers[i++]; dx<=kernelPointers[i]; dx++) {
+        //append to sum
+        cachePointer = (y+kernelRadius)*cacheWidth + x0 + dx + kernelRadius;
+        cacheSharedPointer = (threadIdx.y+kernelRadius+y-y0)*cacheSharedWidth
+            + threadIdx.x + dx + kernelRadius;
+        cacheShared[cacheSharedPointer] = cache[cachePointer];
+      }
+      y++;
+    }
 
     //for rng
     curandState_t state;
     curand_init(0, threadId, 0, &state);
 
-    int roiPointer = y*roiWidth + x;
+    int roiPointer = y0*roiWidth + x0;
 
     //try different initial values, the first one is the median, then add normal
         //noise to the median for different initial values
@@ -147,7 +168,7 @@ extern "C" __global__ void empiricalNullFilter(float* cache,
     float maxDensityAtMode = -INFINITY;
 
     for (int i=0; i<nInitial; i++) {
-      isSuccess = findMode(cache, bandwidth, kernelPointers, &nullMean,
+      isSuccess = findMode(cacheShared, bandwidth, kernelPointers, &nullMean,
           &secondDiffLn, &densityAtMode);
       //keep nullMean and nullStd with the highest density
       if (isSuccess) {
