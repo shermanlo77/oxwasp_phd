@@ -33,25 +33,26 @@ __device__ void getDLnDensity(float* cacheShared, float bandwidth,
   int y0 = threadIdx.y;
 
   //variables when going through all pixels in the kernel
-  int cachePointer; //pointer for cache
   float z; //value of a pixel when looping through kernel
-  float y = y0 - kernelRadius; //y coordinate when looping through kernel
   float sumKernel[3] = {0.0f}; //store sums of weights
   float phiZ; //weight, use Gaussian kernel
+
+  //pointer for cacheShared
+  //point to the top left of the kernel
+  float* cachePointer = cacheShared + y0*cacheSharedWidth + x0 + kernelRadius;
 
   //for each row in the kernel
   for (int i=0; i<2*kernelHeight; i++) {
     //for each column for this row
     for (int dx=kernelPointers[i++]; dx<=kernelPointers[i]; dx++) {
       //append to sum
-      cachePointer = (y+kernelRadius)*cacheSharedWidth + x0 + dx + kernelRadius;
-      z = (cacheShared[cachePointer] - *value) / bandwidth;
+      z = (*(cachePointer+dx) - *value) / bandwidth;
       phiZ = expf(-z*z/2);
       sumKernel[0] += phiZ;
       sumKernel[1] += phiZ * z;
       sumKernel[2] += phiZ * z * z;
     }
-    y++;
+    cachePointer += cacheSharedWidth;
   }
 
   //work out derivatives
@@ -97,6 +98,32 @@ __device__ bool findMode(float* cacheShared, float bandwidth, int* kernelPointer
   }
 }
 
+/**FUNCTION: COPY CACHE TO SHARED MEMORY
+ * Parameters:
+ *   cachedShared: pointer to shared memory
+ *   cache: pointer to cache
+ *   kernelPointers: see empiricalNullFilter
+ */
+__device__ void copyCacheToSharedMemory(float* cacheShared, float* cache,
+    int* kernelPointers) {
+  //copy cache to shared memory
+  int x0 = threadIdx.x + blockIdx.x * blockDim.x;
+  int y0 = threadIdx.y + blockIdx.y * blockDim.y;
+  //point to top left
+  float* cachePointer = cache + y0*cacheWidth + x0 + kernelRadius;
+  float* cacheSharedPointer = cacheShared + threadIdx.y*cacheSharedWidth
+      + threadIdx.x + kernelRadius;
+  //for each row in the kernel
+  for (int i=0; i<2*kernelHeight; i++) {
+    //for each column for this row
+    for (int dx=kernelPointers[i++]; dx<=kernelPointers[i]; dx++) {
+      *(cacheSharedPointer+dx) = *(cachePointer+dx);
+    }
+    cachePointer += cacheWidth;
+    cacheSharedPointer += cacheSharedWidth;
+  }
+}
+
 /**KERNEL: Empirical Null Filter
  * Does the empirical null filter on the pixels in cache, giving the empirical
  *     null mean (aka mode) and the empirical null std.
@@ -129,39 +156,26 @@ extern "C" __global__ void empiricalNullFilter(float* cache,
       + (blockDim.x+2*kernelRadius) * (blockDim.y+2*kernelRadius);
     float* secondDiffShared = nullMeanShared + blockDim.x * blockDim.y;
 
-    //variables when going through all pixels in the kernel
-    int cachePointer; //pointer for cache
-    int cacheSharedPointer; //pointer for cacheShared
-    float y = y0 - kernelRadius; //y coordinate when looping through kernel
+    //copy cache to shared memory
+    copyCacheToSharedMemory(cacheShared, cache, kernelPointers);
 
-    //copy cache to shared memroy
-    //for each row in the kernel
-    for (int i=0; i<2*kernelHeight; i++) {
-      //for each column for this row
-      for (int dx=kernelPointers[i++]; dx<=kernelPointers[i]; dx++) {
-        cachePointer = (y+kernelRadius)*cacheWidth + x0 + dx + kernelRadius;
-        cacheSharedPointer = (threadIdx.y+kernelRadius+y-y0)*cacheSharedWidth
-            + threadIdx.x + dx + kernelRadius;
-        cacheShared[cacheSharedPointer] = cache[cachePointer];
-      }
-      y++;
-    }
-
-    int roiPointer = y0*roiWidth + x0;
-    int nullMeanSharedPointer = threadIdx.y*blockDim.x + threadIdx.x;
-    //for rng
-    curandState_t state;
-    curand_init(0, roiPointer, 0, &state);
+    int roiIndex = y0*roiWidth + x0;
+    int nullSharedIndex = threadIdx.y*blockDim.x + threadIdx.x;
+    float* nullMeanSharedPointer = nullMeanShared + nullSharedIndex;
+    float* secondDiffSharedPointer = secondDiffShared + nullSharedIndex;
 
     //try different initial values, the first one is the median, then add normal
         //noise to the median for different initial values
-    float nullMean = nullMeanRoi[roiPointer]; //median
-    //store the locatio of the mode
-    nullMeanShared[nullMeanSharedPointer] = nullMean;
-    float initial0 = nullMean;
-    float sigma = initialSigmaRoi[roiPointer]; //how much noise to add
-
-    float bandwidth = bandwidthRoi[roiPointer]; //bandwidth for density estimate
+    //for rng
+    curandState_t state;
+    curand_init(0, roiIndex, 0, &state);
+    //nullMean used to store mode for each initial value
+    float nullMean = nullMeanRoi[roiIndex]; //use median as first initial
+    //modes with highest densities are stored in shared memory
+    *nullMeanSharedPointer = nullMean;
+    float initial0 = nullMean; //used to centre new initial values
+    float sigma = initialSigmaRoi[roiIndex]; //how much noise to add
+    float bandwidth = bandwidthRoi[roiIndex]; //bandwidth for density estimate
     bool isSuccess; //indiciate if newton-raphson was sucessful
     float densityAtMode; //density for this particular mode
     //second derivative of the log density, to set empirical null std
@@ -177,8 +191,8 @@ extern "C" __global__ void empiricalNullFilter(float* cache,
       if (isSuccess) {
         if (densityAtMode > maxDensityAtMode) {
           maxDensityAtMode = densityAtMode;
-          nullMeanShared[nullMeanSharedPointer] = nullMean;
-          secondDiffShared[nullMeanSharedPointer] = -secondDiffLn;
+          *nullMeanSharedPointer = nullMean;
+          *secondDiffSharedPointer = -secondDiffLn;
         }
       }
 
@@ -186,8 +200,8 @@ extern "C" __global__ void empiricalNullFilter(float* cache,
       nullMean = initial0 + sigma * curand_normal(&state);
     }
 
-    nullMeanRoi[roiPointer] = nullMeanShared[nullMeanSharedPointer];
-    nullStdRoi[roiPointer] = powf(
-        -secondDiffShared[nullMeanSharedPointer], -0.5f);
+    //store final results
+    nullMeanRoi[roiIndex] = *nullMeanSharedPointer;
+    nullStdRoi[roiIndex] = powf(-*secondDiffSharedPointer, -0.5f);
   }
 }
