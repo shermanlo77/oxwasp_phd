@@ -374,11 +374,11 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
     return this.blockDimY;
   }
 
-  protected void setBlockDimX(int blockDimX) {
+  void setBlockDimX(int blockDimX) {
     this.blockDimX = blockDimX;
   }
 
-  protected void setBlockDimY(int blockDimY) {
+  void setBlockDimY(int blockDimY) {
     this.blockDimY = blockDimY;
   }
 
