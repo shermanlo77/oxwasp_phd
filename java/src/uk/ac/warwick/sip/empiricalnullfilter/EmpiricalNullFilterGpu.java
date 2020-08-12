@@ -299,7 +299,9 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
       );
 
       //shared memory
-      int sharedMemorySize = (this.blockDimX+2*kernelRadius[0]) * (this.blockDimY+2*kernelRadius[0])
+      int sharedMemorySize = (
+          (this.blockDimX+2*kernelRadius[0]) * (this.blockDimY+2*kernelRadius[0])
+          + 2*(this.blockDimX * this.blockDimY))
           * Sizeof.FLOAT;
 
       //call kernel

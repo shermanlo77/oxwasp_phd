@@ -120,11 +120,14 @@ extern "C" __global__ void empiricalNullFilter(float* cache,
 
   int x0 = threadIdx.x + blockIdx.x * blockDim.x;
   int y0 = threadIdx.y + blockIdx.y * blockDim.y;
-  int threadId = y0*roiWidth + x0;
-
-  extern __shared__ float cacheShared[];
 
   if (x0 < roiWidth && y0 < roiHeight) {
+
+    //get shared memory
+    extern __shared__ float cacheShared[];
+    float* nullMeanShared = cacheShared
+      + (blockDim.x+2*kernelRadius) * (blockDim.y+2*kernelRadius);
+    float* secondDiffShared = nullMeanShared + blockDim.x * blockDim.y;
 
     //variables when going through all pixels in the kernel
     int cachePointer; //pointer for cache
@@ -144,16 +147,18 @@ extern "C" __global__ void empiricalNullFilter(float* cache,
       y++;
     }
 
+    int roiPointer = y0*roiWidth + x0;
+    int nullMeanSharedPointer = threadIdx.y*blockDim.x + threadIdx.x;
     //for rng
     curandState_t state;
-    curand_init(0, threadId, 0, &state);
-
-    int roiPointer = y0*roiWidth + x0;
+    curand_init(0, roiPointer, 0, &state);
 
     //try different initial values, the first one is the median, then add normal
         //noise to the median for different initial values
-    float initial0 = nullMeanRoi[roiPointer]; //median
-    float nullMean = initial0; //store the locatio of the mode
+    float nullMean = nullMeanRoi[roiPointer]; //median
+    //store the locatio of the mode
+    nullMeanShared[nullMeanSharedPointer] = nullMean;
+    float initial0 = nullMean;
     float sigma = initialSigmaRoi[roiPointer]; //how much noise to add
 
     float bandwidth = bandwidthRoi[roiPointer]; //bandwidth for density estimate
@@ -172,8 +177,8 @@ extern "C" __global__ void empiricalNullFilter(float* cache,
       if (isSuccess) {
         if (densityAtMode > maxDensityAtMode) {
           maxDensityAtMode = densityAtMode;
-          nullMeanRoi[roiPointer] = nullMean;
-          nullStdRoi[roiPointer] = powf(-secondDiffLn, -0.5f);
+          nullMeanShared[nullMeanSharedPointer] = nullMean;
+          secondDiffShared[nullMeanSharedPointer] = -secondDiffLn;
         }
       }
 
@@ -181,5 +186,8 @@ extern "C" __global__ void empiricalNullFilter(float* cache,
       nullMean = initial0 + sigma * curand_normal(&state);
     }
 
+    nullMeanRoi[roiPointer] = nullMeanShared[nullMeanSharedPointer];
+    nullStdRoi[roiPointer] = powf(
+        -secondDiffShared[nullMeanSharedPointer], -0.5f);
   }
 }
