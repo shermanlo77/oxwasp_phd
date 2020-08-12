@@ -56,11 +56,13 @@ public class Empirical_Null_Filter extends EmpiricalNullFilter{
           }
           radius = Float.parseFloat(args[3]);
           nInitial = Integer.parseInt(args[4]);
-          if (args.length == 7) {
-            dimX = Integer.parseInt(args[5]);
-            dimY = Integer.parseInt(args[6]);
-          } else {
-            throw new Exception();
+          if (!isCpu) {
+            if (args.length == 7) {
+              dimX = Integer.parseInt(args[5]);
+              dimY = Integer.parseInt(args[6]);
+            } else {
+              throw new Exception();
+            }
           }
           gotParameters = true;
         } catch (Exception exception) {
