@@ -6,10 +6,8 @@
 __constant__ int roiWidth;
 __constant__ int roiHeight;
 __constant__ int cacheWidth;
-__constant__ int cacheHeight;
 __constant__ int kernelRadius;
 __constant__ int kernelHeight;
-__constant__ int nPoints; //number of points in kernel
 __constant__ int nInitial; //number of initial values for Newton-Raphson
 __constant__ int nStep; //number of steps for Newton-Raphson
 __constant__ int cacheSharedWidth; //the width of the shared memory cache
@@ -133,11 +131,11 @@ extern "C" __global__ void empiricalNullFilter(float* cache,
     int cacheSharedPointer; //pointer for cacheShared
     float y = y0 - kernelRadius; //y coordinate when looping through kernel
 
+    //copy cache to shared memroy
     //for each row in the kernel
     for (int i=0; i<2*kernelHeight; i++) {
       //for each column for this row
       for (int dx=kernelPointers[i++]; dx<=kernelPointers[i]; dx++) {
-        //append to sum
         cachePointer = (y+kernelRadius)*cacheWidth + x0 + dx + kernelRadius;
         cacheSharedPointer = (threadIdx.y+kernelRadius+y-y0)*cacheSharedWidth
             + threadIdx.x + dx + kernelRadius;

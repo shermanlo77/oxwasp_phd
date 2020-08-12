@@ -207,10 +207,8 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
     Pointer h_roiWidth = Pointer.to(roiWidth);
     Pointer h_roiHeight = Pointer.to(roiHeight);
     Pointer h_cacheWidth = Pointer.to(cacheWidth);
-    Pointer h_cacheHeight = Pointer.to(cacheHeight);
     Pointer h_kernelRadius = Pointer.to(kernelRadius);
     Pointer h_kernelHeight = Pointer.to(kernelHeight);
-    Pointer h_nPoints = Pointer.to(nPoints);
     Pointer h_nInitial = Pointer.to(nInitial);
     Pointer h_nStep = Pointer.to(nStep);
     Pointer h_cacheSharedWidth = Pointer.to(cacheSharedWidth);
@@ -219,10 +217,8 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
     CUdeviceptr d_roiWidth = new CUdeviceptr();
     CUdeviceptr d_roiHeight = new CUdeviceptr();
     CUdeviceptr d_cacheWidth = new CUdeviceptr();
-    CUdeviceptr d_cacheHeight = new CUdeviceptr();
     CUdeviceptr d_kernelRadius = new CUdeviceptr();
     CUdeviceptr d_kernelHeight = new CUdeviceptr();
-    CUdeviceptr d_nPoints = new CUdeviceptr();
     CUdeviceptr d_nInitial = new CUdeviceptr();
     CUdeviceptr d_nStep = new CUdeviceptr();
     CUdeviceptr d_cacheSharedWidth = new CUdeviceptr();
@@ -233,10 +229,8 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
     JCudaDriver.cuModuleGetGlobal(d_roiWidth, size, module, "roiWidth");
     JCudaDriver.cuModuleGetGlobal(d_roiHeight, size, module, "roiHeight");
     JCudaDriver.cuModuleGetGlobal(d_cacheWidth, size, module, "cacheWidth");
-    JCudaDriver.cuModuleGetGlobal(d_cacheHeight, size, module, "cacheHeight");
     JCudaDriver.cuModuleGetGlobal(d_kernelRadius, size, module, "kernelRadius");
     JCudaDriver.cuModuleGetGlobal(d_kernelHeight, size, module, "kernelHeight");
-    JCudaDriver.cuModuleGetGlobal(d_nPoints, size, module, "nPoints");
     JCudaDriver.cuModuleGetGlobal(d_nInitial, size, module, "nInitial");
     JCudaDriver.cuModuleGetGlobal(d_nStep, size, module, "nStep");
     JCudaDriver.cuModuleGetGlobal(d_cacheSharedWidth, size, module, "cacheSharedWidth");
@@ -245,10 +239,8 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
     JCudaDriver.cuMemcpyHtoD(d_roiWidth, h_roiWidth, Sizeof.INT);
     JCudaDriver.cuMemcpyHtoD(d_roiHeight, h_roiHeight, Sizeof.INT);
     JCudaDriver.cuMemcpyHtoD(d_cacheWidth, h_cacheWidth, Sizeof.INT);
-    JCudaDriver.cuMemcpyHtoD(d_cacheHeight, h_cacheHeight, Sizeof.INT);
     JCudaDriver.cuMemcpyHtoD(d_kernelRadius, h_kernelRadius, Sizeof.INT);
     JCudaDriver.cuMemcpyHtoD(d_kernelHeight, h_kernelHeight, Sizeof.INT);
-    JCudaDriver.cuMemcpyHtoD(d_nPoints, h_nPoints, Sizeof.INT);
     JCudaDriver.cuMemcpyHtoD(d_nInitial, h_nInitial, Sizeof.INT);
     JCudaDriver.cuMemcpyHtoD(d_nStep, h_nStep, Sizeof.INT);
     JCudaDriver.cuMemcpyHtoD(d_cacheSharedWidth, h_cacheSharedWidth, Sizeof.INT);

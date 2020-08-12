@@ -40,6 +40,7 @@ public class BenchMarker {
       modeFilterGpu.setBlockDimY(dimY);
       modeFilter = (EmpiricalNullFilter) modeFilterGpu;
     }
+    modeFilter.setRadius(radius);
     modeFilter.setNInitial(nInitial);
     modeFilter.setOutputImage(0); //do not need other output images
 
