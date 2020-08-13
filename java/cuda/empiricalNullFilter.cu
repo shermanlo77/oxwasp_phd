@@ -16,7 +16,7 @@ __constant__ int cacheSharedWidth; //the width of the shared memory cache
  * Set dxLnF to contain derivatives of the density estimate (of values in the
  *     kernel) evaluated at a point
  * PARAMETERS:
- *   cache: see empiricalNullFilter
+ *   cachePointer: see empiricalNullFilter
  *   bandwidth: see findMode
  *   kernelPointers: see empiricalNullFilter
  *   value: where to evaluate the density estimate and the derivatives
@@ -25,12 +25,8 @@ __constant__ int cacheSharedWidth; //the width of the shared memory cache
  *     2. the first derivative of the log density
  *     3. the second derivative of the log density
  */
-__device__ void getDLnDensity(float* cacheShared, float bandwidth,
+__device__ void getDLnDensity(float* cachePointer, float bandwidth,
     int* kernelPointers, float* value, float* dxLnF) {
-
-  //coordinates of the centre of the kernel
-  int x0 = threadIdx.x;
-  int y0 = threadIdx.y;
 
   //variables when going through all pixels in the kernel
   float z; //value of a pixel when looping through kernel
@@ -39,7 +35,7 @@ __device__ void getDLnDensity(float* cacheShared, float bandwidth,
 
   //pointer for cacheShared
   //point to the top left of the kernel
-  float* cachePointer = cacheShared + y0*cacheSharedWidth + x0 + kernelRadius;
+  cachePointer -= kernelRadius*cacheSharedWidth;
 
   //for each row in the kernel
   for (int i=0; i<2*kernelHeight; i++) {
@@ -70,7 +66,7 @@ __device__ void getDLnDensity(float* cacheShared, float bandwidth,
  * The second derivative of the log density and the density (up to a constant)
  *     at the final answer is stored in secondDiffLn and densityAtMode.
  * PARAMETERS:
- *   cache: see empiricalNullFilter
+ *   cachePointer: see empiricalNullFilter
  *   bandwidth: bandwidth for the density estimate
  *   kernelPointers: see empiricalNullFilter
  *   nullMean: MODIFIED initial value for the Newton-Raphson method, modified
@@ -78,15 +74,16 @@ __device__ void getDLnDensity(float* cacheShared, float bandwidth,
  *   secondDiffLn: MODIFIED second derivative of the log density
  * RETURNS: true if sucessful, false otherwise
  */
-__device__ bool findMode(float* cacheShared, float bandwidth, int* kernelPointers,
-    float* nullMean, float* secondDiffLn, float* densityAtMode) {
+__device__ bool findMode(float* cachePointer, float bandwidth,
+    int* kernelPointers,float* nullMean, float* secondDiffLn,
+    float* densityAtMode) {
   float dxLnF[3];
   //nStep of Newton-Raphson
   for (int i=0; i<nStep; i++) {
-    getDLnDensity(cacheShared, bandwidth, kernelPointers, nullMean, dxLnF);
+    getDLnDensity(cachePointer, bandwidth, kernelPointers, nullMean, dxLnF);
     *nullMean -= dxLnF[1] / dxLnF[2];
   }
-  getDLnDensity(cacheShared, bandwidth, kernelPointers, nullMean, dxLnF);
+  getDLnDensity(cachePointer, bandwidth, kernelPointers, nullMean, dxLnF);
   //need to check if answer is valid
   if (isfinite(*nullMean) && isfinite(dxLnF[0]) && isfinite(dxLnF[1])
       && isfinite(dxLnF[2]) && (dxLnF[2] < 0)) {
@@ -104,23 +101,19 @@ __device__ bool findMode(float* cacheShared, float bandwidth, int* kernelPointer
  *   cache: pointer to cache
  *   kernelPointers: see empiricalNullFilter
  */
-__device__ void copyCacheToSharedMemory(float* cacheShared, float* cache,
+__device__ void copyCacheToSharedMemory(float* dest, float* source,
     int* kernelPointers) {
-  //copy cache to shared memory
-  int x0 = threadIdx.x + blockIdx.x * blockDim.x;
-  int y0 = threadIdx.y + blockIdx.y * blockDim.y;
   //point to top left
-  float* cachePointer = cache + y0*cacheWidth + x0 + kernelRadius;
-  float* cacheSharedPointer = cacheShared + threadIdx.y*cacheSharedWidth
-      + threadIdx.x + kernelRadius;
+  dest -= kernelRadius*cacheSharedWidth;
+  source -= kernelRadius*cacheWidth;
   //for each row in the kernel
   for (int i=0; i<2*kernelHeight; i++) {
     //for each column for this row
     for (int dx=kernelPointers[i++]; dx<=kernelPointers[i]; dx++) {
-      *(cacheSharedPointer+dx) = *(cachePointer+dx);
+      *(dest+dx) = *(source+dx);
     }
-    cachePointer += cacheWidth;
-    cacheSharedPointer += cacheSharedWidth;
+    source += cacheWidth;
+    dest += cacheSharedWidth;
   }
   __syncthreads();
 }
@@ -152,18 +145,23 @@ extern "C" __global__ void empiricalNullFilter(float* cache,
   if (x0 < roiWidth && y0 < roiHeight) {
 
     //get shared memory
-    extern __shared__ float cacheShared[];
-    float* nullMeanShared = cacheShared
-      + (blockDim.x+2*kernelRadius) * (blockDim.y+2*kernelRadius);
-    float* secondDiffShared = nullMeanShared + blockDim.x * blockDim.y;
-
-    //copy cache to shared memory
-    copyCacheToSharedMemory(cacheShared, cache, kernelPointers);
+    extern __shared__ float sharedMemory[];
+    float* nullMeanSharedPointer = sharedMemory;
+    float* secondDiffSharedPointer = nullMeanSharedPointer
+        + blockDim.x * blockDim.y;
+    float* cachePointer = secondDiffSharedPointer + blockDim.x * blockDim.y;
 
     int roiIndex = y0*roiWidth + x0;
     int nullSharedIndex = threadIdx.y*blockDim.x + threadIdx.x;
-    float* nullMeanSharedPointer = nullMeanShared + nullSharedIndex;
-    float* secondDiffSharedPointer = secondDiffShared + nullSharedIndex;
+
+    nullMeanSharedPointer += nullSharedIndex;
+    secondDiffSharedPointer += nullSharedIndex;
+    cache += (y0+kernelRadius)*cacheWidth + x0 + kernelRadius;
+    cachePointer += (threadIdx.y+kernelRadius)*cacheSharedWidth
+        + threadIdx.x + kernelRadius;
+
+    //copy cache to shared memory
+    copyCacheToSharedMemory(cachePointer, cache, kernelPointers);
 
     //for rng
     curandState_t state;
@@ -185,6 +183,7 @@ extern "C" __global__ void empiricalNullFilter(float* cache,
 
     //try different initial values, the first one is the median, then add normal
         //noise neighbouring shared memory nullMean for different initial values
+        //rotate from -1, itself and +1 from current pointer
     int min;
     int nNeighbour;
     float initial0;
@@ -200,7 +199,7 @@ extern "C" __global__ void empiricalNullFilter(float* cache,
     }
 
     for (int i=0; i<nInitial; i++) {
-      isSuccess = findMode(cacheShared, bandwidth, kernelPointers, &nullMean,
+      isSuccess = findMode(cachePointer, bandwidth, kernelPointers, &nullMean,
           &secondDiffLn, &densityAtMode);
       //keep nullMean and nullStd with the highest density
       if (isSuccess) {
