@@ -122,6 +122,7 @@ __device__ void copyCacheToSharedMemory(float* cacheShared, float* cache,
     cachePointer += cacheWidth;
     cacheSharedPointer += cacheSharedWidth;
   }
+  __syncthreads();
 }
 
 /**KERNEL: Empirical Null Filter
@@ -211,6 +212,7 @@ extern "C" __global__ void empiricalNullFilter(float* cache,
       }
 
       //try different initial value
+      __syncthreads();
       initial0 = *(nullMeanSharedPointer + i%nNeighbour + min);
       nullMean = (initial0 + median)/2 + sigma * curand_normal(&state);
     }
