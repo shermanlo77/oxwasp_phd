@@ -98,6 +98,7 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
     RankFilters rankFilters = new RankFilters();
     rankFilters.imageProcessor = this.imageProcessor;
     rankFilters.roi = this.roi;
+    rankFilters.setRadius(this.getRadius());
     rankFilters.filter();
 
     Rectangle roiRectangle = this.imageProcessor.getRoi();
