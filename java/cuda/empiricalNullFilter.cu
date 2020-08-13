@@ -164,16 +164,14 @@ extern "C" __global__ void empiricalNullFilter(float* cache,
     float* nullMeanSharedPointer = nullMeanShared + nullSharedIndex;
     float* secondDiffSharedPointer = secondDiffShared + nullSharedIndex;
 
-    //try different initial values, the first one is the median, then add normal
-        //noise to the median for different initial values
     //for rng
     curandState_t state;
     curand_init(0, roiIndex, 0, &state);
     //nullMean used to store mode for each initial value
     float nullMean = nullMeanRoi[roiIndex]; //use median as first initial
+    float median = nullMean;
     //modes with highest densities are stored in shared memory
     *nullMeanSharedPointer = nullMean;
-    float initial0 = nullMean; //used to centre new initial values
     float sigma = initialSigmaRoi[roiIndex]; //how much noise to add
     float bandwidth = bandwidthRoi[roiIndex]; //bandwidth for density estimate
     bool isSuccess; //indiciate if newton-raphson was sucessful
@@ -183,6 +181,22 @@ extern "C" __global__ void empiricalNullFilter(float* cache,
 
     //keep solution with the highest density
     float maxDensityAtMode = -INFINITY;
+
+    //try different initial values, the first one is the median, then add normal
+        //noise neighbouring shared memory nullMean for different initial values
+    int min;
+    int nNeighbour;
+    float initial0;
+    if (nullSharedIndex == 0) {
+      min = 0;
+    } else {
+      min = -1;
+    }
+    if (nullSharedIndex == blockDim.x*blockDim.y - 1) {
+      nNeighbour = 1 - min;
+    } else {
+      nNeighbour = 2 - min;
+    }
 
     for (int i=0; i<nInitial; i++) {
       isSuccess = findMode(cacheShared, bandwidth, kernelPointers, &nullMean,
@@ -197,7 +211,8 @@ extern "C" __global__ void empiricalNullFilter(float* cache,
       }
 
       //try different initial value
-      nullMean = initial0 + sigma * curand_normal(&state);
+      initial0 = *(nullMeanSharedPointer + i%nNeighbour + min);
+      nullMean = (initial0 + median)/2 + sigma * curand_normal(&state);
     }
 
     //store final results
