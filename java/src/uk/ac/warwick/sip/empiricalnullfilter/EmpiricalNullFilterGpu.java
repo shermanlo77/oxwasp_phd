@@ -154,19 +154,16 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
       rankFilters.filter();
 
       Rectangle roiRectangle = this.imageProcessor.getRoi();
+      int imageWidth = this.imageProcessor.getWidth();
+      int roiX = roiRectangle.x;
+      int roiY = roiRectangle.y;
 
       //get variables, put in [] to enumlate pointers
-      int[] imageWidth = {this.imageProcessor.getWidth()};
-      int[] imageHeight = {this.imageProcessor.getHeight()};
-      int[] roiX = {roiRectangle.x};
-      int[] roiY = {roiRectangle.y};
       int[] roiWidth = {roiRectangle.width};
       int[] roiHeight = {roiRectangle.height};
       int[] cacheWidth = {cache.getCacheWidth()};
-      int[] cacheHeight = {cache.getCacheHeight()};
       int[] kernelRadius = {Kernel.getKRadius()};
       int[] kernelHeight = {Kernel.getKHeight()};
-      int[] nPoints = {Kernel.getKNPoints()};
       int[] nInitial = {this.nInitial};
       int[] nStep = {this.nStep};
       int[] cacheSharedWidth = {this.blockDimX + 2*Kernel.getKRadius()};
@@ -205,7 +202,7 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
 
           //pointers
           roiPointer = y*roiWidth[0] + x;
-          imagePointer = (y+roiY[0])*imageWidth[0] + x + roiX[0];
+          imagePointer = (y+roiY)*imageWidth + x + roiX;
           //put median in nullMeanRoi so that they used as initial values
           nullMeanRoi[roiPointer] = median[imagePointer];
           bandwidthRoi[roiPointer] = std[imagePointer];
@@ -348,7 +345,7 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
       for (int y=0; y<roiHeight[0]; y++) {
         for (int x=0; x<roiWidth[0]; x++) {
           roiPointer = y*roiWidth[0] + x;
-          imagePointer = (y+roiY[0])*imageWidth[0] + x + roiX[0];
+          imagePointer = (y+roiY)*imageWidth + x + roiX;
           nullMean[imagePointer] = nullMeanRoi[roiPointer];
           nullStd[imagePointer] = nullStdRoi[roiPointer];
 
