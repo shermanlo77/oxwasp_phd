@@ -10,15 +10,8 @@ import uk.ac.warwick.sip.empiricalnullfilter.EmpiricalNullFilterGpu;
  */
 public class Empirical_Null_Filter_GPU extends EmpiricalNullFilterGpu{
 
-  //METHOD: SHOW PROGRESS
-  /**Use ImageJ to show progress bar
-   * @param percent
-   */
-  @Override
-  protected void showProgress(double percent) {
-    int nPasses2 = nPasses;
-    percent = (double)pass/nPasses2 + percent/nPasses2;
-    IJ.showProgress(percent);
+  public Empirical_Null_Filter_GPU() {
+    this.setProgress(true);
   }
 
 }

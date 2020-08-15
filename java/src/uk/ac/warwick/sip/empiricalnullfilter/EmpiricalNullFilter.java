@@ -882,19 +882,8 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   protected void showProgress(double percent) {
     if (this.isShowProgressBar) {
       int nPasses2 = nPasses;
-      percent = (double)this.pass/nPasses2 + percent/nPasses2;
-      //print progress bar
-      int length = 20;
-      int nArrow = (int) Math.round(percent * 20);
-      System.out.print("[");
-      for (int i=0; i<length; i++) {
-        if (i<=nArrow) {
-          System.out.print(">");
-        } else {
-          System.out.print(".");
-        }
-      }
-      System.out.println("]");
+      percent = (double)pass/nPasses2 + percent/nPasses2;
+      IJ.showProgress(percent);
     }
   }
 
