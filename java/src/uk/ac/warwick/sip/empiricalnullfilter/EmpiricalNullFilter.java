@@ -112,7 +112,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   protected Roi roi;
   /**used by showDialog, unused but needed in case deleted by automatic garbage collection*/
   private PlugInFilterRunner pfr;
-  private boolean isShowProgressBar = false;
+  protected boolean isShowProgressBar = false;
   /**The number of passes (color channels * stack slices)*/
   protected int nPasses = 1;
   protected int pass;

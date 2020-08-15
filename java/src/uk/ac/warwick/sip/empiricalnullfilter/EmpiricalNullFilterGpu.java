@@ -368,27 +368,29 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
       JCudaDriver.cuLaunchKernel(kernel, nBlockX, nBlockY, 1, this.blockDimX, this.blockDimY, 1,
           sharedMemorySize, null, kernelParameters, null);
 
-      //while the kernel is running, keep track of progress
-      CUstream cuStream = new CUstream();
-      //use try except to free cuStream when ending
-      try {
-        JCudaDriver.cuStreamCreate(cuStream, CUstream_flags.CU_STREAM_NON_BLOCKING);
-        int nPixelsDone = 0;
-        while (nPixelsDone != nPixelsInRoi) {
-          JCudaDriver.cuMemcpyDtoHAsync(h_progressRoi, d_progressRoi,
-              Sizeof.INT*nPixelsInRoi, cuStream);
-          JCudaDriver.cuStreamSynchronize(cuStream);
-          nPixelsDone = 0;
-          for (int i=0; i<nPixelsInRoi; i++) {
-            nPixelsDone += progressRoi.get(i);
+      if (this.isShowProgressBar) {
+        //while the kernel is running, keep track of progress
+        CUstream cuStream = new CUstream();
+        //use try except to free cuStream when ending
+        try {
+          JCudaDriver.cuStreamCreate(cuStream, CUstream_flags.CU_STREAM_NON_BLOCKING);
+          int nPixelsDone = 0;
+          while (nPixelsDone != nPixelsInRoi) {
+            JCudaDriver.cuMemcpyDtoHAsync(h_progressRoi, d_progressRoi,
+                Sizeof.INT*nPixelsInRoi, cuStream);
+            JCudaDriver.cuStreamSynchronize(cuStream);
+            nPixelsDone = 0;
+            for (int i=0; i<nPixelsInRoi; i++) {
+              nPixelsDone += progressRoi.get(i);
+            }
+            this.showProgress((double)nPixelsDone / (double)nPixelsInRoi);
           }
-          this.showProgress((double)nPixelsDone / (double)nPixelsInRoi);
         }
-      }
-      catch (Exception exception) {
-        //do nothing, just no progress bar
-      } finally {
-        JCudaDriver.cuStreamDestroy(cuStream);
+        catch (Exception exception) {
+          //do nothing, just no progress bar
+        } finally {
+          JCudaDriver.cuStreamDestroy(cuStream);
+        }
       }
 
       //copy results over, device to host
