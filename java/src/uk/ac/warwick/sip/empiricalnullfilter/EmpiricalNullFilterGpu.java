@@ -166,7 +166,8 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
       int[] kernelHeight = {Kernel.getKHeight()};
       int[] nInitial = {this.nInitial};
       int[] nStep = {this.nStep};
-      int[] cacheSharedWidth = {this.blockDimX + 2*Kernel.getKRadius()};
+      int[] cachePointerWidth = new int[1];
+      int[] isCopyCacheToShared = new int[1];
 
       //get image to be filtered
       float[] pixels = (float[]) this.imageProcessor.getPixels();
@@ -230,6 +231,27 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
         }
       }
 
+      //work out how much shared memory is needed
+      //shared memory to store (for each block):
+        //nullMean and nullStd
+        //cache with padding (padding is kernelRadius of length)
+      int sharedMemorySize = (2*this.blockDimX*this.blockDimY
+          + (this.blockDimX+2*kernelRadius[0])*(this.blockDimY+2*kernelRadius[0])) * Sizeof.FLOAT;
+      int[] maxSharedSize = new int[1];
+      JCudaDriver.cuDeviceGetAttribute(maxSharedSize,
+          CUdevice_attribute.CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK, device);
+
+      //check if shared memory is large enough, if not, don't allocate memory for cache
+      if (sharedMemorySize > maxSharedSize[0]) {
+        //only for nullMean and nullStd
+        sharedMemorySize = 2*this.blockDimX*this.blockDimY*Sizeof.FLOAT;
+        cachePointerWidth[0] = cacheWidth[0];
+        isCopyCacheToShared[0] = 0;
+      } else {
+        cachePointerWidth[0] = this.blockDimX + 2*kernelRadius[0];
+        isCopyCacheToShared[0] = 1;
+      }
+
       //perpare to send variables on contant GPU memory
       //host pointers
       Pointer h_roiWidth = Pointer.to(roiWidth);
@@ -239,7 +261,8 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
       Pointer h_kernelHeight = Pointer.to(kernelHeight);
       Pointer h_nInitial = Pointer.to(nInitial);
       Pointer h_nStep = Pointer.to(nStep);
-      Pointer h_cacheSharedWidth = Pointer.to(cacheSharedWidth);
+      Pointer h_cachePointerWidth = Pointer.to(cachePointerWidth);
+      Pointer h_isCopyCacheToShared = Pointer.to(isCopyCacheToShared);
 
       //device pointers
       CUdeviceptr d_roiWidth = new CUdeviceptr();
@@ -249,7 +272,8 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
       CUdeviceptr d_kernelHeight = new CUdeviceptr();
       CUdeviceptr d_nInitial = new CUdeviceptr();
       CUdeviceptr d_nStep = new CUdeviceptr();
-      CUdeviceptr d_cacheSharedWidth = new CUdeviceptr();
+      CUdeviceptr d_cachePointerWidth = new CUdeviceptr();
+      CUdeviceptr d_isCopyCacheToShared = new CUdeviceptr();
 
       long[] size = new long[1];
 
@@ -261,7 +285,8 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
       JCudaDriver.cuModuleGetGlobal(d_kernelHeight, size, module, "kernelHeight");
       JCudaDriver.cuModuleGetGlobal(d_nInitial, size, module, "nInitial");
       JCudaDriver.cuModuleGetGlobal(d_nStep, size, module, "nStep");
-      JCudaDriver.cuModuleGetGlobal(d_cacheSharedWidth, size, module, "cacheSharedWidth");
+      JCudaDriver.cuModuleGetGlobal(d_cachePointerWidth, size, module, "cachePointerWidth");
+      JCudaDriver.cuModuleGetGlobal(d_isCopyCacheToShared, size, module, "isCopyCacheToShared");
 
       //copy from host to device
       JCudaDriver.cuMemcpyHtoD(d_roiWidth, h_roiWidth, Sizeof.INT);
@@ -271,7 +296,8 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
       JCudaDriver.cuMemcpyHtoD(d_kernelHeight, h_kernelHeight, Sizeof.INT);
       JCudaDriver.cuMemcpyHtoD(d_nInitial, h_nInitial, Sizeof.INT);
       JCudaDriver.cuMemcpyHtoD(d_nStep, h_nStep, Sizeof.INT);
-      JCudaDriver.cuMemcpyHtoD(d_cacheSharedWidth, h_cacheSharedWidth, Sizeof.INT);
+      JCudaDriver.cuMemcpyHtoD(d_cachePointerWidth, h_cachePointerWidth, Sizeof.INT);
+      JCudaDriver.cuMemcpyHtoD(d_isCopyCacheToShared, h_isCopyCacheToShared, Sizeof.INT);
 
       //perpare to send variables through kernel
       //host pointers
@@ -308,7 +334,8 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
       JCudaDriver.cuMemcpyHtoD(d_cache, h_cache, Sizeof.FLOAT*nPixelsInCache);
       JCudaDriver.cuMemcpyHtoD(d_initialSigmaRoi, h_bandwidthRoi, Sizeof.FLOAT*nPixelsInRoi);
       JCudaDriver.cuMemcpyHtoD(d_bandwidthRoi, h_bandwidthRoi, Sizeof.FLOAT*nPixelsInRoi);
-      JCudaDriver.cuMemcpyHtoD(d_kernelPointers, h_kernelPointers, Sizeof.INT*2*Kernel.getKHeight());
+      JCudaDriver.cuMemcpyHtoD(d_kernelPointers, h_kernelPointers,
+          Sizeof.INT*2*Kernel.getKHeight());
       JCudaDriver.cuMemcpyHtoD(d_nullMeanRoi, h_nullMeanRoi, Sizeof.FLOAT*nPixelsInRoi);
       JCudaDriver.cuMemcpyHtoD(d_nullStdRoi, h_nullStdRoi, Sizeof.FLOAT*nPixelsInRoi);
 
@@ -322,16 +349,9 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
           Pointer.to(d_nullStdRoi)
       );
 
-      //shared memory
-      int sharedMemorySize = (
-          (this.blockDimX+2*kernelRadius[0]) * (this.blockDimY+2*kernelRadius[0])
-          + 2*(this.blockDimX * this.blockDimY))
-          * Sizeof.FLOAT;
-
       //call kernel
       int nBlockX = (roiWidth[0] + this.blockDimX - 1) / this.blockDimX;
       int nBlockY = (roiHeight[0] + this.blockDimY - 1) / this.blockDimY;
-
       JCudaDriver.cuLaunchKernel(kernel, nBlockX, nBlockY, 1, this.blockDimX, this.blockDimY, 1,
           sharedMemorySize, null, kernelParameters, null);
 

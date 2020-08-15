@@ -3,6 +3,13 @@
 
 //See empiricalNullFilter - this is the main entry
 //Notes: row major
+//Note: shared memory is used to store the empirical null mean and std. IF big
+    //enough, also the cache. Size becomes a problem if the kernel radius
+    //becomes too big, in this case, the cache lives in global memory and
+    //hopefully may be picked up in L1 and L2
+  //set cachePointerWidth = cacheWidth if isCopyCacheToShared is false
+  //set cachePointerWidth = blockDim.x + 2*kernelRadius if isCopyCacheToShared
+      //is true
 __constant__ int roiWidth;
 __constant__ int roiHeight;
 __constant__ int cacheWidth;
@@ -10,7 +17,8 @@ __constant__ int kernelRadius;
 __constant__ int kernelHeight;
 __constant__ int nInitial; //number of initial values for Newton-Raphson
 __constant__ int nStep; //number of steps for Newton-Raphson
-__constant__ int cacheSharedWidth; //the width of the shared memory cache
+__constant__ int cachePointerWidth; //the width of the shared memory cache
+__constant__ int isCopyCacheToShared; //indicate to copy cache to shared mem
 
 /**FUNCTION: Get derivative
  * Set dxLnF to contain derivatives of the density estimate (of values in the
@@ -35,7 +43,7 @@ __device__ void getDLnDensity(float* cachePointer, float bandwidth,
 
   //pointer for cacheShared
   //point to the top left of the kernel
-  cachePointer -= kernelRadius*cacheSharedWidth;
+  cachePointer -= kernelRadius*cachePointerWidth;
 
   //for each row in the kernel
   for (int i=0; i<2*kernelHeight; i++) {
@@ -48,7 +56,7 @@ __device__ void getDLnDensity(float* cachePointer, float bandwidth,
       sumKernel[1] += phiZ * z;
       sumKernel[2] += phiZ * z * z;
     }
-    cachePointer += cacheSharedWidth;
+    cachePointer += cachePointerWidth;
   }
 
   //work out derivatives
@@ -104,7 +112,7 @@ __device__ bool findMode(float* cachePointer, float bandwidth,
 __device__ void copyCacheToSharedMemory(float* dest, float* source,
     int* kernelPointers) {
   //point to top left
-  dest -= kernelRadius*cacheSharedWidth;
+  dest -= kernelRadius*cachePointerWidth;
   source -= kernelRadius*cacheWidth;
   //for each row in the kernel
   for (int i=0; i<2*kernelHeight; i++) {
@@ -113,7 +121,7 @@ __device__ void copyCacheToSharedMemory(float* dest, float* source,
       *(dest+dx) = *(source+dx);
     }
     source += cacheWidth;
-    dest += cacheSharedWidth;
+    dest += cachePointerWidth;
   }
   __syncthreads();
 }
@@ -149,19 +157,31 @@ extern "C" __global__ void empiricalNullFilter(float* cache,
     float* nullMeanSharedPointer = sharedMemory;
     float* secondDiffSharedPointer = nullMeanSharedPointer
         + blockDim.x * blockDim.y;
-    float* cachePointer = secondDiffSharedPointer + blockDim.x * blockDim.y;
+    float* cachePointer;
 
+    //offset by the x and y coordinates
     int roiIndex = y0*roiWidth + x0;
     int nullSharedIndex = threadIdx.y*blockDim.x + threadIdx.x;
 
+    //adjust pointer to the corresponding x y coordinates
+    cache += (y0+kernelRadius)*cacheWidth + x0 + kernelRadius;
+
+    //if the shared memory is big enough, copy the cache
+    //cachePointer points to shared memory if shared memory allows it, otherwise
+        //points to global memory
+    if (isCopyCacheToShared) {
+      cachePointer = secondDiffSharedPointer + blockDim.x * blockDim.y;
+      cachePointer += (threadIdx.y+kernelRadius)*cachePointerWidth
+          + threadIdx.x + kernelRadius;
+      //copy cache to shared memory
+      copyCacheToSharedMemory(cachePointer, cache, kernelPointers);
+    } else {
+      cachePointer = cache;
+    }
+
+    //adjust pointer to the corresponding x y coordinates
     nullMeanSharedPointer += nullSharedIndex;
     secondDiffSharedPointer += nullSharedIndex;
-    cache += (y0+kernelRadius)*cacheWidth + x0 + kernelRadius;
-    cachePointer += (threadIdx.y+kernelRadius)*cacheSharedWidth
-        + threadIdx.x + kernelRadius;
-
-    //copy cache to shared memory
-    copyCacheToSharedMemory(cachePointer, cache, kernelPointers);
 
     //for rng
     curandState_t state;
