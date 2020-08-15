@@ -142,10 +142,12 @@ __device__ void copyCacheToSharedMemory(float* dest, float* source,
  *       the empricial null mean afterwards.
  *   nullStdRoi: MODIFIED array of pixels (same size as ROI) to contain the
  *       empirical null std
+ *   progressRoi: MODIFIED array of pixels (same size as ROI) initally contains
+ *       all zeros. A filtered pixel will change it to a one.
  */
 extern "C" __global__ void empiricalNullFilter(float* cache,
     float* initialSigmaRoi, float* bandwidthRoi, int* kernelPointers,
-    float* nullMeanRoi, float* nullStdRoi) {
+    float* nullMeanRoi, float* nullStdRoi, int* progressRoi) {
 
   int x0 = threadIdx.x + blockIdx.x * blockDim.x;
   int y0 = threadIdx.y + blockIdx.y * blockDim.y;
@@ -226,7 +228,7 @@ extern "C" __global__ void empiricalNullFilter(float* cache,
         if (densityAtMode > maxDensityAtMode) {
           maxDensityAtMode = densityAtMode;
           *nullMeanSharedPointer = nullMean;
-          *secondDiffSharedPointer = -secondDiffLn;
+          *secondDiffSharedPointer = secondDiffLn;
         }
       }
 
@@ -239,5 +241,6 @@ extern "C" __global__ void empiricalNullFilter(float* cache,
     //store final results
     nullMeanRoi[roiIndex] = *nullMeanSharedPointer;
     nullStdRoi[roiIndex] = powf(-*secondDiffSharedPointer, -0.5f);
+    progressRoi[roiIndex] = 1;
   }
 }
