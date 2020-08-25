@@ -394,14 +394,16 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
       float[] nullMeanStd = new float[2];
       for (int y=0; y<roiHeight[0]; y++) {
         for (int x=0; x<roiWidth[0]; x++) {
-          roiPointer = y*roiWidth[0] + x;
-          imagePointer = (y+roiY)*imageWidth + x + roiX;
-          nullMean[imagePointer] = nullMeanRoi[roiPointer];
-          nullStd[imagePointer] = nullStdRoi[roiPointer];
+          if (this.roi.contains(this.roi.getBounds().x+x, this.roi.getBounds().y+y)) {
+            roiPointer = y*roiWidth[0] + x;
+            imagePointer = (y+roiY)*imageWidth + x + roiX;
+            nullMean[imagePointer] = nullMeanRoi[roiPointer];
+            nullStd[imagePointer] = nullStdRoi[roiPointer];
 
-          nullMeanStd[0] = nullMean[imagePointer];
-          nullMeanStd[1] = nullStd[imagePointer];
-          this.updatePixelInImage(pixels, imagePointer, nullMeanStd);
+            nullMeanStd[0] = nullMean[imagePointer];
+            nullMeanStd[1] = nullStd[imagePointer];
+            this.updatePixelInImage(pixels, imagePointer, nullMeanStd);
+          }
         }
       }
 

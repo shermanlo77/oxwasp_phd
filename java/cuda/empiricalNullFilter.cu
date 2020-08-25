@@ -127,7 +127,6 @@ __device__ void copyCacheToSharedMemory(float* dest, float* source,
     source += cacheWidth;
     dest += cachePointerWidth;
   }
-  __syncthreads();
 }
 
 /**KERNEL: Empirical Null Filter
@@ -155,103 +154,118 @@ extern "C" __global__ void empiricalNullFilter(float* cache,
 
   int x0 = threadIdx.x + blockIdx.x * blockDim.x;
   int y0 = threadIdx.y + blockIdx.y * blockDim.y;
+  //adjust pointer to the corresponding x y coordinates
+  cache += (y0+kernelRadius)*cacheWidth + x0 + kernelRadius;
+  //check if in roi
+  //&&isfinite(*cache) is not required as accessing the cache from this
+    //pixel is within bounds
+  bool isInRoi = x0 < roiWidth && y0 < roiHeight;
 
-  if (x0 < roiWidth && y0 < roiHeight) {
+  //get shared memory
+  extern __shared__ float sharedMemory[];
+  float* nullMeanSharedPointer = sharedMemory;
+  float* secondDiffSharedPointer = nullMeanSharedPointer
+      + blockDim.x * blockDim.y;
+  float* cachePointer;
 
-    //adjust pointer to the corresponding x y coordinates
-    cache += (y0+kernelRadius)*cacheWidth + x0 + kernelRadius;
+  //offset by the x and y coordinates
+  int roiIndex = y0*roiWidth + x0;
+  int nullSharedIndex = threadIdx.y*blockDim.x + threadIdx.x;
 
-    if (isfinite(*cache)) {
+  //if the shared memory is big enough, copy the cache
+  //cachePointer points to shared memory if shared memory allows it, otherwise
+      //points to global memory
+  if (isCopyCacheToShared) {
+    cachePointer = secondDiffSharedPointer + blockDim.x * blockDim.y;
+    cachePointer += (threadIdx.y+kernelRadius)*cachePointerWidth
+        + threadIdx.x + kernelRadius;
+    //copy cache to shared memory
+    if (isInRoi) {
+      copyCacheToSharedMemory(cachePointer, cache, kernelPointers);
+    }
+  } else {
+    cachePointer = cache;
+  }
+  __syncthreads();
 
-      //get shared memory
-      extern __shared__ float sharedMemory[];
-      float* nullMeanSharedPointer = sharedMemory;
-      float* secondDiffSharedPointer = nullMeanSharedPointer
-          + blockDim.x * blockDim.y;
-      float* cachePointer;
+  //adjust pointer to the corresponding x y coordinates
+  nullMeanSharedPointer += nullSharedIndex;
+  secondDiffSharedPointer += nullSharedIndex;
 
-      //offset by the x and y coordinates
-      int roiIndex = y0*roiWidth + x0;
-      int nullSharedIndex = threadIdx.y*blockDim.x + threadIdx.x;
+  //for rng
+  curandState_t state;
+  curand_init(0, roiIndex, 0, &state);
+  //nullMean used to store mode for each initial value
+  float nullMean;
+  float median;
+  float sigma; //how much noise to add
+  float bandwidth; //bandwidth for density estimate
 
-      //if the shared memory is big enough, copy the cache
-      //cachePointer points to shared memory if shared memory allows it,
-          //otherwise points to global memory
-      if (isCopyCacheToShared) {
-        cachePointer = secondDiffSharedPointer + blockDim.x * blockDim.y;
-        cachePointer += (threadIdx.y+kernelRadius)*cachePointerWidth
-            + threadIdx.x + kernelRadius;
-        //copy cache to shared memory
-        copyCacheToSharedMemory(cachePointer, cache, kernelPointers);
-      } else {
-        cachePointer = cache;
-      }
+  if (isInRoi) {
+    nullMean = nullMeanRoi[roiIndex]; //use median as first initial
+    median = nullMean;
+    //modes with highest densities are stored in shared memory
+    *nullMeanSharedPointer = nullMean;
+    sigma = initialSigmaRoi[roiIndex]; //how much noise to add
+    bandwidth = bandwidthRoi[roiIndex]; //bandwidth for density estimate
+  }
 
-      //adjust pointer to the corresponding x y coordinates
-      nullMeanSharedPointer += nullSharedIndex;
-      secondDiffSharedPointer += nullSharedIndex;
+  bool isSuccess; //indiciate if newton-raphson was sucessful
+  float densityAtMode; //density for this particular mode
+  //second derivative of the log density, to set empirical null std
+  float secondDiffLn;
+  //keep solution with the highest density
+  float maxDensityAtMode = -INFINITY;
 
-      //for rng
-      curandState_t state;
-      curand_init(0, roiIndex, 0, &state);
-      //nullMean used to store mode for each initial value
-      float nullMean = nullMeanRoi[roiIndex]; //use median as first initial
-      float median = nullMean;
-      //modes with highest densities are stored in shared memory
-      *nullMeanSharedPointer = nullMean;
-      float sigma = initialSigmaRoi[roiIndex]; //how much noise to add
-      float bandwidth = bandwidthRoi[roiIndex]; //bandwidth for density estimate
-      bool isSuccess; //indiciate if newton-raphson was sucessful
-      float densityAtMode; //density for this particular mode
-      //second derivative of the log density, to set empirical null std
-      float secondDiffLn;
+  //try different initial values, the first one is the median, then add
+      //normal noise neighbouring shared memory nullMean for different
+      //initial values rotate from -1, itself and +1 from current pointer
+  int min;
+  int nNeighbour;
+  float initial0;
+  if (nullSharedIndex == 0) {
+    min = 0;
+  } else {
+    min = -1;
+  }
+  if (nullSharedIndex == blockDim.x*blockDim.y - 1) {
+    nNeighbour = 1 - min;
+  } else {
+    nNeighbour = 2 - min;
+  }
 
-      //keep solution with the highest density
-      float maxDensityAtMode = -INFINITY;
-
-      //try different initial values, the first one is the median, then add
-          //normal noise neighbouring shared memory nullMean for different
-          //initial values rotate from -1, itself and +1 from current pointer
-      int min;
-      int nNeighbour;
-      float initial0;
-      if (nullSharedIndex == 0) {
-        min = 0;
-      } else {
-        min = -1;
-      }
-      if (nullSharedIndex == blockDim.x*blockDim.y - 1) {
-        nNeighbour = 1 - min;
-      } else {
-        nNeighbour = 2 - min;
-      }
-
-      for (int i=0; i<nInitial; i++) {
-        isSuccess = findMode(cachePointer, bandwidth, kernelPointers, &nullMean,
-            &secondDiffLn, &densityAtMode);
-        //keep nullMean and nullStd with the highest density
-        if (isSuccess) {
-          if (densityAtMode > maxDensityAtMode) {
-            maxDensityAtMode = densityAtMode;
-            *nullMeanSharedPointer = nullMean;
-            *secondDiffSharedPointer = secondDiffLn;
-          }
+  for (int i=0; i<nInitial; i++) {
+    if (isInRoi) {
+      isSuccess = findMode(cachePointer, bandwidth, kernelPointers, &nullMean,
+          &secondDiffLn, &densityAtMode);
+      //keep nullMean and nullStd with the highest density
+      if (isSuccess) {
+        if (densityAtMode > maxDensityAtMode) {
+          maxDensityAtMode = densityAtMode;
+          *nullMeanSharedPointer = nullMean;
+          *secondDiffSharedPointer = secondDiffLn;
         }
-
-        //try different initial value
-        __syncthreads();
-        initial0 = *(nullMeanSharedPointer + i%nNeighbour + min);
-        //ensure the initial value is finite, otherwise use previous solution
-        if (!isfinite(initial0)) {
-          initial0 = nullMean;
-        }
-        nullMean = (initial0 + median)/2 + sigma * curand_normal(&state);
       }
+    }
 
-      //store final results
-      nullMeanRoi[roiIndex] = *nullMeanSharedPointer;
-      nullStdRoi[roiIndex] = powf(-*secondDiffSharedPointer, -0.5f);
-      progressRoi[roiIndex] = 1;
+    //try different initial value
+    __syncthreads();
+
+    if (isInRoi) {
+      initial0 = *(nullMeanSharedPointer + i%nNeighbour + min);
+      //ensure the initial value is finite, otherwise use previous solution
+      if (!isfinite(initial0)) {
+        initial0 = nullMean;
+      }
+      nullMean = (initial0 + median)/2 + sigma * curand_normal(&state);
     }
   }
+
+  //store final results
+  if (isInRoi) {
+    nullMeanRoi[roiIndex] = *nullMeanSharedPointer;
+    nullStdRoi[roiIndex] = powf(-*secondDiffSharedPointer, -0.5f);
+    progressRoi[roiIndex] = 1;
+  }
+
 }
