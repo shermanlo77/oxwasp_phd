@@ -641,31 +641,8 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
           this.updatePixelInImage(values[0], valuesP, nullMeanStd);
           //for the next x, the initial value is this nullMean
           initialValue = nullMeanStd[0];
-          //for each requested output image, save that statistic
-          for (int i=0; i<this.n_image_output; i++) {
-            if ( (this.outputImagePointer >> i) % 2 == 1) {
-              switch (i) {
-                case 0:
-                  values[1][valuesP] = nullMeanStd[0];
-                  break;
-                case 1:
-                  values[2][valuesP] = nullMeanStd[1];
-                  break;
-                case 2:
-                  values[3][valuesP] = kernel.getStd();
-                  break;
-                case 3:
-                  values[4][valuesP] = kernel.getQuartiles()[0];
-                  break;
-                case 4:
-                  values[5][valuesP] = kernel.getQuartiles()[1];
-                  break;
-                case 5:
-                  values[6][valuesP] = kernel.getQuartiles()[2];
-                  break;
-              }
-            }
-          }
+          //update all the output images
+          this.updateOutputImages(values, valuesP, nullMeanStd, kernel);
         //if there are problems with the Newton-Raphson, then abort
         } catch (ConvergenceException exception) {
           isPreviousFinite = false;
@@ -728,6 +705,42 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     nullMeanStd[0] = empiricalNull.getNullMean();
     nullMeanStd[1] = empiricalNull.getNullStd();
     return nullMeanStd;
+  }
+
+  //METHOD: UPDATE OUTPUT IMAGES
+  /**Update the pixels in the output images, one pixel at a time
+   * @param values array of float [] for output values to be stored
+   * @param valuesP pointer to the pixel to be updated
+   * @param nullMeanStd 2-element array, mode and empirical null std of this pixel
+   * @param kernel contains pixels in the kernel and its statistics
+   */
+  protected void updateOutputImages(float[][] values, int valuesP, float[] nullMeanStd,
+      Kernel kernel) {
+    //for each requested output image, save that statistic
+    for (int i=0; i<this.n_image_output; i++) {
+      if ((this.outputImagePointer >> i) % 2 == 1) {
+        switch (i) {
+          case 0:
+            values[1][valuesP] = nullMeanStd[0];
+            break;
+          case 1:
+            values[2][valuesP] = nullMeanStd[1];
+            break;
+          case 2:
+            values[3][valuesP] = kernel.getStd();
+            break;
+          case 3:
+            values[4][valuesP] = kernel.getQuartiles()[0];
+            break;
+          case 4:
+            values[5][valuesP] = kernel.getQuartiles()[1];
+            break;
+          case 5:
+            values[6][valuesP] = kernel.getQuartiles()[2];
+            break;
+        }
+      }
+    }
   }
 
   //=====STATIC FUNCTIONS AND PROCEDURES=====

@@ -84,15 +84,6 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
     }
   }
 
-
-  /**OVERRIDE
-   * Reflective padding (to avoid branching on GPU)
-   */
-  @Override
-  protected Cache instantiateCache() {
-    return new CacheReflect(this.imageProcessor, this.roi);
-  }
-
   /**OVERRIDE
    * Do filtering on GPU
    */
@@ -187,6 +178,7 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
       float[] median = rankFilters.getOutputImage(Q2);
       float[] q1 = rankFilters.getOutputImage(Q1);
       float[] q3 = rankFilters.getOutputImage(Q3);
+      int[] nFinite = rankFilters.getNFinite();
       Arrays.fill(nullMean, Float.NaN);
       Arrays.fill(nullStd, Float.NaN);
 
@@ -234,7 +226,7 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
             bandwidthRoi[roiPointer] = iqr;
           }
           bandwidthRoi[roiPointer] *= this.bandwidthParameterB *
-              ((float) Math.pow((double)Kernel.getKNPoints(), -0.2))
+              ((float) Math.pow((double)nFinite[imagePointer], -0.2))
               + this.bandwidthParameterA;
         }
       }

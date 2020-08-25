@@ -6,13 +6,15 @@ import org.apache.commons.math3.random.RandomGenerator;
 
 class RankFilters extends EmpiricalNullFilter {
 
+  private int[] nFinite;
+
   public RankFilters() {
     this.outputImagePointer = STD + Q1 + Q2 + Q3;
   }
 
-  @Override
-  protected Cache instantiateCache() {
-    return new CacheReflect(this.imageProcessor, this.roi);
+  public void filter() {
+    this.nFinite = new int[this.imageProcessor.getPixelCount()];
+    super.filter();
   }
 
   @Override
@@ -21,11 +23,22 @@ class RankFilters extends EmpiricalNullFilter {
   }
 
   @Override
+  protected void updateOutputImages(float[][] values, int valuesP, float[] nullMeanStd,
+      Kernel kernel) {
+    super.updateOutputImages(values, valuesP, nullMeanStd, kernel);
+    this.nFinite[valuesP] = kernel.getNFinite();
+  }
+
+  @Override
   protected float[] getNullMeanStd(float initialValue, Kernel kernel, NormalDistribution normal,
       RandomGenerator rng) throws ConvergenceException{
     float[] dummy = new float[1];
     dummy[0] = initialValue;
     return dummy;
+  }
+
+  public int[] getNFinite() {
+    return this.nFinite;
   }
 
 }
