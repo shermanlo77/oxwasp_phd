@@ -1,5 +1,8 @@
 //MIT License
-//Copyright (c) 2019 Sherman Lo
+//Copyright (c) 2020 Sherman Lo
+
+/**Overrides Cache to have reflective padding rather than NaN padding
+ */
 
 package uk.ac.warwick.sip.empiricalnullfilter;
 

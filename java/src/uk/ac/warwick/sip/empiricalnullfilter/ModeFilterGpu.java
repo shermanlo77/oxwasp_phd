@@ -1,6 +1,9 @@
 //MIT License
 //Copyright (c) 2020 Sherman Lo
 
+/**GPU version of the Mode Filter
+ */
+
 package uk.ac.warwick.sip.empiricalnullfilter;
 
 import ij.IJ;

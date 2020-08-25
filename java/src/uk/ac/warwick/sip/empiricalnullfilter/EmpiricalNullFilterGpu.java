@@ -1,3 +1,17 @@
+//MIT License
+//Copyright (c) 2020 Sherman Lo
+
+/**GPU version of the Empirical Null Filter
+ *
+ * Runs the compiled CUDA code. The CUDA cude is compiled into a .ptx file which is then used by the
+ *     JCuda package.
+ * Tries to be as similar as the CPU version. Main difference is how the mode soutions are shared.
+ *     They are shared within block neighbours.
+ * Performance is affected by block dimensions, 16x16 and 32x32 were found to be best from very
+ *     from quick experimenting and eyeballing.
+ * Tolerance for Newton-Raphson is disabled as this introduces branching in GPU code.
+ */
+
 package uk.ac.warwick.sip.empiricalnullfilter;
 
 import ij.ImagePlus;

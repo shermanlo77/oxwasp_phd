@@ -1,3 +1,6 @@
+//MIT License
+//Copyright (c) 2020 Sherman Lo
+
 #include <cuda.h>
 #include <curand_kernel.h>
 
