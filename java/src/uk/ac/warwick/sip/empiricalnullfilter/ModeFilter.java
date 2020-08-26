@@ -12,7 +12,7 @@ public class ModeFilter extends EmpiricalNullFilter{
   //CONSTRUCTOR
   public ModeFilter() {
     this.outputImagePointer = 0;
-    this.n_image_output = 0;
+    this.nImageOutput = 0;
     this.flags = DOES_ALL + CONVERT_TO_FLOAT;
   }
 

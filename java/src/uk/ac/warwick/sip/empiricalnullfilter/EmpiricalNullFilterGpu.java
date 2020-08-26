@@ -418,7 +418,7 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
       }
 
       //copy pixels over to outputImageArrau
-      for (int i=0; i<this.n_image_output; i++) {
+      for (int i=0; i<this.nImageOutput; i++) {
         if ((this.outputImagePointer >> i) % 2 == 1) {
           switch (i) {
             case 0:

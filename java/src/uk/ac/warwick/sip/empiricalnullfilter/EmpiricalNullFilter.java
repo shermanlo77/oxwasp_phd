@@ -96,13 +96,13 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   /**this filter only works on 32-bit images, this is indicated in FLAGS*/
   protected int flags = DOES_32;
   /**number of output images which can be shown*/
-  protected int n_image_output = 6;
+  protected int nImageOutput = 6;
   /**which output images to show*/
   protected int outputImagePointer = NULL_MEAN + NULL_STD;
   /**array of float processors which contains images (or statistics) which are obtained from the
    *     filter itself, eg null mean, null std, std, q1, q2, q3
    */
-  protected FloatProcessor [] outputImageArray = new FloatProcessor[this.n_image_output];
+  protected FloatProcessor [] outputImageArray = new FloatProcessor[this.nImageOutput];
   /** radius of the kernel*/
   private double radius = 2;
 
@@ -193,7 +193,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
       ip.reset();
     }
     //show each requested output image
-    for (int i=0; i<this.n_image_output; i++) {
+    for (int i=0; i<this.nImageOutput; i++) {
       if ((outputImagePointer >> i) % 2 == 1) {
         ImagePlus output = new ImagePlus(OUTPUT_NAME[i], this.outputImageArray[i]);
         output.show();
@@ -220,12 +220,12 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     genericDialog.addNumericField("Radius", this.radius, 1, 6, "pixels");
 
     //checkbox each output image
-    if (this.n_image_output > 0) {
+    if (this.nImageOutput > 0) {
       genericDialog.addMessage("Output images");
       if (lastOutputImagePointer >= 0) {
         this.outputImagePointer = lastOutputImagePointer;
       }
-      for (int i=0; i<this.n_image_output; i++) {
+      for (int i=0; i<this.nImageOutput; i++) {
         boolean defaultBoolean = (this.outputImagePointer >> i) % 2 == 1;
         genericDialog.addCheckbox("Show "+OUTPUT_NAME[i], defaultBoolean);
       }
@@ -285,7 +285,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     }
     //get the output image options and save it
     this.outputImagePointer = 0;
-    for (int i=0; i<this.n_image_output; i++) {
+    for (int i=0; i<this.nImageOutput; i++) {
       boolean value = genericDialog.getNextBoolean();
       if (value) {
         int pointer = 1;
@@ -341,7 +341,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
    */
   public float [] getOutputImage(int outputImagePointer) {
     //for each output image
-    for (int i=0; i<this.n_image_output; i++) {
+    for (int i=0; i<this.nImageOutput; i++) {
       //if the user requested this output image, return it
       if ( (outputImagePointer >> i) % 2 == 1) {
         return (float [] ) this.outputImageArray[i].getPixels();
@@ -393,7 +393,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     //setup the kernel
     Kernel.setKernel(this.radius);
     //instantiate new images for each outout
-    for (int i=0; i<this.n_image_output; i++) {
+    for (int i=0; i<this.nImageOutput; i++) {
       if ((this.outputImagePointer >> i) % 2 == 1) {
         FloatProcessor outputProcessor = (FloatProcessor) this.imageProcessor.duplicate();
         float [] pixels = (float []) outputProcessor.getPixels();
@@ -531,12 +531,12 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
     //dim 1:
       //0. filtered image
       //1. 2. 3. ... are the output images
-    float[][] values = new float[this.n_image_output+1][];
+    float[][] values = new float[this.nImageOutput+1][];
     float [] pixels = (float[]) this.imageProcessor.getPixels();
     //get the pixels of the filtered image
     values[0] = pixels;
     //get the pixels of each of the output images (only if requested)
-    for (int i=0; i<this.n_image_output; i++) {
+    for (int i=0; i<this.nImageOutput; i++) {
       if ( (this.outputImagePointer >> i) % 2 == 1) {
         values[i+1] = (float[]) this.outputImageArray[i].getPixels();
       }
@@ -711,7 +711,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
   protected void updateOutputImages(float[][] values, int valuesP, float[] nullMeanStd,
       Kernel kernel) {
     //for each requested output image, save that statistic
-    for (int i=0; i<this.n_image_output; i++) {
+    for (int i=0; i<this.nImageOutput; i++) {
       if ((this.outputImagePointer >> i) % 2 == 1) {
         switch (i) {
           case 0:
