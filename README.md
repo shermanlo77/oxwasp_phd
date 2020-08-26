@@ -28,7 +28,7 @@ Requires *Maven* as well as *Java Runtime Environment* and *Java Development Kit
 ```
 mvn -f java package
 ```
-to compile the *Java* code. The compiled `.jar` file is stored in `java/target/Empirical_Null_Filter-2.0.jar` and can be used as an *ImageJ* plugin. Copies of libraries are stored in `java/target/libs/` and would need to be installed in *ImageJ* as well.
+to compile the *Java* code. The compiled `.jar` file is stored in `java/target/Empirical_Null_Filter-2.1.jar` and can be used as an *ImageJ* plugin. Copies of libraries are stored in `java/target/libs/` and would need to be installed in *ImageJ* as well.
 
 Download the data from [*Figshare*](https://figshare.com/s/d7371af48d950eeec592) and unzip the zip file. The data is stored in the directory `data/`. The `data/` directory can be stored elsewhere by specifying where it is in the *MATLAB* script `getDataDirectory.m`.
 

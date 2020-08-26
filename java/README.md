@@ -22,7 +22,7 @@ Go to `/java/` and run
 ```
 mvn package
 ```
-to compile the *Java* code. The compiled `.jar` file is stored in `java/target/Empirical_Null_Filter-2.0.jar` and can be used as an *ImageJ* plugin. Copies of libraries are stored in `java/target/libs/` and would need to be installed in *ImageJ* as well.
+to compile the *Java* code. The compiled `.jar` file is stored in `java/target/Empirical_Null_Filter-2.1.jar` and can be used as an *ImageJ* plugin. Copies of libraries are stored in `java/target/libs/` and would need to be installed in *ImageJ* as well.
 
 ## Options
 <img src=../publicImages/filter_gui.png><br>
