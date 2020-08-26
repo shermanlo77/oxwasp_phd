@@ -74,8 +74,6 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
     genericDialog.addMessage("Advanced options");
     genericDialog.addNumericField("number of initial values", this.getNInitial(), 0, 6, null);
     genericDialog.addNumericField("number of steps", this.getNStep(), 0, 6, null);
-    genericDialog.addNumericField("bandwidth A", this.getBandwidthA(), 2, 6, null);
-    genericDialog.addNumericField("bandwidth B", this.getBandwidthB(), 2, 6, null);
     genericDialog.addMessage("GPU options");
     genericDialog.addNumericField("Block dim x", this.getBlockDimX(), 0, 6, null);
     genericDialog.addNumericField("Block dim y", this.getBlockDimY(), 0, 6, null);
@@ -89,8 +87,6 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
     try {
       this.setNInitial((int) genericDialog.getNextNumber());
       this.setNStep((int) genericDialog.getNextNumber());
-      this.setBandwidthA((float) genericDialog.getNextNumber());
-      this.setBandwidthB((float) genericDialog.getNextNumber());
       this.setBlockDimX((int) genericDialog.getNextNumber());
       this.setBlockDimY((int) genericDialog.getNextNumber());
     } catch (InvalidValueException exception) {

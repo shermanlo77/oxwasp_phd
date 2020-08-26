@@ -48,3 +48,6 @@ inferenceSubRoi;
 
 disp('Front cover');
 frontCover;
+
+%gpu code
+defectDetectGpu;

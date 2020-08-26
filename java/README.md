@@ -7,7 +7,7 @@
 
 Where appropriate, please cite the thesis Lo, S.E. (2020). *Characterisation of Computed Tomography Noise in Projection Space with Applications to Additive Manufacturing*. PhD thesis, University of Warwick, Department of Statistics.
 
-<img src=.././publicImages/mandrillExample.jpg width=800><br>
+<img src=../publicImages/mandrillExample.jpg width=800><br>
 The mode filter applied on the [Mandrill test image](http://sipi.usc.edu/database/database.php?volume=misc). Top left to top right, bottom left to bottom right: mandrill test image, then the mode filter with radius of 2, 4, 8, 16, 32, 64, 128 applied.
 
 ## How to Compile (Linux recommended)
@@ -23,6 +23,44 @@ Go to `/java/` and run
 mvn package
 ```
 to compile the *Java* code. The compiled `.jar` file is stored in `java/target/Empirical_Null_Filter-2.0.jar` and can be used as an *ImageJ* plugin. Copies of libraries are stored in `java/target/libs/` and would need to be installed in *ImageJ* as well.
+
+## Options
+<img src=../publicImages/filter_gui.png><br>
+<ul>
+  <li>
+    Number of initial values
+    <ul>
+      <li>
+        Number of initial values for the Newton-Raphson method. Increase this for a more accurate filtering at a price of more computational time. Compared to other options, this has a big effort on the resulting image. The default value is 3 but should be in the order of 50-100 if this filter is to be applied to (non-Gaussian) images.
+      </li>
+    </ul>
+  </li>
+  <li>
+    Number of steps
+    <ul>
+      <li>
+        Number of iterations in the Newton-Raphson method. Increase this for a more accurate filtering at a price of more computational time.
+      </li>
+    </ul>
+  </li>
+  <li>
+    Log tolerance (CPU version only)
+    <ul>
+      <li>
+        The tolerance allowed for the Newton-Raphson method to accept the solution. Decrease this for a more accurate filtering at a price of more computational time.
+      </li>
+    </ul>
+  </li>
+  <li>
+    Block dim x and y (GPU version only)
+    <ul>
+      <li>
+        Sets the dimensions of the block of threads on the GPU. This affects the performance of the filter. Good suggestions are 16 and 32. Solutions are shared between within block neighbours.
+      </li>
+    </ul>
+  </li>
+
+</ul>
 
 ## About the Mode Filter
 The mode filter is an image filter much like the mean filter and median filter. They process each pixel in an image. For a given pixel, the value of the pixel is replaced by the mean or median over all pixels within a distance *r* away. The mean and median filter can be used in *ImageJ*, it results in a smoothing of the image.

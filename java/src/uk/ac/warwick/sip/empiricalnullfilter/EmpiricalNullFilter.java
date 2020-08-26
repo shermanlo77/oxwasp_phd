@@ -104,7 +104,7 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
    */
   protected FloatProcessor [] outputImageArray = new FloatProcessor[this.n_image_output];
   /** radius of the kernel*/
-  private double radius = 20;
+  private double radius = 2;
 
   /**the image to be filtered*/
   protected ImageProcessor imageProcessor;
@@ -268,10 +268,6 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
         0, 6, null);
     genericDialog.addNumericField("log tolerance", this.getLog10Tolerance(),
         2, 6, null);
-    genericDialog.addNumericField("bandwidth A", this.getBandwidthA(),
-        2, 6, null);
-    genericDialog.addNumericField("bandwidth B", this.getBandwidthB(),
-        2, 6, null);
   }
 
   //IMPLEMENTED: DIALOG ITEM CHANGED
@@ -312,8 +308,6 @@ public class EmpiricalNullFilter implements ExtendedPlugInFilter, DialogListener
       this.setNInitial((int) genericDialog.getNextNumber());
       this.setNStep((int) genericDialog.getNextNumber());
       this.setLog10Tolerance((float) genericDialog.getNextNumber());
-      this.setBandwidthA((float) genericDialog.getNextNumber());
-      this.setBandwidthB((float) genericDialog.getNextNumber());
     } catch (InvalidValueException exception) {
       throw exception;
     }
