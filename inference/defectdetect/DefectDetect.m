@@ -195,7 +195,7 @@ classdef (Abstract) DefectDetect < Experiment
       for iRadius = 1:numel(this.radiusArray)
         %filter the image
         radius = this.radiusArray(iRadius);
-        filter = EmpiricalNullFilter(radius);
+        filter = this.getFilter(radius);
         filter.filterRoi(this.zImage, this.scan.getRoiPath);
         %get the resulting filtered image and save it
         this.zFilterArray(:,:,iRadius) = filter.getFilteredImage();
@@ -204,6 +204,13 @@ classdef (Abstract) DefectDetect < Experiment
         %print progress
         this.printProgress(iRadius/numel(this.radiusArray));
       end
+    end
+    
+    %METHOD: GET FILTER
+    %Return the empirical null filter for a given radius, can be overridden
+        %to use GPU
+    function filter = getFilter(this, radius)
+      filter = EmpiricalNullFilter(radius);
     end
     
   end

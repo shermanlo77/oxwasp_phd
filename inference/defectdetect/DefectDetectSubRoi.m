@@ -72,7 +72,7 @@ classdef (Abstract) DefectDetectSubRoi < DefectDetect
         for iSegmentation = 1:this.scan.nSubSegmentation
         
           %filter the image
-          filter = EmpiricalNullFilter(radius);
+          filter = this.getFilter(radius);
           filter.filterRoi(this.zImage, this.scan.getSubRoiPath(iSegmentation));
           
           %get the resulting output images so far          
