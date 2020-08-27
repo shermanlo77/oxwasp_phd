@@ -11,7 +11,7 @@ Where appropriate, please cite the thesis Lo, S.E. (2020). *Characterisation of 
 The mode filter applied on the [Mandrill test image](http://sipi.usc.edu/database/database.php?volume=misc). Top left to top right, bottom left to bottom right: mandrill test image, then the mode filter with radius of 2, 4, 8, 16, 32, 64, 128 applied.
 
 ## How to Compile (Linux recommended)
-Requires *Maven* as well as *Java Runtime Environment* and *Java Development Kit*. For the use of GPU, requires *CUDA Developement Kit* which should include a *nvcc* compiler.
+Requires *Maven* as well as *Java Runtime Environment* and *Java Development Kit*. For the use of GPU, requires *CUDA Development Kit* which should include a *nvcc* compiler.
 
 Clone this repository.
 
