@@ -17,11 +17,9 @@ package uk.ac.warwick.sip.empiricalnullfilter;
 import ij.ImagePlus;
 import ij.Macro;
 import ij.gui.GenericDialog;
-import ij.plugin.filter.ExtendedPlugInFilter;
 import ij.plugin.filter.PlugInFilterRunner;
 import java.awt.Rectangle;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,8 +36,6 @@ import jcuda.driver.CUstream;
 import jcuda.driver.CUstream_flags;
 import jcuda.driver.JCudaDriver;
 import jcuda.runtime.JCuda;
-import org.apache.commons.math3.distribution.NormalDistribution;
-import org.apache.commons.math3.random.RandomGenerator;
 
 public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
 
@@ -144,6 +140,7 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
       Scanner scanner = new Scanner(inputStream);
       Scanner scannerAll = scanner.useDelimiter("\\A");
       String ptx = scannerAll.next();
+      scanner.close();
 
       //load CUDA kernel
       CUmodule module = new CUmodule();
@@ -345,7 +342,7 @@ public class EmpiricalNullFilterGpu extends EmpiricalNullFilter {
 
       //copy from host to device for the kernel parameters
       JCudaDriver.cuMemcpyHtoD(d_cache, h_cache, Sizeof.FLOAT*nPixelsInCache);
-      JCudaDriver.cuMemcpyHtoD(d_initialSigmaRoi, h_bandwidthRoi, Sizeof.FLOAT*nPixelsInRoi);
+      JCudaDriver.cuMemcpyHtoD(d_initialSigmaRoi, h_initialSigmaRoi, Sizeof.FLOAT*nPixelsInRoi);
       JCudaDriver.cuMemcpyHtoD(d_bandwidthRoi, h_bandwidthRoi, Sizeof.FLOAT*nPixelsInRoi);
       JCudaDriver.cuMemcpyHtoD(d_kernelPointers, h_kernelPointers,
           Sizeof.INT*2*Kernel.getKHeight());

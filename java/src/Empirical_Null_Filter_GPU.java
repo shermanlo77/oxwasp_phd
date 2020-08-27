@@ -1,7 +1,6 @@
 //MIT License
 //Copyright (c) 2019 Sherman Lo
 
-import ij.IJ;
 import uk.ac.warwick.sip.empiricalnullfilter.EmpiricalNullFilterGpu;
 
 //EMPIRICAL NULL FILTER

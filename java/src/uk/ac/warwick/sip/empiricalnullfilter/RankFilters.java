@@ -7,7 +7,6 @@
 package uk.ac.warwick.sip.empiricalnullfilter;
 
 import org.apache.commons.math3.distribution.NormalDistribution;
-import org.apache.commons.math3.random.MersenneTwister;
 import org.apache.commons.math3.random.RandomGenerator;
 
 class RankFilters extends EmpiricalNullFilter {

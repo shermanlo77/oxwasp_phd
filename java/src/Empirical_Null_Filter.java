@@ -1,8 +1,6 @@
 //MIT License
 //Copyright (c) 2019 Sherman Lo
 
-import ij.IJ;
-import java.util.Arrays;
 import uk.ac.warwick.sip.empiricalnullfilter.EmpiricalNullFilter;
 import uk.ac.warwick.sip.empiricalnullfilter.BenchMarker;
 

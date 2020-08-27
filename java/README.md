@@ -55,7 +55,7 @@ to compile the *Java* code. The compiled `.jar` file is stored in `java/target/E
     Block dim x and y (GPU version only)
     <ul>
       <li>
-        Sets the dimensions of the block of threads on the GPU. This affects the performance of the filter. Good suggestions are 16 and 32. Solutions are shared between within block neighbours.
+        Sets the dimensions of the block of threads on the GPU. This affects the performance of the filter. Good suggestions are 16 and 32. Solutions are shared between neighbours within blocks.
       </li>
     </ul>
   </li>

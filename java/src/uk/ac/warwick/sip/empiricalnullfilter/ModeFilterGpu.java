@@ -7,7 +7,6 @@
 package uk.ac.warwick.sip.empiricalnullfilter;
 
 import ij.IJ;
-import ij.gui.GenericDialog;
 import ij.process.ImageProcessor;
 
 public class ModeFilterGpu extends EmpiricalNullFilterGpu {
