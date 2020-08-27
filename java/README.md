@@ -11,7 +11,7 @@ Where appropriate, please cite the thesis Lo, S.E. (2020). *Characterisation of 
 The mode filter applied on the [Mandrill test image](http://sipi.usc.edu/database/database.php?volume=misc). Top left to top right, bottom left to bottom right: mandrill test image, then the mode filter with radius of 2, 4, 8, 16, 32, 64, 128 applied.
 
 ## How to Compile (Linux recommended)
-Requires *Maven* as well as *Java Runtime Environment* and *Java Development Kit*. For the use of GPU, requires *CUDA developement kit* which should include a *nvcc* compiler.
+Requires *Maven* as well as *Java Runtime Environment* and *Java Development Kit*. For the use of GPU, requires *CUDA Developement Kit* which should include a *nvcc* compiler.
 
 Clone this repository.
 
@@ -23,6 +23,13 @@ Go to `/java/` and run
 mvn package
 ```
 to compile the *Java* code. The compiled `.jar` file is stored in `java/target/Empirical_Null_Filter-2.1.jar` and can be used as an *ImageJ* plugin. Copies of libraries are stored in `java/target/libs/` and would need to be installed in *ImageJ* as well.
+
+## How to Install (*Fiji* recommended)
+Installation can be done by copying the `.jar` files to `Fiji`'s directories. Or on `Fiji`, click on the *Plugins* menu followed by *Install...* (or Ctrl + Shift + M). Install by copying:
+* `java/target/Empirical_Null_Filter-2.1.jar` to *Fiji*'s `plugins/` directory
+* `java/target/libs/commons-math3-3.6.1.jar` to *Fiji*'s `jars/` directory. This may have been done for you already
+* `java/target/libs/jcuda-10.1.0.jar` to *Fiji*'s `jars/` directory
+* `java/target/libs/jcuda-natives-10.1.0-linux-x86_64.jar` (or some variation) to *Fiji*'s `jars/` directory
 
 ## Options
 <img src=../publicImages/filter_gui.png><br>
