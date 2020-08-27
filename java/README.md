@@ -83,7 +83,7 @@ The mode filtered was implemented on the CPU by modifying existing *Java* code f
 
 One difficulty is that with the introduction of *CUDA* code, the ability to "compile once, run anywhere" is difficult to keep hold of. A design choice was that the user is to compile the *CUDA* code into a `.ptx` file. This is then followed by compiling the *Java* code with the `.ptx` file into a `.jar` file which can be installed as a Plugin in *ImageJ* or *Fiji*. The compiled `.jar` file can be used by *MATLAB* as well.
 
-## Futher Reading and References
+## Further Reading and References
 * Lo, S.E. (2020). *Characterisation of Computed Tomography Noise in Projection Space with Applications to Additive Manufacturing*. PhD thesis, University of Warwick, Department of Statistics.
 * Efron, B. (2004). Large-scale simultaneous hypothesis testing: The choice of a null hypothesis. *Journal of the American Statistical Association*, 99(465):96.
 * Griffin, L. D. (2000). Mean, median and mode filtering of images. *Proceedings of the Royal Society of London A: Mathematical, Physical and Engineering Sciences*, 456(2004):2995–3004.
