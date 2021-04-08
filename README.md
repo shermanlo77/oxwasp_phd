@@ -30,9 +30,9 @@ Run the command
 ```
 mvn -f modefilter package
 ```
-to compile the *Java* code for the empirical null filter. The compiled `.jar` files are `modefilter/target/Empirical_Null_Filter-X.X.X.jar` and other required libraries in `modefilter/target/libs/`. On startup, *MATLAB* read and recognise these `.jar` files using the directory specified in `javaclasspath.txt`.
+to compile the *Java* code for the empirical null filter. The compiled `.jar` files are `modefilter/target/Empirical_Null_Filter-X.X.X.jar` and other required libraries in `modefilter/target/libs/`. On startup, *MATLAB* read and recognise these `.jar` files using the file paths specified in `javaclasspath.txt`.
 
-Download the data from [*Figshare*](https://figshare.com/s/d7371af48d950eeec592) and unzip the zip file. The data is to be stored in the directory `data/`. Otherwise, the location of the data can be specified  in the *MATLAB* script `getDataDirectory.m`.
+Download the data from [*Figshare*](https://figshare.com/s/d7371af48d950eeec592) and unzip the zip file. The data is to be stored in the directory `data/`. The location of the `data` directory is specified in the *MATLAB* script `getDataDirectory.m`.
 
 The following *MATLAB* products are required:
 * Curve Fitting Toolbox
@@ -55,6 +55,6 @@ The repository contains *MATLAB* wrapper code so that the mode and empirical nul
 
 Requires *Maven* as well as *Java Runtime Environment* and *Java Development Kit*. For the use of a *Nvidia* GPU, requires *CUDA Development Kit* which should include a *nvcc* compiler.
 
-Follow the instructions in the <a href="https://github.com/shermanlo77/modefilter">`modefilter` repository</a> for compiling the code into `.jar` files. On startup, *MATLAB* read and recognise these `.jar` files using the directory specified in `javaclasspath.txt`.
+Follow the instructions in the <a href="https://github.com/shermanlo77/modefilter">`modefilter` repository</a> for compiling the code into `.jar` files. On startup, *MATLAB* read and recognise these `.jar` files using the file paths specified in `javaclasspath.txt`.
 
 The wrapper code are `inference/EmpiricalNullFilter.m` and `inference/EmpiricalNullFilterGpu.m`.
