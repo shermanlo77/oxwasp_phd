@@ -7,7 +7,7 @@
 
 Contains code to reproduce the thesis Lo, S.E. (2020). *Characterisation of Computed Tomography Noise in Projection Space with Applications to Additive Manufacturing*. PhD thesis, University of Warwick, Department of Statistics
 
-The *Java* source code for the empirical null filter *ImageJ* plugin is in the submodule `modefilter`. Please see the <a href="https://github.com/shermanlo77/modefilter">repository</a> for further information about the empirical null filter and mode filter *ImageJ* plugin.
+The *Java* source code for the mode and empirical null filter *ImageJ* plugin is in the submodule `modefilter`. Please see the <a href="https://github.com/shermanlo77/modefilter">`modefilter` repository</a> for further information about the empirical null filter and mode filter *ImageJ* plugin.
 
 *MATLAB* R2019a was used.
 
@@ -24,15 +24,15 @@ This thesis is a contribution to real-time quality control in additive manufactu
 The left-hand side shows an x-ray projection of an additive manufactured cuboid. Its edges appeared curved due to spot and panel effects and this can be fixed using shading correction. The right-hand side shows the *p*-values of the resulting inference. Lighter colours show evidence of a defect and they successfully highlighted voids put in there purposefully.
 
 ## How to Use (Linux recommended)
-Requires *Maven* as well as *Java Runtime Environment* and *Java Development Kit*. Run the command
+Requires *Maven* as well as *Java Runtime Environment* and *Java Development Kit*.
+
+Run the command
 ```
 mvn -f modefilter package
 ```
-to compile the *Java* code. The compiled `.jar` file is stored in `modefilter/target/Empirical_Null_Filter-X.X.X.jar` and can be used as an *ImageJ* plugin. Copies of libraries are stored in `modefilter/target/libs/` and would need to be installed in *ImageJ* as well.
+to compile the *Java* code for the empirical null filter. The compiled `.jar` files are `modefilter/target/Empirical_Null_Filter-X.X.X.jar` and other required libraries in `modefilter/target/libs/`. On startup, *MATLAB* read and recognise these `.jar` files using the directory specified in `javaclasspath.txt`.
 
-Download the data from [*Figshare*](https://figshare.com/s/d7371af48d950eeec592) and unzip the zip file. The data is stored in the directory `data/`. The `data/` directory can be stored elsewhere by specifying where it is in the *MATLAB* script `getDataDirectory.m`.
-
-On startup, *MATLAB* reads in the `.jar` files from the file `javaclasspath.txt`.
+Download the data from [*Figshare*](https://figshare.com/s/d7371af48d950eeec592) and unzip the zip file. The data is to be stored in the directory `data/`. Otherwise, the location of the data can be specified  in the *MATLAB* script `getDataDirectory.m`.
 
 The following *MATLAB* products are required:
 * Curve Fitting Toolbox
@@ -40,6 +40,21 @@ The following *MATLAB* products are required:
 * Optimization Toolbox
 * Statistics and Machine Learning Toolbox
 
-Run the file `make.m` to create the figures for the paper, this is an overnight job. 16GB of RAM recommended.
+Run the file `make.m` to create the figures for the thesis, this is an overnight job. 16GB of RAM recommended.
 
 The *LaTeX* file is stored in `reports/thesis/book.tex`.
+
+## *ImageJ* plugin
+
+Please see the <a href="https://github.com/shermanlo77/modefilter">`modefilter` repository</a> for further information about the empirical null filter and mode filter *ImageJ* plugin.
+
+
+## Mode and Empirical Null Filter *MATLAB* Wrapper
+
+The repository contains *MATLAB* wrapper code so that the mode and empirical null filter can be used in *MATLAB* for both the CPU and GPU version.
+
+Requires *Maven* as well as *Java Runtime Environment* and *Java Development Kit*. For the use of a *Nvidia* GPU, requires *CUDA Development Kit* which should include a *nvcc* compiler.
+
+Follow the instructions in the <a href="https://github.com/shermanlo77/modefilter">`modefilter` repository</a> for compiling the code into `.jar` files. On startup, *MATLAB* read and recognise these `.jar` files using the directory specified in `javaclasspath.txt`.
+
+The wrapper code are `inference/EmpiricalNullFilter.m` and `inference/EmpiricalNullFilterGpu.m`.
