@@ -1,5 +1,5 @@
-java/target/libs/commons-math3-3.6.1.jar
-java/target/libs/ij-1.52g.jar
-java/target/libs/jcuda-10.1.0.jar
-java/target/libs/jcuda-natives-10.1.0-linux-x86_64.jar
-java/target/Empirical_Null_Filter-2.1.jar
+modefilter/target/libs/commons-math3-3.6.1.jar
+modefilter/target/libs/ij-1.52g.jar
+modefilter/target/libs/jcuda-10.1.0.jar
+modefilter/target/libs/jcuda-natives-10.1.0-linux-x86_64.jar
+modefilter/target/Empirical_Null_Filter-2.1.1.jar

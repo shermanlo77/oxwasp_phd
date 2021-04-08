@@ -7,7 +7,7 @@
 
 Contains code to reproduce the thesis Lo, S.E. (2020). *Characterisation of Computed Tomography Noise in Projection Space with Applications to Additive Manufacturing*. PhD thesis, University of Warwick, Department of Statistics
 
-The *Java* source code for the empirical null filter *ImageJ* plugin is in the directory `java/src` and the *Maven* project file is in `java/pom.xml`. Please see <a href="java/README.md">`java/README.md`</a> for further information about the empirical null filter and mode filter *ImageJ* plugin.
+The *Java* source code for the empirical null filter *ImageJ* plugin is in the submodule `modefilter`. Please see the <a href="https://github.com/shermanlo77/modefilter">repository</a> for further information about the empirical null filter and mode filter *ImageJ* plugin.
 
 *MATLAB* R2019a was used.
 
@@ -26,9 +26,9 @@ The left-hand side shows an x-ray projection of an additive manufactured cuboid.
 ## How to Use (Linux recommended)
 Requires *Maven* as well as *Java Runtime Environment* and *Java Development Kit*. Run the command
 ```
-mvn -f java package
+mvn -f modefilter package
 ```
-to compile the *Java* code. The compiled `.jar` file is stored in `java/target/Empirical_Null_Filter-2.1.jar` and can be used as an *ImageJ* plugin. Copies of libraries are stored in `java/target/libs/` and would need to be installed in *ImageJ* as well.
+to compile the *Java* code. The compiled `.jar` file is stored in `modefilter/target/Empirical_Null_Filter-X.X.X.jar` and can be used as an *ImageJ* plugin. Copies of libraries are stored in `modefilter/target/libs/` and would need to be installed in *ImageJ* as well.
 
 Download the data from [*Figshare*](https://figshare.com/s/d7371af48d950eeec592) and unzip the zip file. The data is stored in the directory `data/`. The `data/` directory can be stored elsewhere by specifying where it is in the *MATLAB* script `getDataDirectory.m`.
 

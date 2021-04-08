@@ -1,0 +1,3 @@
+[submodule "modefilter"]
+	path = modefilter
+	url = git@github.com:shermanlo77/modefilter.git

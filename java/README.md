@@ -3,6 +3,8 @@
 * MIT License - all source code
 * Copyright (c) 2020 Sherman Lo
 
+## The mode filter is now available and maintained as its own <a href="https://github.com/shermanlo77/modefilter">GitHub repository</a>
+
 *ImageJ* plugins for the mode filter and empirical null filter. The mode filter is an edge preserving smoothing filter by taking the mode of the empirical density. This may have applications in image processing such as image segmentation. The filters were also implemented on a GPU using *CUDA* and *JCuda*. This speeds up the filtering by a huge margin.
 
 Where appropriate, please cite the thesis Lo, S.E. (2020). *Characterisation of Computed Tomography Noise in Projection Space with Applications to Additive Manufacturing*. PhD thesis, University of Warwick, Department of Statistics.
